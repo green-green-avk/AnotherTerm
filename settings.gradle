@@ -1,0 +1,1 @@
+include ':app', ':usbserial', ':MaterialSeekBarPreference', ':TelnetClient', ':PtyProcess', ':libusbmanager'

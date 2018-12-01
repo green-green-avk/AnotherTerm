@@ -1,0 +1,66 @@
+<?xml version="1.0" encoding="utf-8"?>
+<com.google.android.flexbox.FlexboxLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    app:alignItems="baseline"
+    app:flexDirection="row"
+    app:flexWrap="wrap">
+
+    <EditText
+        android:id="@+id/f_baudrate"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:hint="Baudrate"
+        android:inputType="number"
+        android:tag="baudrate" />
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="/" />
+
+    <Spinner
+        android:id="@+id/f_databits"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:entries="@array/uart_databits"
+        android:tag="databits/8/7/6/5" />
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="/" />
+
+    <Spinner
+        android:id="@+id/f_stopbits"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:entries="@array/uart_stopbits"
+        android:tag="stopbits/1/1.5/2" />
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="/" />
+
+    <Spinner
+        android:id="@+id/f_parity"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:entries="@array/uart_parity"
+        android:tag="parity/none/even/odd/mark/space" />
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="/" />
+
+    <Spinner
+        android:id="@+id/f_flowcontrol"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:entries="@array/uart_flowcontrol"
+        android:tag="flowcontrol/off/xon_xoff/rts_cts/dsr_dtr" />
+
+</com.google.android.flexbox.FlexboxLayout>

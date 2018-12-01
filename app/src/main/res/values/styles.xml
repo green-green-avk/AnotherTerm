@@ -1,0 +1,117 @@
+<resources>
+
+    <!-- Base application theme. -->
+    <style name="AppTheme" parent="Theme.AppCompat.Light.DarkActionBar">
+        <!-- Customize your theme here. -->
+        <item name="colorPrimary">@color/colorPrimary</item>
+        <item name="colorPrimaryDark">@color/colorPrimaryDark</item>
+        <item name="colorAccent">@color/colorAccent</item>
+        <item name="actionBarSize">24sp</item>
+        <item name="actionBarStyle">@style/AppActionBar</item>
+        <item name="toolbarStyle">@style/AppToolbar</item>
+        <item name="consoleScreenViewStyle">@style/AppConsoleScreenViewStyle</item>
+        <item name="extKeyboardViewStyle">@style/AppExtKeyboardViewStyle</item>
+        <item name="screenMouseViewStyle">@style/AppScreenMouseViewStyle</item>
+        <item name="fancyButtonStyle">@style/AppFancyButtonStyle</item>
+        <item name="htmlTextViewStyle">@style/AppHtmlTextView</item>
+    </style>
+
+    <style name="AppTheme.NoActionBar">
+        <item name="windowActionBar">false</item>
+        <item name="windowNoTitle">true</item>
+    </style>
+
+    <style name="AppTheme.NoActionBar.Fullscreen">
+        <item name="android:windowFullscreen">true</item>
+    </style>
+
+    <style name="AppTheme.AppBarOverlay" parent="ThemeOverlay.AppCompat.Dark.ActionBar" />
+
+    <style name="AppTheme.PopupOverlay" parent="ThemeOverlay.AppCompat.Light" />
+
+    <style name="AppTheme.Console.ActionBar" parent="ThemeOverlay.AppCompat.Dark.ActionBar">
+        <item name="actionMenuTextColor">@color/colorAccent</item>
+    </style>
+
+    <style name="AppSettingsTheme" parent="AppTheme">
+        <item name="android:textSize">16sp</item>
+        <item name="android:editTextColor">@android:color/widget_edittext_dark</item>
+        <item name="android:checkboxStyle">@style/AppSettingsCheckboxStyle</item>
+    </style>
+
+    <style name="AppSettingsTableHeaderTextStyle" parent="android:Widget.TextView">
+        <item name="android:textSize">12sp</item>
+    </style>
+
+    <style name="AppSettingsCheckboxStyle" parent="Widget.AppCompat.CompoundButton.CheckBox">
+        <item name="android:textColor">@android:color/tertiary_text_light</item>
+    </style>
+
+    <style name="AppScreenMouseOverlayTheme" parent="AppTheme">
+        <item name="android:windowFrame">@null</item>
+        <item name="android:windowBackground">@android:color/transparent</item>
+        <item name="android:windowIsFloating">false</item>
+        <item name="android:windowContentOverlay">@null</item>
+        <item name="android:windowTitleStyle">@null</item>
+        <item name="android:windowAnimationStyle">@android:style/Animation.Dialog</item>
+        <item name="android:windowSoftInputMode">stateUnspecified|adjustPan</item>
+        <item name="android:backgroundDimEnabled">false</item>
+        <item name="android:background">@android:color/transparent</item>
+        <item name="android:layout_margin">0dp</item>
+        <item name="android:padding">0dp</item>
+        <item name="android:layout_scale">1</item>
+        <item name="android:scaleX">1</item>
+        <item name="android:scaleY">1</item>
+        <item name="buttonStyle">@style/AppScreenMouseButtonStyle</item>
+    </style>
+
+    <style name="AppScreenMouseButtonStyle" parent="Widget.AppCompat.Button.Borderless">
+        <item name="android:background">@null</item>
+        <item name="android:layout_margin">1dp</item>
+        <item name="android:textColor">#808080</item>
+    </style>
+
+    <style name="AppActionBar" parent="Widget.AppCompat.ActionBar.Solid">
+        <item name="titleTextStyle">@style/AppTextAppearance.ActionBar.Title</item>
+        <item name="subtitleTextStyle">@style/AppTextAppearance.ActionBar.Subtitle</item>
+        <item name="actionButtonStyle">@style/AppWidget.AppCompat.ActionButton</item>
+        <item name="actionOverflowButtonStyle">@style/AppWidget.AppCompat.ActionButton.Overflow
+        </item>
+    </style>
+
+    <style name="AppToolbar" parent="Widget.AppCompat.Toolbar">
+        <item name="titleTextAppearance">@style/AppTextAppearance.ActionBar.Title</item>
+        <item name="subtitleTextAppearance">@style/AppTextAppearance.ActionBar.Subtitle</item>
+        <item name="actionButtonStyle">@style/AppWidget.AppCompat.ActionButton</item>
+        <item name="actionOverflowButtonStyle">@style/AppWidget.AppCompat.ActionButton.Overflow
+        </item>
+        <item name="android:minHeight">?attr/actionBarSize</item>
+        <item name="titleMargin">0sp</item>
+    </style>
+
+    <style name="AppTextAppearance.ActionBar.Title" parent="TextAppearance.AppCompat.Widget.ActionBar.Title">
+        <item name="android:textSize">16sp</item>
+    </style>
+
+    <style name="AppTextAppearance.ActionBar.Subtitle" parent="TextAppearance.AppCompat.Widget.ActionBar.Subtitle">
+        <item name="android:textSize">12sp</item>
+    </style>
+
+    <style name="AppWidget.AppCompat.ActionButton" parent="Widget.AppCompat.ActionButton">
+        <item name="android:minWidth">8sp</item>
+        <item name="android:minHeight">8sp</item>
+        <item name="android:paddingLeft">0sp</item>
+        <item name="android:paddingRight">0sp</item>
+        <item name="android:paddingStart">0sp</item>
+        <item name="android:paddingEnd">0sp</item>
+    </style>
+
+    <style name="AppWidget.AppCompat.ActionButton.Overflow" parent="Widget.AppCompat.ActionButton.Overflow">
+        <item name="android:minWidth">8sp</item>
+        <item name="android:minHeight">8sp</item>
+        <item name="android:paddingLeft">0sp</item>
+        <item name="android:paddingRight">0sp</item>
+        <item name="android:paddingStart">0sp</item>
+        <item name="android:paddingEnd">0sp</item>
+    </style>
+</resources>

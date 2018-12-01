@@ -1,0 +1,67 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:orientation="vertical">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal">
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="TERM="
+            tools:ignore="HardcodedText" />
+
+        <EditText
+            android:id="@+id/f_termstr"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:inputType="textPersonName"
+            android:tag="terminal_string"
+            android:text="xterm"
+            tools:ignore="HardcodedText" />
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal">
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/execute_" />
+
+        <EditText
+            android:id="@+id/f_execute"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:hint="@string/shell"
+            android:inputType="text|textMultiLine|textNoSuggestions"
+            android:tag="execute"
+            android:text="@string/example_local_param_execute" />
+
+    </LinearLayout>
+
+    <green_green_avk.anotherterm.ui.HtmlTextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginLeft="@dimen/text_margin"
+        android:layout_marginRight="@dimen/text_margin"
+        android:textStyle="italic"
+        app:xmlText="@string/desc_local_param_execute" />
+
+    <green_green_avk.anotherterm.ui.HtmlTextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginLeft="@dimen/text_margin"
+        android:layout_marginRight="@dimen/text_margin"
+        android:textStyle="italic"
+        app:xmlText="@string/desc_shell_env_help" />
+
+</LinearLayout>

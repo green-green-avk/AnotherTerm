@@ -1,0 +1,70 @@
+<?xml version="1.0" encoding="utf-8"?>
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+
+    <PreferenceCategory android:title="Font">
+
+        <com.pavelsikun.seekbarpreference.SeekBarPreferenceCompat
+            android:defaultValue="@integer/terminal_font_default_size_sp"
+            android:key="terminal_font_default_size_sp"
+            android:title="Default Size"
+            app:msbp_dialogEnabled="true"
+            app:msbp_interval="1"
+            app:msbp_maxValue="32"
+            app:msbp_measurementUnit="@string/unit_sp"
+            app:msbp_minValue="4" />
+    </PreferenceCategory>
+
+    <PreferenceCategory android:title="Selection">
+
+        <com.pavelsikun.seekbarpreference.SeekBarPreferenceCompat
+            android:defaultValue="@integer/terminal_selection_pad_size_dp"
+            android:key="terminal_selection_pad_size_dp"
+            android:title="Pad Size"
+            app:msbp_dialogEnabled="true"
+            app:msbp_interval="8"
+            app:msbp_maxValue="512"
+            app:msbp_measurementUnit="@string/unit_dp"
+            app:msbp_minValue="32" />
+    </PreferenceCategory>
+
+    <PreferenceCategory android:title="Screen Keyboard">
+        <com.pavelsikun.seekbarpreference.SeekBarPreferenceCompat
+            android:defaultValue="@integer/terminal_key_height_dp"
+            android:key="terminal_key_height_dp"
+            android:title="Key height"
+            app:msbp_dialogEnabled="true"
+            app:msbp_interval="1"
+            app:msbp_maxValue="64"
+            app:msbp_measurementUnit="@string/unit_dp"
+            app:msbp_minValue="16" />
+    </PreferenceCategory>
+
+    <PreferenceCategory android:title="Screen keyboard key repeat">
+
+        <SwitchPreference
+            android:defaultValue="@bool/terminal_key_repeat"
+            android:key="terminal_key_repeat"
+            android:summaryOff="Always disabled"
+            android:summaryOn="Allowed" />
+        <com.pavelsikun.seekbarpreference.SeekBarPreferenceCompat
+            android:defaultValue="@integer/terminal_key_repeat_delay"
+            android:key="terminal_key_repeat_delay"
+            android:title="Delay"
+            app:msbp_dialogEnabled="true"
+            app:msbp_interval="50"
+            app:msbp_maxValue="2000"
+            app:msbp_measurementUnit="@string/unit_ms"
+            app:msbp_minValue="100" />
+        <com.pavelsikun.seekbarpreference.SeekBarPreferenceCompat
+            android:defaultValue="@integer/terminal_key_repeat_interval"
+            android:key="terminal_key_repeat_interval"
+            android:title="Interval"
+            app:msbp_dialogEnabled="true"
+            app:msbp_interval="50"
+            app:msbp_maxValue="1000"
+            app:msbp_measurementUnit="@string/unit_ms"
+            app:msbp_minValue="100" />
+    </PreferenceCategory>
+
+</PreferenceScreen>

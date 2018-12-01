@@ -1,0 +1,83 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+<string name="desc_about"><![CDATA[
+<h1>Introduction</h1>
+<p>Why another one? Just to have:</p>
+<ul>
+    <li>UART, SSH, Telnet and local pty support in the same application;</li>
+    <li>Adequate screen input methods as long as a terminal requires specific keyboard
+    functions.</li>
+</ul>
+<h1>Features</h1>
+<ul>
+<li>Minimum supported Android version is 4.0 Ice Cream Sandwich.</li>
+<li>Supported USB UART devices: Generic USB CDC, CP210X, FTDI, PL2303, CH34x, CP2130 SPI-USB.</li>
+<li>Local Linux pty is supported. Feel free to use
+<a href=\"https://github.com/green-green-avk/build-proot-android/blob/master/README.md\">
+PRoot</a> with some Linux environment.</li>
+<li><a href=\"info://green_green_avk.anotherterm/termsh_man\">
+Shell tool</a> to interact with the Android environment is also present.
+<ul>
+<li>Content exchange between other applications and own files / pipes has been implemented.</li>
+<li>It also works in chrooted environments (PRoot at least).</li>
+<li>USB serial port dongle access from the command line is also implemented.</li>
+<li>libusb support on nonrooted Android
+[<a href=\"https://github.com/green-green-avk/AnotherTerm/wiki/Installing-libusb-for-nonrooted-Android\">how to install</a>].
+</li>
+</ul>
+</li>
+<li>Telnet (no encryption).</li>
+<li>Supported SSH features: zlib compression, port forwarding, password and public key authentication.</li>
+<li>No MoSH, sorry.</li>
+<li>Builtin screen keyboard and mouse.</li>
+<li>Different charsets and customizable key mapping support.</li>
+</ul>
+<h1>Links</h1>
+<ul>
+<li><a href=\"https://github.com/green-green-avk/AnotherTerm/wiki\">Wiki</a></li>
+<li><a href=\"https://github.com/green-green-avk/AnotherTerm\">Source at GitHub</a></li>
+</ul>
+<h1>Notes</h1>
+<p>Please, be aware, that key mapping of hardware input devices is provided by device vendors
+and it could make some troubles.
+For example: ASUS ZenFone 4 Max has the hardware keyboard `Home\' (KEYCODE_MOVE_HOME) key
+mapped as the Android middle (KEYCODE_HOME) button that makes it effectively invisible for
+applications.
+Most vendors also maps mouse right and middle buttons in some unexpected ways.
+Fortunately, mouse buttons mapping can usually be worked around.
+Most usual right mouse button mapping as the Android `Back\' (KEYCODE_BACK) button
+is supported by this application.
+The only way to change the vendor\'s mapping is to root your device and change appropriate files
+manually.</p>
+<p>Due to an USB bug in Android itself, it\'s highly recommended not to use the USB UART
+with devices running Android 5.1.1 Lollipop.
+See <a href=\"https://github.com/felHR85/UsbSerial/issues/142\">this issue</a> for more details.</p>
+<h1>Credits</h1>
+<p>Thanks to:</p>
+<ul>
+    <li><a href=\"https://github.com/felHR85\">felHR85</a> and other contributors for
+    <a href=\"https://github.com/felHR85/UsbSerial\">UsbSerial</a> library
+    (<a href=\"https://github.com/felHR85/UsbSerial/blob/master/LICENSE\">license</a>);</li>
+    <li><a href=\"http://www.jcraft.com/\">JCraft</a> for their
+    <a href=\"http://www.jcraft.com/jsch/\">JSch</a> SSH library
+    (<a href=\"http://www.jcraft.com/jsch/LICENSE.txt\">license</a>);</li>
+    <li>Creators of
+    <a href=\"https://www.fontsquirrel.com/fonts/dejavu-sans-mono\">DejaVu Sans Mono</a> font
+    (<a href=\"https://www.fontsquirrel.com/license/dejavu-sans-mono\">license</a>).</li>
+</ul>
+<h1>Cryptography usage note</h1>
+<p>The only part of this application that touches on cryptography is the SSH client used to
+communicate with remote systems. Currently this is provided by the JSch library.
+It does not directly implement any encryption,
+but instead relies on Java Cryptography Extension (JCE) and its providers that are a part of
+Android.</p>
+<p>This application is self-classified under ECCN 5D992 with the encryption authorization
+type identifier MMKT.</p>
+<h1>Disclaimer</h1>
+<p>It\'s unlawful to provide this application to or use by the prohibited entities listed in
+<a href=\"https://www.bis.doc.gov/index.php/policy-guidance/country-guidance/sanctioned-destinations\">Sanctioned Destinations</a>
+and
+<a href=\"https://www.bis.doc.gov/index.php/policy-guidance/lists-of-parties-of-concern\">Lists of Parties of Concern</a>
+.</p>
+]]></string>
+</resources>

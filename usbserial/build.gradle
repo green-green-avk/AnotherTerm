@@ -1,0 +1,5 @@
+configurations.maybeCreate("default")
+artifacts.add("default", file('usbserial.jar'))
+
+dependencies {
+}

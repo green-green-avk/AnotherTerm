@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Android with API before 21 cannot handle theme attribute references in resources -->
+    <item name="color_bottom_line_enabled" type="color">@android:color/primary_text_light</item>
+    <item name="color_bottom_line_disabled" type="color">@android:color/tertiary_text_light</item>
+</resources>

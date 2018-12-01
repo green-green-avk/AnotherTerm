@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<preference-headers xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <header
+        android:fragment="green_green_avk.anotherterm.SettingsActivity$TerminalPreferenceFragment"
+        android:icon="@drawable/ic_computer_black_24dp"
+        android:title="@string/action_settings_terminal" />
+    <header
+        android:fragment="green_green_avk.anotherterm.DozeFragment"
+        android:icon="@drawable/ic_battery_charging_full_black_24dp"
+        android:title="@string/action_settings_keepalive_and_battery_optimization" />
+
+</preference-headers>

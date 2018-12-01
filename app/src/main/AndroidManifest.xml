@@ -1,0 +1,136 @@
+<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    package="green_green_avk.anotherterm">
+
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
+    <uses-permission android:name="android.permission.INTERNET" />
+    <uses-permission android:name="android.permission.REQUEST_IGNORE_BATTERY_OPTIMIZATIONS" />
+    <uses-permission
+        android:name="android.permission.READ_EXTERNAL_STORAGE"
+        android:maxSdkVersion="20" />
+    <uses-permission
+        android:name="android.permission.WRITE_EXTERNAL_STORAGE"
+        android:maxSdkVersion="20" />
+
+    <application
+        android:name=".App"
+        android:allowBackup="false"
+        android:icon="@mipmap/ic_launcher"
+        android:label="@string/app_name"
+        android:resizeableActivity="true"
+        android:supportsPictureInPicture="false"
+        android:supportsRtl="true"
+        android:theme="@style/AppTheme"
+        tools:ignore="GoogleAppIndexingWarning">
+        <activity
+            android:name=".SessionsActivity"
+            android:label="@string/app_name"
+            android:theme="@style/AppTheme.NoActionBar">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
+        <activity
+            android:name=".SettingsActivity"
+            android:label="@string/title_activity_settings" />
+        <activity
+            android:name=".FavoriteEditorActivity"
+            android:configChanges="orientation|screenSize|keyboardHidden|keyboard"
+            android:label="@string/connection_settings_editor"
+            android:parentActivityName=".SessionsActivity"
+            android:theme="@style/AppSettingsTheme"
+            android:windowSoftInputMode="adjustResize">
+            <intent-filter>
+                <action android:name="android.intent.action.VIEW" />
+
+                <category android:name="android.intent.category.DEFAULT" />
+                <category android:name="android.intent.category.BROWSABLE" />
+
+                <data android:scheme="local_terminal" />
+                <data android:scheme="uart" />
+                <data android:scheme="ssh" />
+                <data android:scheme="telnet" />
+            </intent-filter>
+        </activity>
+        <activity
+            android:name=".SshKeysSettingsActivity"
+            android:label="@string/action_ssh_keys_settings"
+            android:parentActivityName=".SessionsActivity" />
+        <activity
+            android:name=".TermKeyMapManagerActivity"
+            android:label="@string/key_mapping"
+            android:parentActivityName=".SessionsActivity" />
+        <activity
+            android:name=".TermKeyMapEditorActivity"
+            android:configChanges="orientation|screenSize|keyboardHidden|keyboard"
+            android:label="@string/key_mapping"
+            android:parentActivityName=".TermKeyMapManagerActivity"
+            android:theme="@style/AppSettingsTheme"
+            android:windowSoftInputMode="adjustResize" />
+        <activity
+            android:name=".ConsoleActivity"
+            android:configChanges="keyboardHidden|keyboard"
+            android:label="Console"
+            android:launchMode="singleTop"
+            android:parentActivityName=".SessionsActivity"
+            android:theme="@style/AppTheme.NoActionBar.Fullscreen"
+            android:windowSoftInputMode="stateHidden|adjustNothing" />
+
+        <service
+            android:name=".ConsoleService"
+            android:enabled="true"
+            android:exported="false" />
+
+        <provider
+            android:name=".LinksProvider"
+            android:authorities="${applicationId}.linksprovider"
+            android:enabled="true"
+            android:exported="true"
+            tools:ignore="ExportedContentProvider" />
+
+        <provider
+            android:name="android.support.v4.content.FileProvider"
+            android:authorities="${applicationId}.fileprovider"
+            android:exported="false"
+            android:grantUriPermissions="true">
+            <meta-data
+                android:name="android.support.FILE_PROVIDER_PATHS"
+                android:resource="@xml/file_paths" />
+        </provider>
+
+        <provider
+            android:name=".StreamProvider"
+            android:authorities="${applicationId}.streamprovider"
+            android:exported="false"
+            android:grantUriPermissions="true" />
+
+        <activity
+            android:name=".RequesterActivity"
+            android:label="Select" />
+
+        <activity
+            android:name=".AboutActivity"
+            android:label="@string/title_about"
+            android:parentActivityName=".SessionsActivity" />
+        <activity
+            android:name=".InfoActivity"
+            android:exported="false"
+            android:label="@string/title_info"
+            tools:ignore="AppLinkUrlError">
+            <intent-filter>
+                <action android:name="android.intent.action.VIEW" />
+
+                <category android:name="android.intent.category.DEFAULT" />
+                <category android:name="android.intent.category.BROWSABLE" />
+
+                <data
+                    android:host="${applicationId}"
+                    android:scheme="info" />
+            </intent-filter>
+        </activity>
+    </application>
+
+</manifest>

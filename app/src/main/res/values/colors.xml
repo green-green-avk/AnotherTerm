@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="colorPrimary">#555555</color>
+    <color name="colorPrimaryDark">#333333</color>
+    <color name="colorAccent">#A3AE67</color>
+    <color name="colorAccenttissimo">#D8FF00</color>
+    <color name="colorAccenttissimoTr">#7fd8ff00</color>
+    <color name="colorHintWarning">#7F0000</color>
+    <color name="colorGlow">#FFFFFF</color>
+    <color name="colorShadow">#000000</color>
+    <color name="colorMiddle">#7F7F7F</color>
+    <color name="colorTextCursor">#7FFFFFFF</color>
+    <color name="colorTextSelection">#7F00FF00</color>
+</resources>

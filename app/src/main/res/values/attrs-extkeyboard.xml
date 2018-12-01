@@ -1,0 +1,66 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <declare-styleable name="ExtKeyboard">
+        <!-- Default width of a key, in pixels or percentage of display width. -->
+        <attr name="keyWidth" format="dimension|fraction" />
+        <!-- Default height of a key, in pixels or percentage of display width. -->
+        <attr name="keyHeight" format="dimension|fraction" />
+        <!-- Default horizontal gap between keys. Added to key size. -->
+        <attr name="horizontalGap" format="dimension|fraction" />
+        <!-- Default vertical gap between rows of keys. Added to key size. -->
+        <attr name="verticalGap" format="dimension|fraction" />
+        <!-- Horizontal padding around key. Included in key size. -->
+        <attr name="horizontalPad" format="dimension|fraction" />
+        <!-- Vertical padding around key. Included in key size. -->
+        <attr name="verticalPad" format="dimension|fraction" />
+        <!-- Layout info for key sizing purposes, giving rows/column counts of the base grid -->
+        <attr name="layoutRows" format="integer" />
+        <attr name="layoutColumns" format="integer" />
+    </declare-styleable>
+
+    <declare-styleable name="ExtKeyboard_Row">
+        <!-- Row edge flags. -->
+        <attr name="rowEdgeFlags">
+            <!-- Row is anchored to the top of the keyboard. -->
+            <flag name="top" value="4" />
+            <!-- Row is anchored to the bottom of the keyboard. -->
+            <flag name="bottom" value="8" />
+        </attr>
+        <!-- Mode of the keyboard. If the mode doesn't match the
+             requested keyboard mode, the row will be skipped. -->
+        <attr name="keyboardMode" format="reference" />
+        <attr name="extension" format="boolean" />
+    </declare-styleable>
+
+    <declare-styleable name="ExtKeyboard_Key">
+        <!-- The unicode value or comma-separated values that this key outputs. -->
+        <attr name="code" format="integer" />
+        <!-- The XML keyboard layout of any popup keyboard. -->
+        <attr name="popupKeyboard" format="reference" />
+        <!-- Key edge flags. -->
+        <attr name="keyEdgeFlags">
+            <!-- Key is anchored to the left of the keyboard. -->
+            <flag name="left" value="1" />
+            <!-- Key is anchored to the right of the keyboard. -->
+            <flag name="right" value="2" />
+        </attr>
+        <!-- Whether this is a modifier key. -->
+        <attr name="isModifier" format="boolean" />
+        <!-- Whether this is a toggle key. -->
+        <attr name="isSticky" format="boolean" />
+        <!-- Whether long-pressing on this key will make it repeat. -->
+        <attr name="isRepeatable" format="boolean" />
+        <!-- The string of characters to output when this key is pressed. -->
+        <attr name="keyOutputText" format="string" />
+        <!-- The label to display on the key. -->
+        <attr name="keyLabel" format="string" />
+        <!-- The icon to display on the key instead of the label. -->
+        <attr name="keyIcon" format="reference" />
+        <attr name="showBothLabels" format="boolean" />
+        <!-- Type -->
+        <attr name="type" format="enum">
+            <enum name="key" value="0" />
+            <enum name="led" value="1" />
+        </attr>
+    </declare-styleable>
+</resources>

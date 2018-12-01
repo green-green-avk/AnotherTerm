@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <declare-styleable name="FancyButton">
+        <attr name="fancyButtonStyle" format="reference" />
+        <attr name="touchMask" format="reference" />
+        <attr name="touchMaskDpi" format="float" />
+    </declare-styleable>
+
+    <style name="AppFancyButtonStyle">
+        <item name="touchMask">@null</item>
+        <item name="touchMaskDpi">10</item>
+    </style>
+</resources>

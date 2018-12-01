@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <item
+        android:id="@+id/fav_edit"
+        android:title="@string/action_edit" />
+    <item
+        android:id="@+id/fav_delete"
+        android:title="@string/action_delete" />
+    <item
+        android:id="@+id/fav_clone"
+        android:title="@string/action_clone" />
+</menu>

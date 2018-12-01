@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+<string name="desc_main_help"><![CDATA[
+<h1>Local shell</h1>
+<ul>
+<li><a href=\"info://green_green_avk.anotherterm/shell_env_man\">Environment</a></li>
+<li><a href=\"info://green_green_avk.anotherterm/termsh_man\">termsh</a></li>
+<li><a href=\"https://github.com/green-green-avk/AnotherTerm/wiki/Installing-Linux-under-PRoot\">Installing Linux under PRoot</a></li>
+<li><a href=\"https://github.com/green-green-avk/AnotherTerm/wiki/Installing-libusb-for-nonrooted-Android\">Installing libusb for nonrooted Android</a></li>
+</ul>
+]]></string>
+<string name="desc_keymap_escapes"><![CDATA[
+<h1>Key Map Escapes</h1>
+<p>All symbols are represented in the UTF-16 encoding and will be converted to the output stream
+in according to the current console character set.</p>
+<ul>
+<li><b>\\\\</b> &#x2014; `\\\'</li>
+<li><b>\\{000-377}</b> &#x2014; Octal symbol code</li>
+<li><b>\\u{0000-FFFF}</b> &#x2014; Hexidecimal symbol code</li>
+<li><b>\\e</b> &#x2014; Escape (\\u001B)</li>
+<li><b>\\a</b> &#x2014; Bell (\\u0007)</li>
+<li><b>\\b</b> &#x2014; Backspace (\\u0008)</li>
+<li><b>\\t</b> &#x2014; Tab (\\u0009)</li>
+<li><b>\\n</b> &#x2014; LF (\\u000A)</li>
+<li><b>\\v</b> &#x2014; Vertical tab (\\u000B)</li>
+<li><b>\\f</b> &#x2014; Form Feed (\\u000C)</li>
+<li><b>\\r</b> &#x2014; CR (\\u000D)</li>
+</ul>
+]]></string>
+</resources>

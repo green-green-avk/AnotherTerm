@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <style name="MSB_Dialog_Default">
+        <item name="msbp_dialogCancel">@android:string/cancel</item>
+        <item name="msbp_dialogOk">@android:string/ok</item>
+        <item name="msbp_dialogTitle">@null</item>
+        <item name="msbp_dialogIcon">@null</item>
+    </style>
+</resources>

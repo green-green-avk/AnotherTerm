@@ -1,0 +1,80 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical">
+
+    <android.support.design.widget.AppBarLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:theme="@style/AppTheme.AppBarOverlay">
+
+        <android.support.v7.widget.Toolbar
+            android:id="@+id/toolbar"
+            android:layout_width="match_parent"
+            android:layout_height="?attr/actionBarSize"
+            android:background="?attr/colorPrimary"
+            android:theme="@style/AppTheme.Console.ActionBar"
+            app:popupTheme="@style/AppTheme.PopupOverlay"
+            app:subtitleTextAppearance="@style/AppTextAppearance.ActionBar.Subtitle"
+            app:titleTextAppearance="@style/AppTextAppearance.ActionBar.Title" />
+
+    </android.support.design.widget.AppBarLayout>
+
+    <FrameLayout
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1">
+
+        <green_green_avk.anotherterm.ui.ConsoleScreenView
+            android:id="@+id/screen"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent" />
+
+        <green_green_avk.anotherterm.ui.ScreenMouseView
+            android:id="@+id/mouse"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:visibility="gone" />
+
+        <ImageView
+            android:id="@+id/bell"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="right|top"
+            android:alpha="1"
+            android:tint="@color/colorAccenttissimo"
+            android:visibility="invisible"
+            app:srcCompat="@drawable/ic_bell_24"
+            app:tintMode="multiply" />
+
+    </FrameLayout>
+
+    <green_green_avk.anotherterm.ui.ConsoleKeyboardView
+        android:id="@+id/keyboard"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:keyTextColor="@android:color/darker_gray"
+        android:keyTextSize="12sp"
+        android:labelTextSize="12sp"
+        android:visibility="visible"
+        app:autoRepeatDelay="1000"
+        app:keyBackground="@drawable/bg_key1"
+        app:keyTextColor="@color/colorAccent"
+        app:ledBackground="@drawable/bg_led1"
+        app:popupBackground="@drawable/bg_popup"
+        app:popupDelay="100"
+        app:popupKeyBackground="@drawable/bg_popup_key"
+        app:popupKeySize="48dp"
+        app:popupKeyTextColor="@color/screen_keyboard_popup_key"
+        app:popupShadowColor="@color/colorShadow"
+        app:popupShadowRadius="24"
+        app:shadowColor="@color/colorShadow"
+        app:shadowRadius="16" />
+
+    <green_green_avk.anotherterm.ui.BottomImePlaceholderView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content" />
+
+</LinearLayout>

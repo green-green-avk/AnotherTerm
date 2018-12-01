@@ -1,0 +1,308 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical">
+
+    <EditText
+        android:id="@+id/f_termstr"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:hint="@string/terminal_string"
+        android:inputType="textPersonName"
+        android:tag="terminal_string"
+        android:text="xterm"
+        tools:ignore="HardcodedText" />
+
+    <com.google.android.flexbox.FlexboxLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        app:alignItems="baseline"
+        app:flexDirection="row"
+        app:flexWrap="wrap">
+
+        <EditText
+            android:id="@+id/f_username"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:hint="@string/hint_user"
+            android:inputType="textPersonName"
+            android:tag="username" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="\@"
+            tools:ignore="HardcodedText" />
+
+        <EditText
+            android:id="@+id/f_hostname"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:hint="@string/hint_host"
+            android:inputType="textUri"
+            android:tag="hostname" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text=":"
+            tools:ignore="HardcodedText" />
+
+        <EditText
+            android:id="@+id/f_port"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:hint="@string/hint_port"
+            android:inputType="number"
+            android:tag="port"
+            android:text="22"
+            tools:ignore="HardcodedText" />
+
+    </com.google.android.flexbox.FlexboxLayout>
+
+    <CheckBox
+        android:id="@+id/f_prefer_compression"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:tag="prefer_compression"
+        android:text="@string/label_prefer_compression" />
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal">
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/keepalive_interval_" />
+
+        <EditText
+            android:id="@+id/f_kainterval"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:inputType="number"
+            android:tag="keepalive_interval"
+            android:text="0"
+            tools:ignore="HardcodedText" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/time_unit_seconds" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="@dimen/text_separator"
+            android:layout_marginLeft="@dimen/text_separator"
+            android:text="@string/note_p_zero_m_off_p" />
+
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal">
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/execute_" />
+
+        <EditText
+            android:id="@+id/f_execute"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:hint="@string/shell"
+            android:inputType="text|textMultiLine|textNoSuggestions"
+            android:tag="execute" />
+
+    </LinearLayout>
+
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:background="?android:attr/listDivider" />
+
+    <com.google.android.flexbox.FlexboxLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        app:alignItems="baseline"
+        app:flexDirection="row"
+        app:flexWrap="wrap">
+
+        <CheckBox
+            android:id="@+id/f_X11"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:tag="X11"
+            android:text="X11:"
+            tools:ignore="HardcodedText" />
+
+        <EditText
+            android:id="@+id/f_X11host"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:hint="@string/hint_host"
+            android:inputType="textUri"
+            android:tag="X11_host"
+            android:text="127.0.0.1"
+            tools:ignore="HardcodedText" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text=":6000+"
+            tools:ignore="HardcodedText" />
+
+        <EditText
+            android:id="@+id/f_X11port"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:inputType="number"
+            android:tag="X11_port"
+            android:text="0"
+            tools:ignore="HardcodedText" />
+    </com.google.android.flexbox.FlexboxLayout>
+
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:background="?android:attr/listDivider" />
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/port_forwarding_" />
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal">
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/port_forwarding_local_" />
+
+        <EditText
+            android:id="@+id/f_local_ports"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:hint="@string/hint_port_mapping"
+            android:inputType="text|textMultiLine|textNoSuggestions"
+            android:tag="local_ports" />
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal">
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/port_forwarding_remote_" />
+
+        <EditText
+            android:id="@+id/f_remote_ports"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:hint="@string/hint_port_mapping"
+            android:inputType="text|textMultiLine|textNoSuggestions"
+            android:tag="remote_ports" />
+    </LinearLayout>
+
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:background="?android:attr/listDivider" />
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="@dimen/text_separator"
+        android:layout_marginBottom="@dimen/text_separator"
+        android:text="@string/title_encryption_preferences"
+        android:textSize="@dimen/text_header_size" />
+
+    <CheckBox
+        android:id="@+id/f_prefer_key_auth"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:tag="prefer_key_auth"
+        android:text="@string/label_prefer_public_key_authentication" />
+
+    <green_green_avk.anotherterm.ui.HtmlTextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginLeft="@dimen/text_margin"
+        android:layout_marginRight="@dimen/text_margin"
+        android:textStyle="italic"
+        app:xmlText="@string/note_rely_on_jsch_documentation" />
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/label_key_exchange" />
+
+    <EditText
+        android:id="@+id/f_kex"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:inputType="text|textMultiLine|textNoSuggestions"
+        android:tag="jsch.cfg.kex" />
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/label_server_to_client_transport_encryption" />
+
+    <EditText
+        android:id="@+id/f_cipher_s2c"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:inputType="text|textMultiLine|textNoSuggestions"
+        android:tag="jsch.cfg.cipher.s2c" />
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/label_client_to_server_transport_encryption" />
+
+    <EditText
+        android:id="@+id/f_cipher_c2s"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:inputType="text|textMultiLine|textNoSuggestions"
+        android:tag="jsch.cfg.cipher.c2s" />
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/label_server_to_client_transport_message_authentication_code" />
+
+    <EditText
+        android:id="@+id/f_mac_s2c"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:inputType="text|textMultiLine|textNoSuggestions"
+        android:tag="jsch.cfg.mac.s2c" />
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/label_client_to_server_transport_message_authentication_code" />
+
+    <EditText
+        android:id="@+id/f_mac_c2s"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:inputType="text|textMultiLine|textNoSuggestions"
+        android:tag="jsch.cfg.mac.c2s" />
+
+</LinearLayout>

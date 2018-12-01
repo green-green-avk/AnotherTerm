@@ -1,0 +1,16 @@
+<resources>
+    <dimen name="fab_margin">16dp</dimen>
+    <dimen name="fab2_margin">8dp</dimen>
+    <dimen name="text_margin">8dp</dimen>
+    <dimen name="text_padding">8dp</dimen>
+    <dimen name="kbd_key_size">32dp</dimen>
+    <dimen name="narrow_key_size">16dp</dimen>
+    <dimen name="field_margin">1dp</dimen>
+    <dimen name="field_margin_2x">2dp</dimen>
+    <dimen name="text_separator">6sp</dimen>
+    <dimen name="text_header_padding">16dp</dimen>
+    <dimen name="text_header_size">24sp</dimen>
+    <dimen name="fab_space">96dp</dimen>
+    <dimen name="entry_separator">12sp</dimen>
+    <dimen name="entry_height">64dp</dimen>
+</resources>

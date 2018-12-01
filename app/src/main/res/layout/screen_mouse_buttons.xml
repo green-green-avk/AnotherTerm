@@ -1,0 +1,124 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="640dp"
+    android:layout_height="480dp"
+    android:orientation="horizontal">
+
+    <FrameLayout
+        android:layout_width="0dp"
+        android:layout_height="match_parent"
+        android:layout_weight="1">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:orientation="vertical">
+
+            <FrameLayout
+                style="@style/AppScreenMouseButtonStyle"
+                android:layout_width="match_parent"
+                android:layout_height="0dp"
+                android:layout_weight="1"
+                android:tag="right">
+
+                <ImageView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="bottom|right"
+                    app:srcCompat="@drawable/ic_screen_mouse_button_lu" />
+
+                <ImageView
+                    android:layout_width="48dp"
+                    android:layout_height="48dp"
+                    android:layout_gravity="bottom|right"
+                    android:layout_margin="48dp"
+                    app:srcCompat="@drawable/ic_mouse_button_right" />
+            </FrameLayout>
+
+            <FrameLayout
+                style="@style/AppScreenMouseButtonStyle"
+                android:layout_width="match_parent"
+                android:layout_height="0dp"
+                android:layout_weight="1"
+                android:tag="left">
+
+                <ImageView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="top|right"
+                    app:srcCompat="@drawable/ic_screen_mouse_button_ld" />
+
+                <ImageView
+                    android:layout_width="48dp"
+                    android:layout_height="48dp"
+                    android:layout_gravity="top|right"
+                    android:layout_margin="48dp"
+                    app:srcCompat="@drawable/ic_mouse_button_left" />
+            </FrameLayout>
+        </LinearLayout>
+
+        <green_green_avk.anotherterm.ui.FancyButton
+            style="@style/AppScreenMouseButtonStyle"
+            android:layout_width="80dp"
+            android:layout_height="160dp"
+            android:layout_gravity="right|center_vertical"
+            android:background="@drawable/ic_screen_mouse_button_side"
+            android:tag="v_scroll"
+            app:srcCompat="@drawable/ic_screen_mouse_scroll"
+            app:touchMask="@drawable/ic_screen_mouse_button_side" />
+    </FrameLayout>
+
+    <Space
+        android:layout_width="120dp"
+        android:layout_height="match_parent" />
+
+    <LinearLayout
+        android:layout_width="0dp"
+        android:layout_height="match_parent"
+        android:layout_weight="1"
+        android:orientation="vertical">
+
+        <FrameLayout
+            style="@style/AppScreenMouseButtonStyle"
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_weight="1"
+            android:tag="middle">
+
+            <ImageView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="bottom|left"
+                app:srcCompat="@drawable/ic_screen_mouse_button_ru" />
+
+            <ImageView
+                android:layout_width="48dp"
+                android:layout_height="48dp"
+                android:layout_gravity="bottom|left"
+                android:layout_margin="48dp"
+                app:srcCompat="@drawable/ic_mouse_button_middle" />
+        </FrameLayout>
+
+        <FrameLayout
+            style="@style/AppScreenMouseButtonStyle"
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_weight="1"
+            android:tag="right">
+
+            <ImageView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="top|left"
+                app:srcCompat="@drawable/ic_screen_mouse_button_rd" />
+
+            <ImageView
+                android:layout_width="48dp"
+                android:layout_height="48dp"
+                android:layout_gravity="top|left"
+                android:layout_margin="48dp"
+                app:srcCompat="@drawable/ic_mouse_button_right" />
+        </FrameLayout>
+    </LinearLayout>
+</LinearLayout>

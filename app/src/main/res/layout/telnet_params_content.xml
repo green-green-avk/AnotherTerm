@@ -1,0 +1,85 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical">
+
+    <EditText
+        android:id="@+id/f_termstr"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:hint="@string/terminal_string"
+        android:inputType="textPersonName"
+        android:tag="terminal_string"
+        android:text="xterm"
+        tools:ignore="HardcodedText" />
+
+    <com.google.android.flexbox.FlexboxLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        app:alignItems="baseline"
+        app:flexDirection="row"
+        app:flexWrap="wrap">
+
+        <EditText
+            android:id="@+id/f_hostname"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:hint="@string/hint_host"
+            android:inputType="textUri"
+            android:tag="hostname" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text=":"
+            tools:ignore="HardcodedText" />
+
+        <EditText
+            android:id="@+id/f_port"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:hint="@string/hint_port"
+            android:inputType="number"
+            android:tag="port"
+            android:text="23"
+            tools:ignore="HardcodedText" />
+
+    </com.google.android.flexbox.FlexboxLayout>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal">
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/keepalive_interval_" />
+
+        <EditText
+            android:id="@+id/f_kainterval"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:inputType="number"
+            android:tag="keepalive_interval"
+            android:text="0"
+            tools:ignore="HardcodedText" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/time_unit_seconds" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="@dimen/text_separator"
+            android:layout_marginLeft="@dimen/text_separator"
+            android:text="@string/note_p_zero_m_off_p" />
+
+    </LinearLayout>
+
+</LinearLayout>

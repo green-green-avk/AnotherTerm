@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <declare-styleable name="ConsoleScreenView">
+        <attr name="consoleScreenViewStyle" format="reference" />
+        <attr name="cursorColor" format="color" />
+        <attr name="selectionColor" format="color" />
+        <attr name="selectionMarker" format="reference" />
+        <attr name="selectionMarkerPad" format="reference" />
+        <attr name="selectionMarkerOOB" format="reference" />
+        <attr name="paddingMarkup" format="reference" />
+        <attr name="paddingMarkupAlpha" format="float" />
+        <attr name="attrMarkupBlinking" format="reference" />
+        <attr name="attrMarkupAlpha" format="float" />
+    </declare-styleable>
+
+    <style name="AppConsoleScreenViewStyle" parent="AppExtKeyboardViewStyle">
+        <item name="cursorColor">@color/colorTextCursor</item>
+        <item name="selectionColor">@color/colorTextSelection</item>
+        <item name="selectionMarker">@drawable/ic_select_cursor</item>
+        <item name="selectionMarkerPad">@drawable/bg_selection_pad</item>
+        <item name="selectionMarkerOOB">@drawable/ic_selection_arrow</item>
+        <item name="paddingMarkup">@drawable/bg_padding1_tiles</item>
+        <item name="paddingMarkupAlpha">0.2</item>
+        <item name="attrMarkupBlinking">@drawable/bg_attr_blinking_tiles</item>
+        <item name="attrMarkupAlpha">0.7</item>
+    </style>
+</resources>
