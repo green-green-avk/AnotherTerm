@@ -162,7 +162,6 @@ cat [&lt;URI&gt; ...]
 Concatenate the stdin (if not a tty or no arguments given)
 and specified URIs content to the stdout.
 URIs scheme could be <code>content</code>, <code>http</code> or <code>https</code>.
-<br/>Command exits immediately.
 <ul type=\"none\">
 <li><code>--insecure</code> &#x2014; connect via HTTPS even in case of invalid certificate.</li>
 </ul>
