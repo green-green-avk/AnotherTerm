@@ -42,6 +42,7 @@ import java.io.Reader;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLConnection;
+import java.net.UnknownServiceException;
 import java.nio.CharBuffer;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -459,7 +460,7 @@ public final class TermSh {
                 throws IOException {
             final InputStream is;
             final String scheme = uri.getScheme();
-            if (scheme == null) throw new MalformedURLException("Malformed URL");
+            if (scheme == null) throw new MalformedURLException("Malformed URL: " + uri.toString());
             switch (scheme) {
                 case "http":
                 case "https": {
@@ -469,7 +470,19 @@ public final class TermSh {
                         ((HttpsURLConnection) conn)
                                 .setSSLSocketFactory(SslHelper.trustAllCertsCtx.getSocketFactory());
                     }
-                    is = conn.getInputStream();
+                    try {
+                        is = conn.getInputStream();
+                    } catch (final UnknownServiceException e) {
+                        throw e;
+                    } catch (final IOException e) {
+                        // fix for bad Android error reporting ;)
+                        final String msg = e.getMessage();
+                        if (msg == null)
+                            throw new IOException("Error getting content from " + uri.toString());
+                        if (msg.substring(0, 4).toLowerCase().equals("http"))
+                            throw new IOException("Error getting content from " + e.getMessage());
+                        throw e;
+                    }
                     break;
                 }
                 default:
