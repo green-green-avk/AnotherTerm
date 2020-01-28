@@ -1,6 +1,10 @@
 package green_green_avk.anotherterm.utils;
 
+import android.content.res.ColorStateList;
+import android.support.annotation.NonNull;
+import android.text.Editable;
 import android.text.InputType;
+import android.text.TextWatcher;
 import android.util.Log;
 import android.view.View;
 import android.view.ViewGroup;
@@ -12,21 +16,77 @@ import android.widget.TextView;
 
 import java.util.Arrays;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import green_green_avk.anotherterm.R;
 
 public final class RawPreferenceUiWrapper implements PreferenceUiWrapper {
-    public final Map<String, View> views = new HashMap<>();
-    public final Map<String, List<?>> listsValues = new HashMap<>();
+    private final Map<String, View> views = new HashMap<>();
+    private final Map<String, List<?>> listsValues = new HashMap<>();
+    private final Set<String> changedFields = new HashSet<>();
+    private boolean isFrozen = false;
 
-    private void searchForTags(final View root) {
+    private void searchForTags(@NonNull final View root) {
         final Object tag = root.getTag();
         if (tag instanceof String) {
             final String[] chs = ((String) tag).split("/");
             final String pName = chs[0].intern();
             views.put(pName, root);
+            if (root instanceof EditText) {
+                final ColorStateList color = ((EditText) root).getTextColors();
+                ((EditText) root).setTextColor(color.withAlpha(0xA0)); // TODO: UI mess
+                ((EditText) root).addTextChangedListener(new TextWatcher() {
+                    @Override
+                    public void beforeTextChanged(final CharSequence s, final int start,
+                                                  final int count, final int after) {
+
+                    }
+
+                    @Override
+                    public void onTextChanged(final CharSequence s, final int start,
+                                              final int before, final int count) {
+                        if (!isFrozen) {
+                            changedFields.add(pName);
+                            ((EditText) root).setTextColor(color);
+                        }
+                    }
+
+                    @Override
+                    public void afterTextChanged(final Editable s) {
+
+                    }
+                });
+// TODO: Not now.
+/*
+            } else if (root instanceof AdapterView) {
+                final Drawable bg = root.getBackground();
+                ((AdapterView) root).setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+                    @Override
+                    public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+                        changedFields.add(pName);
+                    }
+
+                    @Override
+                    public void onNothingSelected(AdapterView<?> parent) {
+                        changedFields.add(pName);
+                        setBg(root, bg);
+                    }
+                });
+            } else if (root instanceof CompoundButton) {
+                final Drawable bg = root.getBackground();
+                ((CompoundButton) root).setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+                    @Override
+                    public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+                        changedFields.add(pName);
+                    }
+                });
+*/
+            } else {
+                changedFields.add(pName);
+            }
             if (chs.length > 1)
                 listsValues.put(pName, Arrays.asList(Arrays.copyOfRange(chs, 1, chs.length)));
         }
@@ -42,8 +102,12 @@ public final class RawPreferenceUiWrapper implements PreferenceUiWrapper {
         views.clear();
     }
 
-    public void addBranch(final View root) {
+    public void addBranch(@NonNull final View root) {
         searchForTags(root);
+    }
+
+    public void freeze(final boolean v) {
+        isFrozen = v;
     }
 
     public void setListValues(final String key, final List<?> values) {
@@ -57,6 +121,7 @@ public final class RawPreferenceUiWrapper implements PreferenceUiWrapper {
         return -1;
     }
 
+    @Override
     public Object get(final String key) {
         if (!views.containsKey(key)) return null;
         final View view = views.get(key);
@@ -90,6 +155,7 @@ public final class RawPreferenceUiWrapper implements PreferenceUiWrapper {
         return null;
     }
 
+    @Override
     public void set(final String key, final Object value) {
         if (!views.containsKey(key)) return;
         final View view = views.get(key);
@@ -116,6 +182,8 @@ public final class RawPreferenceUiWrapper implements PreferenceUiWrapper {
         }
     }
 
+    @Override
+    @NonNull
     public Map<String, Object> getPreferences() {
         final Map<String, Object> r = new HashMap<>();
         for (final String k : views.keySet()) {
@@ -124,9 +192,16 @@ public final class RawPreferenceUiWrapper implements PreferenceUiWrapper {
         return r;
     }
 
-    public void setPreferences(final Map<String, ?> pp) {
+    @Override
+    public void setPreferences(@NonNull final Map<String, ?> pp) {
         for (final Map.Entry<String, ?> ent : pp.entrySet()) {
             set(ent.getKey(), ent.getValue());
         }
+    }
+
+    @Override
+    @NonNull
+    public Set<String> getChangedFields() {
+        return changedFields;
     }
 }

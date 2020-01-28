@@ -1,8 +1,10 @@
 package green_green_avk.anotherterm.utils;
 
+import android.support.annotation.NonNull;
 import android.view.View;
 
 import java.util.Map;
+import java.util.Set;
 
 public interface PreferenceUiWrapper {
 
@@ -24,7 +26,11 @@ public interface PreferenceUiWrapper {
 
     void set(String key, Object value);
 
+    @NonNull
     Map<String, Object> getPreferences();
 
-    void setPreferences(Map<String, ?> pp);
+    void setPreferences(@NonNull Map<String, ?> pp);
+
+    @NonNull
+    Set<String> getChangedFields();
 }

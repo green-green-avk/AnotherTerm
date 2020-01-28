@@ -22,6 +22,7 @@ import android.widget.Toast;
 
 import java.io.Serializable;
 import java.nio.charset.Charset;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -220,10 +221,12 @@ public final class FavoriteEditorActivity extends AppCompatActivity {
         mCurrMSL.setSaveFromParentEnabled(false);
         mContainer.addView(mCurrMSL);
         mPrefs.addBranch(mCurrMSL);
-        final Map<String, ?> pm = new HashMap<>();
-        pm.putAll((Map) getDefaultPreferences());
-        pm.putAll((Map) mPrefsSt.get());
-        mPrefs.setPreferences(pm);
+        mPrefs.freeze(true);
+        mPrefs.setPreferences(getDefaultPreferences());
+        mPrefs.freeze(false);
+        final Map<String, ?> values = new HashMap<>(mPrefsSt.get());
+        values.keySet().retainAll(mPrefs.getChangedFields());
+        mPrefs.setPreferences(values);
     }
 
     private void removeOptions() {
@@ -245,6 +248,11 @@ public final class FavoriteEditorActivity extends AppCompatActivity {
     }
 
     private void setPreferences(@NonNull final PreferenceStorage ps) {
+        mPrefs.getChangedFields().addAll(ps.get().keySet());
+        setPreferencesOnlyChanged(ps);
+    }
+
+    private void setPreferencesOnlyChanged(@NonNull final PreferenceStorage ps) {
         mPrefsSt = ps;
         final Object type = mPrefsSt.get("type");
         if (type != null) {
@@ -297,6 +305,7 @@ public final class FavoriteEditorActivity extends AppCompatActivity {
         dissolveErrors(pm);
         mPrefsSt.putAll(pm);
         outState.putSerializable("E_PARAMS", (Serializable) mPrefsSt.get());
+        outState.putStringArray("E_SET_PARAMS", (String[]) mPrefs.getChangedFields().toArray());
     }
 
     @Override
@@ -349,7 +358,8 @@ public final class FavoriteEditorActivity extends AppCompatActivity {
         mKeyMapW.setSelection(((TermKeyMapAdapter) mKeyMapW.getAdapter()).getPosition(null));
 
         if (savedInstanceState != null) {
-            setPreferences(new PreferenceStorage((Map<String, ?>) savedInstanceState.get("E_PARAMS")));
+            Collections.addAll(mPrefs.getChangedFields(), savedInstanceState.getStringArray("E_SET_PARAMS"));
+            setPreferencesOnlyChanged(new PreferenceStorage((Map<String, ?>) savedInstanceState.get("E_PARAMS")));
             mOldName = savedInstanceState.getString("E_OLD_NAME");
             mMakeNew = savedInstanceState.getBoolean("E_NEW");
             if (mMakeNew) {
