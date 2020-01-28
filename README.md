@@ -1,4 +1,5 @@
 # AnotherTerm
+
 Local pty, USB serial port, SSH and Telnet terminal client for Android.
 
 * https://play.google.com/store/apps/details?id=green_green_avk.anotherterm
@@ -7,7 +8,7 @@ Local pty, USB serial port, SSH and Telnet terminal client for Android.
 
 ## Highlights
 
-* Local pty, USB serial port (UART) etc. support in the same application;
+* Local pty, USB serial port (UART), SSH and Telnet support in the same application;
 
 * Adequate screen input methods as long as a terminal requires specific keyboard functions.
 
@@ -57,7 +58,9 @@ but instead relies on Java Cryptography Extension (JCE) and its providers that a
 This application is self-classified under ECCN 5D992 with the encryption authorization
 type identifier MMKT.
 
+
 ## Disclaimer
+
 It's unlawful to provide this application to or use by the prohibited entities listed in
 https://www.bis.doc.gov/index.php/policy-guidance/country-guidance/sanctioned-destinations
 and
