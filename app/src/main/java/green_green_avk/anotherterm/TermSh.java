@@ -1117,7 +1117,7 @@ public final class TermSh {
                             break;
                         }
                         case "arch": {
-                            shellCmd.stdErr.write(Misc.toUTF8(
+                            shellCmd.stdOut.write(Misc.toUTF8(
                                     StringUtils.joinWith(" ", (Object[]) getAbis()) + "\n"));
                             break;
                         }
