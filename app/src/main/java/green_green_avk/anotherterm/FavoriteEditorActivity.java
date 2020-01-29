@@ -305,7 +305,7 @@ public final class FavoriteEditorActivity extends AppCompatActivity {
         dissolveErrors(pm);
         mPrefsSt.putAll(pm);
         outState.putSerializable("E_PARAMS", (Serializable) mPrefsSt.get());
-        outState.putStringArray("E_SET_PARAMS", (String[]) mPrefs.getChangedFields().toArray());
+        outState.putStringArray("E_SET_PARAMS", mPrefs.getChangedFields().toArray(new String[0]));
     }
 
     @Override
