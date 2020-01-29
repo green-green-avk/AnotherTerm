@@ -202,7 +202,12 @@ Connect to an USB serial dongle and use stdin / stdout.
 <li>flowcontrol: <code>off</code>, <code>xon_xoff</code>, <code>rts_cts</code>, <code>dsr_dtr</code></li>
 </ul>
 <p><b>Default:</b> <code>9600/8/1/none/off</code></p>
-</dd>
+</dd><br/>
+
+<dt><p><code>
+arch
+</code></p></dt>
+<dd>Supported architectures list from the most preferable to the least preferable.</dd><br/>
 
 </dl>
 

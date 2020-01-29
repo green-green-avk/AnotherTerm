@@ -13,6 +13,7 @@ import android.net.LocalServerSocket;
 import android.net.LocalSocket;
 import android.net.Uri;
 import android.os.AsyncTask;
+import android.os.Build;
 import android.os.Handler;
 import android.os.ParcelFileDescriptor;
 import android.os.Process;
@@ -25,6 +26,8 @@ import android.support.v4.app.NotificationManagerCompat;
 import android.support.v4.content.FileProvider;
 import android.support.v4.math.MathUtils;
 import android.util.Log;
+
+import org.apache.commons.lang3.StringUtils;
 
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
@@ -539,6 +542,14 @@ public final class TermSh {
             } finally {
                 c.close();
             }
+        }
+
+        @NonNull
+        private String[] getAbis() {
+            final String[] abis;
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) return Build.SUPPORTED_ABIS;
+            else if (Build.CPU_ABI2 != null) return new String[]{Build.CPU_ABI, Build.CPU_ABI2};
+            else return new String[]{Build.CPU_ABI};
         }
 
         private void printHelp(@NonNull final OutputStream output) throws IOException {
@@ -1103,6 +1114,11 @@ public final class TermSh {
                             } catch (final BackendException e) {
                                 throw new IOException(e.getMessage());
                             }
+                            break;
+                        }
+                        case "arch": {
+                            shellCmd.stdErr.write(Misc.toUTF8(
+                                    StringUtils.joinWith(" ", (Object[]) getAbis()) + "\n"));
                             break;
                         }
                         default:
