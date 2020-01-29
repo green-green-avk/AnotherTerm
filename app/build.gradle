@@ -8,8 +8,8 @@ android {
         applicationId 'green_green_avk.anotherterm'
         minSdkVersion 14
         targetSdkVersion 28
-        versionCode 1
-        versionName "MkI"
+        versionCode 2
+        versionName "MkIa"
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
         vectorDrawables.useSupportLibrary = true
 
@@ -63,6 +63,7 @@ dependencies {
     implementation project(':TelnetClient')
     implementation 'org.apache.commons:commons-collections4:4.2'
     implementation project(path: ':libusbmanager')
+    implementation 'org.jetbrains:annotations-java5:15.0'
 }
 
 repositories {
