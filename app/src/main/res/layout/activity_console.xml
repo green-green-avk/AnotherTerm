@@ -55,6 +55,7 @@
         android:id="@+id/keyboard"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:background="@drawable/bg_keyboard"
         android:keyTextColor="@android:color/darker_gray"
         android:keyTextSize="12sp"
         android:labelTextSize="12sp"
