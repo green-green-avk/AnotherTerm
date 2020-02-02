@@ -207,7 +207,12 @@ Connect to an USB serial dongle and use stdin / stdout.
 <dt><p><code>
 arch
 </code></p></dt>
-<dd>Supported architectures list from the most preferable to the least preferable.</dd><br/>
+<dd>Show this device supported architectures list from the most preferable to the least preferable.</dd><br/>
+
+<dt><p><code>
+sdk
+</code></p></dt>
+<dd>Show this device Android SDK version.</dd><br/>
 
 </dl>
 

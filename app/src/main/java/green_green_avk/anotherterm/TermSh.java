@@ -1121,6 +1121,11 @@ public final class TermSh {
                                     StringUtils.joinWith(" ", (Object[]) getAbis()) + "\n"));
                             break;
                         }
+                        case "sdk": {
+                            shellCmd.stdOut.write(Misc.toUTF8(
+                                    Build.VERSION.SDK_INT + "\n"));
+                            break;
+                        }
                         default:
                             throw new ParseException("Unknown command");
                     }
