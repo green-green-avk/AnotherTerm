@@ -13,8 +13,8 @@
 <li>Minimum supported Android version is 4.0 Ice Cream Sandwich.</li>
 <li>Supported USB UART devices: Generic USB CDC, CP210X, FTDI, PL2303, CH34x, CP2130 SPI-USB.</li>
 <li>Local Linux pty is supported. Feel free to use
-<a href=\"https://github.com/green-green-avk/build-proot-android/blob/master/README.md\">
-PRoot</a> with some Linux environment.</li>
+<a href=\"https://github.com/green-green-avk/AnotherTerm/wiki/Installing-Linux-under-PRoot\">
+PRoot with some Linux environment</a>.</li>
 <li><a href=\"info://green_green_avk.anotherterm/termsh_man\">
 Shell tool</a> to interact with the Android environment is also present.
 <ul>

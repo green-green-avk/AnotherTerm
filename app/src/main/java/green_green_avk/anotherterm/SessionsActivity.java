@@ -170,4 +170,10 @@ public final class SessionsActivity extends AppCompatActivity {
         }
         return super.onOptionsItemSelected(item);
     }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        ((RecyclerView) findViewById(R.id.sessions_list)).getAdapter().notifyDataSetChanged();
+    }
 }

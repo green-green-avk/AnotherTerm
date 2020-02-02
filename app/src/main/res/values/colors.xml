@@ -7,6 +7,7 @@
     <color name="colorAccenttissimoTr">#7fd8ff00</color>
     <color name="colorHintWarning">#7F0000</color>
     <color name="colorGlow">#FFFFFF</color>
+    <color name="colorGlass">#7FFFFFFF</color>
     <color name="colorShadow">#000000</color>
     <color name="colorMiddle">#7F7F7F</color>
     <color name="colorTextCursor">#7FFFFFFF</color>

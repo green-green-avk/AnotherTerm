@@ -218,11 +218,7 @@ arch
 
 <h4>Environment variables:</h4>
 <ul type=\"none\">
-<li><code>TERMSH_UID</code> &#x2014; a real UID for this application to use for spoofing detection.
-It\'s actual before Android 6.0:
-<a href=\"https://android.googlesource.com/platform/external/sepolicy/+/android-6.0.1_r81/untrusted_app.te#141\">
-https://android.googlesource.com/platform/external/sepolicy/+/android-6.0.1_r81/untrusted_app.te#141
-</a></li>
+<li><code>TERMSH_UID</code> &#x2014; a real UID for this application to use for spoofing detection.</li>
 </ul>
 ]]></string>
 </resources>

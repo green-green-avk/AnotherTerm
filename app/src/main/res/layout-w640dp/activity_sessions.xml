@@ -21,33 +21,34 @@
 
     </android.support.design.widget.AppBarLayout>
 
-    <green_green_avk.anotherterm.ui.EquiLinearLayout
+    <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:orientation="vertical">
+        android:orientation="horizontal">
 
         <android.support.v7.widget.RecyclerView
             android:id="@+id/favorites_list"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
             android:padding="@dimen/text_padding"
             android:requiresFadingEdge="vertical" />
 
         <View
-            android:id="@+id/divider"
-            android:layout_width="match_parent"
-            android:layout_height="3dp"
-            android:layout_marginLeft="@dimen/text_padding"
-            android:layout_marginRight="@dimen/text_padding"
+            android:layout_width="3dp"
+            android:layout_height="match_parent"
+            android:layout_marginTop="@dimen/text_padding"
+            android:layout_marginBottom="@dimen/text_padding"
             android:background="?android:attr/listDivider" />
 
         <android.support.v7.widget.RecyclerView
             android:id="@+id/sessions_list"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
             android:padding="@dimen/text_padding"
             android:requiresFadingEdge="vertical" />
 
-    </green_green_avk.anotherterm.ui.EquiLinearLayout>
+    </LinearLayout>
 
 </LinearLayout>

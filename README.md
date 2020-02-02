@@ -22,7 +22,7 @@ Local pty, USB serial port, SSH and Telnet terminal client for Android.
 * Supported USB UART devices: Generic USB CDC, CP210X, FTDI, PL2303, CH34x, CP2130 SPI-USB.
 
 * Local Linux pty is supported. Feel free to use PRoot with some Linux environment:
-https://github.com/green-green-avk/build-proot-android/blob/master/README.md .
+https://github.com/green-green-avk/AnotherTerm/wiki/Installing-Linux-under-PRoot .
 
 * Shell tool to interact with the Android environment is also present.
    - Content exchange between other applications and own files / pipes has been implemented.
