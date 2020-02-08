@@ -4,10 +4,12 @@
         <attr name="htmlTextViewStyle" format="reference" />
         <attr name="htmlText" format="string" localization="suggested" />
         <attr name="xmlText" format="string" localization="suggested" />
+        <attr name="async" format="boolean" />
     </declare-styleable>
 
     <style name="AppHtmlTextView" parent="android:Widget.DeviceDefault.TextView">
         <item name="htmlText">@null</item>
         <item name="xmlText">@null</item>
+        <item name="async">false</item>
     </style>
 </resources>

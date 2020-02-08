@@ -84,7 +84,9 @@ public final class TermSh {
     }
 
     private static final class UiBridge {
+        @NonNull
         private final Context ctx;
+        @NonNull
         private final Handler handler;
 
         private final AtomicInteger notificationId = new AtomicInteger(0);
@@ -608,6 +610,11 @@ public final class TermSh {
                         case "help":
                             printHelp(shellCmd.stdOut, shellCmd);
                             break;
+                        case "version": {
+                            shellCmd.stdOut.write(Misc.toUTF8(
+                                    ui.ctx.getString(R.string.versionName) + "\n"));
+                            break;
+                        }
                         case "notify": {
                             final BinaryGetOpts.Parser ap = new BinaryGetOpts.Parser(shellCmd.args);
                             ap.skip();
@@ -726,7 +733,8 @@ public final class TermSh {
                             final Map<String, ?> opts = ap.parse(OPEN_OPTS);
                             String mime = (String) opts.get("mime");
                             String prompt = (String) opts.get("prompt");
-                            if (prompt == null) prompt = "Pick application";
+                            if (prompt == null)
+                                prompt = ui.ctx.getString(R.string.msg_pick_application);
                             if (shellCmd.args.length - ap.position == 1) {
                                 final String filename =
                                         Misc.fromUTF8(shellCmd.args[ap.position]);
@@ -787,7 +795,8 @@ public final class TermSh {
                             String mime = (String) opts.get("mime");
                             if (mime == null) mime = "*/*";
                             String prompt = (String) opts.get("prompt");
-                            if (prompt == null) prompt = "Pick destination";
+                            if (prompt == null)
+                                prompt = ui.ctx.getString(R.string.msg_pick_destination);
                             final String name;
                             final Uri uri;
                             final BlockingSync<Object> result = new BlockingSync<>();
@@ -859,7 +868,7 @@ public final class TermSh {
                             String mime = (String) opts.get("mime");
                             if (mime == null) mime = "*/*";
                             String prompt = (String) opts.get("prompt");
-                            if (prompt == null) prompt = "Pick document";
+                            if (prompt == null) prompt = ui.ctx.getString(R.string.msg_pick_source);
 
                             OutputStream output;
                             final ChrootedFile outputFile;

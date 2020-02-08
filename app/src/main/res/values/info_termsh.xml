@@ -25,6 +25,11 @@ help
 <dd>This message.</dd><br/>
 
 <dt><p><code>
+version
+</code></p></dt>
+<dd>Show this application version.</dd><br/>
+
+<dt><p><code>
 notify [-i|--id &lt;id&gt;] [--] [&lt;message&gt;]<br/>
 notify -r|--remove -i|--id &lt;id&gt;
 </code></p></dt>
@@ -223,7 +228,9 @@ sdk
 
 <h4>Environment variables:</h4>
 <ul type=\"none\">
-<li><code>TERMSH_UID</code> &#x2014; a real UID for this application to use for spoofing detection.</li>
+<li><code>TERMSH_UID</code> &#x2014; a real UID for this application to use for spoofing detection.
+It should be set by the user in case the emulated UID is different
+(chrooted environment, for example).</li>
 </ul>
 ]]></string>
 </resources>

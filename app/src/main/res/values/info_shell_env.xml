@@ -12,8 +12,6 @@
         (set if available)</li>
         <li><clipboard>EXTERNAL_DATA_DIR</clipboard> &#x2014;
         an alias to <clipboard>SHARED_DATA_DIR</clipboard></li>
-        <li><clipboard>PUBLIC_DATA_DIR</clipboard> &#x2014;
-        the primary shared/external storage directory (set if available)</li>
         <li><clipboard>LIB_DIR</clipboard> &#x2014; native binaries path</li>
         <li><clipboard>APP_ID</clipboard> &#x2014; application id</li>
         </ul></p>
