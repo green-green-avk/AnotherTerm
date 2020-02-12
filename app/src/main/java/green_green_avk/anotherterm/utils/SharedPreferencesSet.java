@@ -5,6 +5,7 @@ import android.content.SharedPreferences;
 import android.os.Build;
 import android.support.annotation.MainThread;
 import android.support.annotation.NonNull;
+import android.util.Log;
 
 import java.io.File;
 import java.net.URLDecoder;
@@ -28,11 +29,11 @@ public final class SharedPreferencesSet {
     private final Set<Runnable> onChangeListeners =
             Collections.newSetFromMap(new WeakHashMap<Runnable, Boolean>());
 
-    private static String encKey(final String v) {
+    private static String encKey(@NonNull final String v) {
         return URLEncoder.encode(v);
     }
 
-    private static String decKey(final String ev) {
+    private static String decKey(@NonNull final String ev) {
         return URLDecoder.decode(ev);
     }
 
@@ -42,23 +43,23 @@ public final class SharedPreferencesSet {
     }
 
     @NonNull
-    private String getName(final String key) {
+    private String getName(@NonNull final String key) {
         return prefix + encKey(key);
     }
 
     @NonNull
-    private String getFileName(final String key) {
+    private String getFileName(@NonNull final String key) {
         return getName(key) + ".xml";
     }
 
     @MainThread
-    public void init(final Context context, final String prefix) {
+    public void init(@NonNull final Context context, @NonNull final String prefix) {
         if (ctx != null) return;
         reinit(context, prefix);
     }
 
     @MainThread
-    public void reinit(final Context context, final String prefix) {
+    public void reinit(@NonNull final Context context, @NonNull final String prefix) {
         ctx = context;
         this.prefix = prefix;
         pat = Pattern.compile("^" + Pattern.quote(prefix) + "(.*)\\.xml$");
@@ -69,7 +70,13 @@ public final class SharedPreferencesSet {
             for (final String i : dir.list()) {
                 final Matcher m = pat.matcher(i);
                 if (m.matches()) {
-                    keys.add(decKey(m.group(1)));
+                    try {
+                        keys.add(decKey(m.group(1)));
+                    } catch (final IllegalArgumentException e) {
+                        // Ignore improper entries.
+                        Log.w(this.getClass().getSimpleName(),
+                                "Malformed preferences file name", e);
+                    }
                 }
             }
         }

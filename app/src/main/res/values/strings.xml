@@ -57,9 +57,9 @@
     <string name="do_you_want_to_delete_this_favorite">Do you want to delete this favorite?</string>
     <string name="msg_favorite_deleted">Favorite deleted</string>
     <string name="action_about">About</string>
-    <string name="terminal_string">Terminal string</string>
-    <string name="execute_">Execute:</string>
-    <string name="shell">shell</string>
+    <string name="label_terminal_string">Terminal string</string>
+    <string name="label_execute_">Execute:</string>
+    <string name="label_shell">shell</string>
     <string name="keepalive_interval_">KeepAlive Interval:</string>
     <string name="time_unit_seconds">seconds</string>
     <string name="port_forwarding_">Port forwarding:</string>

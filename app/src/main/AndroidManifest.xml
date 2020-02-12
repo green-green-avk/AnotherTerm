@@ -49,7 +49,7 @@
                 <category android:name="android.intent.category.DEFAULT" />
                 <category android:name="android.intent.category.BROWSABLE" />
 
-                <data android:scheme="local_terminal" />
+                <data android:scheme="local-terminal" />
                 <data android:scheme="uart" />
                 <data android:scheme="ssh" />
                 <data android:scheme="telnet" />

@@ -19,7 +19,7 @@ import green_green_avk.ptyprocess.PtyProcess;
 public final class LocalModule extends BackendModule {
 
     @Keep
-    public static final Meta meta = new Meta(LocalModule.class, "local_terminal");
+    public static final Meta meta = new Meta(LocalModule.class, "local-terminal");
 
     private final Object connectionLock = new Object();
 

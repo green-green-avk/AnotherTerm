@@ -94,7 +94,7 @@ to use <code>&lt;package&gt;</code> as it\'s prefix:<br/>
 </li></ul>
 Example: <code>$TERMSH view
 -r \'<clipboard>green_green_avk.anotherterm.FavoriteEditorActivity</clipboard>\'
--u \'local_terminal:/opts?execute=my_awesome_script\'</code></li>
+-u \'local-terminal:/opts?execute=my_awesome_script\'</code></li>
 <li><code>-u|--uri</code> &#x2014; use URI instead of file.</li>
 </ul>
 </dd><br/>
@@ -210,9 +210,28 @@ Connect to an USB serial dongle and use stdin / stdout.
 </dd><br/>
 
 <dt><p><code>
+uri-encode &lt;string&gt; [&lt;allowed&gt;]
+</code></p></dt>
+<dd>URL-escape a <code>&lt;string&gt;</code> but don\'t touch characters from
+an <code>&lt;allowed&gt;</code> string.
+<p>If the <code>&lt;allowed&gt;</code> is not specified,
+<code>java.net.URLEncode.encode(v, \"UTF8\")</code> will be used.
+It escapes according to the <code>application/x-www-form-urlencoded</code> MIME format.</p>
+<p>If the <code>&lt;allowed&gt;</code> is specified (even empty),
+<code>android.net.Uri.encode()</code> will be used.
+<code>[A-Za-z0-9_!.~\'()*-]</code> are always unaffected.</p>
+</dd><br/>
+
+<dt><p><code>
+uri-decode &lt;string&gt;
+</code></p></dt>
+<dd>URL-unescape a <code>&lt;string&gt;</code>.</dd><br/>
+
+<dt><p><code>
 arch
 </code></p></dt>
-<dd>Show this device supported architectures list from the most preferable to the least preferable.</dd><br/>
+<dd>Show this device supported architectures list from the most preferable
+to the least preferable.</dd><br/>
 
 <dt><p><code>
 sdk
@@ -223,7 +242,8 @@ sdk
 
 <h4>Notes:</h4>
 <ul type=\"none\">
-<li>* <code>unnamed</code> is used if name deduction fails and exit code <code>2</code> is returned.</li>
+<li>* <code>unnamed</code> is used if name deduction fails and
+exit code <code>2</code> is returned.</li>
 </ul>
 
 <h4>Environment variables:</h4>

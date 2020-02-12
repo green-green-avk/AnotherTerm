@@ -97,6 +97,7 @@ static ssize_t sendFds(const int sockfd, const void *const data, const size_t le
 }
 
 static void readAllOrExit(const int sock, void *const buf, const size_t len) {
+    if (len == 0) return;
     int offset = 0;
     while (true) {
         const ssize_t r = read(sock, (char *) buf + offset, len - offset);
@@ -111,6 +112,7 @@ static void readAllOrExit(const int sock, void *const buf, const size_t len) {
 }
 
 static void writeAllOrExit(const int sock, const void *const buf, const size_t len) {
+    if (len == 0) return;
     int offset = 0;
     while (true) {
         const ssize_t r = write(sock, (char *) buf + offset, len - offset);

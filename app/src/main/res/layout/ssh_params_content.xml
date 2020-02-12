@@ -10,7 +10,7 @@
         android:id="@+id/f_termstr"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:hint="@string/terminal_string"
+        android:hint="@string/label_terminal_string"
         android:inputType="textPersonName"
         android:tag="terminal_string"
         android:text="xterm"
@@ -111,13 +111,13 @@
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="@string/execute_" />
+            android:text="@string/label_execute_" />
 
         <EditText
             android:id="@+id/f_execute"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:hint="@string/shell"
+            android:hint="@string/label_shell"
             android:inputType="text|textMultiLine|textNoSuggestions"
             android:tag="execute" />
 

@@ -66,3 +66,6 @@ https://www.bis.doc.gov/index.php/policy-guidance/country-guidance/sanctioned-de
 and
 https://www.bis.doc.gov/index.php/policy-guidance/lists-of-parties-of-concern
 .
+
+The author is not responsible for any actions of any parties and their consequences
+related to the aforementioned regulation.

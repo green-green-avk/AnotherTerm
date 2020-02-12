@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:orientation="vertical">
 
     <LinearLayout
@@ -35,13 +35,13 @@
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="@string/execute_" />
+            android:text="@string/label_execute_" />
 
         <EditText
             android:id="@+id/f_execute"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:hint="@string/shell"
+            android:hint="@string/label_shell"
             android:inputType="text|textMultiLine|textNoSuggestions"
             android:tag="execute"
             android:text="@string/example_local_param_execute" />
