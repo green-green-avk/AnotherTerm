@@ -38,11 +38,11 @@ public final class PreferenceStorage {
         this.prefs.putAll(prefs);
     }
 
-    public Object get(String key) {
+    public Object get(final String key) {
         return prefs.get(key);
     }
 
-    public void put(String key, Object value) {
+    public void put(final String key, final Object value) {
         prefs.put(key, value);
     }
 

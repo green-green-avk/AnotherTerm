@@ -149,6 +149,16 @@ public final class XmlToAnsi implements Iterable<String> {
             if (--isBold == 0) output.append("\u001B[22m");
         }
 
+        private int isItalic = 0;
+
+        private void beginItalic() {
+            if (isItalic++ == 0) output.append("\u001B[3m");
+        }
+
+        private void endItalic() {
+            if (--isItalic == 0) output.append("\u001B[23m");
+        }
+
         private void beginTag() {
             switch (parser.getName().toLowerCase()) {
                 case "kbd":
@@ -157,6 +167,10 @@ public final class XmlToAnsi implements Iterable<String> {
                 case "code":
                 case "b":
                     beginBold();
+                    return;
+                case "em":
+                case "i":
+                    beginItalic();
                     return;
                 case "h1":
                 case "h2":
@@ -215,6 +229,10 @@ public final class XmlToAnsi implements Iterable<String> {
                 case "code":
                 case "b":
                     endBold();
+                    return;
+                case "em":
+                case "i":
+                    endItalic();
                     return;
                 case "h1":
                 case "h2":

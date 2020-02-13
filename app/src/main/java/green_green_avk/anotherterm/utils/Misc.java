@@ -1,5 +1,6 @@
 package green_green_avk.anotherterm.utils;
 
+import android.os.Build;
 import android.support.annotation.NonNull;
 import android.util.SparseArray;
 import android.util.SparseBooleanArray;
@@ -180,5 +181,12 @@ public final class Misc {
 
     public static boolean bitsAs(int v, int m) {
         return (v & m) != 0;
+    }
+
+    @NonNull
+    public static String[] getAbis() {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) return Build.SUPPORTED_ABIS;
+        else if (Build.CPU_ABI2 != null) return new String[]{Build.CPU_ABI, Build.CPU_ABI2};
+        else return new String[]{Build.CPU_ABI};
     }
 }

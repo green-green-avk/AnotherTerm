@@ -50,6 +50,8 @@ import java.net.URLEncoder;
 import java.net.UnknownServiceException;
 import java.nio.CharBuffer;
 import java.util.Map;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.Future;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import javax.net.ssl.HttpsURLConnection;
@@ -245,7 +247,7 @@ public final class TermSh {
             private static final int ARGLEN_MAX = 1024 * 1024;
             private static final byte[][] NOARGS = new byte[0][];
 
-            private boolean closed = false;
+            private volatile boolean closed = false;
             private final Object closeLock = new Object();
             private final LocalSocket socket;
             private final InputStream cis;
@@ -273,16 +275,49 @@ public final class TermSh {
                     } catch (final IOException e) {
                         Log.e("TermShServer", "Request", e);
                     }
-                    final Runnable ot = onTerminate;
-                    if (ot != null) ot.run();
                     close();
                 }
             };
+
+            private void setOnTerminate(@Nullable final Runnable onTerminate) {
+                synchronized (closeLock) {
+                    if (onTerminate != null && closed) onTerminate.run();
+                    else this.onTerminate = onTerminate;
+                }
+            }
+
+            private <T> T waitFor(@NonNull final Future<T> task)
+                    throws ExecutionException, InterruptedException {
+                this.setOnTerminate(new Runnable() {
+                    @Override
+                    public void run() {
+                        task.cancel(true);
+                    }
+                });
+                try {
+                    return task.get();
+                } finally {
+                    this.setOnTerminate(null);
+                }
+            }
+
+            private <T> T waitFor(@NonNull final BlockingSync<T> result,
+                                  @NonNull final Runnable onTerminate)
+                    throws InterruptedException {
+                this.setOnTerminate(onTerminate);
+                try {
+                    return result.get();
+                } finally {
+                    this.setOnTerminate(null);
+                }
+            }
 
             private void close() {
                 synchronized (closeLock) {
                     if (closed) return;
                     closed = true;
+                    final Runnable ot = onTerminate;
+                    if (ot != null) ot.run();
                     try {
                         if (stdIn != null) stdIn.close();
                     } catch (final IOException ignored) {
@@ -548,14 +583,6 @@ public final class TermSh {
             }
         }
 
-        @NonNull
-        private String[] getAbis() {
-            final String[] abis;
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) return Build.SUPPORTED_ABIS;
-            else if (Build.CPU_ABI2 != null) return new String[]{Build.CPU_ABI, Build.CPU_ABI2};
-            else return new String[]{Build.CPU_ABI};
-        }
-
         private void printHelp(@NonNull final OutputStream output) throws IOException {
             if (output instanceof PtyProcess.PfdFileOutputStream) {
                 printHelp(output, ((PtyProcess.PfdFileOutputStream) output).pfd.getFd());
@@ -693,17 +720,16 @@ public final class TermSh {
                                                 });
                                         shellCmd.stdOut.write(Misc.toUTF8(uri.toString() + "\n"));
                                         if (opts.containsKey("wait")) {
-                                            // Wait here
-                                            shellCmd.onTerminate = new Runnable() {
+                                            shellCmd.waitFor(result, new Runnable() {
                                                 @Override
                                                 public void run() {
-                                                    StreamProvider.releaseUri(uri);
-                                                    result.set(null);
+                                                    try {
+                                                        StreamProvider.releaseUri(uri);
+                                                    } finally {
+                                                        result.set(null);
+                                                    }
                                                 }
-                                            };
-                                            result.get();
-                                            shellCmd.onTerminate = null;
-                                            // ===
+                                            });
                                         }
                                         break;
                                     }
@@ -850,17 +876,16 @@ public final class TermSh {
                             else
                                 ui.ctx.startActivity(Intent.createChooser(i, prompt)
                                         .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK));
-                            // Wait here
-                            shellCmd.onTerminate = new Runnable() {
+                            shellCmd.waitFor(result, new Runnable() {
                                 @Override
                                 public void run() {
-                                    StreamProvider.releaseUri(uri);
-                                    result.set(null);
+                                    try {
+                                        StreamProvider.releaseUri(uri);
+                                    } finally {
+                                        result.set(null);
+                                    }
                                 }
-                            };
-                            result.get();
-                            shellCmd.onTerminate = null;
-                            // ===
+                            });
                             break;
                         }
                         case "pick": {
@@ -925,16 +950,16 @@ public final class TermSh {
                                             NotificationCompat.PRIORITY_HIGH) :
                                     RequesterActivity.request(
                                             ui.ctx, Intent.createChooser(i, prompt), onResult);
-                            // Wait here
-                            shellCmd.onTerminate = new Runnable() {
+                            final Intent ri = shellCmd.waitFor(r, new Runnable() {
                                 @Override
                                 public void run() {
-                                    request.cancel();
+                                    try {
+                                        request.cancel();
+                                    } finally {
+                                        r.setIfIsNotSet(null);
+                                    }
                                 }
-                            };
-                            final Intent ri = r.get();
-                            shellCmd.onTerminate = null;
-                            // ===
+                            });
                             final Uri uri;
                             if (ri == null || (uri = ri.getData()) == null) {
                                 shellCmd.exit(1);
@@ -1162,7 +1187,7 @@ public final class TermSh {
                         }
                         case "arch": {
                             shellCmd.stdOut.write(Misc.toUTF8(StringUtils.joinWith(
-                                    " ", (Object[]) getAbis()) + "\n"));
+                                    " ", (Object[]) Misc.getAbis()) + "\n"));
                             break;
                         }
                         case "sdk": {

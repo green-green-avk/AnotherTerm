@@ -117,6 +117,7 @@ public final class XmlToSpanned {
                 case "b":
                     startSpan(new StyleSpan(Typeface.BOLD), output.length());
                     break;
+                case "em":
                 case "i":
                     startSpan(new StyleSpan(Typeface.ITALIC), output.length());
                     break;
@@ -221,6 +222,7 @@ public final class XmlToSpanned {
             switch (parser.getName().toLowerCase()) {
                 case "a":
                 case "b":
+                case "em":
                 case "i":
                 case "kbd":
                     endSpan(output.length());

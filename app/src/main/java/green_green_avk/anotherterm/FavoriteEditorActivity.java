@@ -241,7 +241,14 @@ public final class FavoriteEditorActivity extends AppCompatActivity {
         et.setText(v == null ? "" : v.toString());
     }
 
-    private static void setSizeText(@NonNull final EditText et, final Object v) {
+    private static void setSizeText(@NonNull final EditText et, Object v) {
+        if (v instanceof String) {
+            try {
+                v = Long.parseLong((String) v);
+            } catch (final NumberFormatException e) {
+                v = 0;
+            }
+        }
         if (v instanceof Integer && ((int) v) <= 0 ||
                 v instanceof Long && ((long) v) <= 0L) setText(et, "");
         else setText(et, v);

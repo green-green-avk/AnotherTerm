@@ -4,6 +4,8 @@ import android.os.Build;
 import android.support.annotation.Keep;
 import android.support.annotation.NonNull;
 
+import org.apache.commons.lang3.StringUtils;
+
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
@@ -14,6 +16,7 @@ import java.util.Map;
 import green_green_avk.anotherterm.BuildConfig;
 import green_green_avk.anotherterm.R;
 import green_green_avk.anotherterm.backends.BackendModule;
+import green_green_avk.anotherterm.utils.Misc;
 import green_green_avk.ptyprocess.PtyProcess;
 
 public final class LocalModule extends BackendModule {
@@ -26,19 +29,19 @@ public final class LocalModule extends BackendModule {
     private PtyProcess proc = null;
     private final OutputStream input = new OutputStream() {
         @Override
-        public void write(int b) throws IOException {
+        public void write(final int b) throws IOException {
             if (proc == null) return;
             proc.getOutputStream().write(b);
         }
 
         @Override
-        public void write(byte[] b) throws IOException {
+        public void write(final byte[] b) throws IOException {
             if (proc == null) return;
             proc.getOutputStream().write(b);
         }
 
         @Override
-        public void write(byte[] b, int off, int len) throws IOException {
+        public void write(final byte[] b, final int off, final int len) throws IOException {
             if (proc == null) return;
             proc.getOutputStream().write(b, off, len);
         }
@@ -131,6 +134,8 @@ public final class LocalModule extends BackendModule {
         }
         env.put("LIB_DIR", context.getApplicationInfo().nativeLibraryDir);
         env.put("APP_ID", BuildConfig.APPLICATION_ID);
+        env.put("MY_DEVICE_ABIS", StringUtils.joinWith(" ", (Object[]) Misc.getAbis()));
+        env.put("MY_ANDROID_SDK", Integer.toString(Build.VERSION.SDK_INT));
         synchronized (connectionLock) {
             proc = PtyProcess.system(execute, env);
             readerThread = new Thread(new ProcOutputR(proc.getInputStream()));

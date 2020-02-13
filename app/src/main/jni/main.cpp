@@ -261,7 +261,7 @@ int main(const int argc, const char *const *const argv) {
         writeAllOrExit(sock, &_l, 4);
         writeAllOrExit(sock, buf, l);
     }
-    // Android LocalSocket is good but still poor implemented:
+    // Android LocalSocket is good but still poorly implemented:
     // there is no poll() method and raw FD is also inaccessible...
     // This pipe is only for signals / exit tracking now:
     // the local socket is used purely to request this tool in order to resolve
