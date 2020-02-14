@@ -27,6 +27,46 @@
             tools:ignore="HardcodedText" />
     </LinearLayout>
 
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="@string/title_permissions"
+        android:textSize="@dimen/text_header_size" />
+
+    <TableLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+
+        <TableRow
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/text_separator"
+            android:layout_marginBottom="@dimen/text_separator"
+            android:divider="@drawable/bg_attr_blinking_tiles"
+            android:showDividers="middle">
+
+            <CheckBox
+                android:id="@+id/f_perm_favmgmt"
+                android:layout_width="140sp"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="@dimen/text_margin"
+                android:layout_marginRight="@dimen/text_margin"
+                android:checked="false"
+                android:tag="perm_favmgmt"
+                android:text="@string/label_favorites_management" />
+
+            <green_green_avk.anotherterm.ui.HtmlTextView
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="@dimen/text_margin"
+                android:layout_marginRight="@dimen/text_margin"
+                android:layout_weight="1"
+                android:textStyle="italic"
+                app:xmlText="@string/desc_favorites_management" />
+        </TableRow>
+
+    </TableLayout>
+
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"

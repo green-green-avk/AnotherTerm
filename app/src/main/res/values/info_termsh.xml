@@ -242,6 +242,22 @@ sdk
 <dd>Show this device Android SDK version.
 <p><em>(Deprecated, use <clipboard>MY_ANDROID_SDK</clipboard> variable instead)</em></p></dd><br/>
 
+<dt><p><code>
+has-favorite &lt;name&gt; &lt;execute&gt;
+</code></p></dt>
+<dd>Return <code>0</code> exit code if a favorite named <code>&lt;name&gt;</code> exists,
+<code>2</code> otherwise.
+<p><em>`Favorite management\' permission must be granted in a favorite starting the shell from which
+this command is called.</em></p></dd><br/>
+
+<dt><p><code>
+create-shell-favorite &lt;name&gt; &lt;execute&gt;
+</code></p></dt>
+<dd>Create a shell favorite named <code>&lt;name&gt;</code>
+executing <code>&lt;execute&gt;</code> script string.
+<p><em>`Favorite management\' permission must be granted in a favorite starting the shell from which
+this command is called.</em></p></dd><br/>
+
 </dl>
 
 <h4>Notes:</h4>

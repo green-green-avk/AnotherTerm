@@ -58,12 +58,15 @@ import javax.net.ssl.HttpsURLConnection;
 
 import green_green_avk.anotherterm.backends.BackendException;
 import green_green_avk.anotherterm.backends.BackendModule;
+import green_green_avk.anotherterm.backends.BackendsList;
+import green_green_avk.anotherterm.backends.local.LocalModule;
 import green_green_avk.anotherterm.backends.usbUart.UsbUartModule;
 import green_green_avk.anotherterm.ui.BackendUiShell;
 import green_green_avk.anotherterm.utils.BinaryGetOpts;
 import green_green_avk.anotherterm.utils.BlockingSync;
 import green_green_avk.anotherterm.utils.ChrootedFile;
 import green_green_avk.anotherterm.utils.Misc;
+import green_green_avk.anotherterm.utils.PreferenceStorage;
 import green_green_avk.anotherterm.utils.SslHelper;
 import green_green_avk.anotherterm.utils.XmlToAnsi;
 import green_green_avk.ptyprocess.PtyProcess;
@@ -240,6 +243,18 @@ public final class TermSh {
             }
         }
 
+        private static final class ShellSecurityException extends RuntimeException {
+            private static final String h = "The operation is not permitted in this session";
+
+            private ShellSecurityException() {
+                super(h);
+            }
+
+            private ShellSecurityException(final String message) {
+                super(h + ": " + message);
+            }
+        }
+
         private static final class ShellCmdIO {
             private static final byte CMD_EXIT = 0;
             private static final byte CMD_OPEN = 1;
@@ -260,6 +275,8 @@ public final class TermSh {
             @NonNull
             private final InputStream ctlIn;
             @NonNull
+            private final long shellSessionToken;
+            private final LocalModule.SessionData shellSessionData;
             private final String currDir;
             private final byte[][] args;
             private volatile Runnable onTerminate = null;
@@ -374,6 +391,13 @@ public final class TermSh {
             }
 
             @NonNull
+            private static long parseShellSessionToken(@NonNull final InputStream is)
+                    throws IOException, ParseException {
+                final DataInputStream dis = new DataInputStream(is);
+                return dis.readLong();
+            }
+
+            @NonNull
             private static String parsePwd(@NonNull final InputStream is)
                     throws IOException, ParseException {
                 final DataInputStream dis = new DataInputStream(is);
@@ -478,10 +502,19 @@ public final class TermSh {
                 return new File(PtyProcess.getPathByFd(open(name, PtyProcess.O_PATH).getFd()));
             }
 
+            private void checkPerms(final long perms) {
+                if (shellSessionData == null ||
+                        (shellSessionData.permissions &
+                                perms) == 0) {
+                    throw new ShellSecurityException();
+                }
+            }
+
             private ShellCmdIO(@NonNull final LocalSocket socket)
                     throws IOException, ParseException {
                 this.socket = socket;
                 cis = socket.getInputStream();
+                shellSessionToken = parseShellSessionToken(cis);
                 currDir = parsePwd(cis);
                 args = parseArgs(cis);
                 final FileDescriptor[] ioFds = socket.getAncillaryFileDescriptors();
@@ -494,6 +527,16 @@ public final class TermSh {
                 stdErr = wrapOutputFD(ioFds[2]);
                 ctlIn = wrapInputFD(ioFds[3]);
                 cth.start();
+
+                // Post init
+                try {
+                    shellSessionData = LocalModule.getSessionData(shellSessionToken);
+                } catch (final IllegalArgumentException e) {
+                    final String msg = "SHELL_SESSION_TOKEN env var is wrong!";
+                    stdErr.write(Misc.toUTF8(msg + "\n"));
+                    exit(1);
+                    throw new ShellSecurityException(msg);
+                }
             }
         }
 
@@ -613,8 +656,39 @@ public final class TermSh {
                 output.write(Misc.toUTF8(s));
         }
 
+        private interface RunnableT {
+            void run() throws Throwable;
+        }
+
+        private void runOnUiThread(@NonNull final ShellCmdIO shellCmd,
+                                   @NonNull final RunnableT runnable)
+                throws InterruptedException, IOException {
+            final BlockingSync<Throwable> result = new BlockingSync<>();
+            ui.runOnUiThread(new Runnable() {
+                @Override
+                public void run() {
+                    try {
+                        runnable.run();
+                    } catch (final Throwable e) {
+                        result.set(e);
+                        return;
+                    }
+                    result.set(null);
+                }
+            });
+            final Throwable e = shellCmd.waitFor(result, new Runnable() {
+                @Override
+                public void run() {
+                    result.setIfIsNotSet(new IOException("Request terminated"));
+                }
+            });
+            if (e != null) throw new IOException(e.getMessage());
+        }
+
         @SuppressLint("StaticFieldLeak")
         private final class ClientTask extends AsyncTask<Object, Object, Object> {
+            private int exitStatus = 0;
+
             @Override
             protected Object doInBackground(final Object[] objects) {
                 final LocalSocket socket = (LocalSocket) objects[0];
@@ -630,9 +704,12 @@ public final class TermSh {
                     } catch (final IOException ignored) {
                     }
                     return null;
+                } catch (final ShellSecurityException e) {
+                    Log.e("TermShServer", e.getMessage());
+                    return null;
                 }
                 try {
-                    int exitStatus = 0;
+                    exitStatus = 0;
                     if (shellCmd.args.length < 1) throw new ArgsException("No command specified");
                     final String command = Misc.fromUTF8(shellCmd.args[0]);
                     switch (command) {
@@ -1195,13 +1272,50 @@ public final class TermSh {
                                     Build.VERSION.SDK_INT + "\n"));
                             break;
                         }
+                        case "has-favorite": {
+                            shellCmd.checkPerms(LocalModule.SessionData.PERM_FAVMGMT);
+                            if (shellCmd.args.length != 2)
+                                throw new ParseException("Wrong number of arguments");
+                            final String name = Misc.fromUTF8(shellCmd.args[1]);
+                            runOnUiThread(shellCmd, new RunnableT() {
+                                @Override
+                                public void run() {
+                                    if (!FavoritesManager.contains(name)) {
+                                        exitStatus = 2;
+                                    }
+                                }
+                            });
+                            break;
+                        }
+                        case "create-shell-favorite": {
+                            shellCmd.checkPerms(LocalModule.SessionData.PERM_FAVMGMT);
+                            if (shellCmd.args.length != 3)
+                                throw new ParseException("Wrong number of arguments");
+                            final String name = Misc.fromUTF8(shellCmd.args[1]);
+                            final String execute = Misc.fromUTF8(shellCmd.args[2]);
+                            runOnUiThread(shellCmd, new RunnableT() {
+                                @Override
+                                public void run() {
+                                    if (FavoritesManager.contains(name)) {
+                                        throw new ParseException(
+                                                "Favorite `" + name
+                                                        + "' is already exists");
+                                    }
+                                    final PreferenceStorage ps = new PreferenceStorage();
+                                    ps.put("type", BackendsList.get(LocalModule.class).typeStr);
+                                    ps.put("execute", execute);
+                                    FavoritesManager.set(name, ps);
+                                }
+                            });
+                            break;
+                        }
                         default:
                             throw new ParseException("Unknown command");
                     }
                     shellCmd.exit(exitStatus);
                 } catch (final InterruptedException | SecurityException | IOException |
-                        ParseException | ArgsException | BinaryGetOpts.ParseException |
-                        ActivityNotFoundException e) {
+                        ParseException | ArgsException | ShellSecurityException |
+                        BinaryGetOpts.ParseException | ActivityNotFoundException e) {
                     try {
                         if (e instanceof ArgsException) {
                             printHelp(shellCmd.stdErr, shellCmd);

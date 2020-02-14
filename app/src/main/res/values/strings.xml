@@ -132,4 +132,11 @@ sh
     <string name="msg_pick_application">Pick application</string>
     <string name="msg_pick_destination">Pick destination</string>
     <string name="msg_pick_source">Pick source</string>
+    <string name="title_permissions">Permissions</string>
+    <string name="label_favorites_management">Favorites management</string>
+    <string name="desc_favorites_management"><![CDATA[
+        <p>Grants <b>termsh</b> an ability to silently read/write favorites.</p>
+        <p><b>Note:</b> Any process running in the terminal could reach
+        any application configuration file anyway if not in a sandbox environment like PRoot.</p>
+    ]]></string>
 </resources>

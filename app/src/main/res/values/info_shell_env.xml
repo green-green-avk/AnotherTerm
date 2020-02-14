@@ -3,24 +3,27 @@
     <string name="desc_shell_env_help" tools:ignore="TypographyDashes,TypographyEllipsis"><![CDATA[
         <p>Environment variables:
         <ul>
-        <li><clipboard>DATA_DIR</clipboard> &#x2014; default persistent data directory</li>
+        <li><clipboard>DATA_DIR</clipboard> &#x2014; default persistent data directory.</li>
         <li><clipboard>PROTECTED_DATA_DIR</clipboard> &#x2014; default device-protected persistent
-        data directory (set if available)</li>
+        data directory (set if available).</li>
         <li><clipboard>SHARED_DATA_DIR</clipboard> &#x2014;
         directory on the primary shared/external storage device
         where the application can place persistent files it owns
-        (set if available)</li>
+        (set if available).</li>
         <li><clipboard>EXTERNAL_DATA_DIR</clipboard> &#x2014;
-        an alias to <clipboard>SHARED_DATA_DIR</clipboard></li>
-        <li><clipboard>LIB_DIR</clipboard> &#x2014; native binaries path</li>
-        <li><clipboard>APP_ID</clipboard> &#x2014; application id</li>
+        an alias to <clipboard>SHARED_DATA_DIR</clipboard>.</li>
+        <li><clipboard>LIB_DIR</clipboard> &#x2014; native binaries path.</li>
+        <li><clipboard>APP_ID</clipboard> &#x2014; application id.</li>
         <li><clipboard>MY_DEVICE_ABIS</clipboard> &#x2014; supported architectures list
-        from the most preferable to the least preferable</li>
-        <li><clipboard>MY_ANDROID_SDK</clipboard> &#x2014; Android SDK version</li>
+        from the most preferable to the least preferable.</li>
+        <li><clipboard>MY_ANDROID_SDK</clipboard> &#x2014; Android SDK version.</li>
+        <li><clipboard>SHELL_SESSION_TOKEN</clipboard> &#x2014; associated with related data
+        including <b>termsh</b> permissions. It can be unset to avoid propagation
+        of any permissions.</li>
         </ul></p>
         <p>Commands:
         <ul>
-        <li><clipboard>$LIB_DIR/libtermsh.so</clipboard> &#x2014; a tool to use Android
+        <li><b>termsh</b> (<clipboard>$LIB_DIR/libtermsh.so</clipboard>) &#x2014; a tool to use Android
         functionality from the shell.
         Run with <code>help</code> command for
         <a href=\"info://green_green_avk.anotherterm/termsh_man\">details</a>.</li>

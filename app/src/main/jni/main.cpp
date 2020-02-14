@@ -175,6 +175,20 @@ static void _onSignalExit(int s) {
 #define CMD_EXIT 0
 #define CMD_OPEN 1
 
+static uint64_t getenvuqOrExit(const char *const name) {
+    const char *const vs = getenv(name);
+    if (vs == NULL || *vs == '\0') return 0;
+    char *p;
+    uint64_t v = strtoull(vs, &p, 16);
+    if (*p != '\0') {
+        fprintf(stderr, "Suspiciously bad formatted %s env variable...\n", name);
+        __android_log_print(ANDROID_LOG_ERROR, "termsh",
+                            "Suspiciously bad formatted %s env variable...\n", name);
+        exit(1);
+    }
+    return v;
+}
+
 /*
  * It seems, tty descriptors cannot be passed via local domain sockets if O_APPEND is set.
  * GNU Make sets O_APPEND onto stdout, so trying not to break it but resolve it...
@@ -192,6 +206,11 @@ static int fixFd(const int fd) {
 }
 
 int main(const int argc, const char *const *const argv) {
+
+    // Another Term shell session token associated with related data
+    // including termsh permissions.
+    const uint64_t shellSessionToken = getenvuqOrExit("SHELL_SESSION_TOKEN");
+
     options_t options = {.raw = false};
 
     int c_argc = argc - 1;
@@ -248,6 +267,10 @@ int main(const int argc, const char *const *const argv) {
         fprintf(stderr, "Spoofing detected!\n");
         __android_log_write(ANDROID_LOG_ERROR, "termsh", "Spoofing detected!");
         exit(1);
+    }
+    {
+        const uint64_t _st = htobe64(shellSessionToken);
+        writeAllOrExit(sock, &_st, sizeof(_st));
     }
     {
         char buf[PATH_MAX];

@@ -3,6 +3,7 @@ package green_green_avk.anotherterm.backends.local;
 import android.os.Build;
 import android.support.annotation.Keep;
 import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 
 import org.apache.commons.lang3.StringUtils;
 
@@ -10,8 +11,10 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.security.SecureRandom;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 import green_green_avk.anotherterm.BuildConfig;
 import green_green_avk.anotherterm.R;
@@ -89,6 +92,51 @@ public final class LocalModule extends BackendModule {
         }
     }
 
+    public static final class SessionData {
+        public static final long PERM_FAVMGMT = 1;
+
+        public long permissions = 0;
+    }
+
+    private static final Map<Long, SessionData> sessionDataMap = new ConcurrentHashMap<>();
+    private static SecureRandom rng = new SecureRandom();
+
+    public static final long NO_SESSION = 0;
+
+    private static long generateToken() {
+        return rng.nextLong();
+    }
+
+    private static long generateSessionToken() {
+        final long v = generateToken();
+        return (v == NO_SESSION) ? generateToken() : v;
+    }
+
+    @Nullable
+    public static SessionData getSessionData(final long token) {
+        if (token == NO_SESSION) return null;
+        final SessionData sd = sessionDataMap.get(token);
+        if (sd == null) throw new IllegalArgumentException();
+        return sd;
+    }
+
+    @Nullable
+    public static SessionData getSessionData(@Nullable final String token) {
+        if (token == null || token.isEmpty()) return null;
+        try {
+            return getSessionData(Long.parseLong(token, 16));
+        } catch (final NumberFormatException e) {
+            throw new IllegalArgumentException();
+        }
+    }
+
+    private SessionData sessionData = new SessionData();
+    private long sessionToken = generateSessionToken();
+
+    {
+        sessionDataMap.put(sessionToken, sessionData);
+    }
+
     private String terminalString = "xterm";
     private String execute = "";
 
@@ -97,6 +145,8 @@ public final class LocalModule extends BackendModule {
         final ParametersWrapper pp = new ParametersWrapper(params);
         terminalString = pp.getString("terminal_string", terminalString);
         execute = pp.getString("execute", execute);
+        sessionData.permissions = pp.getBoolean("perm_favmgmt", false) ?
+                SessionData.PERM_FAVMGMT : 0;
     }
 
     @Override
@@ -123,6 +173,7 @@ public final class LocalModule extends BackendModule {
     @Override
     public void connect() {
         final Map<String, String> env = new HashMap<>(System.getenv());
+        env.put("SHELL_SESSION_TOKEN", Long.toHexString(sessionToken));
         env.put("TERM", terminalString);
         env.put("DATA_DIR", context.getApplicationInfo().dataDir);
         if (Build.VERSION.SDK_INT >= 24)
@@ -162,6 +213,7 @@ public final class LocalModule extends BackendModule {
     @Override
     protected void finalize() throws Throwable {
         disconnect();
+        sessionDataMap.remove(sessionToken);
         super.finalize();
     }
 
