@@ -42,17 +42,17 @@ public final class TermKeyMapEditorActivity extends AppCompatActivity {
         }
 
         @Override
-        public Object getItem(int position) {
+        public Object getItem(final int position) {
             return keys[position];
         }
 
         @Override
-        public long getItemId(int position) {
+        public long getItemId(final int position) {
             return keys[position];
         }
 
         @Override
-        public View getView(int position, View convertView, ViewGroup parent) {
+        public View getView(final int position, View convertView, final ViewGroup parent) {
             if (!(convertView instanceof TextView))
                 convertView = new TextView(parent.getContext(), null,
                         android.R.style.Widget_TextView_SpinnerItem);
@@ -65,11 +65,11 @@ public final class TermKeyMapEditorActivity extends AppCompatActivity {
     private int currentKeyCode = -1;
 
     @Nullable
-    private static String nullUnescape(@NonNull String v) {
+    private static String nullUnescape(@NonNull final String v) {
         if (v.isEmpty()) return null;
         try {
             return Unescape.c(v);
-        } catch (IllegalArgumentException e) {
+        } catch (final IllegalArgumentException e) {
             return null;
         }
     }
@@ -77,17 +77,19 @@ public final class TermKeyMapEditorActivity extends AppCompatActivity {
     private void prepareKeyField(final View v, final int m, final int am) {
         ((EditText) v).addTextChangedListener(new TextWatcher() {
             @Override
-            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+            public void beforeTextChanged(final CharSequence s,
+                                          final int start, final int count, final int after) {
 
             }
 
             @Override
-            public void onTextChanged(CharSequence s, int start, int before, int count) {
+            public void onTextChanged(final CharSequence s,
+                                      final int start, final int before, final int count) {
 
             }
 
             @Override
-            public void afterTextChanged(Editable s) {
+            public void afterTextChanged(final Editable s) {
                 if (currentKeyCode >= 0)
                     keyMap.set(currentKeyCode, m, am, nullUnescape(s.toString()));
             }
@@ -95,7 +97,7 @@ public final class TermKeyMapEditorActivity extends AppCompatActivity {
         /*
         v.setOnFocusChangeListener(new View.OnFocusChangeListener() {
             @Override
-            public void onFocusChange(View v, boolean hasFocus) {
+            public void onFocusChange(final View v, final boolean hasFocus) {
                 if (!hasFocus && currentKeyCode >= 0)
                     keyMap.set(currentKeyCode, m, am, ((EditText) v).getText().toString());
             }
@@ -103,23 +105,48 @@ public final class TermKeyMapEditorActivity extends AppCompatActivity {
         */
     }
 
+    private void refreshKeysView() {
+        final ViewGroup keysView = findViewById(R.id.keys);
+        for (int m = 0; m < TermKeyMap.MODIFIERS_SIZE; ++m) {
+            final View v = keysView.getChildAt(m);
+            final EditText nView = v.findViewById(R.id.normal);
+            final EditText aView = v.findViewById(R.id.app);
+            nView.setHint(Escape.c(TermKeyMapManager.defaultKeyMap.get(currentKeyCode, m,
+                    TermKeyMap.APP_MODE_NONE)));
+            aView.setHint(Escape.c(TermKeyMapManager.defaultKeyMap.get(currentKeyCode, m,
+                    TermKeyMap.APP_MODE_DEFAULT)));
+            nView.setText(Escape.c(keyMap.get(currentKeyCode, m,
+                    TermKeyMap.APP_MODE_NONE)));
+            aView.setText(Escape.c(keyMap.get(currentKeyCode, m,
+                    TermKeyMap.APP_MODE_DEFAULT)));
+        }
+    }
+
     @Override
-    protected void onSaveInstanceState(Bundle outState) {
+    protected void onSaveInstanceState(final Bundle outState) {
         super.onSaveInstanceState(outState);
         outState.putSerializable("E_KEYMAP", keyMap);
     }
 
     @Override
-    protected void onCreate(Bundle savedInstanceState) {
+    protected void onCreate(final Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_term_key_map_editor);
-        final String name = getIntent().getStringExtra(C.IFK_MSG_NAME);
-        ((EditText) findViewById(R.id.f_name)).setText(name);
+        String name = getIntent().getStringExtra(C.IFK_MSG_NAME);
         if (savedInstanceState != null) {
             keyMap = (TermKeyMapRules.Editable) savedInstanceState.get("E_KEYMAP");
+        } else if (getIntent().getData() != null) {
+            try {
+                final Uri uri = getIntent().getData();
+                keyMap = TermKeyMapRulesParser.fromUri(uri);
+                name = uri.getQueryParameter("name");
+            } catch (final IllegalArgumentException e) {
+                keyMap = (TermKeyMapRules.Editable) TermKeyMapManager.getRules(name);
+            }
         } else {
             keyMap = (TermKeyMapRules.Editable) TermKeyMapManager.getRules(name);
         }
+        setName(name);
         final Spinner keyView = findViewById(R.id.f_key);
         keyView.setAdapter(new KeysAdapter());
 
@@ -138,17 +165,10 @@ public final class TermKeyMapEditorActivity extends AppCompatActivity {
 
         keyView.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             @Override
-            public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+            public void onItemSelected(final AdapterView<?> parent, final View view,
+                                       final int position, final long id) {
                 currentKeyCode = (int) id;
-                for (int m = 0; m < TermKeyMap.MODIFIERS_SIZE; ++m) {
-                    final View v = keysView.getChildAt(m);
-                    final EditText nView = v.findViewById(R.id.normal);
-                    final EditText aView = v.findViewById(R.id.app);
-                    nView.setHint(Escape.c(TermKeyMapManager.defaultKeyMap.get(currentKeyCode, m, TermKeyMap.APP_MODE_NONE)));
-                    aView.setHint(Escape.c(TermKeyMapManager.defaultKeyMap.get(currentKeyCode, m, TermKeyMap.APP_MODE_DEFAULT)));
-                    nView.setText(Escape.c(keyMap.get(currentKeyCode, m, TermKeyMap.APP_MODE_NONE)));
-                    aView.setText(Escape.c(keyMap.get(currentKeyCode, m, TermKeyMap.APP_MODE_DEFAULT)));
-                }
+                refreshKeysView();
             }
 
             @Override
@@ -157,13 +177,22 @@ public final class TermKeyMapEditorActivity extends AppCompatActivity {
         });
     }
 
+    @NonNull
+    private String getName() {
+        return ((EditText) findViewById(R.id.f_name)).getText().toString().trim();
+    }
+
+    private void setName(@Nullable final String name) {
+        ((EditText) findViewById(R.id.f_name)).setText(name);
+    }
+
     private void save(@NonNull final String name) {
         TermKeyMapManager.set(name, keyMap);
         Toast.makeText(this, R.string.msg_saved, Toast.LENGTH_SHORT).show();
     }
 
-    public void save(View v) {
-        final String name = ((EditText) findViewById(R.id.f_name)).getText().toString().trim();
+    public void save(final View v) {
+        final String name = getName();
         if (name.isEmpty()) {
             Toast.makeText(this, getString(R.string.msg_name_must_not_be_empty), Toast.LENGTH_SHORT).show();
         } else {
@@ -178,7 +207,51 @@ public final class TermKeyMapEditorActivity extends AppCompatActivity {
         }
     }
 
-    public void info(View v) {
+    public void paste(final View view) {
+        if (!(keyMap instanceof TermKeyMapRules.UriImportable))
+            return;
+        final Uri uri;
+        try {
+            uri = UiUtils.uriFromClipboard(this);
+        } catch (final IllegalStateException e) {
+            return;
+        }
+        try {
+            ((TermKeyMapRules.UriImportable) keyMap).fromUri(uri);
+        } catch (final IllegalArgumentException e) {
+            Toast.makeText(this, R.string.msg_clipboard_does_not_contain_applicable_settings,
+                    Toast.LENGTH_SHORT).show();
+            return;
+        }
+        setName(uri.getQueryParameter("name"));
+        refreshKeysView();
+    }
+
+    public void copy(final View view) {
+        if (!(keyMap instanceof TermKeyMapRules.UriExportable))
+            return;
+        final String name = getName();
+        final Uri uri = ((TermKeyMapRules.UriExportable) keyMap).toUri().buildUpon()
+                .appendQueryParameter("name", name).build();
+        try {
+            UiUtils.uriToClipboard(this, uri, getString(R.string.title_terminal_s_link_s,
+                    name,
+                    getString(R.string.linktype_key_map_settings)));
+        } catch (final IllegalStateException e) {
+            return;
+        }
+        Toast.makeText(this, R.string.msg_copied_to_clipboard, Toast.LENGTH_SHORT).show();
+    }
+
+    public void share(final View view) {
+        if (!(keyMap instanceof TermKeyMapRules.UriExportable))
+            return;
+        final Uri uri = ((TermKeyMapRules.UriExportable) keyMap).toUri().buildUpon()
+                .appendQueryParameter("name", getName()).build();
+        UiUtils.shareUri(this, uri, getString(R.string.linktype_key_map_settings));
+    }
+
+    public void info(final View v) {
         startActivity(new Intent(this, InfoActivity.class)
                 .setData(Uri.parse("info://local/keymap_escapes")));
     }

@@ -39,7 +39,7 @@
         <activity
             android:name=".FavoriteEditorActivity"
             android:configChanges="orientation|screenSize|keyboardHidden|keyboard"
-            android:label="@string/connection_settings_editor"
+            android:label="@string/title_activity_connection_settings_editor"
             android:parentActivityName=".SessionsActivity"
             android:theme="@style/AppSettingsTheme"
             android:windowSoftInputMode="adjustResize">
@@ -61,15 +61,24 @@
             android:parentActivityName=".SessionsActivity" />
         <activity
             android:name=".TermKeyMapManagerActivity"
-            android:label="@string/key_mapping"
+            android:label="@string/title_activity_key_mappings"
             android:parentActivityName=".SessionsActivity" />
         <activity
             android:name=".TermKeyMapEditorActivity"
             android:configChanges="orientation|screenSize|keyboardHidden|keyboard"
-            android:label="@string/key_mapping"
+            android:label="@string/title_activity_key_mapping_editor"
             android:parentActivityName=".TermKeyMapManagerActivity"
             android:theme="@style/AppSettingsTheme"
-            android:windowSoftInputMode="adjustResize" />
+            android:windowSoftInputMode="adjustResize">
+            <intent-filter>
+                <action android:name="android.intent.action.VIEW" />
+
+                <category android:name="android.intent.category.DEFAULT" />
+                <category android:name="android.intent.category.BROWSABLE" />
+
+                <data android:scheme="termkeymap" />
+            </intent-filter>
+        </activity>
         <activity
             android:name=".ConsoleActivity"
             android:configChanges="keyboardHidden|keyboard"

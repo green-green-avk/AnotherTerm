@@ -13,11 +13,14 @@ import android.os.ParcelFileDescriptor;
 import android.provider.OpenableColumns;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
+import android.text.TextUtils;
 
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.Locale;
+
+import green_green_avk.anotherterm.utils.Misc;
 
 public final class LinksProvider extends ContentProvider {
     private static final int CODE_LINK_HTML = 1;
@@ -31,21 +34,22 @@ public final class LinksProvider extends ContentProvider {
     private String contentFilename = null;
     private String contentFmt = null;
 
-    public static Uri getHtmlWithLink(@NonNull final Uri uri) {
-        return getHtmlWithLink(uri.toString());
+    public static Uri getHtmlWithLink(@NonNull final Uri uri, @NonNull final String desc) {
+        return getHtmlWithLink(uri.toString(), desc);
     }
 
-    public static Uri getHtmlWithLink(@NonNull final String link) {
+    public static Uri getHtmlWithLink(@NonNull final String link, @NonNull final String desc) {
         if (instance == null) return null;
-        return Uri.parse("content://" + instance.authority + "/html/" + Uri.encode(link));
+        return Uri.parse("content://" + instance.authority + "/html/" + Uri.encode(link) +
+                "?desc=" + Uri.encode(desc));
     }
 
     @Override
     public boolean onCreate() {
-        contentTitle = getContext().getString(R.string.terminal_link_s);
+        contentTitle = getContext().getString(R.string.title_terminal_s_link_s);
         contentFilename = contentTitle + ".html";
-        contentFmt =
-                "<html><body><p>" + contentTitle + "</p><p><a href='%2$s'>%2$s</a></p></body></html>";
+        contentFmt = "<html><head><meta charset=\"UTF-8\" /></head><body><p>" + contentTitle +
+                "</p><p><a href=\"%3$s\">%4$s</a></p></body></html>";
         return true;
     }
 
@@ -86,14 +90,27 @@ public final class LinksProvider extends ContentProvider {
     }
 
     @NonNull
-    private byte[] buildContent(@NonNull final Uri uri) {
+    private static String getArg(@NonNull final String key, @NonNull final Uri uri,
+                                 @NonNull final String def) {
         String name = null;
         try {
-            name = uri.getQueryParameter("name");
+            name = uri.getQueryParameter(key);
         } catch (final UnsupportedOperationException ignored) {
         }
-        if (name == null) name = uri.toString();
-        return String.format(Locale.getDefault(), contentFmt, name, uri.toString()).getBytes();
+        if (name == null) name = def;
+        return name;
+    }
+
+    @NonNull
+    private static String getDesc(@NonNull final Uri uri) {
+        return getArg("desc", uri, "-");
+    }
+
+    @NonNull
+    private byte[] buildContent(@NonNull final Uri uri, @NonNull final String desc) {
+        return String.format(Locale.getDefault(), contentFmt,
+                TextUtils.htmlEncode(getArg("name", uri, "-")), TextUtils.htmlEncode(desc),
+                uri.toString(), TextUtils.htmlEncode(uri.toString())).getBytes(Misc.UTF8);
     }
 
     private final PipeDataWriter<String> streamWriter = new PipeDataWriter<String>() {
@@ -103,7 +120,7 @@ public final class LinksProvider extends ContentProvider {
                                     @Nullable final Bundle opts, @Nullable final String args) {
             final FileOutputStream os = new FileOutputStream(output.getFileDescriptor());
             try {
-                os.write(buildContent(getTargetUri(uri)));
+                os.write(buildContent(getTargetUri(uri), getDesc(uri))); // Warning: length!
             } catch (final IOException ignored) {
             }
         }
@@ -129,12 +146,15 @@ public final class LinksProvider extends ContentProvider {
         switch (matcher.match(uri)) {
             case CODE_LINK_HTML: {
                 final Uri targetUri = getTargetUri(uri);
+                final String desc = getDesc(uri); // Warning: length!
                 final MatrixCursor cursor =
-                        new MatrixCursor(new String[]{OpenableColumns.DISPLAY_NAME, OpenableColumns.SIZE},
+                        new MatrixCursor(
+                                new String[]{OpenableColumns.DISPLAY_NAME, OpenableColumns.SIZE},
                                 1); // Bluetooth should be happy
                 cursor.addRow(new Object[]{
-                        String.format(Locale.getDefault(), contentFilename, targetUri.getQueryParameter("name")),
-                        buildContent(targetUri).length
+                        String.format(Locale.getDefault(), contentFilename,
+                                getArg("name", targetUri, targetUri.toString()), desc),
+                        buildContent(targetUri, desc).length
                 });
                 return cursor;
             }

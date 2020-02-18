@@ -49,8 +49,8 @@
     <string name="action_terminate">Terminate</string>
     <string name="hint_port_mapping"><![CDATA[src_port[>dst_host[:dst_port]][;…]]]></string>
     <string name="label_charset">Charset</string>
-    <string name="connection_settings_editor">Connection Settings Editor</string>
-    <string name="terminal_link_s">Terminal Link `%s\'</string>
+    <string name="title_activity_connection_settings_editor">Connection Settings Editor</string>
+    <string name="title_terminal_s_link_s">Terminal %2$s link `%1$s\'</string>
     <string name="msg_saved">Saved</string>
     <string name="msg_cloned">Cloned</string>
     <string name="favorite_s_is_already_exists_replace">Favorite `%s\' is already exists. Replace?</string>
@@ -67,8 +67,8 @@
     <string name="port_forwarding_remote_">Remote:</string>
     <string name="choose">Choose</string>
     <string name="label_prefer_public_key_authentication">Prefer Public Key Authentication</string>
-    <string name="msg_clipboard_does_not_contain_any_settings">Clipboard does not contain any settings</string>
-    <string name="key_mapping">Key Mapping</string>
+    <string name="msg_clipboard_does_not_contain_applicable_settings">Clipboard does not contain applicable settings</string>
+    <string name="title_activity_key_mappings">Key Mappings</string>
     <string name="action_add">Add</string>
     <string name="none">None</string>
     <string name="action_term_key_mapping">Key Mapping</string>
@@ -139,4 +139,7 @@ sh
         <p><b>Note:</b> Any process running in the terminal could reach
         any application configuration file anyway if not in a sandbox environment like PRoot.</p>
     ]]></string>
+    <string name="title_activity_key_mapping_editor">Key Mapping Editor</string>
+    <string name="linktype_connection_settings">connection settings</string>
+    <string name="linktype_key_map_settings">key map settings</string>
 </resources>

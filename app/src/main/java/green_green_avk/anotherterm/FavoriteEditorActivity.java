@@ -1,15 +1,10 @@
 package green_green_avk.anotherterm;
 
-import android.content.ClipData;
-import android.content.ClipDescription;
-import android.content.ClipboardManager;
-import android.content.Context;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
-import android.support.v4.app.ShareCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.view.View;
 import android.view.ViewGroup;
@@ -59,37 +54,35 @@ public final class FavoriteEditorActivity extends AppCompatActivity {
     public void share(final View view) {
         final PreferenceStorage ps = getPreferencesWithName();
         if (checkAndWarn(ps)) return;
-        final Uri uri = BackendsList.toUri(ps.get());
-        // https://stackoverflow.com/questions/29907030/sharing-text-plain-string-via-bluetooth-converts-data-into-html
-        // So, via ContentProvider...
-        ShareCompat.IntentBuilder.from(this).setType("text/html")
-                .setStream(LinksProvider.getHtmlWithLink(uri)).startChooser();
+        UiUtils.shareUri(this, BackendsList.toUri(ps.get()),
+                getString(R.string.linktype_connection_settings));
     }
 
     public void copy(final View view) {
         final PreferenceStorage ps = getPreferencesWithName();
         if (checkAndWarn(ps)) return;
-        final ClipboardManager clipboard = (ClipboardManager) getSystemService(Context.CLIPBOARD_SERVICE);
-        if (clipboard == null) return;
-        final Uri uri = BackendsList.toUri(ps.get());
-//        clipboard.setPrimaryClip(ClipData.newRawUri("Favorite URI", BackendsList.toUri(ps.get())));
-        clipboard.setPrimaryClip(new ClipData(getString(R.string.terminal_link_s, ps.get("name")),
-                new String[]{ClipDescription.MIMETYPE_TEXT_PLAIN, ClipDescription.MIMETYPE_TEXT_URILIST},
-                new ClipData.Item(uri.toString(), null, uri)));
+        try {
+            UiUtils.uriToClipboard(this, BackendsList.toUri(ps.get()),
+                    getString(R.string.title_terminal_s_link_s, ps.get("name"),
+                            getString(R.string.linktype_connection_settings)));
+        } catch (final IllegalStateException e) {
+            return;
+        }
         Toast.makeText(this, R.string.msg_copied_to_clipboard, Toast.LENGTH_SHORT).show();
     }
 
     public void paste(final View view) {
-        final ClipboardManager clipboard = (ClipboardManager) getSystemService(Context.CLIPBOARD_SERVICE);
-        if (clipboard == null) return;
-        if (!clipboard.hasPrimaryClip()) return;
-        final ClipData.Item cd = clipboard.getPrimaryClip().getItemAt(0);
-        Uri uri = cd.getUri();
-        if (uri == null) uri = Uri.parse(cd.coerceToText(this).toString());
+        final Uri uri;
+        try {
+            uri = UiUtils.uriFromClipboard(this);
+        } catch (final IllegalStateException e) {
+            return;
+        }
         try {
             setPreferences(uri);
         } catch (final BackendModule.ParametersUriParseException e) {
-            Toast.makeText(this, R.string.msg_clipboard_does_not_contain_any_settings, Toast.LENGTH_SHORT).show();
+            Toast.makeText(this, R.string.msg_clipboard_does_not_contain_applicable_settings,
+                    Toast.LENGTH_SHORT).show();
         }
     }
 

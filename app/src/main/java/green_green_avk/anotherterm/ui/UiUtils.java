@@ -5,6 +5,7 @@ import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.Dialog;
 import android.content.ClipData;
+import android.content.ClipDescription;
 import android.content.ClipboardManager;
 import android.content.Context;
 import android.content.DialogInterface;
@@ -13,10 +14,12 @@ import android.content.res.Resources;
 import android.graphics.PorterDuff;
 import android.graphics.Rect;
 import android.graphics.drawable.Drawable;
+import android.net.Uri;
 import android.os.Build;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.annotation.UiThread;
+import android.support.v4.app.ShareCompat;
 import android.util.AndroidException;
 import android.view.MenuItem;
 import android.view.View;
@@ -32,11 +35,41 @@ import java.util.NoSuchElementException;
 import java.util.Stack;
 import java.util.WeakHashMap;
 
+import green_green_avk.anotherterm.LinksProvider;
 import green_green_avk.anotherterm.R;
 import green_green_avk.anotherterm.utils.WeakHandler;
 
 public final class UiUtils {
     private UiUtils() {
+    }
+
+    public static void shareUri(@NonNull final Activity ctx, @NonNull final Uri uri,
+                                @NonNull final String description) {
+        // https://stackoverflow.com/questions/29907030/sharing-text-plain-string-via-bluetooth-converts-data-into-html
+        // So, via ContentProvider...
+        ShareCompat.IntentBuilder.from(ctx).setType("text/html")
+                .setStream(LinksProvider.getHtmlWithLink(uri, description)).startChooser();
+    }
+
+    @NonNull
+    public static Uri uriFromClipboard(@NonNull final Context ctx) {
+        final ClipboardManager clipboard = (ClipboardManager) ctx.getSystemService(Context.CLIPBOARD_SERVICE);
+        if (clipboard == null) throw new IllegalStateException("Can't get ClipboardManager");
+        if (!clipboard.hasPrimaryClip()) throw new IllegalStateException("Clipboard is empty");
+        final ClipData.Item cd = clipboard.getPrimaryClip().getItemAt(0);
+        Uri uri = cd.getUri();
+        if (uri == null) uri = Uri.parse(cd.coerceToText(ctx).toString());
+        return uri;
+    }
+
+    public static void uriToClipboard(@NonNull final Context ctx, @NonNull final Uri uri,
+                                      @NonNull final String title) {
+        final ClipboardManager clipboard = (ClipboardManager) ctx.getSystemService(Context.CLIPBOARD_SERVICE);
+        if (clipboard == null) throw new IllegalStateException("Can't get ClipboardManager");
+//        clipboard.setPrimaryClip(ClipData.newRawUri(title, BackendsList.toUri(ps.get())));
+        clipboard.setPrimaryClip(new ClipData(title,
+                new String[]{ClipDescription.MIMETYPE_TEXT_PLAIN, ClipDescription.MIMETYPE_TEXT_URILIST},
+                new ClipData.Item(uri.toString(), null, uri)));
     }
 
     public static void toClipboard(final Context context, final String v) {
