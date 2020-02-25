@@ -180,6 +180,8 @@ public final class ConsoleService extends Service {
         sessions.put(key, s);
         sessionKeys.add(key);
 
+        ci.setWindowTitle(getSessionTitle(s, key));
+
         tryStart(appCtx);
         execOnSessionsListChange();
 
@@ -206,10 +208,16 @@ public final class ConsoleService extends Service {
         return s;
     }
 
+    @NonNull
+    @UiThread
+    private static String getSessionTitle(@NonNull final Session s, final int key) {
+        return String.format("%1$s #%2$d", s.connectionParams.get("name"), key);
+    }
+
+    @NonNull
     @UiThread
     public static String getSessionTitle(final int key) {
-        final Session s = getSession(key);
-        return String.format("%1$s #%2$d", s.connectionParams.get("name"), key);
+        return getSessionTitle(getSession(key), key);
     }
 
     private static void execOnSessionsListChange() {

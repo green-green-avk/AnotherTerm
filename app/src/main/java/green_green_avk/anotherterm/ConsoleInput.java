@@ -12,7 +12,9 @@ import java.io.InputStreamReader;
 import java.nio.ByteBuffer;
 import java.nio.charset.Charset;
 import java.util.Collections;
+import java.util.Deque;
 import java.util.Iterator;
+import java.util.LinkedList;
 import java.util.NavigableSet;
 import java.util.Set;
 import java.util.TreeSet;
@@ -56,10 +58,7 @@ public final class ConsoleInput implements BytesSink {
     public boolean capsLed = false;
     public boolean scrollLed = false;
 
-    private void sendBack(final String v) {
-        if (consoleOutput != null)
-            consoleOutput.feed(v);
-    }
+    private final Deque<String> windowTitles = new LinkedList<>();
 
     {
         final ConsoleScreenBuffer.OnScroll h = new ConsoleScreenBuffer.OnScroll() {
@@ -75,6 +74,11 @@ public final class ConsoleInput implements BytesSink {
         altScrBuf.setOnScroll(h);
         currScrBuf = mainScrBuf;
         setCharset(Charset.defaultCharset());
+    }
+
+    private void sendBack(final String v) {
+        if (consoleOutput != null)
+            consoleOutput.feed(v);
     }
 
     public void setCharset(final Charset ch) {
@@ -144,6 +148,19 @@ public final class ConsoleInput implements BytesSink {
         final int r = numBellEvents;
         numBellEvents = 0;
         return r;
+    }
+
+    public void setWindowTitle(@NonNull final String v) {
+        mainScrBuf.windowTitle = v;
+        altScrBuf.windowTitle = v;
+    }
+
+    private void pushWindowTitle() {
+        windowTitles.push(currScrBuf.windowTitle);
+    }
+
+    private void popWindowTitle() {
+        setWindowTitle(windowTitles.pop());
     }
 
     private int zao(final int v) {
@@ -266,7 +283,7 @@ public final class ConsoleInput implements BytesSink {
                                 switch (osc.getIntArg(0, -1)) {
                                     case 0:
                                     case 2:
-                                        currScrBuf.windowTitle = osc.args[1];
+                                        setWindowTitle(osc.args[1]);
                                         break;
                                 }
                                 break;
@@ -339,7 +356,8 @@ public final class ConsoleInput implements BytesSink {
                                 default:
                                     if (LOG_UNKNOWN_ESC)
                                         Log.w("CtrlSeq", "ESC: " +
-                                                t.value.subSequence(1, t.value.remaining()).toString());
+                                                t.value.subSequence(1, t.value.remaining())
+                                                        .toString());
                             }
                             break;
                         case CTL:
@@ -368,7 +386,8 @@ public final class ConsoleInput implements BytesSink {
                                     break;
                                 default:
                                     if (LOG_UNKNOWN_ESC)
-                                        Log.w("CtrlSeq", "CTL: " + (int) t.value.charAt(0));
+                                        Log.w("CtrlSeq", "CTL: " +
+                                                (int) t.value.charAt(0));
                             }
                             break;
                         case TEXT:
@@ -389,286 +408,398 @@ public final class ConsoleInput implements BytesSink {
     }
 
     private void parseCsi(@NonNull final EscCsi csi) {
-        switch (csi.prefix) {
-            case 0:
-                switch (csi.type) {
-                    case 'c':
-                        sendBack("\u001B[?6c"); // TODO: VT102 yet...
+        if (csi.suffix.isEmpty())
+            switch (csi.prefix) {
+                case 0:
+                    switch (csi.type) {
+                        case 'c':
+                            sendBack("\u001B[?6c"); // TODO: VT102 yet...
 //                        Log.i("CtrlSeq", "Terminal type request");
-                        return;
-                    case 'n':
-                        if (csi.args.length == 0) break;
-                        switch (csi.args[0]) {
-                            case "5":
-                                sendBack("\u001B[0n"); // Terminal OK
+                            return;
+                        case 'n':
+                            if (csi.args.length == 0) break;
+                            switch (csi.args[0]) {
+                                case "5":
+                                    sendBack("\u001B[0n"); // Terminal OK
+                                    return;
+                                case "6":
+                                    sendBack("\u001B[" + (currScrBuf.getPosY() + 1) + ";" +
+                                            (currScrBuf.getPosX() + 1) + "R");
+                                    return;
+                            }
+                            break;
+                        case 'A':
+                            currScrBuf.movePosY(-zao(csi.getIntArg(0, 1)));
+                            return;
+                        case 'B':
+                        case 'e':
+                            currScrBuf.movePosY(zao(csi.getIntArg(0, 1)));
+                            return;
+                        case 'C':
+                        case 'a':
+                            currScrBuf.movePosX(zao(csi.getIntArg(0, 1)));
+                            return;
+                        case 'D':
+                            currScrBuf.movePosX(-zao(csi.getIntArg(0, 1)));
+                            return;
+                        case 'E':
+                            currScrBuf.movePosY(zao(csi.getIntArg(0, 1)));
+                            cr();
+                            return;
+                        case 'F':
+                            currScrBuf.movePosY(-zao(csi.getIntArg(0, 1)));
+                            cr();
+                            return;
+                        case 'G':
+                        case '`':
+                            currScrBuf.setPosX(csi.getIntArg(0, 1) - 1);
+                            return;
+                        case 'd':
+                            currScrBuf.setPosY(csi.getIntArg(0, 1) - 1);
+                            return;
+                        case 'H':
+                        case 'f':
+                            currScrBuf.setPosY(csi.getIntArg(0, 1) - 1);
+                            currScrBuf.setPosX(csi.getIntArg(1, 1) - 1);
+                            return;
+                        case 'I': // CHT
+                            tab(csi.getIntArg(0, 1));
+                            return;
+                        case 'X':
+                            currScrBuf.setCurrentAttrs(mCurrAttrs);
+                            currScrBuf.eraseChars(zao(csi.getIntArg(0, 1)));
+                            return;
+                        case 'Z': // CBT
+                            tab(-csi.getIntArg(0, 1));
+                            return;
+                        case 'g': // TBC
+                            switch (csi.getIntArg(0, 0)) {
+                                case 0:
+                                    tabClear(currScrBuf.getPosX());
+                                    return;
+                                case 3:
+                                    tabClear(-1);
+                                    return;
+                            }
+                            break;
+                        case 'J':
+                            currScrBuf.setCurrentAttrs(mCurrAttrs);
+                            switch (csi.getIntArg(0, 0)) {
+                                case 0:
+                                    currScrBuf.eraseBelow();
+                                    return;
+                                case 1:
+                                    currScrBuf.eraseAbove();
+                                    return;
+                                case 2:
+                                    currScrBuf.eraseAll();
+                                    return;
+                            }
+                            break;
+                        case 'K':
+                            currScrBuf.setCurrentAttrs(mCurrAttrs);
+                            switch (csi.getIntArg(0, 0)) {
+                                case 0:
+                                    currScrBuf.eraseLineRight();
+                                    return;
+                                case 1:
+                                    currScrBuf.eraseLineLeft();
+                                    return;
+                                case 2:
+                                    currScrBuf.eraseLineAll();
+                                    return;
+                            }
+                            break;
+                        case 'm': {
+                            int i = 0;
+                            final ConsoleScreenCharAttrs aa = mCurrAttrs;
+                            if (csi.args.length == 0) {
+                                aa.reset();
                                 return;
-                            case "6":
-                                sendBack("\u001B[" + (currScrBuf.getPosY() + 1) + ";" + (currScrBuf.getPosX() + 1) + "R");
-                                return;
-                        }
-                        break;
-                    case 'A':
-                        currScrBuf.movePosY(-zao(csi.getIntArg(0, 1)));
-                        return;
-                    case 'B':
-                    case 'e':
-                        currScrBuf.movePosY(zao(csi.getIntArg(0, 1)));
-                        return;
-                    case 'C':
-                    case 'a':
-                        currScrBuf.movePosX(zao(csi.getIntArg(0, 1)));
-                        return;
-                    case 'D':
-                        currScrBuf.movePosX(-zao(csi.getIntArg(0, 1)));
-                        return;
-                    case 'E':
-                        currScrBuf.movePosY(zao(csi.getIntArg(0, 1)));
-                        cr();
-                        return;
-                    case 'F':
-                        currScrBuf.movePosY(-zao(csi.getIntArg(0, 1)));
-                        cr();
-                        return;
-                    case 'G':
-                    case '`':
-                        currScrBuf.setPosX(csi.getIntArg(0, 1) - 1);
-                        return;
-                    case 'd':
-                        currScrBuf.setPosY(csi.getIntArg(0, 1) - 1);
-                        return;
-                    case 'H':
-                    case 'f':
-                        currScrBuf.setPosY(csi.getIntArg(0, 1) - 1);
-                        currScrBuf.setPosX(csi.getIntArg(1, 1) - 1);
-                        return;
-                    case 'I': // CHT
-                        tab(csi.getIntArg(0, 1));
-                        return;
-                    case 'X':
-                        currScrBuf.setCurrentAttrs(mCurrAttrs);
-                        currScrBuf.eraseChars(zao(csi.getIntArg(0, 1)));
-                        return;
-                    case 'Z': // CBT
-                        tab(-csi.getIntArg(0, 1));
-                        return;
-                    case 'g': // TBC
-                        switch (csi.getIntArg(0, 0)) {
-                            case 0:
-                                tabClear(currScrBuf.getPosX());
-                                return;
-                            case 3:
-                                tabClear(-1);
-                                return;
-                        }
-                        break;
-                    case 'J':
-                        currScrBuf.setCurrentAttrs(mCurrAttrs);
-                        switch (csi.getIntArg(0, 0)) {
-                            case 0:
-                                currScrBuf.eraseBelow();
-                                return;
-                            case 1:
-                                currScrBuf.eraseAbove();
-                                return;
-                            case 2:
-                                currScrBuf.eraseAll();
-                                return;
-                        }
-                        break;
-                    case 'K':
-                        currScrBuf.setCurrentAttrs(mCurrAttrs);
-                        switch (csi.getIntArg(0, 0)) {
-                            case 0:
-                                currScrBuf.eraseLineRight();
-                                return;
-                            case 1:
-                                currScrBuf.eraseLineLeft();
-                                return;
-                            case 2:
-                                currScrBuf.eraseLineAll();
-                                return;
-                        }
-                        break;
-                    case 'm': {
-                        int i = 0;
-                        final ConsoleScreenCharAttrs aa = mCurrAttrs;
-                        if (csi.args.length == 0) {
-                            aa.reset();
+                            }
+                            while (i < csi.args.length) {
+                                final int a = csi.getIntArg(i++, 0);
+                                switch (a) {
+                                    case 0:
+                                        aa.reset();
+                                        break;
+                                    case 1:
+                                        aa.bold = true;
+                                        break;
+                                    case 2:
+                                        aa.faint = true;
+                                        break;
+                                    case 3:
+                                        aa.italic = true;
+                                        break;
+                                    case 4:
+                                    case 21: // Actually doubly underlined.
+                                        aa.underline = true;
+                                        break;
+                                    case 5:
+                                    case 6:
+                                        aa.blinking = true;
+                                        break;
+                                    case 7:
+                                        aa.inverse = true;
+                                        break;
+                                    case 8:
+                                        aa.invisible = true;
+                                        break;
+                                    case 9:
+                                        aa.crossed = true;
+                                        break;
+                                    case 22:
+                                        aa.bold = false;
+                                        aa.faint = false;
+                                        break;
+                                    case 23:
+                                        aa.italic = false;
+                                        break;
+                                    case 24:
+                                        aa.underline = false;
+                                        break;
+                                    case 25:
+                                        aa.blinking = false;
+                                        break;
+                                    case 27:
+                                        aa.inverse = false;
+                                        break;
+                                    case 28:
+                                        aa.invisible = false;
+                                        break;
+                                    case 29:
+                                        aa.crossed = false;
+                                        break;
+                                    case 38:
+                                        i = parseColors(csi, i, true);
+                                        break;
+                                    case 39:
+                                        aa.resetFg();
+                                        break;
+                                    case 48:
+                                        i = parseColors(csi, i, false);
+                                        break;
+                                    case 49:
+                                        aa.resetBg();
+                                        break;
+                                    default:
+                                        if ((a >= 30) && (a <= 37)) {
+                                            final int v = a - 30;
+                                            aa.fgColor = Color.rgb(
+                                                    Misc.bitsAs(v, 1, 127),
+                                                    Misc.bitsAs(v, 2, 127),
+                                                    Misc.bitsAs(v, 4, 127)
+                                            );
+                                            aa.richColor = false;
+                                            break;
+                                        }
+                                        if ((a >= 40) && (a <= 47)) {
+                                            final int v = a - 40;
+                                            aa.bgColor = Color.rgb(
+                                                    Misc.bitsAs(v, 1, 127),
+                                                    Misc.bitsAs(v, 2, 127),
+                                                    Misc.bitsAs(v, 4, 127)
+                                            );
+                                            break;
+                                        }
+                                        if ((a >= 90) && (a <= 97)) {
+                                            final int v = a - 90;
+                                            aa.fgColor = Color.rgb(
+                                                    Misc.bitsAs(v, 1, 255),
+                                                    Misc.bitsAs(v, 2, 255),
+                                                    Misc.bitsAs(v, 4, 255)
+                                            );
+                                            aa.richColor = false;
+                                            break;
+                                        }
+                                        if ((a >= 100) && (a <= 107)) {
+                                            final int v = a - 100;
+                                            aa.bgColor = Color.rgb(
+                                                    Misc.bitsAs(v, 1, 255),
+                                                    Misc.bitsAs(v, 2, 255),
+                                                    Misc.bitsAs(v, 4, 255)
+                                            );
+                                            break;
+                                        }
+                                        if (LOG_UNKNOWN_ESC)
+                                            Log.w("CtrlSeq", "Attr: " + a +
+                                                    " in " + csi.body);
+                                }
+                            }
                             return;
                         }
-                        while (i < csi.args.length) {
-                            final int a = csi.getIntArg(i++, 0);
-                            switch (a) {
-                                case 0:
-                                    aa.reset();
-                                    break;
-                                case 1:
-                                    aa.bold = true;
-                                    break;
-                                case 3:
-                                    aa.italic = true;
-                                    break;
+                        case 'L':
+                            currScrBuf.setCurrentAttrs(mCurrAttrs);
+                            currScrBuf.insertLine(csi.getIntArg(0, 1));
+                            return;
+                        case 'M':
+                            currScrBuf.setCurrentAttrs(mCurrAttrs);
+                            currScrBuf.deleteLine(csi.getIntArg(0, 1));
+                            return;
+                        case '@':
+                            currScrBuf.setCurrentAttrs(mCurrAttrs);
+                            currScrBuf.insertChars(csi.getIntArg(0, 1));
+                            return;
+                        case 'P':
+                            currScrBuf.setCurrentAttrs(mCurrAttrs);
+                            currScrBuf.deleteChars(csi.getIntArg(0, 1));
+                            return;
+                        case 'S': // SU VT420
+                            currScrBuf.setCurrentAttrs(mCurrAttrs);
+                            currScrBuf.scrollUp(csi.getIntArg(0, 1));
+                            return;
+                        case 'T': // SD VT420
+                            currScrBuf.setCurrentAttrs(mCurrAttrs);
+                            currScrBuf.scrollDown(csi.getIntArg(0, 1));
+                            return;
+                        case 'h':
+                        case 'l': {
+                            final boolean value = csi.type == 'h';
+                            switch (csi.getIntArg(0, 0)) {
                                 case 4:
-                                    aa.underline = true;
-                                    break;
-                                case 5:
-                                case 6:
-                                    aa.blinking = true;
-                                    break;
-                                case 7:
-                                    aa.inverse = true;
-                                    break;
-                                case 22:
-                                    aa.bold = false;
-                                    break;
-                                case 23:
-                                    aa.italic = false;
-                                    break;
-                                case 24:
-                                    aa.underline = false;
-                                    break;
-                                case 25:
-                                    aa.blinking = false;
-                                    break;
-                                case 27:
-                                    aa.inverse = false;
-                                    break;
-                                case 39:
-                                    aa.resetFg();
-                                    break;
-                                case 49:
-                                    aa.resetBg();
-                                    break;
-                                default:
-                                    if ((a >= 30) && (a <= 37)) {
-                                        int v = a - 30;
-                                        aa.fgColor = Color.rgb(
-                                                Misc.bitsAs(v, 1, 255),
-                                                Misc.bitsAs(v, 2, 255),
-                                                Misc.bitsAs(v, 4, 255)
-                                        );
-                                        break;
-                                    }
-                                    if ((a >= 40) && (a <= 47)) {
-                                        int v = a - 40;
-                                        aa.bgColor = Color.rgb(
-                                                Misc.bitsAs(v, 1, 127),
-                                                Misc.bitsAs(v, 2, 127),
-                                                Misc.bitsAs(v, 4, 127)
-                                        );
-                                        break;
-                                    }
-                                    if (LOG_UNKNOWN_ESC)
-                                        Log.w("CtrlSeq", "Attr: " + a);
+                                    insertMode = value;
+                                    return;
                             }
+                            break;
                         }
-                        return;
-                    }
-                    case 'L':
-                        currScrBuf.setCurrentAttrs(mCurrAttrs);
-                        currScrBuf.insertLine(csi.getIntArg(0, 1));
-                        return;
-                    case 'M':
-                        currScrBuf.setCurrentAttrs(mCurrAttrs);
-                        currScrBuf.deleteLine(csi.getIntArg(0, 1));
-                        return;
-                    case '@':
-                        currScrBuf.setCurrentAttrs(mCurrAttrs);
-                        currScrBuf.insertChars(csi.getIntArg(0, 1));
-                        return;
-                    case 'P':
-                        currScrBuf.setCurrentAttrs(mCurrAttrs);
-                        currScrBuf.deleteChars(csi.getIntArg(0, 1));
-                        return;
-                    case 'S': // SU VT420
-                        currScrBuf.setCurrentAttrs(mCurrAttrs);
-                        currScrBuf.scrollUp(csi.getIntArg(0, 1));
-                        return;
-                    case 'T': // SD VT420
-                        currScrBuf.setCurrentAttrs(mCurrAttrs);
-                        currScrBuf.scrollDown(csi.getIntArg(0, 1));
-                        return;
-                    case 'h':
-                    case 'l': {
-                        final boolean value = csi.type == 'h';
-                        switch (csi.getIntArg(0, 0)) {
-                            case 4:
-                                insertMode = value;
-                                return;
+                        case 'q': { // DECLL
+                            for (int i = 0; i < csi.args.length; ++i)
+                                switch (csi.getIntArg(i, 0)) {
+                                    case 0:
+                                        numLed = false;
+                                        capsLed = false;
+                                        scrollLed = false;
+                                        break;
+                                    case 1:
+                                        numLed = true;
+                                        break;
+                                    case 2:
+                                        capsLed = true;
+                                        break;
+                                    case 3:
+                                        scrollLed = true;
+                                        break;
+                                    case 21:
+                                        numLed = false;
+                                        break;
+                                    case 22:
+                                        capsLed = false;
+                                        break;
+                                    case 23:
+                                        scrollLed = false;
+                                        break;
+                                }
+                            return;
                         }
-                        break;
-                    }
-                    case 'q': { // DECLL
-                        for (int i = 0; i < csi.args.length; ++i)
-                            switch (csi.getIntArg(i, 0)) {
-                                case 0:
-                                    numLed = false;
-                                    capsLed = false;
-                                    scrollLed = false;
-                                    break;
-                                case 1:
-                                    numLed = true;
-                                    break;
-                                case 2:
-                                    capsLed = true;
-                                    break;
-                                case 3:
-                                    scrollLed = true;
-                                    break;
-                                case 21:
-                                    numLed = false;
-                                    break;
+                        case 'r':
+                            if (csi.args.length == 2)
+                                currScrBuf.setTBMargins(csi.getIntArg(0, 1) - 1,
+                                        csi.getIntArg(1, currScrBuf.getHeight()) - 1);
+                            else currScrBuf.resetMargins();
+                            currScrBuf.setPos(0, 0);
+                            return;
+                        case 's':
+                            saveCursor();
+                            return;
+                        case 'u':
+                            restoreCursor();
+                            return;
+                        case 't':
+                            if (csi.args.length == 2) break;
+                            switch (csi.getIntArg(0, 0)) {
                                 case 22:
-                                    capsLed = false;
-                                    break;
+                                    switch (csi.getIntArg(1, 0)) {
+                                        case 0:
+                                        case 2:
+                                            pushWindowTitle();
+                                    }
+                                    return;
                                 case 23:
-                                    scrollLed = false;
-                                    break;
+                                    switch (csi.getIntArg(1, 0)) {
+                                        case 0:
+                                        case 2:
+                                            popWindowTitle();
+                                    }
+                                    return;
                             }
-                        return;
+                            break;
+                        default:
                     }
-                    case 'r':
-                        if (csi.args.length == 2)
-                            currScrBuf.setTBMargins(csi.getIntArg(0, 1) - 1,
-                                    csi.getIntArg(1, currScrBuf.getHeight()) - 1);
-                        else currScrBuf.resetMargins();
-                        currScrBuf.setPos(0, 0);
-                        return;
-                    case 's':
-                        saveCursor();
-                        return;
-                    case 'u':
-                        restoreCursor();
-                        return;
-                    default:
-                }
-                break;
-            case '?':
-                switch (csi.type) {
-                    case 'h':
-                    case 'l': {
-                        final int opt = csi.getIntArg(0, -1);
-                        if (opt < 0) break;
-                        decPrivateMode.set(opt, csi.type == 'h');
-                        return;
+                    break;
+                case '?':
+                    switch (csi.type) {
+                        case 'h':
+                        case 'l': {
+                            final int opt = csi.getIntArg(0, -1);
+                            if (opt < 0) break;
+                            decPrivateMode.set(opt, csi.type == 'h');
+                            return;
+                        }
+                        case 'r': {
+                            final int opt = csi.getIntArg(0, -1);
+                            if (opt < 0) break;
+                            decPrivateMode.restore(opt);
+                            return;
+                        }
+                        case 's': {
+                            final int opt = csi.getIntArg(0, -1);
+                            if (opt < 0) break;
+                            decPrivateMode.save(opt);
+                            return;
+                        }
                     }
-                    case 'r': {
-                        final int opt = csi.getIntArg(0, -1);
-                        if (opt < 0) break;
-                        decPrivateMode.restore(opt);
-                        return;
-                    }
-                    case 's': {
-                        final int opt = csi.getIntArg(0, -1);
-                        if (opt < 0) break;
-                        decPrivateMode.save(opt);
-                        return;
-                    }
-                }
-                break;
-        }
+                    break;
+            }
         if (LOG_UNKNOWN_ESC)
-            Log.w("CtrlSeq", "ESC[" + ((csi.prefix == 0) ? "" : csi.prefix) + csi.body + csi.type);
+            Log.w("CtrlSeq", "ESC[" + ((csi.prefix == 0) ? "" : csi.prefix) +
+                    csi.body + csi.suffix + csi.type);
+    }
+
+    private int parseColors(@NonNull final EscCsi csi, int i, final boolean isFg) {
+        if (csi.args.length == i) return i;
+        final int color;
+        switch (csi.getIntArg(i, 0)) {
+            case 2: // TrueColor
+                if (csi.args.length - i < 4) return i;
+                ++i;
+                color = Color.rgb(
+                        csi.getIntArg(i++, 0),
+                        csi.getIntArg(i++, 0),
+                        csi.getIntArg(i++, 0)
+                ); // Bad taste but valid in Java.
+                break;
+            case 5: // 256
+                if (csi.args.length - i < 2) return i;
+                ++i;
+                final int c = csi.getIntArg(i++, 0);
+                if ((c & ~0xFF) != 0) return i - 2;
+                if (c < 16) {
+                    final int l = 127 | Misc.bitsAs(c, 8, 128);
+                    color = Color.rgb(
+                            Misc.bitsAs(c, 1, l),
+                            Misc.bitsAs(c, 2, l),
+                            Misc.bitsAs(c, 4, l)
+                    );
+                } else if (c < 232) {
+                    color = Color.rgb(
+                            (c / 36) * 51,
+                            ((c / 6) % 6) * 51,
+                            (c % 6) * 51
+                    );
+                } else {
+                    final int l = 8 + 10 * (c - 232);
+                    color = Color.rgb(l, l, l);
+                }
+                break;
+            default:
+                return i;
+        }
+        if (isFg) {
+            mCurrAttrs.fgColor = color;
+            mCurrAttrs.richColor = true;
+        } else mCurrAttrs.bgColor = color;
+        return i;
     }
 
     private class DecPrivateMode {

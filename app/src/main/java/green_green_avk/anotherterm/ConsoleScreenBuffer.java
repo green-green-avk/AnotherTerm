@@ -199,13 +199,25 @@ public final class ConsoleScreenBuffer {
     }
 
     public static int encodeAttrs(@NonNull final ConsoleScreenCharAttrs a) {
-        return (encodeColor(a.fgColor) << 20)
+        final int fgColor;
+        if (a.richColor) fgColor = a.fgColor;
+        else {
+            if (a.bold)
+                fgColor = a.fgColor | 0x00808080;
+            else if (a.faint)
+                fgColor = a.fgColor & 0xFF3F3F3F;
+            else
+                fgColor = a.fgColor;
+        }
+        return (encodeColor(fgColor) << 20)
                 | (encodeColor(a.bgColor) << 8)
                 | (a.bold ? 1 : 0)
                 | (a.italic ? 4 : 0)
                 | (a.underline ? 8 : 0)
                 | (a.blinking ? 16 : 0)
-                | (a.inverse ? 64 : 0);
+                | (a.inverse ? 32 : 0)
+                | (a.invisible ? 64 : 0)
+                | (a.crossed ? 128 : 0);
     }
 
     public static ConsoleScreenCharAttrs decodeAttrs(final int v) {
@@ -215,14 +227,17 @@ public final class ConsoleScreenBuffer {
     }
 
     public static void decodeAttrs(final int v, @NonNull final ConsoleScreenCharAttrs a) {
-        a.reset();
+        a.richColor = false;
         a.fgColor = decodeColor(v >> 20);
         a.bgColor = decodeColor(v >> 8);
         a.bold = (v & 1) != 0;
+        a.faint = false;
         a.italic = (v & 4) != 0;
         a.underline = (v & 8) != 0;
         a.blinking = (v & 16) != 0;
-        a.inverse = (v & 64) != 0;
+        a.inverse = (v & 32) != 0;
+        a.invisible = (v & 64) != 0;
+        a.crossed = (v & 128) != 0;
     }
 
     private int toBufY(final int y) {
@@ -393,12 +408,13 @@ public final class ConsoleScreenBuffer {
         return pos - start;
     }
 
-    public CharSequence getCharsSameAttr(final int x, final int y, int endY) {
+    @Nullable
+    public CharSequence getCharsSameAttr(final int x, final int y, int endX) {
         final Row row = getRow(y);
         if (row == null) return null;
-        endY = Math.min(endY, mWidth);
-        if (x >= endY) return null;
-        return CharBuffer.wrap(row.text, x, getSameAttrLen(row.attrs, x, endY));
+        endX = Math.min(endX, mWidth);
+        if (x >= endX) return null;
+        return CharBuffer.wrap(row.text, x, getSameAttrLen(row.attrs, x, endX));
     }
 
     public char getChar(final int x, final int y) {

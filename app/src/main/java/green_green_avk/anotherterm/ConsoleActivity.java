@@ -196,7 +196,7 @@ public final class ConsoleActivity extends AppCompatActivity implements ConsoleI
         final int k = mSessionKey;
         mSession = ConsoleService.sessions.get(k);
         if (mSession == null) return;
-        setTitle(ConsoleService.getSessionTitle(k));
+        setTitle(mSession.input.currScrBuf.windowTitle);
 
         mCsv.setConsoleInput(mSession.input);
         mCkv.setConsoleInput(mSession.input);

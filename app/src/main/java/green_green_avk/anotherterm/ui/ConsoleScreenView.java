@@ -613,8 +613,9 @@ public class ConsoleScreenView extends ScrollableView
             bgColor = charAttrs.bgColor;
         }
         fgPaint.setTypeface(typefaces[(charAttrs.bold ? 1 : 0) | (charAttrs.italic ? 2 : 0)]);
-        fgPaint.setColor(charAttrs.bold ? fgColor : ((fgColor >> 1) & 0x007F7F7F | 0xFF000000));
+        fgPaint.setColor(fgColor);
         fgPaint.setUnderlineText(charAttrs.underline);
+        fgPaint.setStrikeThruText(charAttrs.crossed);
 //        fgPaint.setShadowLayer(1, 0, 0, fgColor);
         bgPaint.setColor(bgColor);
     }
@@ -1176,7 +1177,7 @@ public class ConsoleScreenView extends ScrollableView
                     canvas.drawRect(strFragLeft, strTop, strFragRight, strBottom, bgPaint);
                     if (charAttrs.blinking) drawDrawable(canvas, attrMarkupBlinking,
                             (int) strFragLeft, (int) strTop, (int) strFragRight, (int) strBottom);
-                    if (!isAllSpaces(s))
+                    if (!charAttrs.invisible && !isAllSpaces(s))
                         canvas.drawText(s, 0, s.length(),
                                 strFragLeft, strTop - fgPaint.ascent(), fgPaint);
                     i += s.length();
