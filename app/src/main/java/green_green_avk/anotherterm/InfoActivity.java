@@ -57,10 +57,12 @@ public final class InfoActivity extends AppCompatActivity {
                                 if (source == null) return;
                                 switch (source.type) {
                                     case XML:
-                                        v.setXmlText(getString(source.id));
+                                        v.setHtmlText(getString(R.string.desc_loading___));
+                                        v.setXmlText(getString(source.id), true);
                                         break;
                                     case HTML:
-                                        v.setHtmlText(getString(source.id));
+                                        v.setHtmlText(getString(R.string.desc_loading___));
+                                        v.setHtmlText(getString(source.id), true);
                                         break;
                                     default:
                                         v.setTypeface(Typeface.MONOSPACE);

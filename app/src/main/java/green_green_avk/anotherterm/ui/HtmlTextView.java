@@ -56,11 +56,6 @@ public class HtmlTextView extends android.support.v7.widget.AppCompatTextView {
         if (htmlText == null) return;
         if (async) new AsyncTask<String, Object, Spanned>() {
             @Override
-            protected void onPreExecute() {
-                setText("...");
-            }
-
-            @Override
             protected Spanned doInBackground(final String... args) {
                 return HtmlCompat.fromHtml(args[0], HtmlCompat.FROM_HTML_MODE_LEGACY);
             }
@@ -81,11 +76,6 @@ public class HtmlTextView extends android.support.v7.widget.AppCompatTextView {
     public void setXmlText(@Nullable final String xmlText, final boolean async) {
         if (xmlText == null) return;
         if (async) new AsyncTask<String, Object, Spanned>() {
-            @Override
-            protected void onPreExecute() {
-                setText("...");
-            }
-
             @Override
             protected Spanned doInBackground(final String... args) {
                 return XmlToSpanned.fromXml(args[0], getContext());

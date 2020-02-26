@@ -78,6 +78,7 @@
     <string name="conntype_local">Local Terminal</string>
     <string name="title_info">Info</string>
     <string name="desc_not_found"><![CDATA[<h1>Not Found</h1>]]></string>
+    <string name="desc_loading___"><![CDATA[<h1>Loading…</h1>]]></string>
     <string name="desc_local_param_execute"><![CDATA[
         <p>If the field is empty, <code>/system/bin/sh -l</code> will be executed;<br/>
         <code>/system/bin/sh -l -c &lt;command&gt;</code> otherwise.</p>
