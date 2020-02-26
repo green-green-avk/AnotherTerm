@@ -37,12 +37,14 @@ public final class TermKeyMapManagerUi {
                     .setItemLayoutRes(R.layout.term_key_map_manager_dialog_entry)
                     .setOnSelectListener(new TermKeyMapAdapter.OnSelectListener() {
                         @Override
-                        public void onSelect(boolean isBuiltIn, String name, TermKeyMapRules rules, String title) {
+                        public void onSelect(final boolean isBuiltIn, final String name,
+                                             final TermKeyMapRules rules, final String title) {
                             onSelectListener.onSelect(isBuiltIn, name, rules, title);
                             d.dismiss();
                         }
                     })
-                    .setMarked(name);
+                    .setMarked(name)
+                    .setEditorEnabled(true);
             v.setAdapter(a);
             d.setContentView(v);
             d.showAsDropDown((View) parent);
@@ -57,12 +59,14 @@ public final class TermKeyMapManagerUi {
                     .setItemLayoutRes(R.layout.term_key_map_manager_dialog_entry)
                     .setOnSelectListener(new TermKeyMapAdapter.OnSelectListener() {
                         @Override
-                        public void onSelect(boolean isBuiltIn, String name, TermKeyMapRules rules, String title) {
+                        public void onSelect(final boolean isBuiltIn, final String name,
+                                             final TermKeyMapRules rules, final String title) {
                             onSelectListener.onSelect(isBuiltIn, name, rules, title);
                             d.dismiss();
                         }
                     })
-                    .setMarked(name);
+                    .setMarked(name)
+                    .setEditorEnabled(true);
             v.setAdapter(a);
             d.setView(v);
             d.show();

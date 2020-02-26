@@ -12,7 +12,7 @@ import android.widget.ListView;
 public final class TermKeyMapManagerActivity extends AppCompatActivity {
 
     @Override
-    protected void onCreate(Bundle savedInstanceState) {
+    protected void onCreate(final Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_term_key_map_manager);
         final ListView l = findViewById(R.id.list);
@@ -20,19 +20,19 @@ public final class TermKeyMapManagerActivity extends AppCompatActivity {
         l.setAdapter(a);
         a.setOnClickListener(new View.OnClickListener() {
             @Override
-            public void onClick(View v) {
+            public void onClick(final View v) {
                 final String name = a.getName(l.getPositionForView(v));
-                startActivity(new Intent(TermKeyMapManagerActivity.this,
-                        TermKeyMapEditorActivity.class).putExtra(C.IFK_MSG_NAME, name));
+                TermKeyMapEditorActivity.start(TermKeyMapManagerActivity.this, name);
             }
         });
         a.setOnCreateContextMenuListener(new View.OnCreateContextMenuListener() {
             @Override
-            public void onCreateContextMenu(ContextMenu menu, View v, ContextMenu.ContextMenuInfo menuInfo) {
+            public void onCreateContextMenu(final ContextMenu menu, final View v,
+                                            final ContextMenu.ContextMenuInfo menuInfo) {
                 final String name = a.getName(l.getPositionForView(v));
                 menu.add(R.string.action_delete).setOnMenuItemClickListener(new MenuItem.OnMenuItemClickListener() {
                     @Override
-                    public boolean onMenuItemClick(MenuItem item) {
+                    public boolean onMenuItemClick(final MenuItem item) {
                         TermKeyMapManager.remove(name);
                         return true;
                     }
@@ -42,13 +42,13 @@ public final class TermKeyMapManagerActivity extends AppCompatActivity {
     }
 
     @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
+    public boolean onCreateOptionsMenu(final Menu menu) {
         getMenuInflater().inflate(R.menu.menu_term_key_map_manager, menu);
         return true;
     }
 
     @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
+    public boolean onOptionsItemSelected(final MenuItem item) {
         switch (item.getItemId()) {
             case R.id.action_add: {
                 startActivity(new Intent(this, TermKeyMapEditorActivity.class));

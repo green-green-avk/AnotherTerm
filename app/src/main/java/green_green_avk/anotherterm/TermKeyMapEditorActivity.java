@@ -1,5 +1,6 @@
 package green_green_avk.anotherterm;
 
+import android.app.Activity;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
@@ -26,6 +27,11 @@ import green_green_avk.anotherterm.utils.Escape;
 import green_green_avk.anotherterm.utils.Unescape;
 
 public final class TermKeyMapEditorActivity extends AppCompatActivity {
+    public static void start(@NonNull final Activity parent, @Nullable String name) {
+        parent.startActivity(new Intent(parent, TermKeyMapEditorActivity.class)
+                .putExtra(C.IFK_MSG_NAME, name));
+    }
+
     private static final class KeysAdapter extends BaseAdapter {
         private static final int[] keys;
 

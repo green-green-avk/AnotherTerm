@@ -389,7 +389,8 @@ public final class ConsoleActivity extends AppCompatActivity implements ConsoleI
             case R.id.action_keymap: {
                 TermKeyMapManagerUi.showList(this, new TermKeyMapAdapter.OnSelectListener() {
                     @Override
-                    public void onSelect(boolean isBuiltIn, String name, TermKeyMapRules rules, String title) {
+                    public void onSelect(final boolean isBuiltIn, final String name,
+                                         final TermKeyMapRules rules, final String title) {
                         mSession.output.setKeyMap(rules);
                     }
                 }, mSession.output.getKeyMap());

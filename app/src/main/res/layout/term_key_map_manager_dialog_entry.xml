@@ -16,6 +16,15 @@
 
     <TextView
         android:id="@+id/name"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_weight="1" />
+
+    <ImageButton
+        android:id="@+id/edit"
         android:layout_width="wrap_content"
-        android:layout_height="wrap_content" />
+        android:layout_height="wrap_content"
+        android:background="@android:color/transparent"
+        android:padding="@dimen/text_padding"
+        app:srcCompat="@drawable/ic_edit_new" />
 </LinearLayout>

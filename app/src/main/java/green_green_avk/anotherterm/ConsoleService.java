@@ -177,10 +177,11 @@ public final class ConsoleService extends Service {
         co.backendModule = be;
 
         final Session s = new Session(cp, ci, co, be);
-        sessions.put(key, s);
-        sessionKeys.add(key);
 
         ci.setWindowTitle(getSessionTitle(s, key));
+
+        sessions.put(key, s);
+        sessionKeys.add(key);
 
         tryStart(appCtx);
         execOnSessionsListChange();

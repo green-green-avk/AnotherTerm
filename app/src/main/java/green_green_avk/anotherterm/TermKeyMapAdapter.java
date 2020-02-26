@@ -1,14 +1,19 @@
 package green_green_avk.anotherterm;
 
+import android.app.Activity;
 import android.content.Context;
+import android.content.ContextWrapper;
 import android.graphics.Typeface;
 import android.support.annotation.LayoutRes;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
+import android.view.ContextMenu;
 import android.view.LayoutInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
+import android.widget.ImageButton;
 import android.widget.TextView;
 
 import java.util.Arrays;
@@ -22,6 +27,7 @@ public final class TermKeyMapAdapter extends BaseAdapter {
 
     private TermKeyMapManager.Meta[] mSortedDataIndex;
     private String mMarkedName = null;
+    private boolean mEditorEnabled = false;
     private View.OnClickListener mOnClick = null;
     private View.OnCreateContextMenuListener mOnCreateContextMenuListener = null;
     private OnSelectListener mOnSelectListener = null;
@@ -136,6 +142,11 @@ public final class TermKeyMapAdapter extends BaseAdapter {
         return this;
     }
 
+    public TermKeyMapAdapter setEditorEnabled(final boolean v) {
+        mEditorEnabled = v;
+        return this;
+    }
+
     @Override
     public int getCount() {
         rebuildSortIndex();
@@ -174,20 +185,76 @@ public final class TermKeyMapAdapter extends BaseAdapter {
 
         final TextView nameView;
         final View markView;
+        final View editView;
         if (view instanceof TextView) {
             nameView = (TextView) view;
             markView = null;
+            editView = null;
         } else {
             nameView = view.findViewById(R.id.name);
             markView = view.findViewById(R.id.mark);
+            editView = view.findViewById(R.id.edit);
         }
         final TermKeyMapManager.Meta meta = getMeta(position);
         nameView.setText(meta.getTitle(parent.getContext()));
         nameView.setTypeface(null, meta.isBuiltIn ? Typeface.ITALIC : Typeface.NORMAL);
+
         if (markView != null)
             markView.setVisibility(mMarkedName == null ? View.GONE :
                     mMarkedName.equals(meta.name) ? View.VISIBLE : View.INVISIBLE);
 
+        if (editView != null)
+            if (mEditorEnabled) {
+                ((ImageButton) editView).setImageState(
+                        meta.isBuiltIn ? state_new : state_empty, false);
+                editView.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(final View v) {
+                        final Activity a = getActivity(v.getContext());
+                        if (a != null)
+                            TermKeyMapEditorActivity.start(a, getMeta(position).name);
+                    }
+                });
+                editView.setVisibility(View.VISIBLE);
+                if (mOnCreateContextMenuListener == null)
+                    view.setOnCreateContextMenuListener(meta.isBuiltIn ? null :
+                            new View.OnCreateContextMenuListener() {
+                                @Override
+                                public void onCreateContextMenu(final ContextMenu menu, final View v,
+                                                                final ContextMenu.ContextMenuInfo menuInfo) {
+                                    menu.add(R.string.action_delete).setOnMenuItemClickListener(
+                                            new MenuItem.OnMenuItemClickListener() {
+                                                @Override
+                                                public boolean onMenuItemClick(final MenuItem item) {
+                                                    TermKeyMapManager.remove(getMeta(position).name);
+                                                    return true;
+                                                }
+                                            }
+                                    );
+                                }
+                            }
+                    );
+            } else {
+                if (mOnCreateContextMenuListener == null)
+                    view.setOnCreateContextMenuListener(null);
+                editView.setOnClickListener(null);
+                editView.setVisibility(View.GONE);
+            }
+
         return view;
+    }
+
+    private static final int[] state_empty = new int[]{};
+    private static final int[] state_new = new int[]{R.attr.state_new};
+
+    @Nullable
+    private static Activity getActivity(@NonNull Context ctx) {
+        while (ctx instanceof ContextWrapper) {
+            if (ctx instanceof Activity) {
+                return (Activity) ctx;
+            }
+            ctx = ((ContextWrapper) ctx).getBaseContext();
+        }
+        return null;
     }
 }
