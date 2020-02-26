@@ -1142,12 +1142,20 @@ public class ConsoleScreenView extends ScrollableView
         }
     }
 
+    protected final boolean isAllSpaces(@NonNull final ConsoleScreenBuffer.BufferSample s) {
+        final int end = s.start + s.length;
+        for (int i = s.start; i < end; ++i) if (s.buf[i] != ' ') return false;
+        return true;
+    }
+
     protected final boolean isAllSpaces(@NonNull final CharSequence s) {
         for (int i = 0; i < s.length(); ++i) if (s.charAt(i) != ' ') return false;
         return true;
     }
 
-    protected final Rect _textRect = new Rect();
+    protected final Rect _draw_textRect = new Rect();
+    protected final ConsoleScreenBuffer.BufferSample _draw_sample =
+            new ConsoleScreenBuffer.BufferSample();
 
     protected void drawContent(@NonNull final Canvas canvas) {
         if (consoleInput != null) {
@@ -1155,32 +1163,34 @@ public class ConsoleScreenView extends ScrollableView
             final float vDivBuf = getBufferDrawPosYF(0) - 1;
             final float vDivBottom = getBufferDrawPosYF(consoleInput.currScrBuf.getHeight()) - 1;
             final float hDiv = getBufferDrawPosXF(consoleInput.currScrBuf.getWidth()) - 1;
-            getBufferTextRect(0, 0, getWidth(), getHeight(), _textRect);
-            for (int j = _textRect.top; j < _textRect.bottom; j++) {
+            getBufferTextRect(0, 0, getWidth(), getHeight(), _draw_textRect);
+            for (int j = _draw_textRect.top; j < _draw_textRect.bottom; j++) {
                 final float strTop = getBufferDrawPosYF(j);
                 final float strBottom = getBufferDrawPosYF(j + 1)
                         + 1; // fix for old phones rendering glitch
-                int i = _textRect.left;
-                while (i < _textRect.right) {
+                int i = _draw_textRect.left;
+                while (i < _draw_textRect.right) {
                     final float strFragLeft = getBufferDrawPosXF(i);
                     consoleInput.currScrBuf.getAttrs(i, j, charAttrs);
                     applyCharAttrs();
-                    final CharSequence s =
-                            consoleInput.currScrBuf.getCharsSameAttr(i, j, _textRect.right);
-                    if (s == null) {
+                    final int sr =
+                            consoleInput.currScrBuf.getCharsSameAttr(i, j, _draw_textRect.right,
+                                    _draw_sample);
+                    if (sr <= 0) {
                         canvas.drawRect(strFragLeft, strTop, getWidth(), strBottom, bgPaint);
                         if (charAttrs.blinking) drawDrawable(canvas, attrMarkupBlinking,
                                 (int) strFragLeft, (int) strTop, getWidth(), (int) strBottom);
                         break;
                     }
-                    final float strFragRight = getBufferDrawPosXF(i + s.length());
+                    final float strFragRight = getBufferDrawPosXF(i + _draw_sample.length);
                     canvas.drawRect(strFragLeft, strTop, strFragRight, strBottom, bgPaint);
                     if (charAttrs.blinking) drawDrawable(canvas, attrMarkupBlinking,
                             (int) strFragLeft, (int) strTop, (int) strFragRight, (int) strBottom);
-                    if (!charAttrs.invisible && !isAllSpaces(s))
-                        canvas.drawText(s, 0, s.length(),
+                    if (!charAttrs.invisible && !isAllSpaces(_draw_sample))
+                        canvas.drawText(_draw_sample.buf, _draw_sample.start, _draw_sample.length,
                                 strFragLeft, strTop - fgPaint.ascent(), fgPaint);
-                    i += s.length();
+                    i += _draw_sample.length;
+                    _draw_sample.unbind();
                 }
             }
             if (paddingMarkup != null) {

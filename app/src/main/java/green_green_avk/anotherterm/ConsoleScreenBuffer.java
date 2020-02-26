@@ -20,6 +20,21 @@ public final class ConsoleScreenBuffer {
     public static final int MAX_ROW_LEN = 1024;
     public static final int DEF_CHAR_ATTRS = encodeAttrs(new ConsoleScreenCharAttrs());
 
+    private static final char[] EMPTY_BUF = new char[0];
+
+    public static final class BufferSample {
+        @NonNull
+        public char[] buf = EMPTY_BUF;
+        public int start = 0;
+        public int length = 0;
+
+        public void unbind() {
+            buf = EMPTY_BUF;
+            start = 0;
+            length = 0;
+        }
+    }
+
     private int mWidth;
     private int mHeight;
     private int mBufHeight;
@@ -391,6 +406,18 @@ public final class ConsoleScreenBuffer {
         setAbsPos(mPos.x, mPos.y);
     }
 
+    public int getChars(final int x, final int y, int len, @NonNull final BufferSample output) {
+        final Row row = getRow(y);
+        if (row == null) return -1;
+        len = Math.min(len, mWidth - x);
+        if (len <= 0) return -1;
+        output.buf = row.text;
+        output.start = x;
+        output.length = len;
+        return len;
+    }
+
+    @Nullable
     public CharSequence getChars(final int x, final int y, int len) {
         final Row row = getRow(y);
         if (row == null) return null;
@@ -408,6 +435,19 @@ public final class ConsoleScreenBuffer {
         return pos - start;
     }
 
+    public int getCharsSameAttr(final int x, final int y, int endX,
+                                @NonNull final BufferSample output) {
+        final Row row = getRow(y);
+        if (row == null) return -1;
+        endX = Math.min(endX, mWidth);
+        if (x >= endX) return -1;
+        final int len = getSameAttrLen(row.attrs, x, endX);
+        output.buf = row.text;
+        output.start = x;
+        output.length = len;
+        return len;
+    }
+
     @Nullable
     public CharSequence getCharsSameAttr(final int x, final int y, int endX) {
         final Row row = getRow(y);
@@ -415,13 +455,6 @@ public final class ConsoleScreenBuffer {
         endX = Math.min(endX, mWidth);
         if (x >= endX) return null;
         return CharBuffer.wrap(row.text, x, getSameAttrLen(row.attrs, x, endX));
-    }
-
-    public char getChar(final int x, final int y) {
-        if (x < 0 || x >= mWidth) return ' ';
-        final Row row = getRow(y);
-        if (row == null) return ' ';
-        return row.text[x];
     }
 
     public ConsoleScreenCharAttrs getAttrs(final int x, final int y) {
@@ -730,23 +763,5 @@ public final class ConsoleScreenBuffer {
         endPos.x = x;
         endPos.y = y;
         return len;
-    }
-
-    public void setChar(final int x, final int y, final char c) {
-        setChar(x, y, c, currentAttrs);
-    }
-
-    public void setChar(final int x, final int y, final char c,
-                        @NonNull final ConsoleScreenCharAttrs a) {
-        setChar(x, y, c, encodeAttrs(a));
-    }
-
-    public void setChar(int x, int y, final char c, final int a) {
-        y = moveScrollPosY(y, x / mWidth);
-        x %= mWidth;
-        final Row row = getRowForWrite(y);
-        if (row == null) return;
-        row.text[x] = c;
-        row.attrs[x] = a;
     }
 }
