@@ -95,7 +95,7 @@ public final class LocalModule extends BackendModule {
     public static final class SessionData {
         public static final long PERM_FAVMGMT = 1;
 
-        public long permissions = 0;
+        public volatile long permissions = 0;
     }
 
     private static final Map<Long, SessionData> sessionDataMap = new ConcurrentHashMap<>();
@@ -185,7 +185,7 @@ public final class LocalModule extends BackendModule {
         }
         env.put("LIB_DIR", context.getApplicationInfo().nativeLibraryDir);
         env.put("APP_ID", BuildConfig.APPLICATION_ID);
-        env.put("MY_DEVICE_ABIS", StringUtils.joinWith(" ", (Object[]) Misc.getAbis()));
+        env.put("MY_DEVICE_ABIS", StringUtils.joinWith(" ", Misc.getAbis()));
         env.put("MY_ANDROID_SDK", Integer.toString(Build.VERSION.SDK_INT));
         synchronized (connectionLock) {
             proc = PtyProcess.system(execute, env);
@@ -211,9 +211,15 @@ public final class LocalModule extends BackendModule {
     }
 
     @Override
-    protected void finalize() throws Throwable {
-        disconnect();
+    public void stop() {
         sessionDataMap.remove(sessionToken);
+        super.stop();
+    }
+
+    @Override
+    protected void finalize() throws Throwable {
+        sessionDataMap.remove(sessionToken);
+        disconnect();
         super.finalize();
     }
 
@@ -238,14 +244,26 @@ public final class LocalModule extends BackendModule {
      */
 
     @Keep
-    @ExportedUIMethod(titleRes = R.string.action_send_sigint)
+    @ExportedUIMethod(titleRes = R.string.action_send_sigint, order = 0)
     public void sendSigInt() {
         proc.sendSignalToForeground(PtyProcess.SIGINT);
     }
 
     @Keep
-    @ExportedUIMethod(titleRes = R.string.action_send_sighup)
+    @ExportedUIMethod(titleRes = R.string.action_send_sighup, order = 1)
     public void sendSigHup() {
         proc.sendSignalToForeground(PtyProcess.SIGHUP);
+    }
+
+    /*
+     * Tools (only `termsh' now) for interaction with the Android environment are supposed to be
+     * controlled on what they can do. This function removes any granted permissions
+     * from the current session permanently.
+     */
+
+    @Keep
+    @ExportedUIMethod(titleRes = R.string.action_revoke_permissions, order = 2)
+    public void revokePermissions() {
+        sessionData.permissions = 0;
     }
 }

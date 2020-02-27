@@ -85,7 +85,7 @@
             android:layout_height="wrap_content"
             android:layout_weight="1"
             android:gravity="center"
-            android:text="Normal" />
+            android:text="@string/label_keymode_normal" />
 
         <TextView
             style="@style/AppSettingsTableHeaderTextStyle"
@@ -93,7 +93,7 @@
             android:layout_height="wrap_content"
             android:layout_weight="1"
             android:gravity="center"
-            android:text="Application" />
+            android:text="@string/label_keymode_application" />
     </LinearLayout>
 
     <FrameLayout

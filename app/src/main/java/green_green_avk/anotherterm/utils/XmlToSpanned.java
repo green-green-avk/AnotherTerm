@@ -23,10 +23,13 @@ import org.xmlpull.v1.XmlPullParserFactory;
 import java.io.IOException;
 import java.io.StringReader;
 import java.util.Stack;
+import java.util.regex.Pattern;
 
 import green_green_avk.anotherterm.R;
 
 public final class XmlToSpanned {
+    private static final Pattern webProtoP = Pattern.compile("^(?:https?|ftp)");
+
     @NonNull
     private final XmlPullParserFactory parserFactory;
     @NonNull
@@ -76,8 +79,16 @@ public final class XmlToSpanned {
             final Object span = spans.pop();
             if (span != null) {
                 final int start = output.getSpanStart(span);
-                if (pos > start) output.setSpan(span, start, pos, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
-                else output.removeSpan(span);
+                if (pos > start) {
+                    output.setSpan(span, start, pos, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
+                    if (span instanceof URLSpan && webProtoP.matcher(((URLSpan) span).getURL()).find()) {
+                        output.append("\uD83C\uDF10");
+                        output.setSpan(new ImageSpan(ctx,
+                                        R.drawable.ic_mark_web, DynamicDrawableSpan.ALIGN_BASELINE),
+                                output.length() - 2, output.length(),
+                                Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
+                    }
+                } else output.removeSpan(span);
             }
             return span;
         }

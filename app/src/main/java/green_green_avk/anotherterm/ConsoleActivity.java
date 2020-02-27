@@ -281,7 +281,8 @@ public final class ConsoleActivity extends AppCompatActivity implements ConsoleI
             final BackendModule be = mSession.backend.wrapped;
             for (final Map.Entry<Method, BackendModule.ExportedUIMethod> m :
                     BackendsList.get(be.getClass()).meta.methods.entrySet()) {
-                final MenuItem mi = menu.add(Menu.NONE, Menu.NONE, 100, m.getValue().titleRes());
+                final MenuItem mi = menu.add(Menu.NONE, Menu.NONE,
+                        100 + m.getValue().order(), m.getValue().titleRes());
                 if (m.getKey().getTypeParameters().length == 0 &&
                         m.getKey().getReturnType() == Void.TYPE) {
                     mi.setOnMenuItemClickListener(new MenuItem.OnMenuItemClickListener() {

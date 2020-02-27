@@ -94,6 +94,8 @@ public abstract class BackendModule {
     @Target(ElementType.METHOD)
     public @interface ExportedUIMethod {
         @StringRes int titleRes() default 0;
+
+        int order() default 0;
     }
 
     static Meta getMeta(@NonNull final Class<?> klass, @NonNull final String defaultScheme) {
@@ -200,6 +202,12 @@ public abstract class BackendModule {
 
     public void setUi(final BackendUiInteraction ui) {
         this.ui = ui;
+    }
+
+    /**
+     * Preparing to stop the whole session: revoke sensitive session data, for example.
+     */
+    public void stop() {
     }
 
     public abstract boolean isConnected();

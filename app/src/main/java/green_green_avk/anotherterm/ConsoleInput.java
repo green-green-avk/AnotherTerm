@@ -841,6 +841,14 @@ public final class ConsoleInput implements BytesSink {
                 case 25:
                     cursorVisibility = value;
                     return;
+                case 66:
+                    if (consoleOutput != null)
+                        consoleOutput.appNumKeys = value;
+                    return;
+                case 67:
+                    if (consoleOutput != null)
+                        consoleOutput.appDECBKM = value;
+                    return;
                 case 1000:
                     if (consoleOutput != null) {
                         if (value) consoleOutput.unsetMouse();
@@ -877,6 +885,7 @@ public final class ConsoleInput implements BytesSink {
                         consoleOutput.mouseURXVT = value;
                     }
                     return;
+                case 47:
                 case 1047:
                     if (value) {
                         altScrBuf.setPos(currScrBuf);

@@ -11,6 +11,7 @@ public class TermKeyMap implements TermKeyMapRules {
     public static final int APP_MODE_NONE = 0;
     public static final int APP_MODE_CURSOR = 1;
     public static final int APP_MODE_NUMPAD = 2;
+    public static final int APP_MODE_DECBKM = 4;
     public static final int APP_MODE_DEFAULT = -1;
 
     public static final int MODIFIERS_SIZE = 8;

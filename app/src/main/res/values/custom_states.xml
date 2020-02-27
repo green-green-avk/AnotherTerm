@@ -1,6 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <declare-styleable name="custom_states">
+        <attr name="state_select_lines" format="boolean" />
+        <attr name="state_select_rect" format="boolean" />
+        <attr name="state_select_expr" format="boolean" />
         <attr name="state_new" format="boolean" />
         <attr name="state_edit" format="boolean" />
     </declare-styleable>

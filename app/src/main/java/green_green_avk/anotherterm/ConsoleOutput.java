@@ -19,7 +19,8 @@ public final class ConsoleOutput {
     public EventBasedBackendModuleWrapper backendModule = null;
 
     public boolean appCursorKeys = false; // DECCKM
-    public boolean appNumKeys = false; // DECPAM / DECPNM
+    public boolean appNumKeys = false; // DECNKM / DECKPNM / DECKPAM
+    public boolean appDECBKM = false; // DECBKM
     public boolean keyAutorepeat = true; // DECARM
     public boolean bracketedPasteMode = false;
     public boolean mouseX10 = false;
@@ -55,7 +56,8 @@ public final class ConsoleOutput {
     @Nullable
     public String getKeySeq(final int code, final int modifiers) {
         final int appMode = (appCursorKeys ? TermKeyMap.APP_MODE_CURSOR : 0)
-                | (appNumKeys ? TermKeyMap.APP_MODE_NUMPAD : 0);
+                | (appNumKeys ? TermKeyMap.APP_MODE_NUMPAD : 0)
+                | (appDECBKM ? TermKeyMap.APP_MODE_DECBKM : 0);
         return keyMap.get(code, modifiers, appMode);
     }
 

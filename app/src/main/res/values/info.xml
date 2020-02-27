@@ -3,6 +3,7 @@
 <string name="desc_main_help"><![CDATA[
 <h1>Local shell</h1>
 <ul>
+<li><a href=\"https://github.com/green-green-avk/AnotherTerm/wiki/Local-shell\">Basic info</a></li>
 <li><a href=\"info://green_green_avk.anotherterm/shell_env_man\">Environment</a></li>
 <li><a href=\"info://green_green_avk.anotherterm/termsh_man\">termsh</a></li>
 <li><a href=\"https://github.com/green-green-avk/AnotherTerm/wiki/Installing-Linux-under-PRoot\">Installing Linux under PRoot</a></li>

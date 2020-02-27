@@ -18,6 +18,7 @@ public final class EventBasedBackendModuleWrapper {
     private static final int MSG_READ = 3;
     private static final int MSG_CONNECTED = 4;
     private static final int MSG_DISCONNECTED = 5;
+    private static final int MSG_STOP = 6;
 
     private static final int MSG_S_WRITE = 2;
     private static final int MSG_S_CONNECT = 3;
@@ -39,6 +40,9 @@ public final class EventBasedBackendModuleWrapper {
             switch (msg.what) {
                 case MSG_KILL_SERV:
                     destroy();
+                    break;
+                case MSG_STOP:
+                    wrapped.stop();
                     break;
                 case MSG_CONNECTED:
                     isConnected = true;
@@ -239,6 +243,7 @@ public final class EventBasedBackendModuleWrapper {
 
     public void stop() {
         disconnect();
+        handler.sendEmptyMessageDelayed(MSG_STOP, 1000); // Graceful
         handler.sendEmptyMessageDelayed(MSG_KILL_SERV, 3000);
     }
 

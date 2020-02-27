@@ -35,6 +35,7 @@
             <li><a href=\"https://developer.android.com/training/monitoring-device-state/doze-standby\">https://developer.android.com/training/monitoring-device-state/doze-standby</a></li>
         </ul>
     ]]></string>
+
     <string name="battery_optimization_settings">Battery Optimization Settings</string>
     <string name="action_add_fav">Add Favorite</string>
     <string name="label_name">Name</string>
@@ -78,15 +79,10 @@
     <string name="conntype_local">Local Terminal</string>
     <string name="title_info">Info</string>
     <string name="desc_not_found"><![CDATA[<h1>Not Found</h1>]]></string>
-    <string name="desc_loading___"><![CDATA[<h1>Loading…</h1>]]></string>
+    <string name="desc_rendering___"><![CDATA[<h1>Rendering…</h1>]]></string>
     <string name="desc_local_param_execute"><![CDATA[
         <p>If the field is empty, <code>/system/bin/sh -l</code> will be executed;<br/>
         <code>/system/bin/sh -l -c &lt;command&gt;</code> otherwise.</p>
-    ]]></string>
-    <string name="example_local_param_execute"><![CDATA[
-export TERMSH=\"$LIB_DIR/libtermsh.so\"\
-cd \"$DATA_DIR\"\
-sh
     ]]></string>
     <string name="conntype_telnet">Telnet</string>
     <string name="title_activity_settings">Settings</string>
@@ -143,4 +139,7 @@ sh
     <string name="title_activity_key_mapping_editor">Key Mapping Editor</string>
     <string name="linktype_connection_settings">connection settings</string>
     <string name="linktype_key_map_settings">key map settings</string>
+    <string name="action_revoke_permissions">Revoke permissions</string>
+    <string name="label_keymode_normal">Normal</string>
+    <string name="label_keymode_application">Application (DEC?KM)</string>
 </resources>
