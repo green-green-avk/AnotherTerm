@@ -14,6 +14,7 @@
         an alias to <clipboard>SHARED_DATA_DIR</clipboard>.</li>
         <li><clipboard>LIB_DIR</clipboard> &#x2014; native binaries path.</li>
         <li><clipboard>APP_ID</clipboard> &#x2014; application id.</li>
+        <li><clipboard>APP_VERSION</clipboard> &#x2014; application version.</li>
         <li><clipboard>MY_DEVICE_ABIS</clipboard> &#x2014; supported architectures list
         from the most preferable to the least preferable.</li>
         <li><clipboard>MY_ANDROID_SDK</clipboard> &#x2014; Android SDK version.</li>

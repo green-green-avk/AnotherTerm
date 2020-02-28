@@ -142,4 +142,6 @@
     <string name="action_revoke_permissions">Revoke permissions</string>
     <string name="label_keymode_normal">Normal</string>
     <string name="label_keymode_application">Application (DEC?KM)</string>
+    <string name="label_save_as_">Save as:</string>
+    <string name="label_key_">Key:</string>
 </resources>

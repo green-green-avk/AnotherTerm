@@ -209,7 +209,7 @@ int main(const int argc, const char *const *const argv) {
 
     // Another Term shell session token associated with related data
     // including termsh permissions.
-    const uint64_t shellSessionToken = getenvuqOrExit("SHELL_SESSION_TOKEN");
+    const uint64_t shellSessionToken = getenvuqOrExit(SHELL_SESSION_TOKEN_VAR);
 
     options_t options = {.raw = false};
 

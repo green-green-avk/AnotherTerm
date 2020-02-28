@@ -2,6 +2,7 @@ package green_green_avk.anotherterm;
 
 import android.app.Activity;
 import android.content.Intent;
+import android.content.res.Resources;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
@@ -21,6 +22,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import java.util.Arrays;
+import java.util.HashSet;
 
 import green_green_avk.anotherterm.ui.UiUtils;
 import green_green_avk.anotherterm.utils.Escape;
@@ -40,6 +42,12 @@ public final class TermKeyMapEditorActivity extends AppCompatActivity {
             int i = 0;
             for (final int k : TermKeyMapRulesDefault.getSupportedKeys()) keys[i++] = k;
             Arrays.sort(keys);
+        }
+
+        private final TermKeyMapEditorActivity activity;
+
+        private KeysAdapter(@NonNull final TermKeyMapEditorActivity a) {
+            activity = a;
         }
 
         @Override
@@ -62,13 +70,41 @@ public final class TermKeyMapEditorActivity extends AppCompatActivity {
             if (!(convertView instanceof TextView))
                 convertView = new TextView(parent.getContext(), null,
                         android.R.style.Widget_TextView_SpinnerItem);
-            ((TextView) convertView).setText(TermKeyMap.keyCodeToString(keys[position]));
+            final int code = keys[position];
+            ((TextView) convertView).setText(TermKeyMap.keyCodeToString(code));
+            final Resources res = convertView.getContext().getResources();
+            convertView.setBackgroundColor(res.getColor(activity.isKeyCodeChanged(code)
+                    ? R.color.colorAccentTr
+                    : android.R.color.transparent));
             return convertView;
         }
     }
 
+    private KeysAdapter keysAdapter = null;
+
     private TermKeyMapRules.Editable keyMap = null;
     private int currentKeyCode = -1;
+
+    private final HashSet<Integer> changedKeyCodes = new HashSet<>();
+
+    private void updateChangedKeyCodes(final int code) {
+        for (int m = 0; m < TermKeyMap.MODIFIERS_SIZE; m++)
+            if (keyMap.get(code, m, TermKeyMap.APP_MODE_NONE) != null
+                    || keyMap.get(code, m, TermKeyMap.APP_MODE_DEFAULT) != null) {
+                changedKeyCodes.add(code);
+                return;
+            }
+        changedKeyCodes.remove(code);
+    }
+
+    private void updateChangedKeyCodes() {
+        for (final int code : TermKeyMapRulesDefault.getSupportedKeys())
+            updateChangedKeyCodes(code);
+    }
+
+    private boolean isKeyCodeChanged(final int code) {
+        return changedKeyCodes.contains(code);
+    }
 
     @Nullable
     private static String nullUnescape(@NonNull final String v) {
@@ -96,8 +132,11 @@ public final class TermKeyMapEditorActivity extends AppCompatActivity {
 
             @Override
             public void afterTextChanged(final Editable s) {
-                if (currentKeyCode >= 0)
+                if (currentKeyCode >= 0) {
                     keyMap.set(currentKeyCode, m, am, nullUnescape(s.toString()));
+                    updateChangedKeyCodes(currentKeyCode);
+                    keysAdapter.notifyDataSetChanged();
+                }
             }
         });
         /*
@@ -152,9 +191,11 @@ public final class TermKeyMapEditorActivity extends AppCompatActivity {
         } else {
             keyMap = (TermKeyMapRules.Editable) TermKeyMapManager.getRules(name);
         }
+        updateChangedKeyCodes();
         setName(name);
         final Spinner keyView = findViewById(R.id.f_key);
-        keyView.setAdapter(new KeysAdapter());
+        keysAdapter = new KeysAdapter(this);
+        keyView.setAdapter(keysAdapter);
 
         final ViewGroup keysView = findViewById(R.id.keys);
         keysView.setSaveFromParentEnabled(false);
@@ -229,6 +270,8 @@ public final class TermKeyMapEditorActivity extends AppCompatActivity {
                     Toast.LENGTH_SHORT).show();
             return;
         }
+        updateChangedKeyCodes();
+        keysAdapter.notifyDataSetChanged();
         setName(uri.getQueryParameter("name"));
         refreshKeysView();
     }

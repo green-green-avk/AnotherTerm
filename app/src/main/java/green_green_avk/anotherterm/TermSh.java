@@ -13,7 +13,6 @@ import android.net.LocalServerSocket;
 import android.net.LocalSocket;
 import android.net.Uri;
 import android.os.AsyncTask;
-import android.os.Build;
 import android.os.Handler;
 import android.os.ParcelFileDescriptor;
 import android.os.Process;
@@ -26,8 +25,6 @@ import android.support.v4.app.NotificationManagerCompat;
 import android.support.v4.content.FileProvider;
 import android.support.v4.math.MathUtils;
 import android.util.Log;
-
-import org.apache.commons.lang3.StringUtils;
 
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
@@ -716,11 +713,6 @@ public final class TermSh {
                         case "help":
                             printHelp(shellCmd.stdOut, shellCmd);
                             break;
-                        case "version": {
-                            shellCmd.stdOut.write(Misc.toUTF8(
-                                    ui.ctx.getString(R.string.versionName) + "\n"));
-                            break;
-                        }
                         case "notify": {
                             final BinaryGetOpts.Parser ap = new BinaryGetOpts.Parser(shellCmd.args);
                             ap.skip();
@@ -1260,16 +1252,6 @@ public final class TermSh {
                                 throw new ParseException(e.getMessage());
                             }
                             shellCmd.stdOut.write(Misc.toUTF8(r + "\n"));
-                            break;
-                        }
-                        case "arch": {
-                            shellCmd.stdOut.write(Misc.toUTF8(StringUtils.joinWith(
-                                    " ", (Object[]) Misc.getAbis()) + "\n"));
-                            break;
-                        }
-                        case "sdk": {
-                            shellCmd.stdOut.write(Misc.toUTF8(
-                                    Build.VERSION.SDK_INT + "\n"));
                             break;
                         }
                         case "has-favorite": {

@@ -5,8 +5,8 @@ import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 
 import java.util.HashMap;
-import java.util.Locale;
 import java.util.Map;
+import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 public final class TermKeyMapRulesParser {
@@ -15,29 +15,70 @@ public final class TermKeyMapRulesParser {
 
     private static final class RulesFromSP implements TermKeyMapRules.Editable,
             TermKeyMapRules.UriImportable, TermKeyMapRules.UriExportable {
+        private static final Pattern keyP_v1 = Pattern.compile("^([0-9]{1,3})_([0-9])_(.)");
+
         @NonNull
         private final Map<String, Object> map;
+        private final Map<Integer, Object> fastMap = new HashMap<>();
 
         private RulesFromSP(@NonNull final Map<String, ?> map) {
+            if (!map.containsKey("V")) {
+                this.map = new HashMap<>();
+                for (final Map.Entry<String, Object> me : ((Map<String, Object>) map).entrySet()) {
+                    putEntry_v1(me.getKey(), me.getValue());
+                }
+                this.map.put("V", "2");
+                return;
+            }
+            for (final Map.Entry<String, Object> me : ((Map<String, Object>) map).entrySet()) {
+                try {
+                    this.fastMap.put(Integer.parseInt(me.getKey(), 16), me.getValue());
+                } catch (final NumberFormatException ignored) {
+                }
+            }
             this.map = (Map<String, Object>) map;
         }
 
-        @NonNull
-        private String getKey(final int code) {
-            return String.format(Locale.ROOT, "%d", code);
+        private void putEntry_v1(@NonNull String key, Object value) {
+            Matcher m;
+            m = keyP_v1.matcher(key);
+            if (m.find()) {
+                int hash = getKeyHash(
+                        Integer.parseInt(m.group(1)),
+                        Integer.parseInt(m.group(2)),
+                        m.group(3).toLowerCase().charAt(0) == 't'
+                );
+                this.fastMap.put(hash, value);
+                this.map.put(Integer.toHexString(hash), value);
+            }
         }
 
-        @NonNull
-        private String getKey(final int code, final int modifiers, final int appMode) {
-            return String.format(Locale.ROOT, "%d_%d_%b", code, modifiers, (getAppMode(code) & appMode) != 0);
+        private void putEntry_v2(@NonNull String key, Object value) {
+            try {
+                this.fastMap.put(Integer.parseInt(key, 16), value);
+                this.map.put(key, value);
+            } catch (final NumberFormatException ignored) {
+            }
+        }
+
+        private static int getKeyAmHash(final int code) {
+            return code | 0x8000;
+        }
+
+        private static int getKeyHash(final int code, final int modifiers, final boolean appMode) {
+            return code | (modifiers << 10) | (appMode ? 0x4000 : 0);
+        }
+
+        private int getKeyHash(final int code, final int modifiers, final int appMode) {
+            return getKeyHash(code, modifiers, (getAppMode(code) & appMode) != 0);
         }
 
         @Override
         public int getAppMode(final int code) {
+            final Object am = fastMap.get(getKeyAmHash(code));
+            if (am == null) return TermKeyMap.APP_MODE_DEFAULT;
             try {
-                return (int) (Object) map.get(getKey(code));
-            } catch (final NullPointerException e) {
-                return TermKeyMap.APP_MODE_DEFAULT;
+                return Integer.parseInt((String) am);
             } catch (final ClassCastException e) {
                 return TermKeyMap.APP_MODE_DEFAULT;
             }
@@ -47,7 +88,7 @@ public final class TermKeyMapRulesParser {
         @Override
         public String get(final int code, final int modifiers, final int appMode) {
             try {
-                return (String) map.get(getKey(code, modifiers, appMode));
+                return (String) fastMap.get(getKeyHash(code, modifiers, appMode));
             } catch (final ClassCastException e) {
                 return null;
             }
@@ -55,30 +96,55 @@ public final class TermKeyMapRulesParser {
 
         @Override
         public void setAppMode(final int code, final int appMode) {
-            map.put(getKey(code), appMode);
+            final int hash = getKeyAmHash(code);
+            fastMap.put(hash, appMode);
+            map.put(Integer.toHexString(hash), appMode);
         }
 
         @Override
         public void set(final int code, final int modifiers, final int appMode,
-                        @Nullable String keyOutput) {
-            if (keyOutput == null) map.remove(getKey(code, modifiers, appMode));
-            else map.put(getKey(code, modifiers, appMode), keyOutput);
+                        @Nullable final String keyOutput) {
+            final int hash = getKeyHash(code, modifiers, appMode);
+            final String strHash = Integer.toHexString(hash);
+            if (keyOutput == null) {
+                fastMap.remove(hash);
+                map.remove(strHash);
+            } else {
+                fastMap.put(hash, keyOutput);
+                map.put(strHash, keyOutput);
+            }
         }
 
         private static final String uriScheme = "termkeymap";
-        private static final Pattern uriCheckP = Pattern.compile("^[0-9]");
+        private static final Pattern uriCheckP_v1 = Pattern.compile("^[0-9]");
+        private static final Pattern uriCheckP_v2 = Pattern.compile("^[0-9a-fA-F]+$");
 
         @Override
         public void fromUri(@NonNull final Uri uri) {
-            if (!uriScheme.equals(uri.getScheme()) || !"/v1".equals(uri.getPath()))
-                throw new IllegalArgumentException("Unsupported URI format");
-            for (final String k : uri.getQueryParameterNames()) {
-                // TODO: '+' decoding issue before Jelly Bean
-                final String v = uri.getQueryParameter(k);
-                if (v == null || v.isEmpty() || !uriCheckP.matcher(v).find())
-                    continue;
-                map.put(k, v);
+            if (uriScheme.equals(uri.getScheme())) {
+                final String path = uri.getPath();
+                if (path != null)
+                    // TODO: '+' decoding issue before Jelly Bean
+                    switch (uri.getPath()) {
+                        case "/v1":
+                            for (final String k : uri.getQueryParameterNames()) {
+                                if (!uriCheckP_v1.matcher(k).find()) continue;
+                                final String v = uri.getQueryParameter(k);
+                                if (v == null || v.isEmpty()) continue;
+                                putEntry_v1(k, v);
+                            }
+                            return;
+                        case "/v2":
+                            for (final String k : uri.getQueryParameterNames()) {
+                                if (!uriCheckP_v2.matcher(k).find()) continue;
+                                final String v = uri.getQueryParameter(k);
+                                if (v == null || v.isEmpty()) continue;
+                                putEntry_v2(k, v);
+                            }
+                            return;
+                    }
             }
+            throw new IllegalArgumentException("Unsupported URI format");
         }
 
         @NonNull
@@ -86,9 +152,10 @@ public final class TermKeyMapRulesParser {
         public Uri toUri() {
             final Uri.Builder b = new Uri.Builder()
                     .scheme(uriScheme)
-                    .path("/v1");
+                    .path("/v2");
             for (final String k : map.keySet()) {
-                b.appendQueryParameter(k, map.get(k).toString());
+                if (!"V".equals(k))
+                    b.appendQueryParameter(k, map.get(k).toString());
             }
             return b.build();
         }

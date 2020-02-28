@@ -16,11 +16,11 @@
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Save as:" />
+            android:text="@string/label_save_as_" />
 
         <EditText
             android:id="@+id/f_name"
-            android:layout_width="wrap_content"
+            android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="1"
             android:inputType="text" />
@@ -36,7 +36,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:paddingRight="@dimen/text_separator"
-            android:text="Key:" />
+            android:text="@string/label_key_" />
 
         <Spinner
             android:id="@+id/f_key"

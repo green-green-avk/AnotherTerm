@@ -25,7 +25,7 @@ public class TermKeyMap implements TermKeyMapRules {
         public String[] nm;
         public String[] am;
 
-        public KeyMap(int appMode, String[] nm, String[] am) {
+        public KeyMap(final int appMode, final String[] nm, final String[] am) {
             this.appMode = appMode;
             this.nm = nm;
             this.am = am;
@@ -45,7 +45,7 @@ public class TermKeyMap implements TermKeyMapRules {
         this(true);
     }
 
-    protected TermKeyMap(boolean doInit) {
+    protected TermKeyMap(final boolean doInit) {
         if (!doInit) return;
         reinit();
     }
@@ -121,7 +121,7 @@ public class TermKeyMap implements TermKeyMapRules {
     }
 
     @Override
-    public int getAppMode(int code) {
+    public int getAppMode(final int code) {
         if (code >= map.length) return APP_MODE_DEFAULT;
         final KeyMap km = map[code];
         if (km == null) return APP_MODE_DEFAULT;
@@ -130,7 +130,7 @@ public class TermKeyMap implements TermKeyMapRules {
 
     @Nullable
     @Override
-    public String get(int code, int modifiers, int appMode) {
+    public String get(final int code, final int modifiers, final int appMode) {
         if (code >= map.length) return null;
         final KeyMap km = map[code];
         if (km == null) return null;
@@ -150,7 +150,7 @@ public class TermKeyMap implements TermKeyMapRules {
     }
 
     @NonNull
-    public static String keyCodeToString(int code) {
+    public static String keyCodeToString(final int code) {
         String label = keyLabels.get(code);
         if (label == null) {
             label = keyLabelsP.matcher(KeyEvent.keyCodeToString(code)).replaceFirst("")

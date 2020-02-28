@@ -25,11 +25,6 @@ help
 <dd>This message.</dd><br/>
 
 <dt><p><code>
-version
-</code></p></dt>
-<dd>Show this application version.</dd><br/>
-
-<dt><p><code>
 notify [-i|--id &lt;id&gt;] [--] [&lt;message&gt;]<br/>
 notify -r|--remove -i|--id &lt;id&gt;
 </code></p></dt>
@@ -228,19 +223,6 @@ It escapes according to the <code>application/x-www-form-urlencoded</code> MIME 
 uri-decode &lt;string&gt;
 </code></p></dt>
 <dd>URL-unescape a <code>&lt;string&gt;</code>.</dd><br/>
-
-<dt><p><code>
-arch
-</code></p></dt>
-<dd>Show this device supported architectures list from the most preferable
-to the least preferable.
-<p><em>(Deprecated, use <clipboard>MY_DEVICE_ABIS</clipboard> variable instead)</em></p></dd><br/>
-
-<dt><p><code>
-sdk
-</code></p></dt>
-<dd>Show this device Android SDK version.
-<p><em>(Deprecated, use <clipboard>MY_ANDROID_SDK</clipboard> variable instead)</em></p></dd><br/>
 
 <dt><p><code>
 has-favorite &lt;name&gt; &lt;execute&gt;

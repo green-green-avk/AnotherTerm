@@ -52,7 +52,7 @@ public final class TermKeyMapRulesDefault {
         keyCodes.put(KeyEvent.KEYCODE_SPACE, new KeyMap(NONE, new String[]{" ", null, "\u001B ", null, "\0", null, "\u001B\0"}, null, S("\u001BO "), null));
         keyCodes.put(KeyEvent.KEYCODE_TAB, new KeyMap(NONE, new String[]{"\t", "\u001B[Z", "\u001B\t"}, null, S("\u001BOI"), null));
         keyCodes.put(KeyEvent.KEYCODE_ENTER, new KeyMap(NONE, new String[]{"\r", null, "\u001B\r"}, null, S("\u001BOM"), null));
-        keyCodes.put(KeyEvent.KEYCODE_DEL, new KeyMap(DECBKM, new String[]{"\u007F", null, "\u001B\u007F"}, null, new String[]{"\b", null, "\u001B\b"}, null));
+        keyCodes.put(KeyEvent.KEYCODE_DEL, new KeyMap(DECBKM, new String[]{"\u007F", null, "\u001B\u007F"}, null, new String[]{"\b", "\b", "\u001B\b", "\u001B\b", "\b", "\b", "\u001B\b", "\u001B\b"}, null));
 
         keyCodes.put(KeyEvent.KEYCODE_PAGE_UP, new KeyMap(NONE, S("\u001B[5~"), "\u001B[5;%d~", null, null));
         keyCodes.put(KeyEvent.KEYCODE_PAGE_DOWN, new KeyMap(NONE, S("\u001B[6~"), "\u001B[6;%d~", null, null));

@@ -13,10 +13,15 @@ android {
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
         vectorDrawables.useSupportLibrary = true
 
+        def SHELL_SESSION_TOKEN_VAR = "SHELL_SESSION_TOKEN"
+        buildConfigField "String", "SHELL_SESSION_TOKEN_VAR", "\"$SHELL_SESSION_TOKEN_VAR\""
+
         externalNativeBuild {
             cmake {
-                cFlags "-DAPPLICATION_ID=\\\"${applicationId}\\\""
-                cppFlags "-DAPPLICATION_ID=\\\"${applicationId}\\\""
+                cFlags "-DAPPLICATION_ID=\\\"${applicationId}\\\"",
+                        "-DSHELL_SESSION_TOKEN_VAR=\\\"$SHELL_SESSION_TOKEN_VAR\\\""
+                cppFlags "-DAPPLICATION_ID=\\\"${applicationId}\\\"",
+                        "-DSHELL_SESSION_TOKEN_VAR=\\\"$SHELL_SESSION_TOKEN_VAR\\\""
             }
         }
     }

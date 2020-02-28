@@ -173,7 +173,7 @@ public final class LocalModule extends BackendModule {
     @Override
     public void connect() {
         final Map<String, String> env = new HashMap<>(System.getenv());
-        env.put("SHELL_SESSION_TOKEN", Long.toHexString(sessionToken));
+        env.put(BuildConfig.SHELL_SESSION_TOKEN_VAR, Long.toHexString(sessionToken).toUpperCase());
         env.put("TERM", terminalString);
         env.put("DATA_DIR", context.getApplicationInfo().dataDir);
         if (Build.VERSION.SDK_INT >= 24)
@@ -185,6 +185,7 @@ public final class LocalModule extends BackendModule {
         }
         env.put("LIB_DIR", context.getApplicationInfo().nativeLibraryDir);
         env.put("APP_ID", BuildConfig.APPLICATION_ID);
+        env.put("APP_VERSION", BuildConfig.VERSION_NAME);
         env.put("MY_DEVICE_ABIS", StringUtils.joinWith(" ", Misc.getAbis()));
         env.put("MY_ANDROID_SDK", Integer.toString(Build.VERSION.SDK_INT));
         synchronized (connectionLock) {
