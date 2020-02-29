@@ -114,6 +114,26 @@ public final class ConsoleActivity extends AppCompatActivity implements ConsoleI
     protected void onCreate(final Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
+        if (ConsoleService.sessionKeys.size() <= 0) {
+            finish();
+            return;
+        }
+        final Intent intent = getIntent();
+        if (!intent.hasExtra(C.IFK_MSG_SESS_KEY)) {
+            if (intent.getBooleanExtra(C.IFK_MSG_SESS_TAIL, false)) {
+                mSessionKey = getLastSessionKey();
+            } else {
+                mSessionKey = getFirstSessionKey();
+            }
+        } else {
+            mSessionKey = intent.getIntExtra(C.IFK_MSG_SESS_KEY, 0);
+        }
+        mSession = ConsoleService.sessions.get(mSessionKey);
+        if (mSession == null) {
+            finish();
+            return;
+        }
+
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
             if (isInMultiWindowMode())
                 getWindow().clearFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN);
@@ -141,6 +161,8 @@ public final class ConsoleActivity extends AppCompatActivity implements ConsoleI
         mCsv.setFontSize(((App) getApplication()).settings.terminal_font_default_size_sp
                 * getResources().getDisplayMetrics().scaledDensity);
 
+        final int swipeDistTh = (int) (80 * getResources().getDisplayMetrics().density);
+        final int swipeSpeedTh = (int) (640 * getResources().getDisplayMetrics().density);
         mGestureDetector = new GestureDetector(this, new GestureDetector.SimpleOnGestureListener() {
             @Override
             public boolean onFling(final MotionEvent e1, final MotionEvent e2,
@@ -148,13 +170,13 @@ public final class ConsoleActivity extends AppCompatActivity implements ConsoleI
                 if (mCsv.getSelectionMode()) return true;
                 if (ConsoleService.sessionKeys.size() < 2) return true;
                 if (e1 == null || e2 == null) return true; // avoid null events bug
-                if (Math.abs(e1.getX() - e2.getX()) > 100) {
-                    if (velocityX < -500) {
+                if (Math.abs(e1.getX() - e2.getX()) > swipeDistTh) {
+                    if (velocityX < -swipeSpeedTh) {
                         startSelf(getNextSessionKey(mSessionKey));
                         overridePendingTransition(R.anim.slide_in_left, R.anim.slide_out_left);
                         return true;
                     }
-                    if (velocityX > 500) {
+                    if (velocityX > swipeSpeedTh) {
                         startSelf(getPreviousSessionKey(mSessionKey));
                         overridePendingTransition(R.anim.slide_in_right, R.anim.slide_out_right);
                         return true;
@@ -175,27 +197,6 @@ public final class ConsoleActivity extends AppCompatActivity implements ConsoleI
                 }
         );
 
-        if (ConsoleService.sessionKeys.size() <= 0) {
-            finish();
-            return;
-        }
-        final Intent intent = getIntent();
-        if (!intent.hasExtra(C.IFK_MSG_SESS_KEY)) {
-            if (intent.hasExtra(C.IFK_MSG_SESS_TAIL)) {
-                if (intent.getBooleanExtra(C.IFK_MSG_SESS_TAIL, false)) {
-                    mSessionKey = getLastSessionKey();
-                } else {
-                    mSessionKey = getFirstSessionKey();
-                }
-            }
-        } else {
-            final int k = intent.getIntExtra(C.IFK_MSG_SESS_KEY, 0);
-            if (!ConsoleService.sessionKeys.contains(k)) return;
-            mSessionKey = k;
-        }
-        final int k = mSessionKey;
-        mSession = ConsoleService.sessions.get(k);
-        if (mSession == null) return;
         setTitle(mSession.input.currScrBuf.windowTitle);
 
         mCsv.setConsoleInput(mSession.input);

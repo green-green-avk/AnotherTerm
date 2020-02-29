@@ -114,4 +114,16 @@
         <item name="android:paddingStart">0sp</item>
         <item name="android:paddingEnd">0sp</item>
     </style>
+
+    <style name="AppWidget.EditorToolbar.ImageButton" parent="Widget.AppCompat.ImageButton">
+        <item name="android:scaleType">fitCenter</item>
+        <item name="android:background">@drawable/bg_grid_btn</item>
+        <item name="tint">?attr/colorPrimary</item>
+    </style>
+
+    <style name="AppWidget.EditorToolbar.ImageButton.Horizontal" parent="AppWidget.EditorToolbar.ImageButton">
+        <item name="android:layout_height">match_parent</item>
+        <item name="android:layout_width">0dp</item>
+        <item name="android:layout_weight">1</item>
+    </style>
 </resources>

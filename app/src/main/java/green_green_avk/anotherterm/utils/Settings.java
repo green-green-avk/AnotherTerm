@@ -54,7 +54,7 @@ public abstract class Settings {
                     v = rr.getString(a.defRes());
                 try {
                     v = sp.getString(f.getName(), (String) v);
-                } catch (ClassCastException e) {
+                } catch (final ClassCastException e) {
                     editor.putString(f.getName(), (String) v);
                 }
             } else if (c.equals(Integer.TYPE)) {
@@ -62,7 +62,7 @@ public abstract class Settings {
                     v = rr.getInteger(a.defRes());
                 try {
                     v = sp.getInt(f.getName(), (int) v);
-                } catch (ClassCastException e) {
+                } catch (final ClassCastException e) {
                     editor.putInt(f.getName(), (int) v);
                 }
             } else if (c.equals(Boolean.TYPE)) {
@@ -70,7 +70,7 @@ public abstract class Settings {
                     v = rr.getBoolean(a.defRes());
                 try {
                     v = sp.getBoolean(f.getName(), (boolean) v);
-                } catch (ClassCastException e) {
+                } catch (final ClassCastException e) {
                     editor.putBoolean(f.getName(), (boolean) v);
                 }
             } else continue;

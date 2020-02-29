@@ -4,6 +4,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:animateLayoutChanges="true"
     android:orientation="vertical"
     tools:context=".TermKeyMapEditorActivity">
 
@@ -30,7 +31,9 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="horizontal"
-        android:padding="@dimen/text_padding">
+        android:paddingLeft="@dimen/text_padding"
+        android:paddingRight="@dimen/text_padding"
+        android:paddingBottom="@dimen/text_padding">
 
         <TextView
             android:layout_width="wrap_content"
@@ -96,92 +99,56 @@
             android:text="@string/label_keymode_application" />
     </LinearLayout>
 
-    <FrameLayout
+    <ScrollView
         android:layout_width="match_parent"
         android:layout_height="0dp"
-        android:layout_weight="1">
+        android:layout_weight="1"
+        android:requiresFadingEdge="vertical">
 
-        <ScrollView
+        <LinearLayout
+            android:id="@+id/keys"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:requiresFadingEdge="vertical">
+            android:orientation="vertical">
 
-            <LinearLayout
-                android:id="@+id/keys"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:orientation="vertical"
-                android:paddingBottom="@dimen/fab_space">
+        </LinearLayout>
 
-            </LinearLayout>
+    </ScrollView>
 
-        </ScrollView>
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="32dp"
+        android:orientation="horizontal">
 
-        <HorizontalScrollView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_gravity="bottom|end"
-            android:fadeScrollbars="true"
-            android:requiresFadingEdge="horizontal"
-            android:scrollbarAlwaysDrawHorizontalTrack="true"
-            android:scrollbarStyle="outsideOverlay">
+        <ImageButton
+            android:id="@+id/b_info"
+            style="@style/AppWidget.EditorToolbar.ImageButton.Horizontal"
+            android:onClick="info"
+            app:srcCompat="@drawable/ic_help" />
 
-            <LinearLayout
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:orientation="horizontal"
-                android:paddingLeft="@dimen/fab2_margin"
-                android:paddingRight="@dimen/fab2_margin"
-                android:paddingBottom="@dimen/fab2_margin">
+        <ImageButton
+            android:id="@+id/b_share"
+            style="@style/AppWidget.EditorToolbar.ImageButton.Horizontal"
+            android:onClick="share"
+            app:srcCompat="@drawable/ic_share" />
 
-                <android.support.design.widget.FloatingActionButton
-                    android:id="@+id/b_info"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_margin="@dimen/fab2_margin"
-                    android:onClick="info"
-                    app:elevation="4dp"
-                    app:srcCompat="@android:drawable/ic_menu_help" />
+        <ImageButton
+            android:id="@+id/b_copy"
+            style="@style/AppWidget.EditorToolbar.ImageButton.Horizontal"
+            android:onClick="copy"
+            app:srcCompat="@drawable/ic_copy_48" />
 
-                <android.support.design.widget.FloatingActionButton
-                    android:id="@+id/b_share"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_margin="@dimen/fab2_margin"
-                    android:onClick="share"
-                    app:elevation="4dp"
-                    app:srcCompat="@drawable/ic_share" />
+        <ImageButton
+            android:id="@+id/b_paste"
+            style="@style/AppWidget.EditorToolbar.ImageButton.Horizontal"
+            android:onClick="paste"
+            app:srcCompat="@drawable/ic_paste_48" />
 
-                <android.support.design.widget.FloatingActionButton
-                    android:id="@+id/b_copy"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_margin="@dimen/fab2_margin"
-                    android:onClick="copy"
-                    app:elevation="4dp"
-                    app:srcCompat="@drawable/ic_copy_48" />
-
-                <android.support.design.widget.FloatingActionButton
-                    android:id="@+id/b_paste"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_margin="@dimen/fab2_margin"
-                    android:onClick="paste"
-                    app:elevation="4dp"
-                    app:srcCompat="@drawable/ic_paste_48" />
-
-                <android.support.design.widget.FloatingActionButton
-                    android:id="@+id/b_save"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_margin="@dimen/fab2_margin"
-                    android:onClick="save"
-                    app:elevation="4dp"
-                    app:srcCompat="@drawable/ic_save_48" />
-            </LinearLayout>
-
-        </HorizontalScrollView>
-
-    </FrameLayout>
+        <ImageButton
+            android:id="@+id/b_save"
+            style="@style/AppWidget.EditorToolbar.ImageButton.Horizontal"
+            android:onClick="save"
+            app:srcCompat="@drawable/ic_save" />
+    </LinearLayout>
 
 </LinearLayout>

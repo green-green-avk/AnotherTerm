@@ -19,7 +19,7 @@
             android:id="@+id/icon"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:background="@drawable/bg_screen1"
+            android:background="@drawable/bg_box1"
             android:src="@mipmap/ic_launcher"
             app:layout_constraintLeft_toLeftOf="parent"
             app:layout_constraintTop_toTopOf="parent" />

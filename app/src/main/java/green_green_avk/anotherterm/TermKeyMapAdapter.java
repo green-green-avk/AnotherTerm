@@ -1,8 +1,6 @@
 package green_green_avk.anotherterm;
 
-import android.app.Activity;
 import android.content.Context;
-import android.content.ContextWrapper;
 import android.graphics.Typeface;
 import android.support.annotation.LayoutRes;
 import android.support.annotation.NonNull;
@@ -210,9 +208,7 @@ public final class TermKeyMapAdapter extends BaseAdapter {
                 editView.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(final View v) {
-                        final Activity a = getActivity(v.getContext());
-                        if (a != null)
-                            TermKeyMapEditorActivity.start(a, getMeta(position).name);
+                        TermKeyMapEditorActivity.start(v.getContext(), getMeta(position).name);
                     }
                 });
                 editView.setVisibility(View.VISIBLE);
@@ -246,15 +242,4 @@ public final class TermKeyMapAdapter extends BaseAdapter {
 
     private static final int[] state_empty = new int[]{};
     private static final int[] state_new = new int[]{R.attr.state_new};
-
-    @Nullable
-    private static Activity getActivity(@NonNull Context ctx) {
-        while (ctx instanceof ContextWrapper) {
-            if (ctx instanceof Activity) {
-                return (Activity) ctx;
-            }
-            ctx = ((ContextWrapper) ctx).getBaseContext();
-        }
-        return null;
-    }
 }

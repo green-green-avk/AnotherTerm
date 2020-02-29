@@ -40,8 +40,7 @@ public final class TermKeyMapRulesParser {
         }
 
         private void putEntry_v1(@NonNull String key, Object value) {
-            Matcher m;
-            m = keyP_v1.matcher(key);
+            final Matcher m = keyP_v1.matcher(key);
             if (m.find()) {
                 int hash = getKeyHash(
                         Integer.parseInt(m.group(1)),

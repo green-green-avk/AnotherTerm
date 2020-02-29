@@ -5,7 +5,7 @@
     android:layout_height="wrap_content"
     android:layout_marginTop="@dimen/field_margin"
     android:layout_marginBottom="@dimen/field_margin"
-    android:background="@drawable/list_item_background"
+    android:background="@drawable/list_item_btn_background"
     android:orientation="horizontal">
 
     <ImageView

@@ -1,4 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <drawable name="list_item_background">@drawable/bg_li2</drawable>
+    <drawable name="list_item_btn_background">@drawable/bg_li2_btn</drawable>
 </resources>

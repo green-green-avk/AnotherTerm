@@ -1,6 +1,6 @@
 package green_green_avk.anotherterm;
 
-import android.app.Activity;
+import android.content.Context;
 import android.content.Intent;
 import android.content.res.Resources;
 import android.net.Uri;
@@ -29,8 +29,9 @@ import green_green_avk.anotherterm.utils.Escape;
 import green_green_avk.anotherterm.utils.Unescape;
 
 public final class TermKeyMapEditorActivity extends AppCompatActivity {
-    public static void start(@NonNull final Activity parent, @Nullable String name) {
-        parent.startActivity(new Intent(parent, TermKeyMapEditorActivity.class)
+    public static void start(@Nullable final Context context, @Nullable final String name) {
+        if (context == null) return;
+        context.startActivity(new Intent(context, TermKeyMapEditorActivity.class)
                 .putExtra(C.IFK_MSG_NAME, name));
     }
 
@@ -177,6 +178,9 @@ public final class TermKeyMapEditorActivity extends AppCompatActivity {
     protected void onCreate(final Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_term_key_map_editor);
+
+        UiUtils.enableAnimation(getWindow().getDecorView());
+
         String name = getIntent().getStringExtra(C.IFK_MSG_NAME);
         if (savedInstanceState != null) {
             keyMap = (TermKeyMapRules.Editable) savedInstanceState.get("E_KEYMAP");
