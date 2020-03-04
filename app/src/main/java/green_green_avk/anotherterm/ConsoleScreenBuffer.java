@@ -6,6 +6,7 @@ import android.graphics.Rect;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.math.MathUtils;
+import android.util.Log;
 
 import org.apache.commons.collections4.list.TreeList;
 
@@ -15,23 +16,56 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.ListIterator;
 
+import green_green_avk.anotherterm.utils.Unicode;
+
 public final class ConsoleScreenBuffer {
     public static final int MAX_BUF_HEIGHT = 100000;
+    private static final int MAX_ROW_MEM = 8192;
     public static final int MAX_ROW_LEN = 1024;
+    private static final int MIN_ROW_LEN = 128;
     public static final int DEF_CHAR_ATTRS = encodeAttrs(new ConsoleScreenCharAttrs());
 
     private static final char[] EMPTY_BUF = new char[0];
 
-    public static final class BufferSample {
+    public static final class BufferTextRange {
         @NonNull
-        public char[] buf = EMPTY_BUF;
+        public char[] text = EMPTY_BUF;
+        public int start = 0;
+        byte startXOff = 0;
+        public int length = 0;
+        byte endXOff = 0;
+
+        public void reinit() {
+            text = EMPTY_BUF;
+            start = 0;
+            startXOff = 0;
+            length = 0;
+            endXOff = 0;
+        }
+
+        @NonNull
+        @Override
+        public String toString() {
+            return new String(text, start, length);
+        }
+    }
+
+    public static final class BufferRun {
+        private int attrsInd = 0;
+        @NonNull
+        public char[] text = EMPTY_BUF;
         public int start = 0;
         public int length = 0;
+        public int attrs = DEF_CHAR_ATTRS;
+        public byte glyphWidth = 1;
 
-        public void unbind() {
-            buf = EMPTY_BUF;
+        public void reinit() {
+            text = EMPTY_BUF;
             start = 0;
             length = 0;
+            attrs = DEF_CHAR_ATTRS;
+            glyphWidth = 1;
+            attrsInd = 0;
         }
     }
 
@@ -40,8 +74,8 @@ public final class ConsoleScreenBuffer {
     private int mBufHeight;
 
     private static final class Row {
-        public final char[] text = new char[MAX_ROW_LEN];
-        public final int[] attrs = new int[MAX_ROW_LEN];
+        public char[] text = new char[MIN_ROW_LEN];
+        public int[] attrs = new int[MIN_ROW_LEN];
 
         {
             Arrays.fill(text, ' ');
@@ -51,6 +85,24 @@ public final class ConsoleScreenBuffer {
             Arrays.fill(text, ' ');
             Arrays.fill(attrs, a);
             return this;
+        }
+
+        private int extendText(final int plusSize) {
+            final int size = Integer.highestOneBit(text.length + plusSize - 1) << 1;
+            final char[] nb = Arrays.copyOf(text, Math.min(size, MAX_ROW_MEM));
+            Arrays.fill(text, ' ');
+            Arrays.fill(nb, text.length, nb.length, ' ');
+            text = nb;
+            return text.length - size;
+        }
+
+        private int extendAttrs(final int plusSize) {
+            final int size = Integer.highestOneBit(attrs.length + plusSize - 1) << 1;
+            final int[] nb = Arrays.copyOf(attrs, Math.min(size, MAX_ROW_MEM));
+            Arrays.fill(attrs, ' ');
+            Arrays.fill(nb, attrs.length, nb.length, ' ');
+            attrs = nb;
+            return attrs.length - size;
         }
 
         @Override
@@ -410,72 +462,133 @@ public final class ConsoleScreenBuffer {
         setAbsPos(mPos.x, mPos.y);
     }
 
-    public int getChars(final int x, final int y, int len, @NonNull final BufferSample output) {
+    private static final int F_IND_MASK = 0xFFFFFF;
+    private static final int F_XOFF_SHIFT = 24;
+
+    private static int getCharIndex(@NonNull final char[] text, final int dx, int startInd) {
+        int px = startInd >> F_XOFF_SHIFT;
+        startInd &= F_IND_MASK;
+        while (px < dx) {
+            if (startInd >= text.length) {
+                return startInd;// + (x - startX); // realloc?
+            }
+            final int cp = Character.codePointAt(text, startInd);
+            startInd += Character.charCount(cp);
+            px += Unicode.wcwidth(cp); // 0 for C0 / C1
+        }
+        return startInd | ((px - dx) << F_XOFF_SHIFT);
+    }
+
+    public static int getCharIndex(@NonNull final char[] text, final int dx, int startInd,
+                                   final boolean next) {
+        final int r = getCharIndex(text, dx, startInd);
+        if (next || r >> F_XOFF_SHIFT == 0) return r & F_IND_MASK;
+        return Unicode.stepBack(text, startInd, r & F_IND_MASK);
+    }
+
+    public static int getCharPos(@NonNull final char[] text, final int offset, final int length) {
+        return Unicode.getScreenLength(text, offset, length);
+    }
+
+    public byte getGlyphWidth(final int x, final int y) {
+        if (x < 0 || x > mWidth) return 0;
+        final Row row = getRow(y);
+        if (row == null) return 0;
+        return (byte) Unicode.wcwidth(Character.codePointAt(row.text,
+                getCharIndex(row.text, x, 0, false)));
+    }
+
+    public int getChars(final int x, final int y, int len, @NonNull final BufferTextRange output) {
         final Row row = getRow(y);
         if (row == null) return -1;
         len = Math.min(len, mWidth - x);
         if (len <= 0) return -1;
-        output.buf = row.text;
-        output.start = x;
-        output.length = len;
+        output.start = getCharIndex(row.text, x, 0);
+        final int end = getCharIndex(row.text, len, output.start);
+        output.text = row.text;
+        output.startXOff = (byte) (output.start >> F_XOFF_SHIFT);
+        output.start &= F_IND_MASK;
+        output.endXOff = (byte) (end >> F_XOFF_SHIFT);
+        output.length = (end & F_IND_MASK) - output.start;
         return len;
     }
 
-    @Nullable
-    public CharSequence getChars(final int x, final int y, int len) {
-        final Row row = getRow(y);
-        if (row == null) return null;
-        len = Math.min(len, mWidth - x);
-        if (len <= 0) return null;
-        return CharBuffer.wrap(row.text, x, len);
+    private int getAttrs(@NonNull final int[] attrs, final int i) {
+        if (i < attrs.length) return attrs[i];
+        return attrs[attrs.length - 1];
     }
 
-    private static int getSameAttrLen(@NonNull final int[] attrs, final int start, final int end) {
-        final int v = attrs[start];
-        int pos = start + 1;
-        for (; pos < end; ++pos) {
-            if (attrs[pos] != v) break;
+    private int getCharsRunLength(@NonNull final Row row, final int startX, final int endX,
+                                  @NonNull final BufferRun output) {
+        final char[] rText = row.text;
+        final int[] rAttrs = row.attrs;
+        int attrsInd = output.attrsInd;
+        final int attrs = getAttrs(rAttrs, attrsInd);
+        output.start += output.length;
+        int ind = output.start;
+        int x = startX;
+        int cp;
+        byte width;
+        if (ind >= rText.length) {
+            width = 1;
+            x++;
+            while (x < endX) {
+                if (getAttrs(rAttrs, attrsInd) != attrs) break;
+                x++;
+                attrsInd++;
+            }
+        } else {
+            cp = Character.codePointAt(rText, ind);
+            width = (byte) Unicode.wcwidth(cp);
+            ind += Character.charCount(cp);
+            attrsInd++;
+            x += width;
+            while (x < endX) {
+                if (getAttrs(rAttrs, attrsInd) != attrs) break;
+                if (ind >= rText.length) break;
+                cp = Character.codePointAt(rText, ind);
+                final byte w = (byte) Unicode.wcwidth(cp);
+                if (width == 0) width = w;
+                if (w > 0 && w != width) break;
+                ind += Character.charCount(cp);
+                attrsInd++;
+                x += w; // 0 for C0 / C1
+            }
         }
-        return pos - start;
+        output.text = rText;
+        output.attrsInd = attrsInd;
+        output.length = ind - output.start;
+        output.glyphWidth = width;
+        output.attrs = inverseScreen ?
+                (attrs >> 12) & 0x000FFF00 | (attrs << 12) & 0xFFF00000 | attrs & 0xFF
+                : attrs;
+        return x - startX;
     }
 
-    public int getCharsSameAttr(final int x, final int y, int endX,
-                                @NonNull final BufferSample output) {
+    public int getCharsRun(final int x, final int y, int endX,
+                           @NonNull final BufferRun output) {
         final Row row = getRow(y);
         if (row == null) return -1;
         endX = Math.min(endX, mWidth);
         if (x >= endX) return -1;
-        final int len = getSameAttrLen(row.attrs, x, endX);
-        output.buf = row.text;
-        output.start = x;
-        output.length = len;
-        return len;
+        return getCharsRunLength(row, x, endX, output);
     }
 
-    public ConsoleScreenCharAttrs getAttrs(final int x, final int y) {
-        final ConsoleScreenCharAttrs a = decodeAttrs(getAttrsN(x, y));
-        if (inverseScreen) {
-            a.fgColor ^= a.bgColor;
-            a.bgColor ^= a.fgColor;
-            a.fgColor ^= a.bgColor;
-        }
-        return a;
-    }
-
-    public void getAttrs(final int x, final int y, @NonNull final ConsoleScreenCharAttrs a) {
-        decodeAttrs(getAttrsN(x, y), a);
-        if (inverseScreen) {
-            a.fgColor ^= a.bgColor;
-            a.bgColor ^= a.fgColor;
-            a.fgColor ^= a.bgColor;
-        }
-    }
-
-    public int getAttrsN(final int x, final int y) {
-        if (x < 0 || x >= mWidth) return defaultAttrs;
+    public int initCharsRun(int x, final int y,
+                            @NonNull final BufferRun output) {
+        output.reinit();
         final Row row = getRow(y);
-        if (row == null) return defaultAttrs;
-        return row.attrs[x];
+        if (row == null) return 0;
+        x = Math.min(x, mWidth);
+        int i = getCharIndex(row.text, x, 0);
+        int r = 0;
+        if (i >> F_XOFF_SHIFT != 0) {
+            i = Unicode.stepBack(row.text, 0, i & F_IND_MASK);
+            r = 1;
+        }
+        output.attrsInd = Character.codePointCount(row.text, 0, i);
+        output.start = i;
+        return r;
     }
 
     public int getAbsPosX() {
@@ -605,8 +718,7 @@ public final class ConsoleScreenBuffer {
                      final char value) {
         for (final Row row : getRowsForWrite(top, bottom)) {
             if (row != null) {
-                Arrays.fill(row.text, left, right, value);
-                Arrays.fill(row.attrs, left, right, currentAttrs);
+                pasteChars(row, left, right, value, right - left, 0, currentAttrs);
             }
         }
     }
@@ -639,8 +751,7 @@ public final class ConsoleScreenBuffer {
         if (from >= to) return;
         final Row row = getRowForWrite(y);
         if (row != null) {
-            Arrays.fill(row.attrs, from, to, currentAttrs);
-            Arrays.fill(row.text, from, to, ' ');
+            pasteChars(row, from, to, null, to - from, 0, currentAttrs);
         }
     }
 
@@ -694,10 +805,7 @@ public final class ConsoleScreenBuffer {
         final Row row = getRowForWrite(y);
         if (row == null) return;
         if (n > mWidth - x) n = mWidth - x;
-        System.arraycopy(row.text, x, row.text, x + n, mWidth - x - n);
-        Arrays.fill(row.text, x, x + n, ' ');
-        System.arraycopy(row.attrs, x, row.attrs, x + n, mWidth - x - n);
-        Arrays.fill(row.attrs, x, x + n, currentAttrs);
+        pasteChars(row, x, x, null, n, n, currentAttrs);
     }
 
     public void eraseChars(final int n) {
@@ -709,8 +817,7 @@ public final class ConsoleScreenBuffer {
         if (row == null) return;
         int e = x + n;
         if (e > mWidth) e = mWidth;
-        Arrays.fill(row.text, x, e, ' ');
-        Arrays.fill(row.attrs, x, e, currentAttrs);
+        pasteChars(row, x, e, null, e - x, 0, currentAttrs);
     }
 
     public void deleteChars(final int n) {
@@ -721,10 +828,84 @@ public final class ConsoleScreenBuffer {
         final Row row = getRowForWrite(y);
         if (row == null) return;
         if (n > mWidth - x) n = mWidth - x;
-        System.arraycopy(row.text, x + n, row.text, x, mWidth - x - n);
-        Arrays.fill(row.text, mWidth - n, mWidth, ' ');
-        System.arraycopy(row.attrs, x + n, row.attrs, x, mWidth - x - n);
-        Arrays.fill(row.attrs, mWidth - n, mWidth, currentAttrs);
+        pasteChars(row, x, x + n, null, 0, -n, currentAttrs);
+        pasteChars(row, mWidth - n, mWidth, null, n, 0, currentAttrs);
+    }
+
+    private static int getNextEndIndex(@NonNull final CharBuffer buf, final int dx, int i) {
+        if (buf.hasArray()) {
+            final char[] a = buf.array();
+            final int offset = buf.arrayOffset() + buf.position();
+            i = getCharIndex(a, dx, i + offset);
+            return ((i >> F_XOFF_SHIFT != 0)
+                    ? Unicode.stepBack(a, offset, i & F_IND_MASK)
+                    : i) - offset;
+        } else {
+            throw new UnsupportedOperationException();
+        }
+    }
+
+    /**
+     * It's... complicated.
+     *
+     * @param row
+     * @param startX
+     * @param endX
+     * @param buf
+     * @param bufLen
+     * @param bufDX  - just a hint about screen position difference
+     * @param attrs
+     */
+    private void pasteChars(@NonNull final Row row, final int startX, final int endX,
+                            @Nullable final Object buf, final int bufLen, final int bufDX,
+                            final int attrs) {
+        int toStart = getCharIndex(row.text, startX, 0);
+        int toEnd = getCharIndex(row.text, endX - startX, toStart);
+        final int width = Math.min(mWidth, mWidth - bufDX);
+        if (toStart >> F_XOFF_SHIFT != 0) {
+            toStart &= F_IND_MASK;
+            toStart = Unicode.stepBack(row.text, 0, toStart);
+            row.text[toStart] = ' ';
+            toStart++;
+        }
+        if (toEnd >> F_XOFF_SHIFT != 0) {
+            toEnd &= F_IND_MASK;
+            toEnd = Unicode.stepBack(row.text, 0, toEnd);
+            row.text[toEnd] = ' ';
+        }
+        int rowEnd = getCharIndex(row.text, width - endX, toEnd);
+        if (rowEnd >> F_XOFF_SHIFT != 0) {
+            rowEnd &= F_IND_MASK;
+            rowEnd = Unicode.stepBack(row.text, 0, rowEnd);
+        }
+        final int attrsStart = Character.codePointCount(row.text, 0, toStart);
+        final int attrsEndPrev = attrsStart +
+                Character.codePointCount(row.text, toStart, toEnd - toStart);
+        final int textNeedExtraLen = bufLen - (row.text.length - toStart - (rowEnd - toEnd));
+        if (textNeedExtraLen > 0 && row.extendText(textNeedExtraLen) < 0) {
+            Log.w(this.getClass().getName(), "Memory limit exceeds. Bailing out.");
+            return; // TODO: Implement some adaptive degradation for Zalgo lovers.
+        }
+        if (toEnd - toStart != bufLen)
+            System.arraycopy(row.text, toEnd, row.text, toStart + bufLen,
+                    rowEnd - toEnd);
+        if (buf instanceof CharBuffer) {
+            ((CharBuffer) buf).get(row.text, toStart, bufLen);
+        } else if (buf instanceof Character) {
+            Arrays.fill(row.text, toStart, toStart + bufLen, (Character) buf);
+        } else {
+            Arrays.fill(row.text, toStart, toStart + bufLen, ' ');
+        }
+        final int attrsEnd = attrsStart + Character.codePointCount(row.text, toStart, bufLen);
+        rowEnd += bufLen - (toEnd - toStart);
+        final int attrsRowEnd = attrsEnd + Character.codePointCount(row.text,
+                toStart + bufLen, rowEnd - (toStart + bufLen));
+        if (attrsRowEnd > row.attrs.length)
+            row.extendAttrs(attrsRowEnd - row.attrs.length); // Can't fail.
+        if (attrsEnd != attrsEndPrev)
+            System.arraycopy(row.attrs, attrsEndPrev, row.attrs, attrsEnd,
+                    attrsRowEnd - attrsEnd);
+        Arrays.fill(row.attrs, attrsStart, attrsEnd, attrs);
     }
 
     public int setChars(@NonNull final String s) {
@@ -745,26 +926,33 @@ public final class ConsoleScreenBuffer {
         Row row = getRowForWrite(y);
         if (row == null) return 0;
         final CharBuffer buf = s.duplicate();
-        int end = Math.min(buf.remaining() + x, mWidth);
-        int len = end - x;
-        buf.get(row.text, x, len);
-        Arrays.fill(row.attrs, x, end, currentAttrs);
+        int endX = Unicode.getScreenLength(buf, buf.remaining()) + x;
+        int len;
+        if (endX > mWidth) {
+            endX = mWidth;
+            len = getNextEndIndex(buf, endX - x, 0);
+        } else len = buf.remaining();
+        int lenX = endX - x;
+        pasteChars(row, x, endX, buf, len, 0, currentAttrs);
         if (wrap) {
             while (buf.remaining() > 0) {
                 y = moveScrollPosY(y, 1);
                 row = getRowForWrite(y);
-                end = Math.min(buf.remaining(), mWidth);
-                buf.get(row.text, 0, end);
-                Arrays.fill(row.attrs, 0, end, currentAttrs);
-                len += end;
+                endX = Unicode.getScreenLength(buf, buf.remaining());
+                if (endX > mWidth) {
+                    endX = mWidth;
+                    len = getNextEndIndex(buf, endX, 0);
+                } else len = buf.remaining();
+                pasteChars(row, 0, endX, buf, len, 0, currentAttrs);
+                lenX += endX;
             }
-            x = end;
+            x = endX;
         } else {
-            x = end;
+            x = endX;
             if (x >= mWidth) x = mWidth - 1;
         }
         endPos.x = x;
         endPos.y = y;
-        return len;
+        return lenX;
     }
 }

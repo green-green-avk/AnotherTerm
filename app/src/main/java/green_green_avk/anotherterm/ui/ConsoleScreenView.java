@@ -629,33 +629,34 @@ public class ConsoleScreenView extends ScrollableView
         if (consoleInput == null) return null;
         final ConsoleScreenSelection s = selection.getDirect();
         final StringBuilder sb = new StringBuilder();
-        CharSequence v;
+        final ConsoleScreenBuffer.BufferTextRange v = new ConsoleScreenBuffer.BufferTextRange();
+        int r;
         if (s.first.y == s.last.y) {
-            v = consoleInput.currScrBuf.getChars(s.first.x, s.first.y, s.last.x - s.first.x + 1);
-            if (v != null) sb.append(v.toString().trim());
+            r = consoleInput.currScrBuf.getChars(s.first.x, s.first.y, s.last.x - s.first.x + 1, v);
+            if (r >= 0) sb.append(v.toString().trim());
         } else if (selection.isRectangular) {
             for (int y = s.first.y; y <= s.last.y - 1; y++) {
-                v = consoleInput.currScrBuf.getChars(s.first.x, y, s.last.x - s.first.x + 1);
-                if (v != null) sb.append(v.toString().replaceAll(" *$", ""));
+                r = consoleInput.currScrBuf.getChars(s.first.x, y, s.last.x - s.first.x + 1, v);
+                if (r >= 0) sb.append(v.toString().replaceAll(" *$", ""));
                 sb.append('\n');
             }
-            v = consoleInput.currScrBuf.getChars(0, s.last.y, s.last.x + 1);
-            if (v != null) sb.append(v.toString().replaceAll(" *$", ""));
+            r = consoleInput.currScrBuf.getChars(0, s.last.y, s.last.x + 1, v);
+            if (r >= 0) sb.append(v.toString().replaceAll(" *$", ""));
         } else {
-            v = consoleInput.currScrBuf.getChars(s.first.x, s.first.y, getCols() - s.first.x);
-            if (v != null) sb.append(v.toString().replaceAll(" *$", ""));
+            r = consoleInput.currScrBuf.getChars(s.first.x, s.first.y, getCols() - s.first.x, v);
+            if (r >= 0) sb.append(v.toString().replaceAll(" *$", ""));
             sb.append('\n');
             for (int y = s.first.y + 1; y <= s.last.y - 1; y++) {
-                v = consoleInput.currScrBuf.getChars(0, y, getCols());
-                if (v != null) sb.append(v.toString().replaceAll(" *$", ""));
+                r = consoleInput.currScrBuf.getChars(0, y, getCols(), v);
+                if (r >= 0) sb.append(v.toString().replaceAll(" *$", ""));
                 sb.append('\n');
             }
-            v = consoleInput.currScrBuf.getChars(0, s.last.y, s.last.x + 1);
-            if (v != null) sb.append(v.toString().replaceAll(" *$", ""));
+            r = consoleInput.currScrBuf.getChars(0, s.last.y, s.last.x + 1, v);
+            if (r >= 0) sb.append(v.toString().replaceAll(" *$", ""));
         }
-        final String r = sb.toString();
-        if (r.isEmpty()) return null;
-        return r;
+        final String result = sb.toString();
+        if (result.isEmpty()) return null;
+        return result;
     }
 
     @Nullable
@@ -923,12 +924,13 @@ public class ConsoleScreenView extends ScrollableView
             final int[] bb = new int[2];
             final int px = (int) Math.floor(selectionMarkerExpr.x);
             final int py = (int) Math.floor(selectionMarkerExpr.y);
-            final CharSequence chars = consoleInput.currScrBuf.getChars(0, py,
-                    ConsoleScreenBuffer.MAX_ROW_LEN);
-            if (chars != null) {
-                CharsAutoSelector.select(chars, px, bb);
-                selection.first.set(bb[0], py);
-                selection.last.set(bb[1], py);
+            final ConsoleScreenBuffer.BufferTextRange chars =
+                    new ConsoleScreenBuffer.BufferTextRange();
+            if (consoleInput.currScrBuf.getChars(0, py, Integer.MAX_VALUE, chars) >= 0) {
+                CharsAutoSelector.select(chars.text, chars.start, chars.start + chars.length,
+                        ConsoleScreenBuffer.getCharIndex(chars.text, px, 0, true), bb);
+                selection.first.set(ConsoleScreenBuffer.getCharPos(chars.text, 0, bb[0]), py);
+                selection.last.set(ConsoleScreenBuffer.getCharPos(chars.text, 0, bb[1]), py);
                 getCenterText(selection.first.x, selection.first.y, selectionMarkerFirst);
                 getCenterText(selection.last.x, selection.last.y, selectionMarkerLast);
             }
@@ -1140,20 +1142,15 @@ public class ConsoleScreenView extends ScrollableView
         }
     }
 
-    protected final boolean isAllSpaces(@NonNull final ConsoleScreenBuffer.BufferSample s) {
+    protected final boolean isAllSpaces(@NonNull final ConsoleScreenBuffer.BufferRun s) {
         final int end = s.start + s.length;
-        for (int i = s.start; i < end; ++i) if (s.buf[i] != ' ') return false;
-        return true;
-    }
-
-    protected final boolean isAllSpaces(@NonNull final CharSequence s) {
-        for (int i = 0; i < s.length(); ++i) if (s.charAt(i) != ' ') return false;
+        for (int i = s.start; i < end; ++i) if (s.text[i] != ' ') return false;
         return true;
     }
 
     protected final Rect _draw_textRect = new Rect();
-    protected final ConsoleScreenBuffer.BufferSample _draw_sample =
-            new ConsoleScreenBuffer.BufferSample();
+    protected final ConsoleScreenBuffer.BufferRun _draw_run =
+            new ConsoleScreenBuffer.BufferRun();
 
     protected void drawContent(@NonNull final Canvas canvas) {
         if (consoleInput != null) {
@@ -1167,29 +1164,46 @@ public class ConsoleScreenView extends ScrollableView
                 final float strBottom = getBufferDrawPosYF(j + 1)
                         + 1; // fix for old phones rendering glitch
                 int i = _draw_textRect.left;
+                i -= consoleInput.currScrBuf.initCharsRun(i, j, _draw_run);
                 while (i < _draw_textRect.right) {
                     final float strFragLeft = getBufferDrawPosXF(i);
-                    consoleInput.currScrBuf.getAttrs(i, j, charAttrs);
-                    applyCharAttrs();
                     final int sr =
-                            consoleInput.currScrBuf.getCharsSameAttr(i, j, _draw_textRect.right,
-                                    _draw_sample);
-                    if (sr <= 0) {
+                            consoleInput.currScrBuf.getCharsRun(i, j, _draw_textRect.right,
+                                    _draw_run);
+                    if (sr < 0) {
+                        ConsoleScreenBuffer.decodeAttrs(consoleInput.currScrBuf.defaultAttrs,
+                                charAttrs);
+                        applyCharAttrs();
                         canvas.drawRect(strFragLeft, strTop, getWidth(), strBottom, bgPaint);
                         if (charAttrs.blinking) drawDrawable(canvas, attrMarkupBlinking,
                                 (int) strFragLeft, (int) strTop, getWidth(), (int) strBottom);
                         break;
                     }
-                    final float strFragRight = getBufferDrawPosXF(i + _draw_sample.length);
-                    canvas.drawRect(strFragLeft, strTop, strFragRight, strBottom, bgPaint);
-                    if (charAttrs.blinking) drawDrawable(canvas, attrMarkupBlinking,
-                            (int) strFragLeft, (int) strTop, (int) strFragRight, (int) strBottom);
-                    if (!charAttrs.invisible && !isAllSpaces(_draw_sample))
-                        canvas.drawText(_draw_sample.buf, _draw_sample.start, _draw_sample.length,
+                    ConsoleScreenBuffer.decodeAttrs(_draw_run.attrs, charAttrs);
+                    applyCharAttrs();
+                    final float strFragRight = getBufferDrawPosXF(i + sr);
+                    if (sr > 0) {
+                        // background is only for non-zero length glyphs
+                        // see https://en.wikipedia.org/wiki/Combining_character
+                        canvas.drawRect(strFragLeft, strTop, strFragRight, strBottom, bgPaint);
+                        if (charAttrs.blinking) drawDrawable(canvas, attrMarkupBlinking,
+                                (int) strFragLeft, (int) strTop, (int) strFragRight, (int) strBottom);
+                    }
+                    if (!charAttrs.invisible && charAttrs.fgColor != charAttrs.bgColor &&
+                            _draw_run.length > 0 && !isAllSpaces(_draw_run)) {
+                        fgPaint.setTextScaleX(1F);
+                        if (_draw_run.glyphWidth > 1)
+                            fgPaint.setTextScaleX(
+                                    mFontWidth * sr /
+                                            fgPaint.measureText(_draw_run.text,
+                                                    _draw_run.start, _draw_run.length)
+                            );
+                        canvas.drawText(_draw_run.text, _draw_run.start, _draw_run.length,
                                 strFragLeft, strTop - fgPaint.ascent(), fgPaint);
-                    i += _draw_sample.length;
-                    _draw_sample.unbind();
+                    }
+                    i += sr;
                 }
+                _draw_run.reinit();
             }
             if (paddingMarkup != null) {
                 if (vDivBottom < getHeight())
