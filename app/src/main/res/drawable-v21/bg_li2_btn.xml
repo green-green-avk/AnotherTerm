@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <ripple xmlns:android="http://schemas.android.com/apk/res/android"
-    android:color="?attr/colorAccent">
+    android:color="?attr/colorAccent"
+    android:radius="16dp">
     <item android:drawable="@drawable/bg_grid" />
     <item android:drawable="@drawable/bg_li2" />
 </ripple>

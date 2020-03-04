@@ -51,8 +51,8 @@
         android:id="@+id/b_menu"
         android:layout_width="@dimen/kbd_key_size"
         android:layout_height="@dimen/kbd_key_size"
-        android:background="@null"
         android:longClickable="false"
+        style="@style/AppWidget.EditorToolbar.ImageButton"
         app:srcCompat="@drawable/ic_menu_gray_24dp" />
 
 </com.google.android.flexbox.FlexboxLayout>
