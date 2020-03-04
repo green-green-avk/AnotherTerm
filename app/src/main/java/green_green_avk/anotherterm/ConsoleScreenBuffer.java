@@ -214,23 +214,27 @@ public final class ConsoleScreenBuffer {
     }
 
     public static int encodeAttrs(@NonNull final ConsoleScreenCharAttrs a) {
-        final int fgColor;
-        if (a.richColor) fgColor = a.fgColor;
-        else {
+        int fgColor;
+        final int bgColor;
+        if (a.inverse) {
+            fgColor = a.bgColor;
+            bgColor = a.fgColor;
+        } else {
+            fgColor = a.fgColor;
+            bgColor = a.bgColor;
+        }
+        if (!a.richColor) {
             if (a.bold)
-                fgColor = a.fgColor | 0x00808080;
+                fgColor = (fgColor << 1) | 0xFF000001;
             else if (a.faint)
-                fgColor = a.fgColor & 0xFF3F3F3F;
-            else
-                fgColor = a.fgColor;
+                fgColor &= 0xFF3F3F3F;
         }
         return (encodeColor(fgColor) << 20)
-                | (encodeColor(a.bgColor) << 8)
+                | (encodeColor(bgColor) << 8)
                 | (a.bold ? 1 : 0)
                 | (a.italic ? 4 : 0)
                 | (a.underline ? 8 : 0)
                 | (a.blinking ? 16 : 0)
-                | (a.inverse ? 32 : 0)
                 | (a.invisible ? 64 : 0)
                 | (a.crossed ? 128 : 0);
     }
@@ -250,7 +254,7 @@ public final class ConsoleScreenBuffer {
         a.italic = (v & 4) != 0;
         a.underline = (v & 8) != 0;
         a.blinking = (v & 16) != 0;
-        a.inverse = (v & 32) != 0;
+        a.inverse = false;
         a.invisible = (v & 64) != 0;
         a.crossed = (v & 128) != 0;
     }
@@ -426,7 +430,7 @@ public final class ConsoleScreenBuffer {
         return CharBuffer.wrap(row.text, x, len);
     }
 
-    private int getSameAttrLen(@NonNull final int[] attrs, final int start, final int end) {
+    private static int getSameAttrLen(@NonNull final int[] attrs, final int start, final int end) {
         final int v = attrs[start];
         int pos = start + 1;
         for (; pos < end; ++pos) {
@@ -448,24 +452,23 @@ public final class ConsoleScreenBuffer {
         return len;
     }
 
-    @Nullable
-    public CharSequence getCharsSameAttr(final int x, final int y, int endX) {
-        final Row row = getRow(y);
-        if (row == null) return null;
-        endX = Math.min(endX, mWidth);
-        if (x >= endX) return null;
-        return CharBuffer.wrap(row.text, x, getSameAttrLen(row.attrs, x, endX));
-    }
-
     public ConsoleScreenCharAttrs getAttrs(final int x, final int y) {
         final ConsoleScreenCharAttrs a = decodeAttrs(getAttrsN(x, y));
-        if (inverseScreen) a.inverse = !a.inverse;
+        if (inverseScreen) {
+            a.fgColor ^= a.bgColor;
+            a.bgColor ^= a.fgColor;
+            a.fgColor ^= a.bgColor;
+        }
         return a;
     }
 
     public void getAttrs(final int x, final int y, @NonNull final ConsoleScreenCharAttrs a) {
         decodeAttrs(getAttrsN(x, y), a);
-        if (inverseScreen) a.inverse = !a.inverse;
+        if (inverseScreen) {
+            a.fgColor ^= a.bgColor;
+            a.bgColor ^= a.fgColor;
+            a.fgColor ^= a.bgColor;
+        }
     }
 
     public int getAttrsN(final int x, final int y) {

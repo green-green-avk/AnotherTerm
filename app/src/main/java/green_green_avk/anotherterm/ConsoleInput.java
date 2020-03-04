@@ -133,8 +133,10 @@ public final class ConsoleInput implements BytesSink {
         currScrBuf.setCurrentAttrs(mCurrAttrs);
     }
 
-    public void resize(final int w, final int h) {
+    public void resize(int w, int h) {
         mainScrBuf.resize(w, h);
+        w = mainScrBuf.getWidth();
+        h = mainScrBuf.getHeight();
         altScrBuf.resize(w, h, h);
         if (backendModule != null)
             backendModule.resize(w, h, w * 16, h * 16);

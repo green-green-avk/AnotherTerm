@@ -603,21 +603,12 @@ public class ConsoleScreenView extends ScrollableView
     }
 
     public void applyCharAttrs() {
-        final int fgColor;
-        final int bgColor;
-        if (charAttrs.inverse) {
-            fgColor = charAttrs.bgColor;
-            bgColor = charAttrs.fgColor;
-        } else {
-            fgColor = charAttrs.fgColor;
-            bgColor = charAttrs.bgColor;
-        }
         fgPaint.setTypeface(typefaces[(charAttrs.bold ? 1 : 0) | (charAttrs.italic ? 2 : 0)]);
-        fgPaint.setColor(fgColor);
+        fgPaint.setColor(charAttrs.fgColor);
         fgPaint.setUnderlineText(charAttrs.underline);
         fgPaint.setStrikeThruText(charAttrs.crossed);
 //        fgPaint.setShadowLayer(1, 0, 0, fgColor);
-        bgPaint.setColor(bgColor);
+        bgPaint.setColor(charAttrs.bgColor);
     }
 
     public void setConsoleInput(@NonNull final ConsoleInput consoleInput) {
@@ -681,8 +672,15 @@ public class ConsoleScreenView extends ScrollableView
         return r;
     }
 
+    protected boolean wasAltBuf = false;
+
     @Override
     public void onInvalidateSink(final Rect rect) {
+        if (consoleInput != null) {
+            if (!wasAltBuf && consoleInput.isAltBuf())
+                invalidateScroll();
+            wasAltBuf = consoleInput.isAltBuf();
+        }
         if (rect == null) ViewCompat.postInvalidateOnAnimation(this);
         else invalidate(rect);
     }

@@ -86,6 +86,13 @@ public abstract class ScrollableView extends GestureView {
         }
     }
 
+    public void invalidateScroll() {
+        scrollPosition.x = MathUtils.clamp(scrollPosition.x,
+                getLeftScrollLimit(), getRightScrollLimit());
+        scrollPosition.y = MathUtils.clamp(scrollPosition.y,
+                getTopScrollLimit(), getBottomScrollLimit());
+    }
+
     @Override
     public boolean onDown(final MotionEvent e) {
         mScroller.forceFinished(true);
