@@ -25,6 +25,7 @@
             android:layout_height="wrap_content"
             android:layout_weight="1"
             android:inputType="text" />
+
     </LinearLayout>
 
     <LinearLayout
@@ -46,6 +47,7 @@
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="1" />
+
     </LinearLayout>
 
     <LinearLayout
@@ -80,6 +82,7 @@
                 android:layout_height="wrap_content"
                 android:gravity="center"
                 android:text="Ctrl" />
+
         </LinearLayout>
 
         <TextView
@@ -97,6 +100,7 @@
             android:layout_weight="1"
             android:gravity="center"
             android:text="@string/label_keymode_application" />
+
     </LinearLayout>
 
     <ScrollView
@@ -123,32 +127,38 @@
         <ImageButton
             android:id="@+id/b_info"
             style="@style/AppWidget.EditorToolbar.ImageButton.Horizontal"
+            android:contentDescription="@string/action_info"
             android:onClick="info"
             app:srcCompat="@drawable/ic_help" />
 
         <ImageButton
             android:id="@+id/b_share"
             style="@style/AppWidget.EditorToolbar.ImageButton.Horizontal"
+            android:contentDescription="@string/action_share"
             android:onClick="share"
             app:srcCompat="@drawable/ic_share" />
 
         <ImageButton
             android:id="@+id/b_copy"
             style="@style/AppWidget.EditorToolbar.ImageButton.Horizontal"
+            android:contentDescription="@android:string/copy"
             android:onClick="copy"
             app:srcCompat="@drawable/ic_copy_48" />
 
         <ImageButton
             android:id="@+id/b_paste"
             style="@style/AppWidget.EditorToolbar.ImageButton.Horizontal"
+            android:contentDescription="@android:string/paste"
             android:onClick="paste"
             app:srcCompat="@drawable/ic_paste_48" />
 
         <ImageButton
             android:id="@+id/b_save"
             style="@style/AppWidget.EditorToolbar.ImageButton.Horizontal"
+            android:contentDescription="@string/action_save"
             android:onClick="save"
             app:srcCompat="@drawable/ic_save" />
+
     </LinearLayout>
 
 </LinearLayout>

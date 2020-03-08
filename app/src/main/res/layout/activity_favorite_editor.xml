@@ -42,6 +42,7 @@
                         android:layout_height="wrap_content"
                         android:layout_weight="1"
                         android:inputType="text" />
+
                 </TableRow>
 
                 <TableRow android:gravity="center_vertical">
@@ -75,6 +76,7 @@
                                 android:layout_height="wrap_content"
                                 android:hint="@string/hint_auto"
                                 android:inputType="number" />
+
                         </LinearLayout>
 
                         <TextView
@@ -100,6 +102,7 @@
                                 android:layout_height="wrap_content"
                                 android:hint="@string/hint_auto"
                                 android:inputType="number" />
+
                         </LinearLayout>
 
                     </com.google.android.flexbox.FlexboxLayout>
@@ -118,6 +121,7 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_weight="1" />
+
                 </TableRow>
 
                 <TableRow android:gravity="center_vertical">
@@ -132,6 +136,7 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_weight="1" />
+
                 </TableRow>
 
                 <TableRow android:gravity="center_vertical">
@@ -146,11 +151,13 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_weight="1" />
+
                 </TableRow>
 
             </TableLayout>
 
         </LinearLayout>
+
     </ScrollView>
 
     <LinearLayout
@@ -162,38 +169,45 @@
         <ImageButton
             android:id="@+id/b_share"
             style="@style/AppWidget.EditorToolbar.ImageButton.Horizontal"
+            android:contentDescription="@string/action_share"
             android:onClick="share"
             app:srcCompat="@drawable/ic_share" />
 
         <ImageButton
             android:id="@+id/b_copy"
             style="@style/AppWidget.EditorToolbar.ImageButton.Horizontal"
+            android:contentDescription="@android:string/copy"
             android:onClick="copy"
             app:srcCompat="@drawable/ic_copy_48" />
 
         <ImageButton
             android:id="@+id/b_paste"
             style="@style/AppWidget.EditorToolbar.ImageButton.Horizontal"
+            android:contentDescription="@android:string/paste"
             android:onClick="paste"
             app:srcCompat="@drawable/ic_paste_48" />
 
         <ImageButton
             android:id="@+id/b_remove"
             style="@style/AppWidget.EditorToolbar.ImageButton.Horizontal"
+            android:contentDescription="@string/action_delete"
             android:onClick="remove"
             app:srcCompat="@drawable/ic_delete" />
 
         <ImageButton
             android:id="@+id/b_clone"
             style="@style/AppWidget.EditorToolbar.ImageButton.Horizontal"
+            android:contentDescription="@string/action_clone"
             android:onClick="clone"
             app:srcCompat="@drawable/ic_clone" />
 
         <ImageButton
             android:id="@+id/b_ok"
             style="@style/AppWidget.EditorToolbar.ImageButton.Horizontal"
+            android:contentDescription="@string/action_save"
             android:onClick="save"
             app:srcCompat="@drawable/ic_save" />
+
     </LinearLayout>
 
 </LinearLayout>

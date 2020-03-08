@@ -1,8 +1,6 @@
 <resources>
 
-    <!-- Base application theme. -->
     <style name="AppTheme" parent="Theme.AppCompat.Light.DarkActionBar">
-        <!-- Customize your theme here. -->
         <item name="colorPrimary">@color/colorPrimary</item>
         <item name="colorPrimaryDark">@color/colorPrimaryDark</item>
         <item name="colorAccent">@color/colorAccent</item>
@@ -14,6 +12,7 @@
         <item name="screenMouseViewStyle">@style/AppScreenMouseViewStyle</item>
         <item name="fancyButtonStyle">@style/AppFancyButtonStyle</item>
         <item name="htmlTextViewStyle">@style/AppHtmlTextView</item>
+        <item name="preferenceTheme">@style/AppPreferenceTheme</item>
     </style>
 
     <style name="AppTheme.NoActionBar">
@@ -121,9 +120,39 @@
         <item name="tint">?attr/colorPrimary</item>
     </style>
 
-    <style name="AppWidget.EditorToolbar.ImageButton.Horizontal" parent="AppWidget.EditorToolbar.ImageButton">
+    <style name="AppWidget.EditorToolbar.ImageButton.Horizontal">
         <item name="android:layout_height">match_parent</item>
         <item name="android:layout_width">0dp</item>
         <item name="android:layout_weight">1</item>
     </style>
+
+    <style name="AppPreferenceTheme">
+        <item name="layout">@layout/preference_base</item>
+        <item name="android:textAppearanceLarge">@style/AppTextAppearance.Preference.Title</item>
+        <item name="android:textAppearanceSmall">@style/AppTextAppearance.Preference.Summary</item>
+        <item name="android:textAppearanceLargeInverse">
+            @style/AppTextAppearance.Preference.Title.Category
+        </item>
+        <item name="preferenceCategoryStyle">@style/AppPreferenceStyleCategory</item>
+    </style>
+
+    <style name="AppPreferenceStyleCategory">
+        <item name="layout">@layout/preference_base_category</item>
+    </style>
+
+    <style name="AppTextAppearance.Preference.Title" parent="TextAppearance.AppCompat.Caption">
+        <item name="android:textSize">16sp</item>
+        <item name="android:textColor">@color/colorPrimaryDark</item>
+    </style>
+
+    <style name="AppTextAppearance.Preference.Summary" parent="TextAppearance.AppCompat.Caption">
+        <item name="android:textSize">14sp</item>
+        <item name="android:textColor">@color/colorAccent</item>
+    </style>
+
+    <style name="AppTextAppearance.Preference.Title.Category">
+        <item name="android:textColor">@color/colorAccent</item>
+        <item name="android:textStyle">bold</item>
+    </style>
+
 </resources>

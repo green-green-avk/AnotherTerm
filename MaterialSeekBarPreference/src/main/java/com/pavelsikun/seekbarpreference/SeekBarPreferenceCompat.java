@@ -13,32 +13,35 @@ import android.view.View;
  * Created by Pavel Sikun on 22.05.16.
  */
 
-public class SeekBarPreferenceCompat extends Preference implements View.OnClickListener, PreferenceControllerDelegate.ViewStateListener, PersistValueListener, ChangeValueListener {
+public class SeekBarPreferenceCompat extends Preference implements View.OnClickListener,
+        PreferenceControllerDelegate.ViewStateListener, PersistValueListener, ChangeValueListener {
 
     private PreferenceControllerDelegate controllerDelegate;
 
     @TargetApi(Build.VERSION_CODES.LOLLIPOP)
-    public SeekBarPreferenceCompat(Context context, AttributeSet attrs, int defStyleAttr, int defStyleRes) {
+    public SeekBarPreferenceCompat(final Context context, final AttributeSet attrs,
+                                   final int defStyleAttr, final int defStyleRes) {
         super(context, attrs, defStyleAttr, defStyleRes);
         init(attrs);
     }
 
-    public SeekBarPreferenceCompat(Context context, AttributeSet attrs, int defStyleAttr) {
+    public SeekBarPreferenceCompat(final Context context, final AttributeSet attrs,
+                                   final int defStyleAttr) {
         super(context, attrs, defStyleAttr);
         init(attrs);
     }
 
-    public SeekBarPreferenceCompat(Context context, AttributeSet attrs) {
+    public SeekBarPreferenceCompat(final Context context, final AttributeSet attrs) {
         super(context, attrs);
         init(attrs);
     }
 
-    public SeekBarPreferenceCompat(Context context) {
+    public SeekBarPreferenceCompat(final Context context) {
         super(context);
         init(null);
     }
 
-    private void init(AttributeSet attrs) {
+    private void init(final AttributeSet attrs) {
         setLayoutResource(R.layout.seekbar_view_layout);
         controllerDelegate = new PreferenceControllerDelegate(getContext(), false);
 
@@ -50,18 +53,19 @@ public class SeekBarPreferenceCompat extends Preference implements View.OnClickL
     }
 
     @Override
-    public void onBindViewHolder(PreferenceViewHolder viewRoot) {
+    public void onBindViewHolder(final PreferenceViewHolder viewRoot) {
         super.onBindViewHolder(viewRoot);
         controllerDelegate.onBind(viewRoot.itemView);
     }
 
     @Override
-    protected Object onGetDefaultValue(TypedArray a, int index) {
+    protected Object onGetDefaultValue(final TypedArray a, final int index) {
         return a.getInt(index, PreferenceControllerDelegate.DEFAULT_CURRENT_VALUE);
     }
 
     @Override
-    protected void onSetInitialValue(boolean restorePersistedValue, Object defaultValue) {
+    protected void onSetInitialValue(final boolean restorePersistedValue,
+                                     final Object defaultValue) {
         super.onSetInitialValue(restorePersistedValue, defaultValue);
         controllerDelegate.setCurrentValue(restorePersistedValue ?
                 getPersistedInt(PreferenceControllerDelegate.DEFAULT_CURRENT_VALUE) :
@@ -69,12 +73,12 @@ public class SeekBarPreferenceCompat extends Preference implements View.OnClickL
     }
 
     @Override
-    public boolean persistInt(int value) {
+    public boolean persistInt(final int value) {
         return super.persistInt(value);
     }
 
     @Override
-    public boolean onChange(int value) {
+    public boolean onChange(final int value) {
         return callChangeListener(value);
     }
 
@@ -87,7 +91,7 @@ public class SeekBarPreferenceCompat extends Preference implements View.OnClickL
         return controllerDelegate.getMaxValue();
     }
 
-    public void setMaxValue(int maxValue) {
+    public void setMaxValue(final int maxValue) {
         controllerDelegate.setMaxValue(maxValue);
     }
 
@@ -95,7 +99,7 @@ public class SeekBarPreferenceCompat extends Preference implements View.OnClickL
         return controllerDelegate.getMinValue();
     }
 
-    public void setMinValue(int minValue) {
+    public void setMinValue(final int minValue) {
         controllerDelegate.setMinValue(minValue);
     }
 
@@ -103,7 +107,7 @@ public class SeekBarPreferenceCompat extends Preference implements View.OnClickL
         return controllerDelegate.getInterval();
     }
 
-    public void setInterval(int interval) {
+    public void setInterval(final int interval) {
         controllerDelegate.setInterval(interval);
     }
 
@@ -111,7 +115,7 @@ public class SeekBarPreferenceCompat extends Preference implements View.OnClickL
         return controllerDelegate.getCurrentValue();
     }
 
-    public void setCurrentValue(int currentValue) {
+    public void setCurrentValue(final int currentValue) {
         controllerDelegate.setCurrentValue(currentValue);
     }
 
@@ -119,7 +123,7 @@ public class SeekBarPreferenceCompat extends Preference implements View.OnClickL
         return controllerDelegate.getUnit();
     }
 
-    public void setMeasurementUnit(String measurementUnit) {
+    public void setMeasurementUnit(final String measurementUnit) {
         controllerDelegate.setUnit(measurementUnit);
     }
 
@@ -127,11 +131,11 @@ public class SeekBarPreferenceCompat extends Preference implements View.OnClickL
         return controllerDelegate.isDialogEnabled();
     }
 
-    public void setDialogEnabled(boolean dialogEnabled) {
+    public void setDialogEnabled(final boolean dialogEnabled) {
         controllerDelegate.setDialogEnabled(dialogEnabled);
     }
 
-    public void setDialogStyle(int dialogStyle) {
+    public void setDialogStyle(final int dialogStyle) {
         controllerDelegate.setDialogStyle(dialogStyle);
     }
 }

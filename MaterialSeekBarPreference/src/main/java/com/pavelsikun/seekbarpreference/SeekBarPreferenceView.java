@@ -15,29 +15,31 @@ public class SeekBarPreferenceView extends FrameLayout implements View.OnClickLi
 
     private PreferenceControllerDelegate controllerDelegate;
 
-    public SeekBarPreferenceView(Context context) {
+    public SeekBarPreferenceView(final Context context) {
         super(context);
         init(null);
     }
 
-    public SeekBarPreferenceView(Context context, AttributeSet attrs) {
+    public SeekBarPreferenceView(final Context context, final AttributeSet attrs) {
         super(context, attrs);
         init(attrs);
     }
 
-    public SeekBarPreferenceView(Context context, AttributeSet attrs, int defStyleAttr) {
+    public SeekBarPreferenceView(final Context context, final AttributeSet attrs,
+                                 final int defStyleAttr) {
         super(context, attrs, defStyleAttr);
         init(attrs);
     }
 
 
     @TargetApi(Build.VERSION_CODES.LOLLIPOP)
-    public SeekBarPreferenceView(Context context, AttributeSet attrs, int defStyleAttr, int defStyleRes) {
+    public SeekBarPreferenceView(final Context context, final AttributeSet attrs,
+                                 final int defStyleAttr, final int defStyleRes) {
         super(context, attrs, defStyleAttr, defStyleRes);
         init(attrs);
     }
 
-    private void init(AttributeSet attrs) {
+    private void init(final AttributeSet attrs) {
         controllerDelegate = new PreferenceControllerDelegate(getContext(), true);
         controllerDelegate.loadValuesFromXml(attrs);
     }
@@ -45,8 +47,7 @@ public class SeekBarPreferenceView extends FrameLayout implements View.OnClickLi
     @Override
     protected void onAttachedToWindow() {
         super.onAttachedToWindow();
-        View view = inflate(getContext(), R.layout.seekbar_view_layout, this);
-        controllerDelegate.onBind(view);
+        controllerDelegate.onBind(inflate(getContext(), R.layout.seekbar_view_layout, this));
     }
 
     @Override
@@ -55,7 +56,7 @@ public class SeekBarPreferenceView extends FrameLayout implements View.OnClickLi
     }
 
     @Override
-    public void setEnabled(boolean enabled) {
+    public void setEnabled(final boolean enabled) {
         controllerDelegate.setEnabled(enabled);
     }
 
@@ -68,7 +69,7 @@ public class SeekBarPreferenceView extends FrameLayout implements View.OnClickLi
         return controllerDelegate.getMaxValue();
     }
 
-    public void setMaxValue(int maxValue) {
+    public void setMaxValue(final int maxValue) {
         controllerDelegate.setMaxValue(maxValue);
     }
 
@@ -76,7 +77,7 @@ public class SeekBarPreferenceView extends FrameLayout implements View.OnClickLi
         return controllerDelegate.getTitle();
     }
 
-    public void setTitle(String title) {
+    public void setTitle(final String title) {
         controllerDelegate.setTitle(title);
     }
 
@@ -84,7 +85,7 @@ public class SeekBarPreferenceView extends FrameLayout implements View.OnClickLi
         return controllerDelegate.getSummary();
     }
 
-    public void setSummary(String summary) {
+    public void setSummary(final String summary) {
         controllerDelegate.setSummary(summary);
     }
 
@@ -92,7 +93,7 @@ public class SeekBarPreferenceView extends FrameLayout implements View.OnClickLi
         return controllerDelegate.getMinValue();
     }
 
-    public void setMinValue(int minValue) {
+    public void setMinValue(final int minValue) {
         controllerDelegate.setMinValue(minValue);
     }
 
@@ -100,7 +101,7 @@ public class SeekBarPreferenceView extends FrameLayout implements View.OnClickLi
         return controllerDelegate.getInterval();
     }
 
-    public void setInterval(int interval) {
+    public void setInterval(final int interval) {
         controllerDelegate.setInterval(interval);
     }
 
@@ -108,7 +109,7 @@ public class SeekBarPreferenceView extends FrameLayout implements View.OnClickLi
         return controllerDelegate.getCurrentValue();
     }
 
-    public void setCurrentValue(int currentValue) {
+    public void setCurrentValue(final int currentValue) {
         controllerDelegate.setCurrentValue(currentValue);
     }
 
@@ -116,11 +117,11 @@ public class SeekBarPreferenceView extends FrameLayout implements View.OnClickLi
         return controllerDelegate.getUnit();
     }
 
-    public void setMeasurementUnit(String measurementUnit) {
+    public void setMeasurementUnit(final String measurementUnit) {
         controllerDelegate.setUnit(measurementUnit);
     }
 
-    public void setOnValueSelectedListener(PersistValueListener persistValueListener) {
+    public void setOnValueSelectedListener(final PersistValueListener persistValueListener) {
         controllerDelegate.setPersistValueListener(persistValueListener);
     }
 
@@ -128,11 +129,11 @@ public class SeekBarPreferenceView extends FrameLayout implements View.OnClickLi
         return controllerDelegate.isDialogEnabled();
     }
 
-    public void setDialogEnabled(boolean dialogEnabled) {
+    public void setDialogEnabled(final boolean dialogEnabled) {
         controllerDelegate.setDialogEnabled(dialogEnabled);
     }
 
-    public void setDialogStyle(int dialogStyle) {
+    public void setDialogStyle(final int dialogStyle) {
         controllerDelegate.setDialogStyle(dialogStyle);
     }
 }

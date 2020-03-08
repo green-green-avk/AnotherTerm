@@ -2,55 +2,61 @@
 <PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto">
 
-    <PreferenceCategory android:title="Font">
+    <PreferenceCategory
+        android:icon="@drawable/ic_font_black_48dp"
+        android:title="@string/label_font">
 
         <com.pavelsikun.seekbarpreference.SeekBarPreferenceCompat
             android:defaultValue="@integer/terminal_font_default_size_sp"
             android:key="terminal_font_default_size_sp"
-            android:title="Default Size"
+            android:title="@string/label_default_font_size"
             app:msbp_dialogEnabled="true"
             app:msbp_interval="1"
             app:msbp_maxValue="32"
             app:msbp_measurementUnit="@string/unit_sp"
             app:msbp_minValue="4" />
+
     </PreferenceCategory>
 
-    <PreferenceCategory android:title="Selection">
+    <PreferenceCategory
+        android:icon="@drawable/ic_select_all_black_48dp"
+        android:title="@string/label_selection">
 
         <com.pavelsikun.seekbarpreference.SeekBarPreferenceCompat
             android:defaultValue="@integer/terminal_selection_pad_size_dp"
             android:key="terminal_selection_pad_size_dp"
-            android:title="Pad Size"
+            android:title="@string/label_selection_pad_size"
             app:msbp_dialogEnabled="true"
             app:msbp_interval="8"
             app:msbp_maxValue="512"
             app:msbp_measurementUnit="@string/unit_dp"
             app:msbp_minValue="32" />
+
     </PreferenceCategory>
 
-    <PreferenceCategory android:title="Screen Keyboard">
+    <PreferenceCategory
+        android:icon="@drawable/ic_keyboard_black_48dp"
+        android:title="@string/label_screen_keyboard">
+
         <com.pavelsikun.seekbarpreference.SeekBarPreferenceCompat
             android:defaultValue="@integer/terminal_key_height_dp"
             android:key="terminal_key_height_dp"
-            android:title="Key height"
+            android:title="@string/label_kbd_key_height"
             app:msbp_dialogEnabled="true"
             app:msbp_interval="1"
             app:msbp_maxValue="64"
             app:msbp_measurementUnit="@string/unit_dp"
             app:msbp_minValue="16" />
-    </PreferenceCategory>
-
-    <PreferenceCategory android:title="Screen keyboard key repeat">
-
-        <SwitchPreference
+        <CheckBoxPreference
             android:defaultValue="@bool/terminal_key_repeat"
             android:key="terminal_key_repeat"
-            android:summaryOff="Always disabled"
-            android:summaryOn="Allowed" />
+            android:summaryOff="@string/label_kbd_autorepeat_always_disabled"
+            android:summaryOn="@string/label_kbd_autorepeat_allowed"
+            android:title="@string/label_kbd_autorepeat" />
         <com.pavelsikun.seekbarpreference.SeekBarPreferenceCompat
             android:defaultValue="@integer/terminal_key_repeat_delay"
             android:key="terminal_key_repeat_delay"
-            android:title="Delay"
+            android:title="@string/label_kbd_autorepeat_start_delay"
             app:msbp_dialogEnabled="true"
             app:msbp_interval="50"
             app:msbp_maxValue="2000"
@@ -59,12 +65,13 @@
         <com.pavelsikun.seekbarpreference.SeekBarPreferenceCompat
             android:defaultValue="@integer/terminal_key_repeat_interval"
             android:key="terminal_key_repeat_interval"
-            android:title="Interval"
+            android:title="@string/label_kbd_autorepeat_interval"
             app:msbp_dialogEnabled="true"
             app:msbp_interval="50"
             app:msbp_maxValue="1000"
             app:msbp_measurementUnit="@string/unit_ms"
             app:msbp_minValue="100" />
+
     </PreferenceCategory>
 
 </PreferenceScreen>

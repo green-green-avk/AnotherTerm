@@ -144,4 +144,18 @@
     <string name="label_keymode_application">Application (DEC?KM)</string>
     <string name="label_save_as_">Save as:</string>
     <string name="label_key_">Key:</string>
+    <string name="action_share">Share</string>
+    <string name="action_save">Save</string>
+    <string name="label_font">Font</string>
+    <string name="label_selection">Selection</string>
+    <string name="label_screen_keyboard">Screen Keyboard</string>
+    <string name="label_default_font_size">Default Size</string>
+    <string name="label_selection_pad_size">Pad Size</string>
+    <string name="label_kbd_key_height">Key height</string>
+    <string name="label_kbd_autorepeat">Autorepeat</string>
+    <string name="label_kbd_autorepeat_start_delay">Autorepeat start delay</string>
+    <string name="label_kbd_autorepeat_interval">Autorepeat interval</string>
+    <string name="label_kbd_autorepeat_allowed">Allowed</string>
+    <string name="label_kbd_autorepeat_always_disabled">Always disabled</string>
+    <string name="action_info">Info</string>
 </resources>

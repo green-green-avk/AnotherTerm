@@ -158,7 +158,8 @@ final class PreferenceControllerDelegate implements SeekBar.OnSeekBarChangeListe
     }
 
     @Override
-    public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
+    public void onProgressChanged(final SeekBar seekBar, final int progress,
+                                  final boolean fromUser) {
         if (fromUser) {
             final int newValue = progressToValue(progress);
             setCurrentValue(newValue);
@@ -166,11 +167,11 @@ final class PreferenceControllerDelegate implements SeekBar.OnSeekBarChangeListe
     }
 
     @Override
-    public void onStartTrackingTouch(SeekBar seekBar) {
+    public void onStartTrackingTouch(final SeekBar seekBar) {
     }
 
     @Override
-    public void onStopTrackingTouch(SeekBar seekBar) {
+    public void onStopTrackingTouch(final SeekBar seekBar) {
         setCurrentValue(currentValue);
     }
 
@@ -193,7 +194,7 @@ final class PreferenceControllerDelegate implements SeekBar.OnSeekBarChangeListe
         return title;
     }
 
-    void setTitle(String title) {
+    void setTitle(final String title) {
         this.title = title;
         if (titleView != null) {
             titleView.setText(title);
@@ -204,7 +205,7 @@ final class PreferenceControllerDelegate implements SeekBar.OnSeekBarChangeListe
         return summary.get(context, 1);
     }
 
-    void setSummary(String summary) {
+    void setSummary(final String summary) {
         this.summary.set(summary);
         if (seekBarView != null) {
             summaryView.setText(this.summary.apply(context, currentValue));
@@ -217,7 +218,7 @@ final class PreferenceControllerDelegate implements SeekBar.OnSeekBarChangeListe
         } else return isEnabled;
     }
 
-    void setEnabled(boolean enabled, boolean viewsOnly) {
+    void setEnabled(final boolean enabled, final boolean viewsOnly) {
         if (DEBUG) Log.d(TAG, "setEnabled = " + enabled);
         isEnabled = enabled;
 
@@ -242,7 +243,7 @@ final class PreferenceControllerDelegate implements SeekBar.OnSeekBarChangeListe
 
     }
 
-    void setEnabled(boolean enabled) {
+    void setEnabled(final boolean enabled) {
         setEnabled(enabled, false);
     }
 
@@ -250,7 +251,7 @@ final class PreferenceControllerDelegate implements SeekBar.OnSeekBarChangeListe
         return maxValue;
     }
 
-    void setMaxValue(int maxValue) {
+    void setMaxValue(final int maxValue) {
         this.maxValue = maxValue;
 
         if (seekBarView != null) {
@@ -265,9 +266,9 @@ final class PreferenceControllerDelegate implements SeekBar.OnSeekBarChangeListe
         return (value - minValue + interval / 2) / interval; // round to nearest
     }
 
-    private int progressToValue(int progress) {
+    private int progressToValue(final int progress) {
         if (progress <= 0) return minValue;
-        int r = progress * interval + minValue;
+        final int r = progress * interval + minValue;
         return r > maxValue ? maxValue : r;
     }
 
@@ -275,7 +276,7 @@ final class PreferenceControllerDelegate implements SeekBar.OnSeekBarChangeListe
         return minValue;
     }
 
-    void setMinValue(int minValue) {
+    void setMinValue(final int minValue) {
         this.minValue = minValue;
         setMaxValue(maxValue);
     }
@@ -284,7 +285,7 @@ final class PreferenceControllerDelegate implements SeekBar.OnSeekBarChangeListe
         return interval;
     }
 
-    void setInterval(int interval) {
+    void setInterval(final int interval) {
         this.interval = interval;
     }
 
@@ -332,7 +333,7 @@ final class PreferenceControllerDelegate implements SeekBar.OnSeekBarChangeListe
         return dialogEnabled;
     }
 
-    void setDialogEnabled(boolean dialogEnabled) {
+    void setDialogEnabled(final boolean dialogEnabled) {
         this.dialogEnabled = dialogEnabled;
 
         if (valueHolderView != null && bottomLineView != null) {
@@ -342,7 +343,7 @@ final class PreferenceControllerDelegate implements SeekBar.OnSeekBarChangeListe
         }
     }
 
-    void setDialogStyle(int dialogStyle) {
+    void setDialogStyle(final int dialogStyle) {
         this.dialogStyle = dialogStyle;
     }
 }

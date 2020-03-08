@@ -1,11 +1,12 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:background="?attr/selectableItemBackground"
+    android:background="?android:attr/selectableItemBackground"
     android:gravity="center_vertical"
     android:minHeight="?android:attr/listPreferredItemHeight"
     android:orientation="vertical"
-    android:paddingTop="16dp">
+    android:paddingTop="8dp"
+    android:paddingBottom="8dp">
 
     <LinearLayout
         android:layout_width="match_parent"
@@ -28,8 +29,7 @@
                 android:ellipsize="marquee"
                 android:fadingEdge="horizontal"
                 android:singleLine="true"
-                android:textColor="?android:attr/textColorPrimary"
-                android:textSize="16sp" />
+                android:textAppearance="?android:attr/textAppearanceLarge" />
 
             <TextView
                 android:id="@android:id/summary"
@@ -37,8 +37,8 @@
                 android:layout_height="wrap_content"
                 android:layout_marginLeft="16dp"
                 android:maxLines="10"
-                android:textColor="?android:attr/textColorSecondary"
-                android:textSize="14sp" />
+                android:textAppearance="?android:attr/textAppearanceSmall" />
+
         </LinearLayout>
 
         <LinearLayout
@@ -60,8 +60,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:singleLine="true"
-                android:textColor="?android:attr/textColorSecondary"
-                android:textSize="14sp" />
+                android:textAppearance="?android:attr/textAppearanceSmall" />
 
             <View
                 android:id="@+id/bottom_line"
