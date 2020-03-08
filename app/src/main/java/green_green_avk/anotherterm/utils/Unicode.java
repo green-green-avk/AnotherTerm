@@ -222,9 +222,9 @@ public final class Unicode {
                         (codePoint >= 0x30000 && codePoint <= 0x3fffd))) ? 2 : 1);
     }
 
-    public static int stepBack(@NonNull final char[] buf, final int off, final int ptr) {
-        if (ptr < off + 1) return ptr;
-        if (ptr == off + 1) return off;
+    public static int stepBack(@NonNull final char[] buf, final int startLimit, final int ptr) {
+        if (ptr < startLimit + 1) return ptr;
+        if (ptr == startLimit + 1) return startLimit;
         if (Character.isSurrogatePair(buf[ptr - 2], buf[ptr - 1])) return ptr - 2;
         return ptr - 1;
     }

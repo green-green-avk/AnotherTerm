@@ -468,13 +468,16 @@ public final class ConsoleScreenBuffer {
     private static int getCharIndex(@NonNull final char[] text, final int dx, int startInd) {
         int px = startInd >> F_XOFF_SHIFT;
         startInd &= F_IND_MASK;
-        while (px < dx) {
+        while (true) {
             if (startInd >= text.length) {
-                return startInd;// + (x - startX); // realloc?
+                return startInd; // + (x - startX); // realloc?
             }
             final int cp = Character.codePointAt(text, startInd);
+            final int w = Unicode.wcwidth(cp); // 0 for C0 / C1
+            if (px >= dx && w != 0)
+                break;
             startInd += Character.charCount(cp);
-            px += Unicode.wcwidth(cp); // 0 for C0 / C1
+            px += w;
         }
         return startInd | ((px - dx) << F_XOFF_SHIFT);
     }
@@ -508,6 +511,8 @@ public final class ConsoleScreenBuffer {
         output.text = row.text;
         output.startXOff = (byte) (output.start >> F_XOFF_SHIFT);
         output.start &= F_IND_MASK;
+        if (output.startXOff != 0)
+            output.start = Unicode.stepBack(output.text, 0, output.start);
         output.endXOff = (byte) (end >> F_XOFF_SHIFT);
         output.length = (end & F_IND_MASK) - output.start;
         return len;
