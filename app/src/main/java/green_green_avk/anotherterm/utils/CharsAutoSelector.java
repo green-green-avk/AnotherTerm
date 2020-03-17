@@ -43,8 +43,8 @@ public final class CharsAutoSelector {
 
     public static void select(@NonNull final char[] v, final int start, final int end,
                               final int ptr, @NonNull final int[] ret) {
-        final byte cat = getCat(v[ptr]);
-        if (cat < 0) {
+        final byte cat;
+        if (ptr >= v.length || (cat = getCat(v[ptr])) < 0) {
             ret[0] = 0;
             ret[1] = end - 1;
             return;
