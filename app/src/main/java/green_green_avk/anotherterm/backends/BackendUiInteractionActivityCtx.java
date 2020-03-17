@@ -1,8 +1,9 @@
 package green_green_avk.anotherterm.backends;
 
 import android.app.Activity;
-import android.support.annotation.Nullable;
-import android.support.annotation.UiThread;
+
+import androidx.annotation.Nullable;
+import androidx.annotation.UiThread;
 
 public interface BackendUiInteractionActivityCtx {
     @UiThread

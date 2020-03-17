@@ -9,9 +9,10 @@ import android.hardware.usb.UsbDevice;
 import android.hardware.usb.UsbDeviceConnection;
 import android.hardware.usb.UsbManager;
 import android.net.Uri;
-import android.support.annotation.Keep;
-import android.support.annotation.NonNull;
 import android.util.Log;
+
+import androidx.annotation.Keep;
+import androidx.annotation.NonNull;
 
 import com.felhr.usbserial.UsbSerialDevice;
 import com.felhr.usbserial.UsbSerialInterface;

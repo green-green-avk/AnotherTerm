@@ -1,7 +1,8 @@
 package green_green_avk.anotherterm;
 
 import android.os.Bundle;
-import android.support.v7.app.AppCompatActivity;
+
+import androidx.appcompat.app.AppCompatActivity;
 
 public final class SshKeysSettingsActivity extends AppCompatActivity {
 

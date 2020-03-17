@@ -9,11 +9,12 @@ import android.content.Context;
 import android.content.Intent;
 import android.os.Build;
 import android.os.IBinder;
-import android.support.annotation.NonNull;
-import android.support.annotation.UiThread;
-import android.support.v4.app.NotificationCompat;
-import android.support.v4.app.TaskStackBuilder;
 import android.util.Log;
+
+import androidx.annotation.NonNull;
+import androidx.annotation.UiThread;
+import androidx.core.app.NotificationCompat;
+import androidx.core.app.TaskStackBuilder;
 
 import java.nio.ByteBuffer;
 import java.nio.charset.Charset;

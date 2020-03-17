@@ -3,9 +3,10 @@ package green_green_avk.anotherterm.utils;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.os.Build;
-import android.support.annotation.MainThread;
-import android.support.annotation.NonNull;
 import android.util.Log;
+
+import androidx.annotation.MainThread;
+import androidx.annotation.NonNull;
 
 import java.io.File;
 import java.net.URLDecoder;

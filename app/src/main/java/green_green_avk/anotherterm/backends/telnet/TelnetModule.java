@@ -1,8 +1,9 @@
 package green_green_avk.anotherterm.backends.telnet;
 
 import android.net.Uri;
-import android.support.annotation.Keep;
-import android.support.annotation.NonNull;
+
+import androidx.annotation.Keep;
+import androidx.annotation.NonNull;
 
 import org.apache.commons.lang3.StringUtils;
 

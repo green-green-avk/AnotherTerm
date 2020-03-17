@@ -3,9 +3,10 @@ package green_green_avk.anotherterm.utils;
 import android.graphics.Canvas;
 import android.graphics.Paint;
 import android.os.Parcel;
-import android.support.annotation.NonNull;
 import android.text.Layout;
 import android.text.style.QuoteSpan;
+
+import androidx.annotation.NonNull;
 
 public class CustomQuoteSpan extends QuoteSpan {
     protected static final int mStripeWidth = 4;

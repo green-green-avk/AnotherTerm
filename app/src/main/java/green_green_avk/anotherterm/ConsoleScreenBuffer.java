@@ -3,10 +3,11 @@ package green_green_avk.anotherterm;
 import android.graphics.Color;
 import android.graphics.Point;
 import android.graphics.Rect;
-import android.support.annotation.NonNull;
-import android.support.annotation.Nullable;
-import android.support.v4.math.MathUtils;
 import android.util.Log;
+
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+import androidx.core.math.MathUtils;
 
 import org.apache.commons.collections4.list.TreeList;
 

@@ -4,7 +4,8 @@ import android.content.Context;
 import android.content.res.Configuration;
 import android.os.Build;
 import android.os.Bundle;
-import android.support.v14.preference.PreferenceFragment;
+
+import androidx.preference.PreferenceFragment;
 
 import java.util.List;
 

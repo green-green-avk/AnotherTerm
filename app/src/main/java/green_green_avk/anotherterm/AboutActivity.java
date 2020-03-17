@@ -1,12 +1,13 @@
 package green_green_avk.anotherterm;
 
 import android.os.Bundle;
-import android.support.annotation.NonNull;
-import android.support.annotation.Nullable;
-import android.support.v4.view.AsyncLayoutInflater;
-import android.support.v7.app.AppCompatActivity;
 import android.view.View;
 import android.view.ViewGroup;
+
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.asynclayoutinflater.view.AsyncLayoutInflater;
 
 public final class AboutActivity extends AppCompatActivity {
 

@@ -3,11 +3,12 @@ package green_green_avk.ptyprocess;
 import android.annotation.TargetApi;
 import android.os.Build;
 import android.os.ParcelFileDescriptor;
-import android.support.annotation.Keep;
-import android.support.annotation.NonNull;
-import android.support.annotation.Nullable;
 import android.system.ErrnoException;
 import android.system.Os;
+
+import androidx.annotation.Keep;
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 
 import java.io.File;
 import java.io.FileDescriptor;

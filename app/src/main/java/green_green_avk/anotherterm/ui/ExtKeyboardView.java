@@ -33,10 +33,6 @@ import android.graphics.drawable.Drawable;
 import android.inputmethodservice.KeyboardView;
 import android.os.Build;
 import android.os.Message;
-import android.support.annotation.NonNull;
-import android.support.annotation.Nullable;
-import android.support.v4.util.Pools;
-import android.support.v7.content.res.AppCompatResources;
 import android.util.AttributeSet;
 import android.util.SparseArray;
 import android.view.Gravity;
@@ -44,6 +40,11 @@ import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.PopupWindow;
+
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+import androidx.appcompat.content.res.AppCompatResources;
+import androidx.core.util.Pools;
 
 import java.util.HashSet;
 import java.util.Set;

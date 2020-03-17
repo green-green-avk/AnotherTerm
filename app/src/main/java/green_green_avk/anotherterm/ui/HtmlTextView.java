@@ -4,16 +4,17 @@ import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.res.TypedArray;
 import android.os.AsyncTask;
-import android.support.annotation.Nullable;
-import android.support.v4.text.HtmlCompat;
 import android.text.Spanned;
 import android.text.method.LinkMovementMethod;
 import android.util.AttributeSet;
 
+import androidx.annotation.Nullable;
+import androidx.core.text.HtmlCompat;
+
 import green_green_avk.anotherterm.R;
 import green_green_avk.anotherterm.utils.XmlToSpanned;
 
-public class HtmlTextView extends android.support.v7.widget.AppCompatTextView {
+public class HtmlTextView extends androidx.appcompat.widget.AppCompatTextView {
     public boolean async = false;
 
     public HtmlTextView(final Context context) {

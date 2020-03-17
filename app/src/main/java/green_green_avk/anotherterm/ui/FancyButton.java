@@ -8,14 +8,15 @@ import android.graphics.Color;
 import android.graphics.Rect;
 import android.graphics.drawable.Drawable;
 import android.os.Build;
-import android.support.v7.content.res.AppCompatResources;
 import android.util.AttributeSet;
 import android.util.DisplayMetrics;
 import android.view.MotionEvent;
 
+import androidx.appcompat.content.res.AppCompatResources;
+
 import green_green_avk.anotherterm.R;
 
-public class FancyButton extends android.support.v7.widget.AppCompatImageButton {
+public class FancyButton extends androidx.appcompat.widget.AppCompatImageButton {
     protected float mTouchMaskDpi = 10;
     protected Bitmap mTouchMask = null;
     protected Drawable mTouchMaskSrc = null;

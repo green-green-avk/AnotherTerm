@@ -1,10 +1,11 @@
 package green_green_avk.anotherterm.utils;
 
 import android.os.Build;
-import android.support.annotation.NonNull;
 import android.util.SparseArray;
 import android.util.SparseBooleanArray;
 import android.util.SparseIntArray;
+
+import androidx.annotation.NonNull;
 
 import java.io.IOException;
 import java.io.InputStream;

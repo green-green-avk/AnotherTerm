@@ -6,7 +6,6 @@ import android.content.res.Configuration;
 import android.content.res.Resources;
 import android.graphics.Rect;
 import android.inputmethodservice.KeyboardView;
-import android.support.annotation.Nullable;
 import android.text.InputType;
 import android.util.AttributeSet;
 import android.view.InputDevice;
@@ -17,6 +16,8 @@ import android.view.inputmethod.BaseInputConnection;
 import android.view.inputmethod.EditorInfo;
 import android.view.inputmethod.InputConnection;
 import android.view.inputmethod.InputMethodManager;
+
+import androidx.annotation.Nullable;
 
 import green_green_avk.anotherterm.ConsoleInput;
 import green_green_avk.anotherterm.ConsoleOutput;

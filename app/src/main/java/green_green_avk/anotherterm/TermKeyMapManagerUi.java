@@ -2,10 +2,11 @@ package green_green_avk.anotherterm;
 
 import android.app.AlertDialog;
 import android.content.Context;
-import android.support.annotation.NonNull;
 import android.view.View;
 import android.widget.ListView;
 import android.widget.PopupWindow;
+
+import androidx.annotation.NonNull;
 
 public final class TermKeyMapManagerUi {
     private TermKeyMapManagerUi() {

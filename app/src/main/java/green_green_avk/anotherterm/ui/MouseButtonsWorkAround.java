@@ -3,11 +3,12 @@ package green_green_avk.anotherterm.ui;
 import android.app.Activity;
 import android.graphics.PointF;
 import android.os.SystemClock;
-import android.support.annotation.NonNull;
 import android.view.InputDevice;
 import android.view.InputEvent;
 import android.view.KeyEvent;
 import android.view.MotionEvent;
+
+import androidx.annotation.NonNull;
 
 // Mouse right & middle buttons tribute...
 // Google and phone manufacturers are wise... In some strange way...

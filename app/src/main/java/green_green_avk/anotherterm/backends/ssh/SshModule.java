@@ -1,11 +1,12 @@
 package green_green_avk.anotherterm.backends.ssh;
 
 import android.net.Uri;
-import android.support.annotation.Keep;
-import android.support.annotation.NonNull;
-import android.support.annotation.Nullable;
 import android.util.Log;
 import android.util.SparseBooleanArray;
+
+import androidx.annotation.Keep;
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 
 import com.jcraft.jsch.Channel;
 import com.jcraft.jsch.ChannelExec;

@@ -1,7 +1,8 @@
 package green_green_avk.anotherterm;
 
 import android.graphics.Color;
-import android.support.annotation.NonNull;
+
+import androidx.annotation.NonNull;
 
 public final class ConsoleScreenCharAttrs {
     public static final int DEF_FG_COLOR = Color.rgb(127, 127, 127);

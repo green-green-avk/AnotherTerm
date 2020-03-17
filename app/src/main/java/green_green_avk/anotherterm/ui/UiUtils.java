@@ -16,10 +16,6 @@ import android.graphics.Rect;
 import android.graphics.drawable.Drawable;
 import android.net.Uri;
 import android.os.Build;
-import android.support.annotation.NonNull;
-import android.support.annotation.Nullable;
-import android.support.annotation.UiThread;
-import android.support.v4.app.ShareCompat;
 import android.util.AndroidException;
 import android.view.MenuItem;
 import android.view.View;
@@ -28,6 +24,11 @@ import android.view.ViewTreeObserver;
 import android.view.Window;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.Toast;
+
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+import androidx.annotation.UiThread;
+import androidx.core.app.ShareCompat;
 
 import java.util.Iterator;
 import java.util.Map;

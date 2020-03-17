@@ -7,10 +7,6 @@ import android.content.DialogInterface;
 import android.content.pm.PackageManager;
 import android.os.Handler;
 import android.os.Looper;
-import android.support.annotation.NonNull;
-import android.support.annotation.Nullable;
-import android.support.annotation.UiThread;
-import android.support.v7.widget.LinearLayoutManager;
 import android.text.InputType;
 import android.view.KeyEvent;
 import android.view.View;
@@ -20,6 +16,11 @@ import android.view.inputmethod.EditorInfo;
 import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
+
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+import androidx.annotation.UiThread;
+import androidx.recyclerview.widget.LinearLayoutManager;
 
 import java.lang.ref.WeakReference;
 import java.util.ArrayList;

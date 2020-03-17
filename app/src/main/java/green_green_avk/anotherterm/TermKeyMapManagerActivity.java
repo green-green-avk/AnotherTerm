@@ -2,12 +2,13 @@ package green_green_avk.anotherterm;
 
 import android.content.Intent;
 import android.os.Bundle;
-import android.support.v7.app.AppCompatActivity;
 import android.view.ContextMenu;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.ListView;
+
+import androidx.appcompat.app.AppCompatActivity;
 
 public final class TermKeyMapManagerActivity extends AppCompatActivity {
 

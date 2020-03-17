@@ -2,9 +2,10 @@ package com.pavelsikun.seekbarpreference;
 
 import android.content.Context;
 import android.content.res.Resources;
-import android.support.annotation.AnyRes;
-import android.support.annotation.NonNull;
-import android.support.annotation.Nullable;
+
+import androidx.annotation.AnyRes;
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 
 import java.util.IllegalFormatException;
 import java.util.regex.Pattern;

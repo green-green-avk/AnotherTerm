@@ -2,11 +2,12 @@ package green_green_avk.anotherterm.ui;
 
 import android.content.Context;
 import android.graphics.PointF;
-import android.support.v4.math.MathUtils;
-import android.support.v4.view.ViewCompat;
 import android.util.AttributeSet;
 import android.view.MotionEvent;
 import android.widget.Scroller;
+
+import androidx.core.math.MathUtils;
+import androidx.core.view.ViewCompat;
 
 public abstract class ScrollableView extends GestureView {
 

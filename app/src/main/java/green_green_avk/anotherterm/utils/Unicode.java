@@ -25,7 +25,7 @@
 
 package green_green_avk.anotherterm.utils;
 
-import android.support.annotation.NonNull;
+import androidx.annotation.NonNull;
 
 import java.nio.CharBuffer;
 

@@ -2,7 +2,8 @@ package green_green_avk.anotherterm;
 
 import android.app.Application;
 import android.preference.PreferenceManager;
-import android.support.annotation.Keep;
+
+import androidx.annotation.Keep;
 
 import green_green_avk.libusbmanager.LibUsbManager;
 

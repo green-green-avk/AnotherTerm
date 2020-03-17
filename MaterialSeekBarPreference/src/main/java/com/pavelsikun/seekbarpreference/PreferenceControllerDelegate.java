@@ -2,9 +2,6 @@ package com.pavelsikun.seekbarpreference;
 
 import android.content.Context;
 import android.content.res.TypedArray;
-import android.support.annotation.AnyRes;
-import android.support.annotation.NonNull;
-import android.support.annotation.Nullable;
 import android.text.TextUtils;
 import android.util.AttributeSet;
 import android.util.Log;
@@ -12,6 +9,10 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.SeekBar;
 import android.widget.TextView;
+
+import androidx.annotation.AnyRes;
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 
 /**
  * Created by Pavel Sikun on 28.05.16.

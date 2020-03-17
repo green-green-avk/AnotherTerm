@@ -1,7 +1,6 @@
 package green_green_avk.anotherterm.utils;
 
 import android.content.res.ColorStateList;
-import android.support.annotation.NonNull;
 import android.text.Editable;
 import android.text.InputType;
 import android.text.TextWatcher;
@@ -13,6 +12,8 @@ import android.widget.AdapterView;
 import android.widget.CompoundButton;
 import android.widget.EditText;
 import android.widget.TextView;
+
+import androidx.annotation.NonNull;
 
 import java.util.Arrays;
 import java.util.HashMap;

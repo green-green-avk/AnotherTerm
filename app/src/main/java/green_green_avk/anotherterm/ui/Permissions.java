@@ -1,8 +1,9 @@
 package green_green_avk.anotherterm.ui;
 
 import android.content.Context;
-import android.support.annotation.NonNull;
-import android.support.v4.app.FragmentActivity;
+
+import androidx.annotation.NonNull;
+import androidx.fragment.app.FragmentActivity;
 
 import green_green_avk.anotherterm.utils.BlockingSync;
 

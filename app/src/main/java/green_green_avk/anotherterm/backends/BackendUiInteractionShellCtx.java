@@ -1,6 +1,6 @@
 package green_green_avk.anotherterm.backends;
 
-import android.support.annotation.Nullable;
+import androidx.annotation.Nullable;
 
 import java.io.InputStream;
 import java.io.OutputStream;

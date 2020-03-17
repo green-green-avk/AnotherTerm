@@ -3,7 +3,8 @@ package green_green_avk.anotherterm;
 import android.content.Context;
 import android.content.res.AssetManager;
 import android.graphics.Typeface;
-import android.support.annotation.NonNull;
+
+import androidx.annotation.NonNull;
 
 public final class FontsManager {
     private FontsManager() {
