@@ -240,6 +240,13 @@ executing <code>&lt;execute&gt;</code> script string.
 <p><em>`Favorite management\' permission must be granted in a favorite starting the shell from which
 this command is called. Exit code <code>1</code> will be returned otherwise.</em></p></dd><br/>
 
+<dt><p><code>
+plugin &lt;package_name&gt;
+</code></p></dt>
+<dd>Execute a plugin specified by <code>&lt;package_name&gt;</code>.
+<p><em>`Plugins\' permission must be granted in a favorite starting the shell from which
+this command is called. Exit code <code>1</code> will be returned otherwise.</em></p></dd><br/>
+
 </dl>
 
 <h4>Notes:</h4>

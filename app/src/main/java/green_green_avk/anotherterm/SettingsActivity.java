@@ -38,7 +38,8 @@ public final class SettingsActivity extends AppCompatPreferenceActivity {
     protected boolean isValidFragment(final String fragmentName) {
         return PreferenceFragment.class.getName().equals(fragmentName)
                 || TerminalPreferenceFragment.class.getName().equals(fragmentName)
-                || DozeFragment.class.getName().equals(fragmentName);
+                || DozeFragment.class.getName().equals(fragmentName)
+                || PluginsManagerFragment.class.getName().equals(fragmentName);
     }
 
     public static final class TerminalPreferenceFragment extends PreferenceFragment {

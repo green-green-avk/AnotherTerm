@@ -157,4 +157,11 @@
     <string name="label_kbd_autorepeat_allowed">Allowed</string>
     <string name="label_kbd_autorepeat_always_disabled">Always disabled</string>
     <string name="action_info">Info</string>
+    <string name="action_settings_plugins">Plugins</string>
+    <string name="label_enabled">Enabled</string>
+    <string name="label_application_icon">Application Icon</string>
+    <string name="label_plugins_execution">Plugins execution</string>
+    <string name="desc_plugins_execution"><![CDATA[
+        <p>Shell plugins execution by <b>termsh</b>.</p>
+    ]]></string>
 </resources>

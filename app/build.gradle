@@ -68,6 +68,7 @@ dependencies {
     implementation project(':TelnetClient')
     implementation 'org.apache.commons:commons-collections4:4.2'
     implementation project(':libusbmanager')
+    implementation 'com.github.green-green-avk:anothertermshellpluginutils:1.1'
 }
 
 repositories {

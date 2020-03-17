@@ -95,6 +95,7 @@ public final class LocalModule extends BackendModule {
 
     public static final class SessionData {
         public static final long PERM_FAVMGMT = 1;
+        public static final long PERM_PLUGINEXEC = 2;
 
         public volatile long permissions = 0;
     }
@@ -146,8 +147,9 @@ public final class LocalModule extends BackendModule {
         final ParametersWrapper pp = new ParametersWrapper(params);
         terminalString = pp.getString("terminal_string", terminalString);
         execute = pp.getString("execute", execute);
-        sessionData.permissions = pp.getBoolean("perm_favmgmt", false) ?
-                SessionData.PERM_FAVMGMT : 0;
+        sessionData.permissions =
+                (pp.getBoolean("perm_favmgmt", false) ? SessionData.PERM_FAVMGMT : 0) |
+                        (pp.getBoolean("perm_pluginexec", false) ? SessionData.PERM_PLUGINEXEC : 0);
     }
 
     @Override

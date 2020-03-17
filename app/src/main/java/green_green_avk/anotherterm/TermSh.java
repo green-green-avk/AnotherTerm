@@ -47,6 +47,7 @@ import java.net.URLDecoder;
 import java.net.URLEncoder;
 import java.net.UnknownServiceException;
 import java.nio.CharBuffer;
+import java.util.Arrays;
 import java.util.Map;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
@@ -67,6 +68,8 @@ import green_green_avk.anotherterm.utils.Misc;
 import green_green_avk.anotherterm.utils.PreferenceStorage;
 import green_green_avk.anotherterm.utils.SslHelper;
 import green_green_avk.anotherterm.utils.XmlToAnsi;
+import green_green_avk.anothertermshellpluginutils.Plugin;
+import green_green_avk.anothertermshellpluginutils.Protocol;
 import green_green_avk.ptyprocess.PtyProcess;
 
 public final class TermSh {
@@ -386,6 +389,15 @@ public final class TermSh {
                     Log.e("TermShServer", "Request", e);
                 }
                 return new FileOutputStream(fd);
+            }
+
+            @NonNull
+            private FileDescriptor[] getFds() throws IOException {
+                return new FileDescriptor[]{
+                        ((FileInputStream) stdIn).getFD(),
+                        ((FileOutputStream) stdOut).getFD(),
+                        ((FileOutputStream) stdErr).getFD()
+                };
             }
 
             @NonNull
@@ -1290,6 +1302,34 @@ public final class TermSh {
                                     FavoritesManager.set(name, ps);
                                 }
                             });
+                            break;
+                        }
+                        case "plugin": {
+                            shellCmd.checkPerms(LocalModule.SessionData.PERM_PLUGINEXEC);
+                            if (shellCmd.args.length < 2)
+                                throw new ParseException("Wrong number of arguments");
+                            final String pkgName = Misc.fromUTF8(shellCmd.args[1]);
+                            final ComponentName cm = Plugin.getComponent(ui.ctx, pkgName);
+                            if (cm == null)
+                                throw new IOException("`" + pkgName + "' is not a plugin");
+                            if (!PluginsManager.verify(pkgName))
+                                throw new IOException("`" + pkgName + "' is not permitted to run. Please, review plugin settings.");
+                            final Plugin plugin = Plugin.bind(ui.ctx, cm);
+                            try {
+                                shellCmd.setOnTerminate(new Runnable() {
+                                    @Override
+                                    public void run() {
+                                        plugin.signal(Protocol.SIG_FINALIZE);
+                                    }
+                                });
+                                exitStatus = plugin.exec(
+                                        Arrays.copyOfRange(shellCmd.args, 2, shellCmd.args.length),
+                                        shellCmd.getFds()
+                                );
+                            } finally {
+                                shellCmd.setOnTerminate(null);
+                                plugin.unbind();
+                            }
                             break;
                         }
                         default:

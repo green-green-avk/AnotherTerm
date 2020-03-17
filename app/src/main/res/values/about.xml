@@ -24,6 +24,8 @@ Shell tool</a> to interact with the Android environment is also present.
 <li>libusb support on nonrooted Android
 [<a href=\"https://github.com/green-green-avk/AnotherTerm/wiki/Installing-libusb-for-nonrooted-Android\">how to install</a>].
 </li>
+<li><a href=\"https://github.com/green-green-avk/AnotherTerm/wiki/Shell-plugins\">Custom plugins</a>
+to access the Android environment and own API to create them as separate APKs.</li>
 </ul>
 </li>
 <li>Telnet (no encryption).</li>

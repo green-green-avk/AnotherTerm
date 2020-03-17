@@ -48,6 +48,7 @@ public final class App extends Application {
     @Override
     public void onCreate() {
         super.onCreate();
+        PluginsManager.init(this);
         settings.init(this, PreferenceManager.getDefaultSharedPreferences(this));
         FontsManager.init(this);
         TermKeyMapManager.init(this);
