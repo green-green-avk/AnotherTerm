@@ -5,13 +5,14 @@ import android.content.res.Configuration;
 import android.os.Build;
 import android.os.Bundle;
 
+import androidx.annotation.NonNull;
 import androidx.preference.PreferenceFragment;
 
 import java.util.List;
 
 public final class SettingsActivity extends AppCompatPreferenceActivity {
 
-    private static boolean isXLargeTablet(final Context context) {
+    private static boolean isXLargeTablet(@NonNull final Context context) {
         return (context.getResources().getConfiguration().screenLayout
                 & Configuration.SCREENLAYOUT_SIZE_MASK) >= Configuration.SCREENLAYOUT_SIZE_XLARGE;
     }
@@ -33,6 +34,7 @@ public final class SettingsActivity extends AppCompatPreferenceActivity {
             loadHeadersFromResource(R.xml.pref_headers, target);
     }
 
+    @Override
     protected boolean isValidFragment(final String fragmentName) {
         return PreferenceFragment.class.getName().equals(fragmentName)
                 || TerminalPreferenceFragment.class.getName().equals(fragmentName)

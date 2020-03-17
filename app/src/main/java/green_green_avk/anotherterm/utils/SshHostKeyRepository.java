@@ -48,7 +48,7 @@ public final class SshHostKeyRepository implements HostKeyRepository {
     }
 
     private static SshHostKey parseKey(@NonNull final String host, @NonNull final String unparsed) {
-        final String kss[] = unparsed.split(":", 3);
+        final String[] kss = unparsed.split(":", 3);
         try {
             return new SshHostKey(host, kss[0], kss[1], kss[2]);
         } catch (final JSchException e) {

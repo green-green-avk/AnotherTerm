@@ -36,7 +36,6 @@
         </ul>
     ]]></string>
 
-    <string name="battery_optimization_settings">Battery Optimization Settings</string>
     <string name="action_add_fav">Add Favorite</string>
     <string name="label_name">Name</string>
     <string name="label_type">Type</string>

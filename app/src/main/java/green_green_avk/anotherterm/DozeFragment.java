@@ -15,6 +15,9 @@ import android.widget.CompoundButton;
 import android.widget.Switch;
 import android.widget.TextView;
 
+import androidx.annotation.RequiresApi;
+
+@RequiresApi(23)
 public final class DozeFragment extends Fragment {
     public DozeFragment() {
     }

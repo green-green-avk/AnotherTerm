@@ -17,10 +17,10 @@ import java.util.NoSuchElementException;
 import java.util.Queue;
 
 public final class Misc {
-    public static final Charset UTF8 = Charset.forName("UTF8");
-
     private Misc() {
     }
+
+    public static final Charset UTF8 = Charset.forName("UTF8");
 
     @NonNull
     public static String fromUTF8(@NonNull final byte[] buf) {

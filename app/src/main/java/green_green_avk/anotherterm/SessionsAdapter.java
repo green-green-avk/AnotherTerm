@@ -78,7 +78,7 @@ public final class SessionsAdapter extends RecyclerView.Adapter<SessionsAdapter.
     }
 
     public static final class ViewHolder extends RecyclerView.ViewHolder {
-        public ViewHolder(View v) {
+        public ViewHolder(final View v) {
             super(v);
         }
     }

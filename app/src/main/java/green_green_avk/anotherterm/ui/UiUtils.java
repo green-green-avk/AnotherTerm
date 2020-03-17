@@ -73,7 +73,7 @@ public final class UiUtils {
                 new ClipData.Item(uri.toString(), null, uri)));
     }
 
-    public static void toClipboard(final Context context, final String v) {
+    public static void toClipboard(@NonNull final Context context, @Nullable final String v) {
         final ClipboardManager clipboard =
                 (ClipboardManager) context.getSystemService(Context.CLIPBOARD_SERVICE);
         if (clipboard == null) return;

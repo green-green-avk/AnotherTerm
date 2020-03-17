@@ -20,6 +20,11 @@ public final class ClipboardSpan extends ClickableSpan {
         super();
     }
 
+    public ClipboardSpan(@Nullable final String content) {
+        super();
+        setContent(content);
+    }
+
     public void setContent(@Nullable final String content) {
         this.content = content;
     }
