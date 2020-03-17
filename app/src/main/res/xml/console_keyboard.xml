@@ -62,8 +62,8 @@
         <Key app:keyLabel="8*" />
         <Key app:keyLabel="9(" />
         <Key app:keyLabel="0)" />
-        <Key app:keyLabel="-_&#x2013;&#x2014;" />
-        <Key app:keyLabel="=+&#xB1;" />
+        <Key app:keyLabel="-_" />
+        <Key app:keyLabel="=+" />
         <Key
             app:code="67"
             app:keyLabel="&#x232B;"
