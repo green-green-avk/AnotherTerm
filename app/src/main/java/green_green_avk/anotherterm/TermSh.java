@@ -697,7 +697,7 @@ public final class TermSh {
 
         @SuppressLint("StaticFieldLeak")
         private final class ClientTask extends AsyncTask<Object, Object, Object> {
-            private int exitStatus = 0;
+            private volatile int exitStatus = 0;
 
             @Override
             protected Object doInBackground(final Object[] objects) {
@@ -1290,11 +1290,12 @@ public final class TermSh {
                             final String execute = Misc.fromUTF8(shellCmd.args[2]);
                             runOnUiThread(shellCmd, new RunnableT() {
                                 @Override
-                                public void run() {
+                                public void run() throws IOException {
                                     if (FavoritesManager.contains(name)) {
-                                        throw new ParseException(
-                                                "Favorite `" + name
-                                                        + "' is already exists");
+                                        shellCmd.stdErr.write(Misc.toUTF8("Favorite `" + name
+                                                + "' is already exists\n"));
+                                        exitStatus = 2;
+                                        return;
                                     }
                                     final PreferenceStorage ps = new PreferenceStorage();
                                     ps.put("type", BackendsList.get(LocalModule.class).typeStr);

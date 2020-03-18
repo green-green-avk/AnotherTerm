@@ -237,6 +237,7 @@ create-shell-favorite &lt;name&gt; &lt;execute&gt;
 </code></p></dt>
 <dd>Create a shell favorite named <code>&lt;name&gt;</code>
 executing <code>&lt;execute&gt;</code> script string.
+It fails with exit code <code>2</code> if <code>&lt;name&gt;</code> is already in use.
 <p><em>`Favorite management\' permission must be granted in a favorite starting the shell from which
 this command is called. Exit code <code>1</code> will be returned otherwise.</em></p></dd><br/>
 
