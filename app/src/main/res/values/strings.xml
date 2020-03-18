@@ -164,4 +164,5 @@
     <string name="desc_plugins_execution"><![CDATA[
         <p>Shell plugins execution by <b>termsh</b>.</p>
     ]]></string>
+    <string name="msg_nothing_to_search">Nothing to search</string>
 </resources>

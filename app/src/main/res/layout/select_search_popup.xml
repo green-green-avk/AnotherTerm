@@ -2,35 +2,56 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="wrap_content"
-    android:layout_height="wrap_content"
+    android:layout_height="@dimen/kbd_key_size"
     android:background="@drawable/bg_popup2"
     android:divider="@drawable/ic_toolbar_div"
     android:orientation="horizontal"
     android:showDividers="middle">
 
-    <!-- The search field is about to be here soon -->
+    <!-- The buffer search field is about to be here soon -->
+
+    <ImageButton
+        android:id="@+id/b_web"
+        android:layout_width="wrap_content"
+        android:layout_height="match_parent"
+        android:adjustViewBounds="true"
+        android:background="@android:color/transparent"
+        android:scaleType="fitCenter"
+        android:tint="@color/colorAccenttissimo"
+        app:srcCompat="@drawable/ic_globe" />
+
+    <View
+        android:layout_width="1dp"
+        android:layout_height="match_parent"
+        android:background="@color/colorAccenttissimo" />
 
     <ImageButton
         android:id="@+id/b_select_mode"
         android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
+        android:layout_height="match_parent"
+        android:adjustViewBounds="true"
         android:background="@android:color/transparent"
+        android:scaleType="fitCenter"
         android:tint="@color/colorAccenttissimo"
         app:srcCompat="@drawable/ic_select_lines_rect_expr" />
 
     <ImageButton
         android:id="@+id/b_select_all"
         android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
+        android:layout_height="match_parent"
+        android:adjustViewBounds="true"
         android:background="@android:color/transparent"
+        android:scaleType="fitCenter"
         android:tint="@color/colorAccenttissimo"
         app:srcCompat="?attr/actionModeSelectAllDrawable" />
 
     <ImageButton
         android:id="@+id/b_copy"
         android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
+        android:layout_height="match_parent"
+        android:adjustViewBounds="true"
         android:background="@android:color/transparent"
+        android:scaleType="fitCenter"
         android:tint="@color/colorAccenttissimo"
         app:srcCompat="?attr/actionModeCopyDrawable" />
 
@@ -42,7 +63,8 @@
     <ImageButton
         android:id="@+id/b_put"
         android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
+        android:layout_height="match_parent"
+        android:adjustViewBounds="true"
         android:background="@android:color/transparent"
         android:tint="@color/colorAccenttissimo"
         app:srcCompat="@drawable/ic_paste_selected" />
@@ -55,8 +77,10 @@
     <ImageButton
         android:id="@+id/b_close"
         android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
+        android:layout_height="match_parent"
+        android:adjustViewBounds="true"
         android:background="@android:color/transparent"
+        android:scaleType="fitCenter"
         android:tint="@color/colorAccenttissimo"
         app:srcCompat="@drawable/ic_close" />
 

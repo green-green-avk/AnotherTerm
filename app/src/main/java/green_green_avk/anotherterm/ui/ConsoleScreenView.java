@@ -1,6 +1,9 @@
 package green_green_avk.anotherterm.ui;
 
+import android.app.SearchManager;
+import android.content.ActivityNotFoundException;
 import android.content.Context;
+import android.content.Intent;
 import android.content.res.TypedArray;
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
@@ -16,6 +19,7 @@ import android.graphics.Shader;
 import android.graphics.Typeface;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
+import android.net.Uri;
 import android.os.Build;
 import android.os.Message;
 import android.util.AttributeSet;
@@ -24,6 +28,7 @@ import android.view.MotionEvent;
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.PopupWindow;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -165,6 +170,28 @@ public class ConsoleScreenView extends ScrollableView
                             if (consoleInput == null || consoleInput.consoleOutput == null) return;
                             final String s = getSelectedText();
                             if (s != null) consoleInput.consoleOutput.paste(s);
+                        }
+                    });
+            getContentView().findViewById(R.id.b_web)
+                    .setOnClickListener(new OnClickListener() {
+                        @Override
+                        public void onClick(final View v) {
+                            final String s = getSelectedText();
+                            if (s == null) {
+                                Toast.makeText(getContext(), R.string.msg_nothing_to_search,
+                                        Toast.LENGTH_SHORT).show();
+                                return;
+                            }
+                            try {
+                                getContext().startActivity(new Intent(Intent.ACTION_VIEW,
+                                        Uri.parse(s)));
+                            } catch (final ActivityNotFoundException e) {
+                                try {
+                                    getContext().startActivity(new Intent(Intent.ACTION_WEB_SEARCH)
+                                            .putExtra(SearchManager.QUERY, s));
+                                } catch (final ActivityNotFoundException ignored) {
+                                }
+                            }
                         }
                     });
         }
