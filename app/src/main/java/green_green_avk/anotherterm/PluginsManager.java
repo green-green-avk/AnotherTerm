@@ -106,12 +106,15 @@ public final class PluginsManager {
     }
 
     public static boolean verify(@NonNull final PackageInfo pkg) {
-        final Set<String> fps = trustedPluginsPrefs.getStringSet(pkg.packageName, Collections.<String>emptySet());
+        final Set<String> fps = trustedPluginsPrefs.getStringSet(pkg.packageName,
+                Collections.<String>emptySet());
+        if (pkg.signatures == null || pkg.signatures.length <= 0) return false;
         for (final Signature s : pkg.signatures)
             if (!fps.contains(Auth.getFingerprint(s))) return false;
         return true;
     }
 
+    @SuppressLint("PackageManagerGetSignatures") // So, check'em all.
     public static boolean verify(@NonNull final String pkgName) {
         final PackageManager pm = ctx.getPackageManager();
         try {
