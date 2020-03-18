@@ -165,4 +165,7 @@
         <p>Shell plugins execution by <b>termsh</b>.</p>
     ]]></string>
     <string name="msg_nothing_to_search">Nothing to search</string>
+    <string name="msg_stalled_transactions_detected">Stalled transactions detected, plugin seems broken</string>
+    <string name="msg_s_is_not_a_plugin">`%s\' is not a plugin</string>
+    <string name="msg_s_is_not_permitted_to_run">`%s\' is not permitted to run. Please, review plugins settings.</string>
 </resources>

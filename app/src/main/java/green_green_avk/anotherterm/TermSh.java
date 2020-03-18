@@ -1312,9 +1312,9 @@ public final class TermSh {
                             final String pkgName = Misc.fromUTF8(shellCmd.args[1]);
                             final ComponentName cm = Plugin.getComponent(ui.ctx, pkgName);
                             if (cm == null)
-                                throw new IOException("`" + pkgName + "' is not a plugin");
+                                throw new IOException(ui.ctx.getString(R.string.msg_s_is_not_a_plugin, pkgName));
                             if (!PluginsManager.verify(pkgName))
-                                throw new IOException("`" + pkgName + "' is not permitted to run. Please, review plugin settings.");
+                                throw new IOException(ui.ctx.getString(R.string.msg_s_is_not_permitted_to_run, pkgName));
                             final Plugin plugin = Plugin.bind(ui.ctx, cm);
                             try {
                                 shellCmd.setOnTerminate(new Runnable() {

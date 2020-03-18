@@ -109,7 +109,8 @@ public final class PluginsManagerFragment extends Fragment {
                 }
             });
             wWarning.setText(Plugin.isStalled(pkg.packageName) ?
-                    "Stalled transactions detected, plugin seems broken"
+                    wWarning.getContext()
+                            .getString(R.string.msg_stalled_transactions_detected)
                     : ""); // TODO: Dynamic update?
         }
 
