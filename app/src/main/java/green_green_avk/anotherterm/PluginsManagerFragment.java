@@ -1,13 +1,17 @@
 package green_green_avk.anotherterm;
 
+import android.annotation.SuppressLint;
 import android.app.Fragment;
 import android.content.ClipData;
 import android.content.ClipboardManager;
+import android.content.ComponentName;
+import android.content.ContentResolver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
 import android.net.Uri;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.provider.Settings;
 import android.view.LayoutInflater;
@@ -26,6 +30,7 @@ import androidx.recyclerview.widget.RecyclerView;
 import java.util.List;
 
 import green_green_avk.anothertermshellpluginutils.Plugin;
+import green_green_avk.anothertermshellpluginutils.Protocol;
 
 public final class PluginsManagerFragment extends Fragment {
 
@@ -68,6 +73,7 @@ public final class PluginsManagerFragment extends Fragment {
             final TextView wWarning = holder.itemView.findViewById(R.id.warning);
             final CompoundButton wEnabled = holder.itemView.findViewById(R.id.enabled);
             final View wInfo = holder.itemView.findViewById(R.id.info);
+            final View wAppInfo = holder.itemView.findViewById(R.id.appInfo);
             final TextView wPkgName = holder.itemView.findViewById(R.id.package_name);
             final ImageView wIcon = holder.itemView.findViewById(R.id.icon);
             final TextView wTitle = holder.itemView.findViewById(R.id.title);
@@ -100,6 +106,14 @@ public final class PluginsManagerFragment extends Fragment {
             wInfo.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(final View v) {
+                    final ComponentName cn = Plugin.getComponent(v.getContext(), pkg.packageName);
+                    if (cn == null) return;
+                    new InfoPageTask(v.getContext().getApplicationContext()).execute(cn);
+                }
+            });
+            wAppInfo.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(final View v) {
                     v.getContext().startActivity(
                             new Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS)
                                     .setData(Uri.fromParts(
@@ -112,6 +126,50 @@ public final class PluginsManagerFragment extends Fragment {
                     wWarning.getContext()
                             .getString(R.string.msg_stalled_transactions_detected)
                     : ""); // TODO: Dynamic update?
+        }
+
+        private static final class InfoPageTask extends AsyncTask<Object, Object, Uri> {
+            private static final Uri noInfoUri = Uri.parse("info://local/no_info");
+
+            @SuppressLint("StaticFieldLeak")
+            @NonNull
+            private final Context ctx;
+
+            private InfoPageTask(@NonNull final Context ctx) {
+                this.ctx = ctx;
+            }
+
+            @Override
+            protected Uri doInBackground(final Object... args) {
+                final ComponentName cn = (ComponentName) args[0];
+                final int resId;
+                final int type;
+                try {
+                    final Plugin plugin = Plugin.bind(ctx, cn);
+                    try {
+                        final Bundle b = plugin.getMeta().data;
+                        resId = b.getInt(Protocol.META_KEY_INFO_RES_ID, 0);
+                        type = b.getInt(Protocol.META_KEY_INFO_RES_TYPE,
+                                Protocol.STRING_CONTENT_TYPE_PLAIN);
+                    } finally {
+                        plugin.unbind();
+                    }
+                } catch (final Throwable e) {
+                    return noInfoUri;
+                }
+                if (resId == 0) return noInfoUri;
+                return new Uri.Builder()
+                        .scheme(ContentResolver.SCHEME_ANDROID_RESOURCE)
+                        .authority(cn.getPackageName())
+                        .appendPath(Integer.toString(resId))
+                        .fragment(type == Protocol.STRING_CONTENT_TYPE_XML_AT ? "XML" : "PLAIN")
+                        .build();
+            }
+
+            @Override
+            protected void onPostExecute(final Uri uri) {
+                ctx.startActivity(new Intent(ctx, InfoActivity.class).setData(uri));
+            }
         }
 
         @Override

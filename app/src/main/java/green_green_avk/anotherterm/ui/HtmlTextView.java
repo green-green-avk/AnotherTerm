@@ -5,9 +5,11 @@ import android.content.Context;
 import android.content.res.TypedArray;
 import android.os.AsyncTask;
 import android.text.Spanned;
+import android.text.SpannedString;
 import android.text.method.LinkMovementMethod;
 import android.util.AttributeSet;
 
+import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.core.text.HtmlCompat;
 
@@ -52,13 +54,33 @@ public class HtmlTextView extends androidx.appcompat.widget.AppCompatTextView {
         }
     }
 
+    @NonNull
+    private Spanned fromHtml(@NonNull final String v) {
+        try {
+            return HtmlCompat.fromHtml(v, HtmlCompat.FROM_HTML_MODE_LEGACY);
+        } catch (final Throwable e) {
+            return SpannedString.valueOf(getContext().getString(
+                    R.string.msg_html_parse_error_s, e.getLocalizedMessage()));
+        }
+    }
+
+    @NonNull
+    private Spanned fromXml(@NonNull final String v) {
+        try {
+            return XmlToSpanned.fromXml(v, getContext());
+        } catch (final Throwable e) {
+            return SpannedString.valueOf(getContext().getString(
+                    R.string.msg_xml_parse_error_s, e.getLocalizedMessage()));
+        }
+    }
+
     @SuppressLint("StaticFieldLeak")
     public void setHtmlText(@Nullable final String htmlText, final boolean async) {
         if (htmlText == null) return;
         if (async) new AsyncTask<String, Object, Spanned>() {
             @Override
             protected Spanned doInBackground(final String... args) {
-                return HtmlCompat.fromHtml(args[0], HtmlCompat.FROM_HTML_MODE_LEGACY);
+                return fromHtml(args[0]);
             }
 
             @Override
@@ -66,7 +88,7 @@ public class HtmlTextView extends androidx.appcompat.widget.AppCompatTextView {
                 setSpannedText(spanned);
             }
         }.execute(htmlText);
-        else setSpannedText(HtmlCompat.fromHtml(htmlText, HtmlCompat.FROM_HTML_MODE_LEGACY));
+        else setSpannedText(fromHtml(htmlText));
     }
 
     public void setHtmlText(@Nullable final String htmlText) {
@@ -79,7 +101,7 @@ public class HtmlTextView extends androidx.appcompat.widget.AppCompatTextView {
         if (async) new AsyncTask<String, Object, Spanned>() {
             @Override
             protected Spanned doInBackground(final String... args) {
-                return XmlToSpanned.fromXml(args[0], getContext());
+                return fromXml(args[0]);
             }
 
             @Override
@@ -87,7 +109,7 @@ public class HtmlTextView extends androidx.appcompat.widget.AppCompatTextView {
                 setSpannedText(spanned);
             }
         }.execute(xmlText);
-        else setSpannedText(XmlToSpanned.fromXml(xmlText, getContext()));
+        else setSpannedText(fromXml(xmlText));
     }
 
     public void setXmlText(@Nullable final String xmlText) {

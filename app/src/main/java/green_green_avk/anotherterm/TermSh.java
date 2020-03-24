@@ -70,6 +70,7 @@ import green_green_avk.anotherterm.utils.SslHelper;
 import green_green_avk.anotherterm.utils.XmlToAnsi;
 import green_green_avk.anothertermshellpluginutils.Plugin;
 import green_green_avk.anothertermshellpluginutils.Protocol;
+import green_green_avk.anothertermshellpluginutils.StringContent;
 import green_green_avk.ptyprocess.PtyProcess;
 
 public final class TermSh {
@@ -167,21 +168,6 @@ public final class TermSh {
                         new BinaryGetOpts.Option("remove", new String[]{"-r", "--remove"},
                                 BinaryGetOpts.Option.Type.NONE)
                 });
-        private static final BinaryGetOpts.Options URI_OPTS =
-                new BinaryGetOpts.Options(new BinaryGetOpts.Option[]{
-                        new BinaryGetOpts.Option("close", new String[]{"-c", "--close-stream"},
-                                BinaryGetOpts.Option.Type.NONE),
-                        new BinaryGetOpts.Option("list", new String[]{"-l", "--list-streams"},
-                                BinaryGetOpts.Option.Type.NONE),
-                        new BinaryGetOpts.Option("mime", new String[]{"-m", "--mime"},
-                                BinaryGetOpts.Option.Type.STRING),
-                        new BinaryGetOpts.Option("name", new String[]{"-n", "--name"},
-                                BinaryGetOpts.Option.Type.STRING),
-                        new BinaryGetOpts.Option("size", new String[]{"-s", "--size"},
-                                BinaryGetOpts.Option.Type.INT),
-                        new BinaryGetOpts.Option("wait", new String[]{"-w", "--wait"},
-                                BinaryGetOpts.Option.Type.NONE)
-                });
         private static final BinaryGetOpts.Options OPEN_OPTS =
                 new BinaryGetOpts.Options(new BinaryGetOpts.Option[]{
                         new BinaryGetOpts.Option("mime", new String[]{"-m", "--mime"},
@@ -210,6 +196,11 @@ public final class TermSh {
                         new BinaryGetOpts.Option("uri", new String[]{"-u", "--uri"},
                                 BinaryGetOpts.Option.Type.NONE)
                 });
+        private static final BinaryGetOpts.Options PLUGIN_OPTS =
+                new BinaryGetOpts.Options(new BinaryGetOpts.Option[]{
+                        new BinaryGetOpts.Option("help", new String[]{"-h", "--help"},
+                                BinaryGetOpts.Option.Type.NONE)
+                });
         private static final BinaryGetOpts.Options SEND_OPTS =
                 new BinaryGetOpts.Options(new BinaryGetOpts.Option[]{
                         new BinaryGetOpts.Option("mime", new String[]{"-m", "--mime"},
@@ -223,6 +214,21 @@ public final class TermSh {
                         new BinaryGetOpts.Option("size", new String[]{"-s", "--size"},
                                 BinaryGetOpts.Option.Type.INT),
                         new BinaryGetOpts.Option("uri", new String[]{"-u", "--uri"},
+                                BinaryGetOpts.Option.Type.NONE)
+                });
+        private static final BinaryGetOpts.Options URI_OPTS =
+                new BinaryGetOpts.Options(new BinaryGetOpts.Option[]{
+                        new BinaryGetOpts.Option("close", new String[]{"-c", "--close-stream"},
+                                BinaryGetOpts.Option.Type.NONE),
+                        new BinaryGetOpts.Option("list", new String[]{"-l", "--list-streams"},
+                                BinaryGetOpts.Option.Type.NONE),
+                        new BinaryGetOpts.Option("mime", new String[]{"-m", "--mime"},
+                                BinaryGetOpts.Option.Type.STRING),
+                        new BinaryGetOpts.Option("name", new String[]{"-n", "--name"},
+                                BinaryGetOpts.Option.Type.STRING),
+                        new BinaryGetOpts.Option("size", new String[]{"-s", "--size"},
+                                BinaryGetOpts.Option.Type.INT),
+                        new BinaryGetOpts.Option("wait", new String[]{"-w", "--wait"},
                                 BinaryGetOpts.Option.Type.NONE)
                 });
 
@@ -636,34 +642,40 @@ public final class TermSh {
             }
         }
 
-        private void printHelp(@NonNull final OutputStream output) throws IOException {
+        private void printHelp(@NonNull final String value, @NonNull final OutputStream output)
+                throws IOException {
             if (output instanceof PtyProcess.PfdFileOutputStream) {
-                printHelp(output, ((PtyProcess.PfdFileOutputStream) output).pfd.getFd());
+                printHelp(value, output, ((PtyProcess.PfdFileOutputStream) output).pfd.getFd());
                 return;
             }
             throw new IllegalArgumentException("Unsupported stream type");
         }
 
-        private void printHelp(@NonNull final OutputStream output,
+        private void printHelp(@NonNull final String value, @NonNull final OutputStream output,
                                @NonNull final ShellCmdIO shellCmd) throws IOException {
             // Any of the standard pipes can be redirected; using controlling terminal by itself
             final ParcelFileDescriptor pfd = shellCmd.open("/dev/tty", PtyProcess.O_RDWR);
             try {
-                printHelp(output, pfd.getFd());
+                printHelp(value, output, pfd.getFd());
             } finally {
                 pfd.close();
             }
         }
 
-        private void printHelp(@NonNull final OutputStream output,
+        private void printHelp(@NonNull final String value, @NonNull final OutputStream output,
                                final int ctfd) throws IOException {
-            final XmlToAnsi hp = new XmlToAnsi(ui.ctx.getString(R.string.desc_termsh_help));
             final int[] size = new int[4];
             PtyProcess.getSize(ctfd, size);
-            hp.width = MathUtils.clamp(size[0], 20, 140);
-            hp.indentStep = hp.width / 20;
-            for (final String s : hp)
-                output.write(Misc.toUTF8(s));
+            try {
+                final XmlToAnsi hp = new XmlToAnsi(value);
+                hp.width = MathUtils.clamp(size[0], 20, 140);
+                hp.indentStep = hp.width / 20;
+                for (final String s : hp)
+                    output.write(Misc.toUTF8(s));
+            } catch (final Throwable e) {
+                throw new IOException(ui.ctx.getString(
+                        R.string.msg_xml_parse_error_s, e.getLocalizedMessage()));
+            }
         }
 
         private interface RunnableT {
@@ -724,7 +736,8 @@ public final class TermSh {
                     final String command = Misc.fromUTF8(shellCmd.args[0]);
                     switch (command) {
                         case "help":
-                            printHelp(shellCmd.stdOut, shellCmd);
+                            printHelp(ui.ctx.getString(R.string.desc_termsh_help),
+                                    shellCmd.stdOut, shellCmd);
                             break;
                         case "notify": {
                             final BinaryGetOpts.Parser ap = new BinaryGetOpts.Parser(shellCmd.args);
@@ -1307,29 +1320,53 @@ public final class TermSh {
                         }
                         case "plugin": {
                             shellCmd.checkPerms(LocalModule.SessionData.PERM_PLUGINEXEC);
-                            if (shellCmd.args.length < 2)
+                            final BinaryGetOpts.Parser ap = new BinaryGetOpts.Parser(shellCmd.args);
+                            ap.skip();
+                            final Map<String, ?> opts = ap.parse(PLUGIN_OPTS);
+                            if (shellCmd.args.length - ap.position < 1)
                                 throw new ParseException("Wrong number of arguments");
-                            final String pkgName = Misc.fromUTF8(shellCmd.args[1]);
-                            final ComponentName cm = Plugin.getComponent(ui.ctx, pkgName);
-                            if (cm == null)
+                            final String pkgName = Misc.fromUTF8(shellCmd.args[ap.position]);
+                            final ComponentName cn = Plugin.getComponent(ui.ctx, pkgName);
+                            if (cn == null)
                                 throw new IOException(ui.ctx.getString(R.string.msg_s_is_not_a_plugin, pkgName));
                             if (!PluginsManager.verify(pkgName))
-                                throw new IOException(ui.ctx.getString(R.string.msg_s_is_not_permitted_to_run, pkgName));
-                            final Plugin plugin = Plugin.bind(ui.ctx, cm);
-                            try {
-                                shellCmd.setOnTerminate(new Runnable() {
-                                    @Override
-                                    public void run() {
-                                        plugin.signal(Protocol.SIG_FINALIZE);
+                                throw new IOException(ui.ctx.getString(
+                                        R.string.msg_s_is_not_permitted_to_run, pkgName));
+                            final Plugin plugin = Plugin.bind(ui.ctx, cn);
+                            if (opts.containsKey("help")) {
+                                try {
+                                    final StringContent content = plugin.getMetaStringContent(
+                                            Protocol.META_KEY_INFO_RES_ID,
+                                            Protocol.META_KEY_INFO_RES_TYPE
+                                    );
+                                    if (content == null) {
+                                        printHelp(ui.ctx.getString(R.string.msg_no_info_page),
+                                                shellCmd.stdOut, shellCmd);
+                                    } else if (content.type == Protocol.STRING_CONTENT_TYPE_XML_AT) {
+                                        printHelp(content.text, shellCmd.stdOut, shellCmd);
+                                    } else {
+                                        shellCmd.stdOut.write(Misc.toUTF8(content.text + "\n"));
                                     }
-                                });
-                                exitStatus = plugin.exec(
-                                        Arrays.copyOfRange(shellCmd.args, 2, shellCmd.args.length),
-                                        shellCmd.getFds()
-                                );
-                            } finally {
-                                shellCmd.setOnTerminate(null);
-                                plugin.unbind();
+                                } finally {
+                                    plugin.unbind();
+                                }
+                            } else {
+                                try {
+                                    shellCmd.setOnTerminate(new Runnable() {
+                                        @Override
+                                        public void run() {
+                                            plugin.signal(Protocol.SIG_FINALIZE);
+                                        }
+                                    });
+                                    exitStatus = plugin.exec(
+                                            Arrays.copyOfRange(shellCmd.args,
+                                                    ap.position + 1, shellCmd.args.length),
+                                            shellCmd.getFds()
+                                    );
+                                } finally {
+                                    shellCmd.setOnTerminate(null);
+                                    plugin.unbind();
+                                }
                             }
                             break;
                         }
@@ -1342,7 +1379,8 @@ public final class TermSh {
                         BinaryGetOpts.ParseException | ActivityNotFoundException e) {
                     try {
                         if (e instanceof ArgsException) {
-                            printHelp(shellCmd.stdErr, shellCmd);
+                            printHelp(ui.ctx.getString(R.string.desc_termsh_help),
+                                    shellCmd.stdErr, shellCmd);
                         }
                         shellCmd.stdErr.write(Misc.toUTF8(e.getMessage() + "\n"));
                         shellCmd.exit(1);

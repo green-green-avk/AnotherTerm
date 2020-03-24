@@ -168,4 +168,11 @@
     <string name="msg_stalled_transactions_detected">Stalled transactions detected, plugin seems broken</string>
     <string name="msg_s_is_not_a_plugin">`%s\' is not a plugin</string>
     <string name="msg_s_is_not_permitted_to_run">`%s\' is not permitted to run. Please, review plugins settings.</string>
+    <string name="msg_html_parse_error_s">HTML parsing error: %s</string>
+    <string name="msg_xml_parse_error_s">XML parsing error: %s</string>
+    <string name="msg_no_info_page"><![CDATA[<h1>No info page provided</h1>]]></string>
+    <string name="msg_error_getting_info_page_s"><![CDATA[
+        <h1>Error getting info page</h1>
+        <p><code>%s</code></p>
+    ]]></string>
 </resources>

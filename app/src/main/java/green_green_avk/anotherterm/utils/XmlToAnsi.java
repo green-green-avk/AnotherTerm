@@ -71,7 +71,7 @@ public final class XmlToAnsi implements Iterable<String> {
                 parser = parserFactory.newPullParser();
                 parser.setInput(new StringReader(input));
             } catch (final XmlPullParserException e) {
-                throw new Error(e);
+                throw new RuntimeException(e);
             }
         }
 
@@ -289,9 +289,9 @@ public final class XmlToAnsi implements Iterable<String> {
                     }
                 }
             } catch (final IOException e) {
-                throw new Error(e);
+                throw new RuntimeException(e);
             } catch (final XmlPullParserException e) {
-                throw new Error(e);
+                throw new RuntimeException(e);
             }
         }
 
