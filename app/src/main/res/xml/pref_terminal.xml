@@ -6,6 +6,10 @@
         android:icon="@drawable/ic_font_black_48dp"
         android:title="@string/label_font">
 
+        <CheckBoxPreference
+            android:defaultValue="@bool/terminal_font_default_fromfiles"
+            android:key="terminal_font_default_fromfiles"
+            android:title="@string/action_use_custom_font" />
         <com.pavelsikun.seekbarpreference.SeekBarPreferenceCompat
             android:defaultValue="@integer/terminal_font_default_size_sp"
             android:key="terminal_font_default_size_sp"

@@ -40,6 +40,7 @@ import green_green_avk.anotherterm.ConsoleInput;
 import green_green_avk.anotherterm.ConsoleOutput;
 import green_green_avk.anotherterm.ConsoleScreenBuffer;
 import green_green_avk.anotherterm.ConsoleScreenCharAttrs;
+import green_green_avk.anotherterm.FontsManager;
 import green_green_avk.anotherterm.R;
 import green_green_avk.anotherterm.utils.CharsAutoSelector;
 import green_green_avk.anotherterm.utils.WeakHandler;
@@ -631,7 +632,8 @@ public class ConsoleScreenView extends ScrollableView
     }
 
     public void applyCharAttrs() {
-        fgPaint.setTypeface(typefaces[(charAttrs.bold ? 1 : 0) | (charAttrs.italic ? 2 : 0)]);
+        FontsManager.setPaint(fgPaint, typefaces,
+                (charAttrs.bold ? Typeface.BOLD : 0) | (charAttrs.italic ? Typeface.ITALIC : 0));
         fgPaint.setColor(charAttrs.fgColor);
         fgPaint.setUnderlineText(charAttrs.underline);
         fgPaint.setStrikeThruText(charAttrs.crossed);

@@ -4,6 +4,7 @@
 
 #include <jni.h>
 #include <sys/types.h>
+#include <sys/stat.h>
 #include <signal.h>
 #include "pty_compat.h"
 #include <unistd.h>
@@ -146,7 +147,7 @@ m_execve(JNIEnv *const env, const jobject jthis,
     if (envp == nullptr) execv(filename, args);
     else execve(filename, args, envp);
     __android_log_print(ANDROID_LOG_ERROR, CLASS_NAME,
-                        "[errno: %d] %s [%s]", errno, strError("Exec failed"), filename);
+            "[errno: %d] %s [%s]", errno, strError("Exec failed"), filename);
     _exit(127);
 }
 
@@ -316,20 +317,31 @@ static jlong JNICALL m_getArgMax(JNIEnv *const env, const jobject jthis) {
     return sysconf(_SC_ARG_MAX);
 }
 
+static jboolean JNICALL m_isSymlink(JNIEnv *const env, const jobject jthis, const jstring path) {
+    struct stat st;
+    const char *const _path = env->GetStringUTFChars(path, nullptr);
+    const jboolean r = (jboolean) ((lstat(_path, &st) == 0 &&
+                                    (st.st_mode & S_IFMT) == S_IFLNK) ? JNI_TRUE
+                                                                      : JNI_FALSE);
+    env->ReleaseStringUTFChars(path, _path);
+    return r;
+}
+
 static const JNINativeMethod methodTable[] = {
         {"execve",                 "(Ljava/lang/String;[Ljava/lang/String;[Ljava/lang/String;)L" CLASS_NAME ";",
-                                              (void *) m_execve},
-        {"destroy",                "()V",     (void *) m_destroy},
-        {"sendSignalToForeground", "(I)V",    (void *) m_sendSignalToForeground},
-        {"resize",                 "(IIII)V", (void *) m_resize},
-        {"readByte",               "()I",     (void *) m_readByte},
-        {"readBuf",                "([BII)I", (void *) m_readBuf},
-        {"writeByte",              "(I)V",    (void *) m_writeByte},
-        {"writeBuf",               "([BII)V", (void *) m_writeBuf},
-        {"pollForRead",            "(II)Z",   (void *) m_pollForRead},
-        {"isatty",                 "(I)Z",    (void *) m_isatty},
-        {"getSize",                "(I[I)V",  (void *) m_getSize},
-        {"getArgMax",              "()J",     (void *) m_getArgMax}
+        (void *) m_execve},
+        {"destroy",                "()V",                   (void *) m_destroy},
+        {"sendSignalToForeground", "(I)V",                  (void *) m_sendSignalToForeground},
+        {"resize",                 "(IIII)V",               (void *) m_resize},
+        {"readByte",               "()I",                   (void *) m_readByte},
+        {"readBuf",                "([BII)I",               (void *) m_readBuf},
+        {"writeByte",              "(I)V",                  (void *) m_writeByte},
+        {"writeBuf",               "([BII)V",               (void *) m_writeBuf},
+        {"pollForRead",            "(II)Z",                 (void *) m_pollForRead},
+        {"isatty",                 "(I)Z",                  (void *) m_isatty},
+        {"getSize",                "(I[I)V",                (void *) m_getSize},
+        {"getArgMax",              "()J",                   (void *) m_getArgMax},
+        {"isSymlink",              "(Ljava/lang/String;)Z", (void *) m_isSymlink}
 };
 
 extern "C"

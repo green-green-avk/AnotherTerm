@@ -177,4 +177,10 @@
         <h1>Error getting info page</h1>
         <p><code>%s</code></p>
     ]]></string>
+    <string name="action_custom_font">Custom Font</string>
+    <string name="action_use">Use</string>
+    <string name="action_use_custom_font">Use custom font</string>
+    <string name="sample_text">The quick brown fox…</string>
+    <string name="action_pick_font">Pick font</string>
+    <string name="action_remove_font">Remove font</string>
 </resources>

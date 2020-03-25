@@ -437,6 +437,9 @@ public final class PtyProcess extends Process {
     @Keep
     public static native long getArgMax();
 
+    @Keep
+    public static native boolean isSymlink(@NonNull String path);
+
     /*
      * It seems, android.system.Os class is trying to be linked by Dalvik even when inside
      * appropriate if statement and raises java.lang.VerifyError on the constructor call...

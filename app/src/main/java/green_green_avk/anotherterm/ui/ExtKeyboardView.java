@@ -49,6 +49,7 @@ import androidx.core.util.Pools;
 import java.util.HashSet;
 import java.util.Set;
 
+import green_green_avk.anotherterm.FontsManager;
 import green_green_avk.anotherterm.R;
 import green_green_avk.anotherterm.utils.WeakHandler;
 
@@ -648,10 +649,10 @@ public abstract class ExtKeyboardView extends View /*implements View.OnClickList
         if (keyFcn.label != null) {
             if (keyFcn.label.length() < 2) {
                 paint.setTextSize(mKeyTextSize);
-                paint.setTypeface(typefaces[1]);
+                FontsManager.setPaint(paint, typefaces, Typeface.BOLD);
             } else {
                 paint.setTextSize(mLabelTextSize);
-                paint.setTypeface(typefaces[0]);
+                FontsManager.setPaint(paint, typefaces, Typeface.NORMAL);
             }
 
             final float labelX = (float) (key.width - padding.left - padding.right) / 2
@@ -727,7 +728,7 @@ public abstract class ExtKeyboardView extends View /*implements View.OnClickList
                 mPaint.setAlpha(255);
                 mPaint.setStyle(Paint.Style.STROKE);
                 mPaint.setTextSize(mPopupKeySize * 0.8f);
-                mPaint.setTypeface(typefaces[1]);
+                FontsManager.setPaint(mPaint, typefaces, Typeface.BOLD);
                 mFontHeight = mPaint.getFontSpacing();
             }
 

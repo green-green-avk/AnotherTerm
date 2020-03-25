@@ -23,13 +23,22 @@ public abstract class Settings {
         @AnyRes int defRes() default 0;
     }
 
-    protected SharedPreferences.OnSharedPreferenceChangeListener onChange =
+    protected void onBeforeChange(@NonNull final String key, @Nullable final Object value) {
+    }
+
+    protected void onAfterChange(@NonNull final String key, @Nullable final Object value) {
+    }
+
+    private SharedPreferences.OnSharedPreferenceChangeListener onChange =
             new SharedPreferences.OnSharedPreferenceChangeListener() {
                 @Override
                 public void onSharedPreferenceChanged(final SharedPreferences sharedPreferences,
                                                       final String key) {
                     try {
-                        set(key, sharedPreferences, get(key));
+                        final Object value = get(key);
+                        onBeforeChange(key, value);
+                        set(key, sharedPreferences, value);
+                        onAfterChange(key, value);
                     } catch (final NoSuchElementException ignored) {
                     } catch (final IllegalArgumentException ignored) {
                     }

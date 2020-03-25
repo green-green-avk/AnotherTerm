@@ -6,6 +6,10 @@
         android:icon="@drawable/ic_computer_black_24dp"
         android:title="@string/action_settings_terminal" />
     <header
+        android:fragment="green_green_avk.anotherterm.CustomFontsFragment"
+        android:icon="@drawable/ic_font_black_48dp"
+        android:title="@string/action_custom_font" />
+    <header
         android:fragment="green_green_avk.anotherterm.PluginsManagerFragment"
         android:icon="@drawable/ic_check_black_24dp"
         android:title="@string/action_settings_plugins" />
