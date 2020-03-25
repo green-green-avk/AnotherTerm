@@ -157,6 +157,8 @@
     <string name="label_kbd_autorepeat_allowed">Allowed</string>
     <string name="label_kbd_autorepeat_always_disabled">Always disabled</string>
     <string name="action_info">Info</string>
+    <string name="action_app_info">Application Info</string>
+    <string name="action_info_page">Info Page</string>
     <string name="action_settings_plugins">Plugins</string>
     <string name="label_enabled">Enabled</string>
     <string name="label_application_icon">Application Icon</string>

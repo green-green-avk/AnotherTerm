@@ -21,7 +21,7 @@
             android:layout_height="@android:dimen/app_icon_size"
             android:contentDescription="@string/label_application_icon"
             android:scaleType="fitCenter"
-            app:srcCompat="@drawable/ic_help" />
+            app:srcCompat="@android:drawable/ic_menu_gallery" />
 
         <Space
             android:layout_width="@dimen/text_separator"
@@ -81,16 +81,20 @@
             android:layout_width="@android:dimen/app_icon_size"
             android:layout_height="@android:dimen/app_icon_size"
             android:background="@drawable/bg_grid_btn"
-            android:contentDescription="@string/action_info"
+            android:contentDescription="@string/action_app_info"
             android:scaleType="fitCenter"
             app:srcCompat="@drawable/ic_info" />
+
+        <Space
+            android:layout_width="@dimen/text_separator"
+            android:layout_height="wrap_content" />
 
         <ImageButton
             android:id="@+id/info"
             android:layout_width="@android:dimen/app_icon_size"
             android:layout_height="@android:dimen/app_icon_size"
             android:background="@drawable/bg_grid_btn"
-            android:contentDescription="@string/action_info"
+            android:contentDescription="@string/action_info_page"
             android:scaleType="fitCenter"
             app:srcCompat="@drawable/ic_help" />
 

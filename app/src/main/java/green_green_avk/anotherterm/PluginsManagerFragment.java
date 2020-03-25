@@ -27,6 +27,7 @@ import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import java.lang.ref.WeakReference;
 import java.util.List;
 
 import green_green_avk.anothertermshellpluginutils.Plugin;
@@ -51,7 +52,7 @@ public final class PluginsManagerFragment extends Fragment {
             }
         };
 
-        private PluginsAdapter(@NonNull final Context ctx) {
+        {
             PluginsManager.registerOnChanged(onChanged);
             plugins = PluginsManager.getPlugins();
         }
@@ -108,7 +109,7 @@ public final class PluginsManagerFragment extends Fragment {
                 public void onClick(final View v) {
                     final ComponentName cn = Plugin.getComponent(v.getContext(), pkg.packageName);
                     if (cn == null) return;
-                    new InfoPageTask(v.getContext().getApplicationContext()).execute(cn);
+                    new InfoPageTask(v.getContext()).execute(cn);
                 }
             });
             wAppInfo.setOnClickListener(new View.OnClickListener() {
@@ -133,10 +134,13 @@ public final class PluginsManagerFragment extends Fragment {
 
             @SuppressLint("StaticFieldLeak")
             @NonNull
-            private final Context ctx;
+            private final Context appCtx;
+            @NonNull
+            private final WeakReference<Context> actCtx;
 
             private InfoPageTask(@NonNull final Context ctx) {
-                this.ctx = ctx;
+                this.appCtx = ctx.getApplicationContext();
+                this.actCtx = new WeakReference<>(ctx);
             }
 
             @Override
@@ -145,7 +149,7 @@ public final class PluginsManagerFragment extends Fragment {
                 final int resId;
                 final int type;
                 try {
-                    final Plugin plugin = Plugin.bind(ctx, cn);
+                    final Plugin plugin = Plugin.bind(appCtx, cn);
                     try {
                         final Bundle b = plugin.getMeta().data;
                         resId = b.getInt(Protocol.META_KEY_INFO_RES_ID, 0);
@@ -168,7 +172,9 @@ public final class PluginsManagerFragment extends Fragment {
 
             @Override
             protected void onPostExecute(final Uri uri) {
-                ctx.startActivity(new Intent(ctx, InfoActivity.class).setData(uri));
+                final Context ctx = actCtx.get();
+                if (ctx != null)
+                    ctx.startActivity(new Intent(ctx, InfoActivity.class).setData(uri));
             }
         }
 
@@ -178,13 +184,10 @@ public final class PluginsManagerFragment extends Fragment {
         }
 
         private static final class ViewHolder extends RecyclerView.ViewHolder {
-            public ViewHolder(@NonNull final View itemView) {
+            private ViewHolder(@NonNull final View itemView) {
                 super(itemView);
             }
         }
-    }
-
-    public PluginsManagerFragment() {
     }
 
     @Override
@@ -193,7 +196,7 @@ public final class PluginsManagerFragment extends Fragment {
         final View v = inflater.inflate(R.layout.fragment_plugins_manager, container, false);
         final RecyclerView l = v.findViewById(R.id.plugins);
         l.setLayoutManager(new LinearLayoutManager(container.getContext()));
-        l.setAdapter(new PluginsAdapter(container.getContext()));
+        l.setAdapter(new PluginsAdapter());
         return v;
     }
 }
