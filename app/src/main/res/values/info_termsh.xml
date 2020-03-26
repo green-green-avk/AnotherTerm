@@ -68,7 +68,7 @@ and free related resources.</li>
 </dd><br/>
 
 <dt><p><code>
-[view|edit] [&lt;options...&gt;] [--] &lt;file|URI&gt;
+view|edit [&lt;options...&gt;] [--] &lt;file|URI&gt;
 </code></p></dt>
 <dd>
 Open for view / edit with appropriate temporary access rights.
@@ -245,7 +245,7 @@ this command is called. Exit code <code>1</code> will be returned otherwise.</em
 plugin [--] &lt;package_name&gt; [&lt;args&gt;...]<br/>
 plugin -h|--help [--] &lt;package_name&gt;
 </code></p></dt>
-<dd>Execute a plugin specified by <code>&lt;package_name&gt;</code>.
+<dd>Execute a plugin specified by <code>&lt;package_name&gt;</code> or show its info page.
 <p><em>`Plugins execution\' permission must be granted in a favorite starting the shell from which
 this command is called. Exit code <code>1</code> will be returned otherwise.</em></p></dd><br/>
 
