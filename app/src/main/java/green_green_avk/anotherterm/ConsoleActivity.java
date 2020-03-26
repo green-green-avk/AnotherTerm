@@ -38,6 +38,7 @@ import green_green_avk.anotherterm.backends.BackendUiInteractionActivityCtx;
 import green_green_avk.anotherterm.backends.BackendsList;
 import green_green_avk.anotherterm.ui.ConsoleKeyboardView;
 import green_green_avk.anotherterm.ui.ConsoleScreenView;
+import green_green_avk.anotherterm.ui.FontProvider;
 import green_green_avk.anotherterm.ui.MouseButtonsWorkAround;
 import green_green_avk.anotherterm.ui.ScreenMouseView;
 import green_green_avk.anotherterm.ui.UiUtils;
@@ -156,8 +157,9 @@ public final class ConsoleActivity extends AppCompatActivity implements ConsoleI
         mBell = findViewById(R.id.bell);
         mBellAnim = AnimationUtils.loadAnimation(this, R.anim.blink_ring);
 
-        mCsv.setFont(FontsManager.consoleTypefaces);
-        mCkv.setFont(FontsManager.consoleTypefaces); // Old Android devices have no glyphs for some special symbols
+        final FontProvider fp = new ConsoleFontProvider();
+        mCsv.setFont(fp);
+        mCkv.setFont(fp); // Old Android devices have no glyphs for some special symbols
 
         mCsv.setFontSize(((App) getApplication()).settings.terminal_font_default_size_sp
                 * getResources().getDisplayMetrics().scaledDensity);

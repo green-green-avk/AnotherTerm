@@ -179,9 +179,9 @@
     ]]></string>
     <string name="action_custom_font">Custom Font</string>
     <string name="action_use">Use</string>
-    <string name="action_use_custom_font">Use custom font</string>
     <string name="sample_text">The quick brown fox…</string>
     <string name="action_pick_font">Pick font</string>
     <string name="action_remove_font">Remove font</string>
     <string name="msg_not_a_valid_font">Not a valid font</string>
+    <string name="label_path_location_">Location:</string>
 </resources>

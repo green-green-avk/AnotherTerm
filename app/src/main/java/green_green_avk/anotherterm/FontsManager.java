@@ -32,7 +32,7 @@ public final class FontsManager {
     private static final String BOLD_ITALIC_FONT_NAME = "bold-italic";
 
     public static final String LOCATION_DESC = "$DATA_DIR/" + CONSOLE_FONT_DIRNAME + "/{" +
-            StringUtils.joinWith(", ",
+            StringUtils.joinWith(",",
                     REGULAR_FONT_NAME, BOLD_FONT_NAME, ITALIC_FONT_NAME, BOLD_ITALIC_FONT_NAME
             ) + "}";
 
@@ -227,7 +227,6 @@ public final class FontsManager {
         paint.setFakeBoldText(false);
         paint.setTextSkewX(0);
         Typeface tf = tfs[style];
-        if (tf == null) tf = FontsManager.consoleTypefaces[style];
         if (tf == null) tf = FontsManager.defaultConsoleTypefaces[style];
         if (tf == null) tf = FontsManager.defaultTypefaces[style];
         switch (style) {

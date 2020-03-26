@@ -10,6 +10,7 @@
         android:layout_width="0dp"
         android:layout_height="match_parent"
         android:layout_weight="1"
+        android:gravity="center_vertical"
         android:text="@string/sample_text"
         app:autoSizeTextType="uniform" />
 
@@ -20,7 +21,8 @@
         android:adjustViewBounds="true"
         android:background="@drawable/bg_grid_btn"
         android:contentDescription="@string/action_pick_font"
-        app:srcCompat="@android:drawable/ic_menu_more" />
+        android:tint="@color/colorPrimary"
+        app:srcCompat="@drawable/ic_download" />
 
     <ImageButton
         android:id="@+id/unset"
@@ -29,6 +31,7 @@
         android:adjustViewBounds="true"
         android:background="@drawable/bg_grid_btn"
         android:contentDescription="@string/action_remove_font"
-        app:srcCompat="@android:drawable/ic_menu_delete" />
+        android:tint="@color/colorPrimary"
+        app:srcCompat="@drawable/ic_delete" />
 
 </LinearLayout>

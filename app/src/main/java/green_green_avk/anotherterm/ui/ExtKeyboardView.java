@@ -49,7 +49,6 @@ import androidx.core.util.Pools;
 import java.util.HashSet;
 import java.util.Set;
 
-import green_green_avk.anotherterm.FontsManager;
 import green_green_avk.anotherterm.R;
 import green_green_avk.anotherterm.utils.WeakHandler;
 
@@ -69,12 +68,7 @@ public abstract class ExtKeyboardView extends View /*implements View.OnClickList
     protected boolean mHidden = false;
     protected ExtKeyboard mKeyboard = null;
 
-    protected Typeface[] typefaces = {
-            Typeface.create(Typeface.MONOSPACE, Typeface.NORMAL),
-            Typeface.create(Typeface.MONOSPACE, Typeface.BOLD),
-            Typeface.create(Typeface.MONOSPACE, Typeface.ITALIC),
-            Typeface.create(Typeface.MONOSPACE, Typeface.BOLD_ITALIC)
-    };
+    protected FontProvider fontProvider = new DefaultConsoleFontProvider();
 
     protected final Paint mPaint = new Paint();
     protected final Rect mKeyPadding = new Rect(0, 0, 0, 0);
@@ -222,8 +216,8 @@ public abstract class ExtKeyboardView extends View /*implements View.OnClickList
         super.onDetachedFromWindow();
     }
 
-    public void setFont(@NonNull final Typeface[] tfs) {
-        typefaces = tfs;
+    public void setFont(@NonNull final FontProvider fp) {
+        fontProvider = fp;
         invalidateAllKeys();
     }
 
@@ -649,10 +643,10 @@ public abstract class ExtKeyboardView extends View /*implements View.OnClickList
         if (keyFcn.label != null) {
             if (keyFcn.label.length() < 2) {
                 paint.setTextSize(mKeyTextSize);
-                FontsManager.setPaint(paint, typefaces, Typeface.BOLD);
+                fontProvider.setPaint(paint, Typeface.BOLD);
             } else {
                 paint.setTextSize(mLabelTextSize);
-                FontsManager.setPaint(paint, typefaces, Typeface.NORMAL);
+                fontProvider.setPaint(paint, Typeface.NORMAL);
             }
 
             final float labelX = (float) (key.width - padding.left - padding.right) / 2
@@ -728,7 +722,7 @@ public abstract class ExtKeyboardView extends View /*implements View.OnClickList
                 mPaint.setAlpha(255);
                 mPaint.setStyle(Paint.Style.STROKE);
                 mPaint.setTextSize(mPopupKeySize * 0.8f);
-                FontsManager.setPaint(mPaint, typefaces, Typeface.BOLD);
+                fontProvider.setPaint(mPaint, Typeface.BOLD);
                 mFontHeight = mPaint.getFontSpacing();
             }
 

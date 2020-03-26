@@ -40,7 +40,6 @@ import green_green_avk.anotherterm.ConsoleInput;
 import green_green_avk.anotherterm.ConsoleOutput;
 import green_green_avk.anotherterm.ConsoleScreenBuffer;
 import green_green_avk.anotherterm.ConsoleScreenCharAttrs;
-import green_green_avk.anotherterm.FontsManager;
 import green_green_avk.anotherterm.R;
 import green_green_avk.anotherterm.utils.CharsAutoSelector;
 import green_green_avk.anotherterm.utils.WeakHandler;
@@ -84,12 +83,7 @@ public class ConsoleScreenView extends ScrollableView
     protected Drawable selectionMarkerOOB = null;
     protected Drawable attrMarkupBlinking = null;
     protected Drawable paddingMarkup = null;
-    protected Typeface[] typefaces = {
-            Typeface.create(Typeface.MONOSPACE, Typeface.NORMAL),
-            Typeface.create(Typeface.MONOSPACE, Typeface.BOLD),
-            Typeface.create(Typeface.MONOSPACE, Typeface.ITALIC),
-            Typeface.create(Typeface.MONOSPACE, Typeface.BOLD_ITALIC)
-    };
+    protected FontProvider fontProvider = new DefaultConsoleFontProvider();
     protected float mFontSize = 16;
     protected float mFontWidth;
     protected float mFontHeight;
@@ -395,7 +389,7 @@ public class ConsoleScreenView extends ScrollableView
 
     protected void applyFont() {
         final Paint p = new Paint();
-        p.setTypeface(typefaces[0]);
+        fontProvider.setPaint(p, Typeface.NORMAL);
         p.setTextSize(mFontSize);
         mFontHeight = p.getFontSpacing();
         mFontWidth = p.measureText("A");
@@ -403,12 +397,12 @@ public class ConsoleScreenView extends ScrollableView
         setScrollScale(mFontWidth, mFontHeight);
     }
 
-    protected void _setFont(@NonNull final Typeface[] tfs) {
-        typefaces = tfs;
+    protected void _setFont(@NonNull final FontProvider fp) {
+        fontProvider = fp;
     }
 
-    public void setFont(@NonNull final Typeface[] tfs) {
-        _setFont(tfs);
+    public void setFont(@NonNull final FontProvider fp) {
+        _setFont(fp);
         applyFont();
         resizeBuffer();
         ViewCompat.postInvalidateOnAnimation(this);
@@ -632,8 +626,8 @@ public class ConsoleScreenView extends ScrollableView
     }
 
     public void applyCharAttrs() {
-        FontsManager.setPaint(fgPaint, typefaces,
-                (charAttrs.bold ? Typeface.BOLD : 0) | (charAttrs.italic ? Typeface.ITALIC : 0));
+        fontProvider.setPaint(fgPaint, (charAttrs.bold ? Typeface.BOLD : 0) |
+                (charAttrs.italic ? Typeface.ITALIC : 0));
         fgPaint.setColor(charAttrs.fgColor);
         fgPaint.setUnderlineText(charAttrs.underline);
         fgPaint.setStrikeThruText(charAttrs.crossed);

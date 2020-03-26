@@ -7,12 +7,30 @@
     android:padding="@dimen/text_padding"
     tools:context=".CustomFontsFragment">
 
-    <TextView
-        android:id="@+id/location"
+    <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:textIsSelectable="true"
-        tools:text="$DATA_DIR/console-font/" />
+        android:orientation="horizontal">
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/label_path_location_" />
+
+        <Space
+            android:layout_width="@dimen/text_separator"
+            android:layout_height="wrap_content" />
+
+        <TextView
+            android:id="@+id/location"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:textColor="@color/colorPrimaryDark"
+            android:textIsSelectable="true"
+            tools:text="$DATA_DIR/..." />
+
+    </LinearLayout>
 
     <CheckBox
         android:id="@+id/use"

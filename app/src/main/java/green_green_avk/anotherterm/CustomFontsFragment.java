@@ -160,7 +160,8 @@ public final class CustomFontsFragment extends Fragment {
         wFont.setAdapter(new Adapter());
         final SharedPreferences appSP = PreferenceManager.getDefaultSharedPreferences(
                 container.getContext().getApplicationContext());
-        wUse.setChecked(appSP.getBoolean("terminal_font_default_fromfiles", false));
+        wUse.setChecked(((App) getActivity().getApplication()).settings
+                .terminal_font_default_fromfiles);
         wUse.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             @Override
             public void onCheckedChanged(final CompoundButton buttonView, final boolean isChecked) {
