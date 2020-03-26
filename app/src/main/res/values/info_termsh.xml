@@ -233,7 +233,7 @@ has-favorite &lt;name&gt;
 this command is called. Exit code <code>1</code> will be returned otherwise.</em></p></dd><br/>
 
 <dt><p><code>
-create-shell-favorite &lt;name&gt; &lt;execute&gt;
+create-shell-favorite [-t|--term &lt;terminal_string&gt;] [--] &lt;name&gt; &lt;execute&gt;
 </code></p></dt>
 <dd>Create a shell favorite named <code>&lt;name&gt;</code>
 executing <code>&lt;execute&gt;</code> script string.

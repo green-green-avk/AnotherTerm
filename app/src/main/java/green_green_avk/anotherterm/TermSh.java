@@ -161,6 +161,11 @@ public final class TermSh {
                         new BinaryGetOpts.Option("to-uri", new String[]{"-tu", "--to-uri"},
                                 BinaryGetOpts.Option.Type.STRING)
                 });
+        private static final BinaryGetOpts.Options FAV_OPTS =
+                new BinaryGetOpts.Options(new BinaryGetOpts.Option[]{
+                        new BinaryGetOpts.Option("term", new String[]{"-t", "--term"},
+                                BinaryGetOpts.Option.Type.STRING)
+                });
         private static final BinaryGetOpts.Options NOTIFY_OPTS =
                 new BinaryGetOpts.Options(new BinaryGetOpts.Option[]{
                         new BinaryGetOpts.Option("id", new String[]{"-i", "--id"},
@@ -1297,10 +1302,13 @@ public final class TermSh {
                         }
                         case "create-shell-favorite": {
                             shellCmd.checkPerms(LocalModule.SessionData.PERM_FAVMGMT);
-                            if (shellCmd.args.length != 3)
+                            final BinaryGetOpts.Parser ap = new BinaryGetOpts.Parser(shellCmd.args);
+                            ap.skip();
+                            final Map<String, ?> opts = ap.parse(FAV_OPTS);
+                            if (shellCmd.args.length - ap.position != 2)
                                 throw new ParseException("Wrong number of arguments");
-                            final String name = Misc.fromUTF8(shellCmd.args[1]);
-                            final String execute = Misc.fromUTF8(shellCmd.args[2]);
+                            final String name = Misc.fromUTF8(shellCmd.args[ap.position]);
+                            final String execute = Misc.fromUTF8(shellCmd.args[ap.position + 1]);
                             runOnUiThread(shellCmd, new RunnableT() {
                                 @Override
                                 public void run() throws IOException {
@@ -1313,6 +1321,8 @@ public final class TermSh {
                                     final PreferenceStorage ps = new PreferenceStorage();
                                     ps.put("type", BackendsList.get(LocalModule.class).typeStr);
                                     ps.put("execute", execute);
+                                    if (opts.containsKey("term"))
+                                        ps.put("terminal_string", opts.get("term"));
                                     FavoritesManager.set(name, ps);
                                 }
                             });
