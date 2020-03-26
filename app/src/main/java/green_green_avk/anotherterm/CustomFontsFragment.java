@@ -58,10 +58,20 @@ public final class CustomFontsFragment extends Fragment {
             final TextView wSample = holder.itemView.findViewById(R.id.sample);
             final View wSet = holder.itemView.findViewById(R.id.set);
             final View wUnset = holder.itemView.findViewById(R.id.unset);
-            FontsManager.setPaint(wSample.getPaint(), typefaces, position);
-            wSet.setEnabled(typefaces[0] != null || position == 0);
-            wSet.setVisibility(typefaces[0] != null || position == 0 ?
-                    View.VISIBLE : View.INVISIBLE);
+            final boolean canBeSet = typefaces[0] != null || position == 0;
+            final boolean canBeRemoved = FontsManager.getConsoleFontFiles()[position].exists();
+            final boolean isCorrect = FontsManager.isExists(typefaces, position) || !canBeRemoved;
+            if (isCorrect) {
+                FontsManager.setPaint(wSample.getPaint(), typefaces, position);
+                wSample.setTextColor(holder.itemView.getResources().getColor(R.color.colorPrimaryDark));
+                wSample.setText(R.string.sample_text);
+            } else {
+                wSample.setTypeface(null, position);
+                wSample.setTextColor(holder.itemView.getResources().getColor(R.color.colorHintWarning));
+                wSample.setText(R.string.msg_not_a_valid_font);
+            }
+            wSet.setEnabled(canBeSet);
+            wSet.setVisibility(canBeSet ? View.VISIBLE : View.INVISIBLE);
             wSet.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(final View v) {
@@ -114,9 +124,8 @@ public final class CustomFontsFragment extends Fragment {
                             v.getContext(), Intent.createChooser(i, "Pick a font"), onResult);
                 }
             });
-            wUnset.setEnabled(FontsManager.getConsoleFontFiles()[position].exists());
-            wUnset.setVisibility(FontsManager.getConsoleFontFiles()[position].exists() ?
-                    View.VISIBLE : View.INVISIBLE);
+            wUnset.setEnabled(canBeRemoved);
+            wUnset.setVisibility(canBeRemoved ? View.VISIBLE : View.INVISIBLE);
             wUnset.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(final View v) {

@@ -210,6 +210,18 @@ public final class FontsManager {
         return tfs;
     }
 
+    public static boolean isExists(@NonNull final Typeface[] tfs, final int style) {
+        if (tfs[style] == null) return false;
+        if (style > 0) {
+            int i = style - 1;
+            while (i >= 0) {
+                if (tfs[style] == tfs[i]) return false;
+                i--;
+            }
+        }
+        return true;
+    }
+
     public static void setPaint(@NonNull final Paint paint, @NonNull final Typeface[] tfs,
                                 final int style) {
         paint.setFakeBoldText(false);
@@ -224,16 +236,16 @@ public final class FontsManager {
                 break;
             case Typeface.BOLD:
                 paint.setTypeface(tf);
-                if (tf == tfs[0]) paint.setFakeBoldText(true);
+                if (tf == tfs[0] || !tf.isBold()) paint.setFakeBoldText(true);
                 break;
             case Typeface.ITALIC:
                 paint.setTypeface(tf);
-                if (tf == tfs[0]) paint.setTextSkewX(-0.25F);
+                if (tf == tfs[0] || !tf.isItalic()) paint.setTextSkewX(-0.25F);
                 break;
             case Typeface.BOLD_ITALIC:
                 paint.setTypeface(tf);
-                if (tf == tfs[2]) paint.setFakeBoldText(true);
-                if (tf == tfs[1]) paint.setTextSkewX(-0.25F);
+                if (tf == tfs[2] || !tf.isBold()) paint.setFakeBoldText(true);
+                if (tf == tfs[1] || !tf.isItalic()) paint.setTextSkewX(-0.25F);
                 break;
         }
     }

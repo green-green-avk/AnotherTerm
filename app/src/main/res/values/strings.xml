@@ -183,4 +183,5 @@
     <string name="sample_text">The quick brown fox…</string>
     <string name="action_pick_font">Pick font</string>
     <string name="action_remove_font">Remove font</string>
+    <string name="msg_not_a_valid_font">Not a valid font</string>
 </resources>
