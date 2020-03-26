@@ -83,6 +83,7 @@
             android:background="@drawable/bg_grid_btn"
             android:contentDescription="@string/action_app_info"
             android:scaleType="fitCenter"
+            android:tint="@color/colorPrimary"
             app:srcCompat="@drawable/ic_info" />
 
         <Space
@@ -96,6 +97,7 @@
             android:background="@drawable/bg_grid_btn"
             android:contentDescription="@string/action_info_page"
             android:scaleType="fitCenter"
+            android:tint="@color/colorPrimary"
             app:srcCompat="@drawable/ic_help" />
 
     </LinearLayout>
