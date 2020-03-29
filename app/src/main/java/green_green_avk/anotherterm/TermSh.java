@@ -286,10 +286,12 @@ public final class TermSh {
             private final OutputStream stdErr;
             @NonNull
             private final InputStream ctlIn;
-            @NonNull
             private final long shellSessionToken;
+            @Nullable
             private final LocalModule.SessionData shellSessionData;
+            @NonNull
             private final String currDir;
+            @NonNull
             private final byte[][] args;
             private volatile Runnable onTerminate = null;
 
@@ -363,7 +365,7 @@ public final class TermSh {
             }
 
             @NonNull
-            private static ParcelFileDescriptor wrapFD(final FileDescriptor fd)
+            private static ParcelFileDescriptor wrapFD(@NonNull final FileDescriptor fd)
                     throws IOException {
                 final ParcelFileDescriptor pfd = ParcelFileDescriptor.dup(fd);
                 try {
@@ -376,7 +378,7 @@ public final class TermSh {
             // TODO: better remove fallbacks
 
             @NonNull
-            private static FileInputStream wrapInputFD(final FileDescriptor fd) {
+            private static FileInputStream wrapInputFD(@NonNull final FileDescriptor fd) {
                 try {
                     final ParcelFileDescriptor pfd = wrapFD(fd);
                     try {
@@ -392,7 +394,7 @@ public final class TermSh {
             }
 
             @NonNull
-            private static FileOutputStream wrapOutputFD(final FileDescriptor fd) {
+            private static FileOutputStream wrapOutputFD(@NonNull final FileDescriptor fd) {
                 try {
                     final ParcelFileDescriptor pfd = wrapFD(fd);
                     return new PtyProcess.PfdFileOutputStream(pfd);
@@ -455,7 +457,7 @@ public final class TermSh {
                 return args;
             }
 
-            private class ShellErrnoException extends IOException {
+            private static class ShellErrnoException extends IOException {
                 public final int errno;
 
                 public ShellErrnoException(final String message, final int errno) {
@@ -505,7 +507,7 @@ public final class TermSh {
 
             private final ChrootedFile.Ops ops = new ChrootedFile.Ops() {
                 @Override
-                public ParcelFileDescriptor open(final String path, final int flags)
+                public ParcelFileDescriptor open(@NonNull final String path, final int flags)
                         throws IOException, ParseException {
                     return ShellCmdIO.this.open(path, flags);
                 }

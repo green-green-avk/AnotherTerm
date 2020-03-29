@@ -268,7 +268,12 @@ public final class BackendUiDialogs implements BackendUiInteraction,
     public void showToast(@NonNull final String message) {
         final Activity ctx = ctxRef.getNoBlock();
         if (ctx == null) return;
-        Toast.makeText(ctx, message, Toast.LENGTH_SHORT).show();
+        ctx.runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                Toast.makeText(ctx, message, Toast.LENGTH_SHORT).show();
+            }
+        });
     }
 
     @Override

@@ -421,6 +421,7 @@ public final class PtyProcess extends Process {
     @NonNull
     public static String getPathByFd(final int fd) throws IOException {
         final String pp = String.format(Locale.ROOT, "/proc/self/fd/%d", fd);
+        if (!isSymlink(pp)) throw new IOException("Failed getting path by fd: bad symlink: " + pp);
         return new File(pp).getCanonicalPath();
     }
 

@@ -200,7 +200,8 @@ static int fixFd(const int fd) {
     if (isatty(fd)) {
         char fn[PATH_MAX];
         snprintf(fn, sizeof(fn), "/proc/self/fd/%u", fd);
-        return open(fn, O_RDWR);
+        const int r = open(fn, O_RDWR);
+        if (r != -1) return r;
     }
     return fd;
 }
@@ -326,7 +327,7 @@ int main(const int argc, const char *const *const argv) {
                 readAllOrExit(sock, name, name_len);
                 name[name_len] = '\0';
                 const int r = open(name, flags, 00600);
-                if (r < 0) {
+                if (r == -1) {
                     const char result = -1;
                     writeAllOrExit(sock, &result, sizeof(result));
                     const int32_t err = htonl(errno);
