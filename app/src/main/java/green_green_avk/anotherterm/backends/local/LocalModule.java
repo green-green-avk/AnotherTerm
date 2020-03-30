@@ -114,7 +114,7 @@ public final class LocalModule extends BackendModule {
 
         static {
             permByName.put("favmgmt", new PermMeta(PERM_FAVMGMT, R.string.label_favorites_management));
-            permByName.put("pluginexec", new PermMeta(PERM_FAVMGMT, R.string.label_plugins_execution));
+            permByName.put("pluginexec", new PermMeta(PERM_PLUGINEXEC, R.string.label_plugins_execution));
         }
 
         public volatile long permissions = 0;
