@@ -5,6 +5,7 @@ import android.os.Build;
 import androidx.annotation.Keep;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.annotation.StringRes;
 
 import org.apache.commons.lang3.StringUtils;
 
@@ -20,6 +21,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import green_green_avk.anotherterm.BuildConfig;
 import green_green_avk.anotherterm.R;
 import green_green_avk.anotherterm.backends.BackendModule;
+import green_green_avk.anotherterm.backends.BackendUiInteraction;
 import green_green_avk.anotherterm.utils.Misc;
 import green_green_avk.ptyprocess.PtyProcess;
 
@@ -94,10 +96,30 @@ public final class LocalModule extends BackendModule {
     }
 
     public static final class SessionData {
+
+        public static final class PermMeta {
+            public final long bits;
+            @StringRes
+            public final int titleRes;
+
+            private PermMeta(final long bits, final int titleRes) {
+                this.bits = bits;
+                this.titleRes = titleRes;
+            }
+        }
+
         public static final long PERM_FAVMGMT = 1;
         public static final long PERM_PLUGINEXEC = 2;
+        public static final Map<String, PermMeta> permByName = new HashMap<>();
+
+        static {
+            permByName.put("favmgmt", new PermMeta(PERM_FAVMGMT, R.string.label_favorites_management));
+            permByName.put("pluginexec", new PermMeta(PERM_FAVMGMT, R.string.label_plugins_execution));
+        }
 
         public volatile long permissions = 0;
+
+        public BackendUiInteraction ui;
     }
 
     private static final Map<Long, SessionData> sessionDataMap = new ConcurrentHashMap<>();
@@ -139,6 +161,12 @@ public final class LocalModule extends BackendModule {
         sessionDataMap.put(sessionToken, sessionData);
     }
 
+    @Override
+    public void setUi(final BackendUiInteraction ui) {
+        super.setUi(ui);
+        sessionData.ui = ui;
+    }
+
     private String terminalString = "xterm";
     private String execute = "";
 
@@ -147,9 +175,10 @@ public final class LocalModule extends BackendModule {
         final ParametersWrapper pp = new ParametersWrapper(params);
         terminalString = pp.getString("terminal_string", terminalString);
         execute = pp.getString("execute", execute);
-        sessionData.permissions =
-                (pp.getBoolean("perm_favmgmt", false) ? SessionData.PERM_FAVMGMT : 0) |
-                        (pp.getBoolean("perm_pluginexec", false) ? SessionData.PERM_PLUGINEXEC : 0);
+        sessionData.permissions = 0;
+        for (final Map.Entry<String, SessionData.PermMeta> m : SessionData.permByName.entrySet())
+            if (pp.getBoolean("perm_" + m.getKey(), false))
+                sessionData.permissions |= m.getValue().bits;
     }
 
     @Override

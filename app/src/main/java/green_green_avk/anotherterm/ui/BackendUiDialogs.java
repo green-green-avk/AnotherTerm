@@ -332,4 +332,8 @@ public final class BackendUiDialogs implements BackendUiInteraction,
         for (int v : result) r = r && v == PackageManager.PERMISSION_GRANTED;
         return r;
     }
+
+    public void waitForUi() throws InterruptedException {
+        ctxRef.get();
+    }
 }

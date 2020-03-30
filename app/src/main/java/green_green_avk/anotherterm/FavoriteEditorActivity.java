@@ -8,6 +8,7 @@ import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.EditText;
+import android.widget.ImageButton;
 import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -43,6 +44,7 @@ public final class FavoriteEditorActivity extends AppCompatActivity {
     private View mCurrMSL = null;
     private PreferenceStorage mPrefsSt = new PreferenceStorage();
     private boolean mInSetPreferences = false;
+    private boolean saveAndClose = false;
 
     private static void warnByHint(@NonNull final View view, final String msg) {
         if (view instanceof TextView) {
@@ -121,16 +123,39 @@ public final class FavoriteEditorActivity extends AppCompatActivity {
                 mOldName = name;
                 asEdit();
                 Toast.makeText(FavoriteEditorActivity.this, R.string.msg_saved, Toast.LENGTH_SHORT).show();
+                if (saveAndClose) finish();
             }
         };
         if ((mMakeNew || !name.equals(mOldName)) && FavoritesManager.contains(name))
-            UiUtils.confirm(this, getString(R.string.favorite_s_is_already_exists_replace, name), r);
+            UiUtils.confirm(this, getString(R.string.msg_favorite_s_is_already_exists_replace, name), r);
+        else r.run();
+    }
+
+    private void close(@NonNull final Runnable r) {
+        if (saveAndClose)
+            UiUtils.confirm(this, getString(R.string.msg_discard_settings_and_continue_confirmation), r);
         else r.run();
     }
 
     @Override
     public void onBackPressed() {
-        finish();
+        close(new Runnable() {
+            @Override
+            public void run() {
+                FavoriteEditorActivity.super.onBackPressed();
+            }
+        });
+    }
+
+    @Override
+    public boolean onSupportNavigateUp() {
+        close(new Runnable() {
+            @Override
+            public void run() {
+                FavoriteEditorActivity.super.onSupportNavigateUp();
+            }
+        });
+        return true;
     }
 
     @Nullable
@@ -373,6 +398,9 @@ public final class FavoriteEditorActivity extends AppCompatActivity {
         final Intent intent = getIntent();
         final Uri uri = intent.getData();
         if (uri != null) {
+            saveAndClose = true;
+            ((ImageButton) findViewById(R.id.b_ok))
+                    .setImageResource(R.drawable.ic_check_black_24dp);
             mOldName = null;
             asNew();
             try {

@@ -72,7 +72,7 @@ view|edit [&lt;options...&gt;] [--] &lt;file|URI&gt;
 </code></p></dt>
 <dd>
 Open for view / edit with appropriate temporary access rights.
-<br/>Command exits immediately.
+<br/>Command exits after interaction with user.
 <ul type=\"none\">
 <li><code>-N|--notify</code> &#x2014; post a notification instead of open the chooser dialog.</li>
 <li><code>-m|--mime &lt;mime&gt;</code> &#x2014; Mime type, <code>*/*</code> - default.</li>
@@ -100,7 +100,7 @@ send [&lt;options...&gt;] [--] [&lt;file|URI&gt;]
 <dd>
 Send (android.intent.action.SEND).
 If no <code>&lt;file|URI&gt;</code> is specified, stdin is used.
-<br/>Command exits after a stream was sent or immediately
+<br/>Command exits after a stream was sent or after interaction with user
 if a file or URI is specified.
 <ul type=\"none\">
 <li><code>-N|--notify</code> &#x2014; post a notification instead of open the chooser dialog.</li>
@@ -225,6 +225,28 @@ uri-decode &lt;string&gt;
 <dd>URL-unescape a <code>&lt;string&gt;</code>.</dd><br/>
 
 <dt><p><code>
+request-permission &lt;name&gt; &lt;message&gt;
+</code></p></dt>
+<dd>Ask the user by a dialog.
+<ul type=\"none\">
+<li><code>&lt;name&gt;</code> &#x2014; can be: <code>favmgmt</code>, <code>pluginexec</code>.</li>
+<li><code>&lt;message&gt;</code> &#x2014; to show.</li>
+</ul>
+<p>Return codes:</p>
+<ul type=\"none\">
+<li><code>0</code> &#x2014; granted by user;</li>
+<li><code>1</code> &#x2014; error occurred;</li>
+<li><code>2</code> &#x2014; denied by user;</li>
+<li><code>3</code> &#x2014; already granted.</li>
+</ul>
+</dd><br/>
+
+<dt><p><code>
+revoke-permission &lt;name&gt;
+</code></p></dt>
+<dd>Just revoke.</dd><br/>
+
+<dt><p><code>
 has-favorite &lt;name&gt;
 </code></p></dt>
 <dd>Return <code>0</code> exit code if a favorite named <code>&lt;name&gt;</code> exists,
@@ -255,6 +277,8 @@ this command is called. Exit code <code>1</code> will be returned otherwise.</em
 <ul type=\"none\">
 <li>* <code>unnamed</code> is used if name deduction fails and
 exit code <code>2</code> is returned.</li>
+<li>** Any UI element started by a script will not be shown and block
+until related shell session UI become active.</li>
 </ul>
 
 <h4>Environment variables:</h4>

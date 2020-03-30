@@ -57,9 +57,11 @@ import javax.net.ssl.HttpsURLConnection;
 
 import green_green_avk.anotherterm.backends.BackendException;
 import green_green_avk.anotherterm.backends.BackendModule;
+import green_green_avk.anotherterm.backends.BackendUiInteraction;
 import green_green_avk.anotherterm.backends.BackendsList;
 import green_green_avk.anotherterm.backends.local.LocalModule;
 import green_green_avk.anotherterm.backends.usbUart.UsbUartModule;
+import green_green_avk.anotherterm.ui.BackendUiDialogs;
 import green_green_avk.anotherterm.ui.BackendUiShell;
 import green_green_avk.anotherterm.utils.BinaryGetOpts;
 import green_green_avk.anotherterm.utils.BlockingSync;
@@ -263,6 +265,18 @@ public final class TermSh {
             }
 
             private ShellSecurityException(final String message) {
+                super(h + ": " + message);
+            }
+        }
+
+        private static final class ShellUiException extends RuntimeException {
+            private static final String h = "UI is inaccessible";
+
+            private ShellUiException() {
+                super(h);
+            }
+
+            private ShellUiException(final String message) {
                 super(h + ": " + message);
             }
         }
@@ -525,12 +539,24 @@ public final class TermSh {
                 return new File(PtyProcess.getPathByFd(open(name, PtyProcess.O_PATH).getFd()));
             }
 
-            private void checkPerms(final long perms) {
+            private void requireSessionState() {
+                if (shellSessionData == null) throw new ShellSecurityException("No session state");
+            }
+
+            private void requirePerms(final long perms) {
                 if (shellSessionData == null ||
                         (shellSessionData.permissions &
                                 perms) == 0) {
                     throw new ShellSecurityException();
                 }
+            }
+
+            @NonNull
+            private BackendUiDialogs getUi() {
+                if (shellSessionData == null) throw new ShellUiException("No session state");
+                final BackendUiInteraction ui = shellSessionData.ui;
+                if (!(ui instanceof BackendUiDialogs)) throw new ShellUiException("Not assigned");
+                return (BackendUiDialogs) ui;
             }
 
             private ShellCmdIO(@NonNull final LocalSocket socket)
@@ -911,8 +937,11 @@ public final class TermSh {
                                             prompt + " (" + filename + ")",
                                             REQUEST_NOTIFICATION_CHANNEL_ID,
                                             NotificationCompat.PRIORITY_HIGH);
-                                else
+                                else {
+                                    final BackendUiDialogs gui = shellCmd.getUi();
+                                    gui.waitForUi();
                                     ui.ctx.startActivity(ci);
+                                }
                             } else {
                                 throw new ParseException("Bad arguments");
                             }
@@ -964,6 +993,16 @@ public final class TermSh {
                                 default:
                                     throw new ParseException("Bad arguments");
                             }
+                            final Runnable rCancel = new Runnable() {
+                                @Override
+                                public void run() {
+                                    try {
+                                        StreamProvider.releaseUri(uri);
+                                    } finally {
+                                        result.set(null);
+                                    }
+                                }
+                            };
                             final Intent i = new Intent(Intent.ACTION_SEND);
                             i.setType(mime);
                             i.putExtra(Intent.EXTRA_STREAM, uri);
@@ -975,19 +1014,18 @@ public final class TermSh {
                                         prompt + " (" + (name == null ? "Stream" : name) + ")",
                                         REQUEST_NOTIFICATION_CHANNEL_ID,
                                         NotificationCompat.PRIORITY_HIGH);
-                            else
-                                ui.ctx.startActivity(Intent.createChooser(i, prompt)
-                                        .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK));
-                            shellCmd.waitFor(result, new Runnable() {
-                                @Override
-                                public void run() {
-                                    try {
-                                        StreamProvider.releaseUri(uri);
-                                    } finally {
-                                        result.set(null);
-                                    }
+                            else {
+                                try {
+                                    final BackendUiDialogs gui = shellCmd.getUi();
+                                    gui.waitForUi();
+                                    ui.ctx.startActivity(Intent.createChooser(i, prompt)
+                                            .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK));
+                                } catch (final Throwable e) {
+                                    rCancel.run();
+                                    throw e;
                                 }
-                            });
+                            }
+                            shellCmd.waitFor(result, rCancel);
                             break;
                         }
                         case "pick": {
@@ -1043,15 +1081,25 @@ public final class TermSh {
                                             r.setIfIsNotSet(result);
                                         }
                                     };
-                            final RequesterActivity.Request request = opts.containsKey("notify") ?
-                                    RequesterActivity.request(
-                                            ui.ctx, Intent.createChooser(i, prompt), onResult,
-                                            ui.ctx.getString(R.string.title_shell_of_s,
-                                                    ui.ctx.getString(R.string.app_name)),
-                                            prompt, REQUEST_NOTIFICATION_CHANNEL_ID,
-                                            NotificationCompat.PRIORITY_HIGH) :
-                                    RequesterActivity.request(
+                            final RequesterActivity.Request request;
+                            if (opts.containsKey("notify"))
+                                request = RequesterActivity.request(
+                                        ui.ctx, Intent.createChooser(i, prompt), onResult,
+                                        ui.ctx.getString(R.string.title_shell_of_s,
+                                                ui.ctx.getString(R.string.app_name)),
+                                        prompt, REQUEST_NOTIFICATION_CHANNEL_ID,
+                                        NotificationCompat.PRIORITY_HIGH);
+                            else {
+                                try {
+                                    final BackendUiDialogs gui = shellCmd.getUi();
+                                    gui.waitForUi();
+                                    request = RequesterActivity.request(
                                             ui.ctx, Intent.createChooser(i, prompt), onResult);
+                                } catch (final Throwable e) {
+                                    r.setIfIsNotSet(null);
+                                    throw e;
+                                }
+                            }
                             final Intent ri = shellCmd.waitFor(r, new Runnable() {
                                 @Override
                                 public void run() {
@@ -1287,8 +1335,55 @@ public final class TermSh {
                             shellCmd.stdOut.write(Misc.toUTF8(r + "\n"));
                             break;
                         }
+                        case "request-permission": {
+                            shellCmd.requireSessionState();
+                            if (shellCmd.args.length != 3)
+                                throw new ParseException("Wrong number of arguments");
+                            final String permStr = Misc.fromUTF8(shellCmd.args[1]);
+                            final LocalModule.SessionData.PermMeta permMeta =
+                                    LocalModule.SessionData.permByName.get(permStr);
+                            if (permMeta == null) throw new ParseException("No such permission");
+                            if ((shellCmd.shellSessionData.permissions & permMeta.bits)
+                                    == permMeta.bits) {
+                                exitStatus = 3;
+                                break;
+                            }
+                            final BackendUiInteraction gui = shellCmd.getUi();
+                            final String prompt = Misc.fromUTF8(shellCmd.args[2]);
+                            shellCmd.setOnTerminate(new Runnable() {
+                                @Override
+                                public void run() {
+                                    cancel(true);
+                                }
+                            });
+                            try {
+                                if (gui.promptYesNo(
+                                        ui.ctx.getString(R.string.msg_permission_confirmation,
+                                                ui.ctx.getString(permMeta.titleRes), prompt)))
+                                    synchronized (shellCmd.shellSessionData) {
+                                        shellCmd.shellSessionData.permissions |= permMeta.bits;
+                                    }
+                                else exitStatus = 2;
+                            } finally {
+                                shellCmd.setOnTerminate(null);
+                            }
+                            break;
+                        }
+                        case "revoke-permission": {
+                            shellCmd.requireSessionState();
+                            if (shellCmd.args.length != 2)
+                                throw new ParseException("Wrong number of arguments");
+                            final String permStr = Misc.fromUTF8(shellCmd.args[1]);
+                            final LocalModule.SessionData.PermMeta permMeta =
+                                    LocalModule.SessionData.permByName.get(permStr);
+                            if (permMeta == null) throw new ParseException("No such permission");
+                            synchronized (shellCmd.shellSessionData) {
+                                shellCmd.shellSessionData.permissions &= ~permMeta.bits;
+                            }
+                            break;
+                        }
                         case "has-favorite": {
-                            shellCmd.checkPerms(LocalModule.SessionData.PERM_FAVMGMT);
+                            shellCmd.requirePerms(LocalModule.SessionData.PERM_FAVMGMT);
                             if (shellCmd.args.length != 2)
                                 throw new ParseException("Wrong number of arguments");
                             final String name = Misc.fromUTF8(shellCmd.args[1]);
@@ -1303,7 +1398,7 @@ public final class TermSh {
                             break;
                         }
                         case "create-shell-favorite": {
-                            shellCmd.checkPerms(LocalModule.SessionData.PERM_FAVMGMT);
+                            shellCmd.requirePerms(LocalModule.SessionData.PERM_FAVMGMT);
                             final BinaryGetOpts.Parser ap = new BinaryGetOpts.Parser(shellCmd.args);
                             ap.skip();
                             final Map<String, ?> opts = ap.parse(FAV_OPTS);
@@ -1331,7 +1426,7 @@ public final class TermSh {
                             break;
                         }
                         case "plugin": {
-                            shellCmd.checkPerms(LocalModule.SessionData.PERM_PLUGINEXEC);
+                            shellCmd.requirePerms(LocalModule.SessionData.PERM_PLUGINEXEC);
                             final BinaryGetOpts.Parser ap = new BinaryGetOpts.Parser(shellCmd.args);
                             ap.skip();
                             final Map<String, ?> opts = ap.parse(PLUGIN_OPTS);
@@ -1387,7 +1482,7 @@ public final class TermSh {
                     }
                     shellCmd.exit(exitStatus);
                 } catch (final InterruptedException | SecurityException | IOException |
-                        ParseException | ArgsException | ShellSecurityException |
+                        ParseException | ArgsException | ShellSecurityException | ShellUiException |
                         BinaryGetOpts.ParseException | ActivityNotFoundException e) {
                     try {
                         if (e instanceof ArgsException) {
