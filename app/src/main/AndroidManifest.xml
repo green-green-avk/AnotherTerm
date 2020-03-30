@@ -85,6 +85,7 @@
             android:label="Console"
             android:launchMode="singleTop"
             android:parentActivityName=".SessionsActivity"
+            android:screenOrientation="fullSensor"
             android:theme="@style/AppTheme.NoActionBar.Fullscreen"
             android:windowSoftInputMode="stateHidden|adjustNothing" />
 
