@@ -29,8 +29,9 @@
 
         <TextView
             android:id="@+id/title"
-            android:layout_width="wrap_content"
+            android:layout_width="0dp"
             android:layout_height="wrap_content"
+            android:layout_weight="1"
             android:textSize="18sp"
             tools:text="Title" />
 
@@ -58,9 +59,13 @@
 
         <TextView
             android:id="@+id/warning"
-            android:layout_width="wrap_content"
+            android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:textColor="@color/colorHintWarning" />
+            android:layout_weight="1"
+            android:gravity="center_vertical"
+            android:textAlignment="gravity"
+            android:textColor="@color/colorHintWarning"
+            tools:text="Warning" />
 
         <Space
             android:layout_width="@dimen/text_separator"
