@@ -57,8 +57,8 @@ public final class TermKeyMapRulesDefault {
 
         keyCodes.put(KeyEvent.KEYCODE_PAGE_UP, new KeyMap(NONE, S("\u001B[5~"), "\u001B[5;%d~", null, null));
         keyCodes.put(KeyEvent.KEYCODE_PAGE_DOWN, new KeyMap(NONE, S("\u001B[6~"), "\u001B[6;%d~", null, null));
-        keyCodes.put(KeyEvent.KEYCODE_MOVE_HOME, new KeyMap(CURSOR, S("\u001B[H"), "\u001B[1;%d~", S("\u001BOH"), null));
-        keyCodes.put(KeyEvent.KEYCODE_MOVE_END, new KeyMap(CURSOR, S("\u001B[F"), "\u001B[4;%d~", S("\u001BOF"), null));
+        keyCodes.put(KeyEvent.KEYCODE_MOVE_HOME, new KeyMap(CURSOR, S("\u001B[H"), "\u001B[1;%dH", S("\u001BOH"), null));
+        keyCodes.put(KeyEvent.KEYCODE_MOVE_END, new KeyMap(CURSOR, S("\u001B[F"), "\u001B[1;%dF", S("\u001BOF"), null));
         keyCodes.put(KeyEvent.KEYCODE_INSERT, new KeyMap(NONE, S("\u001B[2~"), "\u001B[2;%d~", null, null));
         keyCodes.put(KeyEvent.KEYCODE_FORWARD_DEL, new KeyMap(NONE, S("\u001B[3~"), "\u001B[3;%d~", null, null));
 
