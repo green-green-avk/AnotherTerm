@@ -15,6 +15,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.view.WindowManager;
 
+import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.content.res.AppCompatResources;
 import androidx.core.view.ViewCompat;
@@ -81,7 +82,7 @@ public class ScreenMouseView extends ScrollableView {
             if (v.getTag() instanceof String) {
                 v.setOnTouchListener(new OnTouchListener() {
                     @Override
-                    public boolean onTouch(View v, MotionEvent event) {
+                    public boolean onTouch(final View v, final MotionEvent event) {
                         if (v == overlayButtons) return true;
                         switch (event.getAction()) {
                             case MotionEvent.ACTION_DOWN:
@@ -174,7 +175,7 @@ public class ScreenMouseView extends ScrollableView {
             }
         }
     */
-    protected void setOverlayCoords(final MotionEvent event) {
+    protected void setOverlayCoords(@NonNull final MotionEvent event) {
         int width = overlayButtons.getLayoutParams().width;
         int height = overlayButtons.getLayoutParams().height;
         if (width <= 0) width = overlayButtons.getWidth();
@@ -183,7 +184,7 @@ public class ScreenMouseView extends ScrollableView {
         overlayButtons.setY(event.getRawY() - height / 2);
     }
 
-    public static boolean isMouseEvent(final MotionEvent event) {
+    public static boolean isMouseEvent(@Nullable final MotionEvent event) {
         return event != null &&
                 event.getToolType(0) != MotionEvent.TOOL_TYPE_FINGER;
     }
@@ -254,7 +255,9 @@ public class ScreenMouseView extends ScrollableView {
                 me.recycle();
                 return r;
             }
-
+            case MotionEvent.ACTION_POINTER_DOWN:
+            case MotionEvent.ACTION_POINTER_UP:
+                return false;
         }
         return super.onTouchEvent(event);
     }
@@ -269,7 +272,7 @@ public class ScreenMouseView extends ScrollableView {
     protected int mOverlayButtons = 0;
     protected int mVScroll = 0;
 
-    protected boolean onOverlayButton(final View v, final MotionEvent event) {
+    protected boolean onOverlayButton(@NonNull final View v, @NonNull final MotionEvent event) {
         final String id = v.getTag().toString();
         if ("v_scroll".equals(id)) {
             switch (event.getAction()) {
@@ -319,10 +322,11 @@ public class ScreenMouseView extends ScrollableView {
         return true;
     }
 
+    @Nullable
     protected MotionEvent mOwnEvent = null;
 
-    protected boolean isOwnEvent(final MotionEvent event) {
-        return event == mOwnEvent;
+    protected boolean isOwnEvent(@Nullable final MotionEvent event) {
+        return event != null && event == mOwnEvent;
     }
 
     protected void dispatchEventToSibling(int x, int y, final int action,
