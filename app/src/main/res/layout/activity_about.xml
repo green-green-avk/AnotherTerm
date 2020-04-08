@@ -44,7 +44,8 @@
             android:background="@drawable/bg_frame2"
             android:text="@string/versionName"
             android:textIsSelectable="true"
-            android:textSize="8sp"
+            android:textSize="12sp"
+            android:typeface="monospace"
             app:layout_constraintRight_toRightOf="@+id/title"
             app:layout_constraintTop_toTopOf="parent" />
     </androidx.constraintlayout.widget.ConstraintLayout>
