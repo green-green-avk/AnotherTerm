@@ -2,6 +2,7 @@ package green_green_avk.anotherterm;
 
 import android.annotation.SuppressLint;
 import android.app.Fragment;
+import android.content.ActivityNotFoundException;
 import android.content.ClipData;
 import android.content.ClipboardManager;
 import android.content.ComponentName;
@@ -98,8 +99,16 @@ public final class PluginsManagerFragment extends Fragment {
             wEnabled.setChecked(PluginsManager.verify(pkg));
             wEnabled.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
                 @Override
-                public void onCheckedChanged(final CompoundButton buttonView,
+                public void onCheckedChanged(final CompoundButton v,
                                              final boolean isChecked) {
+                    try {
+                        v.getContext().sendBroadcast(new Intent().setClassName(pkg.packageName,
+                                "green_green_avk.anothertermshellpluginutils_perms.PermissionRequestReceiver"
+                        ).setData(Uri.fromParts(
+                                "package", v.getContext().getPackageName(), isChecked ? null : "revoke"
+                        )));
+                    } catch (final SecurityException ignored) {
+                    }
                     if (isChecked) PluginsManager.grant(pkg);
                     else PluginsManager.revoke(pkg);
                 }
@@ -115,12 +124,16 @@ public final class PluginsManagerFragment extends Fragment {
             wAppInfo.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(final View v) {
-                    v.getContext().startActivity(
-                            new Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS)
-                                    .setData(Uri.fromParts(
-                                            "package", pkg.packageName, null
-                                    ))
-                    );
+                    try {
+                        v.getContext().startActivity(
+                                new Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS)
+                                        .setData(Uri.fromParts(
+                                                "package", pkg.packageName, null
+                                        ))
+                        );
+                    } catch (final ActivityNotFoundException ignored) {
+                    } catch (final SecurityException ignored) {
+                    }
                 }
             });
             wWarning.setText(Plugin.isStalled(pkg.packageName) ?
