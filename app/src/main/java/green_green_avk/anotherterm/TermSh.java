@@ -703,8 +703,10 @@ public final class TermSh {
                 final XmlToAnsi hp = new XmlToAnsi(value);
                 hp.width = MathUtils.clamp(size[0], 20, 140);
                 hp.indentStep = hp.width / 20;
+                output.write(Misc.toUTF8("\n"));
                 for (final String s : hp)
                     output.write(Misc.toUTF8(s));
+                output.write(Misc.toUTF8("\n"));
             } catch (final Throwable e) {
                 throw new IOException(ui.ctx.getString(
                         R.string.msg_xml_parse_error_s, e.getLocalizedMessage()));
@@ -1452,7 +1454,8 @@ public final class TermSh {
                                     } else if (content.type == Protocol.STRING_CONTENT_TYPE_XML_AT) {
                                         printHelp(content.text, shellCmd.stdOut, shellCmd);
                                     } else {
-                                        shellCmd.stdOut.write(Misc.toUTF8(content.text + "\n"));
+                                        shellCmd.stdOut.write(Misc.toUTF8(
+                                                "\n" + content.text + "\n\n"));
                                     }
                                 } finally {
                                     plugin.unbind();
