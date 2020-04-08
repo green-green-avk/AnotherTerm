@@ -28,6 +28,7 @@ public final class PluginsManager {
     private PluginsManager() {
     }
 
+    @SuppressLint("PackageManagerGetSignatures")
     public static List<PackageInfo> getPlugins() {
         final PackageManager pm = ctx.getPackageManager();
         final List<PackageInfo> pkgs = pm.getInstalledPackages(0);
@@ -108,7 +109,8 @@ public final class PluginsManager {
     public static boolean verify(@NonNull final PackageInfo pkg) {
         final Set<String> fps = trustedPluginsPrefs.getStringSet(pkg.packageName,
                 Collections.<String>emptySet());
-        if (pkg.signatures == null || pkg.signatures.length <= 0) return false;
+        if (pkg.signatures == null || pkg.signatures.length <= 0
+                || pkg.signatures.length != fps.size()) return false;
         for (final Signature s : pkg.signatures)
             if (!fps.contains(Auth.getFingerprint(s))) return false;
         return true;
