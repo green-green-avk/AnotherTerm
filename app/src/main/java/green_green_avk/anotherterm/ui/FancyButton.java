@@ -21,17 +21,18 @@ public class FancyButton extends androidx.appcompat.widget.AppCompatImageButton 
     protected Bitmap mTouchMask = null;
     protected Drawable mTouchMaskSrc = null;
 
-    public FancyButton(Context context, AttributeSet attrs) {
+    public FancyButton(final Context context, final AttributeSet attrs) {
         super(context, attrs);
         init(context, attrs, R.attr.fancyButtonStyle, R.style.AppFancyButtonStyle);
     }
 
-    public FancyButton(Context context, AttributeSet attrs, int defStyleAttr) {
+    public FancyButton(final Context context, final AttributeSet attrs, final int defStyleAttr) {
         super(context, attrs, defStyleAttr);
         init(context, attrs, defStyleAttr, R.style.AppFancyButtonStyle);
     }
 
-    protected void init(Context context, AttributeSet attrs, int defStyleAttr, int defStyleRes) {
+    protected void init(final Context context, final AttributeSet attrs,
+                        final int defStyleAttr, final int defStyleRes) {
         final TypedArray a = context.obtainStyledAttributes(
                 attrs, R.styleable.FancyButton, defStyleAttr, defStyleRes);
         try {
@@ -45,7 +46,7 @@ public class FancyButton extends androidx.appcompat.widget.AppCompatImageButton 
     }
 
     @Override
-    protected void onSizeChanged(int w, int h, int oldw, int oldh) {
+    protected void onSizeChanged(final int w, final int h, final int oldw, final int oldh) {
         super.onSizeChanged(w, h, oldw, oldh);
         setTouchMask(mTouchMaskSrc);
     }
@@ -88,12 +89,12 @@ public class FancyButton extends androidx.appcompat.widget.AppCompatImageButton 
     }
 
     @Override
-    public boolean dispatchTouchEvent(MotionEvent event) {
+    public boolean dispatchTouchEvent(final MotionEvent event) {
         return isHit((int) event.getX(), (int) event.getY()) && super.dispatchTouchEvent(event);
     }
 
     @Override
-    public boolean dispatchGenericMotionEvent(MotionEvent event) {
+    public boolean dispatchGenericMotionEvent(final MotionEvent event) {
         return isHit((int) event.getX(), (int) event.getY()) && super.dispatchGenericMotionEvent(event);
     }
 }

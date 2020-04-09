@@ -1,5 +1,6 @@
 package green_green_avk.anotherterm.ui;
 
+import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.app.Dialog;
 import android.content.Context;
@@ -15,6 +16,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.view.WindowManager;
 
+import androidx.annotation.CheckResult;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.content.res.AppCompatResources;
@@ -75,12 +77,13 @@ public class ScreenMouseView extends ScrollableView {
         overlay.getWindow().setType(WindowManager.LayoutParams.TYPE_APPLICATION_ATTACHED_DIALOG);
         overlay.setOwnerActivity((Activity) getContext());
         final View odv = overlay.getWindow().getDecorView();
-        odv.setScaleX(1);
-        odv.setScaleY(1);
+        odv.setScaleX(1F);
+        odv.setScaleY(1F);
         overlayButtons = odv.findViewById(R.id.buttons);
         for (final View v : UiUtils.getIterable(overlayButtons)) {
             if (v.getTag() instanceof String) {
                 v.setOnTouchListener(new OnTouchListener() {
+                    @SuppressLint("ClickableViewAccessibility")
                     @Override
                     public boolean onTouch(final View v, final MotionEvent event) {
                         if (v == overlayButtons) return true;
@@ -100,8 +103,8 @@ public class ScreenMouseView extends ScrollableView {
     @Override
     protected void onSizeChanged(final int w, final int h, final int oldw, final int oldh) {
         super.onSizeChanged(w, h, oldw, oldh);
-        scrollPosition.x = w / 2;
-        scrollPosition.y = h / 2;
+        scrollPosition.x = (float) w / 2;
+        scrollPosition.y = (float) h / 2;
     }
 
     protected void showCursor() {
@@ -180,15 +183,17 @@ public class ScreenMouseView extends ScrollableView {
         int height = overlayButtons.getLayoutParams().height;
         if (width <= 0) width = overlayButtons.getWidth();
         if (height <= 0) height = overlayButtons.getHeight();
-        overlayButtons.setX(event.getRawX() - width / 2);
-        overlayButtons.setY(event.getRawY() - height / 2);
+        overlayButtons.setX(event.getRawX() - (float) width / 2);
+        overlayButtons.setY(event.getRawY() - (float) height / 2);
     }
 
+    @CheckResult
     public static boolean isMouseEvent(@Nullable final MotionEvent event) {
         return event != null &&
                 event.getToolType(0) != MotionEvent.TOOL_TYPE_FINGER;
     }
 
+    @SuppressLint("ClickableViewAccessibility")
     @Override
     public boolean onTouchEvent(final MotionEvent event) {
         if (isOwnEvent(event)) return false;
@@ -295,7 +300,7 @@ public class ScreenMouseView extends ScrollableView {
             default:
                 return true;
         }
-        int button = 0;
+        final int button;
         switch (id) {
             case "left":
                 button = MotionEvent.BUTTON_PRIMARY;
@@ -325,6 +330,7 @@ public class ScreenMouseView extends ScrollableView {
     @Nullable
     protected MotionEvent mOwnEvent = null;
 
+    @CheckResult
     protected boolean isOwnEvent(@Nullable final MotionEvent event) {
         return event != null && event == mOwnEvent;
     }
@@ -360,6 +366,8 @@ public class ScreenMouseView extends ScrollableView {
         }
     }
 
+    @CheckResult
+    @NonNull
     protected static MotionEvent obtainEvent(final float x, final float y, final int action,
                                              final int buttons, final int actionButton,
                                              final int vScroll) {
@@ -379,6 +387,7 @@ public class ScreenMouseView extends ScrollableView {
                 1.0f, 1.0f, 0, 0, InputDevice.SOURCE_MOUSE, 0);
     }
 
+    @CheckResult
     @Nullable
     protected View getTargetView(final int x, final int y) {
         final ViewGroup parent = (ViewGroup) getParent();

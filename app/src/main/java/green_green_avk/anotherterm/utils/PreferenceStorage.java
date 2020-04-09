@@ -2,6 +2,7 @@ package green_green_avk.anotherterm.utils;
 
 import android.content.SharedPreferences;
 
+import androidx.annotation.CheckResult;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
@@ -14,14 +15,14 @@ public final class PreferenceStorage {
     private Map<String, Object> prefs;
 
     public PreferenceStorage() {
-        prefs = new HashMap<>();
+        this.prefs = new HashMap<>();
     }
 
     public PreferenceStorage(@Nullable final Map<String, ?> prefs) {
         this.prefs = prefs != null ? (Map<String, Object>) prefs : new HashMap<String, Object>();
     }
 
-    public void set(@Nullable Map<String, ?> prefs) {
+    public void set(@Nullable final Map<String, ?> prefs) {
         if (prefs != null) this.prefs = (Map<String, Object>) prefs;
         else clear();
     }
@@ -30,11 +31,13 @@ public final class PreferenceStorage {
         prefs.clear();
     }
 
+    @CheckResult
+    @NonNull
     public Map<String, ?> get() {
         return prefs;
     }
 
-    public void putAll(Map<String, ?> prefs) {
+    public void putAll(@Nullable final Map<String, ?> prefs) {
         if (prefs == null) return;
         this.prefs.putAll(prefs);
     }
@@ -47,18 +50,19 @@ public final class PreferenceStorage {
         prefs.put(key, value);
     }
 
-    public void load(final SharedPreferences sp) {
+    public void load(@NonNull final SharedPreferences sp) {
         putAll(sp.getAll());
     }
 
-    public void save(final SharedPreferences sp) {
+    public void save(@NonNull final SharedPreferences sp) {
         final SharedPreferences.Editor editor = sp.edit();
         editor.clear();
         putAll(editor, prefs);
         editor.apply();
     }
 
-    public static void putAll(@NonNull final SharedPreferences.Editor dst, @NonNull final Map<String, ?> values) {
+    public static void putAll(@NonNull final SharedPreferences.Editor dst,
+                              @NonNull final Map<String, ?> values) {
         for (final String k : values.keySet()) {
             final Object v = values.get(k);
             if (v instanceof Double || v instanceof Float) {

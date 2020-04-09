@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="640dp"
     android:layout_height="480dp"
     android:orientation="horizontal">
@@ -26,14 +27,17 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_gravity="bottom|right"
-                    app:srcCompat="@drawable/ic_screen_mouse_button_lu" />
+                    app:srcCompat="@drawable/ic_screen_mouse_button_lu"
+                    tools:ignore="ContentDescription,RtlHardcoded" />
 
                 <ImageView
                     android:layout_width="48dp"
                     android:layout_height="48dp"
                     android:layout_gravity="bottom|right"
                     android:layout_margin="48dp"
-                    app:srcCompat="@drawable/ic_mouse_button_right" />
+                    app:srcCompat="@drawable/ic_mouse_button_right"
+                    tools:ignore="ContentDescription,RtlHardcoded" />
+
             </FrameLayout>
 
             <FrameLayout
@@ -47,15 +51,19 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_gravity="top|right"
-                    app:srcCompat="@drawable/ic_screen_mouse_button_ld" />
+                    app:srcCompat="@drawable/ic_screen_mouse_button_ld"
+                    tools:ignore="ContentDescription,RtlHardcoded" />
 
                 <ImageView
                     android:layout_width="48dp"
                     android:layout_height="48dp"
                     android:layout_gravity="top|right"
                     android:layout_margin="48dp"
-                    app:srcCompat="@drawable/ic_mouse_button_left" />
+                    app:srcCompat="@drawable/ic_mouse_button_left"
+                    tools:ignore="ContentDescription,RtlHardcoded" />
+
             </FrameLayout>
+
         </LinearLayout>
 
         <green_green_avk.anotherterm.ui.FancyButton
@@ -66,7 +74,9 @@
             android:background="@drawable/ic_screen_mouse_button_side"
             android:tag="v_scroll"
             app:srcCompat="@drawable/ic_screen_mouse_scroll"
-            app:touchMask="@drawable/ic_screen_mouse_button_side" />
+            app:touchMask="@drawable/ic_screen_mouse_button_side"
+            tools:ignore="RtlHardcoded" />
+
     </FrameLayout>
 
     <Space
@@ -90,14 +100,17 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_gravity="bottom|left"
-                app:srcCompat="@drawable/ic_screen_mouse_button_ru" />
+                app:srcCompat="@drawable/ic_screen_mouse_button_ru"
+                tools:ignore="ContentDescription,RtlHardcoded" />
 
             <ImageView
                 android:layout_width="48dp"
                 android:layout_height="48dp"
                 android:layout_gravity="bottom|left"
                 android:layout_margin="48dp"
-                app:srcCompat="@drawable/ic_mouse_button_middle" />
+                app:srcCompat="@drawable/ic_mouse_button_middle"
+                tools:ignore="ContentDescription,RtlHardcoded" />
+
         </FrameLayout>
 
         <FrameLayout
@@ -111,14 +124,19 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_gravity="top|left"
-                app:srcCompat="@drawable/ic_screen_mouse_button_rd" />
+                app:srcCompat="@drawable/ic_screen_mouse_button_rd"
+                tools:ignore="ContentDescription,RtlHardcoded" />
 
             <ImageView
                 android:layout_width="48dp"
                 android:layout_height="48dp"
                 android:layout_gravity="top|left"
                 android:layout_margin="48dp"
-                app:srcCompat="@drawable/ic_mouse_button_right" />
+                app:srcCompat="@drawable/ic_mouse_button_right"
+                tools:ignore="ContentDescription,RtlHardcoded" />
+
         </FrameLayout>
+
     </LinearLayout>
+
 </LinearLayout>

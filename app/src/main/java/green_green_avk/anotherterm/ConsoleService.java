@@ -22,6 +22,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.NoSuchElementException;
 import java.util.Set;
@@ -104,7 +105,7 @@ public final class ConsoleService extends Service {
 
     @Override
     public IBinder onBind(final Intent intent) {
-        throw new UnsupportedOperationException("Not yet implemented");
+        throw new UnsupportedOperationException("Not supposed to be bound");
     }
 
     private static int currKey = 0;
@@ -114,7 +115,7 @@ public final class ConsoleService extends Service {
     }
 
     @UiThread
-    public static int startSession(final Context ctx, final Map<String, ?> cp) {
+    public static int startSession(@NonNull final Context ctx, @NonNull final Map<String, ?> cp) {
         final Context appCtx = ctx.getApplicationContext();
         final String type = (String) cp.get("type");
         final int id = BackendsList.getId(type);
@@ -213,7 +214,7 @@ public final class ConsoleService extends Service {
     @NonNull
     @UiThread
     private static String getSessionTitle(@NonNull final Session s, final int key) {
-        return String.format("%1$s #%2$d", s.connectionParams.get("name"), key);
+        return String.format(Locale.ROOT, "%1$s #%2$d", s.connectionParams.get("name"), key);
     }
 
     @NonNull

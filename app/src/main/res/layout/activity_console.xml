@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical">
@@ -47,7 +48,8 @@
             android:tint="@color/colorAccenttissimo"
             android:visibility="invisible"
             app:srcCompat="@drawable/ic_bell_24"
-            app:tintMode="multiply" />
+            app:tintMode="multiply"
+            tools:ignore="ContentDescription,RtlHardcoded" />
 
     </FrameLayout>
 

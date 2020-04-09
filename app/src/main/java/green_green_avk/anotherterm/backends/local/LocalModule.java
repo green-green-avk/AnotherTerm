@@ -218,7 +218,7 @@ public final class LocalModule extends BackendModule {
         env.put("LIB_DIR", context.getApplicationInfo().nativeLibraryDir);
         env.put("APP_ID", BuildConfig.APPLICATION_ID);
         env.put("APP_VERSION", BuildConfig.VERSION_NAME);
-        env.put("MY_DEVICE_ABIS", StringUtils.joinWith(" ", Misc.getAbis()));
+        env.put("MY_DEVICE_ABIS", StringUtils.joinWith(" ", (Object[]) Misc.getAbis()));
         env.put("MY_ANDROID_SDK", Integer.toString(Build.VERSION.SDK_INT));
         synchronized (connectionLock) {
             proc = PtyProcess.system(execute, env);
