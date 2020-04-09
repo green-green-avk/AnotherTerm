@@ -5,11 +5,13 @@
         <attr name="cursor" format="reference" />
         <attr name="cursorSize" format="dimension" />
         <attr name="vScrollStep" format="dimension" />
+        <attr name="buttonsLayout" format="reference" />
     </declare-styleable>
 
     <style name="AppScreenMouseViewStyle">
         <item name="cursor">@drawable/ic_screen_mouse_cursor</item>
         <item name="cursorSize">56sp</item>
         <item name="vScrollStep">20dp</item>
+        <item name="buttonsLayout">@layout/screen_mouse_buttons</item>
     </style>
 </resources>

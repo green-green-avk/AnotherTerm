@@ -1,0 +1,185 @@
+<?xml version="1.0" encoding="utf-8"?>
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="640dp"
+    android:layout_height="480dp">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="horizontal">
+
+        <FrameLayout
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="1">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:orientation="vertical">
+
+                <FrameLayout
+                    style="@style/AppScreenMouseButtonStyle"
+                    android:layout_width="match_parent"
+                    android:layout_height="0dp"
+                    android:layout_weight="1">
+
+                    <ImageView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_gravity="bottom|right"
+                        app:srcCompat="@drawable/ic_screen_mouse_button_lu"
+                        tools:ignore="ContentDescription,RtlHardcoded" />
+
+                </FrameLayout>
+
+                <FrameLayout
+                    style="@style/AppScreenMouseButtonStyle"
+                    android:layout_width="match_parent"
+                    android:layout_height="0dp"
+                    android:layout_weight="1">
+
+                    <ImageView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_gravity="top|right"
+                        app:srcCompat="@drawable/ic_screen_mouse_button_ld"
+                        tools:ignore="ContentDescription,RtlHardcoded" />
+
+                </FrameLayout>
+
+            </LinearLayout>
+
+            <ImageButton
+                style="@style/AppScreenMouseButtonStyle"
+                android:layout_width="100dp"
+                android:layout_height="200dp"
+                android:layout_gravity="right|center_vertical"
+                android:background="@drawable/ic_screen_mouse_button_side"
+                android:tag="v_scroll"
+                app:srcCompat="@drawable/ic_screen_mouse_scroll"
+                tools:ignore="ContentDescription,RtlHardcoded" />
+
+        </FrameLayout>
+
+        <Space
+            android:layout_width="240dp"
+            android:layout_height="120dp"
+            android:layout_gravity="bottom" />
+
+        <FrameLayout
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="1">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:orientation="vertical">
+
+                <FrameLayout
+                    style="@style/AppScreenMouseButtonStyle"
+                    android:layout_width="match_parent"
+                    android:layout_height="0dp"
+                    android:layout_weight="1">
+
+                    <ImageView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_gravity="bottom|left"
+                        app:srcCompat="@drawable/ic_screen_mouse_button_ru"
+                        tools:ignore="ContentDescription,RtlHardcoded" />
+
+                </FrameLayout>
+
+                <FrameLayout
+                    style="@style/AppScreenMouseButtonStyle"
+                    android:layout_width="match_parent"
+                    android:layout_height="0dp"
+                    android:layout_weight="1">
+
+                    <ImageView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_gravity="top|left"
+                        app:srcCompat="@drawable/ic_screen_mouse_button_rd"
+                        tools:ignore="ContentDescription,RtlHardcoded" />
+
+                </FrameLayout>
+
+            </LinearLayout>
+
+            <ImageButton
+                style="@style/AppScreenMouseButtonStyle"
+                android:layout_width="100dp"
+                android:layout_height="200dp"
+                android:layout_gravity="left|center_vertical"
+                android:background="@drawable/ic_screen_mouse_button_side"
+                android:scaleX="-1"
+                android:tag="v_scroll"
+                app:srcCompat="@drawable/ic_screen_mouse_scroll"
+                tools:ignore="ContentDescription,RtlHardcoded" />
+
+        </FrameLayout>
+
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="200dp"
+        android:layout_gravity="bottom"
+        android:orientation="horizontal">
+
+        <ImageView
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:scaleType="center"
+            android:tag="right"
+            app:srcCompat="@drawable/ic_mouse_button_right"
+            tools:ignore="ContentDescription,RtlHardcoded" />
+
+        <ImageView
+            android:layout_width="0dp"
+            android:layout_height="160dp"
+            android:layout_gravity="bottom"
+            android:layout_weight="1"
+            android:scaleType="center"
+            android:tag="left"
+            app:srcCompat="@drawable/ic_mouse_button_left"
+            tools:ignore="ContentDescription,RtlHardcoded" />
+
+        <ImageView
+            android:layout_width="0dp"
+            android:layout_height="160dp"
+            android:layout_gravity="bottom"
+            android:layout_weight="1"
+            android:scaleType="center"
+            android:tag="middle"
+            app:srcCompat="@drawable/ic_mouse_button_middle"
+            tools:ignore="ContentDescription" />
+
+        <ImageView
+            android:layout_width="0dp"
+            android:layout_height="160dp"
+            android:layout_gravity="bottom"
+            android:layout_weight="1"
+            android:scaleType="center"
+            android:tag="left"
+            app:srcCompat="@drawable/ic_mouse_button_left"
+            tools:ignore="ContentDescription,RtlHardcoded" />
+
+        <ImageView
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:scaleType="center"
+            android:tag="right"
+            app:srcCompat="@drawable/ic_mouse_button_right"
+            tools:ignore="ContentDescription,RtlHardcoded" />
+
+    </LinearLayout>
+
+</FrameLayout>

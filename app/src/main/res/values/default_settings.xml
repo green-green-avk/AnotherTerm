@@ -7,4 +7,5 @@
     <bool name="terminal_key_repeat">true</bool>
     <integer name="terminal_key_repeat_delay">1000</integer><!-- [ms] -->
     <integer name="terminal_key_repeat_interval">100</integer><!-- [ms] -->
+    <string name="terminal_mouse_layout">default</string>
 </resources>

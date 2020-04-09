@@ -230,6 +230,8 @@ public final class ConsoleActivity extends AppCompatActivity implements ConsoleI
         mCkv.setAutoRepeatDelay(((App) getApplication()).settings.terminal_key_repeat_delay);
         mCkv.setAutoRepeatInterval(((App) getApplication()).settings.terminal_key_repeat_interval);
         mCkv.setKeyHeightDp(((App) getApplication()).settings.terminal_key_height_dp);
+        mSmv.setButtons("wide".equals(((App) getApplication()).settings.terminal_mouse_layout) ?
+                R.layout.screen_mouse_buttons_wide : R.layout.screen_mouse_buttons);
         ((BackendUiInteractionActivityCtx) mSession.backend.wrapped.getUi()).setActivity(this);
     }
 

@@ -6,7 +6,7 @@
     <item
         android:id="@+id/action_mouse"
         android:checkable="true"
-        android:icon="@drawable/ic_mouse"
+        android:icon="@drawable/ic_mouse_white"
         android:title="&#x1f5b0;"
         android:visible="false"
         app:showAsAction="always"

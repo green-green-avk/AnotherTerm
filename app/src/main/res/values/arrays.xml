@@ -27,4 +27,14 @@
         <item>RTS/CTS</item>
         <item>DSR/DTR</item>
     </string-array>
+
+    <string-array name="labels_screen_mouse_layout">
+        <item>Default</item>
+        <item>Wide (for low resolution multitouch)</item>
+    </string-array>
+
+    <string-array name="values_screen_mouse_layout">
+        <item>default</item>
+        <item>wide</item>
+    </string-array>
 </resources>

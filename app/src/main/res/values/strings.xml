@@ -186,4 +186,6 @@
     <string name="label_path_location_">Location:</string>
     <string name="msg_discard_settings_and_continue_confirmation">The settings will be lost. Continue?</string>
     <string name="msg_permission_confirmation">%2$s\n`%1$s\' permission requested by the script. Confirm?</string>
+    <string name="label_screen_mouse">Screen Mouse</string>
+    <string name="label_screen_mouse_buttons_layout">Buttons layout</string>
 </resources>

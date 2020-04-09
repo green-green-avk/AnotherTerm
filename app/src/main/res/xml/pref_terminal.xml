@@ -74,4 +74,18 @@
 
     </PreferenceCategory>
 
+    <PreferenceCategory
+        android:icon="@drawable/ic_mouse_black"
+        android:title="@string/label_screen_mouse">
+
+        <ListPreference
+            android:defaultValue="@string/terminal_mouse_layout"
+            android:entries="@array/labels_screen_mouse_layout"
+            android:entryValues="@array/values_screen_mouse_layout"
+            android:key="terminal_mouse_layout"
+            android:title="@string/label_screen_mouse_buttons_layout"
+            app:useSimpleSummaryProvider="true" />
+
+    </PreferenceCategory>
+
 </PreferenceScreen>

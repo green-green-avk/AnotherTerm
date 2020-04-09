@@ -11,12 +11,15 @@ import android.graphics.drawable.Drawable;
 import android.os.SystemClock;
 import android.util.AttributeSet;
 import android.view.InputDevice;
+import android.view.LayoutInflater;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.WindowManager;
+import android.widget.FrameLayout;
 
 import androidx.annotation.CheckResult;
+import androidx.annotation.LayoutRes;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.content.res.AppCompatResources;
@@ -29,11 +32,13 @@ public class ScreenMouseView extends ScrollableView {
     protected Drawable cursor = null;
     protected int cursorSize = 64;
     protected int vScrollStep = 16;
+    protected int buttonsLayoutResId = 0;
 
     protected boolean visibleCursor = true;
 
     protected Dialog overlay = null;
-    protected ViewGroup overlayButtons = null;
+    protected ViewGroup overlayView = null;
+    protected View overlayButtonsView = null;
 
     public ScreenMouseView(final Context context, final AttributeSet attrs) {
         super(context, attrs);
@@ -59,11 +64,15 @@ public class ScreenMouseView extends ScrollableView {
         try {
 //            cursor = a.getDrawable(R.styleable.ScreenMouseView_cursor);
             cursor = AppCompatResources.getDrawable(context,
-                    a.getResourceId(R.styleable.ScreenMouseView_cursor, 0));
+                    a.getResourceId(R.styleable.ScreenMouseView_cursor,
+                            R.drawable.ic_screen_mouse_cursor));
             cursorSize = a.getDimensionPixelSize(R.styleable.ScreenMouseView_cursorSize,
                     cursor == null ? cursorSize :
                             Math.max(cursor.getIntrinsicWidth(), cursor.getIntrinsicHeight()));
-            vScrollStep = a.getDimensionPixelSize(R.styleable.ScreenMouseView_vScrollStep, vScrollStep);
+            vScrollStep = a.getDimensionPixelSize(R.styleable.ScreenMouseView_vScrollStep,
+                    vScrollStep);
+            buttonsLayoutResId = a.getResourceId(R.styleable.ScreenMouseView_buttonsLayout,
+                    R.layout.screen_mouse_buttons);
         } finally {
             a.recycle();
         }
@@ -72,32 +81,66 @@ public class ScreenMouseView extends ScrollableView {
 //        mGestureDetector.setContextClickListener(null);
         mGestureDetector.setIsLongpressEnabled(false);
 
-        overlay = new Dialog(getContext(), R.style.AppScreenMouseOverlayTheme);
-        overlay.setContentView(R.layout.screen_mouse_overlay);
+        overlay = new Dialog(context, R.style.AppScreenMouseOverlayTheme);
+        overlayView = new FrameLayout(context);
+        overlayView.setLayoutParams(new ViewGroup.LayoutParams(
+                ViewGroup.LayoutParams.MATCH_PARENT,
+                ViewGroup.LayoutParams.MATCH_PARENT
+        ));
+        overlayView.setOnTouchListener(overlayOnTouch);
+        overlay.setContentView(overlayView);
         overlay.getWindow().setType(WindowManager.LayoutParams.TYPE_APPLICATION_ATTACHED_DIALOG);
-        overlay.setOwnerActivity((Activity) getContext());
+        overlay.setOwnerActivity((Activity) context);
         final View odv = overlay.getWindow().getDecorView();
         odv.setScaleX(1F);
         odv.setScaleY(1F);
-        overlayButtons = odv.findViewById(R.id.buttons);
-        for (final View v : UiUtils.getIterable(overlayButtons)) {
+    }
+
+    protected static final OnTouchListener overlayOnTouch = new OnTouchListener() {
+        @SuppressLint("ClickableViewAccessibility")
+        @Override
+        public boolean onTouch(final View v, final MotionEvent event) {
+            return true;
+        }
+    };
+
+    protected final OnTouchListener buttonsOnTouch = new OnTouchListener() {
+        @SuppressLint("ClickableViewAccessibility")
+        @Override
+        public boolean onTouch(final View v, final MotionEvent event) {
+            switch (event.getAction()) {
+                case MotionEvent.ACTION_DOWN:
+                case MotionEvent.ACTION_UP:
+                case MotionEvent.ACTION_MOVE:
+                    return onOverlayButton(v, event);
+            }
+            return false;
+        }
+    };
+
+    protected void applyButtons() {
+        if (overlayButtonsView != null) return;
+        overlayButtonsView = LayoutInflater.from(getContext()).inflate(buttonsLayoutResId, overlayView,
+                false);
+        overlayView.removeAllViewsInLayout();
+        overlayView.addView(overlayButtonsView);
+        for (final View v : UiUtils.getIterable(overlayButtonsView)) {
             if (v.getTag() instanceof String) {
-                v.setOnTouchListener(new OnTouchListener() {
-                    @SuppressLint("ClickableViewAccessibility")
-                    @Override
-                    public boolean onTouch(final View v, final MotionEvent event) {
-                        if (v == overlayButtons) return true;
-                        switch (event.getAction()) {
-                            case MotionEvent.ACTION_DOWN:
-                            case MotionEvent.ACTION_UP:
-                            case MotionEvent.ACTION_MOVE:
-                                return onOverlayButton(v, event);
-                        }
-                        return false;
-                    }
-                });
+                v.setOnTouchListener(buttonsOnTouch);
             }
         }
+    }
+
+    @CheckResult
+    @LayoutRes
+    public int getButtonsLayoutResId() {
+        return buttonsLayoutResId;
+    }
+
+    public void setButtons(@LayoutRes final int resId) {
+        if (resId == 0 || resId == buttonsLayoutResId) return;
+        buttonsLayoutResId = resId;
+        overlayButtonsView = null;
     }
 
     @Override
@@ -179,12 +222,12 @@ public class ScreenMouseView extends ScrollableView {
         }
     */
     protected void setOverlayCoords(@NonNull final MotionEvent event) {
-        int width = overlayButtons.getLayoutParams().width;
-        int height = overlayButtons.getLayoutParams().height;
-        if (width <= 0) width = overlayButtons.getWidth();
-        if (height <= 0) height = overlayButtons.getHeight();
-        overlayButtons.setX(event.getRawX() - (float) width / 2);
-        overlayButtons.setY(event.getRawY() - (float) height / 2);
+        int width = overlayButtonsView.getLayoutParams().width;
+        int height = overlayButtonsView.getLayoutParams().height;
+        if (width <= 0) width = overlayButtonsView.getWidth();
+        if (height <= 0) height = overlayButtonsView.getHeight();
+        overlayButtonsView.setX(event.getRawX() - (float) width / 2);
+        overlayButtonsView.setY(event.getRawY() - (float) height / 2);
     }
 
     @CheckResult
@@ -205,6 +248,7 @@ public class ScreenMouseView extends ScrollableView {
         final int action = event.getActionMasked();
         switch (action) {
             case MotionEvent.ACTION_DOWN: {
+                applyButtons();
                 setOverlayCoords(event);
                 overlay.show();
                 break;
@@ -214,6 +258,7 @@ public class ScreenMouseView extends ScrollableView {
                 break;
             }
             case MotionEvent.ACTION_MOVE: {
+                applyButtons();
                 setOverlayCoords(event);
                 break;
             }
