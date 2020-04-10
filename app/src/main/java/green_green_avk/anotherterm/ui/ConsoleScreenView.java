@@ -179,7 +179,7 @@ public class ConsoleScreenView extends ScrollableView
                             }
                             try {
                                 getContext().startActivity(new Intent(Intent.ACTION_VIEW,
-                                        Uri.parse(s)));
+                                        Uri.parse(s.replaceAll("\\s+", ""))));
                             } catch (final ActivityNotFoundException e) {
                                 try {
                                     getContext().startActivity(new Intent(Intent.ACTION_WEB_SEARCH)
