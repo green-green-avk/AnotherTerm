@@ -2,7 +2,7 @@
 <FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
-    android:layout_width="640dp"
+    android:layout_width="480dp"
     android:layout_height="480dp">
 
     <LinearLayout
@@ -52,12 +52,12 @@
 
             </LinearLayout>
 
-            <ImageButton
+            <ImageView
                 style="@style/AppScreenMouseButtonStyle"
-                android:layout_width="100dp"
-                android:layout_height="200dp"
-                android:layout_gravity="right|center_vertical"
-                android:background="@drawable/ic_screen_mouse_button_side"
+                android:layout_width="match_parent"
+                android:layout_height="240dp"
+                android:layout_gravity="top"
+                android:scaleType="center"
                 android:tag="v_scroll"
                 app:srcCompat="@drawable/ic_screen_mouse_scroll"
                 tools:ignore="ContentDescription,RtlHardcoded" />
@@ -65,7 +65,7 @@
         </FrameLayout>
 
         <Space
-            android:layout_width="240dp"
+            android:layout_width="200dp"
             android:layout_height="120dp"
             android:layout_gravity="bottom" />
 
@@ -111,12 +111,12 @@
 
             </LinearLayout>
 
-            <ImageButton
+            <ImageView
                 style="@style/AppScreenMouseButtonStyle"
-                android:layout_width="100dp"
-                android:layout_height="200dp"
-                android:layout_gravity="left|center_vertical"
-                android:background="@drawable/ic_screen_mouse_button_side"
+                android:layout_width="match_parent"
+                android:layout_height="240dp"
+                android:layout_gravity="top"
+                android:scaleType="center"
                 android:scaleX="-1"
                 android:tag="v_scroll"
                 app:srcCompat="@drawable/ic_screen_mouse_scroll"
@@ -128,7 +128,7 @@
 
     <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="200dp"
+        android:layout_height="240dp"
         android:layout_gravity="bottom"
         android:orientation="horizontal">
 
@@ -143,7 +143,7 @@
 
         <ImageView
             android:layout_width="0dp"
-            android:layout_height="160dp"
+            android:layout_height="200dp"
             android:layout_gravity="bottom"
             android:layout_weight="1"
             android:scaleType="center"
@@ -164,6 +164,16 @@
         <ImageView
             android:layout_width="0dp"
             android:layout_height="160dp"
+            android:layout_gravity="bottom"
+            android:layout_weight="1"
+            android:scaleType="center"
+            android:tag="middle"
+            app:srcCompat="@drawable/ic_mouse_button_middle"
+            tools:ignore="ContentDescription" />
+
+        <ImageView
+            android:layout_width="0dp"
+            android:layout_height="200dp"
             android:layout_gravity="bottom"
             android:layout_weight="1"
             android:scaleType="center"
