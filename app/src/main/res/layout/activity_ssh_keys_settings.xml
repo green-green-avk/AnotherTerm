@@ -10,7 +10,7 @@
     <TextView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="@string/host_keys"
+        android:text="@string/label_host_keys"
         android:textSize="18sp" />
 
     <green_green_avk.anotherterm.ui.SshHostKeyRepositoryView

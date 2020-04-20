@@ -60,11 +60,11 @@
     <string name="label_terminal_string">Terminal string</string>
     <string name="label_execute_">Execute:</string>
     <string name="label_shell">shell</string>
-    <string name="keepalive_interval_">KeepAlive Interval:</string>
+    <string name="label_keepalive_interval_">KeepAlive Interval:</string>
     <string name="time_unit_seconds">seconds</string>
-    <string name="port_forwarding_">Port forwarding:</string>
-    <string name="port_forwarding_local_">Local:</string>
-    <string name="port_forwarding_remote_">Remote:</string>
+    <string name="label_port_forwarding_">Port forwarding:</string>
+    <string name="label_port_forwarding_local_">Local:</string>
+    <string name="label_port_forwarding_remote_">Remote:</string>
     <string name="choose">Choose</string>
     <string name="label_prefer_public_key_authentication">Prefer Public Key Authentication</string>
     <string name="msg_clipboard_does_not_contain_applicable_settings">Clipboard does not contain applicable settings</string>
@@ -74,7 +74,7 @@
     <string name="action_term_key_mapping">Key Mapping</string>
     <string name="prompt_overwrite">Overwrite?</string>
     <string name="msg_name_must_not_be_empty">Name must not be empty</string>
-    <string name="license">License</string>
+    <string name="title_license">License</string>
     <string name="conntype_local">Local Terminal</string>
     <string name="title_info">Info</string>
     <string name="desc_not_found"><![CDATA[<h1>Not Found</h1>]]></string>
@@ -86,7 +86,7 @@
     <string name="conntype_telnet">Telnet</string>
     <string name="title_activity_settings">Settings</string>
     <string name="label_key_map">Key Map</string>
-    <string name="host_keys">Host Keys</string>
+    <string name="label_host_keys">Host Keys</string>
     <string name="unit_ms">ms</string>
     <string name="unit_sp">sp</string>
     <string name="unit_dp">dp</string>
@@ -188,4 +188,15 @@
     <string name="msg_permission_confirmation">%2$s\n`%1$s\' permission requested by the script. Confirm?</string>
     <string name="label_screen_mouse">Screen Mouse</string>
     <string name="label_screen_mouse_buttons_layout">Buttons layout</string>
+    <string name="label_dims_div">X</string>
+    <string name="hint_display">display</string>
+    <string name="label_x11_">X11:</string>
+    <string name="label_colon_x11_first_port_plus">:6000+</string>
+    <string name="label_baudrate">Baudrate</string>
+    <string name="label_field_div">/</string>
+    <string name="label_mod_shift">Shift</string>
+    <string name="label_mod_alt">Alt</string>
+    <string name="label_mod_control">Ctrl</string>
+    <string name="action_menu">Menu</string>
+    <string name="mark_active">Active</string>
 </resources>

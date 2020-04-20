@@ -7,6 +7,8 @@ import android.util.AttributeSet;
 import android.view.View;
 import android.widget.FrameLayout;
 
+import androidx.annotation.Nullable;
+
 /**
  * Created by Pavel Sikun on 21.05.16.
  */
@@ -39,7 +41,7 @@ public class SeekBarPreferenceView extends FrameLayout implements View.OnClickLi
         init(attrs);
     }
 
-    private void init(final AttributeSet attrs) {
+    private void init(@Nullable final AttributeSet attrs) {
         controllerDelegate = new PreferenceControllerDelegate(getContext(), true);
         controllerDelegate.loadValuesFromXml(attrs);
     }

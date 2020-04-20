@@ -20,6 +20,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:background="@drawable/bg_box1"
+            android:contentDescription="@string/label_application_icon"
             android:src="@mipmap/ic_launcher"
             app:layout_constraintLeft_toLeftOf="parent"
             app:layout_constraintTop_toTopOf="parent" />
@@ -48,6 +49,7 @@
             android:typeface="monospace"
             app:layout_constraintRight_toRightOf="@+id/title"
             app:layout_constraintTop_toTopOf="parent" />
+
     </androidx.constraintlayout.widget.ConstraintLayout>
 
     <ScrollView
@@ -83,7 +85,7 @@
                     android:layout_height="wrap_content"
                     android:layout_marginLeft="32dp"
                     android:padding="@dimen/text_header_padding"
-                    android:text="@string/license"
+                    android:text="@string/title_license"
                     android:textSize="@dimen/text_header_size"
                     android:textStyle="bold" />
 
@@ -93,9 +95,11 @@
                     android:autoLink="all"
                     android:padding="@dimen/text_padding"
                     android:text="@string/text_license" />
+
             </LinearLayout>
 
         </LinearLayout>
+
     </ScrollView>
 
 </androidx.constraintlayout.widget.ConstraintLayout>

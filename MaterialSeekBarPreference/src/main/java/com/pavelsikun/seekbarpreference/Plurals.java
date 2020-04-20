@@ -76,7 +76,7 @@ final class Plurals {
         this.resId = resId;
     }
 
-    void set(final String str) {
+    void set(@Nullable final String str) {
         resId = 0;
         this.str = str;
         if (str == null) return;

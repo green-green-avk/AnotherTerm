@@ -1,20 +1,18 @@
 <?xml version="1.0" encoding="utf-8"?>
 <layer-list xmlns:android="http://schemas.android.com/apk/res/android">
     <item>
-        <shape xmlns:android="http://schemas.android.com/apk/res/android"
-            android:shape="oval">
+        <shape android:shape="oval">
             <stroke
                 android:width="1dp"
                 android:color="#FFFFFFFF" />
         </shape>
     </item>
     <item
-        android:top="2sp"
         android:bottom="2sp"
         android:left="2sp"
-        android:right="2sp">
-        <shape xmlns:android="http://schemas.android.com/apk/res/android"
-            android:shape="oval">
+        android:right="2sp"
+        android:top="2sp">
+        <shape android:shape="oval">
             <stroke
                 android:width="1dp"
                 android:color="#80FFFFFF" />

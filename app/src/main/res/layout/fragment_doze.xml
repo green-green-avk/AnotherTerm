@@ -19,7 +19,8 @@
             android:layout_height="match_parent"
             android:alpha="0.1"
             android:scaleType="fitCenter"
-            app:srcCompat="@drawable/ic_battery" />
+            app:srcCompat="@drawable/ic_battery"
+            tools:ignore="ContentDescription" />
 
         <ScrollView
             android:layout_width="match_parent"
@@ -32,6 +33,7 @@
                 android:textIsSelectable="true"
                 android:textSize="18sp"
                 app:xmlText="@string/desc_doze" />
+
         </ScrollView>
 
     </FrameLayout>
@@ -46,10 +48,11 @@
             android:id="@+id/icon"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            app:srcCompat="@drawable/ic_battery"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintLeft_toLeftOf="parent"
-            app:layout_constraintTop_toTopOf="parent" />
+            app:layout_constraintTop_toTopOf="parent"
+            app:srcCompat="@drawable/ic_battery"
+            tools:ignore="ContentDescription" />
 
         <TextView
             android:id="@+id/f_is_optimized"
@@ -69,6 +72,7 @@
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintRight_toRightOf="parent"
             app:layout_constraintTop_toTopOf="parent" />
+
     </androidx.constraintlayout.widget.ConstraintLayout>
 
 </LinearLayout>

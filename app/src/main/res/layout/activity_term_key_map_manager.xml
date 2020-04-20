@@ -12,4 +12,5 @@
         android:divider="@android:color/transparent"
         android:dividerHeight="@dimen/field_margin_2x"
         android:padding="@dimen/text_padding" />
+
 </FrameLayout>

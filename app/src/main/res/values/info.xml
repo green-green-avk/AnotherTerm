@@ -11,7 +11,7 @@
 <li><a href=\"https://github.com/green-green-avk/AnotherTerm/wiki/Installing-libusb-for-nonrooted-Android\">Installing libusb for nonrooted Android</a></li>
 </ul>
 ]]></string>
-<string name="desc_keymap_escapes"><![CDATA[
+    <string name="desc_keymap_escapes"><![CDATA[
 <h1>Key Map Escapes</h1>
 <p>All symbols are represented in the UTF-16 encoding and will be converted to the output stream
 in according to the current console character set.</p>

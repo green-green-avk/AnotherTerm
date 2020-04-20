@@ -11,14 +11,16 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:hint="@string/label_terminal_string"
+        android:importantForAutofill="no"
         android:inputType="textPersonName"
         android:tag="terminal_string"
         android:text="xterm"
         tools:ignore="HardcodedText" />
 
     <com.google.android.flexbox.FlexboxLayout
-        android:layout_width="match_parent"
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:layoutDirection="ltr"
         app:alignItems="baseline"
         app:flexDirection="row"
         app:flexWrap="wrap">
@@ -28,6 +30,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:hint="@string/hint_host"
+            android:importantForAutofill="no"
             android:inputType="textUri"
             android:tag="hostname" />
 
@@ -42,6 +45,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:hint="@string/hint_port"
+            android:importantForAutofill="no"
             android:inputType="number"
             android:tag="port"
             android:text="23"
@@ -57,12 +61,14 @@
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="@string/keepalive_interval_" />
+            android:labelFor="@id/f_kainterval"
+            android:text="@string/label_keepalive_interval_" />
 
         <EditText
             android:id="@+id/f_kainterval"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:importantForAutofill="no"
             android:inputType="number"
             android:tag="keepalive_interval"
             android:text="0"

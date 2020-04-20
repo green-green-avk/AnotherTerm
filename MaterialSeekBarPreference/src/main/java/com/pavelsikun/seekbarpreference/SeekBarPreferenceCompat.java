@@ -7,6 +7,7 @@ import android.os.Build;
 import android.util.AttributeSet;
 import android.view.View;
 
+import androidx.annotation.Nullable;
 import androidx.preference.Preference;
 import androidx.preference.PreferenceViewHolder;
 
@@ -42,7 +43,7 @@ public class SeekBarPreferenceCompat extends Preference implements View.OnClickL
         init(null);
     }
 
-    private void init(final AttributeSet attrs) {
+    private void init(@Nullable final AttributeSet attrs) {
         setLayoutResource(R.layout.seekbar_view_layout);
         controllerDelegate = new PreferenceControllerDelegate(getContext(), false);
 
@@ -57,6 +58,7 @@ public class SeekBarPreferenceCompat extends Preference implements View.OnClickL
     public void onBindViewHolder(final PreferenceViewHolder viewRoot) {
         super.onBindViewHolder(viewRoot);
         controllerDelegate.onBind(viewRoot.itemView);
+        controllerDelegate.setTitle(getTitle() != null ? getTitle().toString() : null);
     }
 
     @Override
@@ -126,6 +128,12 @@ public class SeekBarPreferenceCompat extends Preference implements View.OnClickL
 
     public void setMeasurementUnit(final String measurementUnit) {
         controllerDelegate.setUnit(measurementUnit);
+    }
+
+    @Override
+    public void setTitle(final CharSequence title) {
+        super.setTitle(title);
+        controllerDelegate.setTitle(title != null ? title.toString() : null);
     }
 
     public boolean isDialogEnabled() {

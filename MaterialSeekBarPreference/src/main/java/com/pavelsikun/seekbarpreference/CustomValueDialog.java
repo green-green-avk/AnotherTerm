@@ -1,5 +1,6 @@
 package com.pavelsikun.seekbarpreference;
 
+import android.annotation.SuppressLint;
 import android.app.AlertDialog;
 import android.app.Dialog;
 import android.content.Context;
@@ -17,16 +18,19 @@ import android.widget.ImageView;
 import android.widget.PopupWindow;
 import android.widget.TextView;
 
+import androidx.annotation.DrawableRes;
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+import androidx.annotation.StringRes;
+import androidx.appcompat.content.res.AppCompatResources;
 
 /**
  * Created by Pavel Sikun on 21.05.16.
  */
 final class CustomValueDialog {
-
-    private final String TAG = getClass().getSimpleName();
-
+    @StringRes
     private static final int DEFAULT_OK_RES_ID = android.R.string.ok;
+    @StringRes
     private static final int DEFAULT_CANCEL_RES_ID = android.R.string.cancel;
 
     private Dialog dialog;
@@ -35,50 +39,45 @@ final class CustomValueDialog {
     private int minValue, maxValue, interval, currentValue;
     private PersistValueListener persistValueListener;
 
-    private Drawable icon;
     private String titleText;
+    private Drawable icon = null;
     private String okText;
     private String cancelText;
 
     private final PopupWindow warnWin;
 
-    CustomValueDialog(@NonNull final Context context,
-                      final int style, final int minValue, final int maxValue, final int interval,
+    CustomValueDialog(@NonNull final Context context, final int style,
+                      @Nullable final String title, @DrawableRes final int iconResId,
+                      final int minValue, final int maxValue, final int interval,
                       final int currentValue) {
         this.minValue = minValue;
         this.maxValue = maxValue;
         this.interval = interval;
         this.currentValue = currentValue;
 
-        icon = null;
-        titleText = null;
+        titleText = title;
+        if (iconResId != 0)
+            icon = AppCompatResources.getDrawable(context, iconResId);
         okText = context.getString(DEFAULT_OK_RES_ID);
         cancelText = context.getString(DEFAULT_CANCEL_RES_ID);
 
         if (style != 0) {
-            final TypedArray a = context.obtainStyledAttributes(style, R.styleable.SeekBarPreference);
+            final TypedArray a =
+                    context.obtainStyledAttributes(style, R.styleable.SeekBarPreference);
             try {
-                if (a.hasValue(R.styleable.SeekBarPreference_msbp_dialogIcon))
-                    icon = a.getDrawable(R.styleable.SeekBarPreference_msbp_dialogIcon);
-
-                if (a.hasValue(R.styleable.SeekBarPreference_msbp_dialogTitle))
-                    titleText = a.getString(R.styleable.SeekBarPreference_msbp_dialogTitle);
-
                 if (a.hasValue(R.styleable.SeekBarPreference_msbp_dialogOk))
                     okText = a.getString(R.styleable.SeekBarPreference_msbp_dialogOk);
-
                 if (a.hasValue(R.styleable.SeekBarPreference_msbp_dialogCancel))
                     cancelText = a.getString(R.styleable.SeekBarPreference_msbp_dialogCancel);
-
             } finally {
-                if (a != null) a.recycle();
+                a.recycle();
             }
-
         }
 
         // TODO: Add theme attribute
         // I see no problem in merging style attributes into theme though...
-        final Context dialogContext = new ContextThemeWrapper(context, style);
+        final Context dialogContext =
+                style != 0 ? new ContextThemeWrapper(context, style) : context;
 
         final TextView warnWinView = new TextView(context);
         warnWinView.setLayoutParams(new ViewGroup.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT,
@@ -92,7 +91,8 @@ final class CustomValueDialog {
     }
 
     private void init(@NonNull final AlertDialog.Builder dialogBuilder) {
-        final View dialogView = LayoutInflater.from(dialogBuilder.getContext()).inflate(R.layout.value_selector_dialog, null);
+        @SuppressLint("InflateParams") final View dialogView = LayoutInflater.from(dialogBuilder
+                .getContext()).inflate(R.layout.value_selector_dialog, null);
 
         final TextView minValueView = dialogView.findViewById(R.id.minValue);
         final TextView maxValueView = dialogView.findViewById(R.id.maxValue);
@@ -122,9 +122,6 @@ final class CustomValueDialog {
             }
         }
 
-        final View colorView = dialogView.findViewById(R.id.dialog_color_area);
-        colorView.setBackgroundColor(fetchAccentColor(dialogBuilder.getContext()));
-
         final Button btnApply = dialogView.findViewById(R.id.btn_apply);
         final Button btnCancel = dialogView.findViewById(R.id.btn_cancel);
 
@@ -133,19 +130,19 @@ final class CustomValueDialog {
 
         btnApply.setOnClickListener(new View.OnClickListener() {
             @Override
-            public void onClick(View v) {
+            public void onClick(final View v) {
                 tryApply();
             }
         });
         btnCancel.setOnClickListener(new View.OnClickListener() {
             @Override
-            public void onClick(View v) {
+            public void onClick(final View v) {
                 dialog.cancel();
             }
         });
         dialogBuilder.setOnCancelListener(new DialogInterface.OnCancelListener() {
             @Override
-            public void onCancel(DialogInterface dialog) {
+            public void onCancel(final DialogInterface dialog) {
                 warnWin.dismiss();
             }
         });
@@ -158,15 +155,6 @@ final class CustomValueDialog {
         });
 */
         dialog = dialogBuilder.setView(dialogView).create();
-    }
-
-    private int fetchAccentColor(@NonNull final Context context) {
-        final TypedArray a = context.obtainStyledAttributes(0, new int[]{R.attr.colorAccent});
-        try {
-            return a.getColor(0, 0);
-        } finally {
-            a.recycle();
-        }
     }
 
     CustomValueDialog setPersistValueListener(final PersistValueListener listener) {

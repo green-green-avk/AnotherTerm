@@ -13,4 +13,5 @@
         android:padding="@dimen/text_padding"
         android:textIsSelectable="true"
         app:htmlText="@string/desc_not_found" />
+
 </ScrollView>

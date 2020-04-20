@@ -17,6 +17,7 @@
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:labelFor="@id/f_name"
             android:text="@string/label_save_as_" />
 
         <EditText
@@ -24,6 +25,7 @@
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="1"
+            android:importantForAutofill="no"
             android:inputType="text" />
 
     </LinearLayout>
@@ -39,13 +41,15 @@
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:paddingRight="@dimen/text_separator"
+            android:labelFor="@id/f_key"
             android:text="@string/label_key_" />
 
         <Spinner
             android:id="@+id/f_key"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
+            android:layout_marginLeft="@dimen/text_separator"
+            android:layout_marginRight="@dimen/text_separator"
             android:layout_weight="1" />
 
     </LinearLayout>
@@ -67,21 +71,21 @@
                 android:layout_width="32dp"
                 android:layout_height="wrap_content"
                 android:gravity="center"
-                android:text="Shift" />
+                android:text="@string/label_mod_shift" />
 
             <TextView
                 style="@style/AppSettingsTableHeaderTextStyle"
                 android:layout_width="32dp"
                 android:layout_height="wrap_content"
                 android:gravity="center"
-                android:text="Alt" />
+                android:text="@string/label_mod_alt" />
 
             <TextView
                 style="@style/AppSettingsTableHeaderTextStyle"
                 android:layout_width="32dp"
                 android:layout_height="wrap_content"
                 android:gravity="center"
-                android:text="Ctrl" />
+                android:text="@string/label_mod_control" />
 
         </LinearLayout>
 

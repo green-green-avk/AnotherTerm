@@ -11,14 +11,15 @@
         android:id="@+id/f_baudrate"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:hint="Baudrate"
+        android:hint="@string/label_baudrate"
+        android:importantForAutofill="no"
         android:inputType="number"
         android:tag="baudrate" />
 
     <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="/" />
+        android:text="@string/label_field_div" />
 
     <Spinner
         android:id="@+id/f_databits"
@@ -30,7 +31,7 @@
     <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="/" />
+        android:text="@string/label_field_div" />
 
     <Spinner
         android:id="@+id/f_stopbits"
@@ -42,7 +43,7 @@
     <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="/" />
+        android:text="@string/label_field_div" />
 
     <Spinner
         android:id="@+id/f_parity"
@@ -54,7 +55,7 @@
     <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="/" />
+        android:text="@string/label_field_div" />
 
     <Spinner
         android:id="@+id/f_flowcontrol"

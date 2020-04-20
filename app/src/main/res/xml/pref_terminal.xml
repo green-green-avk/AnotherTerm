@@ -11,6 +11,7 @@
             android:key="terminal_font_default_size_sp"
             android:title="@string/label_default_font_size"
             app:msbp_dialogEnabled="true"
+            app:msbp_dialogIcon="@drawable/ic_font_black_48dp"
             app:msbp_interval="1"
             app:msbp_maxValue="32"
             app:msbp_measurementUnit="@string/unit_sp"
@@ -27,6 +28,7 @@
             android:key="terminal_selection_pad_size_dp"
             android:title="@string/label_selection_pad_size"
             app:msbp_dialogEnabled="true"
+            app:msbp_dialogIcon="@drawable/ic_select_all_black_48dp"
             app:msbp_interval="8"
             app:msbp_maxValue="512"
             app:msbp_measurementUnit="@string/unit_dp"
@@ -43,30 +45,36 @@
             android:key="terminal_key_height_dp"
             android:title="@string/label_kbd_key_height"
             app:msbp_dialogEnabled="true"
+            app:msbp_dialogIcon="@drawable/ic_keyboard_black_48dp"
             app:msbp_interval="1"
             app:msbp_maxValue="64"
             app:msbp_measurementUnit="@string/unit_dp"
             app:msbp_minValue="16" />
+
         <CheckBoxPreference
             android:defaultValue="@bool/terminal_key_repeat"
             android:key="terminal_key_repeat"
             android:summaryOff="@string/label_kbd_autorepeat_always_disabled"
             android:summaryOn="@string/label_kbd_autorepeat_allowed"
             android:title="@string/label_kbd_autorepeat" />
+
         <com.pavelsikun.seekbarpreference.SeekBarPreferenceCompat
             android:defaultValue="@integer/terminal_key_repeat_delay"
             android:key="terminal_key_repeat_delay"
             android:title="@string/label_kbd_autorepeat_start_delay"
             app:msbp_dialogEnabled="true"
+            app:msbp_dialogIcon="@drawable/ic_keyboard_black_48dp"
             app:msbp_interval="50"
             app:msbp_maxValue="2000"
             app:msbp_measurementUnit="@string/unit_ms"
             app:msbp_minValue="100" />
+
         <com.pavelsikun.seekbarpreference.SeekBarPreferenceCompat
             android:defaultValue="@integer/terminal_key_repeat_interval"
             android:key="terminal_key_repeat_interval"
             android:title="@string/label_kbd_autorepeat_interval"
             app:msbp_dialogEnabled="true"
+            app:msbp_dialogIcon="@drawable/ic_keyboard_black_48dp"
             app:msbp_interval="50"
             app:msbp_maxValue="1000"
             app:msbp_measurementUnit="@string/unit_ms"

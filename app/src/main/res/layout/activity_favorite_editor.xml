@@ -34,6 +34,7 @@
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
+                        android:labelFor="@id/fav_name"
                         android:text="@string/label_name" />
 
                     <EditText
@@ -41,6 +42,7 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_weight="1"
+                        android:importantForAutofill="no"
                         android:inputType="text" />
 
                 </TableRow>
@@ -55,6 +57,8 @@
                     <com.google.android.flexbox.FlexboxLayout
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
+                        android:layout_marginStart="@dimen/text_separator"
+                        android:layout_marginLeft="@dimen/text_separator"
                         android:layout_weight="1"
                         app:alignItems="center"
                         app:flexDirection="row"
@@ -68,6 +72,7 @@
                             <TextView
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
+                                android:labelFor="@id/fav_scr_cols"
                                 android:text="@string/label_cols" />
 
                             <EditText
@@ -75,6 +80,7 @@
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
                                 android:hint="@string/hint_auto"
+                                android:importantForAutofill="no"
                                 android:inputType="number" />
 
                         </LinearLayout>
@@ -84,7 +90,7 @@
                             android:layout_height="wrap_content"
                             android:layout_marginLeft="@dimen/text_separator"
                             android:layout_marginRight="@dimen/text_separator"
-                            android:text="X" />
+                            android:text="@string/label_dims_div" />
 
                         <LinearLayout
                             android:layout_width="wrap_content"
@@ -94,6 +100,7 @@
                             <TextView
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
+                                android:labelFor="@id/fav_scr_rows"
                                 android:text="@string/label_rows" />
 
                             <EditText
@@ -101,6 +108,7 @@
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
                                 android:hint="@string/hint_auto"
+                                android:importantForAutofill="no"
                                 android:inputType="number" />
 
                         </LinearLayout>
@@ -114,6 +122,7 @@
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
+                        android:labelFor="@id/fav_charset"
                         android:text="@string/label_charset" />
 
                     <Spinner
@@ -129,6 +138,7 @@
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
+                        android:labelFor="@id/fav_keymap"
                         android:text="@string/label_key_map" />
 
                     <Spinner
@@ -144,6 +154,7 @@
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
+                        android:labelFor="@id/fav_type"
                         android:text="@string/label_type" />
 
                     <Spinner

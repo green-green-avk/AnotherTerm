@@ -11,14 +11,16 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:hint="@string/label_terminal_string"
+        android:importantForAutofill="no"
         android:inputType="textPersonName"
         android:tag="terminal_string"
         android:text="xterm"
         tools:ignore="HardcodedText" />
 
     <com.google.android.flexbox.FlexboxLayout
-        android:layout_width="match_parent"
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:layoutDirection="ltr"
         app:alignItems="baseline"
         app:flexDirection="row"
         app:flexWrap="wrap">
@@ -28,6 +30,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:hint="@string/hint_user"
+            android:importantForAutofill="no"
             android:inputType="textPersonName"
             android:tag="username" />
 
@@ -42,6 +45,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:hint="@string/hint_host"
+            android:importantForAutofill="no"
             android:inputType="textUri"
             android:tag="hostname" />
 
@@ -56,6 +60,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:hint="@string/hint_port"
+            android:importantForAutofill="no"
             android:inputType="number"
             android:tag="port"
             android:text="22"
@@ -78,12 +83,14 @@
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="@string/keepalive_interval_" />
+            android:labelFor="@id/f_kainterval"
+            android:text="@string/label_keepalive_interval_" />
 
         <EditText
             android:id="@+id/f_kainterval"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:importantForAutofill="no"
             android:inputType="number"
             android:tag="keepalive_interval"
             android:text="0"
@@ -111,6 +118,7 @@
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:labelFor="@id/f_execute"
             android:text="@string/label_execute_" />
 
         <EditText
@@ -118,6 +126,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:hint="@string/label_shell"
+            android:importantForAutofill="no"
             android:inputType="text|textMultiLine|textNoSuggestions"
             android:tag="execute" />
 
@@ -128,46 +137,57 @@
         android:layout_height="1dp"
         android:background="?android:attr/listDivider" />
 
-    <com.google.android.flexbox.FlexboxLayout
+    <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        app:alignItems="baseline"
-        app:flexDirection="row"
-        app:flexWrap="wrap">
+        android:gravity="center_vertical"
+        android:orientation="horizontal">
 
         <CheckBox
             android:id="@+id/f_X11"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:tag="X11"
-            android:text="X11:"
-            tools:ignore="HardcodedText" />
+            android:text="@string/label_x11_" />
 
-        <EditText
-            android:id="@+id/f_X11host"
+        <com.google.android.flexbox.FlexboxLayout
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:hint="@string/hint_host"
-            android:inputType="textUri"
-            android:tag="X11_host"
-            android:text="127.0.0.1"
-            tools:ignore="HardcodedText" />
+            android:layoutDirection="ltr"
+            app:alignItems="baseline"
+            app:flexDirection="row"
+            app:flexWrap="wrap">
 
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text=":6000+"
-            tools:ignore="HardcodedText" />
+            <EditText
+                android:id="@+id/f_X11host"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:hint="@string/hint_host"
+                android:importantForAutofill="no"
+                android:inputType="textUri"
+                android:tag="X11_host"
+                android:text="127.0.0.1"
+                tools:ignore="HardcodedText" />
 
-        <EditText
-            android:id="@+id/f_X11port"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:inputType="number"
-            android:tag="X11_port"
-            android:text="0"
-            tools:ignore="HardcodedText" />
-    </com.google.android.flexbox.FlexboxLayout>
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/label_colon_x11_first_port_plus" />
+
+            <EditText
+                android:id="@+id/f_X11port"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:hint="@string/hint_display"
+                android:importantForAutofill="no"
+                android:inputType="number"
+                android:tag="X11_port"
+                android:text="0"
+                tools:ignore="HardcodedText" />
+
+        </com.google.android.flexbox.FlexboxLayout>
+
+    </LinearLayout>
 
     <View
         android:layout_width="match_parent"
@@ -177,7 +197,7 @@
     <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="@string/port_forwarding_" />
+        android:text="@string/label_port_forwarding_" />
 
     <LinearLayout
         android:layout_width="match_parent"
@@ -187,13 +207,15 @@
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="@string/port_forwarding_local_" />
+            android:labelFor="@id/f_local_ports"
+            android:text="@string/label_port_forwarding_local_" />
 
         <EditText
             android:id="@+id/f_local_ports"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:hint="@string/hint_port_mapping"
+            android:importantForAutofill="no"
             android:inputType="text|textMultiLine|textNoSuggestions"
             android:tag="local_ports" />
     </LinearLayout>
@@ -206,15 +228,18 @@
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="@string/port_forwarding_remote_" />
+            android:labelFor="@id/f_remote_ports"
+            android:text="@string/label_port_forwarding_remote_" />
 
         <EditText
             android:id="@+id/f_remote_ports"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:hint="@string/hint_port_mapping"
+            android:importantForAutofill="no"
             android:inputType="text|textMultiLine|textNoSuggestions"
             android:tag="remote_ports" />
+
     </LinearLayout>
 
     <View
@@ -248,60 +273,70 @@
     <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:labelFor="@id/f_kex"
         android:text="@string/label_key_exchange" />
 
     <EditText
         android:id="@+id/f_kex"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:importantForAutofill="no"
         android:inputType="text|textMultiLine|textNoSuggestions"
         android:tag="jsch.cfg.kex" />
 
     <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:labelFor="@id/f_cipher_s2c"
         android:text="@string/label_server_to_client_transport_encryption" />
 
     <EditText
         android:id="@+id/f_cipher_s2c"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:importantForAutofill="no"
         android:inputType="text|textMultiLine|textNoSuggestions"
         android:tag="jsch.cfg.cipher.s2c" />
 
     <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:labelFor="@id/f_cipher_c2s"
         android:text="@string/label_client_to_server_transport_encryption" />
 
     <EditText
         android:id="@+id/f_cipher_c2s"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:importantForAutofill="no"
         android:inputType="text|textMultiLine|textNoSuggestions"
         android:tag="jsch.cfg.cipher.c2s" />
 
     <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:labelFor="@id/f_mac_s2c"
         android:text="@string/label_server_to_client_transport_message_authentication_code" />
 
     <EditText
         android:id="@+id/f_mac_s2c"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:importantForAutofill="no"
         android:inputType="text|textMultiLine|textNoSuggestions"
         android:tag="jsch.cfg.mac.s2c" />
 
     <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:labelFor="@id/f_mac_c2s"
         android:text="@string/label_client_to_server_transport_message_authentication_code" />
 
     <EditText
         android:id="@+id/f_mac_c2s"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:importantForAutofill="no"
         android:inputType="text|textMultiLine|textNoSuggestions"
         android:tag="jsch.cfg.mac.c2s" />
 

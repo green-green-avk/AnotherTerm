@@ -11,20 +11,22 @@ import android.widget.SeekBar;
 import android.widget.TextView;
 
 import androidx.annotation.AnyRes;
+import androidx.annotation.DrawableRes;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.annotation.StyleRes;
 
 /**
  * Created by Pavel Sikun on 28.05.16.
- *
+ * <p>
  * Changed by Aleksandr Kiselev.
  */
 
 @SuppressWarnings("WeakerAccess")
 final class PreferenceControllerDelegate implements SeekBar.OnSeekBarChangeListener, View.OnClickListener {
     private static final boolean DEBUG = BuildConfig.DEBUG;
+    private static final String TAG = PreferenceControllerDelegate.class.getSimpleName();
     static final String NS_ANDROID = "http://schemas.android.com/apk/res/android";
-    private final String TAG = getClass().getSimpleName();
 
     static final int DEFAULT_CURRENT_VALUE = 50;
     private static final int DEFAULT_MIN_VALUE = 0;
@@ -33,7 +35,6 @@ final class PreferenceControllerDelegate implements SeekBar.OnSeekBarChangeListe
     private static final boolean DEFAULT_DIALOG_ENABLED = true;
     private static final boolean DEFAULT_IS_ENABLED = true;
 
-    private static final int DEFAULT_DIALOG_STYLE = R.style.MSB_Dialog_Default;
     private int maxValue = DEFAULT_MAX_VALUE;
     private int minValue = DEFAULT_MIN_VALUE;
     private int interval = DEFAULT_INTERVAL;
@@ -41,6 +42,7 @@ final class PreferenceControllerDelegate implements SeekBar.OnSeekBarChangeListe
     private final Plurals unit = new Plurals();
     private boolean dialogEnabled = DEFAULT_DIALOG_ENABLED;
 
+    @StyleRes
     private int dialogStyle;
 
     private TextView valueView;
@@ -54,9 +56,13 @@ final class PreferenceControllerDelegate implements SeekBar.OnSeekBarChangeListe
     private final Plurals summary = new Plurals();
     private boolean isEnabled = DEFAULT_IS_ENABLED;
 
+    private String dialogTitle = null;
+    @DrawableRes
+    private int dialogIconResId = 0;
+
     //controller stuff
-    private boolean isView;
-    private Context context;
+    private final boolean isView;
+    private final Context context;
     private ViewStateListener viewStateListener;
     private PersistValueListener persistValueListener;
     private ChangeValueListener changeValueListener;
@@ -67,24 +73,24 @@ final class PreferenceControllerDelegate implements SeekBar.OnSeekBarChangeListe
         void setEnabled(boolean enabled);
     }
 
-    PreferenceControllerDelegate(Context context, Boolean isView) {
+    PreferenceControllerDelegate(@NonNull final Context context, final Boolean isView) {
         this.context = context;
         this.isView = isView;
     }
 
-    void setPersistValueListener(PersistValueListener persistValueListener) {
+    void setPersistValueListener(@Nullable final PersistValueListener persistValueListener) {
         this.persistValueListener = persistValueListener;
     }
 
-    void setViewStateListener(ViewStateListener viewStateListener) {
+    void setViewStateListener(@Nullable final ViewStateListener viewStateListener) {
         this.viewStateListener = viewStateListener;
     }
 
-    void setChangeValueListener(ChangeValueListener changeValueListener) {
+    void setChangeValueListener(@Nullable final ChangeValueListener changeValueListener) {
         this.changeValueListener = changeValueListener;
     }
 
-    void loadValuesFromXml(final AttributeSet attrs) {
+    void loadValuesFromXml(@Nullable final AttributeSet attrs) {
         if (attrs != null) {
             final TypedArray a = context.obtainStyledAttributes(attrs, R.styleable.SeekBarPreference);
             try {
@@ -98,7 +104,9 @@ final class PreferenceControllerDelegate implements SeekBar.OnSeekBarChangeListe
                 // TODO: case when the string is not a reference
                 unit.set(a.getResourceId(R.styleable.SeekBarPreference_msbp_measurementUnit, 0));
 
-                dialogStyle = a.getResourceId(R.styleable.SeekBarPreference_msbp_dialogStyle, DEFAULT_DIALOG_STYLE);
+                dialogStyle = a.getResourceId(R.styleable.SeekBarPreference_msbp_dialogStyle, 0);
+                dialogTitle = a.getString(R.styleable.SeekBarPreference_msbp_dialogTitle);
+                dialogIconResId = a.getResourceId(R.styleable.SeekBarPreference_msbp_dialogIcon, 0);
 
                 if (isView) {
                     title = a.getString(R.styleable.SeekBarPreference_msbp_view_title);
@@ -179,17 +187,20 @@ final class PreferenceControllerDelegate implements SeekBar.OnSeekBarChangeListe
     @Override
     public void onClick(final View v) {
         // TODO: separate atomic atomic interval
-        new CustomValueDialog(context, dialogStyle, minValue, maxValue, 1, currentValue)
+        new CustomValueDialog(context, dialogStyle,
+                dialogTitle == null ?
+                        context.getString(R.string.title_dialog, title, unit.get(context, 1))
+                        : dialogTitle, dialogIconResId,
+                minValue, maxValue, 1, currentValue)
                 .setPersistValueListener(new PersistValueListener() {
                     @Override
-                    public boolean persistInt(int value) {
+                    public boolean persistInt(final int value) {
                         setCurrentValue(value);
                         return true;
                     }
                 })
                 .show();
     }
-
 
     String getTitle() {
         return title;
@@ -344,7 +355,7 @@ final class PreferenceControllerDelegate implements SeekBar.OnSeekBarChangeListe
         }
     }
 
-    void setDialogStyle(final int dialogStyle) {
+    void setDialogStyle(@StyleRes final int dialogStyle) {
         this.dialogStyle = dialogStyle;
     }
 }
