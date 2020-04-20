@@ -72,18 +72,19 @@ public final class SessionsActivity extends AppCompatActivity {
                 getMenuInflater().inflate(R.menu.menu_favorite, menu);
                 menu.findItem(R.id.fav_edit).setOnMenuItemClickListener(new MenuItem.OnMenuItemClickListener() {
                     @Override
-                    public boolean onMenuItemClick(MenuItem item) {
+                    public boolean onMenuItemClick(final MenuItem item) {
                         showEditFavoriteDlg(name);
                         return true;
                     }
                 });
-                menu.findItem(R.id.fav_delete).setOnMenuItemClickListener(new MenuItem.OnMenuItemClickListener() {
-                    @Override
-                    public boolean onMenuItemClick(MenuItem item) {
-                        FavoritesManager.remove(name);
-                        return true;
-                    }
-                });
+                menu.findItem(R.id.fav_delete).setOnMenuItemClickListener(
+                        new MenuItem.OnMenuItemClickListener() {
+                            @Override
+                            public boolean onMenuItemClick(MenuItem item) {
+                                FavoritesManager.remove(name);
+                                return true;
+                            }
+                        });
                 menu.findItem(R.id.fav_clone).setOnMenuItemClickListener(new MenuItem.OnMenuItemClickListener() {
                     @Override
                     public boolean onMenuItemClick(MenuItem item) {
@@ -102,23 +103,32 @@ public final class SessionsActivity extends AppCompatActivity {
         l.setAdapter(a);
         a.setOnClickListener(new View.OnClickListener() {
             @Override
-            public void onClick(View v) {
+            public void onClick(final View v) {
                 final int key = a.getKey(l.getChildAdapterPosition(v));
                 showSession(key);
             }
         });
         a.setOnCreateContextMenuListener(new View.OnCreateContextMenuListener() {
             @Override
-            public void onCreateContextMenu(ContextMenu menu, View view, ContextMenu.ContextMenuInfo menuInfo) {
-                final int key = a.getKey(l.getChildLayoutPosition(view));
+            public void onCreateContextMenu(final ContextMenu menu, final View view,
+                                            final ContextMenu.ContextMenuInfo menuInfo) {
                 getMenuInflater().inflate(R.menu.menu_session, menu);
-                menu.findItem(R.id.action_terminate).setOnMenuItemClickListener(new MenuItem.OnMenuItemClickListener() {
-                    @Override
-                    public boolean onMenuItemClick(MenuItem item) {
-                        ConsoleService.stopSession(key);
-                        return true;
-                    }
-                });
+                menu.findItem(R.id.action_terminate).setOnMenuItemClickListener(
+                        new MenuItem.OnMenuItemClickListener() {
+                            @Override
+                            public boolean onMenuItemClick(final MenuItem item) {
+                                // TODO: Possibly redundant precautions
+                                final int key;
+                                try {
+                                    key = a.getKey(l.getChildLayoutPosition(view));
+                                } catch (final IndexOutOfBoundsException e) {
+                                    a.notifyDataSetChanged();
+                                    return true;
+                                }
+                                ConsoleService.stopSession(key);
+                                return true;
+                            }
+                        });
             }
         });
     }

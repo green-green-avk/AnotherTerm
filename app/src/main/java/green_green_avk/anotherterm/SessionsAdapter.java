@@ -6,6 +6,7 @@ import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import androidx.annotation.Keep;
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -13,6 +14,7 @@ public final class SessionsAdapter extends RecyclerView.Adapter<SessionsAdapter.
     private View.OnClickListener mOnClick = null;
     private View.OnCreateContextMenuListener mOnCreateContextMenuListener = null;
 
+    @Keep // Must be kept to prevent its unexpected collection
     private final ConsoleService.Listener mDatasetListener = new ConsoleService.Listener() {
         @Override
         protected void onSessionsListChange() {
@@ -20,7 +22,7 @@ public final class SessionsAdapter extends RecyclerView.Adapter<SessionsAdapter.
         }
 
         @Override
-        protected void onSessionChange(int key) {
+        protected void onSessionChange(final int key) {
             notifyItemChanged(ConsoleService.sessionKeys.indexOf(key));
         }
     };
@@ -30,21 +32,22 @@ public final class SessionsAdapter extends RecyclerView.Adapter<SessionsAdapter.
         ConsoleService.addListener(mDatasetListener);
     }
 
-    public int getKey(int i) {
+    public int getKey(final int i) {
         return ConsoleService.sessionKeys.get(i);
     }
 
-    public void setOnClickListener(View.OnClickListener v) {
+    public void setOnClickListener(final View.OnClickListener v) {
         mOnClick = v;
     }
 
-    public void setOnCreateContextMenuListener(View.OnCreateContextMenuListener v) {
+    public void setOnCreateContextMenuListener(final View.OnCreateContextMenuListener v) {
         mOnCreateContextMenuListener = v;
     }
 
     @NonNull
     @Override
-    public SessionsAdapter.ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
+    public SessionsAdapter.ViewHolder onCreateViewHolder(final ViewGroup parent,
+                                                         final int viewType) {
         final View v = LayoutInflater.from(parent.getContext())
                 .inflate(R.layout.sessions_entry, parent, false);
         v.setOnClickListener(mOnClick);
@@ -53,7 +56,7 @@ public final class SessionsAdapter extends RecyclerView.Adapter<SessionsAdapter.
     }
 
     @Override
-    public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
+    public void onBindViewHolder(@NonNull final ViewHolder holder, final int position) {
         final TextView titleView = holder.itemView.findViewById(R.id.title);
         final int key = ConsoleService.sessionKeys.get(position);
         final Session session = ConsoleService.getSession(key);

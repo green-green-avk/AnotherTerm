@@ -10,6 +10,7 @@ import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import androidx.annotation.Keep;
 import androidx.annotation.NonNull;
 import androidx.appcompat.widget.AppCompatImageView;
 import androidx.core.widget.ImageViewCompat;
@@ -25,6 +26,7 @@ public final class FavoritesAdapter extends RecyclerView.Adapter<FavoritesAdapte
     private View.OnClickListener mOnClick = null;
     private View.OnCreateContextMenuListener mOnCreateContextMenuListener = null;
 
+    @Keep // Must be kept to prevent its unexpected collection
     private final Runnable onFavsChanged = new Runnable() {
         @Override
         public void run() {
@@ -44,21 +46,22 @@ public final class FavoritesAdapter extends RecyclerView.Adapter<FavoritesAdapte
         notifyDataSetChanged();
     }
 
-    public String getName(int i) {
+    public String getName(final int i) {
         return mDatasetKeys[i];
     }
 
-    public void setOnClickListener(View.OnClickListener v) {
+    public void setOnClickListener(final View.OnClickListener v) {
         mOnClick = v;
     }
 
-    public void setOnCreateContextMenuListener(View.OnCreateContextMenuListener v) {
+    public void setOnCreateContextMenuListener(final View.OnCreateContextMenuListener v) {
         mOnCreateContextMenuListener = v;
     }
 
     @NonNull
     @Override
-    public FavoritesAdapter.ViewHolder onCreateViewHolder(@NonNull final ViewGroup parent, int viewType) {
+    public FavoritesAdapter.ViewHolder onCreateViewHolder(@NonNull final ViewGroup parent,
+                                                          final int viewType) {
         final View v = LayoutInflater.from(parent.getContext())
                 .inflate(R.layout.favorites_entry, parent, false);
         v.setOnClickListener(mOnClick);
@@ -67,7 +70,7 @@ public final class FavoritesAdapter extends RecyclerView.Adapter<FavoritesAdapte
     }
 
     @Override
-    public void onBindViewHolder(@NonNull final ViewHolder holder, int position) {
+    public void onBindViewHolder(@NonNull final ViewHolder holder, final int position) {
         final String name = mDatasetKeys[position];
         final TextView nameView = holder.itemView.findViewById(R.id.name);
         nameView.setText(name);
@@ -95,7 +98,7 @@ public final class FavoritesAdapter extends RecyclerView.Adapter<FavoritesAdapte
     }
 
     public static final class ViewHolder extends RecyclerView.ViewHolder {
-        public ViewHolder(View v) {
+        public ViewHolder(final View v) {
             super(v);
         }
     }
