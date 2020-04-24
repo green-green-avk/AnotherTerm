@@ -8,4 +8,6 @@
     <integer name="terminal_key_repeat_delay">1000</integer><!-- [ms] -->
     <integer name="terminal_key_repeat_interval">100</integer><!-- [ms] -->
     <string name="terminal_mouse_layout">default</string>
+    <integer name="terminal_scroll_follow_history_threshold">50
+    </integer><!-- [% of visible history buffer] -->
 </resources>

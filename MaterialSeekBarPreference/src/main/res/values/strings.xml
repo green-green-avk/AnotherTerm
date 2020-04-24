@@ -3,4 +3,5 @@
     <string name="msg_invalid_number">!</string>
     <string name="label_less_than_or_equal">≤</string>
     <string name="title_dialog">%1$s [%2$s]</string>
+    <string name="value_off">Off</string>
 </resources>

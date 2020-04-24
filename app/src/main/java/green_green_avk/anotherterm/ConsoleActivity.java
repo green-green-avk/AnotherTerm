@@ -227,6 +227,8 @@ public final class ConsoleActivity extends AppCompatActivity implements ConsoleI
         }
         mCsv.setSelectionPadSize(((App) getApplication()).settings.terminal_selection_pad_size_dp
                 * getResources().getDisplayMetrics().density);
+        mCsv.setScrollFollowHistoryThreshold((float) ((App) getApplication()).settings
+                .terminal_scroll_follow_history_threshold / 100);
         mCkv.setAutoRepeatAllowed(((App) getApplication()).settings.terminal_key_repeat);
         mCkv.setAutoRepeatDelay(((App) getApplication()).settings.terminal_key_repeat_delay);
         mCkv.setAutoRepeatInterval(((App) getApplication()).settings.terminal_key_repeat_interval);

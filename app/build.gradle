@@ -60,7 +60,7 @@ dependencies {
     androidTestImplementation 'androidx.test.espresso:espresso-core:3.2.0'
     implementation 'org.apache.commons:commons-text:1.6'
     implementation 'com.google.android:flexbox:1.0.0'
-    implementation 'androidx.preference:preference:1.1.0'
+    implementation 'androidx.preference:preference:1.1.1'
     implementation project(':MaterialSeekBarPreference')
     implementation project(':PtyProcess')
     implementation project(':usbserial')

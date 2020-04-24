@@ -5,6 +5,12 @@
         <attr name="msbp_maxValue" format="integer" />
         <attr name="msbp_interval" format="integer" />
         <attr name="msbp_measurementUnit" format="string" />
+        <attr name="msbp_offPosition">
+            <enum name="none" value="0" />
+            <enum name="left" value="1" />
+            <enum name="right" value="2" />
+        </attr>
+        <attr name="msbp_offText" format="string" />
         <attr name="msbp_dialogEnabled" format="boolean" />
         <attr name="msbp_dialogStyle" format="reference" />
         <attr name="msbp_dialogCancel" format="string" />

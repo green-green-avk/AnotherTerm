@@ -101,6 +101,9 @@ public class ConsoleScreenView extends ScrollableView
     public boolean resizeBufferXOnUi = true;
     public boolean resizeBufferYOnUi = true;
 
+    // Visible part of the history buffer to stick to the scroll position it
+    protected float scrollFollowHistoryThreshold = 0.5F;
+
     private boolean mBlinkState = true;
     private WeakHandler mHandler = null;
 
@@ -417,6 +420,19 @@ public class ConsoleScreenView extends ScrollableView
         applyFont();
         resizeBuffer();
         ViewCompat.postInvalidateOnAnimation(this);
+    }
+
+    public float getScrollFollowHistoryThreshold() {
+        return scrollFollowHistoryThreshold;
+    }
+
+    /**
+     * Follow the history buffer when condition meets
+     *
+     * @param v % of visible history buffer (v <= 0 - off)
+     */
+    public void setScrollFollowHistoryThreshold(final float v) {
+        scrollFollowHistoryThreshold = v;
     }
 
     public float getSelectionPadSize() {
@@ -1018,6 +1034,11 @@ public class ConsoleScreenView extends ScrollableView
                 scrollPtWithBuffer(selectionMarkerLast, from, to, n);
                 scrollPtWithBuffer(selectionMarkerExpr, from, to, n);
             }
+        }
+        if (mScroller.isFinished() && scrollFollowHistoryThreshold > 0F
+                && scrollPosition.y < (float) -getRows() * scrollFollowHistoryThreshold) {
+            scrollPtWithBuffer(scrollPosition, from, to, n);
+            invalidateScroll();
         }
     }
 

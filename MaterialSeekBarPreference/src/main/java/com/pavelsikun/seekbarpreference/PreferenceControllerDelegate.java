@@ -15,6 +15,7 @@ import androidx.annotation.DrawableRes;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.StyleRes;
+import androidx.core.math.MathUtils;
 
 /**
  * Created by Pavel Sikun on 28.05.16.
@@ -39,7 +40,15 @@ final class PreferenceControllerDelegate implements SeekBar.OnSeekBarChangeListe
     private int minValue = DEFAULT_MIN_VALUE;
     private int interval = DEFAULT_INTERVAL;
     private int currentValue = DEFAULT_CURRENT_VALUE;
+
     private final Plurals unit = new Plurals();
+
+    private static final int OFFPOS_NONE = 0;
+    private static final int OFFPOS_LEFT = 1;
+    private static final int OFFPOS_RIGHT = 2;
+    private int offPosition = OFFPOS_NONE;
+    private String offText;
+
     private boolean dialogEnabled = DEFAULT_DIALOG_ENABLED;
 
     @StyleRes
@@ -76,6 +85,7 @@ final class PreferenceControllerDelegate implements SeekBar.OnSeekBarChangeListe
     PreferenceControllerDelegate(@NonNull final Context context, final Boolean isView) {
         this.context = context;
         this.isView = isView;
+        this.offText = this.context.getString(R.string.value_off);
     }
 
     void setPersistValueListener(@Nullable final PersistValueListener persistValueListener) {
@@ -104,6 +114,9 @@ final class PreferenceControllerDelegate implements SeekBar.OnSeekBarChangeListe
                 // TODO: case when the string is not a reference
                 unit.set(a.getResourceId(R.styleable.SeekBarPreference_msbp_measurementUnit, 0));
 
+                offPosition = a.getInt(R.styleable.SeekBarPreference_msbp_offPosition, OFFPOS_NONE);
+                offText = a.getString(R.styleable.SeekBarPreference_msbp_offText);
+
                 dialogStyle = a.getResourceId(R.styleable.SeekBarPreference_msbp_dialogStyle, 0);
                 dialogTitle = a.getString(R.styleable.SeekBarPreference_msbp_dialogTitle);
                 dialogIconResId = a.getResourceId(R.styleable.SeekBarPreference_msbp_dialogIcon, 0);
@@ -127,6 +140,8 @@ final class PreferenceControllerDelegate implements SeekBar.OnSeekBarChangeListe
             } finally {
                 a.recycle();
             }
+
+            if (offText == null) offText = context.getString(R.string.value_off);
         }
     }
 
@@ -158,6 +173,11 @@ final class PreferenceControllerDelegate implements SeekBar.OnSeekBarChangeListe
 
     private void bindCurrentValueToView() {
         if (valueView != null) {
+            if (offPosition == OFFPOS_LEFT && currentValue == minValue ||
+                    offPosition == OFFPOS_RIGHT && currentValue == maxValue) {
+                valueView.setText(offText);
+                return;
+            }
             String s = unit.apply(context, currentValue);
             if (!unit.isFormatted()) s = TextUtils.isEmpty(s)
                     ? Integer.toString(currentValue)
@@ -306,21 +326,11 @@ final class PreferenceControllerDelegate implements SeekBar.OnSeekBarChangeListe
     }
 
     void setCurrentValue(int value) { // TODO: refactor
-        if (value < minValue) value = minValue;
-        if (value > maxValue) value = maxValue;
-
-        if (changeValueListener != null) {
-            if (!changeValueListener.onChange(value)) {
-                return;
-            }
-        }
+        value = MathUtils.clamp(value, minValue, maxValue);
+        if (changeValueListener != null && !changeValueListener.onChange(value)) return;
         currentValue = value;
-        if (seekBarView != null)
-            seekBarView.setProgress(valueToProgress(currentValue));
-
-        if (persistValueListener != null) {
-            persistValueListener.persistInt(value);
-        }
+        if (seekBarView != null) seekBarView.setProgress(valueToProgress(currentValue));
+        if (persistValueListener != null) persistValueListener.persistInt(value);
         bindCurrentValueToView();
     }
 

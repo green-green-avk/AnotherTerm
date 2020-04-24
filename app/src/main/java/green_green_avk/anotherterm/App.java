@@ -44,6 +44,10 @@ public final class App extends Application {
         @Param(defRes = R.string.terminal_mouse_layout)
         public String terminal_mouse_layout;
 
+        @Keep
+        @Param(defRes = R.integer.terminal_scroll_follow_history_threshold)
+        public int terminal_scroll_follow_history_threshold;
+
         @Override
         protected void onAfterChange(@NonNull final String key, @Nullable final Object value) {
             if ("terminal_font_default_fromfiles".equals(key)) {
