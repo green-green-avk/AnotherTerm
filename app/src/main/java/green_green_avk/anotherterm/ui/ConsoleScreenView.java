@@ -749,6 +749,7 @@ public class ConsoleScreenView extends ScrollableView
             wasAppTextScrolling = !appTextScroller.isFinished();
             appTextScroller.forceFinished(true);
             adjustSelectionPopup();
+            ViewCompat.postInvalidateOnAnimation(this);
         }
         if (selectionMode) {
             if (action == MotionEvent.ACTION_DOWN) setCurrentSelectionMarker(event);
@@ -811,6 +812,7 @@ public class ConsoleScreenView extends ScrollableView
             unsetCurrentSelectionMarker();
             inGesture = false;
             adjustSelectionPopup();
+            ViewCompat.postInvalidateOnAnimation(this);
         }
         return ret;
     }
