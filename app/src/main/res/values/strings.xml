@@ -203,4 +203,6 @@
     <string name="label_scroll">Scroll</string>
     <string name="label_follow_the_history_buffer">Follow the history buffer</string>
     <string name="summary_if_its_visible_fraction_gte">if its visible fraction is ≥</string>
+    <string name="label_wake_lock">Wake Lock</string>
+    <string name="action_toggle_wake_lock">Toggle Wake Lock</string>
 </resources>

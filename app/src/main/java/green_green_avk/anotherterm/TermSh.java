@@ -1301,6 +1301,8 @@ public final class TermSh {
                                 be.disconnect();
                             } catch (final BackendException e) {
                                 throw new IOException(e.getMessage());
+                            } finally {
+                                be.stop();
                             }
                             break;
                         }

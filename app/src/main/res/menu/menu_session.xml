@@ -2,6 +2,11 @@
 <menu xmlns:android="http://schemas.android.com/apk/res/android">
 
     <item
+        android:id="@+id/action_toggle_wake_lock"
+        android:title="@string/action_toggle_wake_lock" />
+
+    <item
         android:id="@+id/action_terminate"
         android:title="@string/action_terminate" />
+
 </menu>

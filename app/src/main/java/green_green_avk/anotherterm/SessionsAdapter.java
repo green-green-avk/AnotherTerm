@@ -1,5 +1,9 @@
 package green_green_avk.anotherterm;
 
+import android.graphics.Color;
+import android.text.SpannableStringBuilder;
+import android.text.Spanned;
+import android.text.style.ForegroundColorSpan;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -48,15 +52,14 @@ public final class SessionsAdapter extends RecyclerView.Adapter<SessionsAdapter.
     @Override
     public SessionsAdapter.ViewHolder onCreateViewHolder(final ViewGroup parent,
                                                          final int viewType) {
-        final View v = LayoutInflater.from(parent.getContext())
-                .inflate(R.layout.sessions_entry, parent, false);
-        v.setOnClickListener(mOnClick);
-        v.setOnCreateContextMenuListener(mOnCreateContextMenuListener);
-        return new ViewHolder(v);
+        return new ViewHolder(LayoutInflater.from(parent.getContext())
+                .inflate(R.layout.sessions_entry, parent, false));
     }
 
     @Override
     public void onBindViewHolder(@NonNull final ViewHolder holder, final int position) {
+        holder.itemView.setOnClickListener(mOnClick);
+        holder.itemView.setOnCreateContextMenuListener(mOnCreateContextMenuListener);
         final TextView titleView = holder.itemView.findViewById(R.id.title);
         final int key = ConsoleService.sessionKeys.get(position);
         final Session session = ConsoleService.getSession(key);
@@ -73,6 +76,14 @@ public final class SessionsAdapter extends RecyclerView.Adapter<SessionsAdapter.
         descriptionView.setText(session.backend.wrapped.getConnDesc());
         final TextView stateView = holder.itemView.findViewById(R.id.state);
         stateView.setText(session.backend.isConnected() ? R.string.msg_connected : R.string.msg_disconnected);
+        if (session.backend.wrapped.isWakeLockHeld()) {
+            stateView.append(", ");
+            final SpannableStringBuilder b = new SpannableStringBuilder().append(holder.itemView
+                    .getContext().getString(R.string.label_wake_lock));
+            b.setSpan(new ForegroundColorSpan(Color.RED), 0, b.length(),
+                    Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
+            stateView.append(b);
+        }
     }
 
     @Override

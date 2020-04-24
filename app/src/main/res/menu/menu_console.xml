@@ -49,6 +49,11 @@
         android:title="@string/action_help"
         app:showAsAction="never" />
     <item
+        android:id="@+id/action_toggle_wake_lock"
+        android:orderInCategory="200"
+        android:title="@string/action_toggle_wake_lock"
+        app:showAsAction="never" />
+    <item
         android:id="@+id/action_terminate"
         android:icon="@drawable/ic_close"
         android:orderInCategory="200"

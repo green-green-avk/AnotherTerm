@@ -33,6 +33,7 @@ import androidx.appcompat.widget.Toolbar;
 import java.lang.reflect.Method;
 import java.nio.charset.Charset;
 import java.util.Map;
+import java.util.NoSuchElementException;
 
 import green_green_avk.anotherterm.backends.BackendModule;
 import green_green_avk.anotherterm.backends.BackendUiInteractionActivityCtx;
@@ -408,6 +409,7 @@ public final class ConsoleActivity extends AppCompatActivity
                 return true;
             }
             case R.id.action_keymap: {
+                if (mSession == null) return true;
                 TermKeyMapManagerUi.showList(this, new TermKeyMapAdapter.OnSelectListener() {
                     @Override
                     public void onSelect(final boolean isBuiltIn, final String name,
@@ -479,9 +481,21 @@ public final class ConsoleActivity extends AppCompatActivity
                         .setData(Uri.parse("info://local/help")));
                 return true;
             }
+            case R.id.action_toggle_wake_lock: {
+                if (mSession == null) return true;
+                if (mSession.backend.wrapped.isWakeLockHeld())
+                    mSession.backend.wrapped.releaseWakeLock();
+                else mSession.backend.wrapped.acquireWakeLock();
+                return true;
+            }
             case R.id.action_terminate: {
                 final int k = getNextSessionKey(mSessionKey);
-                ConsoleService.stopSession(mSessionKey);
+                try {
+                    ConsoleService.stopSession(mSessionKey);
+                } catch (final NoSuchElementException e) {
+                    finish();
+                    return true;
+                }
                 if (ConsoleService.sessionKeys.size() <= 0) finish();
                 else {
                     startSelf(k);

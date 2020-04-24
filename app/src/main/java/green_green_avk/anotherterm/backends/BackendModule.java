@@ -1,9 +1,14 @@
 package green_green_avk.anotherterm.backends;
 
+import android.annotation.SuppressLint;
 import android.content.Context;
 import android.net.Uri;
+import android.os.Handler;
+import android.os.PowerManager;
 import android.util.Log;
 
+import androidx.annotation.CallSuper;
+import androidx.annotation.CheckResult;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.StringRes;
@@ -180,6 +185,10 @@ public abstract class BackendModule {
 
     public void setContext(@NonNull final Context context) {
         this.context = context.getApplicationContext();
+        final PowerManager pm = (PowerManager) this.context.getSystemService(Context.POWER_SERVICE);
+        this.wakeLock = pm.newWakeLock(PowerManager.PARTIAL_WAKE_LOCK,
+                this.context.getPackageName() + ".BackendModule:");
+        this.wakeLock.setReferenceCounted(false);
     }
 
     public abstract void setParameters(@NonNull Map<String, ?> params);
@@ -208,7 +217,9 @@ public abstract class BackendModule {
     /**
      * Preparing to stop the whole session: revoke sensitive session data, for example.
      */
+    @CallSuper
     public void stop() {
+        releaseWakeLock();
     }
 
     public abstract boolean isConnected();
@@ -221,4 +232,48 @@ public abstract class BackendModule {
 
     @NonNull
     public abstract String getConnDesc();
+
+    private PowerManager.WakeLock wakeLock = null;
+    private Runnable onWakeLockEvent = null;
+    private Handler onWakeLockEventHandler = null;
+    private final Object onWakeLockEventLock = new Object();
+
+    private void execOnWakeLockEvent() {
+        final Runnable l;
+        final Handler h;
+        synchronized (onWakeLockEventLock) {
+            l = onWakeLockEvent;
+            h = onWakeLockEventHandler;
+        }
+        if (l != null) {
+            if (h == null) {
+                l.run();
+            } else {
+                h.post(l);
+            }
+        }
+    }
+
+    public void setOnWakeLockEvent(@Nullable final Runnable l, @Nullable final Handler h) {
+        synchronized (onWakeLockEventLock) {
+            onWakeLockEvent = l;
+            onWakeLockEventHandler = h;
+        }
+    }
+
+    @CheckResult
+    public boolean isWakeLockHeld() {
+        return wakeLock.isHeld();
+    }
+
+    @SuppressLint("WakelockTimeout")
+    public void acquireWakeLock() {
+        wakeLock.acquire(); // Yes, no timeout by design.
+        execOnWakeLockEvent();
+    }
+
+    public void releaseWakeLock() {
+        wakeLock.release();
+        execOnWakeLockEvent();
+    }
 }

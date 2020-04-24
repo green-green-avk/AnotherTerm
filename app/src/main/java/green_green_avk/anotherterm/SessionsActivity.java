@@ -15,6 +15,7 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import green_green_avk.anotherterm.backends.BackendException;
+import green_green_avk.anotherterm.backends.BackendModule;
 import green_green_avk.anotherterm.utils.PreferenceStorage;
 
 public final class SessionsActivity extends AppCompatActivity {
@@ -126,6 +127,25 @@ public final class SessionsActivity extends AppCompatActivity {
                                     return true;
                                 }
                                 ConsoleService.stopSession(key);
+                                return true;
+                            }
+                        });
+                menu.findItem(R.id.action_toggle_wake_lock).setOnMenuItemClickListener(
+                        new MenuItem.OnMenuItemClickListener() {
+                            @Override
+                            public boolean onMenuItemClick(final MenuItem item) {
+                                // TODO: Possibly redundant precautions
+                                final int key;
+                                try {
+                                    key = a.getKey(l.getChildLayoutPosition(view));
+                                } catch (final IndexOutOfBoundsException e) {
+                                    a.notifyDataSetChanged();
+                                    return true;
+                                }
+                                final BackendModule be =
+                                        ConsoleService.getSession(key).backend.wrapped;
+                                if (be.isWakeLockHeld()) be.releaseWakeLock();
+                                else be.acquireWakeLock();
                                 return true;
                             }
                         });

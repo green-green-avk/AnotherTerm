@@ -18,8 +18,8 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintVertical_bias="1"
-        app:srcCompat="@drawable/list_item_background"
-        tools:ignore="ContentDescription" />
+        tools:ignore="ContentDescription"
+        tools:srcCompat="@drawable/list_item_background" />
 
     <LinearLayout
         android:layout_width="wrap_content"
@@ -37,21 +37,24 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:background="@color/colorGlass"
-            android:textSize="18sp" />
+            android:textSize="18sp"
+            tools:text="Title" />
 
         <TextView
             android:id="@+id/description"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:background="@color/colorGlass"
-            android:textSize="14sp" />
+            android:textSize="14sp"
+            tools:text="Description" />
 
         <TextView
             android:id="@+id/state"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:background="@color/colorGlass"
-            android:textSize="14sp" />
+            android:textSize="14sp"
+            tools:text="State" />
 
     </LinearLayout>
 

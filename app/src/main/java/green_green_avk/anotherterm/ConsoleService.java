@@ -8,9 +8,11 @@ import android.app.Service;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Build;
+import android.os.Handler;
 import android.os.IBinder;
 import android.util.Log;
 
+import androidx.annotation.CheckResult;
 import androidx.annotation.NonNull;
 import androidx.annotation.UiThread;
 import androidx.core.app.NotificationCompat;
@@ -145,6 +147,12 @@ public final class ConsoleService extends Service {
         co.setKeyMap(TermKeyMapManager.get(keyMapStr));
         final int key = obtainKey();
         tbe.setContext(ctx);
+        tbe.setOnWakeLockEvent(new Runnable() {
+            @Override
+            public void run() {
+                execOnSessionChange(key);
+            }
+        }, new Handler());
         tbe.setUi(new BackendUiDialogs());
         tbe.setParameters(cp);
 
@@ -205,6 +213,7 @@ public final class ConsoleService extends Service {
 
     @NonNull
     @UiThread
+    @CheckResult
     public static Session getSession(final int key) {
         final Session s = sessions.get(key);
         if (s == null) throw new NoSuchElementException("No session with the specified key exists");
@@ -213,12 +222,14 @@ public final class ConsoleService extends Service {
 
     @NonNull
     @UiThread
+    @CheckResult
     private static String getSessionTitle(@NonNull final Session s, final int key) {
         return String.format(Locale.ROOT, "%1$s #%2$d", s.connectionParams.get("name"), key);
     }
 
     @NonNull
     @UiThread
+    @CheckResult
     public static String getSessionTitle(final int key) {
         return getSessionTitle(getSession(key), key);
     }
@@ -243,7 +254,8 @@ public final class ConsoleService extends Service {
         }
     }
 
-    private static final Set<Listener> listeners = Collections.newSetFromMap(new WeakHashMap<Listener, Boolean>());
+    private static final Set<Listener> listeners =
+            Collections.newSetFromMap(new WeakHashMap<Listener, Boolean>());
 
     public static void addListener(@NonNull final Listener listener) {
         listeners.add(listener);
