@@ -166,11 +166,12 @@ public class ExtKeyboard {
 
         private ExtKeyboard parent;
 
-        public Row(final ExtKeyboard parent) {
+        public Row(@NonNull final ExtKeyboard parent) {
             this.parent = parent;
         }
 
-        public Row(final Resources res, final ExtKeyboard parent, final XmlResourceParser parser) {
+        public Row(@NonNull final Resources res, final @NonNull ExtKeyboard parent,
+                   @NonNull final XmlResourceParser parser) {
             this.parent = parent;
             TypedArray a = res.obtainAttributes(Xml.asAttributeSet(parser),
                     R.styleable.ExtKeyboard);
@@ -312,7 +313,7 @@ public class ExtKeyboard {
         /**
          * Create an empty key with no attributes.
          */
-        public Key(final Row parent) {
+        public Key(@NonNull final Row parent) {
             keyboard = parent.parent;
             height = parent.defaultHeight;
             width = parent.defaultWidth;
@@ -655,7 +656,7 @@ public class ExtKeyboard {
 
     /* Fast but unusual way to implement it */
     protected final class KeyMap {
-        private final float dpi = 40;
+        private static final float dpi = 40F;
         private Bitmap bmp = null;
         private int width = 0;
         private int height = 0;
@@ -723,16 +724,19 @@ public class ExtKeyboard {
         }
     }
 
-    protected Row createRowFromXml(final Resources res, final XmlResourceParser parser) {
+    protected Row createRowFromXml(@NonNull final Resources res,
+                                   @NonNull final XmlResourceParser parser) {
         return new Row(res, this, parser);
     }
 
-    protected Key createKeyFromXml(final Resources res, final Row parent, final int x, final int y,
-                                   final XmlResourceParser parser) {
+    protected Key createKeyFromXml(@NonNull final Resources res, @NonNull final Row parent,
+                                   final int x, final int y,
+                                   @NonNull final XmlResourceParser parser) {
         return new Key(res, parent, x, y, parser);
     }
 
-    private void loadKeyboard(final Context context, final XmlResourceParser parser) {
+    private void loadKeyboard(@NonNull final Context context,
+                              @NonNull final XmlResourceParser parser) {
         boolean inKey = false;
         boolean inRow = false;
         int x = 0;
@@ -789,7 +793,7 @@ public class ExtKeyboard {
         mTotalHeight = y - mDefaultVerticalGap;
     }
 
-    private void skipToEndOfRow(final XmlResourceParser parser)
+    private void skipToEndOfRow(@NonNull final XmlResourceParser parser)
             throws XmlPullParserException, IOException {
         int event;
         while ((event = parser.next()) != XmlResourceParser.END_DOCUMENT) {
@@ -800,7 +804,8 @@ public class ExtKeyboard {
         }
     }
 
-    private void parseKeyboardAttributes(final Resources res, final XmlResourceParser parser) {
+    private void parseKeyboardAttributes(@NonNull final Resources res,
+                                         @NonNull final XmlResourceParser parser) {
         final TypedArray a = res.obtainAttributes(Xml.asAttributeSet(parser),
                 R.styleable.ExtKeyboard);
         try {
@@ -823,9 +828,10 @@ public class ExtKeyboard {
         }
     }
 
-    private static int getDimensionOrFraction(final TypedArray a, final int index, final int base,
+    private static int getDimensionOrFraction(@NonNull final TypedArray a,
+                                              final int index, final int base,
                                               final int defValue) {
-        TypedValue value = a.peekValue(index);
+        final TypedValue value = a.peekValue(index);
         if (value == null) return defValue;
         if (value.type == TypedValue.TYPE_DIMENSION) {
             return a.getDimensionPixelOffset(index, defValue);

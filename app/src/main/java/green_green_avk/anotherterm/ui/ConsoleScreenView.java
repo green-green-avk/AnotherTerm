@@ -700,7 +700,7 @@ public class ConsoleScreenView extends ScrollableView
     protected boolean wasAltBuf = false;
 
     @Override
-    public void onInvalidateSink(final Rect rect) {
+    public void onInvalidateSink(@Nullable final Rect rect) {
         if (consoleInput != null) {
             if (!wasAltBuf && consoleInput.isAltBuf())
                 invalidateScroll();

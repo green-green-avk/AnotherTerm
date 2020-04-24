@@ -87,7 +87,7 @@ public class ConsoleKeyboardView extends ExtKeyboardView implements
     private boolean scrollLed = false;
 
     @Override
-    public void onInvalidateSink(final Rect rect) {
+    public void onInvalidateSink(@Nullable final Rect rect) {
         if (consoleInput != null) {
             if (consoleInput.numLed != numLed) {
                 numLed = consoleInput.numLed;

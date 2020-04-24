@@ -26,6 +26,7 @@ import android.view.animation.AnimationUtils;
 import android.widget.EditText;
 import android.widget.ImageView;
 
+import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 
@@ -311,7 +312,7 @@ public final class ConsoleActivity extends AppCompatActivity implements ConsoleI
     private boolean mMouseSupported = false;
 
     @Override
-    public void onInvalidateSink(final Rect rect) {
+    public void onInvalidateSink(@Nullable final Rect rect) {
         if (mSession != null) {
             if (mSession.input.currScrBuf.windowTitle != null)
                 setTitle(mSession.input.currScrBuf.windowTitle);
