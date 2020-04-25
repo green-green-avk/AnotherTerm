@@ -25,6 +25,7 @@ import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
 import android.widget.EditText;
 
+import androidx.annotation.Keep;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
@@ -58,6 +59,21 @@ public final class ConsoleActivity extends AppCompatActivity
     private Animation mBellAnim = null;
     private View mScrollHome = null;
     private ColorStateList toolbarIconColor = null;
+
+    @Keep
+    private final ConsoleService.Listener sessionsListener = new ConsoleService.Listener() {
+        @Override
+        protected void onSessionChange(final int key) {
+            if (key != mSessionKey) return;
+            invalidateWakeLock();
+        }
+    };
+
+    private void invalidateWakeLock() {
+        if (mSession == null) return;
+        mCkv.setLedsByCode(C.KEYCODE_LED_WAKE_LOCK, mSession.backend.wrapped.isWakeLockHeld());
+        mCkv.invalidateModifierKeys(C.KEYCODE_LED_WAKE_LOCK);
+    }
 
     private int getFirstSessionKey() {
         return ConsoleService.sessionKeys.listIterator(0).next();
@@ -216,6 +232,9 @@ public final class ConsoleActivity extends AppCompatActivity
         mCsv.setScreenSize(asSize(mSession.connectionParams.get("screen_cols")),
                 asSize(mSession.connectionParams.get("screen_rows")));
         mSession.uiState.csv.apply(mCsv);
+
+        ConsoleService.addListener(sessionsListener);
+        invalidateWakeLock();
     }
 
     @Override

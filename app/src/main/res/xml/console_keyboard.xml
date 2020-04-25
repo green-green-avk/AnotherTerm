@@ -12,8 +12,12 @@
             app:code="111"
             app:keyLabel="Esc" />
         <Key
+            app:code="65536"
+            app:keyLabel="Wake"
+            app:keyWidth="7.14%p"
+            app:type="led" />
+        <Key
             app:code="131"
-            app:horizontalGap="7.14%p"
             app:keyLabel="F1" />
         <Key
             app:code="132"

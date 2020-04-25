@@ -23,4 +23,5 @@ public final class C {
     public static final String UNNAMED_FILE_NAME = "unnamed";
     public static final String UNDEFINED_FILE_SIZE = "null";
     public static final List<String> charsetList = new ArrayList<>(Charset.availableCharsets().keySet());
+    public static final int KEYCODE_LED_WAKE_LOCK = 0x10000;
 }
