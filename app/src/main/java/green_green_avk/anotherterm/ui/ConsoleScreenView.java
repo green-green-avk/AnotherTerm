@@ -66,6 +66,7 @@ public class ConsoleScreenView extends ScrollableView
             v.resizeBufferXOnUi = resizeBufferXOnUi;
             v.resizeBufferYOnUi = resizeBufferYOnUi;
             v.setFontSize(fontSize);
+            v.execOnScroll();
         }
     }
 
@@ -901,6 +902,7 @@ public class ConsoleScreenView extends ScrollableView
                 consoleInput.isAltBuf() && getRows() >= consoleInput.currScrBuf.getHeight()) {
             if (scrollPosition.y != 0) {
                 scrollPosition.y = 0;
+                execOnScroll();
                 ViewCompat.postInvalidateOnAnimation(this);
             }
             consoleInput.consoleOutput.vScroll(getNextAppTextY(distanceY / scrollScale.y));
@@ -920,6 +922,7 @@ public class ConsoleScreenView extends ScrollableView
                 consoleInput.isAltBuf() && getRows() >= consoleInput.currScrBuf.getHeight()) {
             if (scrollPosition.y != 0) {
                 scrollPosition.y = 0;
+                execOnScroll();
                 ViewCompat.postInvalidateOnAnimation(this);
             }
             appTextScroller.forceFinished(true);

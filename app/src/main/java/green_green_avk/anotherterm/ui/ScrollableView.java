@@ -6,16 +6,23 @@ import android.util.AttributeSet;
 import android.view.MotionEvent;
 import android.widget.Scroller;
 
+import androidx.annotation.NonNull;
 import androidx.core.math.MathUtils;
 import androidx.core.view.ViewCompat;
 
 public abstract class ScrollableView extends GestureView {
+
+    public interface OnScroll {
+        void onScroll(@NonNull ScrollableView scrollableView);
+    }
 
     public final PointF scrollPosition = new PointF(0, 0);
     protected final PointF scrollScale = new PointF(16, 16);
     protected final Scroller mScroller;
 
     public boolean scrollDisabled = false;
+
+    public OnScroll onScroll = null;
 
     public ScrollableView(final Context context) {
         super(context);
@@ -77,12 +84,17 @@ public abstract class ScrollableView extends GestureView {
         return 0;
     }
 
+    protected void execOnScroll() {
+        if (onScroll != null) onScroll.onScroll(this);
+    }
+
     @Override
     public void computeScroll() {
         super.computeScroll();
         if (mScroller.computeScrollOffset()) {
             scrollPosition.x = toFloatX(mScroller.getCurrX());
             scrollPosition.y = toFloatY(mScroller.getCurrY());
+            execOnScroll();
             ViewCompat.postInvalidateOnAnimation(this);
         }
     }
@@ -92,6 +104,7 @@ public abstract class ScrollableView extends GestureView {
                 getLeftScrollLimit(), getRightScrollLimit());
         scrollPosition.y = MathUtils.clamp(scrollPosition.y,
                 getTopScrollLimit(), getBottomScrollLimit());
+        execOnScroll();
     }
 
     @Override
@@ -113,6 +126,7 @@ public abstract class ScrollableView extends GestureView {
 //        mScroller.startScroll(x1, y1, x2 - x1, y2 - y1);
         scrollPosition.x = toFloatX(x2);
         scrollPosition.y = toFloatY(y2);
+        execOnScroll();
         ViewCompat.postInvalidateOnAnimation(this);
         return true;
     }

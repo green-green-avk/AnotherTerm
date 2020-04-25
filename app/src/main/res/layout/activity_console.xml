@@ -45,11 +45,28 @@
             android:layout_height="wrap_content"
             android:layout_gravity="right|top"
             android:alpha="1"
-            android:tint="@color/colorAccenttissimo"
             android:visibility="invisible"
             app:srcCompat="@drawable/ic_bell_24"
+            app:tint="@color/colorAccenttissimo"
             app:tintMode="multiply"
-            tools:ignore="ContentDescription,RtlHardcoded" />
+            tools:ignore="ContentDescription,RtlHardcoded"
+            tools:visibility="visible" />
+
+        <ImageView
+            android:id="@+id/scrollHome"
+            android:layout_width="32dp"
+            android:layout_height="32dp"
+            android:layout_gravity="bottom|right"
+            android:adjustViewBounds="true"
+            android:alpha="0.5"
+            android:onClick="onScrollHome"
+            android:rotation="90"
+            android:visibility="invisible"
+            app:srcCompat="@drawable/ic_selection_arrow"
+            app:tint="@color/colorTextSelection"
+            app:tintMode="multiply"
+            tools:ignore="ContentDescription,RtlHardcoded"
+            tools:visibility="visible" />
 
     </FrameLayout>
 

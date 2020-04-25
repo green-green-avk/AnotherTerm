@@ -24,8 +24,8 @@ import android.view.WindowManager;
 import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
 import android.widget.EditText;
-import android.widget.ImageView;
 
+import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
@@ -42,17 +42,20 @@ import green_green_avk.anotherterm.ui.ConsoleScreenView;
 import green_green_avk.anotherterm.ui.FontProvider;
 import green_green_avk.anotherterm.ui.MouseButtonsWorkAround;
 import green_green_avk.anotherterm.ui.ScreenMouseView;
+import green_green_avk.anotherterm.ui.ScrollableView;
 import green_green_avk.anotherterm.ui.UiUtils;
 
-public final class ConsoleActivity extends AppCompatActivity implements ConsoleInput.OnInvalidateSink {
+public final class ConsoleActivity extends AppCompatActivity
+        implements ConsoleInput.OnInvalidateSink, ScrollableView.OnScroll {
 
     private int mSessionKey = -1;
     private Session mSession = null;
     private ConsoleScreenView mCsv = null;
     private ConsoleKeyboardView mCkv = null;
     private ScreenMouseView mSmv = null;
-    private ImageView mBell = null;
+    private View mBell = null;
     private Animation mBellAnim = null;
+    private View mScrollHome = null;
     private ColorStateList toolbarIconColor = null;
 
     private int getFirstSessionKey() {
@@ -157,6 +160,7 @@ public final class ConsoleActivity extends AppCompatActivity implements ConsoleI
         mSmv = findViewById(R.id.mouse);
         mBell = findViewById(R.id.bell);
         mBellAnim = AnimationUtils.loadAnimation(this, R.anim.blink_ring);
+        mScrollHome = findViewById(R.id.scrollHome);
 
         final FontProvider fp = new ConsoleFontProvider();
         mCsv.setFont(fp);
@@ -206,6 +210,7 @@ public final class ConsoleActivity extends AppCompatActivity implements ConsoleI
         mCsv.setConsoleInput(mSession.input);
         mCkv.setConsoleInput(mSession.input);
         mSession.input.addOnInvalidateSink(this);
+        mCsv.onScroll = this;
 
         mCsv.setScreenSize(asSize(mSession.connectionParams.get("screen_cols")),
                 asSize(mSession.connectionParams.get("screen_rows")));
@@ -333,6 +338,12 @@ public final class ConsoleActivity extends AppCompatActivity implements ConsoleI
                     mBell.startAnimation(mBellAnim);
             }
         }
+    }
+
+    @Override
+    public void onScroll(@NonNull final ScrollableView scrollableView) {
+        mScrollHome.setVisibility(scrollableView.scrollPosition.y < 0F ?
+                View.VISIBLE : View.INVISIBLE);
     }
 
     private void turnOffMouseMode() {
@@ -511,5 +522,9 @@ public final class ConsoleActivity extends AppCompatActivity implements ConsoleI
             }
         }
         return mbwa.onDispatchKeyEvent(event) ? mbwa.result : super.dispatchKeyEvent(event);
+    }
+
+    public void onScrollHome(final View v) {
+        mCsv.doScrollTo(0, 0);
     }
 }

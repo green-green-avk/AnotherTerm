@@ -148,6 +148,7 @@ public class ScreenMouseView extends ScrollableView {
         super.onSizeChanged(w, h, oldw, oldh);
         scrollPosition.x = (float) w / 2;
         scrollPosition.y = (float) h / 2;
+        execOnScroll();
     }
 
     protected void showCursor() {
