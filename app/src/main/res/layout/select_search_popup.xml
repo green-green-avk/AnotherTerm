@@ -12,76 +12,38 @@
 
     <ImageButton
         android:id="@+id/b_web"
-        android:layout_width="wrap_content"
-        android:layout_height="match_parent"
-        android:adjustViewBounds="true"
-        android:background="@android:color/transparent"
-        android:scaleType="fitCenter"
-        android:tint="@color/colorAccenttissimo"
+        style="@style/AppWidget.SelectSearchPopup.ImageButton"
         app:srcCompat="@drawable/ic_globe" />
 
-    <View
-        android:layout_width="1dp"
-        android:layout_height="match_parent"
-        android:background="@color/colorAccenttissimo" />
+    <View style="@style/AppWidget.SelectSearchPopup.Divider" />
 
     <ImageButton
         android:id="@+id/b_select_mode"
-        android:layout_width="wrap_content"
-        android:layout_height="match_parent"
-        android:adjustViewBounds="true"
-        android:background="@android:color/transparent"
-        android:scaleType="fitCenter"
-        android:tint="@color/colorAccenttissimo"
+        style="@style/AppWidget.SelectSearchPopup.ImageButton"
         app:srcCompat="@drawable/ic_select_lines_rect_expr" />
 
     <ImageButton
         android:id="@+id/b_select_all"
-        android:layout_width="wrap_content"
-        android:layout_height="match_parent"
-        android:adjustViewBounds="true"
-        android:background="@android:color/transparent"
-        android:scaleType="fitCenter"
-        android:tint="@color/colorAccenttissimo"
+        style="@style/AppWidget.SelectSearchPopup.ImageButton"
         app:srcCompat="?attr/actionModeSelectAllDrawable" />
 
     <ImageButton
         android:id="@+id/b_copy"
-        android:layout_width="wrap_content"
-        android:layout_height="match_parent"
-        android:adjustViewBounds="true"
-        android:background="@android:color/transparent"
-        android:scaleType="fitCenter"
-        android:tint="@color/colorAccenttissimo"
+        style="@style/AppWidget.SelectSearchPopup.ImageButton"
         app:srcCompat="?attr/actionModeCopyDrawable" />
 
-    <View
-        android:layout_width="1dp"
-        android:layout_height="match_parent"
-        android:background="@color/colorAccenttissimo" />
+    <View style="@style/AppWidget.SelectSearchPopup.Divider" />
 
     <ImageButton
         android:id="@+id/b_put"
-        android:layout_width="wrap_content"
-        android:layout_height="match_parent"
-        android:adjustViewBounds="true"
-        android:background="@android:color/transparent"
-        android:tint="@color/colorAccenttissimo"
+        style="@style/AppWidget.SelectSearchPopup.ImageButton"
         app:srcCompat="@drawable/ic_paste_selected" />
 
-    <View
-        android:layout_width="1dp"
-        android:layout_height="match_parent"
-        android:background="@color/colorAccenttissimo" />
+    <View style="@style/AppWidget.SelectSearchPopup.Divider" />
 
     <ImageButton
         android:id="@+id/b_close"
-        android:layout_width="wrap_content"
-        android:layout_height="match_parent"
-        android:adjustViewBounds="true"
-        android:background="@android:color/transparent"
-        android:scaleType="fitCenter"
-        android:tint="@color/colorAccenttissimo"
+        style="@style/AppWidget.SelectSearchPopup.ImageButton"
         app:srcCompat="@drawable/ic_close" />
 
 </LinearLayout>

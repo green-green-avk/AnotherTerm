@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <item name="color_bottom_line_enabled" type="color">?attr/colorAccent</item>
-    <item name="color_bottom_line_disabled" type="color">?attr/colorPrimary</item>
+    <color name="bottom_line_enabled">?attr/colorAccent</color>
+    <color name="bottom_line_disabled">?attr/colorPrimary</color>
 </resources>

@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <com.google.android.flexbox.FlexboxLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:layout_marginTop="@dimen/field_margin"
@@ -22,7 +23,8 @@
             android:layout_margin="@dimen/field_margin"
             android:background="@drawable/bg_frame2"
             android:textIsSelectable="true"
-            android:textStyle="bold" />
+            android:textStyle="bold"
+            tools:text="xxx.yyy.zzz" />
 
         <TextView
             android:id="@+id/f_type"
@@ -30,7 +32,8 @@
             android:layout_height="wrap_content"
             android:layout_margin="@dimen/field_margin"
             android:background="@drawable/bg_frame2"
-            android:textIsSelectable="true" />
+            android:textIsSelectable="true"
+            tools:text="rsa-xxx" />
 
     </LinearLayout>
 
@@ -40,7 +43,8 @@
         android:layout_height="wrap_content"
         android:layout_margin="@dimen/field_margin"
         android:background="@drawable/bg_frame2"
-        android:textIsSelectable="true" />
+        android:textIsSelectable="true"
+        tools:text="11:22:33:44" />
 
     <Space
         android:layout_width="wrap_content"
@@ -54,6 +58,7 @@
         android:layout_height="@dimen/kbd_key_size"
         android:contentDescription="@string/action_menu"
         android:longClickable="false"
-        app:srcCompat="@drawable/ic_menu_gray_24dp" />
+        app:srcCompat="@drawable/ic_menu"
+        app:tint="@color/colorMiddle" />
 
 </com.google.android.flexbox.FlexboxLayout>

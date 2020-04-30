@@ -148,7 +148,7 @@ public final class UiUtils {
 
     /* Workaround: the soft keyboard usually remains visible on some devices
     after the dialog ends */
-    public static void hideIME(final Dialog dialog) {
+    public static void hideIME(@NonNull final Dialog dialog) {
         final InputMethodManager imm =
                 (InputMethodManager) dialog.getContext()
                         .getSystemService(Context.INPUT_METHOD_SERVICE);

@@ -173,4 +173,21 @@
         <item name="android:textStyle">bold</item>
     </style>
 
+    <style name="AppWidget.SelectSearchPopup.ImageButton" parent="Widget.AppCompat.ImageButton">
+        <item name="android:layout_width">wrap_content</item>
+        <item name="android:layout_height">match_parent</item>
+        <item name="android:adjustViewBounds">true</item>
+        <item name="android:alpha">0.75</item>
+        <item name="android:background">@android:color/transparent</item>
+        <item name="android:scaleType">fitCenter</item>
+        <item name="android:tint">@color/colorAccenttissimo</item>
+    </style>
+
+    <style name="AppWidget.SelectSearchPopup.Divider" parent="">
+        <item name="android:layout_width">1dp</item>
+        <item name="android:layout_height">match_parent</item>
+        <item name="android:alpha">0.75</item>
+        <item name="android:background">@color/colorAccenttissimo</item>
+    </style>
+
 </resources>
