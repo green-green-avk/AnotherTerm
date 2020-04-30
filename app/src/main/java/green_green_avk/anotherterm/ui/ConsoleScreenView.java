@@ -371,24 +371,24 @@ public class ConsoleScreenView extends ScrollableView
     }
 
     @Override
-    protected float getTopScrollLimit() {
-        return (consoleInput == null) ? 0 : Math.min(
+    public float getTopScrollLimit() {
+        return (consoleInput == null) ? 0F : Math.min(
                 consoleInput.currScrBuf.getHeight() - getRows(),
                 -consoleInput.currScrBuf.getScrollableHeight());
     }
 
     @Override
-    protected float getBottomScrollLimit() {
-        return (consoleInput == null) ? 0 : Math.max(
+    public float getBottomScrollLimit() {
+        return (consoleInput == null) ? 0F : Math.max(
                 consoleInput.currScrBuf.getHeight() - getRows(),
                 -consoleInput.currScrBuf.getScrollableHeight());
     }
 
     @Override
-    protected float getRightScrollLimit() {
-        return (consoleInput == null) ? 0 : Math.max(
+    public float getRightScrollLimit() {
+        return (consoleInput == null) ? 0F : Math.max(
                 consoleInput.currScrBuf.getWidth() - getCols(),
-                0);
+                0F);
     }
 
     protected void applyFont() {

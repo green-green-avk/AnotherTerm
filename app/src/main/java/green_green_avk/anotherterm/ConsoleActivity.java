@@ -46,6 +46,7 @@ import green_green_avk.anotherterm.ui.MouseButtonsWorkAround;
 import green_green_avk.anotherterm.ui.ScreenMouseView;
 import green_green_avk.anotherterm.ui.ScrollableView;
 import green_green_avk.anotherterm.ui.UiUtils;
+import green_green_avk.anotherterm.ui.VisibilityAnimator;
 
 public final class ConsoleActivity extends AppCompatActivity
         implements ConsoleInput.OnInvalidateSink, ScrollableView.OnScroll {
@@ -57,7 +58,7 @@ public final class ConsoleActivity extends AppCompatActivity
     private ScreenMouseView mSmv = null;
     private View mBell = null;
     private Animation mBellAnim = null;
-    private View mScrollHome = null;
+    private VisibilityAnimator mScrollHomeVA = null;
     private ColorStateList toolbarIconColor = null;
 
     @Keep
@@ -177,7 +178,7 @@ public final class ConsoleActivity extends AppCompatActivity
         mSmv = findViewById(R.id.mouse);
         mBell = findViewById(R.id.bell);
         mBellAnim = AnimationUtils.loadAnimation(this, R.anim.blink_ring);
-        mScrollHome = findViewById(R.id.scrollHome);
+        mScrollHomeVA = new VisibilityAnimator(findViewById(R.id.scrollHome));
 
         final FontProvider fp = new ConsoleFontProvider();
         mCsv.setFont(fp);
@@ -362,7 +363,8 @@ public final class ConsoleActivity extends AppCompatActivity
 
     @Override
     public void onScroll(@NonNull final ScrollableView scrollableView) {
-        mScrollHome.setVisibility(scrollableView.scrollPosition.y < 0F ?
+        mScrollHomeVA.setVisibility(scrollableView.scrollPosition.y + 0.1F <
+                Math.min(0F, scrollableView.getBottomScrollLimit()) ?
                 View.VISIBLE : View.INVISIBLE);
     }
 
@@ -558,6 +560,6 @@ public final class ConsoleActivity extends AppCompatActivity
     }
 
     public void onScrollHome(final View v) {
-        mCsv.doScrollTo(0, 0);
+        mCsv.doScrollTo(0F, 0F);
     }
 }

@@ -58,7 +58,7 @@
             android:layout_height="32dp"
             android:layout_gravity="bottom|right"
             android:adjustViewBounds="true"
-            android:alpha="0.5"
+            android:alpha="0.75"
             android:onClick="onScrollHome"
             android:rotation="90"
             android:visibility="invisible"

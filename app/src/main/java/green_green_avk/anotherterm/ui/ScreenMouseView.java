@@ -166,12 +166,12 @@ public class ScreenMouseView extends ScrollableView {
     }
 
     @Override
-    protected float getLeftScrollLimit() { // negative scale
+    public float getLeftScrollLimit() { // negative scale
         return getWidth();
     }
 
     @Override
-    protected float getTopScrollLimit() { // negative scale
+    public float getTopScrollLimit() { // negative scale
         return getHeight();
     }
 

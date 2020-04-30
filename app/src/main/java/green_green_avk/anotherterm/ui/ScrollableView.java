@@ -68,19 +68,19 @@ public abstract class ScrollableView extends GestureView {
         return (int) (v * scrollScale.y);
     }
 
-    protected float getLeftScrollLimit() {
+    public float getLeftScrollLimit() {
         return 0;
     }
 
-    protected float getTopScrollLimit() {
+    public float getTopScrollLimit() {
         return 0;
     }
 
-    protected float getRightScrollLimit() {
+    public float getRightScrollLimit() {
         return 0;
     }
 
-    protected float getBottomScrollLimit() {
+    public float getBottomScrollLimit() {
         return 0;
     }
 
