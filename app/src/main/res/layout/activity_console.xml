@@ -15,11 +15,11 @@
             android:id="@+id/toolbar"
             android:layout_width="match_parent"
             android:layout_height="?attr/actionBarSize"
-            android:background="?attr/colorPrimary"
+            android:background="@drawable/bg_keyboard"
             android:theme="@style/AppTheme.Console.ActionBar"
             app:popupTheme="@style/AppTheme.PopupOverlay"
-            app:subtitleTextAppearance="@style/AppTextAppearance.ActionBar.Subtitle"
-            app:titleTextAppearance="@style/AppTextAppearance.ActionBar.Title" />
+            app:subtitleTextAppearance="@style/AppTextAppearance.ActionBar.Narrow.Subtitle"
+            app:titleTextAppearance="@style/AppTextAppearance.ActionBar.Narrow.Title" />
 
     </com.google.android.material.appbar.AppBarLayout>
 

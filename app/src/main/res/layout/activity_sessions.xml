@@ -1,53 +1,29 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
+<green_green_avk.anotherterm.ui.EquiLinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical">
 
-    <com.google.android.material.appbar.AppBarLayout
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/favorites_list"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:theme="@style/AppTheme.AppBarOverlay">
+        android:padding="@dimen/text_padding"
+        android:requiresFadingEdge="vertical" />
 
-        <androidx.appcompat.widget.Toolbar
-            android:id="@+id/toolbar"
-            android:layout_width="match_parent"
-            android:layout_height="?attr/actionBarSize"
-            android:background="?attr/colorPrimary"
-            app:popupTheme="@style/AppTheme.PopupOverlay"
-            app:subtitleTextAppearance="@style/AppTextAppearance.ActionBar.Subtitle"
-            app:titleTextAppearance="@style/AppTextAppearance.ActionBar.Title" />
-
-    </com.google.android.material.appbar.AppBarLayout>
-
-    <green_green_avk.anotherterm.ui.EquiLinearLayout
+    <View
+        android:id="@+id/divider"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:orientation="vertical">
+        android:layout_height="3dp"
+        android:layout_marginLeft="@dimen/text_padding"
+        android:layout_marginRight="@dimen/text_padding"
+        android:background="?android:attr/listDivider" />
 
-        <androidx.recyclerview.widget.RecyclerView
-            android:id="@+id/favorites_list"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:padding="@dimen/text_padding"
-            android:requiresFadingEdge="vertical" />
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/sessions_list"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:padding="@dimen/text_padding"
+        android:requiresFadingEdge="vertical" />
 
-        <View
-            android:id="@+id/divider"
-            android:layout_width="match_parent"
-            android:layout_height="3dp"
-            android:layout_marginLeft="@dimen/text_padding"
-            android:layout_marginRight="@dimen/text_padding"
-            android:background="?android:attr/listDivider" />
-
-        <androidx.recyclerview.widget.RecyclerView
-            android:id="@+id/sessions_list"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:padding="@dimen/text_padding"
-            android:requiresFadingEdge="vertical" />
-
-    </green_green_avk.anotherterm.ui.EquiLinearLayout>
-
-</LinearLayout>
+</green_green_avk.anotherterm.ui.EquiLinearLayout>
