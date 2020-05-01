@@ -757,19 +757,67 @@ public class ConsoleScreenView extends ScrollableView
     }
 
     protected boolean inGesture = false;
+    protected float touchLastX = 0F;
+    protected float touchLastY = 0F;
 
     @Override
     public boolean onTouchEvent(final MotionEvent event) {
+        float touchDX = 0F;
+        float touchDY = 0F;
         final int action = event.getAction();
-        if (action == MotionEvent.ACTION_DOWN) {
-            inGesture = true;
-            wasAppTextScrolling = !appTextScroller.isFinished();
-            appTextScroller.forceFinished(true);
-            adjustSelectionPopup();
-            ViewCompat.postInvalidateOnAnimation(this);
+        switch (action) {
+            case MotionEvent.ACTION_DOWN:
+                inGesture = true;
+                wasAppTextScrolling = !appTextScroller.isFinished();
+                appTextScroller.forceFinished(true);
+                adjustSelectionPopup();
+                ViewCompat.postInvalidateOnAnimation(this);
+                touchLastX = event.getX();
+                touchLastY = event.getY();
+                break;
+            case MotionEvent.ACTION_MOVE:
+                touchDX = event.getX() - touchLastX;
+                touchDY = event.getY() - touchLastY;
+                touchLastX = event.getX();
+                touchLastY = event.getY();
+                break;
         }
-        if (selectionMode) {
-            if (action == MotionEvent.ACTION_DOWN) setCurrentSelectionMarker(event);
+        if (selectionMode) { // Possibly no gestures here
+            switch (action) {
+                case MotionEvent.ACTION_DOWN:
+                    setCurrentSelectionMarker(event);
+                    break;
+                case MotionEvent.ACTION_MOVE:
+                    if (selectionMarker != null) {
+                        float smx = getBufferDrawPosXF(selectionMarker.x);
+                        float smy = getBufferDrawPosYF(selectionMarker.y);
+                        smx = MathUtils.clamp((int) (smx + touchDX), 0, getWidth() - 1);
+                        smy = MathUtils.clamp((int) (smy + touchDY), 0, getHeight() - 1);
+                        selectionMarker.x = getBufferTextPosXF(smx);
+                        selectionMarker.y = getBufferTextPosYF(smy);
+                        if (selectionMarker == selectionMarkerExpr) {
+                            doAutoSelect();
+                        } else {
+                            selection.first.set((int) Math.floor(selectionMarkerFirst.x),
+                                    (int) Math.floor(selectionMarkerFirst.y));
+                            selection.last.set((int) Math.floor(selectionMarkerLast.x),
+                                    (int) Math.floor(selectionMarkerLast.y));
+                        }
+                        ViewCompat.postInvalidateOnAnimation(this);
+                        return true;
+                    }
+                    break;
+                case MotionEvent.ACTION_UP:
+                    if (selectionMarker != null) {
+                        unsetCurrentSelectionMarker();
+                        inGesture = false;
+                        adjustSelectionPopup();
+                        ViewCompat.postInvalidateOnAnimation(this);
+                        return true;
+                    }
+                    break;
+            }
+            if (selectionMarker != null) return true;
         } else if (mouseMode) { // No gestures here
             if (consoleInput != null && consoleInput.consoleOutput != null) {
                 final int x = getBufferTextPosX(MathUtils.clamp((int) event.getX(), 0, getWidth() - 1));
@@ -880,24 +928,6 @@ public class ConsoleScreenView extends ScrollableView
     @Override
     public boolean onScroll(final MotionEvent e1, final MotionEvent e2,
                             final float distanceX, final float distanceY) {
-        if (selectionMode && selectionMarker != null) {
-            float smx = getBufferDrawPosXF(selectionMarker.x);
-            float smy = getBufferDrawPosYF(selectionMarker.y);
-            smx = MathUtils.clamp((int) (smx - distanceX), 0, getWidth() - 1);
-            smy = MathUtils.clamp((int) (smy - distanceY), 0, getHeight() - 1);
-            selectionMarker.x = getBufferTextPosXF(smx);
-            selectionMarker.y = getBufferTextPosYF(smy);
-            if (selectionMarker == selectionMarkerExpr) {
-                doAutoSelect();
-            } else {
-                selection.first.set((int) Math.floor(selectionMarkerFirst.x),
-                        (int) Math.floor(selectionMarkerFirst.y));
-                selection.last.set((int) Math.floor(selectionMarkerLast.x),
-                        (int) Math.floor(selectionMarkerLast.y));
-            }
-            ViewCompat.postInvalidateOnAnimation(this);
-            return true;
-        }
         if (consoleInput != null && consoleInput.consoleOutput != null &&
                 consoleInput.isAltBuf() && getRows() >= consoleInput.currScrBuf.getHeight()) {
             if (scrollPosition.y != 0) {
@@ -914,10 +944,6 @@ public class ConsoleScreenView extends ScrollableView
     @Override
     public boolean onFling(final MotionEvent e1, final MotionEvent e2,
                            final float velocityX, final float velocityY) {
-        if (selectionMode && selectionMarker != null) {
-            // TODO: Specific on fling behavior... Maybe...
-            return true;
-        }
         if (consoleInput != null && consoleInput.consoleOutput != null &&
                 consoleInput.isAltBuf() && getRows() >= consoleInput.currScrBuf.getHeight()) {
             if (scrollPosition.y != 0) {
