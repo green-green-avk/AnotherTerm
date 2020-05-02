@@ -1,11 +1,13 @@
 package green_green_avk.anotherterm;
 
+import android.annotation.SuppressLint;
 import android.app.AlertDialog;
 import android.app.Dialog;
 import android.content.ClipboardManager;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.pm.ActivityInfo;
 import android.content.res.ColorStateList;
 import android.graphics.Rect;
 import android.net.Uri;
@@ -24,6 +26,7 @@ import android.view.WindowManager;
 import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
 import android.widget.EditText;
+import android.widget.RadioGroup;
 
 import androidx.annotation.Keep;
 import androidx.annotation.NonNull;
@@ -53,6 +56,7 @@ public final class ConsoleActivity extends AppCompatActivity
 
     private int mSessionKey = -1;
     private Session mSession = null;
+    private int screenOrientation = ActivityInfo.SCREEN_ORIENTATION_UNSPECIFIED;
     private ConsoleScreenView mCsv = null;
     private ConsoleKeyboardView mCkv = null;
     private ScreenMouseView mSmv = null;
@@ -157,6 +161,9 @@ public final class ConsoleActivity extends AppCompatActivity
             finish();
             return;
         }
+
+        screenOrientation = mSession.uiState.screenOrientation;
+        setRequestedOrientation(screenOrientation);
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
             if (isInMultiWindowMode())
@@ -268,6 +275,7 @@ public final class ConsoleActivity extends AppCompatActivity
     protected void onPause() {
         ((BackendUiInteractionActivityCtx) mSession.backend.wrapped.getUi()).setActivity(null);
         mSession.uiState.csv.save(mCsv);
+        mSession.uiState.screenOrientation = screenOrientation;
         mSession.thumbnail = mCsv.makeThumbnail(256, 128);
         super.onPause();
     }
@@ -379,6 +387,7 @@ public final class ConsoleActivity extends AppCompatActivity
         }
     }
 
+    @SuppressLint("SourceLockedOrientationActivity")
     @Override
     public boolean onOptionsItemSelected(final MenuItem item) {
         switch (item.getItemId()) {
@@ -444,21 +453,35 @@ public final class ConsoleActivity extends AppCompatActivity
                 if (mSession == null) return true;
                 final ViewGroup v = (ViewGroup)
                         getLayoutInflater().inflate(R.layout.buffer_size_dialog, null);
-                final EditText widthV = v.findViewById(R.id.width);
-                final EditText heightV = v.findViewById(R.id.height);
+                final EditText wWidth = v.findViewById(R.id.width);
+                final EditText wHeight = v.findViewById(R.id.height);
+                final RadioGroup wOrientation = v.findViewById(R.id.orientation);
                 if (mCsv.resizeBufferXOnUi)
-                    widthV.setHint(getString(R.string.hint_int_value_p_auto_p,
+                    wWidth.setHint(getString(R.string.hint_int_value_p_auto_p,
                             mSession.input.currScrBuf.getWidth()));
                 else {
-                    widthV.setText(String.valueOf(mSession.input.currScrBuf.getWidth()));
-                    widthV.setHint(R.string.hint_auto);
+                    wWidth.setText(String.valueOf(mSession.input.currScrBuf.getWidth()));
+                    wWidth.setHint(R.string.hint_auto);
                 }
                 if (mCsv.resizeBufferYOnUi)
-                    heightV.setHint(getString(R.string.hint_int_value_p_auto_p,
+                    wHeight.setHint(getString(R.string.hint_int_value_p_auto_p,
                             mSession.input.currScrBuf.getHeight()));
                 else {
-                    heightV.setText(String.valueOf(mSession.input.currScrBuf.getHeight()));
-                    heightV.setHint(R.string.hint_auto);
+                    wHeight.setText(String.valueOf(mSession.input.currScrBuf.getHeight()));
+                    wHeight.setHint(R.string.hint_auto);
+                }
+                switch (screenOrientation) {
+                    case ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE:
+                        wOrientation.check(R.id.orientation_landscape);
+                        break;
+                    case ActivityInfo.SCREEN_ORIENTATION_PORTRAIT:
+                        wOrientation.check(R.id.orientation_portrait);
+                        break;
+                    case ActivityInfo.SCREEN_ORIENTATION_FULL_SENSOR:
+                        wOrientation.check(R.id.orientation_sensor);
+                        break;
+                    default:
+                        wOrientation.check(R.id.orientation_default);
                 }
                 new AlertDialog.Builder(this)
                         .setView(v)
@@ -471,17 +494,31 @@ public final class ConsoleActivity extends AppCompatActivity
                                     int width;
                                     int height;
                                     try {
-                                        width = Integer.parseInt(widthV.getText().toString());
+                                        width = Integer.parseInt(wWidth.getText().toString());
                                     } catch (final IllegalArgumentException e) {
                                         width = 0;
                                     }
                                     try {
-                                        height = Integer.parseInt(heightV.getText().toString());
+                                        height = Integer.parseInt(wHeight.getText().toString());
                                     } catch (final IllegalArgumentException e) {
                                         height = 0;
                                     }
                                     mCsv.setScreenSize(width, height);
                                     mCsv.onInvalidateSink(null);
+                                    switch (wOrientation.getCheckedRadioButtonId()) {
+                                        case R.id.orientation_landscape:
+                                            screenOrientation = ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE;
+                                            break;
+                                        case R.id.orientation_portrait:
+                                            screenOrientation = ActivityInfo.SCREEN_ORIENTATION_PORTRAIT;
+                                            break;
+                                        case R.id.orientation_sensor:
+                                            screenOrientation = ActivityInfo.SCREEN_ORIENTATION_FULL_SENSOR;
+                                            break;
+                                        default:
+                                            screenOrientation = ActivityInfo.SCREEN_ORIENTATION_UNSPECIFIED;
+                                    }
+                                    setRequestedOrientation(screenOrientation);
                                 }
                                 dialog.dismiss();
                             }

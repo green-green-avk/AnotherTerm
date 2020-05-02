@@ -1,42 +1,112 @@
 <?xml version="1.0" encoding="utf-8"?>
-<TableLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:orientation="vertical"
     android:padding="@dimen/text_padding">
 
-    <TableRow>
+    <TableLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical">
 
-        <TextView
+        <TableRow>
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:labelFor="@id/width"
+                android:text="@string/label_cols" />
+
+            <EditText
+                android:id="@+id/width"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:importantForAutofill="no"
+                android:inputType="number" />
+        </TableRow>
+
+        <TableRow>
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:labelFor="@id/height"
+                android:text="@string/label_rows" />
+
+            <EditText
+                android:id="@+id/height"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:importantForAutofill="no"
+                android:inputType="number" />
+        </TableRow>
+
+    </TableLayout>
+
+    <RadioGroup
+        android:id="@+id/orientation"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:checkedButton="@id/orientation_sensor"
+        android:orientation="horizontal">
+
+        <Space
+            android:layout_width="0dp"
+            android:layout_height="0dp"
+            android:layout_weight="1" />
+
+        <RadioButton
+            android:id="@+id/orientation_default"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:labelFor="@id/width"
-            android:text="@string/label_cols" />
+            android:background="@drawable/bg_radio_image_button"
+            app:buttonCompat="@drawable/ic_screen_orientation_default" />
 
-        <EditText
-            android:id="@+id/width"
+        <Space
+            android:layout_width="0dp"
+            android:layout_height="0dp"
+            android:layout_weight="1" />
+
+        <RadioButton
+            android:id="@+id/orientation_sensor"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:importantForAutofill="no"
-            android:inputType="number" />
-    </TableRow>
+            android:background="@drawable/bg_radio_image_button"
+            app:buttonCompat="@drawable/ic_screen_orientation_sensor" />
 
-    <TableRow>
+        <Space
+            android:layout_width="0dp"
+            android:layout_height="0dp"
+            android:layout_weight="1" />
 
-        <TextView
+        <RadioButton
+            android:id="@+id/orientation_portrait"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:labelFor="@id/height"
-            android:text="@string/label_rows" />
+            android:background="@drawable/bg_radio_image_button"
+            app:buttonCompat="@drawable/ic_screen_orientation_portrait" />
 
-        <EditText
-            android:id="@+id/height"
+        <Space
+            android:layout_width="0dp"
+            android:layout_height="0dp"
+            android:layout_weight="1" />
+
+        <RadioButton
+            android:id="@+id/orientation_landscape"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:importantForAutofill="no"
-            android:inputType="number" />
-    </TableRow>
+            android:background="@drawable/bg_radio_image_button"
+            app:buttonCompat="@drawable/ic_screen_orientation_landscape" />
 
-</TableLayout>
+        <Space
+            android:layout_width="0dp"
+            android:layout_height="0dp"
+            android:layout_weight="1" />
+
+    </RadioGroup>
+
+</LinearLayout>

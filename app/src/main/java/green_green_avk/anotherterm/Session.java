@@ -1,5 +1,6 @@
 package green_green_avk.anotherterm;
 
+import android.content.pm.ActivityInfo;
 import android.graphics.Bitmap;
 
 import androidx.annotation.NonNull;
@@ -13,7 +14,8 @@ import green_green_avk.anotherterm.ui.ConsoleScreenView;
 public final class Session {
 
     public static final class UiState {
-        final ConsoleScreenView.State csv = new ConsoleScreenView.State();
+        public final ConsoleScreenView.State csv = new ConsoleScreenView.State();
+        public int screenOrientation = ActivityInfo.SCREEN_ORIENTATION_UNSPECIFIED;
     }
 
     @NonNull
