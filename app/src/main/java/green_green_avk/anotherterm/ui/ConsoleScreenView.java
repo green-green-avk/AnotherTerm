@@ -1039,7 +1039,8 @@ public class ConsoleScreenView extends ScrollableView
             }
         }
         if (mScroller.isFinished() && scrollFollowHistoryThreshold > 0F
-                && scrollPosition.y < (float) -getRows() * scrollFollowHistoryThreshold) {
+                && scrollPosition.y < Math.min((float) -getRows() * scrollFollowHistoryThreshold,
+                getBottomScrollLimit() - 0.5F)) {
             scrollPtWithBuffer(scrollPosition, from, to, n);
             invalidateScroll();
         }
