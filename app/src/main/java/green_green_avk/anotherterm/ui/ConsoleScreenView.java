@@ -27,6 +27,9 @@ import android.util.AttributeSet;
 import android.view.Gravity;
 import android.view.MotionEvent;
 import android.view.View;
+import android.view.ViewGroup;
+import android.view.WindowManager;
+import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.PopupWindow;
 import android.widget.Toast;
@@ -90,6 +93,7 @@ public class ConsoleScreenView extends ScrollableView
     protected float mFontSize = 16;
     protected float mFontWidth;
     protected float mFontHeight;
+    protected int keyHeightDp = 0;
     protected float selectionPadSize = 200; // px
     protected ConsoleScreenSelection selection = null;
     protected boolean selectionMode = false;
@@ -110,8 +114,6 @@ public class ConsoleScreenView extends ScrollableView
     private boolean mBlinkState = true;
     private WeakHandler mHandler = null;
 
-    protected static final int popupMeasureSpec =
-            MeasureSpec.makeMeasureSpec(0, MeasureSpec.UNSPECIFIED);
     protected static final int[] noneSelectionModeState = new int[0];
     protected static final int[] linesSelectionModeState = new int[]{R.attr.state_select_lines};
     protected static final int[] rectSelectionModeState = new int[]{R.attr.state_select_rect};
@@ -120,13 +122,32 @@ public class ConsoleScreenView extends ScrollableView
     protected class SelectionPopup {
         protected final int[] parentPos = new int[2];
         protected final PopupWindow window;
+        protected final Point pos = new Point(0, 0);
         protected final ImageView smv;
 
+        protected class WrapperView extends FrameLayout {
+            protected WrapperView(@NonNull final Context context) {
+                super(context);
+            }
+
+            @Override
+            protected void onLayout(final boolean changed, final int left, final int top,
+                                    final int right, final int bottom) {
+                super.onLayout(changed, left, top, right, bottom);
+                if (changed) {
+                    calcPos();
+                    window.update(pos.x, pos.y, -1, -1);
+                }
+            }
+        }
+
         {
-            final View v = inflate(getContext(), R.layout.select_search_popup, null);
-            v.measure(popupMeasureSpec, popupMeasureSpec);
-            window = new PopupWindow(v,
-                    v.getMeasuredWidth(), v.getMeasuredHeight(), false);
+            final ViewGroup d = new WrapperView(getContext());
+            d.setLayoutParams(new ViewGroup.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT,
+                    ViewGroup.LayoutParams.WRAP_CONTENT));
+            inflate(getContext(), R.layout.select_search_popup, d);
+            window = new PopupWindow(d, WindowManager.LayoutParams.WRAP_CONTENT,
+                    WindowManager.LayoutParams.WRAP_CONTENT, false);
             smv = getContentView().findViewById(R.id.b_select_mode);
             refresh();
             getContentView().findViewById(R.id.b_close)
@@ -204,6 +225,30 @@ public class ConsoleScreenView extends ScrollableView
                     });
         }
 
+        protected void calcPos() {
+            getLocationInWindow(parentPos);
+            final int sx = window.getContentView().getWidth();
+            final int sy = window.getContentView().getHeight();
+            int x = (int) getBufferDrawPosXF((selection.first.x +
+                    selection.last.x + 1) / 2f) - sx / 2;
+            x = MathUtils.clamp(x, 0, getWidth() - sx);
+            int y = (int) getBufferDrawPosYF(selection.getDirect().first.y) - sy;
+            if (y < 0) y = (int) getBufferDrawPosYF(selection.getDirect().last.y + 1);
+            if (y > getHeight() - sy)
+                y = (int) (getBufferDrawPosYF(
+                        (selection.first.y + selection.last.y + 1) / 2f)) - sy / 2;
+            y = MathUtils.clamp(y, 0, getHeight() - sy);
+            pos.x = parentPos[0] + x;
+            pos.y = parentPos[1] + y;
+        }
+
+        protected void setSizeDp(final float v) {
+            final View cv = getContentView();
+            cv.getLayoutParams().height =
+                    (int) (getResources().getDisplayMetrics().density * v);
+            cv.requestLayout();
+        }
+
         protected void refresh() {
             final int[] st;
             if (getSelectionModeIsExpr()) st = exprSelectionModeState;
@@ -212,31 +257,20 @@ public class ConsoleScreenView extends ScrollableView
             smv.setImageState(st, false);
         }
 
-        public View getContentView() {
-            return window.getContentView();
+        protected View getContentView() {
+            return ((ViewGroup) window.getContentView()).getChildAt(0);
         }
 
-        public void show() {
+        protected void show() {
             if (selection != null && !window.isShowing()) {
-                getLocationInWindow(parentPos);
-                final int sx = window.getWidth();
-                final int sy = window.getHeight();
-                int x = (int) getBufferDrawPosXF((selection.first.x +
-                        selection.last.x + 1) / 2f) - sx / 2;
-                x = MathUtils.clamp(x, 0, getWidth() - sx);
-                int y = (int) getBufferDrawPosYF(selection.getDirect().first.y) - sy;
-                if (y < 0) y = (int) getBufferDrawPosYF(selection.getDirect().last.y + 1);
-                if (y > getHeight() - sy)
-                    y = (int) (getBufferDrawPosYF(
-                            (selection.first.y + selection.last.y + 1) / 2f)) - sy / 2;
-                y = MathUtils.clamp(y, 0, getHeight() - sy);
+                calcPos();
                 window.showAtLocation(ConsoleScreenView.this, Gravity.NO_GRAVITY,
-                        parentPos[0] + x, parentPos[1] + y);
+                        pos.x, pos.y);
             }
             refresh();
         }
 
-        public void hide() {
+        protected void hide() {
             window.dismiss();
         }
     }
@@ -672,6 +706,17 @@ public class ConsoleScreenView extends ScrollableView
         consoleInput.removeOnBufferScroll(this);
         consoleInput.removeOnInvalidateSink(this);
         consoleInput = null;
+    }
+
+    public int getKeyHeightDp() {
+        return keyHeightDp;
+    }
+
+    public void setKeyHeightDp(final int v) {
+        if (this.keyHeightDp != v) {
+            this.keyHeightDp = v;
+            selectionPopup.setSizeDp(keyHeightDp);
+        }
     }
 
     @Nullable

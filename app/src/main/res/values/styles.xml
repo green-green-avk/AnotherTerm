@@ -176,6 +176,7 @@
     <style name="AppWidget.SelectSearchPopup.ImageButton" parent="Widget.AppCompat.ImageButton">
         <item name="android:layout_width">wrap_content</item>
         <item name="android:layout_height">match_parent</item>
+        <item name="android:layout_weight">1</item>
         <item name="android:adjustViewBounds">true</item>
         <item name="android:alpha">0.75</item>
         <item name="android:background">@android:color/transparent</item>

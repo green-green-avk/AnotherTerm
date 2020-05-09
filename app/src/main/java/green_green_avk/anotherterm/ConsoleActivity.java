@@ -260,6 +260,7 @@ public final class ConsoleActivity extends AppCompatActivity
         }
         mCsv.setSelectionPadSize(((App) getApplication()).settings.terminal_selection_pad_size_dp
                 * getResources().getDisplayMetrics().density);
+        mCsv.setKeyHeightDp(((App) getApplication()).settings.terminal_key_height_dp);
         mCsv.setScrollFollowHistoryThreshold((float) ((App) getApplication()).settings
                 .terminal_scroll_follow_history_threshold / 100);
         mCkv.setAutoRepeatAllowed(((App) getApplication()).settings.terminal_key_repeat);
