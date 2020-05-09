@@ -11,6 +11,11 @@
     <!-- The buffer search field is about to be here soon -->
 
     <ImageButton
+        android:id="@+id/b_share"
+        style="@style/AppWidget.SelectSearchPopup.ImageButton"
+        app:srcCompat="?attr/actionModeShareDrawable" />
+
+    <ImageButton
         android:id="@+id/b_web"
         style="@style/AppWidget.SelectSearchPopup.ImageButton"
         app:srcCompat="@drawable/ic_globe" />

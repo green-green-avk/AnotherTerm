@@ -209,4 +209,10 @@
     <string name="label_wake_lock">Wake Lock</string>
     <string name="action_toggle_wake_lock">Toggle Wake Lock</string>
     <string name="msg_s___">%s…</string>
+    <string name="msg_nothing_to_share">Nothing to share</string>
+    <string name="msg_text_is_too_large_to_be_shared"><![CDATA[
+        It seems, the text is too large to be shared on this particular device
+        without using of a content provider.
+        A workaround will be implemented in the future.
+    ]]></string>
 </resources>

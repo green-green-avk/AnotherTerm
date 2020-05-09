@@ -101,6 +101,25 @@ public final class UiUtils {
         Toast.makeText(context, R.string.msg_copied_to_clipboard, Toast.LENGTH_SHORT).show();
     }
 
+    public static void sharePlainText(@NonNull final Activity context, @Nullable final String v) {
+        if (v == null) {
+            Toast.makeText(context, R.string.msg_nothing_to_share, Toast.LENGTH_SHORT).show();
+            return;
+        }
+        try {
+            ShareCompat.IntentBuilder.from(context).setType("text/plain").setText(v).startChooser();
+        } catch (final Throwable e) {
+            if (e instanceof AndroidException || e.getCause() instanceof AndroidException) {
+                new AlertDialog.Builder(context)
+                        .setTitle(R.string.msg_text_is_too_large_to_be_shared)
+                        .setMessage(e.getMessage())
+                        .show();
+                return;
+            }
+            throw e;
+        }
+    }
+
     @NonNull
     public static Iterable<View> getIterable(@Nullable final View root) {
         return new Iterable<View>() {

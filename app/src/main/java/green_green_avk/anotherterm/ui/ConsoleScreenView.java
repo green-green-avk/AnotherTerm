@@ -1,5 +1,6 @@
 package green_green_avk.anotherterm.ui;
 
+import android.app.Activity;
 import android.app.SearchManager;
 import android.content.ActivityNotFoundException;
 import android.content.Context;
@@ -192,6 +193,13 @@ public class ConsoleScreenView extends ScrollableView
                                 } catch (final ActivityNotFoundException ignored) {
                                 }
                             }
+                        }
+                    });
+            getContentView().findViewById(R.id.b_share)
+                    .setOnClickListener(new OnClickListener() {
+                        @Override
+                        public void onClick(final View v) {
+                            UiUtils.sharePlainText((Activity) getContext(), getSelectedText());
                         }
                     });
         }
