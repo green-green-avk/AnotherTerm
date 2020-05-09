@@ -346,7 +346,7 @@ public class ConsoleScreenView extends ScrollableView
         super.onAttachedToWindow();
         mHandler = new WeakHandler() {
             @Override
-            public void handleMessage(final Message msg) {
+            public void handleMessage(@NonNull final Message msg) {
                 switch (msg.what) {
                     case MSG_BLINK:
                         mBlinkState = !mBlinkState;

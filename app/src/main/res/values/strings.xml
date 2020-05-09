@@ -110,8 +110,11 @@
     <string name="action_send_sigint">Send SIGINT</string>
     <string name="action_send_sighup">Send SIGHUP</string>
     <string name="label_screen">Screen</string>
-    <string name="msg_text_is_too_large_to_be_copied_into_clipboard">It seems, the text is too large to be copied into the clipboard on this particular device.
-        Possibly, some workaround will be implemented in the future.</string>
+    <string name="msg_text_is_too_large_to_be_copied_into_clipboard"><![CDATA[
+        It seems, the text is too large to be copied into the clipboard on this particular device
+        without using of a content provider.
+        A workaround will be implemented in the future.
+    ]]></string>
     <string name="action_help">Help</string>
     <string name="label_key_exchange">Key exchange</string>
     <string name="title_encryption_preferences">Encryption preferences</string>
@@ -205,4 +208,5 @@
     <string name="summary_if_its_visible_fraction_gte">if its visible fraction is ≥</string>
     <string name="label_wake_lock">Wake Lock</string>
     <string name="action_toggle_wake_lock">Toggle Wake Lock</string>
+    <string name="msg_s___">%s…</string>
 </resources>

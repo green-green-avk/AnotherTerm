@@ -58,6 +58,7 @@ dependencies {
     testImplementation 'junit:junit:4.13'
     androidTestImplementation 'androidx.test.ext:junit:1.1.1'
     androidTestImplementation 'androidx.test.espresso:espresso-core:3.2.0'
+    //noinspection GradleDependency // Dalvik in Android 4 can't newer versions...
     implementation 'org.apache.commons:commons-text:1.6'
     implementation 'com.google.android:flexbox:1.0.0'
     implementation 'androidx.preference:preference:1.1.1'
@@ -66,6 +67,7 @@ dependencies {
     implementation project(':usbserial')
     implementation 'com.jcraft:jsch:0.1.55'
     implementation project(':TelnetClient')
+    //noinspection GradleDependency // Dalvik in Android 4 can't newer versions...
     implementation 'org.apache.commons:commons-collections4:4.2'
     implementation project(':libusbmanager')
     implementation 'com.github.green-green-avk:anothertermshellpluginutils:1.8'

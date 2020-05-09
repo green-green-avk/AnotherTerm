@@ -70,28 +70,30 @@ public final class SessionsActivity extends AppCompatActivity {
                                             final ContextMenu.ContextMenuInfo menuInfo) {
                 final String name = a.getName(l.getChildLayoutPosition(view));
                 getMenuInflater().inflate(R.menu.menu_favorite, menu);
-                menu.findItem(R.id.fav_edit).setOnMenuItemClickListener(new MenuItem.OnMenuItemClickListener() {
-                    @Override
-                    public boolean onMenuItemClick(final MenuItem item) {
-                        showEditFavoriteDlg(name);
-                        return true;
-                    }
-                });
+                menu.findItem(R.id.fav_edit).setOnMenuItemClickListener(
+                        new MenuItem.OnMenuItemClickListener() {
+                            @Override
+                            public boolean onMenuItemClick(final MenuItem item) {
+                                showEditFavoriteDlg(name);
+                                return true;
+                            }
+                        });
                 menu.findItem(R.id.fav_delete).setOnMenuItemClickListener(
                         new MenuItem.OnMenuItemClickListener() {
                             @Override
-                            public boolean onMenuItemClick(MenuItem item) {
+                            public boolean onMenuItemClick(final MenuItem item) {
                                 FavoritesManager.remove(name);
                                 return true;
                             }
                         });
-                menu.findItem(R.id.fav_clone).setOnMenuItemClickListener(new MenuItem.OnMenuItemClickListener() {
-                    @Override
-                    public boolean onMenuItemClick(MenuItem item) {
-                        showEditFavoriteDlg(name, true);
-                        return true;
-                    }
-                });
+                menu.findItem(R.id.fav_clone).setOnMenuItemClickListener(
+                        new MenuItem.OnMenuItemClickListener() {
+                            @Override
+                            public boolean onMenuItemClick(final MenuItem item) {
+                                showEditFavoriteDlg(name, true);
+                                return true;
+                            }
+                        });
             }
         });
     }

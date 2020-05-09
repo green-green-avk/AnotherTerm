@@ -17,6 +17,7 @@ import android.view.inputmethod.EditorInfo;
 import android.view.inputmethod.InputConnection;
 import android.view.inputmethod.InputMethodManager;
 
+import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
 import green_green_avk.anotherterm.ConsoleInput;
@@ -107,7 +108,7 @@ public class ConsoleKeyboardView extends ExtKeyboardView implements
         }
     }
 
-    private void applyConfig(final Configuration cfg) {
+    private void applyConfig(@NonNull final Configuration cfg) {
         final Resources res = getContext().getResources();
         final float keyW = cfg.screenWidthDp / cfg.fontScale / 20;
         final int kbdRes =
@@ -124,7 +125,7 @@ public class ConsoleKeyboardView extends ExtKeyboardView implements
         }
     }
 
-    public void setConsoleInput(final ConsoleInput consoleInput) {
+    public void setConsoleInput(@NonNull final ConsoleInput consoleInput) {
         this.consoleInput = consoleInput;
         this.consoleOutput = this.consoleInput.consoleOutput;
         this.consoleInput.addOnInvalidateSink(this);
@@ -146,9 +147,9 @@ public class ConsoleKeyboardView extends ExtKeyboardView implements
         return keyHeightDp;
     }
 
-    public void setKeyHeightDp(final int keyHeight) {
-        if (this.keyHeightDp != keyHeight) {
-            this.keyHeightDp = keyHeight;
+    public void setKeyHeightDp(final int v) {
+        if (this.keyHeightDp != v) {
+            this.keyHeightDp = v;
             if (getWindowToken() != null) // if attached
                 applyConfig(getResources().getConfiguration());
         }

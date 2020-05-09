@@ -7,6 +7,8 @@ import android.os.Message;
 import android.util.Printer;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+import androidx.annotation.RequiresApi;
 
 import java.lang.ref.WeakReference;
 import java.util.HashMap;
@@ -18,16 +20,16 @@ public class WeakHandler {
 
     public static class Exception extends RuntimeException {
 
-        public Exception(Throwable cause) {
+        public Exception(final Throwable cause) {
             super(cause);
         }
 
-        public Exception(String message) {
+        public Exception(final String message) {
             super(message);
         }
     }
 
-    private static void copy(Message dst, Message src) {
+    private static void copy(@NonNull final Message dst, @NonNull final Message src) {
         dst.obj = src.obj;
         dst.what = src.what;
         dst.arg1 = src.arg1;
@@ -39,28 +41,25 @@ public class WeakHandler {
     }
 
     private static final class HandlerWrapper extends Handler {
-        private WeakReference<WeakHandler> that;
+        @NonNull
+        final private WeakReference<WeakHandler> that;
 
-        public HandlerWrapper(WeakHandler that) {
+        private HandlerWrapper(final WeakHandler that) {
             super();
             this.that = new WeakReference<>(that);
         }
 
-        public HandlerWrapper(WeakHandler that, Looper looper) {
+        private HandlerWrapper(final WeakHandler that, final Looper looper) {
             super(looper);
             this.that = new WeakReference<>(that);
         }
 
-        public WeakHandler getThat() {
+        private WeakHandler getThat() {
             return that.get();
         }
 
-        public void setThat(WeakHandler that) {
-            this.that = new WeakReference<>(that);
-        }
-
         @Override
-        public void dispatchMessage(Message msg) {
+        public void dispatchMessage(final Message msg) {
             final WeakHandler wh = that.get();
             if (wh == null) return;
             if (msg.obj instanceof ObjWrapper) {
@@ -83,7 +82,7 @@ public class WeakHandler {
         }
 
         @Override
-        public boolean sendMessageAtTime(Message msg, long uptimeMillis) {
+        public boolean sendMessageAtTime(final Message msg, final long uptimeMillis) {
             final WeakHandler wh = that.get();
             if (wh == null) return false;
             // Just for Message.sendToTarget()
@@ -92,10 +91,12 @@ public class WeakHandler {
     }
 
     private static final class RunnableWrapper implements Runnable {
+        @NonNull
         private final HandlerWrapper hw;
-        public final WeakReference<Runnable> runnable;
+        @NonNull
+        private final WeakReference<Runnable> runnable;
 
-        public RunnableWrapper(HandlerWrapper hw, @NonNull Runnable r) {
+        private RunnableWrapper(@NonNull final HandlerWrapper hw, @NonNull final Runnable r) {
             this.hw = hw;
             this.runnable = new WeakReference<>(r);
         }
@@ -123,10 +124,12 @@ public class WeakHandler {
     }
 
     private static final class ObjWrapper {
+        @NonNull
         private final HandlerWrapper hw;
-        public final WeakReference<Object> obj;
+        @NonNull
+        private final WeakReference<Object> obj;
 
-        public ObjWrapper(HandlerWrapper hw, @NonNull Object obj) {
+        private ObjWrapper(@NonNull final HandlerWrapper hw, @NonNull final Object obj) {
             this.hw = hw;
             this.obj = new WeakReference<>(obj);
         }
@@ -142,12 +145,13 @@ public class WeakHandler {
         }
     }
 
+    @NonNull
     private final HandlerWrapper handlerWrapper;
     private Handler.Callback mCallback = null;
     private final Map<Runnable, WeakReference<RunnableWrapper>> runnables = new HashMap<>();
     private final Map<Object, WeakReference<ObjWrapper>> objs = new HashMap<>();
 
-    private synchronized RunnableWrapper obtainRunnableWrapper(Runnable r) {
+    private synchronized RunnableWrapper obtainRunnableWrapper(@Nullable final Runnable r) {
         if (r == null) return null;
         final WeakReference<RunnableWrapper> wrw = runnables.get(r);
         RunnableWrapper rw = null;
@@ -160,7 +164,7 @@ public class WeakHandler {
         return rw;
     }
 
-    private synchronized RunnableWrapper getRunnableWrapper(@NonNull Runnable r) {
+    private synchronized RunnableWrapper getRunnableWrapper(@NonNull final Runnable r) {
         final WeakReference<RunnableWrapper> wrw = runnables.get(r);
         RunnableWrapper rw = null;
         if (wrw != null)
@@ -168,11 +172,11 @@ public class WeakHandler {
         return rw;
     }
 
-    private synchronized void removeRunnableWrapper(@NonNull Runnable r) {
+    private synchronized void removeRunnableWrapper(@NonNull final Runnable r) {
         runnables.remove(r);
     }
 
-    private synchronized ObjWrapper obtainObjWrapper(Object obj) {
+    private synchronized ObjWrapper obtainObjWrapper(@Nullable final Object obj) {
         if (obj == null) return null;
         final WeakReference<ObjWrapper> wow = objs.get(obj);
         ObjWrapper ow = null;
@@ -185,7 +189,7 @@ public class WeakHandler {
         return ow;
     }
 
-    private synchronized ObjWrapper getObjWrapper(@NonNull Object obj) {
+    private synchronized ObjWrapper getObjWrapper(@NonNull final Object obj) {
         final WeakReference<ObjWrapper> wow = objs.get(obj);
         ObjWrapper ow = null;
         if (wow != null)
@@ -193,11 +197,11 @@ public class WeakHandler {
         return ow;
     }
 
-    private synchronized void removeObjWrapper(@NonNull Object obj) {
+    private synchronized void removeObjWrapper(@NonNull final Object obj) {
         objs.remove(obj);
     }
 
-    private Message wrapMessage(Message msg) {
+    private Message wrapMessage(@NonNull final Message msg) {
         if (msg.obj != null && !(msg.obj instanceof ObjWrapper)) {
             msg.obj = obtainObjWrapper(msg.obj);
         }
@@ -218,26 +222,26 @@ public class WeakHandler {
         handlerWrapper = new HandlerWrapper(this);
     }
 
-    public WeakHandler(Handler.Callback callback) {
+    public WeakHandler(final Handler.Callback callback) {
         this.mCallback = callback;
         handlerWrapper = new HandlerWrapper(this);
     }
 
-    public WeakHandler(Looper looper) {
+    public WeakHandler(final Looper looper) {
         handlerWrapper = new HandlerWrapper(this, looper);
     }
 
-    public WeakHandler(Looper looper, Handler.Callback callback) {
+    public WeakHandler(final Looper looper, final Handler.Callback callback) {
         this.mCallback = callback;
         handlerWrapper = new HandlerWrapper(this, looper);
     }
 
     // TODO: other constructors
 
-    public void handleMessage(Message msg) {
+    public void handleMessage(@NonNull final Message msg) {
     }
 
-    public void dispatchMessage(Message msg) {
+    public void dispatchMessage(@NonNull final Message msg) {
         if (msg.getCallback() != null) {
             msg.getCallback().run();
         } else {
@@ -260,55 +264,66 @@ public class WeakHandler {
     }
     */
 
-    public String getMessageName(Message message) {
+    @NonNull
+    public String getMessageName(@NonNull final Message message) {
         return handlerWrapper.getMessageName(message);
     }
 
+    @NonNull
     public Message obtainMessage() {
         return handlerWrapper.obtainMessage();
     }
 
-    public Message obtainMessage(int what) {
+    @NonNull
+    public Message obtainMessage(final int what) {
         return handlerWrapper.obtainMessage(what);
     }
 
-    public Message obtainMessage(int what, Object obj) {
+    @NonNull
+    public Message obtainMessage(final int what, final Object obj) {
         return handlerWrapper.obtainMessage(what, obj);
     }
 
-    public Message obtainMessage(int what, int arg1, int arg2) {
+    @NonNull
+    public Message obtainMessage(final int what, final int arg1, final int arg2) {
         return handlerWrapper.obtainMessage(what, arg1, arg2);
     }
 
-    public Message obtainMessage(int what, int arg1, int arg2, Object obj) {
+    @NonNull
+    public Message obtainMessage(final int what, final int arg1, final int arg2, final Object obj) {
         return handlerWrapper.obtainMessage(what, arg1, arg2, obj);
     }
 
-    public boolean post(Runnable r) {
+    public boolean post(@NonNull final Runnable r) {
         return handlerWrapper.post(obtainRunnableWrapper(r));
     }
 
-    public boolean postAtTime(Runnable r, long uptimeMillis) {
+    public boolean postAtTime(@NonNull final Runnable r, final long uptimeMillis) {
         return handlerWrapper.postAtTime(obtainRunnableWrapper(r), uptimeMillis);
     }
 
-    public boolean postAtTime(Runnable r, Object token, long uptimeMillis) {
-        return handlerWrapper.postAtTime(obtainRunnableWrapper(r), obtainObjWrapper(token), uptimeMillis);
+    public boolean postAtTime(@NonNull final Runnable r, final Object token,
+                              final long uptimeMillis) {
+        return handlerWrapper.postAtTime(obtainRunnableWrapper(r), obtainObjWrapper(token),
+                uptimeMillis);
     }
 
-    public boolean postDelayed(Runnable r, long delayMillis) {
+    public boolean postDelayed(@NonNull final Runnable r, final long delayMillis) {
         return handlerWrapper.postDelayed(obtainRunnableWrapper(r), delayMillis);
     }
 
-    public boolean postDelayed(Runnable r, Object token, long delayMillis) {
-        return handlerWrapper.postDelayed(obtainRunnableWrapper(r), obtainObjWrapper(token), delayMillis);
+    @RequiresApi(api = Build.VERSION_CODES.P)
+    public boolean postDelayed(@NonNull final Runnable r, final Object token,
+                               final long delayMillis) {
+        return handlerWrapper.postDelayed(obtainRunnableWrapper(r), obtainObjWrapper(token),
+                delayMillis);
     }
 
-    public boolean postAtFrontOfQueue(Runnable r) {
+    public boolean postAtFrontOfQueue(@NonNull final Runnable r) {
         return handlerWrapper.postAtFrontOfQueue(obtainRunnableWrapper(r));
     }
 
-    public void removeCallbacks(Runnable r) {
+    public void removeCallbacks(@Nullable Runnable r) {
         if (r != null) {
             r = getRunnableWrapper(r);
             if (r == null) return;
@@ -316,7 +331,7 @@ public class WeakHandler {
         handlerWrapper.removeCallbacks(r);
     }
 
-    public void removeCallbacks(Runnable r, Object token) {
+    public void removeCallbacks(@Nullable Runnable r, @Nullable Object token) {
         if (r != null) {
             r = getRunnableWrapper(r);
             if (r == null) return;
@@ -328,39 +343,39 @@ public class WeakHandler {
         handlerWrapper.removeCallbacks(r, token);
     }
 
-    public boolean sendMessage(Message msg) {
+    public boolean sendMessage(@NonNull final Message msg) {
         return handlerWrapper.sendMessage(wrapMessage(msg));
     }
 
-    public boolean sendEmptyMessage(int what) {
+    public boolean sendEmptyMessage(final int what) {
         return handlerWrapper.sendEmptyMessage(what);
     }
 
-    public boolean sendEmptyMessageDelayed(int what, long delayMillis) {
+    public boolean sendEmptyMessageDelayed(final int what, final long delayMillis) {
         return handlerWrapper.sendEmptyMessageDelayed(what, delayMillis);
     }
 
-    public boolean sendEmptyMessageAtTime(int what, long uptimeMillis) {
+    public boolean sendEmptyMessageAtTime(final int what, final long uptimeMillis) {
         return handlerWrapper.sendEmptyMessageAtTime(what, uptimeMillis);
     }
 
-    public boolean sendMessageDelayed(Message msg, long delayMillis) {
+    public boolean sendMessageDelayed(@NonNull final Message msg, final long delayMillis) {
         return handlerWrapper.sendMessageDelayed(wrapMessage(msg), delayMillis);
     }
 
-    public boolean sendMessageAtTime(Message msg, long uptimeMillis) {
+    public boolean sendMessageAtTime(@NonNull final Message msg, final long uptimeMillis) {
         return handlerWrapper.sendMessageAtTime(wrapMessage(msg), uptimeMillis);
     }
 
-    public boolean sendMessageAtFrontOfQueue(Message msg) {
+    public boolean sendMessageAtFrontOfQueue(@NonNull final Message msg) {
         return handlerWrapper.sendMessageAtFrontOfQueue(wrapMessage(msg));
     }
 
-    public void removeMessages(int what) {
+    public void removeMessages(final int what) {
         handlerWrapper.removeMessages(what);
     }
 
-    public void removeMessages(int what, Object object) {
+    public void removeMessages(final int what, @Nullable Object object) {
         if (object != null) {
             object = getObjWrapper(object);
             if (object == null) return;
@@ -368,7 +383,7 @@ public class WeakHandler {
         handlerWrapper.removeMessages(what, object);
     }
 
-    public void removeCallbacksAndMessages(Object token) {
+    public void removeCallbacksAndMessages(@Nullable Object token) {
         if (token != null) {
             token = getObjWrapper(token);
             if (token == null) return;
@@ -376,11 +391,11 @@ public class WeakHandler {
         handlerWrapper.removeCallbacksAndMessages(token);
     }
 
-    public boolean hasMessages(int what) {
+    public boolean hasMessages(final int what) {
         return handlerWrapper.hasMessages(what);
     }
 
-    public boolean hasMessages(int what, Object object) {
+    public boolean hasMessages(final int what, @Nullable Object object) {
         if (object != null) {
             object = getObjWrapper(object);
             if (object == null) return false;
@@ -388,11 +403,12 @@ public class WeakHandler {
         return handlerWrapper.hasMessages(what, object);
     }
 
+    @NonNull
     public Looper getLooper() {
         return handlerWrapper.getLooper();
     }
 
-    public void dump(Printer pw, String prefix) {
+    public void dump(@NonNull final Printer pw, final String prefix) {
         handlerWrapper.dump(pw, prefix);
     }
 

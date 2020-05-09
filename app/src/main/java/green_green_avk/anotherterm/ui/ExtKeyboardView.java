@@ -194,7 +194,7 @@ public abstract class ExtKeyboardView extends View /*implements View.OnClickList
         super.onAttachedToWindow();
         mHandler = new WeakHandler() {
             @Override
-            public void handleMessage(final Message msg) {
+            public void handleMessage(@NonNull final Message msg) {
                 switch (msg.what) {
                     case MSG_REPEAT: {
                         final KeyTouchState keyState = mTouchedKeys.getRepeatable();

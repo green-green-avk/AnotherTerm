@@ -44,6 +44,11 @@ public final class UiUtils {
     private UiUtils() {
     }
 
+    @NonNull
+    public static String brief(@NonNull final Context ctx, @NonNull final String v, final int n) {
+        return v.length() < n ? v : ctx.getString(R.string.msg_s___, v.substring(0, n));
+    }
+
     public static void shareUri(@NonNull final Activity ctx, @NonNull final Uri uri,
                                 @NonNull final String description) {
         // https://stackoverflow.com/questions/29907030/sharing-text-plain-string-via-bluetooth-converts-data-into-html
@@ -82,10 +87,7 @@ public final class UiUtils {
             return;
         }
         try {
-            clipboard.setPrimaryClip(ClipData.newPlainText(
-                    v.length() < 16 ? v : v.substring(0, 16) + "...",
-                    v
-            ));
+            clipboard.setPrimaryClip(ClipData.newPlainText(brief(context, v, 16), v));
         } catch (final Throwable e) {
             if (e instanceof AndroidException || e.getCause() instanceof AndroidException) {
                 new AlertDialog.Builder(context)
