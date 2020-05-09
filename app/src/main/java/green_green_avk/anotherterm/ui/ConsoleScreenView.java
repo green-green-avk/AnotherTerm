@@ -72,6 +72,7 @@ public class ConsoleScreenView extends ScrollableView
 
     protected static final int MSG_BLINK = 0;
     protected static final int INTERVAL_BLINK = 500; // ms
+    protected static final long SELECTION_MOVE_START_DELAY = 200; // ms
     protected ConsoleInput consoleInput = null;
     public final ConsoleScreenCharAttrs charAttrs = new ConsoleScreenCharAttrs();
     protected final Paint fgPaint = new Paint();
@@ -756,30 +757,41 @@ public class ConsoleScreenView extends ScrollableView
                 consoleInput.consoleOutput.isMouseSupported();
     }
 
+    protected static class SubGesture {
+        protected float x = 0F;
+        protected float y = 0F;
+        protected float dx = 0F;
+        protected float dy = 0F;
+
+        protected void init(@NonNull final MotionEvent event) {
+            x = event.getX();
+            y = event.getY();
+            dx = 0F;
+            dy = 0F;
+        }
+
+        protected void onMove(@NonNull final MotionEvent event) {
+            dx = event.getX() - x;
+            dy = event.getY() - y;
+            x = event.getX();
+            y = event.getY();
+        }
+    }
+
     protected boolean inGesture = false;
-    protected float touchLastX = 0F;
-    protected float touchLastY = 0F;
+    protected SubGesture selectionGesture = new SubGesture();
 
     @Override
     public boolean onTouchEvent(final MotionEvent event) {
-        float touchDX = 0F;
-        float touchDY = 0F;
         final int action = event.getAction();
         switch (action) {
             case MotionEvent.ACTION_DOWN:
                 inGesture = true;
+                selectionGesture.init(event);
                 wasAppTextScrolling = !appTextScroller.isFinished();
                 appTextScroller.forceFinished(true);
                 adjustSelectionPopup();
                 ViewCompat.postInvalidateOnAnimation(this);
-                touchLastX = event.getX();
-                touchLastY = event.getY();
-                break;
-            case MotionEvent.ACTION_MOVE:
-                touchDX = event.getX() - touchLastX;
-                touchDY = event.getY() - touchLastY;
-                touchLastX = event.getX();
-                touchLastY = event.getY();
                 break;
         }
         if (selectionMode) { // Possibly no gestures here
@@ -789,10 +801,19 @@ public class ConsoleScreenView extends ScrollableView
                     break;
                 case MotionEvent.ACTION_MOVE:
                     if (selectionMarker != null) {
+                        if (!isOnScreen(selectionMarker.x, selectionMarker.y) &&
+                                event.getEventTime() - event.getDownTime()
+                                        < SELECTION_MOVE_START_DELAY)
+                            return true;
+                        selectionGesture.onMove(event);
                         float smx = getBufferDrawPosXF(selectionMarker.x);
                         float smy = getBufferDrawPosYF(selectionMarker.y);
-                        smx = MathUtils.clamp((int) (smx + touchDX), 0, getWidth() - 1);
-                        smy = MathUtils.clamp((int) (smy + touchDY), 0, getHeight() - 1);
+                        smx = MathUtils.clamp((int) (smx), 0, getWidth() - 1);
+                        smy = MathUtils.clamp((int) (smy), 0, getHeight() - 1);
+                        smx = MathUtils.clamp((int) (smx + selectionGesture.dx), 0,
+                                getWidth() - 1);
+                        smy = MathUtils.clamp((int) (smy + selectionGesture.dy), 0,
+                                getHeight() - 1);
                         selectionMarker.x = getBufferTextPosXF(smx);
                         selectionMarker.y = getBufferTextPosYF(smy);
                         if (selectionMarker == selectionMarkerExpr) {
@@ -809,6 +830,8 @@ public class ConsoleScreenView extends ScrollableView
                     break;
                 case MotionEvent.ACTION_UP:
                     if (selectionMarker != null) {
+                        if (!isOnScreen(selectionMarker.x, selectionMarker.y))
+                            doScrollTextCenterTo(selectionMarker.x, selectionMarker.y);
                         unsetCurrentSelectionMarker();
                         inGesture = false;
                         adjustSelectionPopup();
@@ -962,11 +985,6 @@ public class ConsoleScreenView extends ScrollableView
     public boolean onSingleTapUp(final MotionEvent e) {
         if (wasAppTextScrolling)
             return true; // Just stop sending fling scrolling escapes to an application...
-        if (selectionMode && selectionMarker != null) {
-            if (!isOnScreen(selectionMarker.x, selectionMarker.y))
-                doScrollTextCenterTo(selectionMarker.x, selectionMarker.y);
-            return true;
-        }
         final int x = getBufferTextPosX(MathUtils.clamp((int) e.getX(), 0, getWidth() - 1));
         final int y = getBufferTextPosY(MathUtils.clamp((int) e.getY(), 0, getHeight() - 1));
         if (isMouseSupported()) {
