@@ -669,7 +669,7 @@ public final class ConsoleScreenBuffer {
         movePosY(y);
     }
 
-    public void moveScrollPosY(int y) {
+    public void moveScrollPosY(final int y) {
         mPos.y = moveScrollPosY(mPos.y, y);
     }
 

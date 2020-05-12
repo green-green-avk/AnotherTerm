@@ -170,7 +170,7 @@ public final class TermKeyMapEditorActivity extends AppCompatActivity {
     }
 
     @Override
-    protected void onSaveInstanceState(final Bundle outState) {
+    protected void onSaveInstanceState(@NonNull final Bundle outState) {
         super.onSaveInstanceState(outState);
         outState.putSerializable("E_KEYMAP", keyMap);
     }
