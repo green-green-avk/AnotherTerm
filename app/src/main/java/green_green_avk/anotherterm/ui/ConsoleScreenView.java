@@ -735,7 +735,7 @@ public class ConsoleScreenView extends ScrollableView
                 if (r >= 0) sb.append(v.toString().replaceAll(" *$", ""));
                 sb.append('\n');
             }
-            r = consoleInput.currScrBuf.getChars(0, s.last.y, s.last.x + 1, v);
+            r = consoleInput.currScrBuf.getChars(s.first.x, s.last.y, s.last.x - s.first.x + 1, v);
             if (r >= 0) sb.append(v.toString().replaceAll(" *$", ""));
         } else {
             r = consoleInput.currScrBuf.getChars(s.first.x, s.first.y, getCols() - s.first.x, v);
