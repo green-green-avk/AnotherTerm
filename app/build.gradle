@@ -8,8 +8,8 @@ android {
         applicationId 'green_green_avk.anotherterm'
         minSdkVersion 14
         targetSdkVersion 28
-        versionCode 33
-        versionName "MkIIr-dev"
+        versionCode 34
+        versionName "MkIIr"
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
         vectorDrawables.useSupportLibrary = true
 
