@@ -70,15 +70,30 @@ public final class TermKeyMapEditorActivity extends AppCompatActivity {
         @Override
         public View getView(final int position, View convertView, final ViewGroup parent) {
             if (!(convertView instanceof TextView))
-                convertView = new TextView(parent.getContext(), null,
-                        android.R.style.Widget_TextView_SpinnerItem);
+                convertView = LayoutInflater.from(parent.getContext())
+                        .inflate(android.R.layout.simple_spinner_item,
+                                parent, false);
+            setupView(position, convertView);
+            return convertView;
+        }
+
+        @Override
+        public View getDropDownView(final int position, View convertView, final ViewGroup parent) {
+            if (!(convertView instanceof TextView))
+                convertView = LayoutInflater.from(parent.getContext())
+                        .inflate(android.R.layout.simple_spinner_dropdown_item,
+                                parent, false);
+            setupView(position, convertView);
+            return super.getDropDownView(position, convertView, parent);
+        }
+
+        private void setupView(final int position, @NonNull final View convertView) {
             final int code = keys[position];
             ((TextView) convertView).setText(TermKeyMap.keyCodeToString(code));
             final Resources res = convertView.getContext().getResources();
             convertView.setBackgroundColor(res.getColor(activity.isKeyCodeChanged(code)
                     ? R.color.colorAccentTr
                     : android.R.color.transparent));
-            return convertView;
         }
     }
 
