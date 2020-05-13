@@ -454,11 +454,19 @@ public final class ConsoleScreenBuffer {
         int dh = h - mHeight;
         final int dc = h - 1 - mPos.y;
         if (dc < 0) dh -= dc;
-        mWidth = w;
-        mHeight = h;
-        mBufHeight = bh;
-        mBuffer.setLimit(mBufHeight);
-        scroll(dh, defaultAttrs);
+        if (dh < 0) {
+            scroll(dh, defaultAttrs);
+            mWidth = w;
+            mHeight = h;
+            mBufHeight = bh;
+            mBuffer.setLimit(mBufHeight);
+        } else {
+            mWidth = w;
+            mHeight = h;
+            mBufHeight = bh;
+            mBuffer.setLimit(mBufHeight);
+            scroll(dh, defaultAttrs);
+        }
         resetMargins();
         setAbsPos(mPos.x, mPos.y);
     }
