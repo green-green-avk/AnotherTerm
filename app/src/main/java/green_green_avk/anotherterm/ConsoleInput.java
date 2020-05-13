@@ -163,7 +163,7 @@ public final class ConsoleInput implements BytesSink {
     }
 
     private void popWindowTitle() {
-        setWindowTitle(windowTitles.pop());
+        if (!windowTitles.isEmpty()) setWindowTitle(windowTitles.pop());
     }
 
     private int zao(final int v) {
