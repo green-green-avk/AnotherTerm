@@ -353,7 +353,10 @@ public final class FavoriteEditorActivity extends AppCompatActivity {
         mKeyMapW.setSaveEnabled(false);
         mTypeW.setSaveEnabled(false);
 
-        mTypeW.setAdapter(new ArrayAdapter<>(this, android.R.layout.simple_list_item_1, BackendsList.getTitles(this)));
+        final ArrayAdapter aType = new ArrayAdapter<>(this,
+                android.R.layout.simple_spinner_item, BackendsList.getTitles(this));
+        aType.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        mTypeW.setAdapter(aType);
         mTypeW.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             @Override
             public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
@@ -374,12 +377,16 @@ public final class FavoriteEditorActivity extends AppCompatActivity {
         });
         mTypeW.setSelection(0);
 
-        mCharsetW.setAdapter(new ArrayAdapter<>(this, android.R.layout.simple_list_item_1, C.charsetList));
+        final ArrayAdapter aCharset = new ArrayAdapter<>(this,
+                android.R.layout.simple_spinner_item, C.charsetList);
+        aCharset.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        mCharsetW.setAdapter(aCharset);
         mCharsetW.setSelection(C.charsetList.indexOf(Charset.defaultCharset().name()));
 
         mKeyMapW.setAdapter(new TermKeyMapAdapter(getApplicationContext())
                 .setIncludeBuiltIns(true)
-                .setItemLayoutRes(android.R.layout.simple_list_item_1)
+                .setItemLayoutRes(android.R.layout.simple_spinner_item)
+                .setDropDownItemLayoutRes(android.R.layout.simple_spinner_dropdown_item)
         );
         mKeyMapW.setSelection(((TermKeyMapAdapter) mKeyMapW.getAdapter()).getPosition(null));
 

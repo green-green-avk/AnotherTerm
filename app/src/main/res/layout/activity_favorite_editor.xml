@@ -28,7 +28,9 @@
                 android:padding="@dimen/text_padding"
                 tools:ignore="UselessParent">
 
-                <TableRow android:gravity="center_vertical">
+                <TableRow
+                    android:gravity="center_vertical"
+                    android:minHeight="@dimen/settings_row_minHeight">
 
                     <TextView
                         android:layout_width="wrap_content"
@@ -46,7 +48,9 @@
 
                 </TableRow>
 
-                <TableRow android:gravity="center_vertical">
+                <TableRow
+                    android:gravity="center_vertical"
+                    android:minHeight="@dimen/settings_row_minHeight">
 
                     <TextView
                         android:layout_width="wrap_content"
@@ -116,7 +120,9 @@
 
                 </TableRow>
 
-                <TableRow android:gravity="center_vertical">
+                <TableRow
+                    android:gravity="center_vertical"
+                    android:minHeight="@dimen/settings_row_minHeight">
 
                     <TextView
                         android:layout_width="wrap_content"
@@ -132,7 +138,9 @@
 
                 </TableRow>
 
-                <TableRow android:gravity="center_vertical">
+                <TableRow
+                    android:gravity="center_vertical"
+                    android:minHeight="@dimen/settings_row_minHeight">
 
                     <TextView
                         android:layout_width="wrap_content"
@@ -148,7 +156,9 @@
 
                 </TableRow>
 
-                <TableRow android:gravity="center_vertical">
+                <TableRow
+                    android:gravity="center_vertical"
+                    android:minHeight="@dimen/settings_row_minHeight">
 
                     <TextView
                         android:layout_width="wrap_content"

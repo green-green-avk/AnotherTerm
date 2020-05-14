@@ -36,6 +36,7 @@ public final class TermKeyMapManagerUi {
             final TermKeyMapAdapter a = new TermKeyMapAdapter(ctx)
                     .setIncludeBuiltIns(true)
                     .setItemLayoutRes(R.layout.term_key_map_manager_dialog_entry)
+                    .setDropDownItemLayoutRes(R.layout.term_key_map_manager_dialog_entry)
                     .setOnSelectListener(new TermKeyMapAdapter.OnSelectListener() {
                         @Override
                         public void onSelect(final boolean isBuiltIn, final String name,
@@ -58,6 +59,7 @@ public final class TermKeyMapManagerUi {
             final TermKeyMapAdapter a = new TermKeyMapAdapter(ctx)
                     .setIncludeBuiltIns(true)
                     .setItemLayoutRes(R.layout.term_key_map_manager_dialog_entry)
+                    .setDropDownItemLayoutRes(R.layout.term_key_map_manager_dialog_entry)
                     .setOnSelectListener(new TermKeyMapAdapter.OnSelectListener() {
                         @Override
                         public void onSelect(final boolean isBuiltIn, final String name,

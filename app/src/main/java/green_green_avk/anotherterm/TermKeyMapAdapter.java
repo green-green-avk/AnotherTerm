@@ -33,6 +33,8 @@ public final class TermKeyMapAdapter extends BaseAdapter {
     private boolean includeBuiltIns = false;
     @LayoutRes
     private int itemLayoutRes = R.layout.term_key_map_manager_entry;
+    @LayoutRes
+    private int dropDownItemLayoutRes = R.layout.term_key_map_manager_entry;
     private final Context context;
 
     private TermKeyMapManager.Meta zeroEntry = null;
@@ -135,6 +137,11 @@ public final class TermKeyMapAdapter extends BaseAdapter {
         return this;
     }
 
+    public TermKeyMapAdapter setDropDownItemLayoutRes(@LayoutRes final int v) {
+        dropDownItemLayoutRes = v;
+        return this;
+    }
+
     public TermKeyMapAdapter setMarked(@Nullable final String name) {
         mMarkedName = name;
         notifyDataSetChanged();
@@ -163,11 +170,22 @@ public final class TermKeyMapAdapter extends BaseAdapter {
     }
 
     @Override
-    public View getView(final int position, final View convertView, final ViewGroup parent) {
-        final View view;
-        if (convertView != null) view = convertView;
-        else view = LayoutInflater.from(parent.getContext())
+    public View getView(final int position, View convertView, final ViewGroup parent) {
+        if (convertView == null) convertView = LayoutInflater.from(parent.getContext())
                 .inflate(itemLayoutRes, parent, false);
+        setupView(position, convertView);
+        return convertView;
+    }
+
+    @Override
+    public View getDropDownView(final int position, View convertView, final ViewGroup parent) {
+        if (convertView == null) convertView = LayoutInflater.from(parent.getContext())
+                .inflate(dropDownItemLayoutRes, parent, false);
+        setupView(position, convertView);
+        return convertView;
+    }
+
+    private void setupView(final int position, @NonNull final View view) {
         if (mOnSelectListener != null)
             view.setOnClickListener(new View.OnClickListener() {
                 @Override
@@ -195,7 +213,7 @@ public final class TermKeyMapAdapter extends BaseAdapter {
             editView = view.findViewById(R.id.edit);
         }
         final TermKeyMapManager.Meta meta = getMeta(position);
-        nameView.setText(meta.getTitle(parent.getContext()));
+        nameView.setText(meta.getTitle(view.getContext()));
         nameView.setTypeface(null, meta.isBuiltIn ? Typeface.ITALIC : Typeface.NORMAL);
 
         if (markView != null)
@@ -237,8 +255,6 @@ public final class TermKeyMapAdapter extends BaseAdapter {
                 editView.setOnClickListener(null);
                 editView.setVisibility(View.GONE);
             }
-
-        return view;
     }
 
     private static final int[] state_empty = new int[]{};
