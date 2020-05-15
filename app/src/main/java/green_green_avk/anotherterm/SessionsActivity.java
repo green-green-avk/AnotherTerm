@@ -9,6 +9,7 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.Toast;
 
+import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
@@ -19,11 +20,11 @@ import green_green_avk.anotherterm.utils.PreferenceStorage;
 
 public final class SessionsActivity extends AppCompatActivity {
 
-    private void showEditFavoriteDlg(final String name) {
+    private void showEditFavoriteDlg(@Nullable final String name) {
         showEditFavoriteDlg(name, false);
     }
 
-    private void showEditFavoriteDlg(final String name, final boolean makeNew) {
+    private void showEditFavoriteDlg(@Nullable final String name, final boolean makeNew) {
         final Intent intent = new Intent(this, FavoriteEditorActivity.class);
         if (name != null) {
             intent.putExtra(C.IFK_MSG_NAME, name);
@@ -33,11 +34,13 @@ public final class SessionsActivity extends AppCompatActivity {
     }
 
     private void showSession(final int key) {
-        startActivity(new Intent(this, ConsoleActivity.class).putExtra(C.IFK_MSG_SESS_KEY, key));
+        startActivity(new Intent(this, ConsoleActivity.class)
+                .putExtra(C.IFK_MSG_SESS_KEY, key));
     }
 
     private void showSession(final boolean fromTail) {
-        startActivity(new Intent(this, ConsoleActivity.class).putExtra(C.IFK_MSG_SESS_TAIL, fromTail));
+        startActivity(new Intent(this, ConsoleActivity.class)
+                .putExtra(C.IFK_MSG_SESS_TAIL, fromTail));
     }
 
     private void prepareFavoritesList() {
@@ -50,15 +53,13 @@ public final class SessionsActivity extends AppCompatActivity {
             public void onClick(final View view) {
                 final String name = a.getName(l.getChildAdapterPosition(view));
                 final PreferenceStorage ps = FavoritesManager.get(name);
-                int key;
+                final int key;
                 try {
                     ps.put("name", name); // Some mark
                     key = ConsoleService.startSession(SessionsActivity.this, ps.get());
-                } catch (final ConsoleService.Exception e) {
-                    Toast.makeText(SessionsActivity.this, e.getMessage(), Toast.LENGTH_SHORT).show();
-                    return;
-                } catch (final BackendException e) {
-                    Toast.makeText(SessionsActivity.this, e.getMessage(), Toast.LENGTH_SHORT).show();
+                } catch (final ConsoleService.Exception | BackendException e) {
+                    Toast.makeText(SessionsActivity.this, e.getMessage(),
+                            Toast.LENGTH_LONG).show();
                     return;
                 }
                 showSession(key);
@@ -155,7 +156,7 @@ public final class SessionsActivity extends AppCompatActivity {
     }
 
     @Override
-    protected void onCreate(final Bundle savedInstanceState) {
+    protected void onCreate(@Nullable final Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
         setContentView(R.layout.activity_sessions);
