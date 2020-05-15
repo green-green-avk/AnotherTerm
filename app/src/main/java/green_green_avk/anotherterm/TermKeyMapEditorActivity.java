@@ -30,6 +30,8 @@ import green_green_avk.anotherterm.utils.Escape;
 import green_green_avk.anotherterm.utils.Unescape;
 
 public final class TermKeyMapEditorActivity extends AppCompatActivity {
+    private static final String KEYMAP_KEY = "E_KEYMAP";
+
     public static void start(@Nullable final Context context, @Nullable final String name) {
         if (context == null) return;
         context.startActivity(new Intent(context, TermKeyMapEditorActivity.class)
@@ -87,11 +89,11 @@ public final class TermKeyMapEditorActivity extends AppCompatActivity {
             return convertView;
         }
 
-        private void setupView(final int position, @NonNull final View convertView) {
+        private void setupView(final int position, @NonNull final View view) {
             final int code = keys[position];
-            ((TextView) convertView).setText(TermKeyMap.keyCodeToString(code));
-            final Resources res = convertView.getContext().getResources();
-            convertView.setBackgroundColor(res.getColor(activity.isKeyCodeChanged(code)
+            ((TextView) view).setText(TermKeyMap.keyCodeToString(code));
+            final Resources res = view.getContext().getResources();
+            view.setBackgroundColor(res.getColor(activity.isKeyCodeChanged(code)
                     ? R.color.colorAccentTr
                     : android.R.color.transparent));
         }
@@ -133,7 +135,7 @@ public final class TermKeyMapEditorActivity extends AppCompatActivity {
         }
     }
 
-    private void prepareKeyField(final View v, final int m, final int am) {
+    private void prepareKeyField(@NonNull final View v, final int m, final int am) {
         ((EditText) v).addTextChangedListener(new TextWatcher() {
             @Override
             public void beforeTextChanged(final CharSequence s,
@@ -187,11 +189,11 @@ public final class TermKeyMapEditorActivity extends AppCompatActivity {
     @Override
     protected void onSaveInstanceState(@NonNull final Bundle outState) {
         super.onSaveInstanceState(outState);
-        outState.putSerializable("E_KEYMAP", keyMap);
+        outState.putSerializable(KEYMAP_KEY, keyMap);
     }
 
     @Override
-    protected void onCreate(final Bundle savedInstanceState) {
+    protected void onCreate(@Nullable final Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_term_key_map_editor);
 
@@ -199,7 +201,7 @@ public final class TermKeyMapEditorActivity extends AppCompatActivity {
 
         String name = getIntent().getStringExtra(C.IFK_MSG_NAME);
         if (savedInstanceState != null) {
-            keyMap = (TermKeyMapRules.Editable) savedInstanceState.get("E_KEYMAP");
+            keyMap = (TermKeyMapRules.Editable) savedInstanceState.get(KEYMAP_KEY);
         } else if (getIntent().getData() != null) {
             try {
                 final Uri uri = getIntent().getData();
@@ -219,8 +221,9 @@ public final class TermKeyMapEditorActivity extends AppCompatActivity {
 
         final ViewGroup keysView = findViewById(R.id.keys);
         keysView.setSaveFromParentEnabled(false);
+        final LayoutInflater inflater = LayoutInflater.from(this);
         for (int m = 0; m < TermKeyMap.MODIFIERS_SIZE; ++m) {
-            final View v = LayoutInflater.from(this)
+            final View v = inflater
                     .inflate(R.layout.term_key_map_entry, keysView, false);
             ((CheckBox) v.findViewById(R.id.shift)).setChecked((m & 1) != 0);
             ((CheckBox) v.findViewById(R.id.alt)).setChecked((m & 2) != 0);
@@ -239,7 +242,7 @@ public final class TermKeyMapEditorActivity extends AppCompatActivity {
             }
 
             @Override
-            public void onNothingSelected(AdapterView<?> parent) {
+            public void onNothingSelected(final AdapterView<?> parent) {
             }
         });
     }

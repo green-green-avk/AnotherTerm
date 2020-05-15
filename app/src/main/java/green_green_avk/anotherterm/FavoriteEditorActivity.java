@@ -323,7 +323,7 @@ public final class FavoriteEditorActivity extends AppCompatActivity {
     }
 
     @Override
-    protected void onSaveInstanceState(final Bundle outState) {
+    protected void onSaveInstanceState(@NonNull final Bundle outState) {
         super.onSaveInstanceState(outState);
         outState.putString("E_OLD_NAME", mOldName);
         outState.putBoolean("E_NEW", mMakeNew);
@@ -335,7 +335,7 @@ public final class FavoriteEditorActivity extends AppCompatActivity {
     }
 
     @Override
-    protected void onCreate(final Bundle savedInstanceState) {
+    protected void onCreate(@Nullable final Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_favorite_editor);
 
