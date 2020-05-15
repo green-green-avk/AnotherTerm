@@ -2,29 +2,39 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
+    android:background="@drawable/bg_li3"
     android:gravity="center"
     android:orientation="horizontal">
 
-    <CheckBox
-        android:id="@+id/shift"
-        android:layout_width="32dp"
-        android:layout_height="wrap_content"
-        android:enabled="false"
-        android:gravity="center" />
-
-    <CheckBox
-        android:id="@+id/alt"
-        android:layout_width="32dp"
-        android:layout_height="wrap_content"
-        android:enabled="false"
-        android:gravity="center" />
-
-    <CheckBox
+    <TextView
         android:id="@+id/ctrl"
-        android:layout_width="32dp"
+        style="@style/AppSettingsTableHeaderTextStyle"
+        android:layout_width="38dp"
         android:layout_height="wrap_content"
-        android:enabled="false"
-        android:gravity="center" />
+        android:layout_margin="1dp"
+        android:background="@drawable/bg_frame2"
+        android:gravity="center"
+        android:text="@string/label_mod_control" />
+
+    <TextView
+        android:id="@+id/alt"
+        style="@style/AppSettingsTableHeaderTextStyle"
+        android:layout_width="38dp"
+        android:layout_height="wrap_content"
+        android:layout_margin="1dp"
+        android:background="@drawable/bg_frame2"
+        android:gravity="center"
+        android:text="@string/label_mod_alt" />
+
+    <TextView
+        android:id="@+id/shift"
+        style="@style/AppSettingsTableHeaderTextStyle"
+        android:layout_width="38dp"
+        android:layout_height="wrap_content"
+        android:layout_margin="1dp"
+        android:background="@drawable/bg_frame2"
+        android:gravity="center"
+        android:text="@string/label_mod_shift" />
 
     <EditText
         android:id="@+id/normal"

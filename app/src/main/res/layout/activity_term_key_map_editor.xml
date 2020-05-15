@@ -62,24 +62,10 @@
 
         <TextView
             style="@style/AppSettingsTableHeaderTextStyle"
-            android:layout_width="32dp"
+            android:layout_width="120dp"
             android:layout_height="wrap_content"
             android:gravity="center"
-            android:text="@string/label_mod_shift" />
-
-        <TextView
-            style="@style/AppSettingsTableHeaderTextStyle"
-            android:layout_width="32dp"
-            android:layout_height="wrap_content"
-            android:gravity="center"
-            android:text="@string/label_mod_alt" />
-
-        <TextView
-            style="@style/AppSettingsTableHeaderTextStyle"
-            android:layout_width="32dp"
-            android:layout_height="wrap_content"
-            android:gravity="center"
-            android:text="@string/label_mod_control" />
+            android:text="@string/label_key_modifiers" />
 
         <TextView
             style="@style/AppSettingsTableHeaderTextStyle"

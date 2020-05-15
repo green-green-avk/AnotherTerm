@@ -215,4 +215,5 @@
         without using of a content provider.
         A workaround will be implemented in the future.
     ]]></string>
+    <string name="label_key_modifiers">Modifiers</string>
 </resources>

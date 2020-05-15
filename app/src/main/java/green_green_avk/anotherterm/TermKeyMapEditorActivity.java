@@ -12,7 +12,6 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.BaseAdapter;
-import android.widget.CheckBox;
 import android.widget.EditText;
 import android.widget.Spinner;
 import android.widget.TextView;
@@ -225,9 +224,9 @@ public final class TermKeyMapEditorActivity extends AppCompatActivity {
         for (int m = 0; m < TermKeyMap.MODIFIERS_SIZE; ++m) {
             final View v = inflater
                     .inflate(R.layout.term_key_map_entry, keysView, false);
-            ((CheckBox) v.findViewById(R.id.shift)).setChecked((m & 1) != 0);
-            ((CheckBox) v.findViewById(R.id.alt)).setChecked((m & 2) != 0);
-            ((CheckBox) v.findViewById(R.id.ctrl)).setChecked((m & 4) != 0);
+            v.findViewById(R.id.shift).setVisibility((m & 1) != 0 ? View.VISIBLE : View.INVISIBLE);
+            v.findViewById(R.id.alt).setVisibility((m & 2) != 0 ? View.VISIBLE : View.INVISIBLE);
+            v.findViewById(R.id.ctrl).setVisibility((m & 4) != 0 ? View.VISIBLE : View.INVISIBLE);
             prepareKeyField(v.findViewById(R.id.normal), m, TermKeyMap.APP_MODE_NONE);
             prepareKeyField(v.findViewById(R.id.app), m, TermKeyMap.APP_MODE_DEFAULT);
             keysView.addView(v);
