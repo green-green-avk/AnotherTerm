@@ -84,7 +84,7 @@ public final class TermKeyMapEditorActivity extends AppCompatActivity {
                         .inflate(android.R.layout.simple_spinner_dropdown_item,
                                 parent, false);
             setupView(position, convertView);
-            return super.getDropDownView(position, convertView, parent);
+            return convertView;
         }
 
         private void setupView(final int position, @NonNull final View convertView) {
