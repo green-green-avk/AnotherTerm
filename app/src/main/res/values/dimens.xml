@@ -11,4 +11,5 @@
     <dimen name="entry_separator">12sp</dimen>
     <dimen name="entry_height">64dp</dimen>
     <dimen name="settings_row_minHeight">40sp</dimen>
+    <fraction name="horizontal_bias_begin">0.0</fraction>
 </resources>
