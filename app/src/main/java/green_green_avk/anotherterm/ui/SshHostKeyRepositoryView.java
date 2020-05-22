@@ -27,17 +27,19 @@ import green_green_avk.anotherterm.utils.SshHostKeyRepository;
 
 public class SshHostKeyRepositoryView extends RecyclerView {
 
-    public SshHostKeyRepositoryView(Context context) {
+    public SshHostKeyRepositoryView(@NonNull final Context context) {
         super(context);
         init();
     }
 
-    public SshHostKeyRepositoryView(Context context, @Nullable AttributeSet attrs) {
+    public SshHostKeyRepositoryView(@NonNull final Context context,
+                                    @Nullable final AttributeSet attrs) {
         super(context, attrs);
         init();
     }
 
-    public SshHostKeyRepositoryView(Context context, @Nullable AttributeSet attrs, int defStyle) {
+    public SshHostKeyRepositoryView(@NonNull final Context context,
+                                    @Nullable final AttributeSet attrs, final int defStyle) {
         super(context, attrs, defStyle);
         init();
     }
@@ -49,7 +51,7 @@ public class SshHostKeyRepositoryView extends RecyclerView {
 
     protected static class ViewHolder extends RecyclerView.ViewHolder {
 
-        public ViewHolder(View v) {
+        public ViewHolder(@NonNull final View v) {
             super(v);
         }
     }
@@ -60,7 +62,7 @@ public class SshHostKeyRepositoryView extends RecyclerView {
         protected final JSch jSch = new JSch();
         protected List<SshHostKey> keys;
 
-        public Adapter(Context ctx) {
+        public Adapter(@NonNull final Context ctx) {
             super();
             repo = new SshHostKeyRepository(ctx);
             refreshKeys();
@@ -70,16 +72,16 @@ public class SshHostKeyRepositoryView extends RecyclerView {
             keys = new ArrayList<>(repo.getHostKeySet());
             Collections.sort(keys, new Comparator<SshHostKey>() {
                 @Override
-                public int compare(SshHostKey o1, SshHostKey o2) {
+                public int compare(final SshHostKey o1, final SshHostKey o2) {
                     return (o1.getHost() + o1.getType() + o1.getFingerPrint(jSch))
                             .compareTo(o2.getHost() + o2.getType() + o2.getFingerPrint(jSch));
                 }
             });
         }
 
-        @NonNull
         @Override
-        public ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
+        @NonNull
+        public ViewHolder onCreateViewHolder(@NonNull final ViewGroup parent, final int viewType) {
             final View v = LayoutInflater.from(parent.getContext())
                     .inflate(R.layout.ssh_host_key_repository_entry, parent, false);
             final View bMenu = v.findViewById(R.id.b_menu);
@@ -88,7 +90,7 @@ public class SshHostKeyRepositoryView extends RecyclerView {
         }
 
         @Override
-        public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
+        public void onBindViewHolder(@NonNull final ViewHolder holder, final int position) {
             final SshHostKey key = keys.get(position);
             final TextView hostnameView = holder.itemView.findViewById(R.id.f_hostname);
             final TextView typeView = holder.itemView.findViewById(R.id.f_type);
@@ -98,11 +100,12 @@ public class SshHostKeyRepositoryView extends RecyclerView {
             fingerprintView.setText(key.getFingerPrint(jSch));
             holder.itemView.findViewById(R.id.b_menu).setOnCreateContextMenuListener(new View.OnCreateContextMenuListener() {
                 @Override
-                public void onCreateContextMenu(ContextMenu menu, View v, ContextMenu.ContextMenuInfo menuInfo) {
+                public void onCreateContextMenu(final ContextMenu menu, final View v,
+                                                final ContextMenu.ContextMenuInfo menuInfo) {
                     menu.add(0, R.string.action_delete, 0, R.string.action_delete)
                             .setOnMenuItemClickListener(new MenuItem.OnMenuItemClickListener() {
                                 @Override
-                                public boolean onMenuItemClick(MenuItem item) {
+                                public boolean onMenuItemClick(final MenuItem item) {
                                     switch (item.getItemId()) {
                                         case R.string.action_delete:
                                             repo.remove(key);

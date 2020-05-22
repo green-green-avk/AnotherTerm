@@ -53,7 +53,8 @@ public final class BackendsList {
         public final int icon;
 
         public Item(@NonNull final Class<?> impl, @NonNull final String typeStr,
-                    @LayoutRes final int settingsLayout, @StringRes final int title, @DrawableRes final int icon) {
+                    @LayoutRes final int settingsLayout, @StringRes final int title,
+                    @DrawableRes final int icon) {
             this.impl = impl;
             this.meta = BackendModule.getMeta(impl, typeStr);
             this.typeStr = typeStr;

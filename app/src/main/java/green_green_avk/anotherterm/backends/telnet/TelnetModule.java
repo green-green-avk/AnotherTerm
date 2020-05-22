@@ -107,7 +107,7 @@ public final class TelnetModule extends BackendModule {
             if (tc == null) return;
             try {
                 tc.send((byte) b);
-            } catch (TelnetClientException e) {
+            } catch (final TelnetClientException e) {
                 throw new BackendException(e);
             }
         }
@@ -117,7 +117,7 @@ public final class TelnetModule extends BackendModule {
             if (tc == null) return;
             try {
                 tc.send(b, off, off + len);
-            } catch (TelnetClientException e) {
+            } catch (final TelnetClientException e) {
                 throw new BackendException(e);
             }
         }
@@ -127,7 +127,7 @@ public final class TelnetModule extends BackendModule {
             if (tc == null) return;
             try {
                 tc.send(b);
-            } catch (TelnetClientException e) {
+            } catch (final TelnetClientException e) {
                 throw new BackendException(e);
             }
         }
@@ -195,7 +195,7 @@ public final class TelnetModule extends BackendModule {
     public void resize(final int col, final int row, final int wp, final int hp) {
         try {
             wsoh.update(col, row);
-        } catch (TelnetClientException e) {
+        } catch (final TelnetClientException e) {
             throw new BackendException(e);
         }
     }

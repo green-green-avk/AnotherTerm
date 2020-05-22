@@ -11,8 +11,8 @@ import android.view.MotionEvent;
 import androidx.annotation.NonNull;
 
 // Mouse right & middle buttons tribute...
-// Google and phone manufacturers are wise... In some strange way...
-// TODO: Add the middle button support
+// Google and phone manufacturers are wise... It would be too simple otherwise.
+// TODO: Add the middle button support... where possible...
 
 // To be used with an Activity ancestor
 public final class MouseButtonsWorkAround {
@@ -24,7 +24,7 @@ public final class MouseButtonsWorkAround {
     private MotionEvent fixedEvent = null;
     public boolean result = false;
 
-    public MouseButtonsWorkAround(Activity ctx) {
+    public MouseButtonsWorkAround(final Activity ctx) {
         this.ctx = ctx;
     }
 
@@ -38,10 +38,10 @@ public final class MouseButtonsWorkAround {
 
     // We can't assign actionButton: Google is against it yet...
     @NonNull
-    protected static MotionEvent obtainEvent(final float x, final float y, final int action,
-                                             final int buttons, final int actionButton,
-                                             final int vScroll,
-                                             final int source, final int toolType) {
+    private static MotionEvent obtainEvent(final float x, final float y, final int action,
+                                           final int buttons, final int actionButton,
+                                           final int vScroll,
+                                           final int source, final int toolType) {
         final long ts = SystemClock.uptimeMillis();
         final MotionEvent.PointerProperties[] pp = {new MotionEvent.PointerProperties()};
         pp[0].id = 0;

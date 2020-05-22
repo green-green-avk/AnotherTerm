@@ -1,22 +1,29 @@
 package green_green_avk.anotherterm.backends;
 
+import android.os.Build;
+
+import androidx.annotation.RequiresApi;
+
 public class BackendInterruptedException extends RuntimeException {
     public BackendInterruptedException() {
     }
 
-    public BackendInterruptedException(String message) {
+    public BackendInterruptedException(final String message) {
         super(message);
     }
 
-    public BackendInterruptedException(String message, Throwable cause) {
+    public BackendInterruptedException(final String message, final Throwable cause) {
         super(message, cause);
     }
 
-    public BackendInterruptedException(Throwable cause) {
+    public BackendInterruptedException(final Throwable cause) {
         super(cause);
     }
 
-    public BackendInterruptedException(String message, Throwable cause, boolean enableSuppression, boolean writableStackTrace) {
+    @RequiresApi(api = Build.VERSION_CODES.N)
+    public BackendInterruptedException(final String message, final Throwable cause,
+                                       final boolean enableSuppression,
+                                       final boolean writableStackTrace) {
         super(message, cause, enableSuppression, writableStackTrace);
     }
 }

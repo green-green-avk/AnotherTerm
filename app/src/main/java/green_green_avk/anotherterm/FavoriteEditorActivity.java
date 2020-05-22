@@ -407,7 +407,7 @@ public final class FavoriteEditorActivity extends AppCompatActivity {
         if (uri != null) {
             saveAndClose = true;
             ((ImageButton) findViewById(R.id.b_ok))
-                    .setImageResource(R.drawable.ic_check_black_24dp);
+                    .setImageResource(R.drawable.ic_check_black);
             mOldName = null;
             asNew();
             try {

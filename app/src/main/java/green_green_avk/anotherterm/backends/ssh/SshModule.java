@@ -148,13 +148,13 @@ public final class SshModule extends BackendModule {
     private final Set<PortMapping> localPortMappings = new HashSet<>();
     private final Set<PortMapping> remotePortMappings = new HashSet<>();
 
-    private static class PortMapping {
-        public int srcPort = 0;
-        public int dstPort = 0;
-        public String host = "127.0.0.1";
+    private static final class PortMapping {
+        private int srcPort = 0;
+        private int dstPort = 0;
+        private String host = "127.0.0.1";
 
         @Override
-        public boolean equals(@Nullable Object obj) {
+        public boolean equals(@Nullable final Object obj) {
             if (!(obj instanceof PortMapping)) return false;
             final PortMapping o = (PortMapping) obj;
             return srcPort == o.srcPort && dstPort == o.dstPort && host.equals(o.host);
@@ -166,9 +166,11 @@ public final class SshModule extends BackendModule {
         }
     }
 
-    private static final Pattern portMappingP = Pattern.compile("^([0-9]+)(?:>([^:]*)(?::([0-9]+))?)?$");
+    private static final Pattern portMappingP =
+            Pattern.compile("^([0-9]+)(?:>([^:]*)(?::([0-9]+))?)?$");
 
-    private static void parsePortMappings(@NonNull final Set<PortMapping> set, @NonNull String unparsed) {
+    private static void parsePortMappings(@NonNull final Set<PortMapping> set,
+                                          @NonNull String unparsed) {
         unparsed = unparsed.replaceAll("\\s", "");
         for (final String s : unparsed.split(";")) {
             if (s.isEmpty()) continue;
@@ -183,14 +185,14 @@ public final class SshModule extends BackendModule {
                 t = m.group(3);
                 pm.dstPort = (t != null) ? Integer.parseInt(t) : pm.srcPort;
                 set.add(pm);
-            } catch (NumberFormatException e) {
+            } catch (final NumberFormatException e) {
                 throw new BackendException(String.format("Port value `%s' seems malformed", s));
             }
         }
     }
 
     @Override
-    public void setParameters(@NonNull Map<String, ?> params) {
+    public void setParameters(@NonNull final Map<String, ?> params) {
         final ParametersWrapper pp = new ParametersWrapper(params);
         hostname = pp.getString("hostname", null);
         if (hostname == null) throw new BackendException("`hostname' is not defined");
@@ -235,10 +237,10 @@ public final class SshModule extends BackendModule {
             if (mOS_get_orig == null) return;
             try {
                 mOS_get_orig.close();
-            } catch (SshHostKeyRepository.Exception e) {
+            } catch (final SshHostKeyRepository.Exception e) {
                 disconnect();
                 throw new BackendException(e);
-            } catch (IOException e) {
+            } catch (final IOException e) {
                 disconnect();
                 throw new BackendException(e);
             }
@@ -249,52 +251,52 @@ public final class SshModule extends BackendModule {
             if (mOS_get_orig == null) return;
             try {
                 mOS_get_orig.flush();
-            } catch (SshHostKeyRepository.Exception e) {
+            } catch (final SshHostKeyRepository.Exception e) {
                 disconnect();
                 throw new BackendException(e);
-            } catch (IOException e) {
+            } catch (final IOException e) {
                 disconnect();
                 throw new BackendException(e);
             }
         }
 
         @Override
-        public void write(int b) {
+        public void write(final int b) {
             if (mOS_get_orig == null) return;
             try {
                 mOS_get_orig.write(b);
-            } catch (SshHostKeyRepository.Exception e) {
+            } catch (final SshHostKeyRepository.Exception e) {
                 disconnect();
                 throw new BackendException(e);
-            } catch (IOException e) {
+            } catch (final IOException e) {
                 disconnect();
                 throw new BackendException(e);
             }
         }
 
         @Override
-        public void write(byte[] b, int off, int len) {
+        public void write(final byte[] b, final int off, final int len) {
             if (mOS_get_orig == null) return;
             try {
                 mOS_get_orig.write(b, off, len);
-            } catch (SshHostKeyRepository.Exception e) {
+            } catch (final SshHostKeyRepository.Exception e) {
                 disconnect();
                 throw new BackendException(e);
-            } catch (IOException e) {
+            } catch (final IOException e) {
                 disconnect();
                 throw new BackendException(e);
             }
         }
 
         @Override
-        public void write(byte[] b) {
+        public void write(final byte[] b) {
             if (mOS_get_orig == null) return;
             try {
                 mOS_get_orig.write(b);
-            } catch (SshHostKeyRepository.Exception e) {
+            } catch (final SshHostKeyRepository.Exception e) {
                 disconnect();
                 throw new BackendException(e);
-            } catch (IOException e) {
+            } catch (final IOException e) {
                 disconnect();
                 throw new BackendException(e);
             }
@@ -316,36 +318,36 @@ public final class SshModule extends BackendModule {
         }
 
         @Override
-        public boolean promptPassword(String s) {
+        public boolean promptPassword(final String s) {
             try {
                 password = ui.promptPassword(s);
-            } catch (InterruptedException e) {
+            } catch (final InterruptedException e) {
                 throw new BackendInterruptedException(e);
             }
             return password != null;
         }
 
         @Override
-        public boolean promptPassphrase(String s) {
+        public boolean promptPassphrase(final String s) {
             try {
                 passphrase = ui.promptPassword(s);
-            } catch (InterruptedException e) {
+            } catch (final InterruptedException e) {
                 throw new BackendInterruptedException(e);
             }
             return passphrase != null;
         }
 
         @Override
-        public boolean promptYesNo(String s) {
+        public boolean promptYesNo(final String s) {
             try {
                 return ui.promptYesNo(s);
-            } catch (InterruptedException e) {
+            } catch (final InterruptedException e) {
                 throw new BackendInterruptedException(e);
             }
         }
 
         @Override
-        public void showMessage(String s) {
+        public void showMessage(final String s) {
             ui.showMessage(s);
         }
     };
@@ -362,12 +364,12 @@ public final class SshModule extends BackendModule {
             }
 
             @Override
-            public boolean isEnabled(int level) {
+            public boolean isEnabled(final int level) {
                 return enabled.get(level, false);
             }
 
             @Override
-            public void log(int level, String message) {
+            public void log(final int level, final String message) {
                 Log.e("JSch Error", message);
             }
         });
@@ -380,7 +382,7 @@ public final class SshModule extends BackendModule {
                 final byte[] key;
                 try {
                     key = ui.promptContent("Server requests key identification", "*/*");
-                } catch (InterruptedException e) {
+                } catch (final InterruptedException e) {
                     throw new BackendInterruptedException(e);
                 }
                 if (key == null) return;
@@ -406,12 +408,12 @@ public final class SshModule extends BackendModule {
             }
 
             @Override
-            public boolean add(byte[] identity) {
+            public boolean add(final byte[] identity) {
                 return ir.add(identity);
             }
 
             @Override
-            public boolean remove(byte[] blob) {
+            public boolean remove(final byte[] blob) {
                 return ir.remove(blob);
             }
 
@@ -486,13 +488,13 @@ public final class SshModule extends BackendModule {
                 session.setPortForwardingL(pm.srcPort, pm.host, pm.dstPort);
             for (final PortMapping pm : remotePortMappings)
                 session.setPortForwardingR(pm.srcPort, pm.host, pm.dstPort);
-        } catch (JSchException e) {
+        } catch (final JSchException e) {
             disconnect();
             throw new BackendException(e.getLocalizedMessage());
-        } catch (SshHostKeyRepository.Exception e) {
+        } catch (final SshHostKeyRepository.Exception e) {
             disconnect();
             throw new BackendException(e);
-        } catch (IOException e) {
+        } catch (final IOException e) {
             disconnect();
             throw new BackendException(e);
         }
@@ -505,7 +507,7 @@ public final class SshModule extends BackendModule {
     }
 
     @Override
-    public void resize(int col, int row, int wp, int hp) {
+    public void resize(final int col, final int row, final int wp, final int hp) {
         if (channel != null)
             if (channel instanceof ChannelExec)
                 ((ChannelExec) channel).setPtySize(col, row, wp, hp);

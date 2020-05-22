@@ -427,7 +427,6 @@ public final class TermSh {
                 };
             }
 
-            @NonNull
             private static long parseShellSessionToken(@NonNull final InputStream is)
                     throws IOException, ParseException {
                 final DataInputStream dis = new DataInputStream(is);

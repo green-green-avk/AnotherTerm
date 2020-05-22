@@ -13,7 +13,7 @@
         android:layout_height="wrap_content"
         android:contentDescription="@string/mark_active"
         android:padding="@dimen/text_padding"
-        app:srcCompat="@drawable/ic_check_black_24dp" />
+        app:srcCompat="@drawable/ic_check_black" />
 
     <TextView
         android:id="@+id/name"

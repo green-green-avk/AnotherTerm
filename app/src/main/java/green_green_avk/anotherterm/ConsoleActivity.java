@@ -445,6 +445,7 @@ public final class ConsoleActivity extends AppCompatActivity
                     @Override
                     public void onSelect(final boolean isBuiltIn, final String name,
                                          final TermKeyMapRules rules, final String title) {
+                        if (mSession == null) return;
                         mSession.output.setKeyMap(rules);
                     }
                 }, mSession.output.getKeyMap());

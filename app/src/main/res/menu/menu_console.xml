@@ -11,52 +11,62 @@
         android:visible="false"
         app:showAsAction="always"
         tools:ignore="AlwaysShowAction,HardcodedText" />
+
     <item
         android:id="@+id/action_ime"
         android:icon="@drawable/ic_keyboard"
         android:title="&#x2328;"
         app:showAsAction="always"
         tools:ignore="HardcodedText" />
+
     <item
         android:id="@+id/action_select"
         android:icon="@drawable/ic_select"
         android:title="Select"
         app:showAsAction="always" />
+
     <item
         android:id="@+id/action_paste"
         android:icon="?attr/actionModePasteDrawable"
         android:title="@string/action_paste"
         app:showAsAction="always" />
+
     <item
         android:id="@+id/action_charset"
         android:title="@string/action_charset"
         app:showAsAction="ifRoom">
         <menu />
     </item>
+
     <item
         android:id="@+id/action_keymap"
         android:title="@string/action_term_key_mapping"
         app:showAsAction="never">
         <menu />
     </item>
+
     <item
         android:id="@+id/action_set_terminal_size"
         android:title="@string/action_set_terminal_size"
         app:showAsAction="never" />
+
     <item
         android:id="@+id/action_help"
         android:orderInCategory="200"
         android:title="@string/action_help"
         app:showAsAction="never" />
+
     <item
         android:id="@+id/action_toggle_wake_lock"
         android:orderInCategory="200"
         android:title="@string/action_toggle_wake_lock"
         app:showAsAction="never" />
+
     <item
         android:id="@+id/action_terminate"
         android:icon="@drawable/ic_close"
         android:orderInCategory="200"
         android:title="@string/action_terminate"
         app:showAsAction="never" />
+
 </menu>

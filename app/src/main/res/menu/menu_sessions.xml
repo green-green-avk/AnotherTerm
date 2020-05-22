@@ -1,26 +1,34 @@
+<?xml version="1.0" encoding="utf-8"?>
 <menu xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     tools:context="green_green_avk.anotherterm.SessionsActivity">
+
     <item
         android:id="@+id/action_add_fav"
         android:icon="@android:drawable/ic_menu_add"
         android:title="@string/action_add_fav"
         app:showAsAction="always" />
+
     <item
         android:id="@+id/action_term_key_mapping"
         android:title="@string/action_term_key_mapping" />
+
     <item
         android:id="@+id/action_ssh_keys_settings"
         android:title="@string/action_ssh_keys_settings"
         app:showAsAction="never" />
+
     <item
         android:id="@+id/action_settings"
         android:title="@string/action_settings" />
+
     <item
         android:id="@+id/action_help"
         android:title="@string/action_help" />
+
     <item
         android:id="@+id/action_about"
         android:title="@string/action_about" />
+
 </menu>

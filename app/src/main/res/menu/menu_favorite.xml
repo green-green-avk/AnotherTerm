@@ -4,10 +4,13 @@
     <item
         android:id="@+id/fav_edit"
         android:title="@string/action_edit" />
+
     <item
         android:id="@+id/fav_delete"
         android:title="@string/action_delete" />
+
     <item
         android:id="@+id/fav_clone"
         android:title="@string/action_clone" />
+
 </menu>

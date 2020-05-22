@@ -1,5 +1,7 @@
 package green_green_avk.anotherterm.utils;
 
+import android.annotation.SuppressLint;
+
 import java.security.GeneralSecurityException;
 
 import javax.net.ssl.SSLContext;
@@ -20,12 +22,14 @@ public final class SslHelper {
                         return null;
                     }
 
-                    public void checkClientTrusted(
-                            java.security.cert.X509Certificate[] certs, String authType) {
+                    @SuppressLint("TrustAllX509TrustManager")
+                    public void checkClientTrusted(final java.security.cert.X509Certificate[] certs,
+                                                   final String authType) {
                     }
 
-                    public void checkServerTrusted(
-                            java.security.cert.X509Certificate[] certs, String authType) {
+                    @SuppressLint("TrustAllX509TrustManager")
+                    public void checkServerTrusted(final java.security.cert.X509Certificate[] certs,
+                                                   final String authType) {
                     }
                 }
         };

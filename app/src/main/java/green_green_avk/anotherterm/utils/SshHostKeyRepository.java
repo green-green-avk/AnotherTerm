@@ -115,7 +115,8 @@ public final class SshHostKeyRepository implements HostKeyRepository {
     }
 
     @Override
-    public void remove(@NonNull final String s, @Nullable final String s1, @NonNull final byte[] bytes) {
+    public void remove(@NonNull final String s, @Nullable final String s1,
+                       @NonNull final byte[] bytes) {
         final Set<String> keys = sp.getStringSet(s, Collections.<String>emptySet());
         final SharedPreferences.Editor ed = sp.edit();
         for (SshHostKey k : getHostKeySet(s, s1)) {

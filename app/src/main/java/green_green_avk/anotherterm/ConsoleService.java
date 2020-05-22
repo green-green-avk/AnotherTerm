@@ -211,25 +211,25 @@ public final class ConsoleService extends Service {
         execOnSessionsListChange();
     }
 
-    @NonNull
     @UiThread
     @CheckResult
+    @NonNull
     public static Session getSession(final int key) {
         final Session s = sessions.get(key);
         if (s == null) throw new NoSuchElementException("No session with the specified key exists");
         return s;
     }
 
-    @NonNull
     @UiThread
     @CheckResult
+    @NonNull
     private static String getSessionTitle(@NonNull final Session s, final int key) {
         return String.format(Locale.ROOT, "%1$s #%2$d", s.connectionParams.get("name"), key);
     }
 
-    @NonNull
     @UiThread
     @CheckResult
+    @NonNull
     public static String getSessionTitle(final int key) {
         return getSessionTitle(getSession(key), key);
     }
