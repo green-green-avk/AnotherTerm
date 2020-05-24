@@ -23,11 +23,11 @@
 
     <string name="action_settings_keepalive_and_battery_optimization">Session Keep-Alive and Battery Optimization</string>
     <string name="desc_doze"><![CDATA[
-        <p>If you want to keep a network connection open
-        or local console applications running
-        when your phone is asleep for a long time,
-        turn off the battery optimization for this application
-        in the Battery Optimization Settings.</p>
+        <p>If the Wake Lock does not help to keep a network connection open
+        or local terminal applications running
+        when your phone is left alone for a long time,
+        turning off the battery optimization
+        in the Battery Optimization Settings could be an option.</p>
         <p><b>Warning: </b>Battery usage could be increased significantly.</p>
         <br/>
         <p><b>Details:</b></p>
