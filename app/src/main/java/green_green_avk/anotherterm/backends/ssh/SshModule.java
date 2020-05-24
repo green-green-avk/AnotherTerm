@@ -502,8 +502,12 @@ public final class SshModule extends BackendModule {
 
     @Override
     public void disconnect() {
-        if (channel != null) channel.disconnect();
-        if (session != null) session.disconnect();
+        try {
+            if (channel != null) channel.disconnect();
+            if (session != null) session.disconnect();
+        } finally {
+            if (isReleaseWakeLockOnDisconnect()) releaseWakeLock();
+        }
     }
 
     @Override

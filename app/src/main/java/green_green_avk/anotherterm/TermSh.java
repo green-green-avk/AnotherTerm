@@ -1481,6 +1481,35 @@ public final class TermSh {
                             }
                             break;
                         }
+                        case "wakelock": {
+                            shellCmd.requireSessionState();
+                            if (shellCmd.args.length < 2)
+                                throw new ParseException("Wrong number of arguments");
+                            switch (Misc.fromUTF8(shellCmd.args[1])) {
+                                case "is-held":
+                                    exitStatus = shellCmd.shellSessionData.wakeLock.isHeld() ?
+                                            0 : 2;
+                                    break;
+                                case "acquire":
+                                    if (shellCmd.args.length > 2) {
+                                        final long timeout;
+                                        try {
+                                            timeout = (long) (Float.parseFloat(
+                                                    Misc.fromUTF8(shellCmd.args[2])) * 1000);
+                                        } catch (final NumberFormatException e) {
+                                            throw new ParseException(e.getMessage());
+                                        }
+                                        shellCmd.shellSessionData.wakeLock.acquire(timeout);
+                                    } else {
+                                        shellCmd.shellSessionData.wakeLock.acquire();
+                                    }
+                                    break;
+                                case "release":
+                                    shellCmd.shellSessionData.wakeLock.release();
+                                    break;
+                            }
+                            break;
+                        }
                         default:
                             throw new ParseException("Unknown command");
                     }

@@ -271,6 +271,18 @@ plugin -h|--help [--] &lt;package_name&gt;
 <p><em>`Plugins execution\' permission must be granted in a favorite starting the shell from which
 this command is called. Exit code <code>1</code> will be returned otherwise.</em></p></dd><br/>
 
+<dt><p><code>
+wakelock [is-held|acquire [&lt;timeout&gt;]|release]
+</code></p></dt>
+<dd><p><code>is-held</code> returns:
+<ul type=\"none\">
+<li><code>0</code> &#x2014; lock is active;</li>
+<li><code>2</code> &#x2014; lock is not active.</li>
+</ul></p>
+<p><code>&lt;timeout&gt;</code> is a decimal value in seconds
+with one millisecond granularity.</p>
+</dd><br/>
+
 </dl>
 
 <h4>Notes:</h4>

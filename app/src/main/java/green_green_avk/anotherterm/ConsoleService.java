@@ -153,6 +153,7 @@ public final class ConsoleService extends Service {
                 execOnSessionChange(key);
             }
         }, new Handler());
+        tbe.setReleaseWakeLockOnDisconnect("releaseOnDisconnect".equals(cp.get("wakelock_policy")));
         tbe.setUi(new BackendUiDialogs());
         tbe.setParameters(cp);
 

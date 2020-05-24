@@ -188,6 +188,8 @@ public final class TelnetModule extends BackendModule {
             tc.disconnect();
         } catch (final TelnetClientException e) {
             throw new BackendException(e);
+        } finally {
+            if (isReleaseWakeLockOnDisconnect()) releaseWakeLock();
         }
     }
 

@@ -4,6 +4,7 @@ import android.annotation.SuppressLint;
 import android.content.Context;
 import android.net.Uri;
 import android.os.Handler;
+import android.os.Looper;
 import android.os.PowerManager;
 import android.util.Log;
 
@@ -18,6 +19,7 @@ import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
+import java.lang.ref.WeakReference;
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
@@ -185,10 +187,7 @@ public abstract class BackendModule {
 
     public void setContext(@NonNull final Context context) {
         this.context = context.getApplicationContext();
-        final PowerManager pm = (PowerManager) this.context.getSystemService(Context.POWER_SERVICE);
-        this.wakeLock = pm.newWakeLock(PowerManager.PARTIAL_WAKE_LOCK,
-                this.context.getPackageName() + ".BackendModule:");
-        this.wakeLock.setReferenceCounted(false);
+        setWakeLock(this.context);
     }
 
     public abstract void setParameters(@NonNull Map<String, ?> params);
@@ -219,7 +218,7 @@ public abstract class BackendModule {
      */
     @CallSuper
     public void stop() {
-        releaseWakeLock();
+        unsetWakeLock();
     }
 
     public abstract boolean isConnected();
@@ -233,10 +232,72 @@ public abstract class BackendModule {
     @NonNull
     public abstract String getConnDesc();
 
-    private PowerManager.WakeLock wakeLock = null;
+    public static final class WakeLockRef {
+        @NonNull
+        private final WeakReference<BackendModule> ref;
+
+        private WakeLockRef(@NonNull final BackendModule self) {
+            this.ref = new WeakReference<>(self);
+        }
+
+        public boolean isHeld() {
+            BackendModule self = ref.get();
+            if (self == null) return false;
+            return self.isWakeLockHeld();
+        }
+
+        public void acquire() {
+            BackendModule self = ref.get();
+            if (self == null) return;
+            self.acquireWakeLock();
+        }
+
+        /**
+         * @param timeout [ms]
+         */
+        public void acquire(final long timeout) {
+            BackendModule self = ref.get();
+            if (self == null) return;
+            self.acquireWakeLock(timeout);
+        }
+
+        public void release() {
+            BackendModule self = ref.get();
+            if (self == null) return;
+            self.releaseWakeLock();
+        }
+    }
+
+    private final Object mWakeLockLock = new Object();
+    private volatile PowerManager.WakeLock mWakeLock = null;
+    private final Handler mWakeLockHandler = new Handler(Looper.getMainLooper());
+    private final Runnable mWakeLockReleaser = new Runnable() {
+        @Override
+        public void run() {
+            releaseWakeLock();
+        }
+    };
     private Runnable onWakeLockEvent = null;
     private Handler onWakeLockEventHandler = null;
     private final Object onWakeLockEventLock = new Object();
+
+    private void setWakeLock(@NonNull final Context ctx) {
+        final PowerManager pm = (PowerManager) ctx.getSystemService(Context.POWER_SERVICE);
+        synchronized (mWakeLockLock) {
+            unsetWakeLock();
+            final PowerManager.WakeLock wl = pm.newWakeLock(PowerManager.PARTIAL_WAKE_LOCK,
+                    ctx.getPackageName() + ".BackendModule:");
+            wl.setReferenceCounted(false);
+            mWakeLock = wl;
+        }
+    }
+
+    private void unsetWakeLock() {
+        synchronized (mWakeLockLock) {
+            releaseWakeLock();
+            mWakeLock = null;
+        }
+    }
 
     private void execOnWakeLockEvent() {
         final Runnable l;
@@ -263,17 +324,67 @@ public abstract class BackendModule {
 
     @CheckResult
     public boolean isWakeLockHeld() {
-        return wakeLock.isHeld();
+        synchronized (mWakeLockLock) {
+            final PowerManager.WakeLock wl = mWakeLock;
+            if (wl == null) return false;
+            return wl.isHeld();
+        }
     }
 
     @SuppressLint("WakelockTimeout")
     public void acquireWakeLock() {
-        wakeLock.acquire(); // Yes, no timeout by design.
+        synchronized (mWakeLockLock) {
+            mWakeLockHandler.removeCallbacksAndMessages(null);
+            final PowerManager.WakeLock wl = mWakeLock;
+            if (wl == null) return;
+            wl.acquire();
+        }
+        execOnWakeLockEvent();
+    }
+
+    /**
+     * @param timeout [ms]
+     */
+    @SuppressLint("WakelockTimeout")
+    public void acquireWakeLock(final long timeout) {
+        synchronized (mWakeLockLock) {
+            mWakeLockHandler.removeCallbacksAndMessages(null);
+            final PowerManager.WakeLock wl = mWakeLock;
+            if (wl == null) return;
+            wl.acquire();
+            mWakeLockHandler.postDelayed(mWakeLockReleaser, timeout);
+        }
         execOnWakeLockEvent();
     }
 
     public void releaseWakeLock() {
-        wakeLock.release();
+        synchronized (mWakeLockLock) {
+            mWakeLockHandler.removeCallbacksAndMessages(null);
+            final PowerManager.WakeLock wl = mWakeLock;
+            if (wl == null) return;
+            wl.release();
+        }
         execOnWakeLockEvent();
+    }
+
+    /**
+     * @return A wake lock accessor for this connection.
+     */
+    @NonNull
+    public WakeLockRef getWakeLock() {
+        return new WakeLockRef(this);
+    }
+
+    // It's the module implementation responsibility to properly handle
+    // releaseWakeLockOnDisconnect property.
+
+    private boolean releaseWakeLockOnDisconnect = false;
+
+    public boolean isReleaseWakeLockOnDisconnect() {
+        return releaseWakeLockOnDisconnect;
+    }
+
+    public void setReleaseWakeLockOnDisconnect(final boolean v) {
+        releaseWakeLockOnDisconnect = v;
     }
 }

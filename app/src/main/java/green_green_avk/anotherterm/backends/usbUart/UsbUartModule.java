@@ -254,15 +254,19 @@ public final class UsbUartModule extends BackendModule {
 
     @Override
     public void disconnect() {
-        if (!mIsConnected) return;
-        mIsConnected = false;
-        activeDevices.remove(device);
-        if (serialPort != null) serialPort.close();
-        serialPort = null;
-        if (connection != null) connection.close();
-        connection = null;
-        if (device != null) device = null;
-        context.unregisterReceiver(mUsbReceiver);
+        try {
+            if (!mIsConnected) return;
+            mIsConnected = false;
+            activeDevices.remove(device);
+            if (serialPort != null) serialPort.close();
+            serialPort = null;
+            if (connection != null) connection.close();
+            connection = null;
+            if (device != null) device = null;
+            context.unregisterReceiver(mUsbReceiver);
+        } finally {
+            if (isReleaseWakeLockOnDisconnect()) releaseWakeLock();
+        }
     }
 
     @Override

@@ -37,4 +37,9 @@
         <item>default</item>
         <item>wide</item>
     </string-array>
+
+    <string-array name="labels_wake_lock_fav_policy">
+        <item>&#x2014;</item>
+        <item>Release on disconnect</item>
+    </string-array>
 </resources>

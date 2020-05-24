@@ -19,8 +19,10 @@ import androidx.appcompat.app.AppCompatActivity;
 
 import java.io.Serializable;
 import java.nio.charset.Charset;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import green_green_avk.anotherterm.backends.BackendModule;
@@ -31,11 +33,15 @@ import green_green_avk.anotherterm.utils.PreferenceUiWrapper;
 import green_green_avk.anotherterm.utils.RawPreferenceUiWrapper;
 
 public final class FavoriteEditorActivity extends AppCompatActivity {
+    private static final List<String> wakeLockPolicies = Arrays.asList("none",
+            "releaseOnDisconnect");
+
     private final RawPreferenceUiWrapper mPrefs = new RawPreferenceUiWrapper();
     private ViewGroup mContainer;
     private EditText mNameW;
     private EditText mScrColsW;
     private EditText mScrRowsW;
+    private Spinner mWakeLock;
     private Spinner mCharsetW;
     private Spinner mKeyMapW;
     private Spinner mTypeW;
@@ -223,6 +229,7 @@ public final class FavoriteEditorActivity extends AppCompatActivity {
         ps.put("keymap", ((TermKeyMapManager.Meta) mKeyMapW.getSelectedItem()).name);
         ps.put("screen_cols", getSize(mScrColsW));
         ps.put("screen_rows", getSize(mScrRowsW));
+        ps.put("wakelock_policy", wakeLockPolicies.get(mWakeLock.getSelectedItemPosition()));
         ps.putAll(mPrefs.getPreferences());
         return ps;
     }
@@ -293,6 +300,8 @@ public final class FavoriteEditorActivity extends AppCompatActivity {
         } else mPrefs.setPreferences(mPrefsSt.get());
         setSizeText(mScrColsW, mPrefsSt.get("screen_cols"));
         setSizeText(mScrRowsW, mPrefsSt.get("screen_rows"));
+        mWakeLock.setSelection(
+                Math.max(0, wakeLockPolicies.indexOf(mPrefsSt.get("wakelock_policy"))));
         final Object charset = mPrefsSt.get("charset");
         if (charset != null) {
             final int pos = C.charsetList.indexOf(charset.toString());
@@ -345,6 +354,7 @@ public final class FavoriteEditorActivity extends AppCompatActivity {
         mNameW = findViewById(R.id.fav_name);
         mScrColsW = findViewById(R.id.fav_scr_cols);
         mScrRowsW = findViewById(R.id.fav_scr_rows);
+        mWakeLock = findViewById(R.id.fav_wakelock);
         mCharsetW = findViewById(R.id.fav_charset);
         mKeyMapW = findViewById(R.id.fav_keymap);
         mTypeW = findViewById(R.id.fav_type);

@@ -120,6 +120,13 @@ public final class LocalModule extends BackendModule {
         public volatile long permissions = 0;
 
         public BackendUiInteraction ui;
+
+        @NonNull
+        public final WakeLockRef wakeLock;
+
+        public SessionData(@NonNull final BackendModule self) {
+            this.wakeLock = self.getWakeLock();
+        }
     }
 
     private static final Map<Long, SessionData> sessionDataMap = new ConcurrentHashMap<>();
@@ -154,7 +161,7 @@ public final class LocalModule extends BackendModule {
         }
     }
 
-    private SessionData sessionData = new SessionData();
+    private SessionData sessionData = new SessionData(this);
     private long sessionToken = generateSessionToken();
 
     {
@@ -230,16 +237,20 @@ public final class LocalModule extends BackendModule {
 
     @Override
     public void disconnect() {
-        synchronized (connectionLock) {
-            final Process p = proc;
-            if (p == null) return;
-            proc = null;
-            p.destroy();
-            try {
-                readerThread.join();
-            } catch (final InterruptedException ignored) {
+        try {
+            synchronized (connectionLock) {
+                final Process p = proc;
+                if (p == null) return;
+                proc = null;
+                p.destroy();
+                try {
+                    readerThread.join();
+                } catch (final InterruptedException ignored) {
+                }
+                readerThread = null;
             }
-            readerThread = null;
+        } finally {
+            if (isReleaseWakeLockOnDisconnect()) releaseWakeLock();
         }
     }
 
