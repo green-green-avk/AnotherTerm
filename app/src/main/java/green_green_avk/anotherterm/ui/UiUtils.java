@@ -62,9 +62,13 @@ public final class UiUtils {
         final ClipboardManager clipboard = (ClipboardManager) ctx.getSystemService(Context.CLIPBOARD_SERVICE);
         if (clipboard == null) throw new IllegalStateException("Can't get ClipboardManager");
         if (!clipboard.hasPrimaryClip()) throw new IllegalStateException("Clipboard is empty");
-        final ClipData.Item cd = clipboard.getPrimaryClip().getItemAt(0);
-        Uri uri = cd.getUri();
-        if (uri == null) uri = Uri.parse(cd.coerceToText(ctx).toString());
+        final ClipData clipData = clipboard.getPrimaryClip();
+        if (clipData == null || clipData.getItemCount() < 1)
+            throw new IllegalStateException("Clipboard is empty");
+        final ClipData.Item clipItem = clipData.getItemAt(0);
+        if (clipItem == null) throw new IllegalStateException("Clipboard is empty");
+        Uri uri = clipItem.getUri();
+        if (uri == null) uri = Uri.parse(clipItem.coerceToText(ctx).toString());
         return uri;
     }
 

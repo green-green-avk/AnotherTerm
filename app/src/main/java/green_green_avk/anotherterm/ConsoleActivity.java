@@ -3,6 +3,7 @@ package green_green_avk.anotherterm;
 import android.annotation.SuppressLint;
 import android.app.AlertDialog;
 import android.app.Dialog;
+import android.content.ClipData;
 import android.content.ClipboardManager;
 import android.content.Context;
 import android.content.DialogInterface;
@@ -419,8 +420,11 @@ public final class ConsoleActivity extends AppCompatActivity
                 final ClipboardManager clipboard = (ClipboardManager) getSystemService(Context.CLIPBOARD_SERVICE);
                 if (clipboard == null) return true;
                 if (!clipboard.hasPrimaryClip()) return true;
-                final String v = clipboard.getPrimaryClip().getItemAt(0)
-                        .coerceToText(this).toString();
+                final ClipData clipData = clipboard.getPrimaryClip();
+                if (clipData == null || clipData.getItemCount() < 1) return true;
+                final ClipData.Item clipItem = clipData.getItemAt(0);
+                if (clipItem == null) return true;
+                final String v = clipItem.coerceToText(this).toString();
                 mCkv.clipboardPaste(v);
                 return true;
             }
