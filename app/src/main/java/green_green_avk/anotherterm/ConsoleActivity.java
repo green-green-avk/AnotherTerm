@@ -15,7 +15,6 @@ import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.util.Log;
-import android.view.GestureDetector;
 import android.view.KeyEvent;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -89,33 +88,9 @@ public final class ConsoleActivity extends AppCompatActivity
         return ConsoleService.sessionKeys.listIterator(ConsoleService.sessionKeys.size()).previous();
     }
 
-    private int getNextSessionKey(final int key) {
-        final int i = ConsoleService.sessionKeys.indexOf(key) + 1;
-        if (i == ConsoleService.sessionKeys.size()) return getFirstSessionKey();
-        return ConsoleService.sessionKeys.listIterator(i).next();
-    }
-
-    private int getPreviousSessionKey(final int key) {
-        final int i = ConsoleService.sessionKeys.indexOf(key);
-        if (i == 0) return getLastSessionKey();
-        return ConsoleService.sessionKeys.listIterator(i).previous();
-    }
-
-    private void startSelf(final int key) {
-        finish();
-        startActivity(new Intent(this, this.getClass()).putExtra(C.IFK_MSG_SESS_KEY, key));
-    }
-
     private static int asSize(final Object o) {
         if (o instanceof Integer || o instanceof Long) return (int) o;
         return 0;
-    }
-
-    private GestureDetector mGestureDetector;
-
-    @Override
-    public boolean onTouchEvent(final MotionEvent event) {
-        return mGestureDetector.onTouchEvent(event) || super.onTouchEvent(event);
     }
 
     /*
@@ -195,41 +170,17 @@ public final class ConsoleActivity extends AppCompatActivity
         mCsv.setFontSize(((App) getApplication()).settings.terminal_font_default_size_sp
                 * getResources().getDisplayMetrics().scaledDensity);
 
-        final int swipeDistTh = (int) (80 * getResources().getDisplayMetrics().density);
-        final int swipeSpeedTh = (int) (640 * getResources().getDisplayMetrics().density);
-        mGestureDetector = new GestureDetector(this, new GestureDetector.SimpleOnGestureListener() {
-            @Override
-            public boolean onFling(final MotionEvent e1, final MotionEvent e2,
-                                   final float velocityX, final float velocityY) {
-                if (mCsv.getSelectionMode()) return true;
-                if (ConsoleService.sessionKeys.size() < 2) return true;
-                if (e1 == null || e2 == null) return true; // avoid null events bug
-                if (Math.abs(e1.getX() - e2.getX()) > swipeDistTh) {
-                    if (velocityX < -swipeSpeedTh) {
-                        startSelf(getNextSessionKey(mSessionKey));
-                        overridePendingTransition(R.anim.slide_in_left, R.anim.slide_out_left);
-                        return true;
-                    }
-                    if (velocityX > swipeSpeedTh) {
-                        startSelf(getPreviousSessionKey(mSessionKey));
-                        overridePendingTransition(R.anim.slide_in_right, R.anim.slide_out_right);
-                        return true;
-                    }
-                }
-                return super.onFling(e1, e2, velocityX, velocityY);
-            }
-        });
-
+/*
         mCsv.setOnTouchListener(
                 new View.OnTouchListener() {
                     @Override
                     public boolean onTouch(final View v, final MotionEvent event) {
 //                        UiUtils.hideSystemUi(ConsoleActivity.this); // For earlier versions
-                        mGestureDetector.onTouchEvent(event);
                         return false;
                     }
                 }
         );
+*/
 
         setTitle(mSession.input.currScrBuf.windowTitle);
 
@@ -553,18 +504,11 @@ public final class ConsoleActivity extends AppCompatActivity
                 return true;
             }
             case R.id.action_terminate: {
-                final int k = getNextSessionKey(mSessionKey);
                 try {
                     ConsoleService.stopSession(mSessionKey);
-                } catch (final NoSuchElementException e) {
-                    finish();
-                    return true;
+                } catch (final NoSuchElementException ignored) {
                 }
-                if (ConsoleService.sessionKeys.size() <= 0) finish();
-                else {
-                    startSelf(k);
-                    overridePendingTransition(R.anim.slide_in_left, R.anim.slide_out_left);
-                }
+                finish();
                 return true;
             }
         }
