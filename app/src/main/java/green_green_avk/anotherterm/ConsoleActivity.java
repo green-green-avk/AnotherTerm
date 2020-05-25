@@ -19,12 +19,12 @@ import android.view.KeyEvent;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.MotionEvent;
-import android.view.SubMenu;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.WindowManager;
 import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
+import android.widget.ArrayAdapter;
 import android.widget.EditText;
 import android.widget.RadioGroup;
 
@@ -241,37 +241,6 @@ public final class ConsoleActivity extends AppCompatActivity
         mMenu = menu;
         for (int mii = 0; mii < mMenu.size(); ++mii)
             UiUtils.setMenuItemIconState(mMenu.getItem(mii), new int[]{}, toolbarIconColor);
-        final MenuItem chi = mMenu.findItem(R.id.action_charset);
-/*
-        final Spinner chs = (Spinner) chi.getActionView();
-        chs.setAdapter(new ArrayAdapter<>(this, android.R.layout.simple_list_item_1, C.charsetList));
-        if (mSession != null) {
-            final int pos = C.charsetList.indexOf(mSession.output.getCharset().name());
-            if (pos >= 0) chs.setSelection(pos);
-        }
-*/
-        final SubMenu chs = chi.getSubMenu();
-        for (final String chn : C.charsetList) {
-            final MenuItem mi = chs.add(chn);
-            mi.setOnMenuItemClickListener(new MenuItem.OnMenuItemClickListener() {
-                @Override
-                public boolean onMenuItemClick(final MenuItem item) {
-                    if (mSession != null) {
-                        final String charsetStr = item.getTitle().toString();
-                        try {
-                            final Charset charset = Charset.forName(charsetStr);
-                            mSession.input.setCharset(charset);
-                            mSession.output.setCharset(charset);
-                            chi.setTitle(charsetStr);
-                        } catch (final IllegalArgumentException e) {
-                            Log.e("Charset", charsetStr, e);
-                        }
-                    }
-                    return true;
-                }
-            });
-        }
-        if (mSession != null) chi.setTitle(mSession.output.getCharset().name());
 
         if (mSession != null) {
             final BackendModule be = mSession.backend.wrapped;
@@ -295,6 +264,13 @@ public final class ConsoleActivity extends AppCompatActivity
         mMouseSupported = false;
         onInvalidateSink(null);
 
+        return true;
+    }
+
+    @Override
+    public boolean onPrepareOptionsMenu(final Menu menu) {
+        if (mSession != null)
+            menu.findItem(R.id.action_charset).setTitle(mSession.output.getCharset().name());
         return true;
     }
 
@@ -380,18 +356,26 @@ public final class ConsoleActivity extends AppCompatActivity
                 return true;
             }
             case R.id.action_charset: {
-                /*
-                if (mSession != null) {
-                    final String charsetStr = ((Spinner)item.getActionView()).getSelectedItem().toString();
-                    try {
-                        final Charset charset = Charset.forName(charsetStr);
-                        mSession.input.setCharset(charset);
-                        mSession.output.setCharset(charset);
-                    } catch (IllegalArgumentException e) {
-                        Log.e("Charset", charsetStr, e);
-                    }
-                }
-                */
+                if (mSession == null) return true;
+                final int p = C.charsetList.indexOf(mSession.output.getCharset().name());
+                final ArrayAdapter<String> a = new ArrayAdapter<>(this,
+                        R.layout.dialogmenu_entry, C.charsetList);
+                new AlertDialog.Builder(this)
+                        .setSingleChoiceItems(a, p, new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(final DialogInterface dialog, final int which) {
+                                if (mSession == null) return;
+                                final String charsetStr = a.getItem(which);
+                                try {
+                                    final Charset charset = Charset.forName(charsetStr);
+                                    mSession.input.setCharset(charset);
+                                    mSession.output.setCharset(charset);
+                                } catch (IllegalArgumentException e) {
+                                    Log.e("Charset", charsetStr, e);
+                                }
+                                dialog.dismiss();
+                            }
+                        }).setCancelable(true).show();
                 return true;
             }
             case R.id.action_keymap: {
