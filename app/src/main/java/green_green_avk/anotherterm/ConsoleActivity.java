@@ -52,7 +52,8 @@ import green_green_avk.anotherterm.ui.UiUtils;
 import green_green_avk.anotherterm.ui.VisibilityAnimator;
 
 public final class ConsoleActivity extends AppCompatActivity
-        implements ConsoleInput.OnInvalidateSink, ScrollableView.OnScroll {
+        implements ConsoleInput.OnInvalidateSink, ScrollableView.OnScroll,
+        ConsoleScreenView.OnStateChange {
 
     private int mSessionKey = -1;
     private Session mSession = null;
@@ -188,6 +189,7 @@ public final class ConsoleActivity extends AppCompatActivity
         mCkv.setConsoleInput(mSession.input);
         mSession.input.addOnInvalidateSink(this);
         mCsv.onScroll = this;
+        mCsv.onStateChange = this;
 
         mCsv.setScreenSize(asSize(mSession.connectionParams.get("screen_cols")),
                 asSize(mSession.connectionParams.get("screen_rows")));
@@ -305,15 +307,20 @@ public final class ConsoleActivity extends AppCompatActivity
                 View.VISIBLE : View.INVISIBLE);
     }
 
+    @Override
+    public void onSelectionModeChange(final boolean mode) {
+        if (mode) turnOffMouseMode();
+    }
+
     private void turnOffMouseMode() {
-        if (!mCsv.getMouseMode()) return;
         mCsv.setMouseMode(false);
         if (mMenu != null) {
             final MenuItem mi = mMenu.findItem(R.id.action_mouse);
             UiUtils.setMenuItemIconState(mi, new int[]{}, toolbarIconColor);
             mi.setChecked(false);
-            mSmv.setVisibility(View.GONE);
         }
+        if (mSmv.getVisibility() != View.GONE)
+            mSmv.setVisibility(View.GONE);
     }
 
     @SuppressLint("SourceLockedOrientationActivity")

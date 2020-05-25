@@ -51,6 +51,10 @@ import green_green_avk.anotherterm.utils.WeakHandler;
 public class ConsoleScreenView extends ScrollableView
         implements ConsoleInput.OnInvalidateSink, ConsoleInput.OnBufferScroll {
 
+    public interface OnStateChange {
+        void onSelectionModeChange(boolean mode);
+    }
+
     public static class State {
         private PointF scrollPosition = null;
         private float fontSize = 0;
@@ -110,6 +114,8 @@ public class ConsoleScreenView extends ScrollableView
 
     // Visible part of the history buffer to stick to the scroll position it
     protected float scrollFollowHistoryThreshold = 0.5F;
+
+    public OnStateChange onStateChange = null;
 
     private boolean mBlinkState = true;
     private WeakHandler mHandler = null;
@@ -498,6 +504,7 @@ public class ConsoleScreenView extends ScrollableView
     }
 
     public void setSelectionMode(final boolean mode) {
+        if (selectionMode == mode) return;
         if (mode) setMouseMode(false);
         selectionMode = mode;
         if (mode) {
@@ -514,6 +521,7 @@ public class ConsoleScreenView extends ScrollableView
         }
         adjustSelectionPopup();
         ViewCompat.postInvalidateOnAnimation(this);
+        if (onStateChange != null) onStateChange.onSelectionModeChange(mode);
     }
 
     public boolean getSelectionIsRect() {
@@ -552,6 +560,7 @@ public class ConsoleScreenView extends ScrollableView
     }
 
     public void setMouseMode(final boolean mode) {
+        if (mouseMode == mode) return;
         if (mode) setSelectionMode(false);
         mouseMode = mode;
         scrollDisabled = mode;
@@ -936,6 +945,10 @@ public class ConsoleScreenView extends ScrollableView
                             mButtons = bs;
                         }
                         consoleInput.consoleOutput.feed(ConsoleOutput.MouseEventType.RELEASE, buttons, x, y);
+                        unsetCurrentSelectionMarker();
+                        inGesture = false;
+                        adjustSelectionPopup();
+                        ViewCompat.postInvalidateOnAnimation(this);
                         break;
                     }
                 }
