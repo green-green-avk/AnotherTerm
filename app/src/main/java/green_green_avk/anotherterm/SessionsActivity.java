@@ -172,6 +172,11 @@ public final class SessionsActivity extends AppCompatActivity {
     }
 
     @Override
+    public boolean onPrepareOptionsMenu(final Menu menu) {
+        return true;
+    }
+
+    @Override
     public boolean onOptionsItemSelected(final MenuItem item) {
         switch (item.getItemId()) {
             case R.id.action_add_fav: {
@@ -200,7 +205,7 @@ public final class SessionsActivity extends AppCompatActivity {
                 return true;
             }
         }
-        return super.onOptionsItemSelected(item);
+        return true;
     }
 
     @Override

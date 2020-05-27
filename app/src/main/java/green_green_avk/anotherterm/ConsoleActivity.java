@@ -272,10 +272,6 @@ public final class ConsoleActivity extends AppCompatActivity
                 }
             }
         }
-
-        mMouseSupported = false;
-        onInvalidateSink(null);
-
         return true;
     }
 
@@ -306,16 +302,13 @@ public final class ConsoleActivity extends AppCompatActivity
             menu.getItem(mii).setOnMenuItemClickListener(mil);
     }
 
-    private boolean mMouseSupported = false;
-
     @Override
     public void onInvalidateSink(@Nullable final Rect rect) {
         if (mSession != null) {
             if (mSession.input.currScrBuf.windowTitle != null)
                 setTitle(mSession.input.currScrBuf.windowTitle);
             final boolean ms = mSession.output.isMouseSupported();
-            if (ms != mMouseSupported) {
-                mMouseSupported = ms;
+            if (ms != (wMouseMode.getVisibility() == View.VISIBLE)) {
                 if (!ms) turnOffMouseMode();
                 wMouseMode.setVisibility(ms ? View.VISIBLE : View.GONE);
             }
@@ -358,7 +351,7 @@ public final class ConsoleActivity extends AppCompatActivity
 
     private void turnOffMouseMode() {
         mCsv.setMouseMode(false);
-        wMouseMode.setImageState(new int[]{}, false);
+        wMouseMode.setImageState(new int[]{}, true);
         if (mSmv.getVisibility() != View.GONE)
             mSmv.setVisibility(View.GONE);
     }
@@ -371,17 +364,17 @@ public final class ConsoleActivity extends AppCompatActivity
     public void onMouseMode(final View v) {
         mCsv.setMouseMode(!mCsv.getMouseMode());
         if (mCsv.getMouseMode()) {
-            ((ImageView) v).setImageState(new int[]{android.R.attr.state_checked}, false);
+            ((ImageView) v).setImageState(new int[]{android.R.attr.state_checked}, true);
             mSmv.setVisibility(View.VISIBLE);
         } else {
-            ((ImageView) v).setImageState(new int[]{}, false);
+            ((ImageView) v).setImageState(new int[]{}, true);
             mSmv.setVisibility(View.GONE);
         }
     }
 
     public void onSwitchIme(final View v) {
         mCkv.useIme(!mCkv.isIme());
-//                UiUtils.hideSystemUi(this);
+//        UiUtils.hideSystemUi(this);
     }
 
     public void onSelectMode(final View v) {
@@ -549,7 +542,7 @@ public final class ConsoleActivity extends AppCompatActivity
                 return true;
             }
         }
-        return super.onOptionsItemSelected(item);
+        return true;
     }
 
     final MouseButtonsWorkAround mbwa = new MouseButtonsWorkAround(this);
