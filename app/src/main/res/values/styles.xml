@@ -38,16 +38,6 @@
         <item name="android:windowFullscreen">true</item>
     </style>
 
-    <style name="AppTheme.AppBarOverlay" parent="ThemeOverlay.AppCompat.Dark.ActionBar" />
-
-    <style name="AppTheme.PopupOverlay" parent="ThemeOverlay.AppCompat.Light" />
-
-    <style name="AppTheme.Console.ActionBar" parent="ThemeOverlay.AppCompat.Dark.ActionBar">
-        <item name="actionMenuTextColor">@color/colorAccent</item>
-        <item name="colorControlNormal">@android:color/tertiary_text_light</item>
-        <item name="android:textColorPrimary">@android:color/tertiary_text_light</item>
-    </style>
-
     <style name="AppSettingsTheme" parent="AppTheme">
         <item name="android:textSize">16sp</item>
         <item name="android:editTextColor">@android:color/widget_edittext_dark</item>

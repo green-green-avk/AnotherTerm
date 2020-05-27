@@ -13,20 +13,19 @@
         android:layout_height="?attr/actionBarSize"
         android:background="@drawable/bg_keyboard"
         android:gravity="center_vertical"
-        android:orientation="horizontal"
-        android:theme="@style/AppTheme.Console.ActionBar">
+        android:orientation="horizontal">
 
         <ImageView
             android:id="@+id/action_nav_up"
             android:layout_width="wrap_content"
             android:layout_height="match_parent"
             android:adjustViewBounds="true"
-            android:background="@drawable/bg_grid_btn"
+            android:background="@drawable/bg_grid_black_btn"
             android:contentDescription="@string/action_nav_up"
             android:onClick="onNavUp"
             android:scaleType="centerInside"
             app:srcCompat="?attr/homeAsUpIndicator"
-            app:tint="@android:color/tertiary_text_light" />
+            app:tint="@android:color/tertiary_text_dark" />
 
         <TextView
             android:id="@+id/title"
@@ -39,6 +38,7 @@
             android:layout_weight="1"
             android:ellipsize="middle"
             android:gravity="center_vertical"
+            android:textColor="@android:color/secondary_text_dark"
             app:autoSizeMinTextSize="@dimen/text_size_min"
             app:autoSizeTextType="uniform"
             tools:text="Title" />
@@ -48,7 +48,7 @@
             android:layout_width="wrap_content"
             android:layout_height="match_parent"
             android:adjustViewBounds="true"
-            android:background="@drawable/bg_grid_btn"
+            android:background="@drawable/bg_grid_black_btn"
             android:contentDescription="@string/action_mouse_mode"
             android:onClick="onMouseMode"
             android:scaleType="centerInside"
@@ -63,7 +63,7 @@
             android:layout_width="wrap_content"
             android:layout_height="match_parent"
             android:adjustViewBounds="true"
-            android:background="@drawable/bg_grid_btn"
+            android:background="@drawable/bg_grid_black_btn"
             android:contentDescription="@string/action_switch_screen_keyboard"
             android:onClick="onSwitchIme"
             android:scaleType="centerInside"
@@ -76,7 +76,7 @@
             android:layout_width="wrap_content"
             android:layout_height="match_parent"
             android:adjustViewBounds="true"
-            android:background="@drawable/bg_grid_btn"
+            android:background="@drawable/bg_grid_black_btn"
             android:contentDescription="@string/action_select_mode"
             android:onClick="onSelectMode"
             android:scaleType="centerInside"
@@ -89,7 +89,7 @@
             android:layout_width="wrap_content"
             android:layout_height="match_parent"
             android:adjustViewBounds="true"
-            android:background="@drawable/bg_grid_btn"
+            android:background="@drawable/bg_grid_black_btn"
             android:contentDescription="@string/action_paste"
             android:onClick="onPaste"
             android:scaleType="centerInside"
@@ -102,12 +102,12 @@
             android:layout_width="wrap_content"
             android:layout_height="match_parent"
             android:adjustViewBounds="true"
-            android:background="@drawable/bg_grid_btn"
+            android:background="@drawable/bg_grid_black_btn"
             android:contentDescription="@string/action_terminal_menu"
             android:onClick="onMenu"
             android:scaleType="centerInside"
             app:srcCompat="@drawable/ic_menu"
-            app:tint="@android:color/tertiary_text_light" />
+            app:tint="@android:color/tertiary_text_dark" />
 
     </LinearLayout>
 

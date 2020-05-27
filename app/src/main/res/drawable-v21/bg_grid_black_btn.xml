@@ -2,5 +2,5 @@
 <ripple xmlns:android="http://schemas.android.com/apk/res/android"
     android:color="?attr/colorAccent"
     android:radius="16dp">
-    <item android:drawable="@drawable/bg_grid_white" />
+    <item android:drawable="@drawable/bg_grid_black" />
 </ripple>
