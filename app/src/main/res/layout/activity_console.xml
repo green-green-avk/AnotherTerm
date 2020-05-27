@@ -4,24 +4,112 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:orientation="vertical">
+    android:orientation="vertical"
+    tools:context=".ConsoleActivity">
 
-    <com.google.android.material.appbar.AppBarLayout
+    <LinearLayout
+        android:id="@+id/nav_bar"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:theme="@style/AppTheme.AppBarOverlay">
+        android:layout_height="?attr/actionBarSize"
+        android:background="@drawable/bg_keyboard"
+        android:gravity="center_vertical"
+        android:orientation="horizontal"
+        android:theme="@style/AppTheme.Console.ActionBar">
 
-        <androidx.appcompat.widget.Toolbar
-            android:id="@+id/toolbar"
-            android:layout_width="match_parent"
-            android:layout_height="?attr/actionBarSize"
-            android:background="@drawable/bg_keyboard"
-            android:theme="@style/AppTheme.Console.ActionBar"
-            app:popupTheme="@style/AppTheme.PopupOverlay"
-            app:subtitleTextAppearance="@style/AppTextAppearance.ActionBar.Narrow.Subtitle"
-            app:titleTextAppearance="@style/AppTextAppearance.ActionBar.Narrow.Title" />
+        <ImageView
+            android:id="@+id/action_nav_up"
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:adjustViewBounds="true"
+            android:background="@drawable/bg_grid_btn"
+            android:contentDescription="@string/action_nav_up"
+            android:onClick="onNavUp"
+            android:scaleType="centerInside"
+            app:srcCompat="?attr/homeAsUpIndicator"
+            app:tint="@android:color/tertiary_text_light" />
 
-    </com.google.android.material.appbar.AppBarLayout>
+        <TextView
+            android:id="@+id/title"
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_marginLeft="@dimen/text_margin"
+            android:layout_marginTop="1dp"
+            android:layout_marginRight="@dimen/text_margin"
+            android:layout_marginBottom="1dp"
+            android:layout_weight="1"
+            android:ellipsize="middle"
+            android:gravity="center_vertical"
+            app:autoSizeMinTextSize="@dimen/text_size_min"
+            app:autoSizeTextType="uniform"
+            tools:text="Title" />
+
+        <ImageView
+            android:id="@+id/action_mouse_mode"
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:adjustViewBounds="true"
+            android:background="@drawable/bg_grid_btn"
+            android:contentDescription="@string/action_mouse_mode"
+            android:onClick="onMouseMode"
+            android:scaleType="centerInside"
+            android:visibility="gone"
+            app:srcCompat="@drawable/ic_mouse_white"
+            app:tint="@color/console_toolbar_icon"
+            app:tintMode="src_atop"
+            tools:visibility="visible" />
+
+        <ImageView
+            android:id="@+id/action_ime"
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:adjustViewBounds="true"
+            android:background="@drawable/bg_grid_btn"
+            android:contentDescription="@string/action_switch_screen_keyboard"
+            android:onClick="onSwitchIme"
+            android:scaleType="centerInside"
+            app:srcCompat="@drawable/ic_keyboard"
+            app:tint="@color/console_toolbar_icon"
+            app:tintMode="src_atop" />
+
+        <ImageView
+            android:id="@+id/action_select_mode"
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:adjustViewBounds="true"
+            android:background="@drawable/bg_grid_btn"
+            android:contentDescription="@string/action_select_mode"
+            android:onClick="onSelectMode"
+            android:scaleType="centerInside"
+            app:srcCompat="@drawable/ic_select"
+            app:tint="@color/console_toolbar_icon"
+            app:tintMode="src_atop" />
+
+        <ImageView
+            android:id="@+id/action_paste"
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:adjustViewBounds="true"
+            android:background="@drawable/bg_grid_btn"
+            android:contentDescription="@string/action_paste"
+            android:onClick="onPaste"
+            android:scaleType="centerInside"
+            app:srcCompat="?attr/actionModePasteDrawable"
+            app:tint="@color/console_toolbar_icon"
+            app:tintMode="src_atop" />
+
+        <ImageView
+            android:id="@+id/action_options_menu"
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:adjustViewBounds="true"
+            android:background="@drawable/bg_grid_btn"
+            android:contentDescription="@string/action_terminal_menu"
+            android:onClick="onMenu"
+            android:scaleType="centerInside"
+            app:srcCompat="@drawable/ic_menu"
+            app:tint="@android:color/tertiary_text_light" />
+
+    </LinearLayout>
 
     <FrameLayout
         android:layout_width="match_parent"

@@ -53,6 +53,11 @@ public class ConsoleScreenView extends ScrollableView
 
     public interface OnStateChange {
         void onSelectionModeChange(boolean mode);
+
+        /**
+         * @param fontSize [px]
+         */
+        void onFontSizeChange(float fontSize);
     }
 
     public static class State {
@@ -94,7 +99,7 @@ public class ConsoleScreenView extends ScrollableView
     protected Drawable attrMarkupBlinking = null;
     protected Drawable paddingMarkup = null;
     protected FontProvider fontProvider = new DefaultConsoleFontProvider();
-    protected float mFontSize = 16;
+    protected float mFontSize = 16F; // px
     protected float mFontWidth;
     protected float mFontHeight;
     protected int keyHeightDp = 0;
@@ -461,15 +466,22 @@ public class ConsoleScreenView extends ScrollableView
         ViewCompat.postInvalidateOnAnimation(this);
     }
 
+    /**
+     * @return [px]
+     */
     public float getFontSize() {
         return mFontSize;
     }
 
+    /**
+     * @param size [px]
+     */
     public void setFontSize(final float size) {
         mFontSize = size;
         applyFont();
         resizeBuffer();
         ViewCompat.postInvalidateOnAnimation(this);
+        if (onStateChange != null) onStateChange.onFontSizeChange(getFontSize());
     }
 
     public float getScrollFollowHistoryThreshold() {

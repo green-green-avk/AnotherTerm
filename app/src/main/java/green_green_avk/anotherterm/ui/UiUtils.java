@@ -9,15 +9,11 @@ import android.content.ClipDescription;
 import android.content.ClipboardManager;
 import android.content.Context;
 import android.content.DialogInterface;
-import android.content.res.ColorStateList;
 import android.content.res.Resources;
-import android.graphics.PorterDuff;
 import android.graphics.Rect;
-import android.graphics.drawable.Drawable;
 import android.net.Uri;
 import android.os.Build;
 import android.util.AndroidException;
-import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.ViewTreeObserver;
@@ -194,23 +190,6 @@ public final class UiUtils {
                 enableAnimation(v);
             }
         }
-    }
-
-    // TODO: fix this strange approach, maybe...
-    private static final Map<MenuItem, Drawable> menuIcons = new WeakHashMap<>();
-
-    public static void setMenuItemIconState(@NonNull final MenuItem item, @NonNull final int[] state, @Nullable ColorStateList color) {
-        Drawable icon = menuIcons.get(item);
-        if (icon == null) {
-            icon = item.getIcon();
-            if (icon == null) return;
-            menuIcons.put(item, icon);
-        }
-        icon.mutate().setState(state);
-        if (color != null) {
-            icon.setColorFilter(color.getColorForState(state, color.getDefaultColor()), PorterDuff.Mode.SRC_ATOP);
-        }
-        item.setIcon(icon.getCurrent());
     }
 
     public static int getNavBarHeight(@NonNull final Context ctx) {

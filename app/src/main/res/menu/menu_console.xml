@@ -1,72 +1,31 @@
 <?xml version="1.0" encoding="utf-8"?>
-<menu xmlns:tools="http://schemas.android.com/tools"
-    xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto">
-
-    <item
-        android:id="@+id/action_mouse"
-        android:checkable="true"
-        android:icon="@drawable/ic_mouse_white"
-        android:title="&#x1f5b0;"
-        android:visible="false"
-        app:showAsAction="always"
-        tools:ignore="AlwaysShowAction,HardcodedText" />
-
-    <item
-        android:id="@+id/action_ime"
-        android:icon="@drawable/ic_keyboard"
-        android:title="&#x2328;"
-        app:showAsAction="always"
-        tools:ignore="HardcodedText" />
-
-    <item
-        android:id="@+id/action_select"
-        android:icon="@drawable/ic_select"
-        android:title="Select"
-        app:showAsAction="always" />
-
-    <item
-        android:id="@+id/action_paste"
-        android:icon="?attr/actionModePasteDrawable"
-        android:title="@string/action_paste"
-        app:showAsAction="always" />
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
 
     <item
         android:id="@+id/action_charset"
-        android:title="@string/action_charset"
-        app:showAsAction="ifRoom">
-        <menu />
-    </item>
+        android:title="@string/action_charset" />
 
     <item
         android:id="@+id/action_keymap"
-        android:title="@string/action_term_key_mapping"
-        app:showAsAction="never">
-        <menu />
-    </item>
+        android:title="@string/action_term_key_mapping" />
 
     <item
-        android:id="@+id/action_set_terminal_size"
-        android:title="@string/action_set_terminal_size"
-        app:showAsAction="never" />
+        android:id="@+id/action_terminal_screen"
+        android:title="@string/action_terminal_screen" />
 
     <item
         android:id="@+id/action_help"
         android:orderInCategory="200"
-        android:title="@string/action_help"
-        app:showAsAction="never" />
+        android:title="@string/action_help" />
 
     <item
         android:id="@+id/action_toggle_wake_lock"
         android:orderInCategory="200"
-        android:title="@string/action_toggle_wake_lock"
-        app:showAsAction="never" />
+        android:title="@string/action_toggle_wake_lock" />
 
     <item
         android:id="@+id/action_terminate"
-        android:icon="@drawable/ic_close"
         android:orderInCategory="200"
-        android:title="@string/action_terminate"
-        app:showAsAction="never" />
+        android:title="@string/action_terminate" />
 
 </menu>

@@ -9,12 +9,13 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.ActivityInfo;
-import android.content.res.ColorStateList;
 import android.graphics.Rect;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.util.Log;
+import android.util.TypedValue;
+import android.view.ContextMenu;
 import android.view.KeyEvent;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -26,13 +27,15 @@ import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
 import android.widget.ArrayAdapter;
 import android.widget.EditText;
+import android.widget.ImageView;
 import android.widget.RadioGroup;
+import android.widget.TextView;
 
 import androidx.annotation.Keep;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.appcompat.widget.Toolbar;
+import androidx.core.widget.TextViewCompat;
 
 import java.lang.reflect.Method;
 import java.nio.charset.Charset;
@@ -64,7 +67,12 @@ public final class ConsoleActivity extends AppCompatActivity
     private View mBell = null;
     private Animation mBellAnim = null;
     private VisibilityAnimator mScrollHomeVA = null;
-    private ColorStateList toolbarIconColor = null;
+
+    private ViewGroup wNavBar = null;
+    private View wOptionsMenu = null;
+
+    private TextView wTitle = null;
+    private ImageView wMouseMode = null;
 
     @Keep
     private final ConsoleService.Listener sessionsListener = new ConsoleService.Listener() {
@@ -147,13 +155,7 @@ public final class ConsoleActivity extends AppCompatActivity
                 getWindow().clearFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN);
         }
 
-        toolbarIconColor = getResources().getColorStateList(R.color.console_toolbar_icon);
-
         setContentView(R.layout.activity_console);
-        final Toolbar toolbar = findViewById(R.id.toolbar);
-        setSupportActionBar(toolbar);
-        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
-        getSupportActionBar().setDisplayShowHomeEnabled(true);
 //        UiUtils.setHiddenSystemUi(this);
 //        UiUtils.setShrinkBottomWhenCovered(this);
 
@@ -163,6 +165,14 @@ public final class ConsoleActivity extends AppCompatActivity
         mBell = findViewById(R.id.bell);
         mBellAnim = AnimationUtils.loadAnimation(this, R.anim.blink_ring);
         mScrollHomeVA = new VisibilityAnimator(findViewById(R.id.scrollHome));
+
+        wNavBar = findViewById(R.id.nav_bar);
+        wOptionsMenu = findViewById(R.id.action_options_menu);
+
+        wTitle = findViewById(R.id.title);
+        wMouseMode = findViewById(R.id.action_mouse_mode);
+
+        registerForContextMenu(wOptionsMenu);
 
         final FontProvider fp = new ConsoleFontProvider();
         mCsv.setFont(fp);
@@ -212,6 +222,12 @@ public final class ConsoleActivity extends AppCompatActivity
             finish();
             return;
         }
+        final int navBarH = (int) (((App) getApplication()).settings.terminal_key_height_dp
+                * getResources().getDisplayMetrics().density);
+        if (wNavBar.getLayoutParams().height != navBarH) {
+            wNavBar.getLayoutParams().height = navBarH;
+            wNavBar.requestLayout();
+        }
         mCsv.setSelectionPadSize(((App) getApplication()).settings.terminal_selection_pad_size_dp
                 * getResources().getDisplayMetrics().density);
         mCsv.setKeyHeightDp(((App) getApplication()).settings.terminal_key_height_dp);
@@ -235,15 +251,9 @@ public final class ConsoleActivity extends AppCompatActivity
         super.onPause();
     }
 
-    private Menu mMenu = null;
-
     @Override
     public boolean onCreateOptionsMenu(final Menu menu) {
         getMenuInflater().inflate(R.menu.menu_console, menu);
-        mMenu = menu;
-        for (int mii = 0; mii < mMenu.size(); ++mii)
-            UiUtils.setMenuItemIconState(mMenu.getItem(mii), new int[]{}, toolbarIconColor);
-
         if (mSession != null) {
             final BackendModule be = mSession.backend.wrapped;
             for (final Map.Entry<Method, BackendModule.ExportedUIMethod> m :
@@ -272,8 +282,28 @@ public final class ConsoleActivity extends AppCompatActivity
     @Override
     public boolean onPrepareOptionsMenu(final Menu menu) {
         if (mSession != null)
-            menu.findItem(R.id.action_charset).setTitle(mSession.output.getCharset().name());
+            menu.findItem(R.id.action_charset).setTitle(getString(R.string.action_charset_p_s_p,
+                    mSession.output.getCharset().name()));
         return true;
+    }
+
+    // It seems, Google restricts using of the options menu without an action bar in some old APIs
+    // right after the Honeycomb:
+    // https://android.developreference.com/article/24936634/openOptionsMenu+function+not+working+in+ICS%3F
+    // Preserve *OptionsMenu style definitions at the moment though.
+    @Override
+    public void onCreateContextMenu(final ContextMenu menu, final View v,
+                                    final ContextMenu.ContextMenuInfo menuInfo) {
+        onCreateOptionsMenu(menu);
+        onPrepareOptionsMenu(menu);
+        final MenuItem.OnMenuItemClickListener mil = new MenuItem.OnMenuItemClickListener() {
+            @Override
+            public boolean onMenuItemClick(final MenuItem item) {
+                return onOptionsItemSelected(item);
+            }
+        };
+        for (int mii = 0; mii < menu.size(); ++mii)
+            menu.getItem(mii).setOnMenuItemClickListener(mil);
     }
 
     private boolean mMouseSupported = false;
@@ -287,17 +317,20 @@ public final class ConsoleActivity extends AppCompatActivity
             if (ms != mMouseSupported) {
                 mMouseSupported = ms;
                 if (!ms) turnOffMouseMode();
-                if (mMenu != null) {
-                    final MenuItem mi = mMenu.findItem(R.id.action_mouse);
-                    if (mi.isVisible() != ms)
-                        mi.setVisible(ms);
-                }
+                wMouseMode.setVisibility(ms ? View.VISIBLE : View.GONE);
             }
             if (mSession.input.getBell() != 0) {
                 if (!mBellAnim.hasStarted() || mBellAnim.hasEnded())
                     mBell.startAnimation(mBellAnim);
             }
         }
+    }
+
+    @Override
+    protected void onTitleChanged(final CharSequence title, final int color) {
+        super.onTitleChanged(title, color);
+        wTitle.setText(title);
+        if (color != 0) wTitle.setTextColor(color);
     }
 
     @Override
@@ -312,56 +345,69 @@ public final class ConsoleActivity extends AppCompatActivity
         if (mode) turnOffMouseMode();
     }
 
+    @Override
+    public void onFontSizeChange(final float fontSize) {
+        final int v = Math.min(Math.round(fontSize), wTitle.getHeight());
+        try {
+            TextViewCompat.setAutoSizeTextTypeUniformWithConfiguration(wTitle, v,
+                    TextViewCompat.getAutoSizeMaxTextSize(wTitle),
+                    TextViewCompat.getAutoSizeStepGranularity(wTitle), TypedValue.COMPLEX_UNIT_PX);
+        } catch (final IllegalArgumentException ignored) {
+        }
+    }
+
     private void turnOffMouseMode() {
         mCsv.setMouseMode(false);
-        if (mMenu != null) {
-            final MenuItem mi = mMenu.findItem(R.id.action_mouse);
-            UiUtils.setMenuItemIconState(mi, new int[]{}, toolbarIconColor);
-            mi.setChecked(false);
-        }
+        wMouseMode.setImageState(new int[]{}, false);
         if (mSmv.getVisibility() != View.GONE)
             mSmv.setVisibility(View.GONE);
+    }
+
+    public void onNavUp(final View v) {
+        final Intent pa = getSupportParentActivityIntent();
+        if (pa != null) supportNavigateUpTo(pa);
+    }
+
+    public void onMouseMode(final View v) {
+        mCsv.setMouseMode(!mCsv.getMouseMode());
+        if (mCsv.getMouseMode()) {
+            ((ImageView) v).setImageState(new int[]{android.R.attr.state_checked}, false);
+            mSmv.setVisibility(View.VISIBLE);
+        } else {
+            ((ImageView) v).setImageState(new int[]{}, false);
+            mSmv.setVisibility(View.GONE);
+        }
+    }
+
+    public void onSwitchIme(final View v) {
+        mCkv.useIme(!mCkv.isIme());
+//                UiUtils.hideSystemUi(this);
+    }
+
+    public void onSelectMode(final View v) {
+        mCsv.setSelectionMode(!mCsv.getSelectionMode());
+    }
+
+    public void onPaste(final View v) {
+        final ClipboardManager clipboard = (ClipboardManager) getSystemService(Context.CLIPBOARD_SERVICE);
+        if (clipboard == null) return;
+        if (!clipboard.hasPrimaryClip()) return;
+        final ClipData clipData = clipboard.getPrimaryClip();
+        if (clipData == null || clipData.getItemCount() < 1) return;
+        final ClipData.Item clipItem = clipData.getItemAt(0);
+        if (clipItem == null) return;
+        mCkv.clipboardPaste(clipItem.coerceToText(this).toString());
+    }
+
+    public void onMenu(final View v) {
+//        openOptionsMenu();
+        openContextMenu(v);
     }
 
     @SuppressLint("SourceLockedOrientationActivity")
     @Override
     public boolean onOptionsItemSelected(final MenuItem item) {
         switch (item.getItemId()) {
-            case R.id.action_mouse: {
-                mCsv.setMouseMode(!mCsv.getMouseMode());
-                if (mCsv.getMouseMode()) {
-                    UiUtils.setMenuItemIconState(item, new int[]{android.R.attr.state_checked}, toolbarIconColor);
-                    item.setChecked(true);
-                    mSmv.setVisibility(View.VISIBLE);
-                } else {
-                    UiUtils.setMenuItemIconState(item, new int[]{}, toolbarIconColor);
-                    item.setChecked(false);
-                    mSmv.setVisibility(View.GONE);
-                }
-                return true;
-            }
-            case R.id.action_ime: {
-                mCkv.useIme(!mCkv.isIme());
-                item.setChecked(mCkv.isIme());
-//                UiUtils.hideSystemUi(this);
-                return true;
-            }
-            case R.id.action_select: {
-                mCsv.setSelectionMode(!mCsv.getSelectionMode());
-                return true;
-            }
-            case R.id.action_paste: {
-                final ClipboardManager clipboard = (ClipboardManager) getSystemService(Context.CLIPBOARD_SERVICE);
-                if (clipboard == null) return true;
-                if (!clipboard.hasPrimaryClip()) return true;
-                final ClipData clipData = clipboard.getPrimaryClip();
-                if (clipData == null || clipData.getItemCount() < 1) return true;
-                final ClipData.Item clipItem = clipData.getItemAt(0);
-                if (clipItem == null) return true;
-                final String v = clipItem.coerceToText(this).toString();
-                mCkv.clipboardPaste(v);
-                return true;
-            }
             case R.id.action_charset: {
                 if (mSession == null) return true;
                 final int p = C.charsetList.indexOf(mSession.output.getCharset().name());
@@ -397,7 +443,7 @@ public final class ConsoleActivity extends AppCompatActivity
                 }, mSession.output.getKeyMap());
                 return true;
             }
-            case R.id.action_set_terminal_size: {
+            case R.id.action_terminal_screen: {
                 if (mSession == null) return true;
                 final ViewGroup v = (ViewGroup)
                         getLayoutInflater().inflate(R.layout.buffer_size_dialog, null);
@@ -433,7 +479,7 @@ public final class ConsoleActivity extends AppCompatActivity
                 }
                 new AlertDialog.Builder(this)
                         .setView(v)
-                        .setTitle(R.string.dialog_title_set_terminal_screen_size)
+                        .setTitle(R.string.dialog_title_terminal_screen)
                         .setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener() {
                             @Override
                             public void onClick(final DialogInterface dialog, final int which) {
@@ -523,13 +569,13 @@ public final class ConsoleActivity extends AppCompatActivity
         if (event.getAction() == KeyEvent.ACTION_DOWN) {
             switch (event.getKeyCode()) {
                 case KeyEvent.KEYCODE_VOLUME_UP: {
-                    if (mCsv.getFontSize() < 64)
-                        mCsv.setFontSize(mCsv.getFontSize() + 1);
+                    if (mCsv.getFontSize() < 64F)
+                        mCsv.setFontSize(mCsv.getFontSize() + 1F);
                     return true;
                 }
                 case KeyEvent.KEYCODE_VOLUME_DOWN: {
-                    if (mCsv.getFontSize() > 4)
-                        mCsv.setFontSize(mCsv.getFontSize() - 1);
+                    if (mCsv.getFontSize() > 4F)
+                        mCsv.setFontSize(mCsv.getFontSize() - 1F);
                     return true;
                 }
             }
