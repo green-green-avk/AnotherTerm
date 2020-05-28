@@ -13,6 +13,7 @@ import android.util.Log;
 
 import androidx.annotation.Keep;
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 
 import com.felhr.usbserial.UsbSerialDevice;
 import com.felhr.usbserial.UsbSerialInterface;
@@ -172,7 +173,8 @@ public final class UsbUartModule extends BackendModule {
             if (action == null) return;
             switch (action) {
                 case ACTION_USB_PERMISSION:
-                    usbAccessGranted.set(intent.getBooleanExtra(UsbManager.EXTRA_PERMISSION_GRANTED, false));
+                    usbAccessGranted.set(intent.getBooleanExtra(
+                            UsbManager.EXTRA_PERMISSION_GRANTED, false));
                     break;
                 case ACTION_USB_ATTACHED: {
                     // reconnect
@@ -224,14 +226,14 @@ public final class UsbUartModule extends BackendModule {
         out = stream;
     }
 
-    @NonNull
     @Override
+    @NonNull
     public OutputStream getOutputStream() {
         return in;
     }
 
     @Override
-    public void setOnMessageListener(final OnMessageListener l) {
+    public void setOnMessageListener(@Nullable final OnMessageListener l) {
     }
 
     @Override
@@ -279,8 +281,8 @@ public final class UsbUartModule extends BackendModule {
     public void resize(final int col, final int row, final int wp, final int hp) {
     }
 
-    @NonNull
     @Override
+    @NonNull
     public String getConnDesc() {
         final Map<String, Object> pp = new HashMap<>();
         pp.put("baudrate", baudrate);
@@ -311,7 +313,8 @@ public final class UsbUartModule extends BackendModule {
             throw new BackendException("Cannot obtain USB service");
         }
         usbAccessGranted.clear();
-        usbManager.requestPermission(device, PendingIntent.getBroadcast(context, 0, new Intent(ACTION_USB_PERMISSION), 0));
+        usbManager.requestPermission(device, PendingIntent.getBroadcast(context, 0,
+                new Intent(ACTION_USB_PERMISSION), 0));
         try {
             if (!usbAccessGranted.get()) {
                 if (reconnect) return;
@@ -344,18 +347,19 @@ public final class UsbUartModule extends BackendModule {
         serialPort.read(readCallback);
     }
 
-    private UsbSerialInterface.UsbReadCallback readCallback = new UsbSerialInterface.UsbReadCallback() {
-        @Override
-        public void onReceivedData(final byte[] bytes) {
-            if (out != null) {
-                try {
-                    out.write(bytes);
-                } catch (final IOException e) {
-                    disconnect();
-                    Log.e("USB", "Unexpected frontend problem", e);
-                    reportError(new BackendException("Frontend is inaccessible"));
+    private UsbSerialInterface.UsbReadCallback readCallback =
+            new UsbSerialInterface.UsbReadCallback() {
+                @Override
+                public void onReceivedData(final byte[] bytes) {
+                    if (out != null) {
+                        try {
+                            out.write(bytes);
+                        } catch (final IOException e) {
+                            disconnect();
+                            Log.e("USB", "Unexpected frontend problem", e);
+                            reportError(new BackendException("Frontend is inaccessible"));
+                        }
+                    }
                 }
-            }
-        }
-    };
+            };
 }

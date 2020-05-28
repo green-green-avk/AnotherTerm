@@ -124,7 +124,7 @@ public final class ConsoleActivity extends AppCompatActivity
     }
 
     @Override
-    protected void onCreate(final Bundle savedInstanceState) {
+    protected void onCreate(@Nullable final Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
         if (ConsoleService.sessionKeys.size() <= 0) {

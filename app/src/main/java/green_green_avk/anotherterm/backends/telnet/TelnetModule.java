@@ -4,6 +4,7 @@ import android.net.Uri;
 
 import androidx.annotation.Keep;
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 
 import org.apache.commons.lang3.StringUtils;
 
@@ -87,7 +88,7 @@ public final class TelnetModule extends BackendModule {
     private int keepaliveInterval = 0;
 
     @Override
-    public void setParameters(@NonNull Map<String, ?> params) {
+    public void setParameters(@NonNull final Map<String, ?> params) {
         final ParametersWrapper pp = new ParametersWrapper(params);
         hostname = pp.getString("hostname", null);
         if (hostname == null) throw new BackendException("`hostname' is not defined");
@@ -103,7 +104,7 @@ public final class TelnetModule extends BackendModule {
 
     private final OutputStream mOS_get = new OutputStream() {
         @Override
-        public void write(int b) {
+        public void write(final int b) {
             if (tc == null) return;
             try {
                 tc.send((byte) b);
@@ -113,7 +114,7 @@ public final class TelnetModule extends BackendModule {
         }
 
         @Override
-        public void write(byte[] b, int off, int len) {
+        public void write(final byte[] b, final int off, final int len) {
             if (tc == null) return;
             try {
                 tc.send(b, off, off + len);
@@ -123,7 +124,7 @@ public final class TelnetModule extends BackendModule {
         }
 
         @Override
-        public void write(byte[] b) {
+        public void write(final byte[] b) {
             if (tc == null) return;
             try {
                 tc.send(b);
@@ -145,7 +146,7 @@ public final class TelnetModule extends BackendModule {
     }
 
     @Override
-    public void setOnMessageListener(final OnMessageListener l) {
+    public void setOnMessageListener(@Nullable final OnMessageListener l) {
         if (l == null) tc.setOnErrorListener(null);
         else tc.setOnErrorListener(new TelnetClient.OnErrorListener() {
             @Override

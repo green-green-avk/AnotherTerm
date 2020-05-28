@@ -436,7 +436,7 @@ public final class SshModule extends BackendModule {
     }
 
     @Override
-    public void setOnMessageListener(final OnMessageListener l) { // TODO: use it!
+    public void setOnMessageListener(@Nullable final OnMessageListener l) { // TODO: use it!
     }
 
     @Override

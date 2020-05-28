@@ -200,7 +200,7 @@ public final class LocalModule extends BackendModule {
     }
 
     @Override
-    public void setOnMessageListener(final OnMessageListener l) {
+    public void setOnMessageListener(@Nullable final OnMessageListener l) {
         onMessageListener = l;
     }
 

@@ -203,7 +203,7 @@ public abstract class BackendModule {
         void onMessage(@NonNull Object msg);
     }
 
-    public abstract void setOnMessageListener(OnMessageListener l);
+    public abstract void setOnMessageListener(@Nullable OnMessageListener l);
 
     public BackendUiInteraction getUi() {
         return ui;
