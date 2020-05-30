@@ -102,7 +102,6 @@
     <string name="title_about">About</string>
     <string name="msg_usd_serial_port_s_disconnected">USB serial port %s disconnected</string>
     <string name="msg_usd_serial_port_s_reconnected">USB serial port %s reconnected</string>
-    <string name="note_p_zero_m_off_p">(0 - off)</string>
     <string name="label_cols">Cols</string>
     <string name="label_rows">Rows</string>
     <string name="action_terminal_screen">Terminal Screen</string>
@@ -223,4 +222,10 @@
     <string name="action_select_mode">Select mode</string>
     <string name="action_terminal_menu">Terminal menu</string>
     <string name="action_nav_up">Navigate up</string>
+    <string name="hint_off">off</string>
+    <string name="hint_do_not_change">do not change</string>
+    <string name="label_data_bits">Data Bits</string>
+    <string name="label_stop_bits">Stop Bits</string>
+    <string name="label_parity">Parity</string>
+    <string name="label_flow_control">Flow Control</string>
 </resources>

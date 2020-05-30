@@ -1,67 +1,100 @@
 <?xml version="1.0" encoding="utf-8"?>
-<com.google.android.flexbox.FlexboxLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
+<TableLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    app:alignItems="baseline"
-    app:flexDirection="row"
-    app:flexWrap="wrap">
+    android:orientation="vertical"
+    android:padding="@dimen/text_padding">
 
-    <EditText
-        android:id="@+id/f_baudrate"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:hint="@string/label_baudrate"
-        android:importantForAutofill="no"
-        android:inputType="number"
-        android:tag="baudrate" />
+    <TableRow>
 
-    <TextView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="@string/label_field_div" />
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:labelFor="@id/f_baudrate"
+            android:text="@string/label_baudrate" />
 
-    <Spinner
-        android:id="@+id/f_databits"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:entries="@array/uart_databits"
-        android:tag="databits/8/7/6/5" />
+        <EditText
+            android:id="@+id/f_baudrate"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:hint="@string/hint_do_not_change"
+            android:importantForAutofill="no"
+            android:inputType="number"
+            android:tag="baudrate/0" />
 
-    <TextView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="@string/label_field_div" />
+    </TableRow>
 
-    <Spinner
-        android:id="@+id/f_stopbits"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:entries="@array/uart_stopbits"
-        android:tag="stopbits/1/1.5/2" />
+    <TableRow>
 
-    <TextView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="@string/label_field_div" />
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:labelFor="@id/f_databits"
+            android:text="@string/label_data_bits" />
 
-    <Spinner
-        android:id="@+id/f_parity"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:entries="@array/uart_parity"
-        android:tag="parity/none/even/odd/mark/space" />
+        <Spinner
+            android:id="@+id/f_databits"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:entries="@array/uart_databits"
+            android:tag="databits/-/8/7/6/5" />
 
-    <TextView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="@string/label_field_div" />
+    </TableRow>
 
-    <Spinner
-        android:id="@+id/f_flowcontrol"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:entries="@array/uart_flowcontrol"
-        android:tag="flowcontrol/off/xon_xoff/rts_cts/dsr_dtr" />
+    <TableRow>
 
-</com.google.android.flexbox.FlexboxLayout>
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:labelFor="@id/f_stopbits"
+            android:text="@string/label_stop_bits" />
+
+        <Spinner
+            android:id="@+id/f_stopbits"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:entries="@array/uart_stopbits"
+            android:tag="stopbits/-/1/1.5/2" />
+
+    </TableRow>
+
+    <TableRow>
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:labelFor="@id/f_parity"
+            android:text="@string/label_parity" />
+
+        <Spinner
+            android:id="@+id/f_parity"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:entries="@array/uart_parity"
+            android:tag="parity/-/none/even/odd/mark/space" />
+
+    </TableRow>
+
+    <TableRow>
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:labelFor="@id/f_flowcontrol"
+            android:text="@string/label_flow_control" />
+
+        <Spinner
+            android:id="@+id/f_flowcontrol"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:entries="@array/uart_flowcontrol"
+            android:tag="flowcontrol/-/off/xon_xoff/rts_cts/dsr_dtr" />
+
+    </TableRow>
+
+</TableLayout>

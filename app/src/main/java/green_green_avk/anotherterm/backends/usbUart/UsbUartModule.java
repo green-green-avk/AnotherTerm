@@ -90,6 +90,8 @@ public final class UsbUartModule extends BackendModule {
         }
     };
 
+    private static final int OPT_PRESERVE = -1;
+
 //    private enum DataBits {_8, _9}
 
 //    private enum StopBits {_1, _1_5, _2}
@@ -108,29 +110,33 @@ public final class UsbUartModule extends BackendModule {
             = new SimpleBiDirHashMap<>();
 
     static {
+        dataBitsOpts.put("-", OPT_PRESERVE);
         dataBitsOpts.put("8", UsbSerialInterface.DATA_BITS_8);
         dataBitsOpts.put("7", UsbSerialInterface.DATA_BITS_7);
         dataBitsOpts.put("6", UsbSerialInterface.DATA_BITS_6);
         dataBitsOpts.put("5", UsbSerialInterface.DATA_BITS_5);
+        stopBitsOpts.put("-", OPT_PRESERVE);
         stopBitsOpts.put("1", UsbSerialInterface.STOP_BITS_1);
         stopBitsOpts.put("1.5", UsbSerialInterface.STOP_BITS_15);
         stopBitsOpts.put("2", UsbSerialInterface.STOP_BITS_2);
+        parityOpts.put("-", OPT_PRESERVE);
         parityOpts.put("none", UsbSerialInterface.PARITY_NONE);
         parityOpts.put("even", UsbSerialInterface.PARITY_EVEN);
         parityOpts.put("odd", UsbSerialInterface.PARITY_ODD);
         parityOpts.put("mark", UsbSerialInterface.PARITY_MARK);
         parityOpts.put("space", UsbSerialInterface.PARITY_SPACE);
+        flowControlOpts.put("-", OPT_PRESERVE);
         flowControlOpts.put("off", UsbSerialInterface.FLOW_CONTROL_OFF);
         flowControlOpts.put("xon_xoff", UsbSerialInterface.FLOW_CONTROL_XON_XOFF);
         flowControlOpts.put("rts_cts", UsbSerialInterface.FLOW_CONTROL_RTS_CTS);
         flowControlOpts.put("dsr_dtr", UsbSerialInterface.FLOW_CONTROL_DSR_DTR);
     }
 
-    private int baudrate = 9600;
-    private int dataBits = UsbSerialInterface.DATA_BITS_8;
-    private int stopBits = UsbSerialInterface.STOP_BITS_1;
-    private int parity = UsbSerialInterface.PARITY_NONE;
-    private int flowControl = UsbSerialInterface.FLOW_CONTROL_OFF;
+    private int baudrate = OPT_PRESERVE;
+    private int dataBits = OPT_PRESERVE;
+    private int stopBits = OPT_PRESERVE;
+    private int parity = OPT_PRESERVE;
+    private int flowControl = OPT_PRESERVE;
 
     private static final Set<UsbDevice> activeDevices = new HashSet<>();
 
@@ -339,11 +345,12 @@ public final class UsbUartModule extends BackendModule {
             disconnect();
             throw new BackendException("Device " + device + "driver error");
         }
-        serialPort.setBaudRate(baudrate);
-        serialPort.setDataBits(dataBits);
-        serialPort.setStopBits(stopBits);
-        serialPort.setParity(parity);
-        serialPort.setFlowControl(flowControl);
+        // TODO: com.felhr.usbserial should be extended in order to read current device settings
+        if (baudrate > 0) serialPort.setBaudRate(baudrate);
+        if (dataBits != OPT_PRESERVE) serialPort.setDataBits(dataBits);
+        if (stopBits != OPT_PRESERVE) serialPort.setStopBits(stopBits);
+        if (parity != OPT_PRESERVE) serialPort.setParity(parity);
+        if (flowControl != OPT_PRESERVE) serialPort.setFlowControl(flowControl);
         serialPort.read(readCallback);
     }
 

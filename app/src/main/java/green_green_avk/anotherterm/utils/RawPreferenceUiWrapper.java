@@ -26,7 +26,7 @@ import green_green_avk.anotherterm.R;
 
 public final class RawPreferenceUiWrapper implements PreferenceUiWrapper {
     private final Map<String, View> views = new HashMap<>();
-    private final Map<String, List<?>> listsValues = new HashMap<>();
+    private final Map<String, List<?>> listsOpts = new HashMap<>();
     private final Set<String> changedFields = new HashSet<>();
     private boolean isFrozen = false;
 
@@ -89,7 +89,7 @@ public final class RawPreferenceUiWrapper implements PreferenceUiWrapper {
                 changedFields.add(pName);
             }
             if (chs.length > 1)
-                listsValues.put(pName, Arrays.asList(Arrays.copyOfRange(chs, 1, chs.length)));
+                listsOpts.put(pName, Arrays.asList(Arrays.copyOfRange(chs, 1, chs.length)));
         }
         if (root instanceof ViewGroup) {
             for (int i = 0; i < ((ViewGroup) root).getChildCount(); ++i) {
@@ -112,14 +112,34 @@ public final class RawPreferenceUiWrapper implements PreferenceUiWrapper {
     }
 
     public void setListValues(final String key, final List<?> values) {
-        listsValues.put(key, values);
+        listsOpts.put(key, values);
     }
 
-    private static int findInAdapter(final Adapter a, final Object v) {
+    private static int findInAdapter(@NonNull final Adapter a, final Object v) {
         for (int i = 0; i < a.getCount(); ++i) {
             if (a.getItem(i) == v) return i;
         }
         return -1;
+    }
+
+    private static final ResultException noEmptyValue =
+            new ResultException();
+
+    private long getLongEmptyValue(final String key) throws ResultException {
+        final List<?> opts = listsOpts.get(key);
+        if (opts == null || opts.size() < 1) throw noEmptyValue;
+        final Object opt = opts.get(0);
+        try {
+            return Long.parseLong(opt.toString());
+        } catch (final NumberFormatException e) {
+            throw noEmptyValue;
+        }
+    }
+
+    private long getLongValue(final Object value) {
+        if (value == null) throw new NumberFormatException("The value is `null'");
+        if (value instanceof Integer || value instanceof Long) return (long) value;
+        return Long.parseLong(value.toString());
     }
 
     @Override
@@ -129,7 +149,7 @@ public final class RawPreferenceUiWrapper implements PreferenceUiWrapper {
         if (view instanceof EditText) {
             final String t = ((EditText) view).getText().toString();
             final int it = ((EditText) view).getInputType();
-            if ((it & InputType.TYPE_CLASS_NUMBER) != 0 && (it & InputType.TYPE_CLASS_TEXT) == 0) {
+            if ((it & InputType.TYPE_MASK_CLASS) == InputType.TYPE_CLASS_NUMBER) {
                 if ((it & InputType.TYPE_NUMBER_FLAG_DECIMAL) != 0) {
                     try {
                         return Double.parseDouble(t);
@@ -138,6 +158,12 @@ public final class RawPreferenceUiWrapper implements PreferenceUiWrapper {
                     }
                 } else {
                     try {
+                        if (t.isEmpty()) {
+                            try {
+                                return getLongEmptyValue(key);
+                            } catch (final ResultException ignored) {
+                            }
+                        }
                         return Long.parseLong(t);
                     } catch (final NumberFormatException e) {
                         return new ParseException(view.getContext().getString(R.string.number_expected), view, key, t);
@@ -147,7 +173,7 @@ public final class RawPreferenceUiWrapper implements PreferenceUiWrapper {
                 return t;
             }
         } else if (view instanceof AdapterView) {
-            final List<?> values = listsValues.get(key);
+            final List<?> values = listsOpts.get(key);
             if (values == null) return ((AdapterView) view).getSelectedItemPosition();
             return values.get(((AdapterView) view).getSelectedItemPosition());
         } else if (view instanceof CompoundButton) {
@@ -161,7 +187,7 @@ public final class RawPreferenceUiWrapper implements PreferenceUiWrapper {
         if (!views.containsKey(key)) return;
         final View view = views.get(key);
         if (view instanceof AdapterView) {
-            final List<?> values = listsValues.get(key);
+            final List<?> values = listsOpts.get(key);
             if (values == null) {
                 if (value instanceof Integer && (int) value >= 0)
                     ((AdapterView) view).setSelection((int) value);
@@ -178,7 +204,21 @@ public final class RawPreferenceUiWrapper implements PreferenceUiWrapper {
             return;
         }
         if (view instanceof TextView) {
-            ((TextView) view).setText(value.toString());
+            String v = null;
+            if (view instanceof EditText) {
+                final int it = ((EditText) view).getInputType();
+                if ((it & InputType.TYPE_MASK_CLASS) == InputType.TYPE_CLASS_NUMBER) {
+                    if ((it & InputType.TYPE_NUMBER_FLAG_DECIMAL) == 0) {
+                        try {
+                            if (getLongValue(value) == getLongEmptyValue(key)) v = "";
+                        } catch (final NumberFormatException | ResultException ignored) {
+                        }
+                    }
+                }
+            }
+            if (v == null)
+                v = value.toString();
+            ((TextView) view).setText(v);
             return;
         }
     }
