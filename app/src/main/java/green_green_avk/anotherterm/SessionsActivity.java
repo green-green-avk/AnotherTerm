@@ -1,5 +1,7 @@
 package green_green_avk.anotherterm;
 
+import android.app.AlertDialog;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
@@ -9,10 +11,14 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.Toast;
 
+import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
+
+import java.util.Locale;
+import java.util.Map;
 
 import green_green_avk.anotherterm.backends.BackendException;
 import green_green_avk.anotherterm.backends.BackendModule;
@@ -43,6 +49,37 @@ public final class SessionsActivity extends AppCompatActivity {
                 .putExtra(C.IFK_MSG_SESS_TAIL, fromTail));
     }
 
+    private void showAdapterDialog(@NonNull final PreferenceStorage ps,
+                                   @NonNull final Map<String, Integer> list) {
+        final String[] ii = new String[list.size()];
+        final boolean[] iib = new boolean[list.size()];
+        int i = 0;
+        for (final Map.Entry<String, Integer> ent : list.entrySet()) {
+            ii[i] = (ent.getValue() == BackendModule.Meta.ADAPTER_READY ? ent.getKey() :
+                    String.format(Locale.getDefault(), "%s [busy]", ent.getKey()));
+            iib[i] = ent.getValue() != BackendModule.Meta.ADAPTER_READY;
+            i++;
+        }
+        new AlertDialog.Builder(this).setItems(ii, new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(final DialogInterface dialog, final int which) {
+                if (iib[which]) return;
+                ps.put("adapter", ii[which].split(" ", 2)[0]);
+                final int key;
+                try {
+                    key = ConsoleService.startSession(SessionsActivity.this, ps.get());
+                } catch (final ConsoleService.Exception | BackendException e) {
+                    Toast.makeText(SessionsActivity.this, e.getMessage(),
+                            Toast.LENGTH_LONG).show();
+                    dialog.dismiss();
+                    return;
+                }
+                showSession(key);
+                dialog.dismiss();
+            }
+        }).setCancelable(true).show();
+    }
+
     private void prepareFavoritesList() {
         final RecyclerView l = findViewById(R.id.favorites_list);
         l.setLayoutManager(new LinearLayoutManager(this));
@@ -54,8 +91,20 @@ public final class SessionsActivity extends AppCompatActivity {
                 final String name = a.getName(l.getChildAdapterPosition(view));
                 final PreferenceStorage ps = FavoritesManager.get(name);
                 final int key;
+                ps.put("name", name); // Some mark
                 try {
-                    ps.put("name", name); // Some mark
+                    final Object adapter = ps.get("adapter");
+                    if (adapter == null) {
+                        final Map<String, Integer> adaptersList = ConsoleService.getBackendByParams(
+                                ps.get()).meta.getAdapters(SessionsActivity.this);
+                        if (adaptersList != null) {
+                            if (adaptersList.isEmpty())
+                                throw new BackendException(getString(
+                                        R.string.msg_no_adapters_connected));
+                            showAdapterDialog(ps, adaptersList);
+                            return;
+                        }
+                    }
                     key = ConsoleService.startSession(SessionsActivity.this, ps.get());
                 } catch (final ConsoleService.Exception | BackendException e) {
                     Toast.makeText(SessionsActivity.this, e.getMessage(),

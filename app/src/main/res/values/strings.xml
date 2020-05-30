@@ -228,4 +228,14 @@
     <string name="label_stop_bits">Stop Bits</string>
     <string name="label_parity">Parity</string>
     <string name="label_flow_control">Flow Control</string>
+    <string name="note_bluetooth_uart_support"><![CDATA[
+        <p><b>Note:</b> Alas, UART port settings cannot be applied to Bluetooth dongles using
+        the Android Bluetooth stack.<br/>
+        See
+        <a href=\"https://stackoverflow.com/a/23888958/13020093\">https://stackoverflow.com/a/23888958/13020093</a>
+        for the details.</p>
+    ]]></string>
+    <string name="title_wireless_parameters">Wireless parameters</string>
+    <string name="label_insecure">Insecure</string>
+    <string name="msg_no_adapters_connected">No dongles connected</string>
 </resources>

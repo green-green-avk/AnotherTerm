@@ -192,18 +192,26 @@ Get the size provided by content provider (or <code>null</code> if not defined)
 </dd><br/>
 
 <dt><p><code>
-serial [&lt;baudrate&gt;[/&lt;databits&gt;[/&lt;stopbits&gt;[/&lt;parity&gt;[/&lt;flowcontrol&gt;]]]]]
+serial -l|--list<br/>
+serial [-a|--adapter &lt;address&gt;] [-i|--insecure] [&lt;baudrate&gt;[/&lt;databits&gt;[/&lt;stopbits&gt;[/&lt;parity&gt;[/&lt;flowcontrol&gt;]]]]]
 </code></p></dt>
 <dd>
 Connect to an USB serial dongle and use stdin / stdout.
+<ul type=\"none\">
+<li><code>-a|--adapter</code> &#x2014; use a dongle specified by <code>&lt;address&gt;</code>;</li>
+<li><code>-i|--insecure</code> &#x2014; don\'t use a secure connection (Bluetooth);</li>
+<li><code>-l|--list</code> &#x2014; list available UART dongles in the form <code>&lt;address&gt; &lt;description&gt;</code>.</li>
+</ul>
 <h5>Possible values:</h5>
 <ul type=\"none\">
-<li>databits: <code>8</code>, <code>7</code>, <code>6</code>, <code>5</code></li>
-<li>stopbits: <code>1</code>, <code>1.5</code>, <code>2</code></li>
-<li>parity: <code>none</code>, <code>even</code>, <code>odd</code>, <code>mark</code>, <code>space</code></li>
-<li>flowcontrol: <code>off</code>, <code>xon_xoff</code>, <code>rts_cts</code>, <code>dsr_dtr</code></li>
+<li>baudrate: a positive number or <code>0</code>*</li>
+<li>databits: <code>-</code>*, <code>8</code>, <code>7</code>, <code>6</code>, <code>5</code></li>
+<li>stopbits: <code>-</code>*, <code>1</code>, <code>1.5</code>, <code>2</code></li>
+<li>parity: <code>-</code>*, <code>none</code>, <code>even</code>, <code>odd</code>, <code>mark</code>, <code>space</code></li>
+<li>flowcontrol: <code>-</code>*, <code>off</code>, <code>xon_xoff</code>, <code>rts_cts</code>, <code>dsr_dtr</code></li>
 </ul>
-<p><b>Default:</b> <code>9600/8/1/none/off</code></p>
+<p>* &#x2014; preserve current value</p>
+<p><b>Default:</b> <code>0/-/-/-/-</code></p>
 </dd><br/>
 
 <dt><p><code>

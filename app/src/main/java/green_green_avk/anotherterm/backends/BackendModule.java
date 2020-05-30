@@ -69,6 +69,21 @@ public abstract class BackendModule {
             return null;
         }
 
+        public static final int ADAPTER_READY = 0;
+        public static final int ADAPTER_ALREADY_IN_USE = 1; // in use by us
+        public static final int ADAPTER_BUSY = 2; // by someone else
+
+        /**
+         * @return <code>null</code> if not applicable for the module or
+         * &lt;unique_name&gt; &lt;description&gt; as the key and one of
+         * {@link #ADAPTER_READY}/{@link #ADAPTER_ALREADY_IN_USE}/{@link #ADAPTER_BUSY}
+         * as the value.
+         */
+        @Nullable
+        public Map<String, Integer> getAdapters(@NonNull final Context ctx) {
+            return null;
+        }
+
         @NonNull
         public Set<String> getUriSchemes() {
             return schemes;
@@ -106,6 +121,7 @@ public abstract class BackendModule {
         int order() default 0;
     }
 
+    @NonNull
     static Meta getMeta(@NonNull final Class<?> klass, @NonNull final String defaultScheme) {
         try {
             final Field f = klass.getField("meta");
@@ -153,14 +169,16 @@ public abstract class BackendModule {
             final Object v = map.get(key);
             if (v instanceof Integer) return (int) v;
             if (v instanceof Long) return (int) (long) v;
-            throw new BackendException("Incompatible type of the key `" + key + "': " + v.getClass().getSimpleName());
+            throw new BackendException("Incompatible type of the key `" + key + "': " +
+                    v.getClass().getSimpleName());
         }
 
         public boolean getBoolean(final String key, final boolean def) {
             if (!map.containsKey(key)) return def;
             final Object v = map.get(key);
             if (v instanceof Boolean) return (boolean) v;
-            throw new BackendException("Incompatible type of the key `" + key + "': " + v.getClass().getSimpleName());
+            throw new BackendException("Incompatible type of the key `" + key + "': " +
+                    v.getClass().getSimpleName());
         }
 
         public <T> T getFromMap(final String key, final Map<String, T> optsMap, final T def) {

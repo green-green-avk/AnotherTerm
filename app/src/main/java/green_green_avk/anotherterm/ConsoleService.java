@@ -38,10 +38,6 @@ import green_green_avk.anotherterm.ui.BackendUiDialogs;
 public final class ConsoleService extends Service {
 
     public static class Exception extends RuntimeException {
-        public Exception(final Throwable e) {
-            super(e);
-        }
-
         public Exception(final String m) {
             super(m);
         }
@@ -116,14 +112,18 @@ public final class ConsoleService extends Service {
         return currKey++;
     }
 
-    @UiThread
-    public static int startSession(@NonNull final Context ctx, @NonNull final Map<String, ?> cp) {
-        final Context appCtx = ctx.getApplicationContext();
+    @NonNull
+    public static BackendsList.Item getBackendByParams(@NonNull final Map<String, ?> cp) {
         final String type = (String) cp.get("type");
         final int id = BackendsList.getId(type);
         if (id < 0) throw new Exception(EMSG_NI_CONNTYPE);
-        final Class<?> klass = BackendsList.get(id).impl;
-        if (klass == null) throw new Exception(EMSG_NI_CONNTYPE);
+        return BackendsList.get(id);
+    }
+
+    @UiThread
+    public static int startSession(@NonNull final Context ctx, @NonNull final Map<String, ?> cp) {
+        final Context appCtx = ctx.getApplicationContext();
+        final Class<?> klass = getBackendByParams(cp).impl;
         final BackendModule tbe;
         try {
             tbe = (BackendModule) klass.newInstance();

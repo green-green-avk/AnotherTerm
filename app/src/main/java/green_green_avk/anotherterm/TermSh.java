@@ -48,6 +48,8 @@ import java.net.URLEncoder;
 import java.net.UnknownServiceException;
 import java.nio.CharBuffer;
 import java.util.Arrays;
+import java.util.HashMap;
+import java.util.Locale;
 import java.util.Map;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
@@ -60,7 +62,7 @@ import green_green_avk.anotherterm.backends.BackendModule;
 import green_green_avk.anotherterm.backends.BackendUiInteraction;
 import green_green_avk.anotherterm.backends.BackendsList;
 import green_green_avk.anotherterm.backends.local.LocalModule;
-import green_green_avk.anotherterm.backends.usbUart.UsbUartModule;
+import green_green_avk.anotherterm.backends.uart.UartModule;
 import green_green_avk.anotherterm.ui.BackendUiDialogs;
 import green_green_avk.anotherterm.ui.BackendUiShell;
 import green_green_avk.anotherterm.utils.BinaryGetOpts;
@@ -221,6 +223,15 @@ public final class TermSh {
                         new BinaryGetOpts.Option("size", new String[]{"-s", "--size"},
                                 BinaryGetOpts.Option.Type.INT),
                         new BinaryGetOpts.Option("uri", new String[]{"-u", "--uri"},
+                                BinaryGetOpts.Option.Type.NONE)
+                });
+        private static final BinaryGetOpts.Options SERIAL_OPTS =
+                new BinaryGetOpts.Options(new BinaryGetOpts.Option[]{
+                        new BinaryGetOpts.Option("adapter", new String[]{"-a", "--adapter"},
+                                BinaryGetOpts.Option.Type.STRING),
+                        new BinaryGetOpts.Option("insecure", new String[]{"-i", "--insecure"},
+                                BinaryGetOpts.Option.Type.NONE),
+                        new BinaryGetOpts.Option("list", new String[]{"-l", "--list"},
                                 BinaryGetOpts.Option.Type.NONE)
                 });
         private static final BinaryGetOpts.Options URI_OPTS =
@@ -1250,18 +1261,33 @@ public final class TermSh {
                             break;
                         }
                         case "serial": {
-                            if (shellCmd.args.length > 2)
-                                throw new ParseException("Wrong number of arguments");
+                            final BinaryGetOpts.Parser ap = new BinaryGetOpts.Parser(shellCmd.args);
+                            ap.skip();
+                            final Map<String, ?> opts = ap.parse(SERIAL_OPTS);
+                            if (opts.containsKey("list")) {
+                                for (final Map.Entry<String, Integer> dev :
+                                        UartModule.meta.getAdapters(ui.ctx).entrySet())
+                                    shellCmd.stdOut.write(Misc.toUTF8(String.format(Locale.ROOT,
+                                            "%s%s\n", dev.getKey(),
+                                            dev.getValue() != BackendModule.Meta.ADAPTER_READY ?
+                                                    " [Busy]" : "")));
+                                break;
+                            }
                             final Map<String, ?> params;
                             try {
-                                params = shellCmd.args.length == 2
-                                        ? UsbUartModule.meta.fromUri(Uri.parse(
-                                        "uart:/" + Misc.fromUTF8(shellCmd.args[1])))
-                                        : null;
+                                params = shellCmd.args.length - ap.position > 0
+                                        ? UartModule.meta.fromUri(Uri.parse(
+                                        "uart:/" + Misc.fromUTF8(shellCmd.args[ap.position])))
+                                        : new HashMap<String, Object>();
                             } catch (final BackendModule.ParametersUriParseException e) {
                                 throw new ArgsException(e.getMessage());
                             }
-                            final BackendModule be = new UsbUartModule();
+                            ((Map<String, Object>) params).put("insecure",
+                                    opts.containsKey("insecure"));
+                            final String adapter = (String) opts.get("adapter");
+                            if (adapter != null)
+                                ((Map<String, Object>) params).put("adapter", adapter);
+                            final BackendModule be = new UartModule();
                             be.setContext(ui.ctx);
                             be.setOnMessageListener(new BackendModule.OnMessageListener() {
                                 @Override
@@ -1281,7 +1307,7 @@ public final class TermSh {
                             be.setOutputStream(shellCmd.stdOut);
                             final OutputStream toBe = be.getOutputStream();
                             try {
-                                if (params != null) be.setParameters(params);
+                                be.setParameters(params);
                                 be.connect();
                                 final byte[] buf = new byte[8192];
                                 try {

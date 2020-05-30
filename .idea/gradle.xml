@@ -15,6 +15,7 @@
             <option value="$PROJECT_DIR$/PtyProcess" />
             <option value="$PROJECT_DIR$/TelnetClient" />
             <option value="$PROJECT_DIR$/app" />
+            <option value="$PROJECT_DIR$/bluetoothspp" />
             <option value="$PROJECT_DIR$/usbserial" />
           </set>
         </option>

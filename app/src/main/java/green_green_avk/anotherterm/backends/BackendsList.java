@@ -20,7 +20,7 @@ import green_green_avk.anotherterm.R;
 import green_green_avk.anotherterm.backends.local.LocalModule;
 import green_green_avk.anotherterm.backends.ssh.SshModule;
 import green_green_avk.anotherterm.backends.telnet.TelnetModule;
-import green_green_avk.anotherterm.backends.usbUart.UsbUartModule;
+import green_green_avk.anotherterm.backends.uart.UartModule;
 
 public final class BackendsList {
     private BackendsList() {
@@ -29,8 +29,8 @@ public final class BackendsList {
     private static final Item[] list = {
             new Item(LocalModule.class, "local",
                     R.layout.local_params_content, R.string.conntype_local, R.drawable.ic_smartphone),
-            new Item(UsbUartModule.class, "uart",
-                    R.layout.uart_params_content, R.string.conntype_uart, R.drawable.ic_usb),
+            new Item(UartModule.class, "uart",
+                    R.layout.uart_params_content, R.string.conntype_uart, R.drawable.ic_uart),
             new Item(SshModule.class, "ssh",
                     R.layout.ssh_params_content, R.string.conntype_ssh, R.drawable.ic_computer_key),
             new Item(TelnetModule.class, "telnet",
@@ -42,8 +42,11 @@ public final class BackendsList {
     }
 
     public static final class Item {
+        @NonNull
         public final Class<?> impl;
+        @NonNull
         public final BackendModule.Meta meta;
+        @NonNull
         public final String typeStr;
         @LayoutRes
         public final int settingsLayout;

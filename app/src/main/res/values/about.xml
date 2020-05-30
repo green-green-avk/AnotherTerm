@@ -12,6 +12,7 @@
 <ul>
 <li>Minimum supported Android version is 4.0 Ice Cream Sandwich.</li>
 <li>Supported USB UART devices: Generic USB CDC, CP210X, FTDI, PL2303, CH34x, CP2130 SPI-USB.</li>
+<li>Bluetooth SPP UART devices are supported.</li>
 <li>Local Linux pty is supported. Feel free to use
 <a href=\"https://github.com/green-green-avk/AnotherTerm/wiki/Installing-Linux-under-PRoot\">
 PRoot with some Linux environment</a>.</li>
@@ -20,7 +21,7 @@ Shell tool</a> to interact with the Android environment is also present.
 <ul>
 <li>Content exchange between other applications and own files / pipes has been implemented.</li>
 <li>It also works in chrooted environments (PRoot at least).</li>
-<li>USB serial port dongle access from the command line is also implemented.</li>
+<li>USB and Bluetooth serial port dongles access from the command line is also implemented.</li>
 <li>libusb support on nonrooted Android
 [<a href=\"https://github.com/green-green-avk/AnotherTerm/wiki/Installing-libusb-for-nonrooted-Android\">how to install</a>].
 </li>
