@@ -34,22 +34,29 @@ public final class BluetoothSPP {
         return a;
     }
 
-    private static boolean isOurDevice(@NonNull final BluetoothDevice dev) {
+    @Nullable
+    private static UUID getPreferredUUID(@NonNull final BluetoothDevice dev) {
+        boolean hasSPP = false;
+        boolean hasAndroid = false;
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.ICE_CREAM_SANDWICH_MR1) {
-            for (final ParcelUuid uuid : dev.getUuids())
-                if (UUID_SPP.equals(uuid.getUuid()))
-                    return true;
-            return false;
-        } else {
-            return true; // :(
+            for (final ParcelUuid uuid : dev.getUuids()) {
+                if (UUID_SPP.equals(uuid.getUuid())) hasSPP = true;
+                if (UUID_ANDROID.equals(uuid.getUuid())) hasAndroid = true;
+            }
+            return hasSPP ? UUID_SPP : hasAndroid ? UUID_ANDROID : null;
         }
+        return UUID_SPP; // :(
+    }
+
+    private static boolean isSupportedDevice(@NonNull final BluetoothDevice dev) {
+        return getPreferredUUID(dev) != null;
     }
 
     public static Set<BluetoothDevice> getDeviceList() throws BluetoothSPPException {
         final BluetoothAdapter a = getAdapter();
         final Set<BluetoothDevice> devs = a.getBondedDevices();
         final Set<BluetoothDevice> r = new HashSet<>();
-        for (final BluetoothDevice dev : devs) if (isOurDevice(dev)) r.add(dev);
+        for (final BluetoothDevice dev : devs) if (isSupportedDevice(dev)) r.add(dev);
         return r;
     }
 
@@ -70,18 +77,26 @@ public final class BluetoothSPP {
         return output;
     }
 
+    @Nullable
+    public BluetoothDevice getDevice() {
+        final BluetoothSocket sock = socket;
+        if (sock == null) return null;
+        return sock.getRemoteDevice();
+    }
+
     public boolean isConnected() {
         final BluetoothSocket sock = socket;
         return sock != null && sock.isConnected();
     }
 
-    public void listen(final boolean insecure) throws IOException {
+    public void listen(final boolean insecure, final boolean asAndroid) throws IOException {
         final BluetoothAdapter adapter = getAdapter();
+        final UUID uuid = asAndroid ? UUID_ANDROID : UUID_SPP;
         final BluetoothServerSocket bss;
         if (insecure)
-            bss = adapter.listenUsingInsecureRfcommWithServiceRecord(NAME_SECURE, UUID_SPP);
+            bss = adapter.listenUsingInsecureRfcommWithServiceRecord(NAME_SECURE, uuid);
         else
-            bss = adapter.listenUsingRfcommWithServiceRecord(NAME_SECURE, UUID_SPP);
+            bss = adapter.listenUsingRfcommWithServiceRecord(NAME_SECURE, uuid);
         final BluetoothSocket sock = bss.accept();
         sock.connect();
         socket = sock;
@@ -91,11 +106,12 @@ public final class BluetoothSPP {
 
     public void connect(@NonNull final BluetoothDevice dev, final boolean insecure)
             throws IOException {
+        final UUID uuid = getPreferredUUID(dev);
         final BluetoothSocket sock;
         if (insecure)
-            sock = dev.createInsecureRfcommSocketToServiceRecord(UUID_SPP);
+            sock = dev.createInsecureRfcommSocketToServiceRecord(uuid);
         else
-            sock = dev.createRfcommSocketToServiceRecord(UUID_SPP);
+            sock = dev.createRfcommSocketToServiceRecord(uuid);
         sock.connect();
         socket = sock;
         input = sock.getInputStream();
