@@ -43,8 +43,8 @@ final class BtImpl extends Impl {
     private static final Set<BluetoothDevice> activeDevices =
             Collections.synchronizedSet(Collections.newSetFromMap(
                     new WeakHashMap<BluetoothDevice, Boolean>()));
-    private static final Object commonLock = new Object();
     private static final Object deviceLock = new Object();
+    private final Object commonLock = new Object();
 
     private volatile BluetoothDevice device = null;
     private final BluetoothSPP spp = new BluetoothSPP();

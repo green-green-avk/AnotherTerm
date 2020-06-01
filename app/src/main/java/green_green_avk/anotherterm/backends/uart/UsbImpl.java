@@ -79,8 +79,8 @@ final class UsbImpl extends Impl {
     private static final Set<UsbDevice> activeDevices =
             Collections.synchronizedSet(Collections.newSetFromMap(
                     new WeakHashMap<UsbDevice, Boolean>()));
-    private static final Object commonLock = new Object();
     private static final Object deviceLock = new Object();
+    private final Object commonLock = new Object();
 
     private boolean mIsConnected = false;
 
