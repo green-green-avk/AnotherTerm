@@ -2,6 +2,9 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="green_green_avk.bluetoothspp">
 
+    <uses-feature
+        android:name="android.hardware.bluetooth"
+        android:required="false" />
     <uses-permission android:name="android.permission.BLUETOOTH" />
 
 </manifest>
