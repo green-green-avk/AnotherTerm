@@ -14,6 +14,7 @@
     <string name="conntype_uart">UART</string>
     <string name="conntype_ssh">SSH</string>
     <string name="msg_copied_to_clipboard">Copied to clipboard</string>
+    <string name="msg_connecting___">Connecting…</string>
     <string name="msg_connected">Connected</string>
     <string name="msg_disconnected">Disconnected</string>
     <string name="optimized">Optimized</string>

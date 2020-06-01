@@ -74,12 +74,15 @@ public final class ConsoleActivity extends AppCompatActivity
     private TextView wTitle = null;
     private ImageView wMouseMode = null;
 
+    private View wConnecting = null;
+
     @Keep
     private final ConsoleService.Listener sessionsListener = new ConsoleService.Listener() {
         @Override
         protected void onSessionChange(final int key) {
             if (key != mSessionKey) return;
             invalidateWakeLock();
+            invalidateLoadingState();
         }
     };
 
@@ -87,6 +90,11 @@ public final class ConsoleActivity extends AppCompatActivity
         if (mSession == null) return;
         mCkv.setLedsByCode(C.KEYCODE_LED_WAKE_LOCK, mSession.backend.wrapped.isWakeLockHeld());
         mCkv.invalidateModifierKeys(C.KEYCODE_LED_WAKE_LOCK);
+    }
+
+    private void invalidateLoadingState() {
+        if (mSession == null) return;
+        wConnecting.setVisibility(mSession.backend.isConnecting() ? View.VISIBLE : View.GONE);
     }
 
     private int getFirstSessionKey() {
@@ -172,6 +180,8 @@ public final class ConsoleActivity extends AppCompatActivity
         wTitle = findViewById(R.id.title);
         wMouseMode = findViewById(R.id.action_mouse_mode);
 
+        wConnecting = findViewById(R.id.connecting);
+
         registerForContextMenu(wOptionsMenu);
 
         final FontProvider fp = new ConsoleFontProvider();
@@ -207,6 +217,7 @@ public final class ConsoleActivity extends AppCompatActivity
 
         ConsoleService.addListener(sessionsListener);
         invalidateWakeLock();
+        invalidateLoadingState();
     }
 
     @Override

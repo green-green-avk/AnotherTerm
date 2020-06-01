@@ -156,6 +156,36 @@
             tools:ignore="ContentDescription,RtlHardcoded"
             tools:visibility="visible" />
 
+        <LinearLayout
+            android:id="@+id/connecting"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:visibility="gone"
+            tools:visibility="visible">
+
+            <ProgressBar
+                android:layout_width="48dp"
+                android:layout_height="48dp"
+                android:layout_gravity="center_vertical"
+                android:alpha="0.5"
+                android:clickable="false" />
+
+            <TextView
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:layout_weight="1"
+                android:alpha="0.5"
+                android:clickable="false"
+                android:gravity="center"
+                android:lines="1"
+                android:padding="@dimen/text_padding"
+                android:text="@string/msg_connecting___"
+                android:textColor="@color/colorTextSelection"
+                app:autoSizeMaxTextSize="64dp"
+                app:autoSizeTextType="uniform" />
+
+        </LinearLayout>
+
     </FrameLayout>
 
     <green_green_avk.anotherterm.ui.ConsoleKeyboardView

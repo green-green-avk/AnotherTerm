@@ -160,6 +160,12 @@ public final class ConsoleService extends Service {
         final EventBasedBackendModuleWrapper be = new EventBasedBackendModuleWrapper(
                 tbe, new EventBasedBackendModuleWrapper.Listener() {
             @Override
+            public void onConnecting() {
+                tbe.getUi().showToast(appCtx.getString(R.string.msg_connecting___));
+                execOnSessionChange(key);
+            }
+
+            @Override
             public void onConnected() {
                 tbe.getUi().showToast(appCtx.getString(R.string.msg_connected));
                 execOnSessionChange(key);

@@ -75,7 +75,9 @@ public final class SessionsAdapter extends RecyclerView.Adapter<SessionsAdapter.
         final TextView descriptionView = holder.itemView.findViewById(R.id.description);
         descriptionView.setText(session.backend.wrapped.getConnDesc());
         final TextView stateView = holder.itemView.findViewById(R.id.state);
-        stateView.setText(session.backend.isConnected() ? R.string.msg_connected : R.string.msg_disconnected);
+        stateView.setText(session.backend.isConnected() ? R.string.msg_connected :
+                session.backend.isConnecting() ? R.string.msg_connecting___ :
+                        R.string.msg_disconnected);
         if (session.backend.wrapped.isWakeLockHeld()) {
             stateView.append(", ");
             final SpannableStringBuilder b = new SpannableStringBuilder().append(holder.itemView

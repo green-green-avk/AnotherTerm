@@ -20,6 +20,7 @@ public final class EventBasedBackendModuleWrapper {
     private static final int MSG_CONNECTED = 4;
     private static final int MSG_DISCONNECTED = 5;
     private static final int MSG_STOP = 6;
+    private static final int MSG_CONNECTING = 7;
 
     private static final int MSG_S_WRITE = 2;
     private static final int MSG_S_CONNECT = 3;
@@ -29,6 +30,7 @@ public final class EventBasedBackendModuleWrapper {
     public final BackendModule wrapped;
     private volatile boolean isStopping = false;
     private volatile boolean isConnected = false;
+    private volatile boolean isConnecting = false;
     private final Listener listener;
 
     private final Object readLock = new Object();
@@ -44,6 +46,9 @@ public final class EventBasedBackendModuleWrapper {
                     break;
                 case MSG_STOP:
                     wrapped.stop();
+                    break;
+                case MSG_CONNECTING:
+                    listener.onConnecting();
                     break;
                 case MSG_CONNECTED:
                     isConnected = true;
@@ -81,6 +86,8 @@ public final class EventBasedBackendModuleWrapper {
     private int scrH;
 
     public interface Listener {
+        void onConnecting();
+
         void onConnected();
 
         void onDisconnected();
@@ -99,6 +106,10 @@ public final class EventBasedBackendModuleWrapper {
 
     public boolean isConnected() {
         return wrapped.isConnected();
+    }
+
+    public boolean isConnecting() {
+        return isConnecting;
     }
 
     public void connect() {
@@ -178,13 +189,17 @@ public final class EventBasedBackendModuleWrapper {
                         }
                         case MSG_S_CONNECT:
                             try {
+                                isConnecting = true;
+                                handler.sendEmptyMessage(MSG_CONNECTING);
                                 wrapped.connect();
+                                isConnecting = false;
                                 handler.sendEmptyMessage(MSG_CONNECTED);
                             } catch (BackendException e) {
                                 handler.obtainMessage(MSG_ERROR, e).sendToTarget();
                             }
                             break;
                         case MSG_S_DISCONNECT:
+                            isConnecting = false;
                             try {
                                 wrapped.disconnect();
                                 handler.sendEmptyMessage(MSG_DISCONNECTED);
