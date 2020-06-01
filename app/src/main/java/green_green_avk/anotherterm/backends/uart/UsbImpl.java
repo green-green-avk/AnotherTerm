@@ -19,11 +19,12 @@ import com.felhr.usbserial.UsbSerialInterface;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
+import java.util.WeakHashMap;
 
 import green_green_avk.anotherterm.R;
 import green_green_avk.anotherterm.backends.BackendException;
@@ -75,8 +76,11 @@ final class UsbImpl extends Impl {
         return r;
     }
 
-    private static final Set<UsbDevice> activeDevices = new HashSet<>();
+    private static final Set<UsbDevice> activeDevices =
+            Collections.synchronizedSet(Collections.newSetFromMap(
+                    new WeakHashMap<UsbDevice, Boolean>()));
     private static final Object commonLock = new Object();
+    private static final Object deviceLock = new Object();
 
     private boolean mIsConnected = false;
 
@@ -164,12 +168,15 @@ final class UsbImpl extends Impl {
         if (!"*".equals(base.adapter)) {
             final UsbDevice dev = devs.get(base.adapter);
             if (dev == null) throw new UartModule.AdapterNotFoundException();
+            if (!UsbSerialDevice.isSupported(dev))
+                throw new BackendException("Device is not supported");
+            if (activeDevices.contains(dev)) throw new BackendException("Device is busy");
             device = dev;
             return;
         }
         for (final UsbDevice dev : devs.values()) {
-            if (activeDevices.contains(dev)) continue;
             if (!UsbSerialDevice.isSupported(dev)) continue;
+            if (activeDevices.contains(dev)) continue;
             device = dev;
             return;
         }
@@ -245,13 +252,20 @@ final class UsbImpl extends Impl {
     void connect() throws UartModule.AdapterNotFoundException {
         synchronized (commonLock) {
             if (mIsConnected) return;
-            obtainDevice();
+            synchronized (deviceLock) {
+                obtainDevice();
+                activeDevices.add(device);
+            }
             final IntentFilter iflt = new IntentFilter(ACTION_USB_PERMISSION);
             iflt.addAction(ACTION_USB_ATTACHED);
             iflt.addAction(ACTION_USB_DETACHED);
             base.getContext().registerReceiver(mUsbReceiver, iflt);
-            makeConnection(false);
-            activeDevices.add(device);
+            try {
+                makeConnection(false);
+            } catch (final Throwable e) {
+                activeDevices.remove(device);
+                throw e;
+            }
             mIsConnected = true;
         }
     }

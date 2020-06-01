@@ -7,11 +7,12 @@ import androidx.annotation.NonNull;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.util.Collections;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
+import java.util.WeakHashMap;
 
 import green_green_avk.anotherterm.backends.BackendException;
 import green_green_avk.anotherterm.backends.BackendModule;
@@ -39,8 +40,11 @@ final class BtImpl extends Impl {
         return r;
     }
 
-    private static final Set<BluetoothDevice> activeDevices = new HashSet<>();
+    private static final Set<BluetoothDevice> activeDevices =
+            Collections.synchronizedSet(Collections.newSetFromMap(
+                    new WeakHashMap<BluetoothDevice, Boolean>()));
     private static final Object commonLock = new Object();
+    private static final Object deviceLock = new Object();
 
     private volatile BluetoothDevice device = null;
     private final BluetoothSPP spp = new BluetoothSPP();
@@ -94,13 +98,18 @@ final class BtImpl extends Impl {
         }
         if (!"*".equals(base.adapter)) {
             for (final BluetoothDevice dev : list) {
-                if (activeDevices.contains(dev)) continue;
-                if (base.adapter.equals(dev.getAddress())) return dev;
+                if (base.adapter.equals(dev.getAddress())) {
+                    if (activeDevices.contains(dev)) throw new BackendException("Device is busy");
+                    return dev;
+                }
             }
             throw new UartModule.AdapterNotFoundException();
         }
-        if (list.isEmpty()) throw new UartModule.AdapterNotFoundException();
-        return list.iterator().next();
+        for (final BluetoothDevice dev : list) {
+            if (activeDevices.contains(dev)) continue;
+            return dev;
+        }
+        throw new UartModule.AdapterNotFoundException();
     }
 
     @Override
@@ -138,14 +147,16 @@ final class BtImpl extends Impl {
     @Override
     void connect() throws UartModule.AdapterNotFoundException {
         synchronized (commonLock) {
-            final BluetoothDevice dev = obtainDevice();
+            synchronized (deviceLock) {
+                device = obtainDevice();
+                activeDevices.add(device);
+            }
             try {
-                spp.connect(dev, base.insecure);
+                spp.connect(device, base.insecure);
             } catch (final IOException e) {
+                activeDevices.remove(device);
                 throw new BackendException(e.getMessage());
             }
-            device = dev;
-            activeDevices.add(dev);
             readerThread = new Thread(reader);
             readerThread.setDaemon(true);
             readerThread.start();

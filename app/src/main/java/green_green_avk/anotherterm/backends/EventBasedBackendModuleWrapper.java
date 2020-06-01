@@ -48,13 +48,16 @@ public final class EventBasedBackendModuleWrapper {
                     wrapped.stop();
                     break;
                 case MSG_CONNECTING:
+                    isConnecting = true;
                     listener.onConnecting();
                     break;
                 case MSG_CONNECTED:
+                    isConnecting = false;
                     isConnected = true;
                     listener.onConnected();
                     break;
                 case MSG_DISCONNECTED:
+                    isConnecting = false;
                     isConnected = false;
                     listener.onDisconnected();
                     break;
@@ -69,7 +72,8 @@ public final class EventBasedBackendModuleWrapper {
                     break;
                 case MSG_ERROR:
                     listener.onError((Throwable) msg.obj);
-                    if (!wrapped.isConnected() && isConnected) {
+                    if (!wrapped.isConnected() && (isConnected || isConnecting)) {
+                        isConnecting = false;
                         isConnected = false;
                         listener.onDisconnected();
                     }
@@ -189,17 +193,14 @@ public final class EventBasedBackendModuleWrapper {
                         }
                         case MSG_S_CONNECT:
                             try {
-                                isConnecting = true;
                                 handler.sendEmptyMessage(MSG_CONNECTING);
                                 wrapped.connect();
-                                isConnecting = false;
                                 handler.sendEmptyMessage(MSG_CONNECTED);
                             } catch (BackendException e) {
                                 handler.obtainMessage(MSG_ERROR, e).sendToTarget();
                             }
                             break;
                         case MSG_S_DISCONNECT:
-                            isConnecting = false;
                             try {
                                 wrapped.disconnect();
                                 handler.sendEmptyMessage(MSG_DISCONNECTED);
