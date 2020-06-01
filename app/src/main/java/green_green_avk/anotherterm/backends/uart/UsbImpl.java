@@ -204,11 +204,11 @@ final class UsbImpl extends Impl {
         serialPort = UsbSerialDevice.createUsbSerialDevice(device, connection);
         if (serialPort == null) {
             disconnect();
-            throw new BackendException("Device " + device + "not supported");
+            throw new BackendException("Device " + device + " not supported");
         }
         if (!serialPort.open()) {
             disconnect();
-            throw new BackendException("Device " + device + "driver error");
+            throw new BackendException("Device " + device + " driver error");
         }
         // TODO: com.felhr.usbserial should be extended in order to read current device settings
         if (base.baudrate > 0) serialPort.setBaudRate(base.baudrate);
