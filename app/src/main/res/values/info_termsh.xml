@@ -212,6 +212,13 @@ Connect to an USB serial dongle and use stdin / stdout.
 </ul>
 <p>* &#x2014; preserve current value</p>
 <p><b>Default:</b> <code>0/-/-/-/-</code></p>
+<p><b>Note:</b> Alas, UART port settings
+(<code>&lt;baudrate&gt;</code>, <code>&lt;databits&gt;</code>, <code>&lt;stopbits&gt;</code>,
+<code>&lt;parity&gt;</code>, <code>&lt;flowcontrol&gt;</code>)
+cannot be applied to Bluetooth dongles using the Android Bluetooth stack.<br/>
+See
+<a href=\"https://github.com/green-green-avk/AnotherTerm/wiki/Known-issues#bluetooth-uart-dongles-support\">details</a>
+.</p>
 </dd><br/>
 
 <dt><p><code>

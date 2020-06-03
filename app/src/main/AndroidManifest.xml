@@ -51,6 +51,9 @@
             android:parentActivityName=".SessionsActivity"
             android:theme="@style/AppSettingsTheme"
             android:windowSoftInputMode="adjustResize">
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value=".SessionsActivity" />
             <intent-filter>
                 <action android:name="android.intent.action.VIEW" />
 
@@ -67,12 +70,20 @@
         <activity
             android:name=".SshKeysSettingsActivity"
             android:label="@string/action_ssh_keys_settings"
-            android:parentActivityName=".SessionsActivity" />
+            android:parentActivityName=".SessionsActivity">
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value=".SessionsActivity" />
+        </activity>
 
         <activity
             android:name=".TermKeyMapManagerActivity"
             android:label="@string/title_activity_key_mappings"
-            android:parentActivityName=".SessionsActivity" />
+            android:parentActivityName=".SessionsActivity">
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value=".SessionsActivity" />
+        </activity>
 
         <activity
             android:name=".TermKeyMapEditorActivity"
@@ -81,6 +92,9 @@
             android:parentActivityName=".TermKeyMapManagerActivity"
             android:theme="@style/AppSettingsTheme"
             android:windowSoftInputMode="adjustResize">
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value=".TermKeyMapManagerActivity" />
             <intent-filter>
                 <action android:name="android.intent.action.VIEW" />
 
@@ -139,7 +153,11 @@
         <activity
             android:name=".AboutActivity"
             android:label="@string/title_about"
-            android:parentActivityName=".SessionsActivity" />
+            android:parentActivityName=".SessionsActivity">
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value=".SessionsActivity" />
+        </activity>
 
         <activity
             android:name=".InfoActivity"

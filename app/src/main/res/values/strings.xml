@@ -197,7 +197,7 @@
     <string name="hint_display">display</string>
     <string name="label_x11_">X11:</string>
     <string name="label_colon_x11_first_port_plus">:6000+</string>
-    <string name="label_baudrate">Baudrate</string>
+    <string name="label_baudrate">Baud Rate</string>
     <string name="label_field_div">/</string>
     <string name="label_mod_shift">Shift</string>
     <string name="label_mod_alt">Alt</string>
@@ -230,11 +230,12 @@
     <string name="label_parity">Parity</string>
     <string name="label_flow_control">Flow Control</string>
     <string name="note_bluetooth_uart_support"><![CDATA[
-        <p><b>Note:</b> Alas, UART port settings cannot be applied to Bluetooth dongles using
-        the Android Bluetooth stack.<br/>
+        <p><b>Note:</b> Alas, UART port settings
+        (<b>baud rate</b>, <b>data bits</b>, <b>stop bits</b>, <b>parity</b>, <b>flow control</b>)
+        cannot be applied to Bluetooth dongles using the Android Bluetooth stack.<br/>
         See
-        <a href=\"https://stackoverflow.com/a/23888958/13020093\">https://stackoverflow.com/a/23888958/13020093</a>
-        for the details.</p>
+        <a href=\"https://github.com/green-green-avk/AnotherTerm/wiki/Known-issues#bluetooth-uart-dongles-support\">details</a>
+        .</p>
     ]]></string>
     <string name="title_wireless_parameters">Wireless parameters</string>
     <string name="label_insecure">Insecure</string>
