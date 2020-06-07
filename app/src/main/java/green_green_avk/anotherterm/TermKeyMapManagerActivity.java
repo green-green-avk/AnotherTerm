@@ -8,12 +8,13 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.ListView;
 
+import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 
 public final class TermKeyMapManagerActivity extends AppCompatActivity {
 
     @Override
-    protected void onCreate(final Bundle savedInstanceState) {
+    protected void onCreate(@Nullable final Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_term_key_map_manager);
         final ListView l = findViewById(R.id.list);
@@ -31,13 +32,14 @@ public final class TermKeyMapManagerActivity extends AppCompatActivity {
             public void onCreateContextMenu(final ContextMenu menu, final View v,
                                             final ContextMenu.ContextMenuInfo menuInfo) {
                 final String name = a.getName(l.getPositionForView(v));
-                menu.add(R.string.action_delete).setOnMenuItemClickListener(new MenuItem.OnMenuItemClickListener() {
-                    @Override
-                    public boolean onMenuItemClick(final MenuItem item) {
-                        TermKeyMapManager.remove(name);
-                        return true;
-                    }
-                });
+                menu.add(R.string.action_delete).setOnMenuItemClickListener(
+                        new MenuItem.OnMenuItemClickListener() {
+                            @Override
+                            public boolean onMenuItemClick(final MenuItem item) {
+                                TermKeyMapManager.remove(name);
+                                return true;
+                            }
+                        });
             }
         });
     }
