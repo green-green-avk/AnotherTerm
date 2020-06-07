@@ -83,7 +83,7 @@
 
         <activity
             android:name=".TermKeyMapEditorActivity"
-            android:configChanges="orientation|screenSize|keyboardHidden|keyboard"
+            android:configChanges="keyboardHidden|keyboard"
             android:label="@string/title_activity_key_mapping_editor"
             android:parentActivityName=".TermKeyMapManagerActivity"
             android:theme="@style/AppSettingsTheme"

@@ -1,0 +1,146 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:animateLayoutChanges="true"
+    android:baselineAligned="false"
+    android:orientation="horizontal"
+    tools:context=".TermKeyMapEditorActivity">
+
+    <ListView
+        android:id="@+id/f_key"
+        android:layout_width="256sp"
+        android:layout_height="match_parent"
+        android:choiceMode="singleChoice"
+        android:requiresFadingEdge="vertical"
+        android:saveEnabled="false" />
+
+    <View
+        android:layout_width="3dp"
+        android:layout_height="match_parent"
+        android:layout_marginTop="@dimen/text_padding"
+        android:layout_marginBottom="@dimen/text_padding"
+        android:background="?android:attr/listDivider" />
+
+    <LinearLayout
+        android:layout_width="0dp"
+        android:layout_height="match_parent"
+        android:layout_weight="1"
+        android:orientation="vertical">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:padding="@dimen/text_padding">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:labelFor="@id/f_name"
+                android:text="@string/label_save_as_" />
+
+            <EditText
+                android:id="@+id/f_name"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:importantForAutofill="no"
+                android:inputType="text" />
+
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:gravity="center"
+            android:orientation="horizontal">
+
+            <TextView
+                style="@style/AppSettingsTableHeaderTextStyle"
+                android:layout_width="120dp"
+                android:layout_height="wrap_content"
+                android:gravity="center"
+                android:text="@string/label_key_modifiers" />
+
+            <TextView
+                style="@style/AppSettingsTableHeaderTextStyle"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:gravity="center"
+                android:text="@string/label_keymode_normal" />
+
+            <TextView
+                style="@style/AppSettingsTableHeaderTextStyle"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:gravity="center"
+                android:text="@string/label_keymode_application" />
+
+        </LinearLayout>
+
+        <ScrollView
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_weight="1"
+            android:requiresFadingEdge="vertical">
+
+            <LinearLayout
+                android:id="@+id/keys"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical">
+
+            </LinearLayout>
+
+        </ScrollView>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="32dp"
+            android:orientation="horizontal">
+
+            <ImageButton
+                android:id="@+id/b_info"
+                style="@style/AppWidget.EditorToolbar.ImageButton.Horizontal"
+                android:contentDescription="@string/action_info"
+                android:onClick="info"
+                app:srcCompat="@drawable/ic_help" />
+
+            <ImageButton
+                android:id="@+id/b_share"
+                style="@style/AppWidget.EditorToolbar.ImageButton.Horizontal"
+                android:contentDescription="@string/action_share"
+                android:onClick="share"
+                app:srcCompat="@drawable/ic_share" />
+
+            <ImageButton
+                android:id="@+id/b_copy"
+                style="@style/AppWidget.EditorToolbar.ImageButton.Horizontal"
+                android:contentDescription="@android:string/copy"
+                android:onClick="copy"
+                app:srcCompat="@drawable/ic_copy_48" />
+
+            <ImageButton
+                android:id="@+id/b_paste"
+                style="@style/AppWidget.EditorToolbar.ImageButton.Horizontal"
+                android:contentDescription="@android:string/paste"
+                android:onClick="paste"
+                app:srcCompat="@drawable/ic_paste_48" />
+
+            <ImageButton
+                android:id="@+id/b_save"
+                style="@style/AppWidget.EditorToolbar.ImageButton.Horizontal"
+                android:contentDescription="@string/action_save"
+                android:onClick="save"
+                app:srcCompat="@drawable/ic_save" />
+
+        </LinearLayout>
+
+    </LinearLayout>
+
+</LinearLayout>

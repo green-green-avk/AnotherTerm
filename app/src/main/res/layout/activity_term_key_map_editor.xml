@@ -50,7 +50,8 @@
             android:layout_height="wrap_content"
             android:layout_marginLeft="@dimen/text_separator"
             android:layout_marginRight="@dimen/text_separator"
-            android:layout_weight="1" />
+            android:layout_weight="1"
+            android:saveEnabled="false" />
 
     </LinearLayout>
 

@@ -13,6 +13,7 @@ import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.BaseAdapter;
 import android.widget.EditText;
+import android.widget.ListView;
 import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -30,6 +31,8 @@ import green_green_avk.anotherterm.utils.Unescape;
 
 public final class TermKeyMapEditorActivity extends AppCompatActivity {
     private static final String KEYMAP_KEY = "E_KEYMAP";
+    private static final String KEY_KEY = "E_KEY";
+    private static final int DEF_POS = 0;
 
     public static void start(@Nullable final Context context, @Nullable final String name) {
         if (context == null) return;
@@ -53,6 +56,13 @@ public final class TermKeyMapEditorActivity extends AppCompatActivity {
             activity = a;
         }
 
+        private int getPos(final int keyCode) {
+            for (int i = 0; i < keys.length; i++) {
+                if (keyCode == keys[i]) return i;
+            }
+            return -1;
+        }
+
         @Override
         public int getCount() {
             return TermKeyMapRulesDefault.getSupportedKeys().size();
@@ -72,7 +82,9 @@ public final class TermKeyMapEditorActivity extends AppCompatActivity {
         public View getView(final int position, View convertView, final ViewGroup parent) {
             if (!(convertView instanceof TextView))
                 convertView = LayoutInflater.from(parent.getContext())
-                        .inflate(android.R.layout.simple_spinner_item,
+                        .inflate(parent instanceof Spinner ?
+                                        android.R.layout.simple_spinner_item
+                                        : R.layout.sidepager_entry,
                                 parent, false);
             setupView(position, convertView);
             return convertView;
@@ -189,6 +201,7 @@ public final class TermKeyMapEditorActivity extends AppCompatActivity {
     protected void onSaveInstanceState(@NonNull final Bundle outState) {
         super.onSaveInstanceState(outState);
         outState.putSerializable(KEYMAP_KEY, keyMap);
+        outState.putInt(KEY_KEY, currentKeyCode);
     }
 
     @Override
@@ -201,6 +214,7 @@ public final class TermKeyMapEditorActivity extends AppCompatActivity {
         String name = getIntent().getStringExtra(C.IFK_MSG_NAME);
         if (savedInstanceState != null) {
             keyMap = (TermKeyMapRules.Editable) savedInstanceState.get(KEYMAP_KEY);
+            currentKeyCode = savedInstanceState.getInt(KEY_KEY, currentKeyCode);
         } else if (getIntent().getData() != null) {
             try {
                 final Uri uri = getIntent().getData();
@@ -214,7 +228,7 @@ public final class TermKeyMapEditorActivity extends AppCompatActivity {
         }
         updateChangedKeyCodes();
         setName(name);
-        final Spinner keyView = findViewById(R.id.f_key);
+        final AdapterView keyView = findViewById(R.id.f_key);
         keysAdapter = new KeysAdapter(this);
         keyView.setAdapter(keysAdapter);
 
@@ -232,18 +246,39 @@ public final class TermKeyMapEditorActivity extends AppCompatActivity {
             keysView.addView(v);
         }
 
-        keyView.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
-            @Override
-            public void onItemSelected(final AdapterView<?> parent, final View view,
-                                       final int position, final long id) {
-                currentKeyCode = (int) id;
-                refreshKeysView();
-            }
+        final int keyPos;
+        if (currentKeyCode < 0) {
+            keyPos = 0;
+            currentKeyCode = (int) keysAdapter.getItemId(keyPos);
+        } else keyPos = keysAdapter.getPos(currentKeyCode);
+        if (keyView instanceof ListView) {
+            ((ListView) keyView).setItemChecked(keyPos, true);
+            ((ListView) keyView).smoothScrollToPosition(keyPos);
+            refreshKeysView();
+            keyView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+                @Override
+                public void onItemClick(final AdapterView<?> parent, final View view,
+                                        final int position, final long id) {
+                    ((ListView) parent).setItemChecked(position, true);
+                    currentKeyCode = (int) id;
+                    refreshKeysView();
+                }
+            });
+        } else {
+            if (currentKeyCode >= 0) keyView.setSelection(keysAdapter.getPos(currentKeyCode));
+            keyView.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+                @Override
+                public void onItemSelected(final AdapterView<?> parent, final View view,
+                                           final int position, final long id) {
+                    currentKeyCode = (int) id;
+                    refreshKeysView();
+                }
 
-            @Override
-            public void onNothingSelected(final AdapterView<?> parent) {
-            }
-        });
+                @Override
+                public void onNothingSelected(final AdapterView<?> parent) {
+                }
+            });
+        }
     }
 
     @NonNull
