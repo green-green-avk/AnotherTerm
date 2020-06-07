@@ -40,21 +40,6 @@ to access the Android environment and own API to create them as separate APKs.</
 <li><a href=\"https://github.com/green-green-avk/AnotherTerm/wiki\">Wiki</a></li>
 <li><a href=\"https://github.com/green-green-avk/AnotherTerm\">Source at GitHub</a></li>
 </ul>
-<h1>Notes</h1>
-<p>Please, be aware, that key mapping of hardware input devices is provided by device vendors
-and it could make some troubles.
-For example: <em>ASUS ZenFone 4 Max</em> has the hardware keyboard <kbd>Home</kbd>
-(<code>KEYCODE_MOVE_HOME</code>) key mapped as the Android middle (<code>KEYCODE_HOME</code>)
-button that makes it effectively invisible for applications.
-Most vendors also maps mouse right and middle buttons in some unexpected ways.
-Fortunately, mouse buttons mapping can usually be worked around.
-Most usual right mouse button mapping as the Android <kbd>Back</kbd> (<code>KEYCODE_BACK</code>)
-button is supported by this application.
-The only way to override the vendor\'s mapping is to root your device and change appropriate files
-manually.</p>
-<p>Due to an USB bug in Android itself, it\'s highly recommended not to use the USB UART
-with devices running Android 5.1.1 Lollipop.
-See <a href=\"https://github.com/felHR85/UsbSerial/issues/142\">this issue</a> for more details.</p>
 <h1>Credits</h1>
 <p>Thanks to:</p>
 <ul>
