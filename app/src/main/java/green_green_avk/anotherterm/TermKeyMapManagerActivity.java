@@ -47,12 +47,7 @@ public final class TermKeyMapManagerActivity extends AppCompatActivity {
     @Override
     public boolean onCreateOptionsMenu(final Menu menu) {
         getMenuInflater().inflate(R.menu.menu_term_key_map_manager, menu);
-        return true;
-    }
-
-    @Override
-    public boolean onPrepareOptionsMenu(final Menu menu) {
-        return true;
+        return super.onCreateOptionsMenu(menu);
     }
 
     @Override
@@ -63,6 +58,6 @@ public final class TermKeyMapManagerActivity extends AppCompatActivity {
                 return true;
             }
         }
-        return true;
+        return super.onOptionsItemSelected(item);
     }
 }
