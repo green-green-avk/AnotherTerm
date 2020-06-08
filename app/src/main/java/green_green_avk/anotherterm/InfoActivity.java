@@ -50,7 +50,7 @@ public final class InfoActivity extends AppCompatActivity {
     protected void onCreate(final Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.progress);
-        new AsyncLayoutInflater(this).inflate(R.layout.activity_info,
+        new AsyncLayoutInflater(this).inflate(R.layout.info_activity,
                 (ViewGroup) getWindow().getDecorView().getRootView(),
                 new AsyncLayoutInflater.OnInflateFinishedListener() {
                     @Override

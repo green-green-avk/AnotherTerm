@@ -16,7 +16,7 @@ public final class TermKeyMapManagerActivity extends AppCompatActivity {
     @Override
     protected void onCreate(@Nullable final Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_term_key_map_manager);
+        setContentView(R.layout.term_key_map_manager_activity);
         final ListView l = findViewById(R.id.list);
         final TermKeyMapAdapter a = new TermKeyMapAdapter(getApplicationContext());
         l.setAdapter(a);

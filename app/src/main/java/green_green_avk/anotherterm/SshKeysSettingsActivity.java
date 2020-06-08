@@ -9,6 +9,6 @@ public final class SshKeysSettingsActivity extends AppCompatActivity {
     @Override
     protected void onCreate(final Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_ssh_keys_settings);
+        setContentView(R.layout.ssh_keys_settings_activity);
     }
 }

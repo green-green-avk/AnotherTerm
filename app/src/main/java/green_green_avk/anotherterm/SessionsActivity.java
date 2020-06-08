@@ -208,7 +208,7 @@ public final class SessionsActivity extends AppCompatActivity {
     protected void onCreate(@Nullable final Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        setContentView(R.layout.activity_sessions);
+        setContentView(R.layout.sessions_activity);
 
         prepareFavoritesList();
         prepareSessionsList();

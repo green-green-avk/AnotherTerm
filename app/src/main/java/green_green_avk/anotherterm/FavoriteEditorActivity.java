@@ -346,7 +346,7 @@ public final class FavoriteEditorActivity extends AppCompatActivity {
     @Override
     protected void onCreate(@Nullable final Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_favorite_editor);
+        setContentView(R.layout.favorite_editor_activity);
 
         UiUtils.enableAnimation(getWindow().getDecorView());
 

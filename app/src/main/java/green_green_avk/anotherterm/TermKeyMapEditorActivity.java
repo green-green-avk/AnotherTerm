@@ -207,7 +207,7 @@ public final class TermKeyMapEditorActivity extends AppCompatActivity {
     @Override
     protected void onCreate(@Nullable final Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_term_key_map_editor);
+        setContentView(R.layout.term_key_map_editor_activity);
 
         UiUtils.enableAnimation(getWindow().getDecorView());
 

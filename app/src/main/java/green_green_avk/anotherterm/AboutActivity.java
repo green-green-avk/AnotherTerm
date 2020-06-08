@@ -15,7 +15,7 @@ public final class AboutActivity extends AppCompatActivity {
     protected void onCreate(final Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.progress);
-        new AsyncLayoutInflater(this).inflate(R.layout.activity_about,
+        new AsyncLayoutInflater(this).inflate(R.layout.about_activity,
                 (ViewGroup) getWindow().getDecorView().getRootView(),
                 new AsyncLayoutInflater.OnInflateFinishedListener() {
                     @Override

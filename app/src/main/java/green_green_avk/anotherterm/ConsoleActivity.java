@@ -163,7 +163,7 @@ public final class ConsoleActivity extends AppCompatActivity
                 getWindow().clearFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN);
         }
 
-        setContentView(R.layout.activity_console);
+        setContentView(R.layout.console_activity);
 //        UiUtils.setHiddenSystemUi(this);
 //        UiUtils.setShrinkBottomWhenCovered(this);
 
