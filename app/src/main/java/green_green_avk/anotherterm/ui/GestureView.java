@@ -8,6 +8,8 @@ import android.view.GestureDetector;
 import android.view.MotionEvent;
 import android.view.View;
 
+import androidx.annotation.Nullable;
+
 public abstract class GestureView extends View
         implements GestureDetector.OnGestureListener, GestureDetector.OnDoubleTapListener/*,
         GestureDetector.OnContextClickListener*/ {
@@ -19,19 +21,19 @@ public abstract class GestureView extends View
         mGestureDetector = new GestureDetector(getContext(), this);
     }
 
-    public GestureView(final Context context, final AttributeSet attrs) {
+    public GestureView(final Context context, @Nullable final AttributeSet attrs) {
         super(context, attrs);
         mGestureDetector = new GestureDetector(getContext(), this);
     }
 
-    public GestureView(final Context context, final AttributeSet attrs,
+    public GestureView(final Context context, @Nullable final AttributeSet attrs,
                        final int defStyleAttr) {
         super(context, attrs, defStyleAttr);
         mGestureDetector = new GestureDetector(getContext(), this);
     }
 
     @TargetApi(Build.VERSION_CODES.LOLLIPOP)
-    public GestureView(final Context context, final AttributeSet attrs,
+    public GestureView(final Context context, @Nullable final AttributeSet attrs,
                        final int defStyleAttr, final int defStyleRes) {
         super(context, attrs, defStyleAttr, defStyleRes);
         mGestureDetector = new GestureDetector(getContext(), this);

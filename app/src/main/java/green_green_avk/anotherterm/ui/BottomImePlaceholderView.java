@@ -9,27 +9,30 @@ import android.util.AttributeSet;
 import android.view.View;
 import android.view.WindowManager;
 
+import androidx.annotation.Nullable;
+
 import green_green_avk.anotherterm.utils.WeakHandler;
 
-// Adjust resize in fullscreen mode helper
-
+/**
+ * Adjust resize in fullscreen mode helper.
+ */
 public final class BottomImePlaceholderView extends View {
 
     public BottomImePlaceholderView(final Context context) {
         super(context);
     }
 
-    public BottomImePlaceholderView(final Context context, final AttributeSet attrs) {
+    public BottomImePlaceholderView(final Context context, @Nullable final AttributeSet attrs) {
         super(context, attrs);
     }
 
-    public BottomImePlaceholderView(final Context context, final AttributeSet attrs,
+    public BottomImePlaceholderView(final Context context, @Nullable final AttributeSet attrs,
                                     final int defStyleAttr) {
         super(context, attrs, defStyleAttr);
     }
 
     @TargetApi(Build.VERSION_CODES.LOLLIPOP)
-    public BottomImePlaceholderView(final Context context, final AttributeSet attrs,
+    public BottomImePlaceholderView(final Context context, @Nullable final AttributeSet attrs,
                                     final int defStyleAttr, final int defStyleRes) {
         super(context, attrs, defStyleAttr, defStyleRes);
     }

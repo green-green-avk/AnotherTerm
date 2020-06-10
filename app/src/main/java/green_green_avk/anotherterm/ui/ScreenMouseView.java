@@ -40,24 +40,24 @@ public class ScreenMouseView extends ScrollableView {
     protected ViewGroup overlayView = null;
     protected View overlayButtonsView = null;
 
-    public ScreenMouseView(final Context context, final AttributeSet attrs) {
+    public ScreenMouseView(final Context context, @Nullable final AttributeSet attrs) {
         super(context, attrs);
         init(context, attrs, R.attr.screenMouseViewStyle, R.style.AppScreenMouseViewStyle);
     }
 
-    public ScreenMouseView(final Context context, final AttributeSet attrs,
+    public ScreenMouseView(final Context context, @Nullable final AttributeSet attrs,
                            final int defStyleAttr) {
         super(context, attrs, defStyleAttr);
         init(context, attrs, defStyleAttr, R.style.AppScreenMouseViewStyle);
     }
 
-    public ScreenMouseView(final Context context, final AttributeSet attrs,
+    public ScreenMouseView(final Context context, @Nullable final AttributeSet attrs,
                            final int defStyleAttr, final int defStyleRes) {
         super(context, attrs, defStyleAttr, defStyleRes);
         init(context, attrs, defStyleAttr, defStyleRes);
     }
 
-    protected void init(final Context context, final AttributeSet attrs,
+    protected void init(final Context context, @Nullable final AttributeSet attrs,
                         final int defStyleAttr, final int defStyleRes) {
         final TypedArray a = context.obtainStyledAttributes(
                 attrs, R.styleable.ScreenMouseView, defStyleAttr, defStyleRes);

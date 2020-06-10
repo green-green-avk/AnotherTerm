@@ -38,18 +38,18 @@ public class ConsoleKeyboardView extends ExtKeyboardView implements
 
 //    protected final SpannableStringBuilder softEditable = new SpannableStringBuilder();
 
-    public ConsoleKeyboardView(final Context context, final AttributeSet attrs) {
+    public ConsoleKeyboardView(final Context context, @Nullable final AttributeSet attrs) {
         super(context, attrs);
         init();
     }
 
-    public ConsoleKeyboardView(final Context context, final AttributeSet attrs,
+    public ConsoleKeyboardView(final Context context, @Nullable final AttributeSet attrs,
                                final int defStyleAttr) {
         super(context, attrs, defStyleAttr);
         init();
     }
 
-    public ConsoleKeyboardView(final Context context, final AttributeSet attrs,
+    public ConsoleKeyboardView(final Context context, @Nullable final AttributeSet attrs,
                                final int defStyleAttr, final int defStyleRes) {
         super(context, attrs, defStyleAttr, defStyleRes);
         init();

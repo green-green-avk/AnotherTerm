@@ -1,5 +1,6 @@
 package green_green_avk.anotherterm.ui;
 
+import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.app.SearchManager;
 import android.content.ActivityNotFoundException;
@@ -286,25 +287,25 @@ public class ConsoleScreenView extends ScrollableView
         }
     }
 
-    public ConsoleScreenView(final Context context, final AttributeSet attrs) {
+    public ConsoleScreenView(final Context context, @Nullable final AttributeSet attrs) {
         this(context, attrs, R.attr.consoleScreenViewStyle);
     }
 
-    public ConsoleScreenView(final Context context, final AttributeSet attrs,
+    public ConsoleScreenView(final Context context, @Nullable final AttributeSet attrs,
                              final int defStyleAttr) {
         super(context, attrs, defStyleAttr);
         appTextScroller = new ScrollerEx(context);
         init(context, attrs, defStyleAttr, R.style.AppConsoleScreenViewStyle);
     }
 
-    public ConsoleScreenView(final Context context, final AttributeSet attrs,
+    public ConsoleScreenView(final Context context, @Nullable final AttributeSet attrs,
                              final int defStyleAttr, final int defStyleRes) {
         super(context, attrs, defStyleAttr, defStyleRes);
         appTextScroller = new ScrollerEx(context);
         init(context, attrs, defStyleAttr, defStyleRes);
     }
 
-    protected void init(final Context context, final AttributeSet attrs,
+    protected void init(final Context context, @Nullable final AttributeSet attrs,
                         final int defStyleAttr, final int defStyleRes) {
         final int cursorColor;
         final int selectionColor;
@@ -855,6 +856,7 @@ public class ConsoleScreenView extends ScrollableView
     protected boolean inGesture = false;
     protected SubGesture selectionGesture = new SubGesture();
 
+    @SuppressLint("ClickableViewAccessibility")
     @Override
     public boolean onTouchEvent(final MotionEvent event) {
         final int action = event.getAction();
@@ -1022,7 +1024,8 @@ public class ConsoleScreenView extends ScrollableView
         return lines;
     }
 
-    final private ScrollerEx appTextScroller;
+    @NonNull
+    private final ScrollerEx appTextScroller;
 
     private boolean wasAppTextScrolling = false;
 

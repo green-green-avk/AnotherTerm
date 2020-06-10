@@ -6,7 +6,9 @@ import android.util.AttributeSet;
 import android.view.MotionEvent;
 import android.widget.Scroller;
 
+import androidx.annotation.CallSuper;
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.core.math.MathUtils;
 import androidx.core.view.ViewCompat;
 
@@ -29,18 +31,18 @@ public abstract class ScrollableView extends GestureView {
         mScroller = new Scroller(getContext());
     }
 
-    public ScrollableView(final Context context, final AttributeSet attrs) {
+    public ScrollableView(final Context context, @Nullable final AttributeSet attrs) {
         super(context, attrs);
         mScroller = new Scroller(getContext());
     }
 
-    public ScrollableView(final Context context, final AttributeSet attrs,
+    public ScrollableView(final Context context, @Nullable final AttributeSet attrs,
                           final int defStyleAttr) {
         super(context, attrs, defStyleAttr);
         mScroller = new Scroller(getContext());
     }
 
-    public ScrollableView(final Context context, final AttributeSet attrs,
+    public ScrollableView(final Context context, @Nullable final AttributeSet attrs,
                           final int defStyleAttr, final int defStyleRes) {
         super(context, attrs, defStyleAttr, defStyleRes);
         mScroller = new Scroller(getContext());
@@ -84,6 +86,7 @@ public abstract class ScrollableView extends GestureView {
         return 0;
     }
 
+    @CallSuper
     protected void execOnScroll() {
         if (onScroll != null) onScroll.onScroll(this);
     }

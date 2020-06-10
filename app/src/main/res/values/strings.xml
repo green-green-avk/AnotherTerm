@@ -143,7 +143,7 @@
     <string name="title_activity_key_mapping_editor">Key Mapping Editor</string>
     <string name="linktype_connection_settings">connection settings</string>
     <string name="linktype_key_map_settings">key map settings</string>
-    <string name="action_revoke_permissions">Revoke permissions</string>
+    <string name="action_revoke_permissions">Revoke Permissions</string>
     <string name="label_keymode_normal">Normal</string>
     <string name="label_keymode_application">Application (DEC?KM)</string>
     <string name="label_save_as_">Save as:</string>

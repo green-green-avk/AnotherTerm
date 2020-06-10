@@ -9,7 +9,8 @@
         <li><clipboard>SHARED_DATA_DIR</clipboard> &#x2014;
         directory on the primary shared/external storage device
         where the application can place persistent files it owns
-        (set if available).</li>
+        (set if available).
+        Any other application with the storage access permissions can also access this place.</li>
         <li><clipboard>EXTERNAL_DATA_DIR</clipboard> &#x2014;
         an alias to <clipboard>SHARED_DATA_DIR</clipboard>.</li>
         <li><clipboard>LIB_DIR</clipboard> &#x2014; native binaries path.</li>
