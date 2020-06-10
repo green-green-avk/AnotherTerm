@@ -81,7 +81,7 @@ dependencies {
     implementation project(':TelnetClient')
     //noinspection GradleDependency // Dalvik in Android 4 can't newer versions...
     implementation 'org.apache.commons:commons-collections4:4.2'
-    implementation 'com.github.green-green-avk:LibUsbManager:1.1'
+    implementation 'com.github.green-green-avk:LibUsbManager:1.2'
     implementation 'com.github.green-green-avk:anothertermshellpluginutils:1.8'
     implementation project(path: ':bluetoothspp')
 }
