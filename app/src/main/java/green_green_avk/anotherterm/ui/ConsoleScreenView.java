@@ -160,6 +160,8 @@ public class ConsoleScreenView extends ScrollableView
             inflate(getContext(), R.layout.select_search_popup, d);
             window = new PopupWindow(d, WindowManager.LayoutParams.WRAP_CONTENT,
                     WindowManager.LayoutParams.WRAP_CONTENT, false);
+            window.setSplitTouchEnabled(true);
+            window.setAnimationStyle(android.R.style.Animation_Dialog);
             smv = getContentView().findViewById(R.id.b_select_mode);
             refresh();
             getContentView().findViewById(R.id.b_close)
