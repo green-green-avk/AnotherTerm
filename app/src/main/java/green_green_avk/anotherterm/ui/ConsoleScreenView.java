@@ -26,6 +26,7 @@ import android.os.Build;
 import android.os.Message;
 import android.util.AttributeSet;
 import android.view.Gravity;
+import android.view.LayoutInflater;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
@@ -35,6 +36,8 @@ import android.widget.ImageView;
 import android.widget.PopupWindow;
 import android.widget.Toast;
 
+import androidx.annotation.CallSuper;
+import androidx.annotation.LayoutRes;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.content.res.AppCompatResources;
@@ -99,6 +102,13 @@ public class ConsoleScreenView extends ScrollableView
     protected Drawable selectionMarkerOOB = null;
     protected Drawable attrMarkupBlinking = null;
     protected Drawable paddingMarkup = null;
+
+    protected int terminalScrollOffset = 0; // px
+    @LayoutRes
+    protected int terminalScrollHorizontalLayout = R.layout.terminal_h_scrollbar;
+    @LayoutRes
+    protected int terminalScrollVerticalLayout = R.layout.terminal_v_scrollbar;
+
     protected FontProvider fontProvider = new DefaultConsoleFontProvider();
     protected float mFontSize = 16F; // px
     protected float mFontWidth;
@@ -298,6 +308,7 @@ public class ConsoleScreenView extends ScrollableView
         super(context, attrs, defStyleAttr);
         appTextScroller = new ScrollerEx(context);
         init(context, attrs, defStyleAttr, R.style.AppConsoleScreenViewStyle);
+        terminalScrollbars = new TerminalScrollbars();
     }
 
     public ConsoleScreenView(final Context context, @Nullable final AttributeSet attrs,
@@ -305,6 +316,7 @@ public class ConsoleScreenView extends ScrollableView
         super(context, attrs, defStyleAttr, defStyleRes);
         appTextScroller = new ScrollerEx(context);
         init(context, attrs, defStyleAttr, defStyleRes);
+        terminalScrollbars = new TerminalScrollbars();
     }
 
     protected void init(final Context context, @Nullable final AttributeSet attrs,
@@ -327,6 +339,15 @@ public class ConsoleScreenView extends ScrollableView
                     a.getResourceId(R.styleable.ConsoleScreenView_selectionMarkerPad, 0));
             selectionMarkerOOB = AppCompatResources.getDrawable(context,
                     a.getResourceId(R.styleable.ConsoleScreenView_selectionMarkerOOB, 0));
+            terminalScrollOffset =
+                    a.getDimensionPixelOffset(R.styleable.ConsoleScreenView_terminalScrollOffset,
+                            terminalScrollOffset);
+            terminalScrollHorizontalLayout =
+                    a.getResourceId(R.styleable.ConsoleScreenView_terminalHorizontalScrollbarLayout,
+                            terminalScrollHorizontalLayout);
+            terminalScrollVerticalLayout =
+                    a.getResourceId(R.styleable.ConsoleScreenView_terminalVerticalScrollbarLayout,
+                            terminalScrollVerticalLayout);
             attrMarkupBlinking = AppCompatResources.getDrawable(context,
                     a.getResourceId(R.styleable.ConsoleScreenView_attrMarkupBlinking, 0));
             attrMarkupAlpha = (int) (a.getFloat(R.styleable.ConsoleScreenView_attrMarkupAlpha,
@@ -809,6 +830,7 @@ public class ConsoleScreenView extends ScrollableView
     protected void onSizeChanged(final int w, final int h, final int oldw, final int oldh) {
         super.onSizeChanged(w, h, oldw, oldh);
         resizeBuffer();
+        terminalScrollbars.onResize();
     }
 
     protected int mButtons = 0;
@@ -913,6 +935,7 @@ public class ConsoleScreenView extends ScrollableView
                         unsetCurrentSelectionMarker();
                         inGesture = false;
                         adjustSelectionPopup();
+                        onTerminalScrollEnd();
                         ViewCompat.postInvalidateOnAnimation(this);
                         return true;
                     }
@@ -964,6 +987,7 @@ public class ConsoleScreenView extends ScrollableView
                         unsetCurrentSelectionMarker();
                         inGesture = false;
                         adjustSelectionPopup();
+                        onTerminalScrollEnd();
                         ViewCompat.postInvalidateOnAnimation(this);
                         break;
                     }
@@ -974,6 +998,7 @@ public class ConsoleScreenView extends ScrollableView
         if (action == MotionEvent.ACTION_DOWN) {
             if (event.getToolType(0) != MotionEvent.TOOL_TYPE_FINGER)
                 mButtons = translateButtons(event.getButtonState());
+            else onTerminalScrollBegin();
         }
         final boolean ret = super.onTouchEvent(event);
         if (action == MotionEvent.ACTION_UP) {
@@ -982,6 +1007,7 @@ public class ConsoleScreenView extends ScrollableView
             unsetCurrentSelectionMarker();
             inGesture = false;
             adjustSelectionPopup();
+            onTerminalScrollEnd();
             ViewCompat.postInvalidateOnAnimation(this);
         }
         return ret;
@@ -1171,6 +1197,132 @@ public class ConsoleScreenView extends ScrollableView
             scrollPtWithBuffer(scrollPosition, from, to, n);
             invalidateScroll();
         }
+    }
+
+    @Override
+    protected void execOnScroll() {
+        terminalScrollbars.onScroll();
+        super.execOnScroll();
+    }
+
+    private boolean isBufWidthFit() {
+        return consoleInput == null || getCols() >= consoleInput.currScrBuf.getWidth();
+    }
+
+    private boolean isBufHeightFit() {
+        return consoleInput == null || getRows() >= consoleInput.currScrBuf.getMaxBufferHeight();
+    }
+
+    private final class TerminalScrollbars {
+        private final PopupWindow popupH;
+        private final PopupWindow popupV;
+        private final View vTrackH;
+        private final View vTrackV;
+        private final View vMarkH;
+        private final View vMarkV;
+        private final View vHistory;
+
+        {
+            final ViewGroup vP = new FrameLayout(getContext());
+            vTrackH = LayoutInflater.from(getContext()).inflate(terminalScrollHorizontalLayout, vP, false);
+            vTrackV = LayoutInflater.from(getContext()).inflate(terminalScrollVerticalLayout, vP, false);
+            vMarkH = vTrackH.findViewById(R.id.mark);
+            vMarkV = vTrackV.findViewById(R.id.mark);
+            vHistory = vTrackV.findViewById(R.id.history);
+            popupH = new PopupWindow(vTrackH, ViewGroup.LayoutParams.MATCH_PARENT,
+                    vTrackH.getLayoutParams().height);
+            popupH.setClippingEnabled(false);
+            popupH.setSplitTouchEnabled(false);
+            popupH.setAnimationStyle(android.R.style.Animation_Dialog);
+            popupV = new PopupWindow(vTrackV, vTrackV.getLayoutParams().width,
+                    ViewGroup.LayoutParams.MATCH_PARENT);
+            popupV.setClippingEnabled(false);
+            popupV.setSplitTouchEnabled(false);
+            popupV.setAnimationStyle(android.R.style.Animation_Dialog);
+            vTrackH.addOnLayoutChangeListener(new OnLayoutChangeListener() {
+                @Override
+                public void onLayoutChange(final View v, final int left, final int top,
+                                           final int right, final int bottom,
+                                           final int oldLeft, final int oldTop,
+                                           final int oldRight, final int oldBottom) {
+                    refreshH();
+                }
+            });
+            vTrackV.addOnLayoutChangeListener(new OnLayoutChangeListener() {
+                @Override
+                public void onLayoutChange(final View v, final int left, final int top,
+                                           final int right, final int bottom,
+                                           final int oldLeft, final int oldTop,
+                                           final int oldRight, final int oldBottom) {
+                    refreshV();
+                }
+            });
+        }
+
+        private void onResize() {
+            popupH.setWidth(getWidth() - terminalScrollOffset * 2);
+            popupV.setHeight(getHeight() - terminalScrollOffset * 2);
+        }
+
+        private void refreshH() {
+            final int cols = getCols();
+            final float left = getLeftScrollLimit();
+            final int leftPad = vTrackH.getPaddingLeft();
+            final float kH =
+                    (vTrackH.getWidth() - leftPad - vTrackH.getPaddingRight())
+                            / (getRightScrollLimit() - left + cols);
+            vMarkH.setLeft(Math.round((scrollPosition.x - left) * kH) + leftPad);
+            vMarkH.setRight(Math.round((scrollPosition.x - left + cols) * kH) + leftPad);
+        }
+
+        private void refreshV() {
+            final int rows = getRows();
+            final float top = getTopScrollLimit();
+            final int topPad = vTrackV.getPaddingTop();
+            final float kV =
+                    (vTrackV.getHeight() - topPad - vTrackV.getPaddingBottom())
+                            / (getBottomScrollLimit() - top + rows);
+            vMarkV.setTop(Math.round((scrollPosition.y - top) * kV) + topPad);
+            vMarkV.setBottom(Math.round((scrollPosition.y - top + rows) * kV) + topPad);
+            vHistory.setBottom(Math.round((-top) * kV) + topPad);
+        }
+
+        private void onScroll() {
+            if (popupH.isShowing()) refreshH();
+            if (popupV.isShowing()) refreshV();
+        }
+
+        private final int[] mWindowCoords = new int[2];
+
+        private void show() {
+            getLocationInWindow(mWindowCoords);
+            if (!isBufWidthFit())
+                popupH.showAtLocation(ConsoleScreenView.this, Gravity.NO_GRAVITY,
+                        mWindowCoords[0] + terminalScrollOffset,
+                        mWindowCoords[1] + terminalScrollOffset);
+            if (!isBufHeightFit())
+                popupV.showAtLocation(ConsoleScreenView.this, Gravity.NO_GRAVITY,
+                        mWindowCoords[0] + terminalScrollOffset,
+                        mWindowCoords[1] + terminalScrollOffset);
+        }
+
+        private void hide() {
+            popupH.dismiss();
+            popupV.dismiss();
+        }
+    }
+
+    @NonNull
+    private final TerminalScrollbars terminalScrollbars;
+
+    @CallSuper
+    protected void onTerminalScrollBegin() {
+        terminalScrollbars.show();
+    }
+
+    @CallSuper
+    protected void onTerminalScrollEnd() {
+        terminalScrollbars.hide();
     }
 
     @Override

@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="9dp"
+    android:background="@drawable/bg_terminal_scroll"
+    android:padding="3dp">
+
+    <View
+        android:id="@+id/mark"
+        android:layout_width="3dp"
+        android:layout_height="3dp"
+        android:layout_gravity="center_vertical|start"
+        android:background="@drawable/bg_terminal_scroll_mark" />
+
+</FrameLayout>
