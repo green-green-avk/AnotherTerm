@@ -53,25 +53,6 @@
         <item name="android:textColor">@android:color/tertiary_text_light</item>
     </style>
 
-    <style name="AppScreenMouseOverlayTheme" parent="AppTheme">
-        <item name="android:windowFrame">@null</item>
-        <item name="android:windowBackground">@android:color/transparent</item>
-        <item name="android:windowIsFloating">false</item>
-        <item name="android:windowContentOverlay">@null</item>
-        <item name="android:windowTitleStyle">@null</item>
-        <item name="android:windowEnableSplitTouch">true</item>
-        <item name="android:windowAnimationStyle">@android:style/Animation.Dialog</item>
-        <item name="android:windowSoftInputMode">stateUnspecified|adjustPan</item>
-        <item name="android:backgroundDimEnabled">false</item>
-        <item name="android:background">@android:color/transparent</item>
-        <item name="android:layout_margin">0dp</item>
-        <item name="android:padding">0dp</item>
-        <item name="android:layout_scale">1</item>
-        <item name="android:scaleX">1</item>
-        <item name="android:scaleY">1</item>
-        <item name="buttonStyle">@style/AppScreenMouseButtonStyle</item>
-    </style>
-
     <style name="AppScreenMouseButtonStyle" parent="Widget.AppCompat.Button.Borderless">
         <item name="android:background">@null</item>
         <item name="android:layout_margin">1dp</item>

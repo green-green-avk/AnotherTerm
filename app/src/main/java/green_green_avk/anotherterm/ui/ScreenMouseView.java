@@ -1,8 +1,6 @@
 package green_green_avk.anotherterm.ui;
 
 import android.annotation.SuppressLint;
-import android.app.Activity;
-import android.app.Dialog;
 import android.content.Context;
 import android.content.res.TypedArray;
 import android.graphics.Canvas;
@@ -10,13 +8,14 @@ import android.graphics.Rect;
 import android.graphics.drawable.Drawable;
 import android.os.SystemClock;
 import android.util.AttributeSet;
+import android.view.Gravity;
 import android.view.InputDevice;
 import android.view.LayoutInflater;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.WindowManager;
 import android.widget.FrameLayout;
+import android.widget.PopupWindow;
 
 import androidx.annotation.CheckResult;
 import androidx.annotation.LayoutRes;
@@ -36,7 +35,7 @@ public class ScreenMouseView extends ScrollableView {
 
     protected boolean visibleCursor = true;
 
-    protected Dialog overlay = null;
+    protected PopupWindow overlay = null;
     protected ViewGroup overlayView = null;
     protected View overlayButtonsView = null;
 
@@ -81,19 +80,16 @@ public class ScreenMouseView extends ScrollableView {
 //        mGestureDetector.setContextClickListener(null);
         mGestureDetector.setIsLongpressEnabled(false);
 
-        overlay = new Dialog(context, R.style.AppScreenMouseOverlayTheme);
         overlayView = new FrameLayout(context);
         overlayView.setLayoutParams(new ViewGroup.LayoutParams(
                 ViewGroup.LayoutParams.MATCH_PARENT,
                 ViewGroup.LayoutParams.MATCH_PARENT
         ));
         overlayView.setOnTouchListener(overlayOnTouch);
-        overlay.setContentView(overlayView);
-        overlay.getWindow().setType(WindowManager.LayoutParams.TYPE_APPLICATION_ATTACHED_DIALOG);
-        overlay.setOwnerActivity((Activity) context);
-        final View odv = overlay.getWindow().getDecorView();
-        odv.setScaleX(1F);
-        odv.setScaleY(1F);
+        overlay = new PopupWindow(overlayView, ViewGroup.LayoutParams.MATCH_PARENT,
+                ViewGroup.LayoutParams.MATCH_PARENT);
+        overlay.setSplitTouchEnabled(true);
+        overlay.setAnimationStyle(android.R.style.Animation_Dialog);
     }
 
     protected static final OnTouchListener overlayOnTouch = new OnTouchListener() {
@@ -251,11 +247,11 @@ public class ScreenMouseView extends ScrollableView {
             case MotionEvent.ACTION_DOWN: {
                 applyButtons();
                 setOverlayCoords(event);
-                overlay.show();
+                overlay.showAtLocation(this, Gravity.NO_GRAVITY, 0, 0);
                 break;
             }
             case MotionEvent.ACTION_UP: {
-                overlay.cancel();
+                overlay.dismiss();
                 break;
             }
             case MotionEvent.ACTION_MOVE: {
