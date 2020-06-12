@@ -697,6 +697,8 @@ public abstract class ExtKeyboardView extends View /*implements View.OnClickList
 
         {
             window.setClippingEnabled(false);
+            window.setSplitTouchEnabled(false);
+            window.setAnimationStyle(android.R.style.Animation_Dialog);
         }
 
         public void setKeyState(@NonNull final KeyTouchState keyState) {
