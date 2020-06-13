@@ -1218,24 +1218,28 @@ public class ConsoleScreenView extends ScrollableView
         private final PopupWindow popupV;
         private final View vTrackH;
         private final View vTrackV;
+        private final ViewGroup.MarginLayoutParams lpH;
+        private final ViewGroup.MarginLayoutParams lpV;
         private final View vMarkH;
         private final View vMarkV;
         private final View vHistory;
 
         {
             final ViewGroup vP = new FrameLayout(getContext());
-            vTrackH = LayoutInflater.from(getContext()).inflate(terminalScrollHorizontalLayout, vP, false);
-            vTrackV = LayoutInflater.from(getContext()).inflate(terminalScrollVerticalLayout, vP, false);
+            vTrackH = LayoutInflater.from(getContext())
+                    .inflate(terminalScrollHorizontalLayout, vP, false);
+            vTrackV = LayoutInflater.from(getContext())
+                    .inflate(terminalScrollVerticalLayout, vP, false);
+            lpH = (ViewGroup.MarginLayoutParams) vTrackH.getLayoutParams();
+            lpV = (ViewGroup.MarginLayoutParams) vTrackV.getLayoutParams();
             vMarkH = vTrackH.findViewById(R.id.mark);
             vMarkV = vTrackV.findViewById(R.id.mark);
             vHistory = vTrackV.findViewById(R.id.history);
-            popupH = new PopupWindow(vTrackH, ViewGroup.LayoutParams.MATCH_PARENT,
-                    vTrackH.getLayoutParams().height);
+            popupH = new PopupWindow(vTrackH, ViewGroup.LayoutParams.MATCH_PARENT, lpH.height);
             popupH.setClippingEnabled(false);
             popupH.setSplitTouchEnabled(false);
             popupH.setAnimationStyle(android.R.style.Animation_Dialog);
-            popupV = new PopupWindow(vTrackV, vTrackV.getLayoutParams().width,
-                    ViewGroup.LayoutParams.MATCH_PARENT);
+            popupV = new PopupWindow(vTrackV, lpV.width, ViewGroup.LayoutParams.MATCH_PARENT);
             popupV.setClippingEnabled(false);
             popupV.setSplitTouchEnabled(false);
             popupV.setAnimationStyle(android.R.style.Animation_Dialog);
@@ -1260,8 +1264,10 @@ public class ConsoleScreenView extends ScrollableView
         }
 
         private void onResize() {
-            popupH.setWidth(getWidth() - terminalScrollOffset * 2);
-            popupV.setHeight(getHeight() - terminalScrollOffset * 2);
+            popupH.setWidth(getWidth() - terminalScrollOffset * 2
+                    - lpH.leftMargin - lpH.rightMargin);
+            popupV.setHeight(getHeight() - terminalScrollOffset * 2
+                    - lpV.topMargin - lpV.bottomMargin);
         }
 
         private void refreshH() {
@@ -1298,12 +1304,12 @@ public class ConsoleScreenView extends ScrollableView
             getLocationInWindow(mWindowCoords);
             if (!isBufWidthFit())
                 popupH.showAtLocation(ConsoleScreenView.this, Gravity.NO_GRAVITY,
-                        mWindowCoords[0] + terminalScrollOffset,
-                        mWindowCoords[1] + terminalScrollOffset);
+                        mWindowCoords[0] + terminalScrollOffset + lpH.leftMargin,
+                        mWindowCoords[1] + terminalScrollOffset + lpH.topMargin);
             if (!isBufHeightFit())
                 popupV.showAtLocation(ConsoleScreenView.this, Gravity.NO_GRAVITY,
-                        mWindowCoords[0] + terminalScrollOffset,
-                        mWindowCoords[1] + terminalScrollOffset);
+                        mWindowCoords[0] + terminalScrollOffset + lpV.leftMargin,
+                        mWindowCoords[1] + terminalScrollOffset + lpV.topMargin);
         }
 
         private void hide() {
