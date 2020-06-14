@@ -35,11 +35,14 @@ public final class BluetoothSPP {
     }
 
     @Nullable
-    private static UUID getPreferredUUID(@NonNull final BluetoothDevice dev) {
+    private static UUID getPreferredUUID(@Nullable final BluetoothDevice dev) {
+        if (dev == null) return null;
         boolean hasSPP = false;
         boolean hasAndroid = false;
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.ICE_CREAM_SANDWICH_MR1) {
-            for (final ParcelUuid uuid : dev.getUuids()) {
+            final ParcelUuid[] uuids = dev.getUuids();
+            if (uuids == null) return null;
+            for (final ParcelUuid uuid : uuids) {
                 if (UUID_SPP.equals(uuid.getUuid())) hasSPP = true;
                 if (UUID_ANDROID.equals(uuid.getUuid())) hasAndroid = true;
             }
