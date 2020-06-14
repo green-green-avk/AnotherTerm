@@ -14,7 +14,7 @@
 <li>Supported USB UART devices: Generic USB CDC, CP210X, FTDI, PL2303, CH34x, CP2130 SPI-USB.</li>
 <li>Bluetooth SPP UART devices are supported.</li>
 <li>Local Linux pty is supported. Feel free to use
-<a href=\"https://github.com/green-green-avk/AnotherTerm/wiki/Installing-Linux-under-PRoot\">
+<a href=\"https://green-green-avk.github.io/AnotherTerm-docs/installing-linux-under-proot.html#main_content\">
 PRoot with some Linux environment</a>.</li>
 <li><a href=\"info://green_green_avk.anotherterm/termsh_man\">
 Shell tool</a> to interact with the Android environment is also present.
@@ -23,9 +23,9 @@ Shell tool</a> to interact with the Android environment is also present.
 <li>It also works in chrooted environments (PRoot at least).</li>
 <li>USB and Bluetooth serial port dongles access from the command line is also implemented.</li>
 <li>libusb support on nonrooted Android
-[<a href=\"https://github.com/green-green-avk/AnotherTerm/wiki/Installing-libusb-for-nonrooted-Android\">how to install</a>].
+[<a href=\"https://green-green-avk.github.io/AnotherTerm-docs/installing-libusb-for-nonrooted-android.html#main_content\">how to install</a>].
 </li>
-<li><a href=\"https://github.com/green-green-avk/AnotherTerm/wiki/Shell-plugins\">Custom plugins</a>
+<li><a href=\"https://green-green-avk.github.io/AnotherTerm-docs/local-shell-plugins.html#main_content\">Custom plugins</a>
 to access the Android environment and own API to create them as separate APKs.</li>
 </ul>
 </li>
@@ -37,7 +37,7 @@ to access the Android environment and own API to create them as separate APKs.</
 </ul>
 <h1>Links</h1>
 <ul>
-<li><a href=\"https://github.com/green-green-avk/AnotherTerm/wiki\">Wiki</a></li>
+<li><a href=\"https://green-green-avk.github.io/AnotherTerm-docs/\">Wiki</a></li>
 <li><a href=\"https://github.com/green-green-avk/AnotherTerm\">Source at GitHub</a></li>
 </ul>
 <h1>Credits</h1>

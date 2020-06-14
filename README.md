@@ -3,7 +3,7 @@
 Local pty, USB and Bluetooth serial ports, SSH and Telnet terminal client for Android.
 
 * <https://play.google.com/store/apps/details?id=green_green_avk.anotherterm>
-* <https://github.com/green-green-avk/AnotherTerm/wiki>
+* <https://green-green-avk.github.io/AnotherTerm-docs/>
 
 
 ## Highlights
@@ -24,16 +24,16 @@ Local pty, USB and Bluetooth serial ports, SSH and Telnet terminal client for An
 * Bluetooth SPP UART devices are supported.
 
 * Local Linux pty is supported. Feel free to use PRoot with some Linux environment:
-<https://github.com/green-green-avk/AnotherTerm/wiki/Installing-Linux-under-PRoot>.
+<https://green-green-avk.github.io/AnotherTerm-docs/installing-linux-under-proot.html#main_content>.
 
 * Shell tool to interact with the Android environment is also present.
    - Content exchange between other applications and own files / pipes has been implemented.
    - It also works in chrooted environments (PRoot at least).
    - USB and Bluetooth serial port dongles access from the command line is also implemented.
    - **libusb** support on nonrooted Android —
-<https://github.com/green-green-avk/AnotherTerm/wiki/Installing-libusb-for-nonrooted-Android>.
+<https://green-green-avk.github.io/AnotherTerm-docs/installing-libusb-for-nonrooted-android.html#main_content>.
    - Custom plugins to access the Android environment and own API to create them as separate APKs —
-<https://github.com/green-green-avk/AnotherTerm/wiki/Shell-plugins>.
+<https://green-green-avk.github.io/AnotherTerm-docs/local-shell-plugins.html#main_content>.
 
 * Telnet (no encryption).
 

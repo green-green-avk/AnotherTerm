@@ -233,9 +233,7 @@
         <p><b>Note:</b> Alas, UART port settings
         (<b>baud rate</b>, <b>data bits</b>, <b>stop bits</b>, <b>parity</b>, <b>flow control</b>)
         cannot be applied to Bluetooth dongles using the Android Bluetooth stack.<br/>
-        See
-        <a href=\"https://github.com/green-green-avk/AnotherTerm/wiki/Known-issues#bluetooth-uart-dongles-support\">details</a>
-        .</p>
+        See <a href=\"https://green-green-avk.github.io/AnotherTerm-docs/issues.html#bluetooth-uart-dongles-support\">details</a>.</p>
     ]]></string>
     <string name="title_wireless_parameters">Wireless parameters</string>
     <string name="label_insecure">Insecure</string>
