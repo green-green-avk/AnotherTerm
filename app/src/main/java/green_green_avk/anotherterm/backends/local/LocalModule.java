@@ -74,9 +74,10 @@ public final class LocalModule extends BackendModule {
 
     private final class ProcOutputR implements Runnable {
         private final byte[] buf = new byte[8192];
+        @NonNull
         private final InputStream stream;
 
-        ProcOutputR(final InputStream stream) {
+        ProcOutputR(@NonNull final InputStream stream) {
             this.stream = stream;
         }
 
@@ -113,8 +114,10 @@ public final class LocalModule extends BackendModule {
         public static final Map<String, PermMeta> permByName = new HashMap<>();
 
         static {
-            permByName.put("favmgmt", new PermMeta(PERM_FAVMGMT, R.string.label_favorites_management));
-            permByName.put("pluginexec", new PermMeta(PERM_PLUGINEXEC, R.string.label_plugins_execution));
+            permByName.put("favmgmt", new PermMeta(PERM_FAVMGMT,
+                    R.string.label_favorites_management));
+            permByName.put("pluginexec", new PermMeta(PERM_PLUGINEXEC,
+                    R.string.label_plugins_execution));
         }
 
         public volatile long permissions = 0;

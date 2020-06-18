@@ -327,9 +327,11 @@ public final class PtyProcess extends Process {
             extends ParcelFileDescriptor.AutoCloseInputStream {
         private volatile boolean closed = false;
         private final ParcelFileDescriptor[] pipe = ParcelFileDescriptor.createPipe();
+        @NonNull
         public final ParcelFileDescriptor pfd;
 
-        public InterruptableFileInputStream(final ParcelFileDescriptor pfd) throws IOException {
+        public InterruptableFileInputStream(@NonNull final ParcelFileDescriptor pfd)
+                throws IOException {
             super(pfd);
             this.pfd = pfd;
         }
@@ -396,9 +398,10 @@ public final class PtyProcess extends Process {
 
     public static final class PfdFileOutputStream
             extends ParcelFileDescriptor.AutoCloseOutputStream {
+        @NonNull
         public final ParcelFileDescriptor pfd;
 
-        public PfdFileOutputStream(final ParcelFileDescriptor pfd) {
+        public PfdFileOutputStream(@NonNull final ParcelFileDescriptor pfd) {
             super(pfd);
             this.pfd = pfd;
         }
