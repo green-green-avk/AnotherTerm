@@ -309,8 +309,11 @@ public final class ConsoleActivity extends AppCompatActivity
                 return onOptionsItemSelected(item);
             }
         };
-        for (int mii = 0; mii < menu.size(); ++mii)
-            menu.getItem(mii).setOnMenuItemClickListener(mil);
+        for (int mii = 0; mii < menu.size(); ++mii) {
+            final MenuItem mi = menu.getItem(mii);
+            if (mi.getItemId() != Menu.NONE)
+                mi.setOnMenuItemClickListener(mil);
+        }
     }
 
     @Override
