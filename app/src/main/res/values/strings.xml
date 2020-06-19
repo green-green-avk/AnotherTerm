@@ -105,8 +105,6 @@
     <string name="dialog_title_terminal_screen">Terminal screen size and orientation</string>
     <string name="hint_auto">auto</string>
     <string name="hint_int_value_p_auto_p">%d (auto)</string>
-    <string name="action_send_sigint">Send SIGINT</string>
-    <string name="action_send_sighup">Send SIGHUP</string>
     <string name="label_screen">Screen</string>
     <string name="msg_text_is_too_large_to_be_copied_into_clipboard"><![CDATA[
         It seems, the text is too large to be copied into the clipboard on this particular device

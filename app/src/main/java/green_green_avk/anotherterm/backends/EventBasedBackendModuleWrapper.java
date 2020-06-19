@@ -27,6 +27,7 @@ public final class EventBasedBackendModuleWrapper {
     private static final int MSG_S_DISCONNECT = 4;
     private static final int MSG_S_RESIZE = 5;
 
+    @NonNull
     public final BackendModule wrapped;
     private volatile boolean isStopping = false;
     private volatile boolean isConnected = false;

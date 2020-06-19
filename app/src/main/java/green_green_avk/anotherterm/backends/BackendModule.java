@@ -124,7 +124,7 @@ public abstract class BackendModule {
     }
 
     @Retention(RetentionPolicy.RUNTIME)
-    @Target(ElementType.PARAMETER)
+    @Target({ElementType.PARAMETER, ElementType.METHOD})
     public @interface ExportedUIMethodEnum {
         int[] values() default {};
 
