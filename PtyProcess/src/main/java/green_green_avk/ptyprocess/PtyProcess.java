@@ -170,6 +170,10 @@ public final class PtyProcess extends Process {
     public static final int SIGHUP = 1;
     public static final int SIGINT = 2;
     public static final int SIGQUIT = 3;
+    public static final int SIGABRT = 6;
+    public static final int SIGKILL = 9;
+    public static final int SIGALRM = 14;
+    public static final int SIGTERM = 15;
 
     static {
         System.loadLibrary("ptyprocess");
