@@ -118,7 +118,17 @@ public abstract class BackendModule {
     public @interface ExportedUIMethod {
         @StringRes int titleRes() default 0;
 
+        @StringRes int longTitleRes() default 0;
+
         int order() default 0;
+    }
+
+    @Retention(RetentionPolicy.RUNTIME)
+    @Target(ElementType.PARAMETER)
+    public @interface ExportedUIMethodEnum {
+        int[] values() default {};
+
+        @StringRes int[] titleRes() default {};
     }
 
     @NonNull

@@ -82,10 +82,6 @@
     <string name="title_info">Info</string>
     <string name="desc_not_found"><![CDATA[<h1>Not Found</h1>]]></string>
     <string name="desc_rendering___"><![CDATA[<h1>Rendering…</h1>]]></string>
-    <string name="desc_local_param_execute"><![CDATA[
-        <p>If the field is empty, <code>/system/bin/sh -l</code> will be executed;<br/>
-        <code>/system/bin/sh -l -c &lt;command&gt;</code> otherwise.</p>
-    ]]></string>
     <string name="conntype_telnet">Telnet</string>
     <string name="title_activity_settings">Settings</string>
     <string name="label_key_map">Key Map</string>
@@ -133,13 +129,6 @@
     <string name="msg_pick_application">Pick application</string>
     <string name="msg_pick_destination">Pick destination</string>
     <string name="msg_pick_source">Pick source</string>
-    <string name="title_permissions">Permissions</string>
-    <string name="label_favorites_management">Favorites management</string>
-    <string name="desc_favorites_management"><![CDATA[
-        <p>Grants <b>termsh</b> an ability to silently read/write favorites.</p>
-        <p><b>Note:</b> Any process running in the terminal could reach
-        any application configuration file anyway if not in a sandbox environment like PRoot.</p>
-    ]]></string>
     <string name="title_activity_key_mapping_editor">Key Mapping Editor</string>
     <string name="linktype_connection_settings">connection settings</string>
     <string name="linktype_key_map_settings">key map settings</string>
@@ -167,10 +156,6 @@
     <string name="action_settings_plugins">Plugins</string>
     <string name="label_enabled">Enabled</string>
     <string name="label_application_icon">Application Icon</string>
-    <string name="label_plugins_execution">Plugins execution</string>
-    <string name="desc_plugins_execution"><![CDATA[
-        <p>Shell plugins execution by <b>termsh</b>.</p>
-    ]]></string>
     <string name="msg_nothing_to_search">Nothing to search</string>
     <string name="msg_stalled_transactions_detected">Stalled transactions detected, plugin seems broken</string>
     <string name="msg_s_is_not_a_plugin">`%s\' is not a plugin</string>

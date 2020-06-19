@@ -284,32 +284,32 @@ public final class LocalModule extends BackendModule {
         return "Local Terminal";
     }
 
-    /*
+    /**
      * If the terminal is in a mode when it does not intercept some control bytes,
      * the functions below can be used to send appropriate signals to the foreground process group.
      * https://www.win.tue.nl/~aeb/linux/lk/lk-10.html
      */
-
     @Keep
-    @ExportedUIMethod(titleRes = R.string.action_send_sigint, order = 0)
-    public void sendSigInt() {
-        proc.sendSignalToForeground(PtyProcess.SIGINT);
+    @ExportedUIMethod(titleRes = R.string.action_send_signal,
+            longTitleRes = R.string.action_send_signal_to_fg_pg, order = 0)
+    public void sendSignal(@ExportedUIMethodEnum(values = {
+            PtyProcess.SIGHUP, PtyProcess.SIGINT, PtyProcess.SIGQUIT, PtyProcess.SIGABRT,
+            PtyProcess.SIGKILL, PtyProcess.SIGALRM, PtyProcess.SIGTERM
+    }, titleRes = {
+            R.string.label_sighup, R.string.label_sigint, R.string.label_sigquit,
+            R.string.label_sigabrt,
+            R.string.label_sigkill, R.string.label_sigalrm, R.string.label_sigterm,
+    }) final int signal) {
+        proc.sendSignalToForeground(signal);
     }
 
-    @Keep
-    @ExportedUIMethod(titleRes = R.string.action_send_sighup, order = 1)
-    public void sendSigHup() {
-        proc.sendSignalToForeground(PtyProcess.SIGHUP);
-    }
-
-    /*
+    /**
      * Tools (only `termsh' now) for interaction with the Android environment are supposed to be
      * controlled on what they can do. This function removes any granted permissions
      * from the current session permanently.
      */
-
     @Keep
-    @ExportedUIMethod(titleRes = R.string.action_revoke_permissions, order = 2)
+    @ExportedUIMethod(titleRes = R.string.action_revoke_permissions, order = 3)
     public void revokePermissions() {
         sessionData.permissions = 0;
     }

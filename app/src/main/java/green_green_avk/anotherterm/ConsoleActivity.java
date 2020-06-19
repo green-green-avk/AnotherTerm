@@ -20,6 +20,7 @@ import android.view.KeyEvent;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.MotionEvent;
+import android.view.SubMenu;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.WindowManager;
@@ -37,6 +38,7 @@ import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.widget.TextViewCompat;
 
+import java.lang.annotation.Annotation;
 import java.lang.reflect.Method;
 import java.nio.charset.Charset;
 import java.util.Map;
@@ -269,10 +271,10 @@ public final class ConsoleActivity extends AppCompatActivity
             final BackendModule be = mSession.backend.wrapped;
             for (final Map.Entry<Method, BackendModule.ExportedUIMethod> m :
                     BackendsList.get(be.getClass()).meta.methods.entrySet()) {
-                final MenuItem mi = menu.add(Menu.NONE, Menu.NONE,
-                        100 + m.getValue().order(), m.getValue().titleRes());
-                if (m.getKey().getTypeParameters().length == 0 &&
+                if (m.getKey().getParameterTypes().length == 0 &&
                         m.getKey().getReturnType() == Void.TYPE) {
+                    final MenuItem mi = menu.add(Menu.NONE, Menu.NONE,
+                            100 + m.getValue().order(), m.getValue().titleRes());
                     mi.setOnMenuItemClickListener(new MenuItem.OnMenuItemClickListener() {
                         @Override
                         public boolean onMenuItemClick(final MenuItem item) {
@@ -280,6 +282,32 @@ public final class ConsoleActivity extends AppCompatActivity
                             return true;
                         }
                     });
+                } else if (m.getKey().getParameterTypes().length == 1 &&
+                        m.getKey().getReturnType() == Void.TYPE) {
+                    final Annotation[] aa = m.getKey().getParameterAnnotations()[0];
+                    for (final Annotation a : aa) {
+                        if (a instanceof BackendModule.ExportedUIMethodEnum) {
+                            final SubMenu sm = menu.addSubMenu(Menu.NONE, Menu.NONE,
+                                    100 + m.getValue().order(), m.getValue().titleRes());
+                            sm.getItem().setTitle(m.getValue().titleRes());
+                            if (m.getValue().longTitleRes() != 0)
+                                sm.setHeaderTitle(m.getValue().longTitleRes());
+                            final BackendModule.ExportedUIMethodEnum ae =
+                                    (BackendModule.ExportedUIMethodEnum) a;
+                            for (int ai = 0; ai < ae.values().length; ai++) {
+                                final int value = ae.values()[ai];
+                                final MenuItem mi = sm.add(ae.titleRes()[ai]);
+                                mi.setOnMenuItemClickListener(new MenuItem.OnMenuItemClickListener() {
+                                    @Override
+                                    public boolean onMenuItemClick(final MenuItem item) {
+                                        be.callMethod(m.getKey(), value);
+                                        return true;
+                                    }
+                                });
+                            }
+                            break;
+                        }
+                    }
                 }
             }
         }
