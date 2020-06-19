@@ -5,6 +5,7 @@
         <code>/system/bin/sh -l -c &lt;command&gt;</code> otherwise.</p>
     ]]></string>
 
+    <string name="action_session_permissions">Session Permissions</string>
     <string name="title_permissions">Permissions</string>
     <string name="label_favorites_management">Favorites management</string>
     <string name="desc_favorites_management"><![CDATA[
@@ -17,7 +18,7 @@
         <p>Shell plugins execution by <b>termsh</b>.</p>
     ]]></string>
 
-    <string name="action_send_signal">Send a signal</string>
+    <string name="action_send_signal">Send a Signal</string>
     <string name="action_send_signal_to_fg_pg">Send a signal to the foreground process group</string>
     <string name="label_sighup">SIGHUP</string>
     <string name="label_sigint">SIGINT</string>

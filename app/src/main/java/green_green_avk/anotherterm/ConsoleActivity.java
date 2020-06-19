@@ -271,8 +271,9 @@ public final class ConsoleActivity extends AppCompatActivity
             final BackendModule be = mSession.backend.wrapped;
             for (final Map.Entry<Method, BackendModule.ExportedUIMethod> m :
                     BackendsList.get(be.getClass()).meta.methods.entrySet()) {
-                if (m.getKey().getParameterTypes().length == 0 &&
-                        m.getKey().getReturnType() == Void.TYPE) {
+                final Class<?>[] paramTypes = m.getKey().getParameterTypes();
+                final Class<?> retType = m.getKey().getReturnType();
+                if (paramTypes.length == 0 && retType == Void.TYPE) {
                     final MenuItem mi = menu.add(Menu.NONE, Menu.NONE,
                             100 + m.getValue().order(), m.getValue().titleRes());
                     mi.setOnMenuItemClickListener(new MenuItem.OnMenuItemClickListener() {
@@ -282,11 +283,11 @@ public final class ConsoleActivity extends AppCompatActivity
                             return true;
                         }
                     });
-                } else if (m.getKey().getParameterTypes().length == 1 &&
-                        m.getKey().getReturnType() == Void.TYPE) {
+                } else if (paramTypes.length == 1 && retType == Void.TYPE) {
                     final Annotation[] aa = m.getKey().getParameterAnnotations()[0];
                     for (final Annotation a : aa) {
                         if (a instanceof BackendModule.ExportedUIMethodEnum) {
+                            if (paramTypes[0] != Integer.TYPE) break;
                             final SubMenu sm = menu.addSubMenu(Menu.NONE, Menu.NONE,
                                     100 + m.getValue().order(), m.getValue().titleRes());
                             sm.getItem().setTitle(m.getValue().titleRes());
@@ -307,6 +308,43 @@ public final class ConsoleActivity extends AppCompatActivity
                             }
                             break;
                         }
+                    }
+                } else if (paramTypes.length == 2 && paramTypes[0] == Long.TYPE &&
+                        paramTypes[1] == Long.TYPE && retType == Long.TYPE) {
+                    final BackendModule.ExportedUIMethodFlags a =
+                            m.getKey().getAnnotation(BackendModule.ExportedUIMethodFlags.class);
+                    if (a != null) {
+                        final MenuItem mi = menu.add(Menu.NONE, Menu.NONE,
+                                100 + m.getValue().order(), m.getValue().titleRes());
+                        mi.setOnMenuItemClickListener(new MenuItem.OnMenuItemClickListener() {
+                            @Override
+                            public boolean onMenuItemClick(final MenuItem item) {
+                                final long bits = (long) be.callMethod(m.getKey(), 0L, 0L);
+                                final boolean[] values = new boolean[a.values().length];
+                                final String[] titles = new String[a.values().length];
+                                for (int ai = 0; ai < a.values().length; ai++) {
+                                    values[ai] = (bits & a.values()[ai]) == a.values()[ai];
+                                    titles[ai] = getString(a.titleRes()[ai]);
+                                }
+                                new AlertDialog.Builder(ConsoleActivity.this)
+                                        .setTitle(m.getValue().titleRes())
+                                        .setMultiChoiceItems(titles, values,
+                                                new DialogInterface.OnMultiChoiceClickListener() {
+                                                    @Override
+                                                    public void onClick(final DialogInterface dialog,
+                                                                        final int which,
+                                                                        final boolean isChecked) {
+                                                        be.callMethod(m.getKey(),
+                                                                isChecked ?
+                                                                        a.values()[which] : 0L,
+                                                                a.values()[which]);
+                                                    }
+                                                })
+                                        .setCancelable(true)
+                                        .show();
+                                return true;
+                            }
+                        });
                     }
                 }
             }

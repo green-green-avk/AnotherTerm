@@ -164,8 +164,11 @@ public final class LocalModule extends BackendModule {
         }
     }
 
-    private SessionData sessionData = new SessionData(this);
-    private long sessionToken = generateSessionToken();
+    /**
+     * Synchronize on it when changing anything inside it if reasonable.
+     */
+    private final SessionData sessionData = new SessionData(this);
+    private final long sessionToken = generateSessionToken();
 
     {
         sessionDataMap.put(sessionToken, sessionData);
@@ -188,7 +191,7 @@ public final class LocalModule extends BackendModule {
         sessionData.permissions = 0;
         for (final Map.Entry<String, SessionData.PermMeta> m : SessionData.permByName.entrySet())
             if (pp.getBoolean("perm_" + m.getKey(), false))
-                sessionData.permissions |= m.getValue().bits;
+                sessionData.permissions |= m.getValue().bits; // Sync is not required here
     }
 
     @Override
@@ -305,12 +308,22 @@ public final class LocalModule extends BackendModule {
 
     /**
      * Tools (only `termsh' now) for interaction with the Android environment are supposed to be
-     * controlled on what they can do. This function removes any granted permissions
-     * from the current session permanently.
+     * controlled on what they can do.
+     * TODO: Possibly, a listener to prevent the race condition
+     * but is it reasonable for a manual setting?
      */
     @Keep
-    @ExportedUIMethod(titleRes = R.string.action_revoke_permissions, order = 3)
-    public void revokePermissions() {
-        sessionData.permissions = 0;
+    @ExportedUIMethod(titleRes = R.string.action_session_permissions, order = 2)
+    @ExportedUIMethodFlags(values = {
+            SessionData.PERM_FAVMGMT, SessionData.PERM_PLUGINEXEC
+    }, titleRes = {
+            R.string.label_favorites_management, R.string.label_plugins_execution
+    })
+    public long changePermissions(final long permissions, final long mask) {
+        synchronized (sessionData) {
+            final long r = sessionData.permissions;
+            sessionData.permissions = (permissions & mask) | (sessionData.permissions & ~mask);
+            return r;
+        }
     }
 }

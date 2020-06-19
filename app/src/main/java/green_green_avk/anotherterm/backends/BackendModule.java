@@ -131,6 +131,14 @@ public abstract class BackendModule {
         @StringRes int[] titleRes() default {};
     }
 
+    @Retention(RetentionPolicy.RUNTIME)
+    @Target({ElementType.PARAMETER, ElementType.METHOD})
+    public @interface ExportedUIMethodFlags {
+        long[] values() default {};
+
+        @StringRes int[] titleRes() default {};
+    }
+
     @NonNull
     static Meta getMeta(@NonNull final Class<?> klass, @NonNull final String defaultScheme) {
         try {
