@@ -1,5 +1,7 @@
 package green_green_avk.anotherterm.utils;
 
+import androidx.annotation.NonNull;
+
 import java.util.HashMap;
 import java.util.Map;
 
@@ -11,16 +13,18 @@ public final class BinaryGetOpts {
         }
     }
 
-    private static final int MAX_ARG_NAME_LEN = 32;
-
     public static final class Option {
         public enum Type {NONE, STRING, INT, BIN}
 
+        @NonNull
         public final String key;
+        @NonNull
         public final String[] names;
+        @NonNull
         public final Type type;
 
-        public Option(final String key, final String[] names, final Type type) {
+        public Option(@NonNull final String key, @NonNull final String[] names,
+                      @NonNull final Type type) {
             this.key = key;
             this.names = names;
             this.type = type;
@@ -31,7 +35,7 @@ public final class BinaryGetOpts {
         private final Map<String, Option> map = new HashMap<>();
         public final int maxNameLength;
 
-        public Options(final Option[] list) {
+        public Options(@NonNull final Option[] list) {
             int maxLen = 0;
             for (final Option opt : list) {
                 for (final String name : opt.names) {
@@ -42,16 +46,17 @@ public final class BinaryGetOpts {
             maxNameLength = maxLen;
         }
 
-        public Option get(final String name) {
+        public Option get(@NonNull final String name) {
             return map.get(name);
         }
     }
 
     public static final class Parser {
+        @NonNull
         private final byte[][] args;
         public int position = 0;
 
-        public Parser(final byte[][] args) {
+        public Parser(@NonNull final byte[][] args) {
             this.args = args;
         }
 
@@ -59,7 +64,8 @@ public final class BinaryGetOpts {
             if (position < args.length) ++position;
         }
 
-        public Map<String, ?> parse(final Options options) throws ParseException {
+        @NonNull
+        public Map<String, ?> parse(@NonNull final Options options) throws ParseException {
             final Map<String, Object> ret = new HashMap<>();
             for (; position < args.length; ++position) {
                 final byte[] arg = args[position];

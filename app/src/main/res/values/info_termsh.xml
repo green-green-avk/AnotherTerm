@@ -29,7 +29,7 @@ notify [-i|--id &lt;id&gt;] [--] [&lt;message&gt;]<br/>
 notify -r|--remove -i|--id &lt;id&gt;
 </code></p></dt>
 <dd>
-Display notification, stdin will be used if no message argument provided.
+Display notification, <i>stdin</i> will be used if no message argument provided.
 <ul type=\"none\">
 <li><code>-i|--id &lt;id&gt;</code> &#x2014; notification id.</li>
 <li><code>-r|--remove</code> &#x2014; remove notification by id.</li>
@@ -95,8 +95,8 @@ Example: <code>\"$TERMSH\" view
 send [&lt;options...&gt;] [--] [&lt;file|URI&gt;]
 </code></p></dt>
 <dd>
-Send (android.intent.action.SEND).
-If no <code>&lt;file|URI&gt;</code> is specified, stdin is used.
+Send (<code>android.intent.action.SEND</code>).
+If no <code>&lt;file|URI&gt;</code> is specified, <i>stdin</i> is used.
 <br/>Command exits after a stream was sent or after interaction with user
 if a file or URI is specified.
 <ul type=\"none\">
@@ -120,7 +120,7 @@ Show document picker dialog and put the selected content (or its URI) to:
 <li>file if <code>&lt;path&gt;</code> is a file;</li>
 <li>file with the name provided by the content provider (or deduced from the URI)*
 if <code>&lt;path&gt;</code> is a directory;</li>
-<li>stdout if nothing is specified.</li>
+<li><i>stdout</i> if nothing is specified.</li>
 </ul>
 The <code>http</code> an <code>https</code> schemes are also supported along with
 the <code>content</code> and <code>file</code> ones.
@@ -140,13 +140,13 @@ Examples:
 </dd><br/>
 
 <dt><p><code>
-copy [-f|--force] [-fp|--from-path|-fu|--from-uri &lt;from&gt;] [-tp|--to-path|-tu|--to-uri &lt;to&gt;]
+copy [-f|--force] [--insecure] [-fp|--from-path|-fu|--from-uri &lt;from&gt;] [-tp|--to-path|-tu|--to-uri &lt;to&gt;]
 </code></p></dt>
 <dd>
 Copy content. Only single files are supported now.
 Source URI scheme could be <code>content</code>, <code>http</code> or <code>https</code>.
 If <code>&lt;from&gt;</code> or <code>&lt;to&gt;</code> is not specified,
-stdin or stdout will be used respectively.
+<i>stdin</i> or <i>stdout</i> will be used respectively.
 <code>&lt;to&gt;</code> can be a directory*.
 <ul type=\"none\">
 <li><code>--insecure</code> &#x2014; connect via HTTPS even in case of invalid certificate.</li>
@@ -155,7 +155,7 @@ stdin or stdout will be used respectively.
 </dd><br/>
 
 <dt><p><code>
-cat [&lt;URI&gt; ...]
+cat [--insecure] [&lt;URI&gt; ...]
 </code></p></dt>
 <dd>
 Concatenate the stdin (if not a tty or no arguments given)
@@ -193,7 +193,7 @@ serial -l|--list<br/>
 serial [-a|--adapter &lt;address&gt;] [-i|--insecure] [&lt;baudrate&gt;[/&lt;databits&gt;[/&lt;stopbits&gt;[/&lt;parity&gt;[/&lt;flowcontrol&gt;]]]]]
 </code></p></dt>
 <dd>
-Connect to an USB serial dongle and use stdin / stdout.
+Connect to an USB serial dongle and use <i>stdin</i> / <i>stdout</i>.
 <ul type=\"none\">
 <li><code>-a|--adapter</code> &#x2014; use a dongle specified by <code>&lt;address&gt;</code>;</li>
 <li><code>-i|--insecure</code> &#x2014; don\'t use a secure connection (Bluetooth);</li>
