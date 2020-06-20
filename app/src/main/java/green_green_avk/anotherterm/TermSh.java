@@ -1220,12 +1220,15 @@ public final class TermSh {
                             final BinaryGetOpts.Parser ap = new BinaryGetOpts.Parser(shellCmd.args);
                             ap.skip();
                             final Map<String, ?> opts = ap.parse(CAT_OPTS);
-                            if (!PtyProcess.isatty(shellCmd.stdIn) ||
-                                    shellCmd.args.length - ap.position < 1) {
+                            if (shellCmd.args.length - ap.position < 1) {
                                 Misc.copy(shellCmd.stdOut, shellCmd.stdIn);
-                            }
-                            for (int i = ap.position; i < shellCmd.args.length; ++i) {
-                                final Uri uri = Uri.parse(Misc.fromUTF8(shellCmd.args[i]));
+                            } else for (int i = ap.position; i < shellCmd.args.length; ++i) {
+                                final String argStr = Misc.fromUTF8(shellCmd.args[i]);
+                                if ("-".equals(argStr)) {
+                                    Misc.copy(shellCmd.stdOut, shellCmd.stdIn);
+                                    continue;
+                                }
+                                final Uri uri = Uri.parse(argStr);
                                 final InputStream is = openInputStream(uri,
                                         opts.containsKey("insecure"));
                                 try {
