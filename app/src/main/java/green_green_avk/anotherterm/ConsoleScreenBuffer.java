@@ -945,9 +945,12 @@ public final class ConsoleScreenBuffer {
                 return; // TODO: Implement some adaptive degradation for Zalgo lovers.
             }
         }
-        if (toEnd - toStart != bufLen)
-            System.arraycopy(row.text, toEnd, row.text, toStart + bufLen,
-                    rowEnd - Math.max(toEnd, toStart + bufLen));
+        if (toEnd - toStart != bufLen) {
+            final int e = Math.max(toEnd, toStart + bufLen);
+            if (rowEnd < e) rowEnd = e;
+            else System.arraycopy(row.text, toEnd, row.text, toStart + bufLen,
+                    rowEnd - e);
+        }
         if (buf instanceof CharBuffer) {
             ((CharBuffer) buf).get(row.text, toStart, bufLen);
         } else if (buf instanceof Character) {
@@ -962,7 +965,7 @@ public final class ConsoleScreenBuffer {
             row.extendAttrs(attrsRowEnd - row.attrs.length, defaultAttrs); // It can't fail.
         if (attrsEnd != attrsEndPrev)
             System.arraycopy(row.attrs, attrsEndPrev, row.attrs, attrsEnd,
-                    attrsRowEnd - Math.max(attrsEnd, attrsEndPrev));
+                    Math.max(attrsRowEnd - Math.max(attrsEnd, attrsEndPrev), 0));
         Arrays.fill(row.attrs, attrsStart, attrsEnd, attrs);
     }
 
