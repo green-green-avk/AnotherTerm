@@ -19,6 +19,7 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import java.util.Locale;
 import java.util.Map;
+import java.util.NoSuchElementException;
 
 import green_green_avk.anotherterm.backends.BackendException;
 import green_green_avk.anotherterm.backends.BackendModule;
@@ -164,20 +165,16 @@ public final class SessionsActivity extends AppCompatActivity {
             @Override
             public void onCreateContextMenu(final ContextMenu menu, final View view,
                                             final ContextMenu.ContextMenuInfo menuInfo) {
+                final int key = a.getKey(l.getChildLayoutPosition(view));
                 getMenuInflater().inflate(R.menu.menu_session, menu);
                 menu.findItem(R.id.action_terminate).setOnMenuItemClickListener(
                         new MenuItem.OnMenuItemClickListener() {
                             @Override
                             public boolean onMenuItemClick(final MenuItem item) {
-                                // TODO: Possibly redundant precautions
-                                final int key;
                                 try {
-                                    key = a.getKey(l.getChildLayoutPosition(view));
-                                } catch (final IndexOutOfBoundsException e) {
-                                    a.notifyDataSetChanged();
-                                    return true;
+                                    ConsoleService.stopSession(key);
+                                } catch (final NoSuchElementException ignored) {
                                 }
-                                ConsoleService.stopSession(key);
                                 return true;
                             }
                         });
@@ -185,16 +182,12 @@ public final class SessionsActivity extends AppCompatActivity {
                         new MenuItem.OnMenuItemClickListener() {
                             @Override
                             public boolean onMenuItemClick(final MenuItem item) {
-                                // TODO: Possibly redundant precautions
-                                final int key;
+                                final BackendModule be;
                                 try {
-                                    key = a.getKey(l.getChildLayoutPosition(view));
-                                } catch (final IndexOutOfBoundsException e) {
-                                    a.notifyDataSetChanged();
+                                    be = ConsoleService.getSession(key).backend.wrapped;
+                                } catch (final NoSuchElementException e) {
                                     return true;
                                 }
-                                final BackendModule be =
-                                        ConsoleService.getSession(key).backend.wrapped;
                                 if (be.isWakeLockHeld()) be.releaseWakeLock();
                                 else be.acquireWakeLock();
                                 return true;
