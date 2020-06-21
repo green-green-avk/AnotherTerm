@@ -136,7 +136,8 @@ public final class ConsoleService extends Service {
         final ConsoleOutput co = new ConsoleOutput();
         final String charsetStr = (String) cp.get("charset");
         try {
-            final Charset charset = Charset.forName(charsetStr);
+            final Charset charset =
+                    charsetStr != null ? Charset.forName(charsetStr) : Charset.defaultCharset();
             ci.setCharset(charset);
             co.setCharset(charset);
         } catch (IllegalArgumentException e) {
