@@ -197,7 +197,7 @@ public final class RawPreferenceUiWrapper implements PreferenceUiWrapper {
         }
         if (view instanceof CompoundButton) {
             try {
-                ((CompoundButton) view).setChecked((boolean) BooleanCaster.CAST(value));
+                ((CompoundButton) view).setChecked(BooleanCaster.CAST(value));
             } catch (final ClassCastException e) {
                 Log.e("Preference UI", "Type cast", e);
             }

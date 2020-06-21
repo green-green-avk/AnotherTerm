@@ -151,8 +151,9 @@ public final class ConsoleActivity extends AppCompatActivity
         } else {
             mSessionKey = intent.getIntExtra(C.IFK_MSG_SESS_KEY, 0);
         }
-        mSession = ConsoleService.sessions.get(mSessionKey);
-        if (mSession == null) {
+        try {
+            mSession = ConsoleService.getSession(mSessionKey);
+        } catch (final NoSuchElementException e) {
             finish();
             return;
         }

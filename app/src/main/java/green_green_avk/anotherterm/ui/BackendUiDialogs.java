@@ -57,6 +57,7 @@ public final class BackendUiDialogs implements BackendUiInteraction,
         dialogs.add(d);
     }
 
+    @UiThread
     private boolean isShownPrompt() {
         final Dialog d = promptDialog.get();
         return d != null && d.isShowing();

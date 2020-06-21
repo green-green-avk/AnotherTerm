@@ -185,9 +185,7 @@ public final class EventBasedBackendModuleWrapper {
                             try {
                                 os.write((byte[]) msg.obj);
                                 os.flush();
-                            } catch (BackendException e) {
-                                handler.obtainMessage(MSG_ERROR, e).sendToTarget();
-                            } catch (IOException e) {
+                            } catch (final BackendException | IOException e) {
                                 handler.obtainMessage(MSG_ERROR, e).sendToTarget();
                             }
                             break;
@@ -197,7 +195,7 @@ public final class EventBasedBackendModuleWrapper {
                                 handler.sendEmptyMessage(MSG_CONNECTING);
                                 wrapped.connect();
                                 handler.sendEmptyMessage(MSG_CONNECTED);
-                            } catch (BackendException e) {
+                            } catch (final BackendException e) {
                                 handler.obtainMessage(MSG_ERROR, e).sendToTarget();
                             }
                             break;
@@ -205,7 +203,7 @@ public final class EventBasedBackendModuleWrapper {
                             try {
                                 wrapped.disconnect();
                                 handler.sendEmptyMessage(MSG_DISCONNECTED);
-                            } catch (BackendException e) {
+                            } catch (final BackendException e) {
                                 handler.obtainMessage(MSG_ERROR, e).sendToTarget();
                             }
                             break;
@@ -219,7 +217,7 @@ public final class EventBasedBackendModuleWrapper {
                             }
                             try {
                                 wrapped.resize(_scrC, _scrR, _scrW, _scrH);
-                            } catch (BackendException e) {
+                            } catch (final BackendException e) {
                                 handler.obtainMessage(MSG_ERROR, e).sendToTarget();
                             }
                             break;

@@ -62,7 +62,7 @@ public final class ConsoleService extends Service {
         tryFg();
     }
 
-    private static void tryStart(final Context appCtx) {
+    private static void tryStart(@NonNull final Context appCtx) {
         appCtx.startService(new Intent(appCtx.getApplicationContext(), ConsoleService.class));
     }
 

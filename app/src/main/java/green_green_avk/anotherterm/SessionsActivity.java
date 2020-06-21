@@ -260,6 +260,6 @@ public final class SessionsActivity extends AppCompatActivity {
     @Override
     protected void onResume() {
         super.onResume();
-        ((RecyclerView) findViewById(R.id.sessions_list)).getAdapter().notifyDataSetChanged();
+        this.<RecyclerView>findViewById(R.id.sessions_list).getAdapter().notifyDataSetChanged();
     }
 }
