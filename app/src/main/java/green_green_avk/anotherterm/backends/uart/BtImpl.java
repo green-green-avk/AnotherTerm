@@ -151,10 +151,12 @@ final class BtImpl extends Impl {
                 device = obtainDevice();
                 activeDevices.add(device);
             }
+            if (base.isAcquireWakeLockOnConnect()) base.acquireWakeLock();
             try {
                 spp.connect(device, base.insecure);
             } catch (final IOException e) {
                 activeDevices.remove(device);
+                if (base.isReleaseWakeLockOnDisconnect()) base.releaseWakeLock();
                 throw new BackendException(e.getMessage());
             }
             readerThread = new Thread(reader);

@@ -154,9 +154,13 @@ public final class ConsoleService extends Service {
                 execOnSessionChange(key);
             }
         }, new Handler());
-        tbe.setReleaseWakeLockOnDisconnect("releaseOnDisconnect".equals(cp.get("wakelock_policy")));
+        tbe.setAcquireWakeLockOnConnect(Boolean.TRUE.equals(cp.get("wakelock.acquire_on_connect")));
+        tbe.setReleaseWakeLockOnDisconnect(Boolean.TRUE.equals(cp.get("wakelock.release_on_disconnect")));
         tbe.setUi(new BackendUiDialogs());
         tbe.setParameters(cp);
+
+        final Session.Properties pp = new Session.Properties();
+        pp.terminateOnDisconnect = Boolean.TRUE.equals(cp.get("terminate.on_disconnect"));
 
         final EventBasedBackendModuleWrapper be = new EventBasedBackendModuleWrapper(
                 tbe, new EventBasedBackendModuleWrapper.Listener() {
@@ -176,6 +180,10 @@ public final class ConsoleService extends Service {
             public void onDisconnected() {
                 tbe.getUi().showMessage(appCtx.getString(R.string.msg_disconnected));
                 execOnSessionChange(key);
+                if (pp.terminateOnDisconnect) try {
+                    stopSession(key);
+                } catch (final NoSuchElementException ignored) {
+                }
             }
 
             @Override
@@ -189,12 +197,17 @@ public final class ConsoleService extends Service {
 //                ci.currScrBuf.setChars(e.toString());
                 tbe.getUi().showMessage(e.getMessage());
             }
+
+            @Override
+            public void onMessage(@NonNull final String m) {
+                tbe.getUi().showMessage(m);
+            }
         });
         ci.consoleOutput = co;
         ci.backendModule = be;
         co.backendModule = be;
 
-        final Session s = new Session(cp, ci, co, be);
+        final Session s = new Session(cp, ci, co, be, pp);
 
         ci.setWindowTitle(getSessionTitle(s, key));
 
@@ -216,7 +229,14 @@ public final class ConsoleService extends Service {
         sessionKeys.remove((Integer) key);
         sessions.remove(key);
         if (sessionKeys.size() <= 0) tryStop();
+        execOnSessionChange(key);
         execOnSessionsListChange();
+    }
+
+    @UiThread
+    @CheckResult
+    public static boolean isSessionTerminated(final int key) {
+        return !sessions.containsKey(key);
     }
 
     @UiThread

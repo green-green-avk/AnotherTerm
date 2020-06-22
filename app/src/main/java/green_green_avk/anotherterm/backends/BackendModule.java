@@ -235,6 +235,29 @@ public abstract class BackendModule {
     @NonNull
     public abstract OutputStream getOutputStream();
 
+    public static abstract class StateMessage {
+        @NonNull
+        public final String message;
+
+        public StateMessage() {
+            this.message = "";
+        }
+
+        public StateMessage(@NonNull final String message) {
+            this.message = message;
+        }
+    }
+
+    public static final class DisconnectStateMessage extends StateMessage {
+        public DisconnectStateMessage() {
+            super();
+        }
+
+        public DisconnectStateMessage(@NonNull final String message) {
+            super(message);
+        }
+    }
+
     public interface OnMessageListener {
         void onMessage(@NonNull Object msg);
     }
@@ -422,5 +445,18 @@ public abstract class BackendModule {
 
     public void setReleaseWakeLockOnDisconnect(final boolean v) {
         releaseWakeLockOnDisconnect = v;
+    }
+
+    // It's the module implementation responsibility to properly handle
+    // acquireWakeLockOnConnect property.
+
+    private boolean acquireWakeLockOnConnect = false;
+
+    public boolean isAcquireWakeLockOnConnect() {
+        return acquireWakeLockOnConnect;
+    }
+
+    public void setAcquireWakeLockOnConnect(final boolean v) {
+        acquireWakeLockOnConnect = v;
     }
 }

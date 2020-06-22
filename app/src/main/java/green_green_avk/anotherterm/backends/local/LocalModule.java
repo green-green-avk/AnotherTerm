@@ -73,6 +73,10 @@ public final class LocalModule extends BackendModule {
     private OnMessageListener onMessageListener = null;
     private volatile Thread readerThread = null;
 
+    private void reportState(@NonNull final StateMessage m) {
+        if (onMessageListener != null) onMessageListener.onMessage(m);
+    }
+
     private void reportError(@NonNull final Throwable e) {
         if (onMessageListener != null) onMessageListener.onMessage(e);
     }
@@ -217,7 +221,14 @@ public final class LocalModule extends BackendModule {
 
     @Override
     public boolean isConnected() {
-        return proc != null;
+        final PtyProcess p = proc;
+        if (p != null) try {
+            p.exitValue();
+            return true;
+        } catch (final IllegalThreadStateException e) {
+            return false;
+        }
+        else return false;
     }
 
     @Override
@@ -239,11 +250,31 @@ public final class LocalModule extends BackendModule {
         env.put("MY_DEVICE_ABIS", StringUtils.joinWith(" ", (Object[]) Misc.getAbis()));
         env.put("MY_ANDROID_SDK", Integer.toString(Build.VERSION.SDK_INT));
         synchronized (connectionLock) {
-            proc = PtyProcess.system(execute, env);
-            readerThread = new Thread(new ProcOutputR(proc.getInputStream()));
+            final PtyProcess p = PtyProcess.system(execute, env);
+            proc = p;
+            readerThread = new Thread(new ProcOutputR(p.getInputStream()));
             readerThread.setDaemon(true);
             readerThread.start();
+            final Thread keeper = new Thread(new Runnable() {
+                @Override
+                public void run() {
+                    int status = 0;
+                    while (true) {
+                        try {
+                            status = p.waitFor();
+                        } catch (final InterruptedException ignored) {
+                            continue;
+                        }
+                        break;
+                    }
+                    disconnect();
+                    reportState(new DisconnectStateMessage("Process exited with status " + status));
+                }
+            });
+            keeper.setDaemon(true);
+            keeper.start();
         }
+        if (isAcquireWakeLockOnConnect()) acquireWakeLock();
     }
 
     @Override

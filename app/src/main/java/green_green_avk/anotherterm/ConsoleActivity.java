@@ -83,6 +83,10 @@ public final class ConsoleActivity extends AppCompatActivity
         @Override
         protected void onSessionChange(final int key) {
             if (key != mSessionKey) return;
+            if (ConsoleService.isSessionTerminated(mSessionKey)) {
+                finish();
+                return;
+            }
             invalidateWakeLock();
             invalidateLoadingState();
         }

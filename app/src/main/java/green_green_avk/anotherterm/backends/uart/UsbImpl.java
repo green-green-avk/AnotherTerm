@@ -268,6 +268,7 @@ final class UsbImpl extends Impl {
             }
             mIsConnected = true;
         }
+        if (base.isAcquireWakeLockOnConnect()) base.acquireWakeLock();
     }
 
     @Override

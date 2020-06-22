@@ -58,6 +58,8 @@ public final class EventBasedBackendModuleWrapper {
                     listener.onConnected();
                     break;
                 case MSG_DISCONNECTED:
+                    if (msg.obj instanceof BackendModule.StateMessage)
+                        listener.onMessage(((BackendModule.StateMessage) msg.obj).message);
                     isConnecting = false;
                     isConnected = false;
                     listener.onDisconnected();
@@ -100,6 +102,8 @@ public final class EventBasedBackendModuleWrapper {
         void onRead(@NonNull ByteBuffer v);
 
         void onError(@NonNull Throwable e);
+
+        void onMessage(@NonNull String m);
     }
 
     public EventBasedBackendModuleWrapper(@NonNull final BackendModule module,
@@ -131,6 +135,8 @@ public final class EventBasedBackendModuleWrapper {
             public void onMessage(@NonNull final Object msg) {
                 if (msg instanceof Throwable)
                     handler.obtainMessage(MSG_ERROR, msg).sendToTarget();
+                else if (msg instanceof BackendModule.DisconnectStateMessage)
+                    handler.obtainMessage(MSG_DISCONNECTED, msg).sendToTarget();
             }
         });
         wrapped.setOutputStream(new OutputStream() {

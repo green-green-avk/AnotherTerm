@@ -498,6 +498,7 @@ public final class SshModule extends BackendModule {
             disconnect();
             throw new BackendException(e);
         }
+        if (isAcquireWakeLockOnConnect()) acquireWakeLock();
     }
 
     @Override

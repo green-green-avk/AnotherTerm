@@ -127,16 +127,55 @@
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:labelFor="@id/fav_wakelock"
-                        android:text="@string/label_wake_lock" />
+                        android:text="@string/action_terminate" />
 
-                    <Spinner
-                        android:id="@+id/fav_wakelock"
+                    <CheckBox
+                        android:id="@+id/fav_terminate_on_disconnect"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
+                        android:layout_marginStart="@dimen/text_separator"
+                        android:layout_marginLeft="@dimen/text_separator"
+                        android:background="@drawable/bg_curl_bracket"
+                        android:hint="@string/hint_terminate_on_disconnect"
+                        android:text="@string/label_on_disconnect" />
+
+                </TableRow>
+
+                <TableRow
+                    android:gravity="center_vertical"
+                    android:minHeight="@dimen/settings_row_minHeight">
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="@string/label_wake_lock" />
+
+                    <com.google.android.flexbox.FlexboxLayout
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="@dimen/text_separator"
+                        android:layout_marginLeft="@dimen/text_separator"
                         android:layout_weight="1"
-                        android:entries="@array/labels_wake_lock_fav_policy"
-                        android:spinnerMode="dropdown" />
+                        android:background="@drawable/bg_curl_bracket"
+                        app:alignItems="center"
+                        app:flexDirection="row"
+                        app:flexWrap="wrap">
+
+                        <CheckBox
+                            android:id="@+id/fav_wakelock_acquire_on_connect"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:hint="@string/hint_acquire_wake_lock_on_connect"
+                            android:text="@string/action_acquire_on_connect" />
+
+                        <CheckBox
+                            android:id="@+id/fav_wakelock_release_on_disconnect"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:hint="@string/hint_release_wake_lock_on_disconnect"
+                            android:text="@string/action_release_on_disconnect" />
+
+                    </com.google.android.flexbox.FlexboxLayout>
 
                 </TableRow>
 

@@ -221,4 +221,10 @@
     <string name="title_wireless_parameters">Wireless parameters</string>
     <string name="label_insecure">Insecure</string>
     <string name="msg_no_adapters_connected">No dongles connected</string>
+    <string name="action_release_on_disconnect">Release On Disconnect</string>
+    <string name="hint_release_wake_lock_on_disconnect">Release Wake Lock On Disconnect</string>
+    <string name="action_acquire_on_connect">Acquire On Connect</string>
+    <string name="hint_acquire_wake_lock_on_connect">Acquire Wake Lock On Connect</string>
+    <string name="label_on_disconnect">On Disconnect</string>
+    <string name="hint_terminate_on_disconnect">Terminate On Disconnect</string>
 </resources>

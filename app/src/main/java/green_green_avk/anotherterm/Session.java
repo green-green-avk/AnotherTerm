@@ -18,6 +18,10 @@ public final class Session {
         public int screenOrientation = ActivityInfo.SCREEN_ORIENTATION_UNSPECIFIED;
     }
 
+    public static final class Properties {
+        public boolean terminateOnDisconnect = false;
+    }
+
     @NonNull
     public final Map<String, ?> connectionParams;
     @NonNull
@@ -26,17 +30,22 @@ public final class Session {
     public final ConsoleOutput output;
     @NonNull
     public final EventBasedBackendModuleWrapper backend;
+    @NonNull
+    public final Properties properties;
     @Nullable
     public Bitmap thumbnail = null;
 
     public final UiState uiState = new UiState();
 
-    public Session(@NonNull final Map<String, ?> cp, @NonNull final ConsoleInput ci,
+    public Session(@NonNull final Map<String, ?> cp,
+                   @NonNull final ConsoleInput ci,
                    @NonNull final ConsoleOutput co,
-                   @NonNull final EventBasedBackendModuleWrapper be) {
+                   @NonNull final EventBasedBackendModuleWrapper be,
+                   @NonNull final Properties pp) {
         connectionParams = cp;
         input = ci;
         output = co;
         backend = be;
+        properties = pp;
     }
 }

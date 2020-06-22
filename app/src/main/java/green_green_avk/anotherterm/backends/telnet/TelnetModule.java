@@ -181,6 +181,7 @@ public final class TelnetModule extends BackendModule {
         } catch (final TelnetClientException e) {
             throw new BackendException(e);
         }
+        if (isAcquireWakeLockOnConnect()) acquireWakeLock();
     }
 
     @Override

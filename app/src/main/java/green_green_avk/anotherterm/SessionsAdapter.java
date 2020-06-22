@@ -27,7 +27,8 @@ public final class SessionsAdapter extends RecyclerView.Adapter<SessionsAdapter.
 
         @Override
         protected void onSessionChange(final int key) {
-            notifyItemChanged(ConsoleService.sessionKeys.indexOf(key));
+            if (!ConsoleService.isSessionTerminated(key))
+                notifyItemChanged(ConsoleService.sessionKeys.indexOf(key));
         }
     };
 
