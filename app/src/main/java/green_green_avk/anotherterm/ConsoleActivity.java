@@ -380,10 +380,15 @@ public final class ConsoleActivity extends AppCompatActivity
                 return onOptionsItemSelected(item);
             }
         };
+        wrapOptionsMenu(menu, mil);
+    }
+
+    private void wrapOptionsMenu(@NonNull final Menu menu,
+                                 @NonNull final MenuItem.OnMenuItemClickListener mil) {
         for (int mii = 0; mii < menu.size(); ++mii) {
             final MenuItem mi = menu.getItem(mii);
-            if (mi.getItemId() != Menu.NONE)
-                mi.setOnMenuItemClickListener(mil);
+            if (mi.getItemId() != Menu.NONE) mi.setOnMenuItemClickListener(mil);
+            if (mi.hasSubMenu()) wrapOptionsMenu(mi.getSubMenu(), mil);
         }
     }
 

@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="app_name">Another Term</string>
+    <string name="action_confirm">Confirm</string>
     <string name="action_close">Close</string>
     <string name="action_delete">Delete</string>
     <string name="action_edit">Edit</string>
