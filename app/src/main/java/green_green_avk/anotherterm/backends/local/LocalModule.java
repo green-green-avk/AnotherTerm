@@ -32,41 +32,46 @@ public final class LocalModule extends BackendModule {
 
     private final Object connectionLock = new Object();
 
-    private PtyProcess proc = null;
+    private volatile PtyProcess proc = null;
     private final OutputStream input = new OutputStream() {
         @Override
         public void write(final int b) throws IOException {
-            if (proc == null) return;
-            proc.getOutputStream().write(b);
+            final PtyProcess p = proc;
+            if (p == null) return;
+            p.getOutputStream().write(b);
         }
 
         @Override
         public void write(final byte[] b) throws IOException {
-            if (proc == null) return;
-            proc.getOutputStream().write(b);
+            final PtyProcess p = proc;
+            if (p == null) return;
+            p.getOutputStream().write(b);
         }
 
         @Override
         public void write(final byte[] b, final int off, final int len) throws IOException {
-            if (proc == null) return;
-            proc.getOutputStream().write(b, off, len);
+            final PtyProcess p = proc;
+            if (p == null) return;
+            p.getOutputStream().write(b, off, len);
         }
 
         @Override
         public void flush() throws IOException {
-            if (proc == null) return;
-            proc.getOutputStream().flush();
+            final PtyProcess p = proc;
+            if (p == null) return;
+            p.getOutputStream().flush();
         }
 
         @Override
         public void close() throws IOException {
-            if (proc == null) return;
-            proc.getOutputStream().close();
+            final PtyProcess p = proc;
+            if (p == null) return;
+            p.getOutputStream().close();
         }
     };
     private OutputStream output = null;
     private OnMessageListener onMessageListener = null;
-    private Thread readerThread = null;
+    private volatile Thread readerThread = null;
 
     private void reportError(@NonNull final Throwable e) {
         if (onMessageListener != null) onMessageListener.onMessage(e);
@@ -275,8 +280,10 @@ public final class LocalModule extends BackendModule {
 
     @Override
     public void resize(final int col, final int row, final int wp, final int hp) {
+        final PtyProcess p = proc;
+        if (p == null) return;
         try {
-            proc.resize(col, row, wp, hp);
+            p.resize(col, row, wp, hp);
         } catch (final IOException ignored) {
         }
     }
@@ -303,7 +310,9 @@ public final class LocalModule extends BackendModule {
             R.string.label_sigabrt,
             R.string.label_sigkill, R.string.label_sigalrm, R.string.label_sigterm,
     }) final int signal) {
-        proc.sendSignalToForeground(signal);
+        final PtyProcess p = proc;
+        if (p == null) return;
+        p.sendSignalToForeground(signal);
     }
 
     /**
