@@ -5,6 +5,7 @@
 #include <jni.h>
 #include <sys/types.h>
 #include <sys/stat.h>
+#include <sys/wait.h>
 #include <signal.h>
 #include "pty_compat.h"
 #include <unistd.h>
@@ -20,6 +21,10 @@
 #define REQ_JNI_VERSION JNI_VERSION_1_6
 
 #define CLASS_NAME PKG_NAME "/PtyProcess"
+
+static const int IS_ERROR = -1;
+static const int IS_RUNNING = -2;
+static const int IS_EINTR = -3;
 
 static jclass g_OOMEC;
 static jclass g_runtimeEC;
@@ -47,6 +52,7 @@ static jclass g_class;
 static jmethodID g_ctrId;
 static jfieldID g_fdPtmId;
 static jfieldID g_pidId;
+static jfieldID g_exitStatusId;
 
 static void releaseStrings(const char *const *const strings) {
     if (strings == nullptr) return;
@@ -151,6 +157,20 @@ m_execve(JNIEnv *const env, const jobject jthis,
     _exit(127);
 }
 
+static jint
+getExitStatus(JNIEnv *const env, const jobject jthis, const int pid, const int options) {
+    jint exitStatus = env->GetIntField(jthis, g_exitStatusId);
+    if (env->ExceptionCheck() == JNI_TRUE) return IS_ERROR;
+    if (exitStatus >= 0) return exitStatus;
+    int status = 0;
+    const int r = waitpid(pid, &status, options);
+    if (r == -1) exitStatus = (errno == EINTR) ? IS_EINTR : IS_ERROR;
+    else if (r == 0) exitStatus = IS_RUNNING;
+    else exitStatus = WEXITSTATUS(status);
+    env->SetIntField(jthis, g_exitStatusId, exitStatus);
+    return exitStatus;
+}
+
 static void JNICALL m_destroy(JNIEnv *const env, const jobject jthis) {
     const jint fdPtm = env->GetIntField(jthis, g_fdPtmId);
     if (env->ExceptionCheck() == JNI_TRUE) return;
@@ -163,6 +183,12 @@ static void JNICALL m_destroy(JNIEnv *const env, const jobject jthis) {
     env->SetIntField(jthis, g_fdPtmId, -1);
     if (env->ExceptionCheck() == JNI_TRUE) return;
     close(fdPtm);
+}
+
+static jint JNICALL m_waitForExit(JNIEnv *const env, const jobject jthis, const jint options) {
+    const jint pid = env->GetIntField(jthis, g_pidId);
+    if (env->ExceptionCheck() == JNI_TRUE) return IS_ERROR;
+    return getExitStatus(env, jthis, pid, options & WNOHANG);
 }
 
 // https://www.win.tue.nl/~aeb/linux/lk/lk-10.html
@@ -331,6 +357,7 @@ static const JNINativeMethod methodTable[] = {
         {"execve",                 "(Ljava/lang/String;[Ljava/lang/String;[Ljava/lang/String;)L" CLASS_NAME ";",
         (void *) m_execve},
         {"destroy",                "()V",                   (void *) m_destroy},
+        {"waitForExit",            "(I)I",                  (void *) m_waitForExit},
         {"sendSignalToForeground", "(I)V",                  (void *) m_sendSignalToForeground},
         {"resize",                 "(IIII)V",               (void *) m_resize},
         {"readByte",               "()I",                   (void *) m_readByte},
@@ -370,6 +397,8 @@ JNIEXPORT jint JNI_OnLoad(JavaVM *const vm, void *const reserved) {
     g_fdPtmId = env->GetFieldID(g_class, "fdPtm", "I");
     if (env->ExceptionCheck() == JNI_TRUE) return -1;
     g_pidId = env->GetFieldID(g_class, "pid", "I");
+    if (env->ExceptionCheck() == JNI_TRUE) return -1;
+    g_exitStatusId = env->GetFieldID(g_class, "exitStatus", "I");
     if (env->ExceptionCheck() == JNI_TRUE) return -1;
 
     env->RegisterNatives(g_class, methodTable, SIZEOFTBL(methodTable));

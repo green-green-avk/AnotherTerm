@@ -161,6 +161,8 @@ public final class PtyProcess extends Process {
     public static final int EHWPOISON = 133;
     public static final int ENOTSUP = 95;
 
+    public static final int WNOHANG = 0x00000001;
+
     public static final int O_RDONLY = 00000000;
     public static final int O_WRONLY = 00000001;
     public static final int O_RDWR = 00000002;
@@ -175,6 +177,10 @@ public final class PtyProcess extends Process {
     public static final int SIGALRM = 14;
     public static final int SIGTERM = 15;
 
+    public static final int IS_ERROR = -1;
+    public static final int IS_RUNNING = -2;
+    public static final int IS_EINTR = -3;
+
     static {
         System.loadLibrary("ptyprocess");
     }
@@ -183,6 +189,8 @@ public final class PtyProcess extends Process {
     private volatile int fdPtm;
     @Keep
     private final int pid;
+    @Keep
+    private volatile int exitStatus = IS_RUNNING;
 
     @Keep
     private PtyProcess(final int fdPtm, final int pid) {
@@ -261,18 +269,25 @@ public final class PtyProcess extends Process {
     }
 
     @Override
-    public int waitFor() {
-        return 0;
+    public int waitFor() throws InterruptedException {
+        final int r = waitForExit(0);
+        if (r == IS_EINTR) throw new InterruptedException();
+        return r;
     }
 
     @Override
     public int exitValue() {
-        return 0;
+        final int r = waitForExit(WNOHANG);
+        if (r == IS_RUNNING) throw new IllegalThreadStateException("The process is still running");
+        return r;
     }
 
     @Override
     @Keep
     public native void destroy();
+
+    @Keep
+    public native int waitForExit(int options);
 
     @Keep
     public native void sendSignalToForeground(int signal);
