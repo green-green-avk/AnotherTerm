@@ -144,7 +144,8 @@ copy [-f|--force] [--insecure] [-fp|--from-path|-fu|--from-uri &lt;from&gt;] [-t
 </code></p></dt>
 <dd>
 Copy content. Only single files are supported now.
-Source URI scheme could be <code>content</code>, <code>http</code> or <code>https</code>.
+The source URI scheme could be <code>content</code>, <code>http</code> or <code>https</code>.
+The destination URI scheme could be <code>content</code> only.
 If <code>&lt;from&gt;</code> or <code>&lt;to&gt;</code> is not specified,
 <i>stdin</i> or <i>stdout</i> will be used respectively.
 <code>&lt;to&gt;</code> can be a directory*.
@@ -160,7 +161,7 @@ cat [--insecure] [&lt;URI&gt; ...]
 <dd>
 Concatenate specified URIs content to the <i>stdout</i>, <code>-</code> is used to represent
 the <i>stdin</i>.
-URIs scheme could be <code>content</code>, <code>http</code> or <code>https</code>.
+The URIs scheme could be <code>content</code>, <code>http</code> or <code>https</code>.
 If no URIs are given, the <i>stdin</i> will be used.
 <ul type=\"none\">
 <li><code>--insecure</code> &#x2014; connect via HTTPS even in case of invalid certificate.</li>
@@ -298,7 +299,7 @@ with one millisecond granularity.</p>
 
 <h4>Notes:</h4>
 <ul type=\"none\">
-<li>* <code>unnamed</code> is used if name deduction fails and
+<li>* If file name deduction fails, <code>unnamed</code> is used and
 exit code <code>2</code> is returned.</li>
 <li>** Any UI element started by a script will not be shown and block
 until related shell session UI become active.</li>
