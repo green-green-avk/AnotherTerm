@@ -503,6 +503,11 @@ public abstract class ExtKeyboardView extends View /*implements View.OnClickList
                         invalidateKey(keyState.key, keyState.isPressed);
                 }
                 return true;
+            case MotionEvent.ACTION_CANCEL: {
+                mTouchedKeys.clear();
+                invalidateAllKeys();
+                return true;
+            }
         }
         return super.onTouchEvent(event);
     }

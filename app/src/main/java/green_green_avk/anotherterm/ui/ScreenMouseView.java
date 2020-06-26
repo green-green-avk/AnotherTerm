@@ -250,6 +250,7 @@ public class ScreenMouseView extends ScrollableView {
                 overlay.showAtLocation(this, Gravity.NO_GRAVITY, 0, 0);
                 break;
             }
+            case MotionEvent.ACTION_CANCEL:
             case MotionEvent.ACTION_UP: {
                 overlay.dismiss();
                 break;

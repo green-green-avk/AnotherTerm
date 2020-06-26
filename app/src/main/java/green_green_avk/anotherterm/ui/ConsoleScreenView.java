@@ -26,6 +26,7 @@ import android.os.Build;
 import android.os.Message;
 import android.util.AttributeSet;
 import android.view.Gravity;
+import android.view.InputDevice;
 import android.view.LayoutInflater;
 import android.view.MotionEvent;
 import android.view.View;
@@ -836,14 +837,22 @@ public class ConsoleScreenView extends ScrollableView
     protected int mButtons = 0;
     protected final Point mXY = new Point();
 
-    protected int translateButtons(int buttons) {
+    protected static int translateButtons(int buttons) {
         if ((buttons & MotionEvent.BUTTON_BACK) != 0)
             buttons |= MotionEvent.BUTTON_SECONDARY;
         if ((buttons & MotionEvent.BUTTON_STYLUS_PRIMARY) != 0)
-            buttons |= MotionEvent.BUTTON_PRIMARY;
-        if ((buttons & MotionEvent.BUTTON_STYLUS_SECONDARY) != 0)
             buttons |= MotionEvent.BUTTON_SECONDARY;
+        if ((buttons & MotionEvent.BUTTON_STYLUS_SECONDARY) != 0)
+            buttons |= MotionEvent.BUTTON_TERTIARY;
         return buttons;
+    }
+
+    protected static int getButtons(@NonNull final MotionEvent event) {
+        final int action = event.getActionMasked();
+        return translateButtons(event.getButtonState() |
+                ((event.getToolType(0) == MotionEvent.TOOL_TYPE_STYLUS &&
+                        action != MotionEvent.ACTION_UP && action != MotionEvent.ACTION_CANCEL) ?
+                        MotionEvent.BUTTON_PRIMARY : 0));
     }
 
     public static boolean isMouseEvent(@Nullable final MotionEvent event) {
@@ -928,6 +937,7 @@ public class ConsoleScreenView extends ScrollableView
                         return true;
                     }
                     break;
+                case MotionEvent.ACTION_CANCEL:
                 case MotionEvent.ACTION_UP:
                     if (selectionMarker != null) {
                         if (!isOnScreen(selectionMarker.x, selectionMarker.y))
@@ -944,46 +954,53 @@ public class ConsoleScreenView extends ScrollableView
             if (selectionMarker != null) return true;
         } else if (mouseMode) { // No gestures here
             if (consoleInput != null && consoleInput.consoleOutput != null) {
-                final int x = getBufferTextPosX(MathUtils.clamp((int) event.getX(), 0, getWidth() - 1));
-                final int y = getBufferTextPosY(MathUtils.clamp((int) event.getY(), 0, getHeight() - 1));
+                final int x = getBufferTextPosX(MathUtils.clamp((int) event.getX(),
+                        0, getWidth() - 1));
+                final int y = getBufferTextPosY(MathUtils.clamp((int) event.getY(),
+                        0, getHeight() - 1));
                 switch (action) {
                     case MotionEvent.ACTION_DOWN: {
                         final int buttons;
                         if (event.getToolType(0) == MotionEvent.TOOL_TYPE_FINGER) {
                             buttons = MotionEvent.BUTTON_PRIMARY;
                         } else {
-                            final int bs = translateButtons(event.getButtonState());
+                            final int bs = getButtons(event);
                             buttons = bs & ~mButtons;
                             if (buttons == 0) break;
                             mButtons = bs;
                         }
-                        consoleInput.consoleOutput.feed(ConsoleOutput.MouseEventType.PRESS, buttons, x, y);
+                        consoleInput.consoleOutput.feed(ConsoleOutput.MouseEventType.PRESS,
+                                buttons, x, y);
                         mXY.x = x;
                         mXY.y = y;
                         break;
                     }
                     case MotionEvent.ACTION_MOVE: {
                         if (mXY.x == x && mXY.y == y) break;
-                        final int buttons = event.getToolType(0) == MotionEvent.TOOL_TYPE_FINGER
-                                ? MotionEvent.BUTTON_PRIMARY
-                                : translateButtons(event.getButtonState());
+                        final int buttons =
+                                event.getToolType(0) == MotionEvent.TOOL_TYPE_FINGER
+                                        ? MotionEvent.BUTTON_PRIMARY
+                                        : (mButtons = getButtons(event));
 
-                        consoleInput.consoleOutput.feed(ConsoleOutput.MouseEventType.MOVE, buttons, x, y);
+                        consoleInput.consoleOutput.feed(ConsoleOutput.MouseEventType.MOVE,
+                                buttons, x, y);
                         mXY.x = x;
                         mXY.y = y;
                         break;
                     }
+                    case MotionEvent.ACTION_CANCEL:
                     case MotionEvent.ACTION_UP: {
                         final int buttons;
                         if (event.getToolType(0) == MotionEvent.TOOL_TYPE_FINGER) {
                             buttons = MotionEvent.BUTTON_PRIMARY;
                         } else {
-                            final int bs = translateButtons(event.getButtonState());
+                            final int bs = getButtons(event);
                             buttons = mButtons & ~bs;
                             if (buttons == 0) break;
                             mButtons = bs;
                         }
-                        consoleInput.consoleOutput.feed(ConsoleOutput.MouseEventType.RELEASE, buttons, x, y);
+                        consoleInput.consoleOutput.feed(ConsoleOutput.MouseEventType.RELEASE,
+                                buttons, x, y);
                         unsetCurrentSelectionMarker();
                         inGesture = false;
                         adjustSelectionPopup();
@@ -997,13 +1014,13 @@ public class ConsoleScreenView extends ScrollableView
         }
         if (action == MotionEvent.ACTION_DOWN) {
             if (event.getToolType(0) != MotionEvent.TOOL_TYPE_FINGER)
-                mButtons = translateButtons(event.getButtonState());
+                mButtons = getButtons(event);
             else onTerminalScrollBegin();
         }
         final boolean ret = super.onTouchEvent(event);
-        if (action == MotionEvent.ACTION_UP) {
+        if (action == MotionEvent.ACTION_UP || action == MotionEvent.ACTION_CANCEL) {
             if (event.getToolType(0) != MotionEvent.TOOL_TYPE_FINGER)
-                mButtons = translateButtons(event.getButtonState());
+                mButtons = getButtons(event);
             unsetCurrentSelectionMarker();
             inGesture = false;
             adjustSelectionPopup();
@@ -1019,13 +1036,29 @@ public class ConsoleScreenView extends ScrollableView
             // Empty now
         } else if (mouseMode) {
             if (consoleInput != null && consoleInput.consoleOutput != null) {
-                final int x = getBufferTextPosX(MathUtils.clamp((int) event.getX(), 0, getWidth() - 1));
-                final int y = getBufferTextPosY(MathUtils.clamp((int) event.getY(), 0, getHeight() - 1));
+                final int x = getBufferTextPosX(MathUtils.clamp((int) event.getX(),
+                        0, getWidth() - 1));
+                final int y = getBufferTextPosY(MathUtils.clamp((int) event.getY(),
+                        0, getHeight() - 1));
                 switch (event.getActionMasked()) {
                     case MotionEvent.ACTION_HOVER_MOVE: {
                         if (mXY.x == x && mXY.y == y) break;
-                        final int buttons = translateButtons(event.getButtonState());
-                        consoleInput.consoleOutput.feed(ConsoleOutput.MouseEventType.MOVE, buttons, x, y);
+                        // Some fancy things for styluses (there are no button events before API 23)
+                        final boolean isStylus = (event.getSource() & InputDevice.SOURCE_STYLUS)
+                                == InputDevice.SOURCE_STYLUS;
+                        final int buttons = getButtons(event) &
+                                ~(isStylus ? MotionEvent.BUTTON_PRIMARY : 0);
+                        final int downButtons = buttons & ~mButtons;
+                        final int upButtons = ~buttons & mButtons;
+                        mButtons = buttons;
+                        if (downButtons != 0)
+                            consoleInput.consoleOutput.feed(ConsoleOutput.MouseEventType.PRESS,
+                                    downButtons, x, y);
+                        consoleInput.consoleOutput.feed(ConsoleOutput.MouseEventType.MOVE,
+                                buttons, x, y);
+                        if (upButtons != 0)
+                            consoleInput.consoleOutput.feed(ConsoleOutput.MouseEventType.RELEASE,
+                                    upButtons, x, y);
                         mXY.x = x;
                         mXY.y = y;
                         break;
@@ -1033,7 +1066,8 @@ public class ConsoleScreenView extends ScrollableView
                     case MotionEvent.ACTION_SCROLL: {
                         final float vScroll = event.getAxisValue(MotionEvent.AXIS_VSCROLL);
                         if (vScroll != 0)
-                            consoleInput.consoleOutput.feed(ConsoleOutput.MouseEventType.VSCROLL, (int) vScroll, x, y);
+                            consoleInput.consoleOutput.feed(ConsoleOutput.MouseEventType.VSCROLL,
+                                    (int) vScroll, x, y);
                         break;
                     }
                 }
@@ -1094,18 +1128,22 @@ public class ConsoleScreenView extends ScrollableView
     public boolean onSingleTapUp(final MotionEvent e) {
         if (wasAppTextScrolling)
             return true; // Just stop sending fling scrolling escapes to an application...
-        final int x = getBufferTextPosX(MathUtils.clamp((int) e.getX(), 0, getWidth() - 1));
-        final int y = getBufferTextPosY(MathUtils.clamp((int) e.getY(), 0, getHeight() - 1));
+        final int x = getBufferTextPosX(MathUtils.clamp((int) e.getX(),
+                0, getWidth() - 1));
+        final int y = getBufferTextPosY(MathUtils.clamp((int) e.getY(),
+                0, getHeight() - 1));
         if (isMouseSupported()) {
             final int buttons;
             if (e.getToolType(0) == MotionEvent.TOOL_TYPE_FINGER) {
                 buttons = MotionEvent.BUTTON_PRIMARY;
             } else {
-                buttons = mButtons & ~translateButtons(e.getButtonState());
+                buttons = mButtons & ~getButtons(e);
             }
             if (buttons != 0) {
-                consoleInput.consoleOutput.feed(ConsoleOutput.MouseEventType.PRESS, buttons, x, y);
-                consoleInput.consoleOutput.feed(ConsoleOutput.MouseEventType.RELEASE, buttons, x, y);
+                consoleInput.consoleOutput.feed(ConsoleOutput.MouseEventType.PRESS,
+                        buttons, x, y);
+                consoleInput.consoleOutput.feed(ConsoleOutput.MouseEventType.RELEASE,
+                        buttons, x, y);
             }
         } else {
             setSelectionMode(true);
