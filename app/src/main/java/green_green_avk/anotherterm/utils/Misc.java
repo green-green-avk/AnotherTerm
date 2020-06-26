@@ -32,13 +32,59 @@ public final class Misc {
         return v.getBytes(UTF8);
     }
 
-    public static void copy(@NonNull final OutputStream os,
-                            @NonNull final InputStream is) throws IOException {
+    public static void copy(@NonNull final OutputStream os, @NonNull final InputStream is)
+            throws IOException {
         final byte[] buf = new byte[8192];
         while (true) {
             final int r = is.read(buf);
             if (r < 0) break;
             os.write(buf, 0, r);
+        }
+    }
+
+    public interface CopyCallbacks {
+        void onProgress(long copiedBytes) throws IOException;
+
+        void onFinish() throws IOException;
+
+        void onError() throws IOException;
+    }
+
+    public static void copy(@NonNull final OutputStream os, @NonNull final InputStream is,
+                            @NonNull final CopyCallbacks callback, final int eachMillis)
+            throws IOException {
+        final byte[] buf = new byte[8192];
+        long bytes = 0L;
+        long ts = System.currentTimeMillis();
+        try {
+            while (true) {
+                final int r = is.read(buf);
+                if (r < 0) {
+                    try {
+                        callback.onProgress(bytes);
+                        callback.onFinish();
+                    } catch (final Throwable ignored) {
+                    }
+                    break;
+                }
+                os.write(buf, 0, r);
+                bytes += r;
+                final long _ts = System.currentTimeMillis();
+                if (_ts >= ts + eachMillis) {
+                    try {
+                        callback.onProgress(bytes);
+                    } catch (final Throwable ignored) {
+                    }
+                    ts = _ts;
+                }
+            }
+        } catch (final IOException e) {
+            try {
+                callback.onProgress(bytes);
+                callback.onError();
+            } catch (final Throwable ignored) {
+            }
+            throw e;
         }
     }
 

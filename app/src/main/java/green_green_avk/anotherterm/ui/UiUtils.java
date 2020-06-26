@@ -27,6 +27,7 @@ import androidx.annotation.UiThread;
 import androidx.core.app.ShareCompat;
 
 import java.util.Iterator;
+import java.util.Locale;
 import java.util.Map;
 import java.util.NoSuchElementException;
 import java.util.Stack;
@@ -38,6 +39,21 @@ import green_green_avk.anotherterm.utils.WeakHandler;
 
 public final class UiUtils {
     private UiUtils() {
+    }
+
+    private static final String[] unitPrefixes = {"", "K", "M", "G", "T", "P", "E"};
+
+    @NonNull
+    public static String makeHumanReadableBytes(final long bytes) {
+        final long v = Math.abs(bytes);
+        int shift = 60;
+        for (int i = 6; i >= 0; i--, shift -= 10) {
+            if (v >> shift != 0) {
+                return String.format(Locale.getDefault(), "%.3f %s%sB",
+                        (float) bytes / (1 << shift), unitPrefixes[i], i > 0 ? "i" : "");
+            }
+        }
+        return "0";
     }
 
     @NonNull

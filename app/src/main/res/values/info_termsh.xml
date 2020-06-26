@@ -140,7 +140,7 @@ Examples:
 </dd><br/>
 
 <dt><p><code>
-copy [-f|--force] [--insecure] [-fp|--from-path|-fu|--from-uri &lt;from&gt;] [-tp|--to-path|-tu|--to-uri &lt;to&gt;]
+copy [-f|--force] [--insecure] [--progress] [-fp|--from-path|-fu|--from-uri &lt;from&gt;] [-tp|--to-path|-tu|--to-uri &lt;to&gt;]
 </code></p></dt>
 <dd>
 Copy content. Only single files are supported now.
@@ -150,13 +150,14 @@ If <code>&lt;from&gt;</code> or <code>&lt;to&gt;</code> is not specified,
 <i>stdin</i> or <i>stdout</i> will be used respectively.
 <code>&lt;to&gt;</code> can be a directory*.
 <ul type=\"none\">
-<li><code>--insecure</code> &#x2014; connect via HTTPS even in case of invalid certificate.</li>
 <li><code>-f|--force</code> &#x2014; permit destination overwriting.</li>
+<li><code>--insecure</code> &#x2014; connect via HTTPS even in case of invalid certificate.</li>
+<li><code>--progress</code> &#x2014; output current progress to <i>stderr</i>.</li>
 </ul>
 </dd><br/>
 
 <dt><p><code>
-cat [--insecure] [&lt;URI&gt; ...]
+cat [--insecure] [--progress] [&lt;URI&gt; ...]
 </code></p></dt>
 <dd>
 Concatenate specified URIs content to the <i>stdout</i>, <code>-</code> is used to represent
@@ -165,6 +166,7 @@ The URIs scheme could be <code>content</code>, <code>http</code> or <code>https<
 If no URIs are given, the <i>stdin</i> will be used.
 <ul type=\"none\">
 <li><code>--insecure</code> &#x2014; connect via HTTPS even in case of invalid certificate.</li>
+<li><code>--progress</code> &#x2014; output current progress to <i>stderr</i>.</li>
 </ul>
 <h5>Examples:</h5>
 <p><code>
@@ -184,7 +186,7 @@ Get the name provided by content provider (or deduced from the URI)*
 </dd><br/>
 
 <dt><p><code>
-size &lt;URI&gt;
+size [--insecure] &lt;URI&gt;
 </code></p></dt>
 <dd>
 Get the size provided by content provider (or <code>null</code> if not defined)

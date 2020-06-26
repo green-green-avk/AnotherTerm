@@ -65,6 +65,7 @@ import green_green_avk.anotherterm.backends.local.LocalModule;
 import green_green_avk.anotherterm.backends.uart.UartModule;
 import green_green_avk.anotherterm.ui.BackendUiDialogs;
 import green_green_avk.anotherterm.ui.BackendUiShell;
+import green_green_avk.anotherterm.ui.UiUtils;
 import green_green_avk.anotherterm.utils.BinaryGetOpts;
 import green_green_avk.anotherterm.utils.BlockingSync;
 import green_green_avk.anotherterm.utils.ChrootedFile;
@@ -145,9 +146,16 @@ public final class TermSh {
     }
 
     private static final class UiServer implements Runnable {
+        private static final BinaryGetOpts.Options SIZE_OPTS =
+                new BinaryGetOpts.Options(new BinaryGetOpts.Option[]{
+                        new BinaryGetOpts.Option("insecure", new String[]{"--insecure"},
+                                BinaryGetOpts.Option.Type.NONE)
+                });
         private static final BinaryGetOpts.Options CAT_OPTS =
                 new BinaryGetOpts.Options(new BinaryGetOpts.Option[]{
                         new BinaryGetOpts.Option("insecure", new String[]{"--insecure"},
+                                BinaryGetOpts.Option.Type.NONE),
+                        new BinaryGetOpts.Option("progress", new String[]{"--progress"},
                                 BinaryGetOpts.Option.Type.NONE)
                 });
         private static final BinaryGetOpts.Options COPY_OPTS =
@@ -155,6 +163,8 @@ public final class TermSh {
                         new BinaryGetOpts.Option("force", new String[]{"-f", "--force"},
                                 BinaryGetOpts.Option.Type.NONE),
                         new BinaryGetOpts.Option("insecure", new String[]{"--insecure"},
+                                BinaryGetOpts.Option.Type.NONE),
+                        new BinaryGetOpts.Option("progress", new String[]{"--progress"},
                                 BinaryGetOpts.Option.Type.NONE),
                         new BinaryGetOpts.Option("from-path", new String[]{"-fp", "--from-path"},
                                 BinaryGetOpts.Option.Type.STRING),
@@ -600,6 +610,19 @@ public final class TermSh {
         }
 
         @NonNull
+        private static IOException fixURLConnectionException(@NonNull final IOException e,
+                                                             @NonNull final Uri uri) {
+            // fix for bad Android error reporting ;)
+            if (e instanceof UnknownServiceException) return e;
+            final String msg = e.getMessage();
+            if (msg == null)
+                return new IOException("Error getting content from " + uri.toString());
+            if (msg.substring(0, 4).toLowerCase().equals("http"))
+                return new IOException("Error getting content from " + e.getMessage());
+            return e;
+        }
+
+        @NonNull
         private InputStream openInputStream(@NonNull final Uri uri, final boolean insecure)
                 throws IOException {
             final InputStream is;
@@ -616,16 +639,8 @@ public final class TermSh {
                     }
                     try {
                         is = conn.getInputStream();
-                    } catch (final UnknownServiceException e) {
-                        throw e;
                     } catch (final IOException e) {
-                        // fix for bad Android error reporting ;)
-                        final String msg = e.getMessage();
-                        if (msg == null)
-                            throw new IOException("Error getting content from " + uri.toString());
-                        if (msg.substring(0, 4).toLowerCase().equals("http"))
-                            throw new IOException("Error getting content from " + e.getMessage());
-                        throw e;
+                        throw fixURLConnectionException(e, uri);
                     }
                     break;
                 }
@@ -670,7 +685,26 @@ public final class TermSh {
             }
         }
 
-        private long getSize(@NonNull final Uri uri) {
+        private long getSize(@NonNull final Uri uri, final boolean insecure) throws IOException {
+            final String scheme = uri.getScheme();
+            if (scheme == null) throw new MalformedURLException("Malformed URL: " + uri.toString());
+            switch (scheme) {
+                case "http":
+                case "https": {
+                    final URL url = new URL(uri.toString());
+                    final URLConnection conn = url.openConnection();
+                    if (conn instanceof HttpsURLConnection && insecure) {
+                        ((HttpsURLConnection) conn)
+                                .setSSLSocketFactory(SslHelper.trustAllCertsCtx.getSocketFactory());
+                    }
+                    try {
+                        conn.connect();
+                        return conn.getContentLength();
+                    } catch (final IOException e) {
+                        throw fixURLConnectionException(e, uri);
+                    }
+                }
+            }
             final Cursor c = ui.ctx.getContentResolver().query(uri,
                     new String[]{OpenableColumns.SIZE},
                     null, null, null);
@@ -720,6 +754,38 @@ public final class TermSh {
             } catch (final Throwable e) {
                 throw new IOException(ui.ctx.getString(
                         R.string.msg_xml_parse_error_s, e.getLocalizedMessage()));
+            }
+        }
+
+        private static final class CopyProgressCallbacks implements Misc.CopyCallbacks {
+            @NonNull
+            final ShellCmdIO shellCmd;
+            @NonNull
+            final String suffix;
+
+            private CopyProgressCallbacks(@NonNull final ShellCmdIO shellCmd,
+                                          final long bytesTotal, @Nullable final String source) {
+                this.shellCmd = shellCmd;
+                suffix = (bytesTotal < 0 ? "" :
+                        " / " + UiUtils.makeHumanReadableBytes(bytesTotal)) +
+                        (source != null ? " of " + source : "") +
+                        "\u001B[?7r";
+            }
+
+            @Override
+            public void onProgress(final long bytesCopied) throws IOException {
+                shellCmd.stdErr.write(Misc.toUTF8("\r\u001B[?7s\u001B[?7l" +
+                        UiUtils.makeHumanReadableBytes(bytesCopied) + suffix));
+            }
+
+            @Override
+            public void onFinish() throws IOException {
+                shellCmd.stdErr.write(Misc.toUTF8("\r\u001B[2K"));
+            }
+
+            @Override
+            public void onError() throws IOException {
+                shellCmd.stdErr.write(Misc.toUTF8("\r\n"));
             }
         }
 
@@ -1172,9 +1238,11 @@ public final class TermSh {
                             String name;
                             Uri fromUri = null;
                             File fromFile = null;
+                            boolean insecure = false;
                             if ((name = (String) opts.get("from-uri")) != null) {
                                 fromUri = Uri.parse(name);
-                                is = openInputStream(fromUri, opts.containsKey("insecure"));
+                                insecure = opts.containsKey("insecure");
+                                is = openInputStream(fromUri, insecure);
                             } else if ((name = (String) opts.get("from-path")) != null) {
                                 fromFile = shellCmd.getOriginalFile(name);
                                 is = new FileInputStream(fromFile);
@@ -1206,7 +1274,16 @@ public final class TermSh {
                                 os = shellCmd.stdOut;
                             }
                             try {
-                                Misc.copy(os, is);
+                                if (opts.containsKey("progress"))
+                                    Misc.copy(shellCmd.stdOut, is,
+                                            new CopyProgressCallbacks(shellCmd,
+                                                    fromFile != null ? fromFile.length() :
+                                                            fromUri != null ?
+                                                                    getSize(fromUri, insecure) :
+                                                                    -1, null),
+                                            1000);
+                                else
+                                    Misc.copy(os, is);
                             } finally {
                                 try {
                                     is.close();
@@ -1221,18 +1298,38 @@ public final class TermSh {
                             ap.skip();
                             final Map<String, ?> opts = ap.parse(CAT_OPTS);
                             if (shellCmd.args.length - ap.position < 1) {
-                                Misc.copy(shellCmd.stdOut, shellCmd.stdIn);
+                                if (opts.containsKey("progress"))
+                                    Misc.copy(shellCmd.stdOut, shellCmd.stdIn,
+                                            new CopyProgressCallbacks(shellCmd, -1,
+                                                    null),
+                                            1000);
+                                else
+                                    Misc.copy(shellCmd.stdOut, shellCmd.stdIn);
                             } else for (int i = ap.position; i < shellCmd.args.length; ++i) {
                                 final String argStr = Misc.fromUTF8(shellCmd.args[i]);
                                 if ("-".equals(argStr)) {
-                                    Misc.copy(shellCmd.stdOut, shellCmd.stdIn);
+                                    if (opts.containsKey("progress"))
+                                        Misc.copy(shellCmd.stdOut, shellCmd.stdIn,
+                                                new CopyProgressCallbacks(shellCmd, -1,
+                                                        "<stdin>"),
+                                                1000);
+                                    else
+                                        Misc.copy(shellCmd.stdOut, shellCmd.stdIn);
                                     continue;
                                 }
                                 final Uri uri = Uri.parse(argStr);
+                                final boolean insecure = opts.containsKey("insecure");
                                 final InputStream is = openInputStream(uri,
-                                        opts.containsKey("insecure"));
+                                        insecure);
                                 try {
-                                    Misc.copy(shellCmd.stdOut, is);
+                                    if (opts.containsKey("progress"))
+                                        Misc.copy(shellCmd.stdOut, is,
+                                                new CopyProgressCallbacks(shellCmd,
+                                                        getSize(uri, insecure),
+                                                        argStr),
+                                                1000);
+                                    else
+                                        Misc.copy(shellCmd.stdOut, is);
                                 } finally {
                                     is.close();
                                 }
@@ -1252,10 +1349,13 @@ public final class TermSh {
                             break;
                         }
                         case "size": {
-                            if (shellCmd.args.length != 2)
+                            final BinaryGetOpts.Parser ap = new BinaryGetOpts.Parser(shellCmd.args);
+                            ap.skip();
+                            final Map<String, ?> opts = ap.parse(SIZE_OPTS);
+                            if (shellCmd.args.length - ap.position != 1)
                                 throw new ParseException("Wrong number of arguments");
-                            final Uri uri = Uri.parse(Misc.fromUTF8(shellCmd.args[1]));
-                            final long size = getSize(uri);
+                            final Uri uri = Uri.parse(Misc.fromUTF8(shellCmd.args[ap.position]));
+                            final long size = getSize(uri, opts.containsKey("insecure"));
                             if (size < 0) {
                                 shellCmd.stdOut.write(Misc.toUTF8(C.UNDEFINED_FILE_SIZE + "\n"));
                                 exitStatus = 2;
