@@ -955,4 +955,9 @@ public final class ConsoleInput implements BytesSink {
     }
 
     private final DecPrivateMode decPrivateMode = new DecPrivateMode();
+
+    { // Some specific values
+        decPrivateMode.set(7, true); // Wrap
+        decPrivateMode.save(7);
+    }
 }
