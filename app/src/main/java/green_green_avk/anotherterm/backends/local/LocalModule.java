@@ -224,11 +224,11 @@ public final class LocalModule extends BackendModule {
         final PtyProcess p = proc;
         if (p != null) try {
             p.exitValue();
-            return true;
-        } catch (final IllegalThreadStateException e) {
             return false;
+        } catch (final IllegalThreadStateException e) {
+            return true;
         }
-        else return false;
+        return false;
     }
 
     @Override
