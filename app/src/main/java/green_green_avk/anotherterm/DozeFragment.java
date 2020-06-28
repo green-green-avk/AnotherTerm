@@ -25,7 +25,7 @@ public final class DozeFragment extends Fragment {
     @Override
     public View onCreateView(final LayoutInflater inflater, final ViewGroup container,
                              final Bundle savedInstanceState) {
-        return inflater.inflate(R.layout.fragment_doze, container, false);
+        return inflater.inflate(R.layout.doze_fragment, container, false);
     }
 
     @Override

@@ -206,7 +206,7 @@ public final class PluginsManagerFragment extends Fragment {
     @Override
     public View onCreateView(final LayoutInflater inflater, final ViewGroup container,
                              final Bundle savedInstanceState) {
-        final View v = inflater.inflate(R.layout.fragment_plugins_manager, container, false);
+        final View v = inflater.inflate(R.layout.plugins_manager_fragment, container, false);
         final RecyclerView l = v.findViewById(R.id.plugins);
         l.setLayoutManager(new LinearLayoutManager(container.getContext()));
         l.setAdapter(new PluginsAdapter());

@@ -152,7 +152,7 @@ public final class CustomFontsFragment extends Fragment {
     @Override
     public View onCreateView(final LayoutInflater inflater, final ViewGroup container,
                              final Bundle savedInstanceState) {
-        final View v = inflater.inflate(R.layout.fragment_custom_fonts, container, false);
+        final View v = inflater.inflate(R.layout.custom_fonts_fragment, container, false);
         final TextView wLocation = v.findViewById(R.id.location);
         final RecyclerView wFont = v.findViewById(R.id.font);
         final CompoundButton wUse = v.findViewById(R.id.use);
