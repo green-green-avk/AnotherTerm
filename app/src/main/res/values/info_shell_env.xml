@@ -13,9 +13,13 @@
         Any other application with the storage access permissions can also access this place.</li>
         <li><clipboard>EXTERNAL_DATA_DIR</clipboard> &#x2014;
         an alias to <clipboard>SHARED_DATA_DIR</clipboard>.</li>
+        <li><clipboard>PUBLIC_DATA_DIR</clipboard> &#x2014; the root of the \"sdcard\".
+        <code>READ_EXTERNAL_STORAGE</code> / <code>WRITE_EXTERNAL_STORAGE</code> permissions are
+        required.</li>
         <li><clipboard>LIB_DIR</clipboard> &#x2014; native binaries path.</li>
-        <li><clipboard>APP_ID</clipboard> &#x2014; application id.</li>
-        <li><clipboard>APP_VERSION</clipboard> &#x2014; application version.</li>
+        <li><clipboard>APP_APK</clipboard> &#x2014; path to the <b>Another Term</b> APK.</li>
+        <li><clipboard>APP_ID</clipboard> &#x2014; <b>Another Term</b> application id.</li>
+        <li><clipboard>APP_VERSION</clipboard> &#x2014; <b>Another Term</b> version.</li>
         <li><clipboard>MY_DEVICE_ABIS</clipboard> &#x2014; supported architectures list
         from the most preferable to the least preferable.</li>
         <li><clipboard>MY_ANDROID_SDK</clipboard> &#x2014; Android SDK version.</li>
@@ -25,8 +29,8 @@
         </ul></p>
         <p>Commands:
         <ul>
-        <li><b>termsh</b> (<clipboard>$LIB_DIR/libtermsh.so</clipboard>) &#x2014; a tool to use Android
-        functionality from the shell.
+        <li><b>termsh</b> (<clipboard>$LIB_DIR/libtermsh.so</clipboard>) &#x2014; a tool to
+        use Android functionality from the shell.
         Run with <code>help</code> command for
         <a href=\"info://green_green_avk.anotherterm/termsh_man\">details</a>.</li>
         </ul></p>

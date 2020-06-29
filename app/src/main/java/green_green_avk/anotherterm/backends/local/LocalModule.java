@@ -1,6 +1,7 @@
 package green_green_avk.anotherterm.backends.local;
 
 import android.os.Build;
+import android.os.Environment;
 
 import androidx.annotation.Keep;
 import androidx.annotation.NonNull;
@@ -244,7 +245,9 @@ public final class LocalModule extends BackendModule {
             env.put("EXTERNAL_DATA_DIR", extDataDir.getAbsolutePath());
             env.put("SHARED_DATA_DIR", extDataDir.getAbsolutePath());
         }
+        env.put("PUBLIC_DATA_DIR", Environment.getExternalStorageDirectory().getAbsolutePath());
         env.put("LIB_DIR", context.getApplicationInfo().nativeLibraryDir);
+        env.put("APP_APK", context.getApplicationInfo().sourceDir);
         env.put("APP_ID", BuildConfig.APPLICATION_ID);
         env.put("APP_VERSION", BuildConfig.VERSION_NAME);
         env.put("MY_DEVICE_ABIS", StringUtils.joinWith(" ", (Object[]) Misc.getAbis()));
