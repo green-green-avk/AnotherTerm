@@ -12,7 +12,7 @@
 <li><code>-r|--raw</code> &#x2014; switch a tty
 to the raw mode as set by <code>cfmakeraw()</code> libc function
 for the time of command execution.
-(Beware, <kbd>Ctrl-C</kbd> etc. are not captured by the terminal in this mode.)</li>
+(Beware, <kbd>Ctrl</kbd>-<kbd>C</kbd> etc. are not captured by the terminal in this mode.)</li>
 </ul>
 
 <h4>Commands:</h4>
