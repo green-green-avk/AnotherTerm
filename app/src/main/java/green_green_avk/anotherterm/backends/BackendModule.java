@@ -437,7 +437,7 @@ public abstract class BackendModule {
     // It's the module implementation responsibility to properly handle
     // releaseWakeLockOnDisconnect property.
 
-    private boolean releaseWakeLockOnDisconnect = false;
+    private volatile boolean releaseWakeLockOnDisconnect = false;
 
     public boolean isReleaseWakeLockOnDisconnect() {
         return releaseWakeLockOnDisconnect;
@@ -450,7 +450,7 @@ public abstract class BackendModule {
     // It's the module implementation responsibility to properly handle
     // acquireWakeLockOnConnect property.
 
-    private boolean acquireWakeLockOnConnect = false;
+    private volatile boolean acquireWakeLockOnConnect = false;
 
     public boolean isAcquireWakeLockOnConnect() {
         return acquireWakeLockOnConnect;

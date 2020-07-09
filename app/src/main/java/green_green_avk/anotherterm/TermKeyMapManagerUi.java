@@ -7,31 +7,34 @@ import android.widget.ListView;
 import android.widget.PopupWindow;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 
 public final class TermKeyMapManagerUi {
     private TermKeyMapManagerUi() {
     }
 
     public static void showList(@NonNull final Object parent,
-                                final TermKeyMapAdapter.OnSelectListener onSelectListener,
-                                final TermKeyMapRules rules) {
+                                @NonNull final TermKeyMapAdapter.OnSelectListener onSelectListener,
+                                @NonNull final TermKeyMapRules rules) {
         final TermKeyMapManager.Meta m = TermKeyMapManager.getMeta(rules);
         showList(parent, onSelectListener, m == null ? null : m.name);
     }
 
     public static void showList(@NonNull final Object parent,
-                                final TermKeyMapAdapter.OnSelectListener onSelectListener) {
+                                @NonNull final TermKeyMapAdapter.OnSelectListener onSelectListener) {
         showList(parent, onSelectListener, (String) null);
     }
 
     public static void showList(@NonNull final Object parent,
-                                final TermKeyMapAdapter.OnSelectListener onSelectListener,
-                                final String name) {
+                                @NonNull final TermKeyMapAdapter.OnSelectListener onSelectListener,
+                                @Nullable final String name) {
         if (parent instanceof View) {
             final Context ctx = ((View) parent).getContext();
             final PopupWindow d = new PopupWindow(ctx);
-            d.setBackgroundDrawable(ctx.getResources().getDrawable(android.R.drawable.dialog_holo_light_frame));
-            d.setOutsideTouchable(true);
+            d.setBackgroundDrawable(ctx.getResources().getDrawable(
+                    android.R.drawable.dialog_holo_light_frame));
+            d.setFocusable(true);
+            d.setAnimationStyle(android.R.style.Animation_Dialog);
             final ListView v = new ListView(ctx);
             final TermKeyMapAdapter a = new TermKeyMapAdapter(ctx)
                     .setIncludeBuiltIns(true)

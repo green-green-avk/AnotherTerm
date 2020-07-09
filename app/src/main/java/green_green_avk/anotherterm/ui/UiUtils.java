@@ -229,7 +229,8 @@ public final class UiUtils {
     }
 
     @UiThread
-    public static void confirm(@NonNull final Context ctx, final String msg, final Runnable onConfirm) {
+    public static void confirm(@NonNull final Context ctx, @NonNull final String msg,
+                               @NonNull final Runnable onConfirm) {
         new AlertDialog.Builder(ctx)
                 .setMessage(msg)
                 .setNegativeButton(android.R.string.no, new DialogInterface.OnClickListener() {

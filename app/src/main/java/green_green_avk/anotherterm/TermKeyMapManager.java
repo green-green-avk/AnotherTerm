@@ -44,11 +44,13 @@ public final class TermKeyMapManager {
             this(name, title, isBuiltIn, 0);
         }
 
+        @NonNull
         public String getTitle(@NonNull final Context ctx) {
             if (title instanceof Integer) return ctx.getString((Integer) title);
             return title.toString();
         }
 
+        @NonNull
         public TermKeyMapRules getKeyMap() {
             if (this instanceof BuiltIn) return ((BuiltIn) this).keyMap;
             return TermKeyMapManager.get(name);

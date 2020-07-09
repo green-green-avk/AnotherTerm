@@ -440,10 +440,12 @@ public class ConsoleScreenView extends ScrollableView
             }
         };
         mHandler.sendEmptyMessage(MSG_BLINK);
+        adjustSelectionPopup();
     }
 
     @Override
     protected void onDetachedFromWindow() {
+        selectionPopup.hide();
         mHandler.removeMessages(MSG_BLINK);
         mHandler = null;
         super.onDetachedFromWindow();
