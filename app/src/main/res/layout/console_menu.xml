@@ -1,0 +1,228 @@
+<?xml version="1.0" encoding="utf-8"?>
+<TableLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    tools:context=".ConsoleActivity">
+
+    <LinearLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:gravity="end"
+        android:orientation="horizontal">
+
+        <CheckBox
+            android:id="@+id/wakelock"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="@dimen/text_separator"
+            android:layout_marginLeft="@dimen/text_separator"
+            android:gravity="center_vertical"
+            android:minHeight="@dimen/uiOptionSize"
+            android:onClick="onMenuToggleWakeLock"
+            android:text="@string/label_wake_lock" />
+
+        <ImageView
+            android:id="@+id/help"
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:adjustViewBounds="true"
+            android:background="@drawable/bg_grid_btn"
+            android:contentDescription="@string/action_help"
+            android:focusable="true"
+            android:onClick="onMenuHelp"
+            app:srcCompat="@drawable/ic_help"
+            app:tint="#000000" />
+
+        <ImageView
+            android:id="@+id/terminate"
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:adjustViewBounds="true"
+            android:background="@drawable/bg_grid_btn"
+            android:contentDescription="@string/action_terminate"
+            android:focusable="true"
+            android:onClick="onMenuTerminate"
+            app:srcCompat="@android:drawable/ic_lock_power_off"
+            app:tint="#000000" />
+
+    </LinearLayout>
+
+    <FrameLayout
+        android:layout_width="wrap_content"
+        android:layout_height="4dp"
+        android:background="@drawable/bg_padding1_tiles" />
+
+    <ScrollView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:fadingEdge="vertical"
+        android:requiresFadingEdge="vertical">
+
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content">
+
+            <LinearLayout
+                android:id="@+id/module_ui"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                app:layout_constraintBottom_toTopOf="@id/common_ui"
+                app:layout_constraintLeft_toLeftOf="parent"
+                app:layout_constraintRight_toRightOf="parent"
+                app:layout_constraintTop_toTopOf="parent" />
+
+            <TableLayout
+                android:id="@+id/common_ui"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/module_ui">
+
+                <LinearLayout
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:gravity="center_vertical"
+                    android:minHeight="@dimen/uiOptionSize"
+                    android:orientation="horizontal">
+
+                    <ImageView
+                        android:layout_width="wrap_content"
+                        android:layout_height="match_parent"
+                        android:adjustViewBounds="true"
+                        app:srcCompat="@drawable/ic_font_black_48dp" />
+
+                    <TextView
+                        android:id="@+id/charset"
+                        style="@android:style/Widget.Holo.Light.Spinner"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:focusable="true"
+                        android:onClick="onMenuCharset"
+                        tools:text="Text" />
+
+                </LinearLayout>
+
+                <LinearLayout
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:gravity="center_vertical"
+                    android:minHeight="@dimen/uiOptionSize"
+                    android:orientation="horizontal">
+
+                    <ImageView
+                        android:layout_width="wrap_content"
+                        android:layout_height="match_parent"
+                        android:adjustViewBounds="true"
+                        app:srcCompat="@drawable/ic_keyboard_black_48dp" />
+
+                    <TextView
+                        android:id="@+id/keymap"
+                        style="@android:style/Widget.Holo.Light.Spinner"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:focusable="true"
+                        android:onClick="onMenuKeymap"
+                        tools:text="Text" />
+
+                </LinearLayout>
+
+                <LinearLayout
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:gravity="center_vertical"
+                    android:minHeight="@dimen/uiOptionSize"
+                    android:orientation="horizontal">
+
+                    <ImageView
+                        android:layout_width="wrap_content"
+                        android:layout_height="match_parent"
+                        android:adjustViewBounds="true"
+                        app:srcCompat="@drawable/ic_computer_black_24dp" />
+
+                    <TextView
+                        android:id="@+id/screen_size"
+                        style="@android:style/Widget.Holo.Light.Spinner"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:focusable="true"
+                        android:onClick="onMenuScreenSize"
+                        tools:text="Text" />
+
+                </LinearLayout>
+
+                <TableLayout
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:padding="@dimen/text_padding">
+
+                    <TableRow
+                        android:gravity="center_vertical"
+                        android:minHeight="@dimen/uiOptionSize">
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="@string/action_terminate" />
+
+                        <FrameLayout
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginStart="@dimen/text_separator"
+                            android:layout_marginLeft="@dimen/text_separator"
+                            android:background="@drawable/bg_curl_bracket_m">
+
+                            <CheckBox
+                                android:id="@+id/terminate_on_disconnect"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:onClick="onMenuTerminateOnDisconnect"
+                                android:text="@string/label_on_disconnect" />
+
+                        </FrameLayout>
+
+                    </TableRow>
+
+                    <TableRow
+                        android:gravity="center_vertical"
+                        android:minHeight="@dimen/uiOptionSize">
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="@string/label_wake_lock" />
+
+                        <FrameLayout
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginStart="@dimen/text_separator"
+                            android:layout_marginLeft="@dimen/text_separator"
+                            android:background="@drawable/bg_curl_bracket_m">
+
+                            <CheckBox
+                                android:id="@+id/wakelock_release_on_disconnect"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:onClick="onMenuWakeLockReleaseOnDisconnect"
+                                android:text="@string/action_release_on_disconnect" />
+
+                        </FrameLayout>
+
+                    </TableRow>
+
+                </TableLayout>
+
+            </TableLayout>
+
+        </androidx.constraintlayout.widget.ConstraintLayout>
+
+    </ScrollView>
+
+</TableLayout>

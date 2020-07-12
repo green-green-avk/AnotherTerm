@@ -2,15 +2,40 @@ package green_green_avk.anotherterm;
 
 import android.app.AlertDialog;
 import android.content.Context;
+import android.graphics.Typeface;
+import android.text.SpannableString;
+import android.text.Spanned;
+import android.text.style.StyleSpan;
 import android.view.View;
 import android.widget.ListView;
 import android.widget.PopupWindow;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.annotation.StringRes;
 
 public final class TermKeyMapManagerUi {
     private TermKeyMapManagerUi() {
+    }
+
+    private static Spanned getWarnTitle(@NonNull final Context ctx, @StringRes final int resId) {
+        final SpannableString v = new SpannableString(ctx.getString(resId));
+        v.setSpan(new StyleSpan(Typeface.ITALIC), 0, v.length(),
+                Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
+        return v;
+    }
+
+    @NonNull
+    public static Spanned getTitle(@NonNull final Context ctx,
+                                   @NonNull final TermKeyMapRules rules) {
+        final TermKeyMapManager.Meta m = TermKeyMapManager.getMeta(rules);
+        if (m == null)
+            return getWarnTitle(ctx, R.string.keymap_title_anonymous);
+        final SpannableString v = new SpannableString(m.getTitle(ctx));
+        if (m.isBuiltIn)
+            v.setSpan(new StyleSpan(Typeface.ITALIC), 0, v.length(),
+                    Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
+        return v;
     }
 
     public static void showList(@NonNull final Object parent,

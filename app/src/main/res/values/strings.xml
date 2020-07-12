@@ -8,7 +8,6 @@
     <string name="action_copy">Copy</string>
     <string name="action_paste">Paste</string>
     <string name="action_charset">Character Set</string>
-    <string name="action_charset_p_s_p">Character Set (%s)</string>
     <string name="action_settings">Settings</string>
     <string name="action_ssh_keys_settings">SSH Keys Settings</string>
     <string name="action_new_favorite">New Favorite</string>
@@ -51,6 +50,7 @@
     <string name="there_are_active_terminals">There are active terminals</string>
     <string name="action_clone">Clone</string>
     <string name="action_terminate">Terminate</string>
+    <string name="prompt_terminate_the_session">Terminate the session?</string>
     <string name="hint_port_mapping"><![CDATA[src_port[>dst_host[:dst_port]][;…]]]></string>
     <string name="label_charset">Charset</string>
     <string name="title_activity_connection_settings_editor">Connection Settings Editor</string>
@@ -94,6 +94,7 @@
     <string name="msg_cannot_parse_uri">Cannot parse URI</string>
     <string name="msg_nothing_to_copy_to_clipboard">Nothing to copy to clipboard</string>
     <string name="keymap_title_s_q_not_defined_here_q">%s (not defined here)</string>
+    <string name="keymap_title_anonymous">Anonymous</string>
     <string name="keymap_title_default">Default</string>
     <string name="title_shell_of_s">%s Shell</string>
     <string name="title_shell_script_request_of_s">%s Shell: Script Request</string>

@@ -1,6 +1,5 @@
 package green_green_avk.anotherterm;
 
-import android.annotation.SuppressLint;
 import android.app.AlertDialog;
 import android.app.Dialog;
 import android.content.ClipData;
@@ -15,20 +14,20 @@ import android.os.Build;
 import android.os.Bundle;
 import android.util.Log;
 import android.util.TypedValue;
-import android.view.ContextMenu;
 import android.view.KeyEvent;
-import android.view.Menu;
-import android.view.MenuItem;
+import android.view.LayoutInflater;
 import android.view.MotionEvent;
-import android.view.SubMenu;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.WindowManager;
 import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
 import android.widget.ArrayAdapter;
+import android.widget.Checkable;
+import android.widget.CompoundButton;
 import android.widget.EditText;
 import android.widget.ImageView;
+import android.widget.PopupWindow;
 import android.widget.RadioGroup;
 import android.widget.TextView;
 
@@ -41,6 +40,10 @@ import androidx.core.widget.TextViewCompat;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Method;
 import java.nio.charset.Charset;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.LinkedList;
+import java.util.List;
 import java.util.Map;
 import java.util.NoSuchElementException;
 
@@ -94,8 +97,13 @@ public final class ConsoleActivity extends AppCompatActivity
 
     private void invalidateWakeLock() {
         if (mSession == null) return;
-        mCkv.setLedsByCode(C.KEYCODE_LED_WAKE_LOCK, mSession.backend.wrapped.isWakeLockHeld());
+        final boolean v = mSession.backend.wrapped.isWakeLockHeld();
+        mCkv.setLedsByCode(C.KEYCODE_LED_WAKE_LOCK, v);
         mCkv.invalidateModifierKeys(C.KEYCODE_LED_WAKE_LOCK);
+        if (menuPopupWindow != null && menuPopupWindow.isShowing()) {
+            menuPopupWindow.getContentView().<CompoundButton>findViewById(R.id.wakelock)
+                    .setChecked(v);
+        }
     }
 
     private void invalidateLoadingState() {
@@ -270,47 +278,79 @@ public final class ConsoleActivity extends AppCompatActivity
     }
 
     @Override
-    public boolean onCreateOptionsMenu(final Menu menu) {
-        getMenuInflater().inflate(R.menu.menu_console, menu);
+    protected void onDestroy() {
+        if (menuPopupWindow != null) menuPopupWindow.dismiss();
+        super.onDestroy();
+    }
+
+    @Nullable
+    private PopupWindow menuPopupWindow = null;
+
+    @NonNull
+    private PopupWindow createMenuPopup() {
+        final View popupView =
+                LayoutInflater.from(this).inflate(R.layout.console_menu, null);
+        popupView.setLayoutParams(new ViewGroup.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT,
+                ViewGroup.LayoutParams.WRAP_CONTENT));
+
+// Module related
+
         if (mSession != null) {
             final BackendModule be = mSession.backend.wrapped;
-            for (final Map.Entry<Method, BackendModule.ExportedUIMethod> m :
-                    BackendsList.get(be.getClass()).meta.methods.entrySet()) {
+            final List<Map.Entry<Method, BackendModule.ExportedUIMethod>> uiMethods =
+                    new LinkedList<>(BackendsList.get(be.getClass()).meta.methods.entrySet());
+            Collections.sort(uiMethods, new Comparator<Map.Entry<Method, BackendModule.ExportedUIMethod>>() {
+                @Override
+                public int compare(final Map.Entry<Method, BackendModule.ExportedUIMethod> o1,
+                                   final Map.Entry<Method, BackendModule.ExportedUIMethod> o2) {
+                    return o1.getValue().order() - o2.getValue().order();
+                }
+            });
+            final ViewGroup moduleUiView = popupView.findViewById(R.id.module_ui);
+            for (final Map.Entry<Method, BackendModule.ExportedUIMethod> m : uiMethods) {
                 final Class<?>[] paramTypes = m.getKey().getParameterTypes();
                 final Class<?> retType = m.getKey().getReturnType();
                 if (paramTypes.length == 0 && retType == Void.TYPE) {
-                    final MenuItem mi = menu.add(Menu.NONE, Menu.NONE,
-                            100 + m.getValue().order(), m.getValue().titleRes());
-                    mi.setOnMenuItemClickListener(new MenuItem.OnMenuItemClickListener() {
+                    final TextView mi = (TextView) LayoutInflater.from(this)
+                            .inflate(R.layout.module_ui_button, moduleUiView, false);
+                    mi.setText(m.getValue().titleRes());
+                    mi.setOnClickListener(new View.OnClickListener() {
                         @Override
-                        public boolean onMenuItemClick(final MenuItem item) {
+                        public void onClick(final View item) {
                             be.callMethod(m.getKey());
-                            return true;
+                            if (menuPopupWindow != null) menuPopupWindow.dismiss();
                         }
                     });
+                    moduleUiView.addView(mi);
                 } else if (paramTypes.length == 1 && retType == Void.TYPE) {
                     final Annotation[] aa = m.getKey().getParameterAnnotations()[0];
                     for (final Annotation a : aa) {
                         if (a instanceof BackendModule.ExportedUIMethodEnum) {
                             if (paramTypes[0] != Integer.TYPE) break;
-                            final SubMenu sm = menu.addSubMenu(Menu.NONE, Menu.NONE,
-                                    100 + m.getValue().order(), m.getValue().titleRes());
-                            sm.getItem().setTitle(m.getValue().titleRes());
-                            if (m.getValue().longTitleRes() != 0)
-                                sm.setHeaderTitle(m.getValue().longTitleRes());
+                            final ViewGroup sm = (ViewGroup) LayoutInflater.from(this)
+                                    .inflate(R.layout.module_ui_group, moduleUiView, false);
+                            sm.<TextView>findViewById(R.id.title)
+                                    .setText(m.getValue().longTitleRes() != 0 ?
+                                            m.getValue().longTitleRes() :
+                                            m.getValue().titleRes());
+                            final ViewGroup smg = sm.findViewById(R.id.content);
                             final BackendModule.ExportedUIMethodEnum ae =
                                     (BackendModule.ExportedUIMethodEnum) a;
                             for (int ai = 0; ai < ae.values().length; ai++) {
                                 final int value = ae.values()[ai];
-                                final MenuItem mi = sm.add(ae.titleRes()[ai]);
-                                mi.setOnMenuItemClickListener(new MenuItem.OnMenuItemClickListener() {
+                                final TextView mi = (TextView) LayoutInflater.from(this)
+                                        .inflate(R.layout.module_ui_button, smg, false);
+                                mi.setText(ae.titleRes()[ai]);
+                                mi.setOnClickListener(new View.OnClickListener() {
                                     @Override
-                                    public boolean onMenuItemClick(final MenuItem item) {
+                                    public void onClick(final View item) {
                                         be.callMethod(m.getKey(), value);
-                                        return true;
+                                        if (menuPopupWindow != null) menuPopupWindow.dismiss();
                                     }
                                 });
+                                smg.addView(mi);
                             }
+                            moduleUiView.addView(sm);
                             break;
                         }
                     }
@@ -319,11 +359,12 @@ public final class ConsoleActivity extends AppCompatActivity
                     final BackendModule.ExportedUIMethodFlags a =
                             m.getKey().getAnnotation(BackendModule.ExportedUIMethodFlags.class);
                     if (a != null) {
-                        final MenuItem mi = menu.add(Menu.NONE, Menu.NONE,
-                                100 + m.getValue().order(), m.getValue().titleRes());
-                        mi.setOnMenuItemClickListener(new MenuItem.OnMenuItemClickListener() {
+                        final TextView mi = (TextView) LayoutInflater.from(this)
+                                .inflate(R.layout.module_ui_button, moduleUiView, false);
+                        mi.setText(m.getValue().titleRes());
+                        mi.setOnClickListener(new View.OnClickListener() {
                             @Override
-                            public boolean onMenuItemClick(final MenuItem item) {
+                            public void onClick(final View item) {
                                 final long bits = (long) be.callMethod(m.getKey(), 0L, 0L);
                                 final boolean[] values = new boolean[a.values().length];
                                 final String[] titles = new String[a.values().length];
@@ -347,49 +388,58 @@ public final class ConsoleActivity extends AppCompatActivity
                                                 })
                                         .setCancelable(true)
                                         .show();
-                                return true;
                             }
                         });
+                        moduleUiView.addView(mi);
                     }
                 }
             }
         }
-        return true;
+
+//=======
+
+        final PopupWindow window = new PopupWindow(popupView, ViewGroup.LayoutParams.WRAP_CONTENT,
+                ViewGroup.LayoutParams.WRAP_CONTENT, true);
+        window.setBackgroundDrawable(getResources().getDrawable(
+                android.R.drawable.dialog_holo_light_frame));
+        window.setSplitTouchEnabled(true);
+        window.setAnimationStyle(android.R.style.Animation_Dialog);
+        return window;
     }
 
-    @Override
-    public boolean onPrepareOptionsMenu(final Menu menu) {
-        if (mSession != null)
-            menu.findItem(R.id.action_charset).setTitle(getString(R.string.action_charset_p_s_p,
-                    mSession.output.getCharset().name()));
-        return true;
-    }
-
-    // It seems, Google restricts using of the options menu without an action bar in some old APIs
-    // right after the Honeycomb:
-    // https://android.developreference.com/article/24936634/openOptionsMenu+function+not+working+in+ICS%3F
-    // Preserve *OptionsMenu style definitions at the moment though.
-    @Override
-    public void onCreateContextMenu(final ContextMenu menu, final View v,
-                                    final ContextMenu.ContextMenuInfo menuInfo) {
-        onCreateOptionsMenu(menu);
-        onPrepareOptionsMenu(menu);
-        final MenuItem.OnMenuItemClickListener mil = new MenuItem.OnMenuItemClickListener() {
-            @Override
-            public boolean onMenuItemClick(final MenuItem item) {
-                return onOptionsItemSelected(item);
-            }
-        };
-        wrapOptionsMenu(menu, mil);
-    }
-
-    private void wrapOptionsMenu(@NonNull final Menu menu,
-                                 @NonNull final MenuItem.OnMenuItemClickListener mil) {
-        for (int mii = 0; mii < menu.size(); ++mii) {
-            final MenuItem mi = menu.getItem(mii);
-            if (mi.getItemId() != Menu.NONE) mi.setOnMenuItemClickListener(mil);
-            if (mi.hasSubMenu()) wrapOptionsMenu(mi.getSubMenu(), mil);
+    private void refreshMenuPopup() {
+        if (menuPopupWindow == null || !menuPopupWindow.isShowing()) return;
+        if (mSession != null) {
+            final BackendModule be = mSession.backend.wrapped;
+            final View popupView = menuPopupWindow.getContentView();
+            popupView.<CompoundButton>findViewById(R.id.wakelock).setChecked(be.isWakeLockHeld());
+            popupView.<TextView>findViewById(R.id.charset)
+                    .setText(mSession.output.getCharset().name());
+            popupView.<TextView>findViewById(R.id.keymap)
+                    .setText(TermKeyMapManagerUi.getTitle(this, mSession.output.getKeyMap()));
+            final String w;
+            if (mCsv.resizeBufferXOnUi)
+                w = getString(R.string.hint_int_value_p_auto_p,
+                        mSession.input.currScrBuf.getWidth());
+            else w = String.valueOf(mSession.input.currScrBuf.getWidth());
+            final String h;
+            if (mCsv.resizeBufferYOnUi)
+                h = getString(R.string.hint_int_value_p_auto_p,
+                        mSession.input.currScrBuf.getHeight());
+            else h = String.valueOf(mSession.input.currScrBuf.getHeight());
+            popupView.<TextView>findViewById(R.id.screen_size)
+                    .setText(w + " " + getString(R.string.label_dims_div) + " " + h);
+            popupView.<CompoundButton>findViewById(R.id.terminate_on_disconnect)
+                    .setChecked(mSession.properties.terminateOnDisconnect);
+            popupView.<CompoundButton>findViewById(R.id.wakelock_release_on_disconnect)
+                    .setChecked(be.isReleaseWakeLockOnDisconnect());
         }
+    }
+
+    private void showMenuPopup(@NonNull final View view) {
+        if (menuPopupWindow == null) menuPopupWindow = createMenuPopup();
+        menuPopupWindow.showAsDropDown(view);
+        refreshMenuPopup();
     }
 
     @Override
@@ -483,156 +533,176 @@ public final class ConsoleActivity extends AppCompatActivity
     }
 
     public void onMenu(final View v) {
-//        openOptionsMenu();
-        openContextMenu(v);
+        showMenuPopup(v);
     }
 
-    @SuppressLint("SourceLockedOrientationActivity")
-    @Override
-    public boolean onOptionsItemSelected(final MenuItem item) {
-        switch (item.getItemId()) {
-            case R.id.action_charset: {
-                if (mSession == null) return true;
-                final int p = C.charsetList.indexOf(mSession.output.getCharset().name());
-                final ArrayAdapter<String> a = new ArrayAdapter<>(this,
-                        R.layout.dialogmenu_entry, C.charsetList);
-                new AlertDialog.Builder(this)
-                        .setSingleChoiceItems(a, p, new DialogInterface.OnClickListener() {
-                            @Override
-                            public void onClick(final DialogInterface dialog, final int which) {
-                                if (mSession == null) return;
-                                final String charsetStr = a.getItem(which);
-                                try {
-                                    final Charset charset = Charset.forName(charsetStr);
-                                    mSession.input.setCharset(charset);
-                                    mSession.output.setCharset(charset);
-                                } catch (IllegalArgumentException e) {
-                                    Log.e("Charset", charsetStr, e);
-                                }
-                                dialog.dismiss();
-                            }
-                        }).setCancelable(true).show();
-                return true;
-            }
-            case R.id.action_keymap: {
-                if (mSession == null) return true;
-                TermKeyMapManagerUi.showList(this, new TermKeyMapAdapter.OnSelectListener() {
+    public void onMenuCharset(final View view) {
+        if (mSession == null) return;
+        final int p = C.charsetList.indexOf(mSession.output.getCharset().name());
+        final ArrayAdapter<String> a = new ArrayAdapter<>(this,
+                R.layout.dialogmenu_entry, C.charsetList);
+        new AlertDialog.Builder(this)
+                .setSingleChoiceItems(a, p, new DialogInterface.OnClickListener() {
                     @Override
-                    public void onSelect(final boolean isBuiltIn, final String name,
-                                         final TermKeyMapRules rules, final String title) {
+                    public void onClick(final DialogInterface dialog, final int which) {
                         if (mSession == null) return;
-                        mSession.output.setKeyMap(rules);
+                        final String charsetStr = a.getItem(which);
+                        try {
+                            final Charset charset = Charset.forName(charsetStr);
+                            mSession.input.setCharset(charset);
+                            mSession.output.setCharset(charset);
+                        } catch (IllegalArgumentException e) {
+                            Log.e("Charset", charsetStr, e);
+                        }
+                        refreshMenuPopup();
+                        dialog.dismiss();
                     }
-                }, mSession.output.getKeyMap());
-                return true;
+                }).setCancelable(true).show();
+    }
+
+    public void onMenuKeymap(final View view) {
+        if (mSession == null) return;
+        TermKeyMapManagerUi.showList(this, new TermKeyMapAdapter.OnSelectListener() {
+            @Override
+            public void onSelect(final boolean isBuiltIn, final String name,
+                                 final TermKeyMapRules rules, final String title) {
+                if (mSession == null) return;
+                mSession.output.setKeyMap(rules);
+                refreshMenuPopup();
             }
-            case R.id.action_terminal_screen: {
-                if (mSession == null) return true;
-                final ViewGroup v = (ViewGroup)
-                        getLayoutInflater().inflate(R.layout.buffer_size_dialog, null);
-                final EditText wWidth = v.findViewById(R.id.width);
-                final EditText wHeight = v.findViewById(R.id.height);
-                final RadioGroup wOrientation = v.findViewById(R.id.orientation);
-                if (mCsv.resizeBufferXOnUi)
-                    wWidth.setHint(getString(R.string.hint_int_value_p_auto_p,
-                            mSession.input.currScrBuf.getWidth()));
-                else {
-                    wWidth.setText(String.valueOf(mSession.input.currScrBuf.getWidth()));
-                    wWidth.setHint(R.string.hint_auto);
-                }
-                if (mCsv.resizeBufferYOnUi)
-                    wHeight.setHint(getString(R.string.hint_int_value_p_auto_p,
-                            mSession.input.currScrBuf.getHeight()));
-                else {
-                    wHeight.setText(String.valueOf(mSession.input.currScrBuf.getHeight()));
-                    wHeight.setHint(R.string.hint_auto);
-                }
-                switch (screenOrientation) {
-                    case ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE:
-                        wOrientation.check(R.id.orientation_landscape);
-                        break;
-                    case ActivityInfo.SCREEN_ORIENTATION_PORTRAIT:
-                        wOrientation.check(R.id.orientation_portrait);
-                        break;
-                    case ActivityInfo.SCREEN_ORIENTATION_FULL_SENSOR:
-                        wOrientation.check(R.id.orientation_sensor);
-                        break;
-                    default:
-                        wOrientation.check(R.id.orientation_default);
-                }
-                new AlertDialog.Builder(this)
-                        .setView(v)
-                        .setTitle(R.string.dialog_title_terminal_screen)
-                        .setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener() {
-                            @Override
-                            public void onClick(final DialogInterface dialog, final int which) {
-                                UiUtils.hideIME((Dialog) dialog);
-                                if (mSession != null) {
-                                    int width;
-                                    int height;
-                                    try {
-                                        width = Integer.parseInt(wWidth.getText().toString());
-                                    } catch (final IllegalArgumentException e) {
-                                        width = 0;
-                                    }
-                                    try {
-                                        height = Integer.parseInt(wHeight.getText().toString());
-                                    } catch (final IllegalArgumentException e) {
-                                        height = 0;
-                                    }
-                                    mCsv.setScreenSize(width, height);
-                                    mCsv.onInvalidateSink(null);
-                                    switch (wOrientation.getCheckedRadioButtonId()) {
-                                        case R.id.orientation_landscape:
-                                            screenOrientation = ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE;
-                                            break;
-                                        case R.id.orientation_portrait:
-                                            screenOrientation = ActivityInfo.SCREEN_ORIENTATION_PORTRAIT;
-                                            break;
-                                        case R.id.orientation_sensor:
-                                            screenOrientation = ActivityInfo.SCREEN_ORIENTATION_FULL_SENSOR;
-                                            break;
-                                        default:
-                                            screenOrientation = ActivityInfo.SCREEN_ORIENTATION_UNSPECIFIED;
-                                    }
-                                    setRequestedOrientation(screenOrientation);
-                                }
-                                dialog.dismiss();
-                            }
-                        })
-                        .setNegativeButton(android.R.string.cancel, new DialogInterface.OnClickListener() {
-                            @Override
-                            public void onClick(final DialogInterface dialog, final int which) {
-                                UiUtils.hideIME((Dialog) dialog);
-                                dialog.cancel();
-                            }
-                        })
-                        .setCancelable(true)
-                        .show();
-                return true;
-            }
-            case R.id.action_help: {
-                startActivity(new Intent(this, InfoActivity.class)
-                        .setData(Uri.parse("info://local/help")));
-                return true;
-            }
-            case R.id.action_toggle_wake_lock: {
-                if (mSession == null) return true;
-                if (mSession.backend.wrapped.isWakeLockHeld())
-                    mSession.backend.wrapped.releaseWakeLock();
-                else mSession.backend.wrapped.acquireWakeLock();
-                return true;
-            }
-            case R.id.action_terminate: {
-                try {
-                    ConsoleService.stopSession(mSessionKey);
-                } catch (final NoSuchElementException ignored) {
-                }
-                finish();
-                return true;
-            }
+        }, mSession.output.getKeyMap());
+    }
+
+    public void onMenuScreenSize(final View view) {
+        if (mSession == null) return;
+        final ViewGroup v = (ViewGroup)
+                getLayoutInflater().inflate(R.layout.buffer_size_dialog, null);
+        final EditText wWidth = v.findViewById(R.id.width);
+        final EditText wHeight = v.findViewById(R.id.height);
+        final RadioGroup wOrientation = v.findViewById(R.id.orientation);
+        if (mCsv.resizeBufferXOnUi)
+            wWidth.setHint(getString(R.string.hint_int_value_p_auto_p,
+                    mSession.input.currScrBuf.getWidth()));
+        else {
+            wWidth.setText(String.valueOf(mSession.input.currScrBuf.getWidth()));
+            wWidth.setHint(R.string.hint_auto);
         }
-        return true;
+        if (mCsv.resizeBufferYOnUi)
+            wHeight.setHint(getString(R.string.hint_int_value_p_auto_p,
+                    mSession.input.currScrBuf.getHeight()));
+        else {
+            wHeight.setText(String.valueOf(mSession.input.currScrBuf.getHeight()));
+            wHeight.setHint(R.string.hint_auto);
+        }
+        switch (screenOrientation) {
+            case ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE:
+                wOrientation.check(R.id.orientation_landscape);
+                break;
+            case ActivityInfo.SCREEN_ORIENTATION_PORTRAIT:
+                wOrientation.check(R.id.orientation_portrait);
+                break;
+            case ActivityInfo.SCREEN_ORIENTATION_FULL_SENSOR:
+                wOrientation.check(R.id.orientation_sensor);
+                break;
+            default:
+                wOrientation.check(R.id.orientation_default);
+        }
+        new AlertDialog.Builder(this)
+                .setView(v)
+                .setTitle(R.string.dialog_title_terminal_screen)
+                .setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(final DialogInterface dialog, final int which) {
+                        UiUtils.hideIME((Dialog) dialog);
+                        if (mSession != null) {
+                            int width;
+                            int height;
+                            try {
+                                width = Integer.parseInt(wWidth.getText().toString());
+                            } catch (final IllegalArgumentException e) {
+                                width = 0;
+                            }
+                            try {
+                                height = Integer.parseInt(wHeight.getText().toString());
+                            } catch (final IllegalArgumentException e) {
+                                height = 0;
+                            }
+                            mCsv.setScreenSize(width, height);
+                            mCsv.onInvalidateSink(null);
+                            switch (wOrientation.getCheckedRadioButtonId()) {
+                                case R.id.orientation_landscape:
+                                    screenOrientation = ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE;
+                                    break;
+                                case R.id.orientation_portrait:
+                                    screenOrientation = ActivityInfo.SCREEN_ORIENTATION_PORTRAIT;
+                                    break;
+                                case R.id.orientation_sensor:
+                                    screenOrientation = ActivityInfo.SCREEN_ORIENTATION_FULL_SENSOR;
+                                    break;
+                                default:
+                                    screenOrientation = ActivityInfo.SCREEN_ORIENTATION_UNSPECIFIED;
+                            }
+                            setRequestedOrientation(screenOrientation);
+                        }
+                        refreshMenuPopup();
+                        dialog.dismiss();
+                    }
+                })
+                .setNegativeButton(android.R.string.cancel, new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(final DialogInterface dialog, final int which) {
+                        UiUtils.hideIME((Dialog) dialog);
+                        dialog.cancel();
+                    }
+                })
+                .setCancelable(true)
+                .show();
+    }
+
+    public void onMenuTerminateOnDisconnect(final View view) {
+        if (mSession == null) return;
+        mSession.properties.terminateOnDisconnect = !mSession.properties.terminateOnDisconnect;
+        if (view instanceof Checkable)
+            ((Checkable) view).setChecked(mSession.properties.terminateOnDisconnect);
+    }
+
+    public void onMenuWakeLockReleaseOnDisconnect(final View view) {
+        if (mSession == null) return;
+        final BackendModule be = mSession.backend.wrapped;
+        final boolean v = !be.isReleaseWakeLockOnDisconnect();
+        be.setReleaseWakeLockOnDisconnect(v);
+        if (view instanceof Checkable)
+            ((Checkable) view).setChecked(v);
+    }
+
+    public void onMenuHelp(final View view) {
+        startActivity(new Intent(this, InfoActivity.class)
+                .setData(Uri.parse("info://local/help")));
+    }
+
+    public void onMenuToggleWakeLock(final View view) {
+        if (mSession == null) return;
+        if (mSession.backend.wrapped.isWakeLockHeld())
+            mSession.backend.wrapped.releaseWakeLock();
+        else mSession.backend.wrapped.acquireWakeLock();
+    }
+
+    public void onMenuTerminate(final View view) {
+        if (view != null) {
+            UiUtils.confirm(this, getString(R.string.prompt_terminate_the_session),
+                    new Runnable() {
+                        @Override
+                        public void run() {
+                            onMenuTerminate(null);
+                        }
+                    });
+            return;
+        }
+        try {
+            ConsoleService.stopSession(mSessionKey);
+        } catch (final NoSuchElementException ignored) {
+        }
+        finish();
     }
 
     final MouseButtonsWorkAround mbwa = new MouseButtonsWorkAround(this);
