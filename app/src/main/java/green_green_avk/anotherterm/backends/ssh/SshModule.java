@@ -426,7 +426,28 @@ public final class SshModule extends BackendModule {
 
     @Override
     public void setOutputStream(@NonNull final OutputStream stream) {
-        mOS_set = stream;
+        mOS_set = new OutputStream() {
+            public void write(final int b) throws IOException {
+                stream.write(b);
+            }
+
+            public void write(final byte[] b) throws IOException {
+                stream.write(b);
+            }
+
+            public void write(final byte[] b, final int off, final int len) throws IOException {
+                stream.write(b, off, len);
+            }
+
+            public void flush() throws IOException {
+                stream.flush();
+            }
+
+            public void close() throws IOException {
+                stream.close();
+                if (isReleaseWakeLockOnDisconnect()) releaseWakeLock();
+            }
+        };
     }
 
     @NonNull
