@@ -43,7 +43,7 @@
         <activity
             android:name=".FavoriteEditorActivity"
             android:configChanges="orientation|screenSize|keyboardHidden|keyboard"
-            android:label="@string/title_activity_connection_settings_editor"
+            android:label="@string/title_activity_favorite_editor"
             android:parentActivityName=".SessionsActivity"
             android:theme="@style/AppSettingsTheme"
             android:windowSoftInputMode="adjustResize">

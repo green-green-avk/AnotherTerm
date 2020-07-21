@@ -53,7 +53,7 @@
     <string name="prompt_terminate_the_session">Terminate the session?</string>
     <string name="hint_port_mapping"><![CDATA[src_port[>dst_host[:dst_port]][;…]]]></string>
     <string name="label_charset">Charset</string>
-    <string name="title_activity_connection_settings_editor">Connection Settings Editor</string>
+    <string name="title_activity_favorite_editor">Favorite Editor</string>
     <string name="title_terminal_s_link_s">Terminal %2$s link `%1$s\'</string>
     <string name="msg_saved">Saved</string>
     <string name="msg_cloned">Cloned</string>
