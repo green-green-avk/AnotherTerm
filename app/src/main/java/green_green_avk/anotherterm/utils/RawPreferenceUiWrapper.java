@@ -138,7 +138,8 @@ public final class RawPreferenceUiWrapper implements PreferenceUiWrapper {
 
     private long getLongValue(final Object value) {
         if (value == null) throw new NumberFormatException("The value is `null'");
-        if (value instanceof Integer || value instanceof Long) return (long) value;
+        if (value instanceof Integer) return (int) value;
+        if (value instanceof Long) return (long) value;
         return Long.parseLong(value.toString());
     }
 
