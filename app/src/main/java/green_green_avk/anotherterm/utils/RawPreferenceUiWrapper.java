@@ -136,7 +136,7 @@ public final class RawPreferenceUiWrapper implements PreferenceUiWrapper {
         }
     }
 
-    private long getLongValue(final Object value) {
+    private static long getLongValue(final Object value) {
         if (value == null) throw new NumberFormatException("The value is `null'");
         if (value instanceof Integer) return (int) value;
         if (value instanceof Long) return (long) value;

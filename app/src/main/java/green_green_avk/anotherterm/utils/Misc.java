@@ -1,12 +1,17 @@
 package green_green_avk.anotherterm.utils;
 
+import android.content.Context;
+import android.net.Uri;
 import android.os.Build;
 import android.util.SparseArray;
 import android.util.SparseBooleanArray;
 import android.util.SparseIntArray;
 
 import androidx.annotation.NonNull;
+import androidx.core.content.FileProvider;
 
+import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -15,6 +20,8 @@ import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.NoSuchElementException;
 import java.util.Queue;
+
+import green_green_avk.anotherterm.BuildConfig;
 
 public final class Misc {
     private Misc() {
@@ -115,6 +122,19 @@ public final class Misc {
             off += b.length;
         }
         return buf;
+    }
+
+    private static final String fileProviderAuthority =
+            BuildConfig.APPLICATION_ID + ".fileprovider";
+
+    @NonNull
+    public static Uri getFileUri(@NonNull final Context ctx, @NonNull final File file)
+            throws FileNotFoundException {
+        try {
+            return FileProvider.getUriForFile(ctx, fileProviderAuthority, file);
+        } catch (final IllegalArgumentException e) {
+            throw new FileNotFoundException(e.getMessage());
+        }
     }
 
     // Some sugar if boxing is affordable

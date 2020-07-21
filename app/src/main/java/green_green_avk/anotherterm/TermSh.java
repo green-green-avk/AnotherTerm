@@ -24,7 +24,6 @@ import androidx.annotation.Nullable;
 import androidx.annotation.UiThread;
 import androidx.core.app.NotificationCompat;
 import androidx.core.app.NotificationManagerCompat;
-import androidx.core.content.FileProvider;
 import androidx.core.math.MathUtils;
 
 import java.io.DataInputStream;
@@ -943,14 +942,7 @@ public final class TermSh {
                                         final String filename = Misc.fromUTF8(shellCmd.args[ap.position]);
                                         final File file = shellCmd.getOriginalFile(filename);
                                         checkFile(file);
-                                        final Uri uri;
-                                        try {
-                                            uri = FileProvider.getUriForFile(ui.ctx,
-                                                    BuildConfig.APPLICATION_ID + ".fileprovider",
-                                                    file);
-                                        } catch (final IllegalArgumentException e) {
-                                            throw new FileNotFoundException(e.getMessage());
-                                        }
+                                        final Uri uri = Misc.getFileUri(ui.ctx, file);
                                         shellCmd.stdOut.write(Misc.toUTF8(uri.toString() + "\n"));
                                         break;
                                     }
@@ -978,13 +970,7 @@ public final class TermSh {
                                 } else {
                                     final File file = shellCmd.getOriginalFile(filename);
                                     checkFile(file);
-                                    try {
-                                        uri = FileProvider.getUriForFile(ui.ctx,
-                                                BuildConfig.APPLICATION_ID + ".fileprovider",
-                                                file);
-                                    } catch (final IllegalArgumentException e) {
-                                        throw new FileNotFoundException(e.getMessage());
-                                    }
+                                    uri = Misc.getFileUri(ui.ctx, file);
                                 }
                                 final Intent i = new Intent(writeable ?
                                         Intent.ACTION_EDIT : Intent.ACTION_VIEW);
@@ -1046,13 +1032,7 @@ public final class TermSh {
                                     } else {
                                         final File file = shellCmd.getOriginalFile(name);
                                         checkFile(file);
-                                        try {
-                                            uri = FileProvider.getUriForFile(ui.ctx,
-                                                    BuildConfig.APPLICATION_ID + ".fileprovider",
-                                                    file);
-                                        } catch (final IllegalArgumentException e) {
-                                            throw new FileNotFoundException(e.getMessage());
-                                        }
+                                        uri = Misc.getFileUri(ui.ctx, file);
                                     }
                                     break;
                                 }
