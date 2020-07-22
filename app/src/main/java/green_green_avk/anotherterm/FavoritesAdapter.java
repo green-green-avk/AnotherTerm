@@ -1,9 +1,5 @@
 package green_green_avk.anotherterm;
 
-import android.content.Context;
-import android.content.res.ColorStateList;
-import android.graphics.PorterDuff;
-import android.graphics.drawable.Drawable;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -12,8 +8,6 @@ import android.widget.TextView;
 
 import androidx.annotation.Keep;
 import androidx.annotation.NonNull;
-import androidx.appcompat.widget.AppCompatImageView;
-import androidx.core.widget.ImageViewCompat;
 import androidx.recyclerview.widget.RecyclerView;
 
 import java.util.Arrays;
@@ -78,18 +72,8 @@ public final class FavoritesAdapter extends RecyclerView.Adapter<FavoritesAdapte
         final int bli = BackendsList.getId(ps.get("type"));
         if (bli < 0) return;
         final BackendsList.Item blit = BackendsList.get(bli);
-        final Context ctx = holder.itemView.getContext();
-        final int textColor = nameView.getHintTextColors().getDefaultColor();
         final ImageView iconView = holder.itemView.findViewById(R.id.icon);
-        if (iconView instanceof AppCompatImageView) {
-            ImageViewCompat.setImageTintList(iconView,
-                    ColorStateList.valueOf(textColor));
-            iconView.setImageResource(blit.icon);
-        } else {
-            final Drawable icon = ctx.getResources().getDrawable(blit.icon);
-            icon.mutate().setColorFilter(textColor, PorterDuff.Mode.SRC_IN);
-            iconView.setImageDrawable(icon);
-        }
+        iconView.setImageResource(blit.icon);
     }
 
     @Override

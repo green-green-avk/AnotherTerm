@@ -6,7 +6,7 @@
         <attr name="msbp_interval" format="integer" />
         <attr name="msbp_measurementUnit" format="string" />
         <attr name="msbp_offPosition">
-            <enum name="none" value="0" />
+            <enum name="none" value="0" /><!-- Default -->
             <enum name="left" value="1" />
             <enum name="right" value="2" />
         </attr>
@@ -18,7 +18,7 @@
         <attr name="msbp_dialogTitle" format="string" />
         <attr name="msbp_dialogIcon" format="reference" />
 
-        <!--next ones should be used only with view!-->
+        <!-- View flavour only -->
         <attr name="msbp_view_title" format="string" />
         <attr name="msbp_view_summary" format="string" />
         <attr name="msbp_view_defaultValue" format="integer" />

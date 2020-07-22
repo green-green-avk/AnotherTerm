@@ -571,7 +571,7 @@ public final class TermSh {
             }
 
             @NonNull
-            private BackendUiDialogs getUi() {
+            private BackendUiDialogs getGui() {
                 if (shellSessionData == null) throw new ShellUiException("No session state");
                 final BackendUiInteraction ui = shellSessionData.ui;
                 if (!(ui instanceof BackendUiDialogs)) throw new ShellUiException("Not assigned");
@@ -1002,7 +1002,7 @@ public final class TermSh {
                                             REQUEST_NOTIFICATION_CHANNEL_ID,
                                             NotificationCompat.PRIORITY_HIGH);
                                 else {
-                                    final BackendUiDialogs gui = shellCmd.getUi();
+                                    final BackendUiDialogs gui = shellCmd.getGui();
                                     gui.waitForUi();
                                     ui.ctx.startActivity(ci);
                                 }
@@ -1074,7 +1074,7 @@ public final class TermSh {
                                         NotificationCompat.PRIORITY_HIGH);
                             else {
                                 try {
-                                    final BackendUiDialogs gui = shellCmd.getUi();
+                                    final BackendUiDialogs gui = shellCmd.getGui();
                                     gui.waitForUi();
                                     ui.ctx.startActivity(Intent.createChooser(i, prompt)
                                             .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK));
@@ -1149,7 +1149,7 @@ public final class TermSh {
                                         NotificationCompat.PRIORITY_HIGH);
                             else {
                                 try {
-                                    final BackendUiDialogs gui = shellCmd.getUi();
+                                    final BackendUiDialogs gui = shellCmd.getGui();
                                     gui.waitForUi();
                                     request = RequesterActivity.request(
                                             ui.ctx, Intent.createChooser(i, prompt), onResult);
@@ -1460,7 +1460,7 @@ public final class TermSh {
                                 exitStatus = 3;
                                 break;
                             }
-                            final BackendUiInteraction gui = shellCmd.getUi();
+                            final BackendUiInteraction gui = shellCmd.getGui();
                             final String prompt = Misc.fromUTF8(shellCmd.args[2]);
                             shellCmd.setOnTerminate(new Runnable() {
                                 @Override

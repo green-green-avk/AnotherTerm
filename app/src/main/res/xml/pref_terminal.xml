@@ -103,8 +103,8 @@
         <com.pavelsikun.seekbarpreference.SeekBarPreferenceCompat
             android:defaultValue="@integer/terminal_scroll_follow_history_threshold"
             android:key="terminal_scroll_follow_history_threshold"
-            android:title="@string/label_follow_the_history_buffer"
             android:summary="@string/summary_if_its_visible_fraction_gte"
+            android:title="@string/label_follow_the_history_buffer"
             app:msbp_dialogEnabled="true"
             app:msbp_dialogIcon="@drawable/ic_v_scroll_black"
             app:msbp_interval="10"

@@ -304,8 +304,12 @@ public final class XmlToSpanned {
                         case XmlPullParser.TEXT:
                             text();
                             break;
-                        case XmlPullParser.END_DOCUMENT:
+                        case XmlPullParser.END_DOCUMENT: {
+                            final int tail = oneUp();
+                            if (tail > 0)
+                                output.delete(output.length() - tail, output.length());
                             return output;
+                        }
                         default:
                             throw new Error("Bad state");
                     }

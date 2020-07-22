@@ -2,7 +2,7 @@
 <menu xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
-    tools:context="green_green_avk.anotherterm.SessionsActivity">
+    tools:context=".SessionsActivity">
 
     <item
         android:id="@+id/action_add_fav"

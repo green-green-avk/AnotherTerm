@@ -49,11 +49,14 @@ public final class UiUtils {
         int shift = 60;
         for (int i = 6; i >= 0; i--, shift -= 10) {
             if (v >> shift != 0) {
-                return String.format(Locale.getDefault(), "%.3f %s%sB",
-                        (float) bytes / (1 << shift), unitPrefixes[i], i > 0 ? "i" : "");
+                return i > 0 ?
+                        String.format(Locale.getDefault(), "%.3f %siB",
+                                (float) bytes / (1 << shift), unitPrefixes[i]) :
+                        String.format(Locale.getDefault(), "%d B",
+                                bytes);
             }
         }
-        return "0";
+        return "0 B";
     }
 
     @NonNull

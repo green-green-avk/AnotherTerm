@@ -14,7 +14,8 @@
         android:layout_width="wrap_content"
         android:layout_height="match_parent"
         android:scaleType="fitCenter"
-        app:srcCompat="@android:drawable/ic_menu_help"
+        app:srcCompat="@drawable/ic_help"
+        app:tint="@color/colorDevIcon"
         tools:ignore="ContentDescription" />
 
     <Space
