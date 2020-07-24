@@ -225,6 +225,10 @@ public final class SessionsActivity extends AppCompatActivity {
                 showEditFavoriteDlg(null);
                 return true;
             }
+            case R.id.action_scratchpad: {
+                startActivity(new Intent(this, ScratchpadActivity.class));
+                return true;
+            }
             case R.id.action_term_key_mapping: {
                 startActivity(new Intent(this, TermKeyMapManagerActivity.class));
                 return true;

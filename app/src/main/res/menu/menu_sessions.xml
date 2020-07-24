@@ -11,6 +11,12 @@
         app:showAsAction="always" />
 
     <item
+        android:id="@+id/action_scratchpad"
+        android:icon="@android:drawable/ic_menu_agenda"
+        android:title="@string/action_scratchpad"
+        app:showAsAction="ifRoom" />
+
+    <item
         android:id="@+id/action_term_key_mapping"
         android:title="@string/action_term_key_mapping" />
 

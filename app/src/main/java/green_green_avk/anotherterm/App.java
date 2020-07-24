@@ -48,6 +48,10 @@ public final class App extends Application {
         @Param(defRes = R.integer.terminal_scroll_follow_history_threshold)
         public int terminal_scroll_follow_history_threshold;
 
+        @Keep
+        @Param(defRes = R.integer.scratchpad_use_threshold)
+        public int scratchpad_use_threshold;
+
         @Override
         protected void onAfterChange(@NonNull final String key, @Nullable final Object value) {
             if ("terminal_font_default_fromfiles".equals(key)) {
@@ -57,6 +61,8 @@ public final class App extends Application {
     }
 
     public final Settings settings = new Settings();
+
+    public ScratchpadManager scratchpadManager = null;
 
     // Turned out, it's supposed that any obfuscated fields are reflection unreachable...
     // Must be kept in order to prevent its unexpected early finalization.
@@ -75,6 +81,7 @@ public final class App extends Application {
         FontsManager.setFrom(settings.terminal_font_default_fromfiles);
         TermKeyMapManager.init(this);
         FavoritesManager.init(this);
+        scratchpadManager = new ScratchpadManager(this, "scratchpad");
         termSh = new TermSh(this);
         libUsbManager = new LibUsbManager(this);
     }

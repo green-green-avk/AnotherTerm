@@ -96,10 +96,10 @@ send [&lt;options...&gt;] [--] [&lt;file|URI&gt; ...]
 </code></p></dt>
 <dd>
 Send (<code>android.intent.action.SEND</code> or <code>android.intent.action.SEND_MULTIPLE</code>).
-<code>&lt;file|URI&gt;</code> is treated as a file path if it does not match
+<br/><code>&lt;file|URI&gt;</code> is treated as a file path if it does not match
 <code>/^(?:[a-z0-9+.-]+):\\/\\//i</code>.
-<code>-</code> is used to represent the <i>stdin</i>.
-If no <code>&lt;file|URI&gt;</code> is specified, the <i>stdin</i> is used.
+<br/><code>-</code> is used to represent the <i>stdin</i>.
+<br/>If no <code>&lt;file|URI&gt;</code> is specified, the <i>stdin</i> is used.
 <br/>Command exits after a stream was sent or after interaction with user
 if a file or URI is specified.
 <ul type=\"none\">

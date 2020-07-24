@@ -248,6 +248,13 @@ public class ConsoleScreenView extends ScrollableView
                             UiUtils.sharePlainText((Activity) getContext(), getSelectedText());
                         }
                     });
+            getContentView().findViewById(R.id.b_scratchpad)
+                    .setOnClickListener(new OnClickListener() {
+                        @Override
+                        public void onClick(final View v) {
+                            UiUtils.toScratchpad((Activity) getContext(), getSelectedText());
+                        }
+                    });
         }
 
         protected void calcPos() {

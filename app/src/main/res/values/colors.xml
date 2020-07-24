@@ -12,6 +12,7 @@
     <color name="colorGlass">#7FFFFFFF</color>
     <color name="colorShadow">#000000</color>
     <color name="colorMiddle">#7F7F7F</color>
+    <color name="colorMiddleTr">#7F7F7F7F</color>
     <color name="colorTextCursor">#7FFFFFFF</color>
     <color name="colorTextSelection">#7F00FF00</color>
 </resources>

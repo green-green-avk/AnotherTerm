@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    tools:context=".ScratchpadActivity">
+
+    <item
+        android:icon="@android:drawable/ic_menu_help"
+        android:onClick="onInfo"
+        android:title="@string/action_help"
+        app:showAsAction="always" />
+
+</menu>

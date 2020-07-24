@@ -108,11 +108,6 @@
     <string name="hint_auto">auto</string>
     <string name="hint_int_value_p_auto_p">%d (auto)</string>
     <string name="label_screen">Screen</string>
-    <string name="msg_text_is_too_large_to_be_copied_into_clipboard"><![CDATA[
-        It seems, the text is too large to be copied into the clipboard on this particular device
-        without using of a content provider.
-        A workaround will be implemented in the future.
-    ]]></string>
     <string name="action_help">Help</string>
     <string name="label_key_exchange">Key exchange</string>
     <string name="title_encryption_preferences">Encryption preferences</string>
@@ -198,11 +193,6 @@
     <string name="action_toggle_wake_lock">Toggle Wake Lock</string>
     <string name="msg_s___">%s…</string>
     <string name="msg_nothing_to_share">Nothing to share</string>
-    <string name="msg_text_is_too_large_to_be_shared"><![CDATA[
-        It seems, the text is too large to be shared on this particular device
-        without using of a content provider.
-        A workaround will be implemented in the future.
-    ]]></string>
     <string name="label_key_modifiers">Modifiers</string>
     <string name="action_mouse_mode">Mouse mode</string>
     <string name="action_switch_screen_keyboard">Switch screen keyboard</string>
@@ -230,4 +220,15 @@
     <string name="hint_acquire_wake_lock_on_connect">Acquire Wake Lock On Connect</string>
     <string name="label_on_disconnect">On Disconnect</string>
     <string name="hint_terminate_on_disconnect">Terminate On Disconnect</string>
+    <string name="title_scratchpad">Scratchpad</string>
+    <string name="action_scratchpad">Scratchpad</string>
+    <string name="msg_scratchpad_malfunction_s">Scratchpad malfunction: %s</string>
+    <string name="do_you_want_to_delete_this_entry">Do you want to delete this entry?</string>
+    <string name="msg_saved_to_scratchpad">Saved to the scratchpad</string>
+    <string name="msg_via_scratchpad">Via scratchpad</string>
+    <string name="msg_nothing_to_save">Nothing to save</string>
+    <string name="unit_kib">KiB</string>
+    <string name="label_use_for_copy_share">Use for copy/share</string>
+    <string name="summary_if_data_size_is_gte">if data size is ≥</string>
+    <string name="title_empty">Empty</string>
 </resources>

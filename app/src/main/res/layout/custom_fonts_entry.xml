@@ -21,8 +21,8 @@
         android:adjustViewBounds="true"
         android:background="@drawable/bg_grid_btn"
         android:contentDescription="@string/action_pick_font"
-        android:tint="@color/colorPrimary"
-        app:srcCompat="@drawable/ic_download" />
+        app:srcCompat="@drawable/ic_download"
+        app:tint="@color/colorPrimary" />
 
     <ImageButton
         android:id="@+id/unset"
@@ -31,7 +31,7 @@
         android:adjustViewBounds="true"
         android:background="@drawable/bg_grid_btn"
         android:contentDescription="@string/action_remove_font"
-        android:tint="@color/colorPrimary"
-        app:srcCompat="@drawable/ic_delete" />
+        app:srcCompat="@drawable/ic_delete"
+        app:tint="@color/colorPrimary" />
 
 </LinearLayout>

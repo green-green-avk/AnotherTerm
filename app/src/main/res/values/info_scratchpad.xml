@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="desc_scratchpad_help"><![CDATA[
+        <h1>Scratchpad</h1>
+        <p>The <i>scratchpad</i> feature has been added mostly to deal with
+        the Android marshalling limitations
+        and lack of the ability to track the content URI reference count.</p>
+        <p>If you delete an entry after copying / sharing it,
+        the clipboard content becomes obsolete / the recipient application could fail to use it
+        if its content URI is still not opened <i>(very unlikely in the real world)</i>.</p>
+    ]]></string>
+</resources>

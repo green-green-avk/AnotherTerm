@@ -1,6 +1,7 @@
 package green_green_avk.anotherterm.utils;
 
 import android.content.Context;
+import android.content.ContextWrapper;
 import android.net.Uri;
 import android.os.Build;
 import android.util.SparseArray;
@@ -21,6 +22,7 @@ import java.util.LinkedList;
 import java.util.NoSuchElementException;
 import java.util.Queue;
 
+import green_green_avk.anotherterm.App;
 import green_green_avk.anotherterm.BuildConfig;
 
 public final class Misc {
@@ -135,6 +137,17 @@ public final class Misc {
         } catch (final IllegalArgumentException e) {
             throw new FileNotFoundException(e.getMessage());
         }
+    }
+
+    @NonNull
+    public static App getApplication(@NonNull Context ctx) {
+        ctx = ctx.getApplicationContext();
+        while (!(ctx instanceof App)) {
+            if (ctx instanceof ContextWrapper)
+                ctx = ((ContextWrapper) ctx).getBaseContext();
+            else throw new ClassCastException("Unable to reach the application object");
+        }
+        return (App) ctx;
     }
 
     // Some sugar if boxing is affordable

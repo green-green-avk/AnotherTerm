@@ -10,4 +10,6 @@
     <string name="terminal_mouse_layout">default</string>
     <integer name="terminal_scroll_follow_history_threshold">50
     </integer><!-- [% of visible history buffer] -->
+    <integer name="scratchpad_use_threshold">256</integer><!-- [KiB] -->
+    <integer name="scratchpad_use_threshold_max">65536</integer><!-- [KiB] -->
 </resources>

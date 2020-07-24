@@ -115,4 +115,23 @@
 
     </PreferenceCategory>
 
+    <PreferenceCategory
+        android:icon="@drawable/ic_paste_black"
+        android:title="@string/title_scratchpad">
+
+        <com.pavelsikun.seekbarpreference.SeekBarPreferenceCompat
+            android:defaultValue="@integer/scratchpad_use_threshold"
+            android:key="scratchpad_use_threshold"
+            android:summary="@string/summary_if_data_size_is_gte"
+            android:title="@string/label_use_for_copy_share"
+            app:msbp_dialogEnabled="true"
+            app:msbp_dialogIcon="@drawable/ic_paste_black"
+            app:msbp_interval="128"
+            app:msbp_maxValue="@integer/scratchpad_use_threshold_max"
+            app:msbp_measurementUnit="@string/unit_kib"
+            app:msbp_minValue="0"
+            app:msbp_offPosition="right" />
+
+    </PreferenceCategory>
+
 </PreferenceScreen>

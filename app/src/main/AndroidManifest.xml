@@ -102,6 +102,15 @@
         </activity>
 
         <activity
+            android:name=".ScratchpadActivity"
+            android:label="@string/title_scratchpad"
+            android:parentActivityName=".SessionsActivity">
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value=".SessionsActivity" />
+        </activity>
+
+        <activity
             android:name=".ConsoleActivity"
             android:configChanges="keyboardHidden|keyboard"
             android:label="Console"
