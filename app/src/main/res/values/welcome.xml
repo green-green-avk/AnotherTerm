@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="welcome_title_tips">Tips</string>
+    <string name="welcome_label_start"><![CDATA[
+        <br/>
+        <ul>
+        <li>Create some profile to start with &#x2014; </li>
+        </ul>
+    ]]></string>
+    <string name="welcome_desc"><![CDATA[
+        <ul>
+        <li>Long tap matters.</li>
+        <li>Use sound volume buttons to change the font size when on the terminal screen.</li>
+        <li>For other questions see
+        <a href=\"https://green-green-avk.github.io/AnotherTerm-docs/\">the official site</a>.</li>
+        </ul>
+    ]]></string>
+</resources>

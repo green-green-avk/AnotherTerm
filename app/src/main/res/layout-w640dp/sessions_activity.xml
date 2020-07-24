@@ -4,6 +4,14 @@
     android:layout_height="match_parent"
     android:orientation="horizontal">
 
+    <include
+        android:id="@+id/welcome"
+        layout="@layout/welcome"
+        android:layout_width="0dp"
+        android:layout_height="match_parent"
+        android:layout_weight="1"
+        android:visibility="gone" />
+
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/favorites_list"
         android:layout_width="0dp"

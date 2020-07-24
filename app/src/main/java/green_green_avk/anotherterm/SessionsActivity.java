@@ -147,6 +147,7 @@ public final class SessionsActivity extends AppCompatActivity {
                         });
             }
         });
+        a.registerAdapterDataObserver(observer);
     }
 
     private void prepareSessionsList() {
@@ -195,16 +196,50 @@ public final class SessionsActivity extends AppCompatActivity {
                         });
             }
         });
+        a.registerAdapterDataObserver(observer);
     }
+
+    private final RecyclerView.AdapterDataObserver observer =
+            new RecyclerView.AdapterDataObserver() {
+                @Override
+                public void onChanged() {
+                    final RecyclerView wFavs =
+                            SessionsActivity.this.findViewById(R.id.favorites_list);
+                    final View wWelcome = SessionsActivity.this.findViewById(R.id.welcome);
+                    if (wFavs.getAdapter().getItemCount() +
+                            SessionsActivity.this.<RecyclerView>findViewById(R.id.sessions_list)
+                                    .getAdapter().getItemCount() > 0) {
+                        wWelcome.setVisibility(View.GONE);
+                        wFavs.setVisibility(View.VISIBLE);
+                    } else {
+                        wFavs.setVisibility(View.GONE);
+                        wWelcome.setVisibility(View.VISIBLE);
+                    }
+                }
+            };
 
     @Override
     protected void onCreate(@Nullable final Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-
         setContentView(R.layout.sessions_activity);
-
         prepareFavoritesList();
         prepareSessionsList();
+        observer.onChanged();
+    }
+
+    @Override
+    protected void onDestroy() {
+        this.<RecyclerView>findViewById(R.id.favorites_list)
+                .getAdapter().unregisterAdapterDataObserver(observer);
+        this.<RecyclerView>findViewById(R.id.sessions_list)
+                .getAdapter().unregisterAdapterDataObserver(observer);
+        super.onDestroy();
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        this.<RecyclerView>findViewById(R.id.sessions_list).getAdapter().notifyDataSetChanged();
     }
 
     @Override
@@ -254,9 +289,7 @@ public final class SessionsActivity extends AppCompatActivity {
         return true;
     }
 
-    @Override
-    protected void onResume() {
-        super.onResume();
-        this.<RecyclerView>findViewById(R.id.sessions_list).getAdapter().notifyDataSetChanged();
+    public void onNewFav(final View view) {
+        showEditFavoriteDlg(null);
     }
 }
