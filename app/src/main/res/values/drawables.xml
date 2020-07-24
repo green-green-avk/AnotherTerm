@@ -2,4 +2,8 @@
 <resources>
     <drawable name="list_item_background">@drawable/bg_li2</drawable>
     <drawable name="list_item_btn_background">@drawable/bg_li2_btn</drawable>
+    <drawable name="ic_menu_add">@android:drawable/ic_menu_add</drawable>
+    <drawable name="ic_menu_edit">@android:drawable/ic_menu_edit</drawable>
+    <drawable name="ic_menu_help">@android:drawable/ic_menu_help</drawable>
+    <drawable name="ic_menu_scratchpad">@android:drawable/ic_menu_agenda</drawable>
 </resources>
