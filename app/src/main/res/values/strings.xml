@@ -126,6 +126,7 @@
         <a href=\"https://epaul.github.io/jsch-documentation/javadoc/com/jcraft/jsch/JSch.html#setConfig-java.lang.String-java.lang.String-\">JSch documentation</a>
         here.</p>
     ]]></string>
+    <string name="name_stream_default">Stream</string>
     <string name="msg_pick_application">Pick application</string>
     <string name="msg_pick_destination">Pick destination</string>
     <string name="msg_pick_source">Pick source</string>

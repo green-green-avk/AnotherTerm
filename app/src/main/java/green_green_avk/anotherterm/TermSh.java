@@ -26,6 +26,8 @@ import androidx.core.app.NotificationCompat;
 import androidx.core.app.NotificationManagerCompat;
 import androidx.core.math.MathUtils;
 
+import org.apache.commons.lang3.StringUtils;
+
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.File;
@@ -46,13 +48,19 @@ import java.net.URLDecoder;
 import java.net.URLEncoder;
 import java.net.UnknownServiceException;
 import java.nio.CharBuffer;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
+import java.util.HashSet;
+import java.util.LinkedList;
+import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.regex.Pattern;
 
 import javax.net.ssl.HttpsURLConnection;
 
@@ -68,6 +76,7 @@ import green_green_avk.anotherterm.ui.UiUtils;
 import green_green_avk.anotherterm.utils.BinaryGetOpts;
 import green_green_avk.anotherterm.utils.BlockingSync;
 import green_green_avk.anotherterm.utils.ChrootedFile;
+import green_green_avk.anotherterm.utils.MimeType;
 import green_green_avk.anotherterm.utils.Misc;
 import green_green_avk.anotherterm.utils.PreferenceStorage;
 import green_green_avk.anotherterm.utils.SslHelper;
@@ -145,6 +154,7 @@ public final class TermSh {
     }
 
     private static final class UiServer implements Runnable {
+        private static final Pattern URI_PATTERN = Pattern.compile("^(?:[a-zA-Z0-9+.-]+)://");
         private static final BinaryGetOpts.Options SIZE_OPTS =
                 new BinaryGetOpts.Options(new BinaryGetOpts.Option[]{
                         new BinaryGetOpts.Option("insecure", new String[]{"--insecure"},
@@ -230,9 +240,7 @@ public final class TermSh {
                         new BinaryGetOpts.Option("prompt", new String[]{"-p", "--prompt"},
                                 BinaryGetOpts.Option.Type.STRING),
                         new BinaryGetOpts.Option("size", new String[]{"-s", "--size"},
-                                BinaryGetOpts.Option.Type.INT),
-                        new BinaryGetOpts.Option("uri", new String[]{"-u", "--uri"},
-                                BinaryGetOpts.Option.Type.NONE)
+                                BinaryGetOpts.Option.Type.INT)
                 });
         private static final BinaryGetOpts.Options SERIAL_OPTS =
                 new BinaryGetOpts.Options(new BinaryGetOpts.Option[]{
@@ -1015,30 +1023,21 @@ public final class TermSh {
                             final BinaryGetOpts.Parser ap = new BinaryGetOpts.Parser(shellCmd.args);
                             ap.skip();
                             final Map<String, ?> opts = ap.parse(SEND_OPTS);
-                            String mime = (String) opts.get("mime");
-                            if (mime == null) mime = "*/*";
+                            final String mime = (String) opts.get("mime");
+                            final String mimeType = mime != null ? mime : "*/*";
                             String prompt = (String) opts.get("prompt");
                             if (prompt == null)
                                 prompt = ui.ctx.getString(R.string.msg_pick_destination);
-                            final String name;
-                            final Uri uri;
+                            final List<String> titles = new LinkedList<>();
+                            final Set<Uri> uris = new HashSet<>();
+                            final MimeType aggregateMime = new MimeType();
+                            String name;
+                            Uri uri;
                             final BlockingSync<Object> result = new BlockingSync<>();
                             switch (shellCmd.args.length - ap.position) {
-                                case 1: {
-                                    result.set(null);
-                                    name = Misc.fromUTF8(shellCmd.args[ap.position]);
-                                    if (opts.containsKey("uri")) {
-                                        uri = Uri.parse(name);
-                                    } else {
-                                        final File file = shellCmd.getOriginalFile(name);
-                                        checkFile(file);
-                                        uri = Misc.getFileUri(ui.ctx, file);
-                                    }
-                                    break;
-                                }
                                 case 0: {
                                     name = (String) opts.get("name");
-                                    uri = StreamProvider.obtainUri(shellCmd.stdIn, mime,
+                                    uri = StreamProvider.obtainUri(shellCmd.stdIn, mimeType,
                                             name, (Integer) opts.get("size"),
                                             new StreamProvider.OnResult() {
                                                 @Override
@@ -1046,37 +1045,91 @@ public final class TermSh {
                                                     result.set(null);
                                                 }
                                             });
+                                    titles.add(name != null ? name :
+                                            ui.ctx.getString(R.string.name_stream_default));
+                                    uris.add(uri);
+                                    aggregateMime.quietMerge(mimeType);
                                     break;
                                 }
-                                default:
-                                    throw new ParseException("Bad arguments");
+                                default: {
+                                    boolean hasStdIn = false;
+                                    for (int i = ap.position; i < shellCmd.args.length; i++) {
+                                        name = Misc.fromUTF8(shellCmd.args[i]);
+                                        if ("-".equals(name)) {
+                                            if (hasStdIn) continue;
+                                            name = (String) opts.get("name");
+                                            uri = StreamProvider.obtainUri(shellCmd.stdIn, mimeType,
+                                                    name, (Integer) opts.get("size"),
+                                                    new StreamProvider.OnResult() {
+                                                        @Override
+                                                        public void onResult(final Object msg) {
+                                                            result.set(null);
+                                                        }
+                                                    });
+                                            titles.add(name != null ? name :
+                                                    ui.ctx.getString(R.string.name_stream_default));
+                                            uris.add(uri);
+                                            aggregateMime.quietMerge(mimeType);
+                                            hasStdIn = true;
+                                            continue;
+                                        }
+                                        if (URI_PATTERN.matcher(name).find()) {
+                                            uri = Uri.parse(name);
+                                            if (uris.contains(uri)) continue;
+                                            final String title = getName(uri);
+                                            titles.add(title != null ? title :
+                                                    ui.ctx.getString(R.string.name_stream_default));
+                                        } else {
+                                            final File file = shellCmd.getOriginalFile(name);
+                                            checkFile(file);
+                                            uri = Misc.getFileUri(ui.ctx, file);
+                                            if (uris.contains(uri)) continue;
+                                            titles.add(file.getName());
+                                        }
+                                        uris.add(uri);
+                                        aggregateMime.quietMerge(ui.ctx.getContentResolver()
+                                                .getType(uri));
+                                    }
+                                    if (!hasStdIn) result.set(null);
+                                }
                             }
                             final Runnable rCancel = new Runnable() {
                                 @Override
                                 public void run() {
                                     try {
-                                        StreamProvider.releaseUri(uri);
+                                        for (final Uri uri : uris)
+                                            StreamProvider.releaseUri(uri);
                                     } finally {
                                         result.set(null);
                                     }
                                 }
                             };
-                            final Intent i = new Intent(Intent.ACTION_SEND);
-                            i.setType(mime);
-                            i.putExtra(Intent.EXTRA_STREAM, uri);
+                            final Intent intent;
+                            if (uris.size() > 1) {
+                                intent = new Intent(Intent.ACTION_SEND_MULTIPLE);
+                                intent.setType(aggregateMime.get());
+                                intent.putParcelableArrayListExtra(Intent.EXTRA_STREAM,
+                                        new ArrayList<>(uris));
+                            } else if (uris.size() == 1) {
+                                intent = new Intent(Intent.ACTION_SEND);
+                                intent.setType(mime != null ? mime : aggregateMime.get());
+                                intent.putExtra(Intent.EXTRA_STREAM, uris.iterator().next());
+                            } else {
+                                throw new ParseException("Bad arguments");
+                            }
                             if (opts.containsKey("notify"))
                                 RequesterActivity.showAsNotification(ui.ctx,
-                                        Intent.createChooser(i, prompt),
+                                        Intent.createChooser(intent, prompt),
                                         ui.ctx.getString(R.string.title_shell_of_s,
                                                 ui.ctx.getString(R.string.app_name)),
-                                        prompt + " (" + (name == null ? "Stream" : name) + ")",
+                                        prompt + " (" + StringUtils.join(titles, ", ") + ")",
                                         REQUEST_NOTIFICATION_CHANNEL_ID,
                                         NotificationCompat.PRIORITY_HIGH);
                             else {
                                 try {
                                     final BackendUiDialogs gui = shellCmd.getGui();
                                     gui.waitForUi();
-                                    ui.ctx.startActivity(Intent.createChooser(i, prompt)
+                                    ui.ctx.startActivity(Intent.createChooser(intent, prompt)
                                             .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK));
                                 } catch (final Throwable e) {
                                     rCancel.run();
