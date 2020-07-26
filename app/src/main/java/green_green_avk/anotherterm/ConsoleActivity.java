@@ -675,6 +675,10 @@ public final class ConsoleActivity extends AppCompatActivity
             ((Checkable) view).setChecked(v);
     }
 
+    public void onMenuScratchpad(final View view) {
+        startActivity(new Intent(this, ScratchpadActivity.class));
+    }
+
     public void onMenuHelp(final View view) {
         startActivity(new Intent(this, InfoActivity.class)
                 .setData(Uri.parse("info://local/help")));

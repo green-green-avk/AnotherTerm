@@ -3,6 +3,8 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="wrap_content"
     android:layout_height="wrap_content"
+    android:layout_margin="1dp"
+    android:background="@drawable/bg_frame2_btn"
     android:minWidth="@dimen/uiOptionSize"
     android:minHeight="@dimen/uiOptionSize"
     tools:text="Text" />

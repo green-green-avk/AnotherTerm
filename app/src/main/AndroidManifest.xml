@@ -103,12 +103,7 @@
 
         <activity
             android:name=".ScratchpadActivity"
-            android:label="@string/title_scratchpad"
-            android:parentActivityName=".SessionsActivity">
-            <meta-data
-                android:name="android.support.PARENT_ACTIVITY"
-                android:value=".SessionsActivity" />
-        </activity>
+            android:label="@string/title_scratchpad" />
 
         <activity
             android:name=".ConsoleActivity"

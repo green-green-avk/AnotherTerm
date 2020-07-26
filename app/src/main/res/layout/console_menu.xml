@@ -4,48 +4,64 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="wrap_content"
     android:layout_height="wrap_content"
+    android:padding="1dp"
     tools:context=".ConsoleActivity">
 
     <LinearLayout
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:gravity="end"
+        android:background="@drawable/bg_console_menu"
         android:orientation="horizontal">
-
-        <CheckBox
-            android:id="@+id/wakelock"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginStart="@dimen/text_separator"
-            android:layout_marginLeft="@dimen/text_separator"
-            android:gravity="center_vertical"
-            android:minHeight="@dimen/uiOptionSize"
-            android:onClick="onMenuToggleWakeLock"
-            android:text="@string/label_wake_lock" />
 
         <ImageView
             android:id="@+id/help"
             android:layout_width="wrap_content"
             android:layout_height="match_parent"
+            android:layout_weight="1"
             android:adjustViewBounds="true"
-            android:background="@drawable/bg_grid_btn"
+            android:background="@drawable/bg_console_menu_btn"
             android:contentDescription="@string/action_help"
             android:focusable="true"
             android:onClick="onMenuHelp"
-            app:srcCompat="@drawable/ic_help"
-            app:tint="#000000" />
+            app:srcCompat="@drawable/ic_menu_help" />
+
+        <ImageView
+            android:id="@+id/scratchpad"
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:adjustViewBounds="true"
+            android:background="@drawable/bg_console_menu_btn"
+            android:contentDescription="@string/action_scratchpad"
+            android:focusable="true"
+            android:onClick="onMenuScratchpad"
+            app:srcCompat="@drawable/ic_menu_scratchpad" />
+
+        <CheckBox
+            android:id="@+id/wakelock"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:gravity="center_vertical"
+            android:minHeight="@dimen/uiOptionSize"
+            android:onClick="onMenuToggleWakeLock"
+            android:paddingLeft="@dimen/text_separator"
+            android:paddingRight="@dimen/text_separator"
+            android:text="@string/label_wake_lock"
+            android:textColor="?android:attr/colorBackground"
+            app:buttonTint="@android:color/background_light" />
 
         <ImageView
             android:id="@+id/terminate"
             android:layout_width="wrap_content"
             android:layout_height="match_parent"
+            android:layout_weight="1"
             android:adjustViewBounds="true"
-            android:background="@drawable/bg_grid_btn"
+            android:background="@drawable/bg_console_menu_btn"
             android:contentDescription="@string/action_terminate"
             android:focusable="true"
             android:onClick="onMenuTerminate"
             app:srcCompat="@android:drawable/ic_lock_power_off"
-            app:tint="#000000" />
+            app:tint="@android:color/background_light" />
 
     </LinearLayout>
 
@@ -93,7 +109,8 @@
                         android:layout_width="wrap_content"
                         android:layout_height="match_parent"
                         android:adjustViewBounds="true"
-                        app:srcCompat="@drawable/ic_font_black_48dp" />
+                        app:srcCompat="@drawable/ic_font_black_48dp"
+                        app:tint="@color/colorPrimaryDark" />
 
                     <TextView
                         android:id="@+id/charset"
@@ -118,7 +135,8 @@
                         android:layout_width="wrap_content"
                         android:layout_height="match_parent"
                         android:adjustViewBounds="true"
-                        app:srcCompat="@drawable/ic_keyboard_black_48dp" />
+                        app:srcCompat="@drawable/ic_keyboard_black_48dp"
+                        app:tint="@color/colorPrimaryDark" />
 
                     <TextView
                         android:id="@+id/keymap"
@@ -143,7 +161,8 @@
                         android:layout_width="wrap_content"
                         android:layout_height="match_parent"
                         android:adjustViewBounds="true"
-                        app:srcCompat="@drawable/ic_computer_black_24dp" />
+                        app:srcCompat="@drawable/ic_computer_black_24dp"
+                        app:tint="@color/colorPrimaryDark" />
 
                     <TextView
                         android:id="@+id/screen_size"
