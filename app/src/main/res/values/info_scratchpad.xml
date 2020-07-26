@@ -5,8 +5,12 @@
         <p>The <i>scratchpad</i> feature has been added mostly to deal with
         the Android marshalling limitations
         and lack of the ability to track the content URI reference count.</p>
-        <p>If you delete an entry after copying / sharing it,
-        the clipboard content becomes obsolete / the recipient application could fail to use it
-        if its content URI is still not opened <i>(very unlikely in the real world)</i>.</p>
+        <p>If you delete an entry after copying <i>or</i> sharing it,
+        the clipboard content becomes obsolete <i>or</i> the recipient application could fail to use it
+        if its content URI is still not opened <i>(very unlikely in the real world)</i> respectively.</p>
+        <p><i><b>Note:</b> Applications could treat contents copied by value and by URI
+        differently; for example:
+        browsers usually ignore anything pasted into their search field
+        if it is represented by the content URI only.</i></p>
     ]]></string>
 </resources>

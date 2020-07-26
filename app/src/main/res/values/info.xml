@@ -3,6 +3,10 @@
 <string name="desc_main_help"><![CDATA[
 <h1>Introduction</h1>
 <p>See <a href=\"https://green-green-avk.github.io/AnotherTerm-docs/\">the official site</a>.</p>
+<h1>Common features</h1>
+<ul>
+<li><a href=\"info://green_green_avk.anotherterm/scratchpad\">Scratchpad</a></li>
+</ul>
 <h1>Local shell</h1>
 <ul>
 <li><a href=\"https://green-green-avk.github.io/AnotherTerm-docs/local-shell.html#main_content\">Basic info</a></li>
