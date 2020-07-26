@@ -76,6 +76,7 @@ public final class TermKeyMapManagerUi {
                     .setMarked(name)
                     .setEditorEnabled(true);
             v.setAdapter(a);
+            v.setFocusable(false);
             d.setContentView(v);
             d.showAsDropDown((View) parent);
             return;
@@ -99,6 +100,7 @@ public final class TermKeyMapManagerUi {
                     .setMarked(name)
                     .setEditorEnabled(true);
             v.setAdapter(a);
+            v.setFocusable(false);
             d.setView(v);
             d.show();
             return;

@@ -1,8 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/entry"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
+    android:background="@drawable/bg_grid_btn"
+    android:focusable="true"
     android:gravity="center_vertical"
     android:minHeight="@dimen/entry_height"
     android:orientation="horizontal">
@@ -21,12 +24,18 @@
         android:layout_height="wrap_content"
         android:layout_weight="1" />
 
-    <ImageButton
+    <ImageView
         android:id="@+id/edit"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:background="@android:color/transparent"
+        android:background="@drawable/bg_grid_btn"
         android:contentDescription="@string/action_edit"
+        android:focusable="true"
+        android:nextFocusLeft="@id/entry"
+        android:nextFocusRight="@id/entry"
+        android:nextFocusUp="@id/entry"
+        android:nextFocusDown="@id/entry"
+        android:nextFocusForward="@id/entry"
         android:padding="@dimen/text_padding"
         app:srcCompat="@drawable/ic_edit_new" />
 

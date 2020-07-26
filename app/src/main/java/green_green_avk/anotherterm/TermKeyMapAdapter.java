@@ -8,7 +8,7 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
-import android.widget.ImageButton;
+import android.widget.ImageView;
 import android.widget.TextView;
 
 import androidx.annotation.LayoutRes;
@@ -222,8 +222,8 @@ public final class TermKeyMapAdapter extends BaseAdapter {
 
         if (editView != null)
             if (mEditorEnabled) {
-                ((ImageButton) editView).setImageState(
-                        meta.isBuiltIn ? state_new : state_empty, false);
+                ((ImageView) editView).setImageState(
+                        meta.isBuiltIn ? state_new : state_empty, true);
                 editView.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(final View v) {
@@ -231,6 +231,8 @@ public final class TermKeyMapAdapter extends BaseAdapter {
                     }
                 });
                 editView.setVisibility(View.VISIBLE);
+                view.setNextFocusRightId(R.id.edit);
+                view.setNextFocusLeftId(R.id.edit);
                 if (mOnCreateContextMenuListener == null)
                     view.setOnCreateContextMenuListener(meta.isBuiltIn ? null :
                             new View.OnCreateContextMenuListener() {
@@ -253,6 +255,8 @@ public final class TermKeyMapAdapter extends BaseAdapter {
                 if (mOnCreateContextMenuListener == null)
                     view.setOnCreateContextMenuListener(null);
                 editView.setOnClickListener(null);
+                view.setNextFocusRightId(View.NO_ID);
+                view.setNextFocusLeftId(View.NO_ID);
                 editView.setVisibility(View.GONE);
             }
     }
