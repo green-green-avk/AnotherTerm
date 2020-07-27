@@ -17,6 +17,7 @@ import android.os.Handler;
 import android.os.ParcelFileDescriptor;
 import android.os.Process;
 import android.provider.OpenableColumns;
+import android.text.TextUtils;
 import android.util.Log;
 
 import androidx.annotation.NonNull;
@@ -25,8 +26,6 @@ import androidx.annotation.UiThread;
 import androidx.core.app.NotificationCompat;
 import androidx.core.app.NotificationManagerCompat;
 import androidx.core.math.MathUtils;
-
-import org.apache.commons.lang3.StringUtils;
 
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
@@ -1122,7 +1121,8 @@ public final class TermSh {
                                         Intent.createChooser(intent, prompt),
                                         ui.ctx.getString(R.string.title_shell_of_s,
                                                 ui.ctx.getString(R.string.app_name)),
-                                        prompt + " (" + StringUtils.join(titles, ", ") + ")",
+                                        prompt +
+                                                " (" + TextUtils.join(", ", titles) + ")",
                                         REQUEST_NOTIFICATION_CHANNEL_ID,
                                         NotificationCompat.PRIORITY_HIGH);
                             else {

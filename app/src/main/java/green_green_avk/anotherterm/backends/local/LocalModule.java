@@ -2,13 +2,12 @@ package green_green_avk.anotherterm.backends.local;
 
 import android.os.Build;
 import android.os.Environment;
+import android.text.TextUtils;
 
 import androidx.annotation.Keep;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.StringRes;
-
-import org.apache.commons.lang3.StringUtils;
 
 import java.io.File;
 import java.io.IOException;
@@ -250,7 +249,7 @@ public final class LocalModule extends BackendModule {
         env.put("APP_APK", context.getApplicationInfo().sourceDir);
         env.put("APP_ID", BuildConfig.APPLICATION_ID);
         env.put("APP_VERSION", BuildConfig.VERSION_NAME);
-        env.put("MY_DEVICE_ABIS", StringUtils.joinWith(" ", (Object[]) Misc.getAbis()));
+        env.put("MY_DEVICE_ABIS", TextUtils.join(" ", Misc.getAbis()));
         env.put("MY_ANDROID_SDK", Integer.toString(Build.VERSION.SDK_INT));
         synchronized (connectionLock) {
             final PtyProcess p = PtyProcess.system(execute, env);
