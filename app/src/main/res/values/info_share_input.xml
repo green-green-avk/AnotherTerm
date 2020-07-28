@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="desc_share_input_help"><![CDATA[
+        <h1>Content sharing with Another Term</h1>
+        <p>In order to process a <code>SEND</code> or <code>SEND_MULTIPLE</code> action,
+        a new session with several additional environment variables will be created
+        from a user selected profile.</p>
+        <p>Environment variables:</p>
+        <ul>
+        <li><code>INPUT_HTML[&lt;2-n&gt;][_URI]</code> &#x2014;
+        <code>android.intent.extra.HTML_TEXT</code>
+        or <code>android.intent.extra.TEXT</code> if former is not defined.
+        <br/>Suffix <code>_URI</code> is used
+        if text is > 4096&#160;B and cached by this app under a content URI
+        (see <code><a href=\"info://green_green_avk.anotherterm/termsh_man\">termsh uri</a></code>).
+        <br/>Any text will be represented as an HTML and encoded appropriately if needed.</li>
+        <li><code>INPUT_URIS</code> &#x2014;
+        a space separated list of <code>android.intent.extra.STREAM</code>.</li>
+        <li><code>INPUT_MIME</code> &#x2014;
+        <code>Intent.getType()</code>.</li>
+        <li><code>INPUT_EMAIL_{TO|CC|BCC|SUBJECT}</code> &#x2014;
+        appropriate e-mail related extras.</li>
+        </ul>
+    ]]></string>
+</resources>

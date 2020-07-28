@@ -15,6 +15,7 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.security.SecureRandom;
 import java.util.HashMap;
+import java.util.Locale;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -192,6 +193,9 @@ public final class LocalModule extends BackendModule {
     private String terminalString = "xterm";
     private String execute = "";
 
+    private static final String ENV_INPUT_PREFIX = "$input.";
+    private Map<String, String> envInput = new HashMap<>();
+
     @Override
     public void setParameters(@NonNull final Map<String, ?> params) {
         final ParametersWrapper pp = new ParametersWrapper(params);
@@ -201,6 +205,12 @@ public final class LocalModule extends BackendModule {
         for (final Map.Entry<String, SessionData.PermMeta> m : SessionData.permByName.entrySet())
             if (pp.getBoolean("perm_" + m.getKey(), false))
                 sessionData.permissions |= m.getValue().bits; // Sync is not required here
+        for (final Map.Entry<String, ?> p : params.entrySet())
+            if (p.getKey() != null && p.getKey().startsWith(ENV_INPUT_PREFIX) &&
+                    p.getValue() instanceof String)
+                envInput.put(
+                        p.getKey().substring(ENV_INPUT_PREFIX.length()).toUpperCase(Locale.ROOT),
+                        (String) p.getValue());
     }
 
     @Override
@@ -251,6 +261,10 @@ public final class LocalModule extends BackendModule {
         env.put("APP_VERSION", BuildConfig.VERSION_NAME);
         env.put("MY_DEVICE_ABIS", TextUtils.join(" ", Misc.getAbis()));
         env.put("MY_ANDROID_SDK", Integer.toString(Build.VERSION.SDK_INT));
+        // Input URIs
+        for (final Map.Entry<String, String> ei : envInput.entrySet())
+            env.put("INPUT_" + ei.getKey(), ei.getValue());
+        // ==========
         synchronized (connectionLock) {
             final PtyProcess p = PtyProcess.system(execute, env);
             proc = p;

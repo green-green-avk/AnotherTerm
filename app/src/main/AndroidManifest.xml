@@ -106,6 +106,18 @@
             android:label="@string/title_scratchpad" />
 
         <activity
+            android:name=".ShareInputActivity"
+            android:label="@string/action_share_with_new_session">
+            <intent-filter>
+                <action android:name="android.intent.action.SEND" />
+                <action android:name="android.intent.action.SEND_MULTIPLE" />
+
+                <category android:name="android.intent.category.DEFAULT" />
+                <data android:mimeType="*/*" />
+            </intent-filter>
+        </activity>
+
+        <activity
             android:name=".ConsoleActivity"
             android:configChanges="keyboardHidden|keyboard"
             android:label="Console"
