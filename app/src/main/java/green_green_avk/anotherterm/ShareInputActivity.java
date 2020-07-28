@@ -77,7 +77,7 @@ public final class ShareInputActivity extends AppCompatActivity {
                 putIfSet(ps, "$input.email_to", intentReader.getEmailTo());
                 putIfSet(ps, "$input.email_cc", intentReader.getEmailCc());
                 putIfSet(ps, "$input.email_bcc", intentReader.getEmailBcc());
-                putIfSet(ps, "$input.email_subject", intentReader.getSubject(), "text/plain");
+                putIfSet(ps, "$input.subject", intentReader.getSubject(), "text/plain");
                 final String text = intentReader.getHtmlText();
                 if (text != null) {
                     putIfSet(ps, "$input.html", text, "text/html");
