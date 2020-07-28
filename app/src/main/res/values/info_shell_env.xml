@@ -24,9 +24,13 @@
         from the most preferable to the least preferable.</li>
         <li><clipboard>MY_ANDROID_SDK</clipboard> &#x2014; Android SDK version.</li>
         <li><clipboard>SHELL_SESSION_TOKEN</clipboard> &#x2014; associated with related data
-        including <b>termsh</b> permissions. It can be unset to avoid propagation
-        of any permissions.</li>
-        </ul></p>
+        including <b>termsh</b> permissions and the session related UI.</li>
+        </ul>
+        See also:
+        <ul>
+        <li><a href=\"info://green_green_avk.anotherterm/share_input\">Content sharing with Another Term</a></li>
+        </ul>
+        </p>
         <p>Commands:
         <ul>
         <li><b>termsh</b> (<clipboard>$LIB_DIR/libtermsh.so</clipboard>) &#x2014; a tool to

@@ -5,7 +5,12 @@
         <p>The <i>scratchpad</i> feature has been added mostly to deal with
         the Android marshalling limitations
         and lack of the ability to track the content URI reference count.</p>
-        <p>If you delete an entry after copying <i>or</i> sharing it,
+        <p>Selected terminal buffer content can be copied to the <i>scratchpad</i>
+        by tapping the &#x1F4BE; button.</p>
+        <p>If the size of content to be copied/shared exceeds the limitation
+        specified in the <i>Settings</i> menu or its marshalling fails, it is also copied
+        to the <i>scratchpad</i> and its content URI is used.</p>
+        <p>If an entry is deleted after copying <i>or</i> sharing it,
         the clipboard content becomes obsolete <i>or</i> the recipient application could fail to use it
         if its content URI is still not opened <i>(very unlikely in the real world)</i> respectively.</p>
         <p><i><b>Note:</b> Applications could treat contents copied by value and by URI

@@ -52,8 +52,8 @@ when stream is read to its EOF or it can be closed by
 <li><code>-m|--mime &lt;mime&gt;</code> &#x2014; Mime type, <code>*/*</code> - default.</li>
 <li><code>-n|--name &lt;name&gt;</code> &#x2014; name to use for representing a stream.</li>
 <li><code>-s|--size &lt;size&gt;</code> &#x2014; size in bytes to provide in the query answer
-if input is a stream. GMail client, for example, treats absence of the size as zero size even
-in case of a stream.</li>
+if input is a stream. The Google GMail client, for example, treats absence of the size as
+zero size even in case of a stream.</li>
 <li><code>-w|--wait</code> &#x2014; wait for the stream until it reaches EOF then closes it
 and exits; <code>$TERMSH</code> termination is also closes the stream. Use when you need
 to keep a shell pipe line running;<br/>
@@ -95,7 +95,8 @@ Example: <code>\"$TERMSH\" view
 send [&lt;options...&gt;] [--] [&lt;file|URI&gt; ...]
 </code></p></dt>
 <dd>
-Send (<code>android.intent.action.SEND</code> or <code>android.intent.action.SEND_MULTIPLE</code>).
+Send (<i><code>android.intent.action.SEND</code></i> or
+<i><code>android.intent.action.SEND_MULTIPLE</code></i>).
 <br/><code>&lt;file|URI&gt;</code> is treated as a file path if it does not match
 <code>/^(?:[a-z0-9+.-]+):\\/\\//i</code>.
 <br/><code>-</code> is used to represent the <i>stdin</i>.
@@ -109,8 +110,8 @@ a single <code>&lt;file|URI&gt;</code> argument, <code>*/*</code> - default.</li
 <li><code>-n|--name &lt;name&gt;</code> &#x2014; name to use for representing
 an <i>stdin</i> stream.</li>
 <li><code>-s|--size &lt;size&gt;</code> &#x2014; size in bytes to provide in the query answer
-if input is an <i>stdin</i> stream.
-GMail client, for example, treats absence of the size as zero size even in case of a stream.</li>
+if input is an <i>stdin</i> stream. The Google GMail client, for example,
+treats absence of the size as zero size even in case of a stream.</li>
 <li><code>-p|--prompt &lt;prompt&gt;</code> &#x2014; to show in the chooser dialog.</li>
 </ul>
 </dd><br/>
