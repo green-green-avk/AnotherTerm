@@ -31,14 +31,14 @@ public final class InputTokenizer implements Iterator<InputTokenizer.Token>, Ite
 
     private void found(int pos) {
         ++pos;
-        mToken = mBuf.subSequence(mPos, pos);
+        mToken = Compat.subSequence(mBuf, mPos, pos);
         mPos = pos;
     }
 
     private void notFound(final int pos) {
         if ((pos - mPos) > SEQ_MAXLEN) {
             mType = Token.Type.TEXT;
-            mToken = mBuf.subSequence(mPos, pos);
+            mToken = Compat.subSequence(mBuf, mPos, pos);
             mPos = pos;
             return;
         }
@@ -88,20 +88,20 @@ public final class InputTokenizer implements Iterator<InputTokenizer.Token>, Ite
         while (mBufArr[pos] > 0x1F && mBufArr[pos] != 0x7F) {
             if (++pos >= mEnd) {
                 mType = Token.Type.TEXT;
-                mToken = mBuf.subSequence(mPos, mEnd);
+                mToken = Compat.subSequence(mBuf, mPos, mEnd);
                 mPos = mEnd;
                 return;
             }
         }
         if (pos > mPos) {
             mType = Token.Type.TEXT;
-            mToken = mBuf.subSequence(mPos, pos);
+            mToken = Compat.subSequence(mBuf, mPos, pos);
             mPos = pos;
             return;
         }
         if (mBufArr[pos] != '\u001B') {
             mType = Token.Type.CTL;
-            mToken = mBuf.subSequence(pos, pos + 1);
+            mToken = Compat.subSequence(mBuf, pos, pos + 1);
             mPos = pos + 1;
             return;
         }

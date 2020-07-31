@@ -11,8 +11,6 @@ import android.os.Handler;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
-import org.apache.commons.lang3.StringUtils;
-
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
@@ -32,9 +30,8 @@ public final class FontsManager {
     private static final String BOLD_ITALIC_FONT_NAME = "bold-italic";
 
     public static final String LOCATION_DESC = "$DATA_DIR/" + CONSOLE_FONT_DIRNAME + "/{" +
-            StringUtils.joinWith(",",
-                    REGULAR_FONT_NAME, BOLD_FONT_NAME, ITALIC_FONT_NAME, BOLD_ITALIC_FONT_NAME
-            ) + "}";
+            REGULAR_FONT_NAME + "," + BOLD_FONT_NAME + "," + ITALIC_FONT_NAME + "," +
+            BOLD_ITALIC_FONT_NAME + "}";
 
     private static File dataDir = null;
     private static File consoleFontDir = null;

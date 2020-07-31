@@ -10,9 +10,9 @@ public final class EscOsc {
 
     public EscOsc(@NonNull final CharBuffer v) throws IllegalArgumentException {
         if (v.charAt(v.length() - 1) == '\\') {
-            body = v.subSequence(2, v.length() - 2).toString();
+            body = Compat.subSequence(v, 2, v.length() - 2).toString();
         } else {
-            body = v.subSequence(2, v.length() - 1).toString();
+            body = Compat.subSequence(v, 2, v.length() - 1).toString();
         }
         args = body.split(";");
     }

@@ -24,6 +24,7 @@ import java.util.WeakHashMap;
 import green_green_avk.anotherterm.backends.EventBasedBackendModuleWrapper;
 import green_green_avk.anotherterm.utils.BinderInputStream;
 import green_green_avk.anotherterm.utils.BytesSink;
+import green_green_avk.anotherterm.utils.Compat;
 import green_green_avk.anotherterm.utils.DecTerminalCharsets;
 import green_green_avk.anotherterm.utils.EscCsi;
 import green_green_avk.anotherterm.utils.EscOsc;
@@ -359,7 +360,7 @@ public final class ConsoleInput implements BytesSink {
                                 default:
                                     if (LOG_UNKNOWN_ESC)
                                         Log.w("CtrlSeq", "ESC: " +
-                                                t.value.subSequence(1, t.value.remaining())
+                                                Compat.subSequence(t.value, 1, t.value.remaining())
                                                         .toString());
                             }
                             break;
