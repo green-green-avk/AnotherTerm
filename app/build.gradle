@@ -21,8 +21,8 @@ android {
          */
         //noinspection OldTargetApi
         targetSdkVersion 28
-        versionCode 55
-        versionName "MkIIIr-dev"
+        versionCode 56
+        versionName "MkIIIr"
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
         vectorDrawables.useSupportLibrary = true
 
