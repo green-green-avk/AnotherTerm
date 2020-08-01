@@ -240,12 +240,15 @@ public final class PtyProcess extends Process {
         return execv(filename, args);
     }
 
+    private static final String shPath = "/system/bin/sh";
+    private static final String shLoginArg = Build.VERSION.SDK_INT < 16 ? null : "-l";
+
     @NonNull
     public static PtyProcess system(@Nullable final String command,
                                     @Nullable final Map<String, String> env) {
         if (command == null || command.isEmpty())
-            return execl("/system/bin/sh", env, "-sh", "-l");
-        return execl("/system/bin/sh", env, "-sh", "-l", "-c", command);
+            return execl(shPath, env, "-sh", shLoginArg);
+        return execl(shPath, env, "-sh", shLoginArg, "-c", command);
     }
 
     @NonNull
