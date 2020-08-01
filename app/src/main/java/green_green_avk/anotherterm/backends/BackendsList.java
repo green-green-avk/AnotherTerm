@@ -37,13 +37,14 @@ public final class BackendsList {
                     R.layout.telnet_params_content, R.string.conntype_telnet, R.drawable.ic_computer)
     };
 
+    @NonNull
     public static Iterable<Item> get() {
         return Arrays.asList(list);
     }
 
     public static final class Item {
         @NonNull
-        public final Class<?> impl;
+        public final Class<? extends BackendModule> impl;
         @NonNull
         public final BackendModule.Meta meta;
         @NonNull
@@ -55,9 +56,10 @@ public final class BackendsList {
         @DrawableRes
         public final int icon;
 
-        public Item(@NonNull final Class<?> impl, @NonNull final String typeStr,
-                    @LayoutRes final int settingsLayout, @StringRes final int title,
-                    @DrawableRes final int icon) {
+        private Item(@NonNull final Class<? extends BackendModule> impl,
+                     @NonNull final String typeStr,
+                     @LayoutRes final int settingsLayout, @StringRes final int title,
+                     @DrawableRes final int icon) {
             this.impl = impl;
             this.meta = BackendModule.getMeta(impl, typeStr);
             this.typeStr = typeStr;
@@ -67,7 +69,7 @@ public final class BackendsList {
         }
     }
 
-    private static final Map<Class<?>, Integer> mImpls = new HashMap<>();
+    private static final Map<Class<? extends BackendModule>, Integer> mImpls = new HashMap<>();
     private static final Map<String, Integer> mTypeStrs = new HashMap<>();
     private static final Map<String, Integer> mSchemes = new HashMap<>();
 
@@ -79,7 +81,7 @@ public final class BackendsList {
         }
     }
 
-    public static int getId(final Class v) {
+    public static int getId(final Class<? extends BackendModule> v) {
         final Integer id = mImpls.get(v);
         if (id == null) return -1;
         return id;
@@ -92,9 +94,7 @@ public final class BackendsList {
     }
 
     public static int getId(final Object v) {
-        if (v instanceof String) {
-            return getId((String) v);
-        }
+        if (v instanceof String) return getId((String) v);
         return -1;
     }
 
@@ -104,11 +104,13 @@ public final class BackendsList {
         return id;
     }
 
+    @NonNull
     public static Item get(final int i) {
         return list[i];
     }
 
-    public static Item get(final Class v) {
+    @NonNull
+    public static Item get(final Class<? extends BackendModule> v) {
         return get(getId(v));
     }
 
