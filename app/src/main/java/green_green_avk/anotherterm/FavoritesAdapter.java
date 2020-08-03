@@ -15,7 +15,6 @@ import java.util.HashSet;
 import java.util.Set;
 
 import green_green_avk.anotherterm.backends.BackendsList;
-import green_green_avk.anotherterm.backends.local.LocalModule;
 import green_green_avk.anotherterm.utils.PreferenceStorage;
 
 public final class FavoritesAdapter extends RecyclerView.Adapter<FavoritesAdapter.ViewHolder> {
@@ -31,26 +30,27 @@ public final class FavoritesAdapter extends RecyclerView.Adapter<FavoritesAdapte
         }
     };
 
-    private boolean mExportedOnly;
+    private boolean mExportableOnly;
 
     public FavoritesAdapter() {
         this(false);
     }
 
-    public FavoritesAdapter(final boolean exportedOnly) {
-        mExportedOnly = exportedOnly;
+    public FavoritesAdapter(final boolean exportableOnly) {
+        mExportableOnly = exportableOnly;
         FavoritesManager.addOnChangeListener(onFavsChanged);
         updateDataset();
     }
 
     public void updateDataset() { // TODO: ...
         final Set<String> keysList;
-        if (mExportedOnly) {
+        if (mExportableOnly) {
             keysList = new HashSet<>();
             for (final String key : FavoritesManager.enumerate()) {
                 final PreferenceStorage ps = FavoritesManager.get(key);
-                if (BackendsList.get(LocalModule.class).typeStr.equals(ps.get("type")))
-                    keysList.add(key);
+                final int id = BackendsList.getId(ps.get("type"));
+                if (id < 0 || !BackendsList.get(id).exportable) continue;
+                keysList.add(key);
             }
         } else keysList = FavoritesManager.enumerate();
         final String[] keys = keysList.toArray(new String[0]);

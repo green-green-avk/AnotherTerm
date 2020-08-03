@@ -27,13 +27,13 @@ public final class BackendsList {
     }
 
     private static final Item[] list = {
-            new Item(LocalModule.class, "local",
+            new Item(LocalModule.class, "local", true,
                     R.layout.local_params_content, R.string.conntype_local, R.drawable.ic_smartphone),
-            new Item(UartModule.class, "uart",
+            new Item(UartModule.class, "uart", false,
                     R.layout.uart_params_content, R.string.conntype_uart, R.drawable.ic_uart),
-            new Item(SshModule.class, "ssh",
+            new Item(SshModule.class, "ssh", false,
                     R.layout.ssh_params_content, R.string.conntype_ssh, R.drawable.ic_computer_key),
-            new Item(TelnetModule.class, "telnet",
+            new Item(TelnetModule.class, "telnet", false,
                     R.layout.telnet_params_content, R.string.conntype_telnet, R.drawable.ic_computer)
     };
 
@@ -49,6 +49,8 @@ public final class BackendsList {
         public final BackendModule.Meta meta;
         @NonNull
         public final String typeStr;
+        /* Externally instantiable sessions */
+        public final boolean exportable;
         @LayoutRes
         public final int settingsLayout;
         @StringRes
@@ -57,12 +59,13 @@ public final class BackendsList {
         public final int icon;
 
         private Item(@NonNull final Class<? extends BackendModule> impl,
-                     @NonNull final String typeStr,
+                     @NonNull final String typeStr, final boolean exportable,
                      @LayoutRes final int settingsLayout, @StringRes final int title,
                      @DrawableRes final int icon) {
             this.impl = impl;
             this.meta = BackendModule.getMeta(impl, typeStr);
             this.typeStr = typeStr;
+            this.exportable = exportable;
             this.settingsLayout = settingsLayout;
             this.title = title;
             this.icon = icon;
