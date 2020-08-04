@@ -62,8 +62,18 @@ public final class ConsoleService extends Service {
         tryFg();
     }
 
+    @Override
+    public int onStartCommand(final Intent intent, final int flags, final int startId) {
+        if (intent == null) stopSelf(); // Nothing to do after restart
+        return START_STICKY; // Just in case
+    }
+
     private static void tryStart(@NonNull final Context appCtx) {
-        appCtx.startService(new Intent(appCtx.getApplicationContext(), ConsoleService.class));
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O)
+            appCtx.startForegroundService(
+                    new Intent(appCtx.getApplicationContext(), ConsoleService.class));
+        else
+            appCtx.startService(new Intent(appCtx.getApplicationContext(), ConsoleService.class));
     }
 
     private static void tryStop() {
@@ -92,7 +102,6 @@ public final class ConsoleService extends Service {
                 .setContentIntent(tsb.getPendingIntent(0, PendingIntent.FLAG_UPDATE_CURRENT))
                 .build();
         startForeground(ID_FG, n);
-//        return START_STICKY;
     }
 
     @Override
