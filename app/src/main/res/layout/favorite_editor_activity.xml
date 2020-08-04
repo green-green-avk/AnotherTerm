@@ -50,6 +50,81 @@
                 </TableRow>
 
                 <TableRow
+                    android:id="@+id/g_token"
+                    android:gravity="center_vertical"
+                    android:minHeight="@dimen/settings_row_minHeight"
+                    android:visibility="gone"
+                    tools:visibility="visible">
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:labelFor="@id/fav_token"
+                        android:text="@string/label_token" />
+
+                    <LinearLayout
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:gravity="center_vertical"
+                        android:orientation="horizontal">
+
+                        <ImageButton
+                            style="@style/AppWidget.Editor.ImageButton.Horizontal"
+                            android:contentDescription="@android:string/copy"
+                            android:onClick="infoToken"
+                            app:srcCompat="@drawable/ic_help" />
+
+                        <ImageButton
+                            style="@style/AppWidget.Editor.ImageButton.Horizontal"
+                            android:contentDescription="@string/action_generate_token"
+                            android:onClick="generateToken"
+                            app:srcCompat="@drawable/ic_create" />
+
+                        <LinearLayout
+                            android:id="@+id/g_f_token"
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:gravity="center_vertical"
+                            android:orientation="horizontal"
+                            android:visibility="invisible"
+                            tools:visibility="visible">
+
+                            <ImageButton
+                                style="@style/AppWidget.Editor.ImageButton.Horizontal"
+                                android:contentDescription="@string/action_remove_token"
+                                android:onClick="deleteToken"
+                                app:srcCompat="@drawable/ic_delete" />
+
+                            <TextView
+                                android:id="@+id/fav_token"
+                                android:layout_width="0dp"
+                                android:layout_height="wrap_content"
+                                android:layout_weight="1"
+                                android:background="@drawable/bg_frame2_btn"
+                                android:lines="1"
+                                android:onClick="copyToken"
+                                android:textColor="@color/colorPrimaryDark"
+                                android:typeface="monospace"
+                                app:autoSizeMinTextSize="4dp"
+                                app:autoSizeTextType="uniform"
+                                tools:text="0000-0000-0000-0000-0000-0000-0000" />
+
+                            <ImageView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:contentDescription="@android:string/copy"
+                                android:onClick="copyToken"
+                                app:srcCompat="@drawable/ic_mark_copy" />
+
+                        </LinearLayout>
+
+                    </LinearLayout>
+
+                </TableRow>
+
+                <TableRow
                     android:gravity="center_vertical"
                     android:minHeight="@dimen/settings_row_minHeight">
 

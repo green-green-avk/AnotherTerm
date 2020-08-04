@@ -106,11 +106,19 @@
         <item name="android:paddingEnd">0sp</item>
     </style>
 
-    <style name="AppWidget.EditorToolbar.ImageButton" parent="Widget.AppCompat.ImageButton">
+    <style name="AppWidget.Editor.ImageButton" parent="Widget.AppCompat.ImageButton">
         <item name="android:scaleType">fitCenter</item>
         <item name="android:background">@drawable/bg_grid_btn</item>
         <item name="tint">?attr/colorPrimary</item>
     </style>
+
+    <style name="AppWidget.Editor.ImageButton.Horizontal">
+        <item name="android:layout_height">@dimen/uiOptionSize</item>
+        <item name="android:layout_width">wrap_content</item>
+        <item name="android:adjustViewBounds">true</item>
+    </style>
+
+    <style name="AppWidget.EditorToolbar.ImageButton" parent="AppWidget.Editor.ImageButton" />
 
     <style name="AppWidget.EditorToolbar.ImageButton.Horizontal">
         <item name="android:layout_height">match_parent</item>

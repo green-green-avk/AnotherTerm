@@ -23,6 +23,7 @@ import java.nio.charset.Charset;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.UUID;
 
 import green_green_avk.anotherterm.backends.BackendModule;
 import green_green_avk.anotherterm.backends.BackendsList;
@@ -32,6 +33,8 @@ import green_green_avk.anotherterm.utils.PreferenceUiWrapper;
 import green_green_avk.anotherterm.utils.RawPreferenceUiWrapper;
 
 public final class FavoriteEditorActivity extends AppCompatActivity {
+    private static final int INITIAL_TYPE_ID = 0;
+
     private final RawPreferenceUiWrapper mPrefs = new RawPreferenceUiWrapper();
     private ViewGroup mContainer;
     private EditText mNameW;
@@ -43,6 +46,9 @@ public final class FavoriteEditorActivity extends AppCompatActivity {
     private Spinner mCharsetW;
     private Spinner mKeyMapW;
     private Spinner mTypeW;
+    private ViewGroup mTokenG;
+    private ViewGroup mTokenFG;
+    private TextView mTokenW;
     private String mOldName = null;
     private boolean mMakeNew = false;
     private View mCurrMSL = null;
@@ -162,6 +168,25 @@ public final class FavoriteEditorActivity extends AppCompatActivity {
         return true;
     }
 
+    public void copyToken(final View view) {
+        UiUtils.toClipboard(this, mTokenW.getText().toString());
+    }
+
+    public void generateToken(final View view) {
+        mTokenW.setText(UUID.randomUUID().toString());
+        mTokenFG.setVisibility(View.VISIBLE);
+    }
+
+    public void deleteToken(final View view) {
+        mTokenFG.setVisibility(View.INVISIBLE);
+        mTokenW.setText("");
+    }
+
+    public void infoToken(final View view) {
+        startActivity(new Intent(this, InfoActivity.class)
+                .setData(Uri.parse("info://local/fav_token")));
+    }
+
     @Nullable
     private String getName() {
         final String name = mNameW.getText().toString().trim();
@@ -223,6 +248,9 @@ public final class FavoriteEditorActivity extends AppCompatActivity {
     private PreferenceStorage getPreferences() {
         final PreferenceStorage ps = new PreferenceStorage();
         ps.put("type", BackendsList.get(mTypeW.getSelectedItemPosition()).typeStr);
+        final String token = mTokenW.getText().toString();
+        if (token.length() >= ControlService.FAV_TOKEN_LENGTH_MIN)
+            ps.put(ControlService.FAV_TOKEN_KEY, token);
         ps.put("charset", C.charsetList.get(mCharsetW.getSelectedItemPosition()));
         ps.put("keymap", ((TermKeyMapManager.Meta) mKeyMapW.getSelectedItem()).name);
         ps.put("screen_cols", getSize(mScrColsW));
@@ -241,9 +269,11 @@ public final class FavoriteEditorActivity extends AppCompatActivity {
     }
 
     private void addOptionsByTypeId(final int id) {
+        mTokenG.setVisibility(BackendsList.get(id).exportable ? View.VISIBLE : View.GONE);
         final int layout = BackendsList.get(id).settingsLayout;
         if (layout == 0) return;
-        mCurrMSL = getLayoutInflater().inflate(BackendsList.get(id).settingsLayout, mContainer, false);
+        mCurrMSL = getLayoutInflater()
+                .inflate(BackendsList.get(id).settingsLayout, mContainer, false);
         mCurrMSL.setSaveFromParentEnabled(false);
         mContainer.addView(mCurrMSL);
         mPrefs.addBranch(mCurrMSL);
@@ -261,6 +291,7 @@ public final class FavoriteEditorActivity extends AppCompatActivity {
             mContainer.removeView(mCurrMSL);
             mCurrMSL = null;
         }
+        mTokenG.setVisibility(View.GONE);
     }
 
     private static void setText(@NonNull final EditText et, final Object v) {
@@ -298,6 +329,14 @@ public final class FavoriteEditorActivity extends AppCompatActivity {
                     mTypeW.setSelection(pos);
                 }
         } else mPrefs.setPreferences(mPrefsSt.get());
+        final Object token = mPrefsSt.get(ControlService.FAV_TOKEN_KEY);
+        if (token instanceof String && ((String) token).length() > 0) {
+            mTokenW.setText((String) token);
+            mTokenFG.setVisibility(View.VISIBLE);
+        } else {
+            mTokenFG.setVisibility(View.INVISIBLE);
+            mTokenW.setText("");
+        }
         setSizeText(mScrColsW, mPrefsSt.get("screen_cols"));
         setSizeText(mScrRowsW, mPrefsSt.get("screen_rows"));
         mTerminateOD.setChecked(Boolean.TRUE.equals(mPrefsSt.get("terminate.on_disconnect")));
@@ -362,6 +401,9 @@ public final class FavoriteEditorActivity extends AppCompatActivity {
         mCharsetW = findViewById(R.id.fav_charset);
         mKeyMapW = findViewById(R.id.fav_keymap);
         mTypeW = findViewById(R.id.fav_type);
+        mTokenG = findViewById(R.id.g_token);
+        mTokenFG = findViewById(R.id.g_f_token);
+        mTokenW = findViewById(R.id.fav_token);
 
         mCharsetW.setSaveEnabled(false);
         mKeyMapW.setSaveEnabled(false);
@@ -389,7 +431,7 @@ public final class FavoriteEditorActivity extends AppCompatActivity {
                 removeOptions();
             }
         });
-        mTypeW.setSelection(0);
+        mTypeW.setSelection(INITIAL_TYPE_ID);
 
         final ArrayAdapter aCharset = new ArrayAdapter<>(this,
                 android.R.layout.simple_spinner_item, C.charsetList);

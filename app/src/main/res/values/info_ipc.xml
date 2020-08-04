@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="desc_fav_token_help"><![CDATA[
+        <h1>Start a session by an intent</h1>
+        <p>Android has no means to determine the intent source
+        (the Android own permission model is not flexible enough to pair arbitrary applications)
+        and the automation software like Tasker
+        do not usually provide any simple means to bind to a service
+        (in which case an application credentials check is possible).
+        So, a \"token\" field has been added to the favorite parameters
+        to mitigate this situation. This field stores a unique ID
+        that acts as a passphrase to start the session.</p>
+        <p>The script is being executed inside a session
+        is supposed to control the number of running session instances.</p>
+        <p>To start a session (from Tasker, for example) use:</p>
+        <p><b>Intent target:</b> <i>service</i></p>
+        <p>
+        <b>Package:</b>
+        <clipboard>green_green_avk.anotherterm</clipboard>
+        </p>
+        <p>
+        <b>Class:</b>
+        <clipboard>green_green_avk.anotherterm.ControlService</clipboard>
+        </p>
+        <p>
+        <b>Action:</b>
+        <clipboard>green_green_avk.anotherterm.intent.action.START_SESSION</clipboard>
+        </p>
+        <p>
+        <b>Category:</b>
+        <clipboard>android.intent.category.DEFAULT</clipboard>
+        </p>
+        <p>
+        <b>Extra:</b>
+        <clipboard>green_green_avk.anotherterm.intent.extra.FAV_TOKEN</clipboard><br/>
+        The value should be a <i>String</i> from the \"token\" field from
+        the desired favorite settings.
+        </p>
+        <p>All <i>String</i> <b>extras</b> will be passed to the environment variables named
+        with the <b>extras</b> names converted as
+        <code>.toUpperCase(Locale.ROOT).replaceAll(\"[^A-Z0-9_]\", \"_\")</code>
+        and prefixed by <code>INPUT_</code>. <code>…FAV_TOKEN</code> value will be hidden.</p>
+    ]]></string>
+</resources>

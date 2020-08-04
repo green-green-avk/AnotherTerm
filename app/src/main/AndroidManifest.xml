@@ -135,6 +135,17 @@
             android:enabled="true"
             android:exported="false" />
 
+        <service
+            android:name=".ControlService"
+            android:enabled="true"
+            android:exported="true"
+            tools:ignore="ExportedService">
+            <intent-filter>
+                <action android:name="${applicationId}.intent.action.START_SESSION" />
+                <category android:name="android.intent.category.DEFAULT" />
+            </intent-filter>
+        </service>
+
         <provider
             android:name=".LinksProvider"
             android:authorities="${applicationId}.linksprovider"

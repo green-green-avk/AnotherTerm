@@ -233,4 +233,7 @@
     <string name="title_empty">Empty</string>
     <string name="action_share_with_new_session">Share with a newly created session</string>
     <string name="desc_share_input">Choose a session type to start to share with:</string>
+    <string name="label_token">Token</string>
+    <string name="action_generate_token">Generate token</string>
+    <string name="action_remove_token">Remove token</string>
 </resources>

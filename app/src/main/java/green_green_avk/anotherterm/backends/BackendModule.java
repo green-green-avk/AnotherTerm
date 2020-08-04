@@ -95,7 +95,8 @@ public abstract class BackendModule {
                     .scheme(getUriSchemes().iterator().next())
                     .path("opts");
             for (final String k : params.keySet()) {
-                b.appendQueryParameter(k, params.get(k).toString());
+                if (k.length() > 0 && k.charAt(0) != '!') // Private parameters
+                    b.appendQueryParameter(k, params.get(k).toString());
             }
             return b.build();
         }
@@ -107,7 +108,8 @@ public abstract class BackendModule {
             final Map<String, String> params = new HashMap<>();
             for (final String k : uri.getQueryParameterNames()) {
                 // TODO: '+' decoding issue before Jelly Bean
-                params.put(k, uri.getQueryParameter(k));
+                if (k.length() > 0 && k.charAt(0) != '!') // Private parameters: no spoofing
+                    params.put(k, uri.getQueryParameter(k));
             }
             return params;
         }
