@@ -1,6 +1,6 @@
 # AnotherTerm
 
-Local pty, USB and Bluetooth serial ports, SSH and Telnet terminal client for Android.
+Local PTY, USB and Bluetooth serial ports, SSH and Telnet terminal client for Android.
 
 * <https://play.google.com/store/apps/details?id=green_green_avk.anotherterm>
 * <https://green-green-avk.github.io/AnotherTerm-docs/>
@@ -8,7 +8,7 @@ Local pty, USB and Bluetooth serial ports, SSH and Telnet terminal client for An
 
 ## Highlights
 
-* Local pty, USB and Bluetooth serial (UART) ports, SSH and Telnet support in the same application;
+* Local PTY, USB and Bluetooth serial (UART) ports, SSH and Telnet support in the same application;
 
 * Adequate screen input methods as long as a terminal requires specific keyboard functions.
 
@@ -23,7 +23,7 @@ Local pty, USB and Bluetooth serial ports, SSH and Telnet terminal client for An
 
 * Bluetooth SPP UART devices are supported.
 
-* Local Linux pty is supported. Feel free to use PRoot with some Linux environment:
+* Local Linux PTY is supported. Feel free to use PRoot with some Linux environment:
 <https://green-green-avk.github.io/AnotherTerm-docs/installing-linux-under-proot.html#main_content>.
 
 * Shell tool to interact with the Android environment is also present.

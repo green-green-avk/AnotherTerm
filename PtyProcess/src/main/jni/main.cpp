@@ -132,7 +132,7 @@ m_execve(JNIEnv *const env, const jobject jthis,
         env->ReleaseStringUTFChars(cmd_filename, filename);
         releaseStrings(args);
         releaseStrings(envp);
-        env->ThrowNew(g_runtimeEC, strError("Cannot fork into pty"));
+        env->ThrowNew(g_runtimeEC, strError("Cannot fork into PTY"));
         return nullptr;
     }
     if (pid > 0) {
@@ -217,7 +217,7 @@ static void JNICALL m_resize(JNIEnv *const env, const jobject jthis,
             .ws_ypixel = (unsigned short) hp
     };
     if (ioctl(fdPtm, TIOCSWINSZ, &winp) != 0)
-        env->ThrowNew(g_IOEC, strError("Cannot set pty size"));
+        env->ThrowNew(g_IOEC, strError("Cannot set PTY size"));
 }
 
 static jint JNICALL m_readByte(JNIEnv *const env, const jobject jthis) {
@@ -227,7 +227,7 @@ static jint JNICALL m_readByte(JNIEnv *const env, const jobject jthis) {
     unsigned char b;
     const ssize_t r = read(fdPtm, &b, 1);
     if (r < 0) {
-        env->ThrowNew(g_IOEC, strError("Cannot read from pty"));
+        env->ThrowNew(g_IOEC, strError("Cannot read from PTY"));
         return -1;
     }
     if (r == 0) return -1;
@@ -244,7 +244,7 @@ static jint JNICALL m_readBuf(JNIEnv *const env, const jobject jthis,
     const ssize_t r = read(fdPtm, b + off, len);
     if (r < 0) {
         env->ReleaseByteArrayElements(buf, b, JNI_ABORT);
-        env->ThrowNew(g_IOEC, strError("Cannot read from pty"));
+        env->ThrowNew(g_IOEC, strError("Cannot read from PTY"));
         return -1;
     }
     if (r == 0) {
@@ -261,7 +261,7 @@ static void JNICALL m_writeByte(JNIEnv *const env, const jobject jthis, const ji
     if (fdPtm < 0) return;
     const ssize_t r = write(fdPtm, &b, 1);
     if (r < 0) {
-        env->ThrowNew(g_IOEC, strError("Cannot write to pty"));
+        env->ThrowNew(g_IOEC, strError("Cannot write to PTY"));
     } else if (r < 1) {
         env->ThrowNew(g_IOEC, "Write has been interrupted");
     }
@@ -277,7 +277,7 @@ static void JNICALL m_writeBuf(JNIEnv *const env, const jobject jthis,
     const ssize_t r = write(fdPtm, b + off, len);
     env->ReleaseByteArrayElements(buf, b, JNI_ABORT);
     if (r < 0) {
-        env->ThrowNew(g_IOEC, strError("Cannot write to pty"));
+        env->ThrowNew(g_IOEC, strError("Cannot write to PTY"));
     } else if (r < len) {
         env->ThrowNew(g_IOEC, "Write has been interrupted");
     }
@@ -327,7 +327,7 @@ static void JNICALL m_getSize(JNIEnv *const env, const jobject jthis,
     }
     struct winsize winp = {0, 0, 0, 0};
     if (ioctl(fd, TIOCGWINSZ, &winp) != 0) {
-        env->ThrowNew(g_IOEC, strError("Cannot get pty size"));
+        env->ThrowNew(g_IOEC, strError("Cannot get PTY size"));
         return;
     }
     jint *const res = (jint *const) env->GetPrimitiveArrayCritical(result, nullptr);

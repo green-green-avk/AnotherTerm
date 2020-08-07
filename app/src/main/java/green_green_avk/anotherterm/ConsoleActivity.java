@@ -120,7 +120,8 @@ public final class ConsoleActivity extends AppCompatActivity
     }
 
     private static int asSize(final Object o) {
-        if (o instanceof Integer || o instanceof Long) return (int) o;
+        if (o instanceof Integer) return (int) o;
+        if (o instanceof Long) return (int) (long) o;
         return 0;
     }
 

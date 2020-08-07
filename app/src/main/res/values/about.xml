@@ -4,7 +4,7 @@
 <h1>Introduction</h1>
 <p>Why another one? Just to have:</p>
 <ul>
-    <li>UART, SSH, Telnet and local pty support in the same application;</li>
+    <li>UART, SSH, Telnet and local PTY support in the same application;</li>
     <li>Adequate screen input methods as long as a terminal requires specific keyboard
     functions.</li>
 </ul>
@@ -13,7 +13,7 @@
 <li>Minimum supported Android version is 4.0 Ice Cream Sandwich.</li>
 <li>Supported USB UART devices: Generic USB CDC, CP210X, FTDI, PL2303, CH34x, CP2130 SPI-USB.</li>
 <li>Bluetooth SPP UART devices are supported.</li>
-<li>Local Linux pty is supported. Feel free to use
+<li>Local Linux PTY is supported. Feel free to use
 <a href=\"https://green-green-avk.github.io/AnotherTerm-docs/installing-linux-under-proot.html#main_content\">
 PRoot with some Linux environment</a>.</li>
 <li><a href=\"info://green_green_avk.anotherterm/termsh_man\">
