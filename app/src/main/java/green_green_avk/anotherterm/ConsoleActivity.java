@@ -125,6 +125,12 @@ public final class ConsoleActivity extends AppCompatActivity
         return 0;
     }
 
+    private void applyKeepScreenOn() {
+        getWindow().setFlags(mSession.uiState.keepScreenOn ?
+                        WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON : 0,
+                WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
+    }
+
     /*
     @Override
     public void onWindowFocusChanged(boolean hasFocus) {
@@ -173,6 +179,7 @@ public final class ConsoleActivity extends AppCompatActivity
 
         screenOrientation = mSession.uiState.screenOrientation;
         setRequestedOrientation(screenOrientation);
+        applyKeepScreenOn();
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
             if (isInMultiWindowMode())
@@ -414,6 +421,8 @@ public final class ConsoleActivity extends AppCompatActivity
             final BackendModule be = mSession.backend.wrapped;
             final View popupView = menuPopupWindow.getContentView();
             popupView.<CompoundButton>findViewById(R.id.wakelock).setChecked(be.isWakeLockHeld());
+            popupView.<CompoundButton>findViewById(R.id.keep_screen_on)
+                    .setChecked(mSession.uiState.keepScreenOn);
             popupView.<TextView>findViewById(R.id.charset)
                     .setText(mSession.output.getCharset().name());
             popupView.<TextView>findViewById(R.id.keymap)
@@ -690,6 +699,14 @@ public final class ConsoleActivity extends AppCompatActivity
         if (mSession.backend.wrapped.isWakeLockHeld())
             mSession.backend.wrapped.releaseWakeLock();
         else mSession.backend.wrapped.acquireWakeLock();
+    }
+
+    public void onMenuToggleKeepScreenOn(final View view) {
+        if (mSession == null) return;
+        mSession.uiState.keepScreenOn = !mSession.uiState.keepScreenOn;
+        applyKeepScreenOn();
+        if (view instanceof Checkable)
+            ((Checkable) view).setChecked(mSession.uiState.keepScreenOn);
     }
 
     public void onMenuTerminate(final View view) {

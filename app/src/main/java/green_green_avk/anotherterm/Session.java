@@ -16,6 +16,7 @@ public final class Session {
     public static final class UiState {
         public final ConsoleScreenView.State csv = new ConsoleScreenView.State();
         public int screenOrientation = ActivityInfo.SCREEN_ORIENTATION_UNSPECIFIED;
+        public boolean keepScreenOn = false;
     }
 
     public static final class Properties {
