@@ -61,9 +61,9 @@ public final class CharsAutoSelector {
     }
 
     public static void select(@NonNull final char[] v, final int start, final int end,
-                              final int ptr, @NonNull final int[] ret) {
+                              final int ptr, final char catSym, @NonNull final int[] ret) {
         final byte cat;
-        if (ptr >= v.length || (cat = getCat(v[ptr])) <= LAST_GROUP) {
+        if (ptr >= v.length || (cat = getCat(catSym)) <= LAST_GROUP) {
             ret[0] = 0;
             ret[1] = end - 1;
             return;
@@ -80,11 +80,11 @@ public final class CharsAutoSelector {
     }
 
     public static void select(@NonNull final CharSequence v,
-                              final int ptr, @NonNull final int[] ret) {
+                              final int ptr, final char catSym, @NonNull final int[] ret) {
         if (v instanceof CharBuffer && ((CharBuffer) v).hasArray()) {
             final CharBuffer cb = (CharBuffer) v;
             select(cb.array(), cb.arrayOffset() + cb.position(),
-                    cb.arrayOffset() + cb.limit(), cb.arrayOffset() + ptr, ret);
+                    cb.arrayOffset() + cb.limit(), cb.arrayOffset() + ptr, catSym, ret);
             ret[0] -= cb.arrayOffset();
             ret[1] -= cb.arrayOffset();
         } else throw new IllegalArgumentException("Not a CharBuffer with array");

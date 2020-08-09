@@ -77,6 +77,7 @@ public final class ConsoleScreenBuffer {
     private static final class Row {
         public char[] text = new char[MIN_ROW_LEN];
         public int[] attrs = new int[MIN_ROW_LEN];
+        public int wrapPos = 0;
 
         {
             Arrays.fill(text, ' ');
@@ -85,6 +86,7 @@ public final class ConsoleScreenBuffer {
         public Row clear(final int a) {
             Arrays.fill(text, ' ');
             Arrays.fill(attrs, a);
+            wrapPos = 0;
             return this;
         }
 
@@ -618,6 +620,12 @@ public final class ConsoleScreenBuffer {
         return r;
     }
 
+    public boolean isLineWrapped(final int y) {
+        final Row row = getRow(y);
+        if (row == null) return false;
+        return row.wrapPos == mWidth;
+    }
+
     public int getAbsPosX() {
         return limitX(mPos.x);
     }
@@ -982,9 +990,14 @@ public final class ConsoleScreenBuffer {
     }
 
     public int setChars(int x, int y, @NonNull final CharBuffer s, @NonNull final Point endPos) {
+        Row row;
+        if (wrap && x == mWidth) {
+            row = getRowForWrite(y);
+            if (row != null) row.wrapPos = mWidth;
+        }
         y = moveScrollPosY(y, x / mWidth);
         x %= mWidth;
-        Row row = getRowForWrite(y);
+        row = getRowForWrite(y);
         if (row == null) return 0;
         final CharBuffer buf = s.duplicate();
         int endX = Unicode.getScreenLength(buf, buf.remaining()) + x;
@@ -995,8 +1008,10 @@ public final class ConsoleScreenBuffer {
         } else len = buf.remaining();
         int lenX = endX - x;
         pasteChars(row, x, endX, buf, len, 0, currentAttrs);
+        row.wrapPos = 0;
         if (wrap) {
             while (buf.remaining() > 0) {
+                row.wrapPos = mWidth;
                 y = moveScrollPosY(y, 1);
                 row = getRowForWrite(y);
                 endX = Unicode.getScreenLength(buf, buf.remaining());
@@ -1005,6 +1020,7 @@ public final class ConsoleScreenBuffer {
                     len = getNextEndIndex(buf, endX, 0);
                 } else len = buf.remaining();
                 pasteChars(row, 0, endX, buf, len, 0, currentAttrs);
+                row.wrapPos = 0;
                 lenX += endX;
             }
             x = endX;

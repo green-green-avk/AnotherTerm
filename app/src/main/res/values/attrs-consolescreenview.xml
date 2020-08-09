@@ -7,6 +7,7 @@
         <attr name="selectionMarker" format="reference" />
         <attr name="selectionMarkerPad" format="reference" />
         <attr name="selectionMarkerOOB" format="reference" />
+        <attr name="selectionWrappedLineMarker" format="reference" />
         <attr name="terminalScrollOffset" format="dimension" />
         <attr name="terminalHorizontalScrollbarLayout" format="reference" />
         <attr name="terminalVerticalScrollbarLayout" format="reference" />
@@ -22,6 +23,7 @@
         <item name="selectionMarker">@drawable/ic_select_cursor</item>
         <item name="selectionMarkerPad">@drawable/bg_selection_pad</item>
         <item name="selectionMarkerOOB">@drawable/ic_selection_arrow</item>
+        <item name="selectionWrappedLineMarker">@drawable/ic_wrapped_line_marker</item>
         <item name="terminalScrollOffset">-9dp</item>
         <item name="terminalHorizontalScrollbarLayout">@layout/terminal_h_scrollbar</item>
         <item name="terminalVerticalScrollbarLayout">@layout/terminal_v_scrollbar</item>

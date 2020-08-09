@@ -91,6 +91,7 @@ public class ConsoleScreenView extends ScrollableView
     protected static final int MSG_BLINK = 0;
     protected static final int INTERVAL_BLINK = 500; // ms
     protected static final long SELECTION_MOVE_START_DELAY = 200; // ms
+    protected static final int AUTOSELECT_LINES_MAX = 128;
     protected ConsoleInput consoleInput = null;
     public final ConsoleScreenCharAttrs charAttrs = new ConsoleScreenCharAttrs();
     protected final Paint fgPaint = new Paint();
@@ -101,6 +102,7 @@ public class ConsoleScreenView extends ScrollableView
     protected Drawable selectionMarkerPtr = null;
     protected Drawable selectionMarkerPad = null;
     protected Drawable selectionMarkerOOB = null;
+    protected Drawable selectionWrappedLineMarker = null;
     protected Drawable attrMarkupBlinking = null;
     protected Drawable paddingMarkup = null;
 
@@ -347,6 +349,8 @@ public class ConsoleScreenView extends ScrollableView
                     a.getResourceId(R.styleable.ConsoleScreenView_selectionMarkerPad, 0));
             selectionMarkerOOB = AppCompatResources.getDrawable(context,
                     a.getResourceId(R.styleable.ConsoleScreenView_selectionMarkerOOB, 0));
+            selectionWrappedLineMarker = AppCompatResources.getDrawable(context,
+                    a.getResourceId(R.styleable.ConsoleScreenView_selectionWrappedLineMarker, 0));
             terminalScrollOffset =
                     a.getDimensionPixelOffset(R.styleable.ConsoleScreenView_terminalScrollOffset,
                             terminalScrollOffset);
@@ -382,6 +386,9 @@ public class ConsoleScreenView extends ScrollableView
             selectionMarkerPad.setColorFilter(selectionPaint.getColor(), PorterDuff.Mode.MULTIPLY);
         if (selectionMarkerOOB != null)
             selectionMarkerOOB.setColorFilter(selectionPaint.getColor(), PorterDuff.Mode.MULTIPLY);
+        if (selectionWrappedLineMarker != null)
+            selectionWrappedLineMarker
+                    .setColorFilter(selectionPaint.getColor(), PorterDuff.Mode.MULTIPLY);
 
         selectionPopup = new SelectionPopup();
 
@@ -794,12 +801,22 @@ public class ConsoleScreenView extends ScrollableView
             if (r >= 0) sb.append(v.toString().replaceAll(" *$", ""));
         } else {
             r = consoleInput.currScrBuf.getChars(s.first.x, s.first.y, getCols() - s.first.x, v);
-            if (r >= 0) sb.append(v.toString().replaceAll(" *$", ""));
-            sb.append('\n');
-            for (int y = s.first.y + 1; y <= s.last.y - 1; y++) {
-                r = consoleInput.currScrBuf.getChars(0, y, getCols(), v);
+            if (consoleInput.currScrBuf.isLineWrapped(s.first.y)) {
+                if (r < 0) return null;
+                sb.append(v.toString());
+            } else {
                 if (r >= 0) sb.append(v.toString().replaceAll(" *$", ""));
                 sb.append('\n');
+            }
+            for (int y = s.first.y + 1; y <= s.last.y - 1; y++) {
+                r = consoleInput.currScrBuf.getChars(0, y, getCols(), v);
+                if (consoleInput.currScrBuf.isLineWrapped(y)) {
+                    if (r < 0) return null;
+                    sb.append(v.toString());
+                } else {
+                    if (r >= 0) sb.append(v.toString().replaceAll(" *$", ""));
+                    sb.append('\n');
+                }
             }
             r = consoleInput.currScrBuf.getChars(0, s.last.y, s.last.x + 1, v);
             if (r >= 0) sb.append(v.toString().replaceAll(" *$", ""));
@@ -1172,14 +1189,53 @@ public class ConsoleScreenView extends ScrollableView
             final ConsoleScreenBuffer.BufferTextRange chars =
                     new ConsoleScreenBuffer.BufferTextRange();
             if (consoleInput.currScrBuf.getChars(0, py, Integer.MAX_VALUE, chars) >= 0) {
+                final int ptr = ConsoleScreenBuffer.getCharIndex(chars.text,
+                        px, 0, true);
+                final char sym = (ptr >= chars.text.length) ? '\0' : chars.text[ptr];
                 CharsAutoSelector.select(chars.text, chars.start, chars.start + chars.length,
-                        ConsoleScreenBuffer.getCharIndex(chars.text, px, 0, true), bb);
+                        ptr, sym, bb);
                 selection.first.set(ConsoleScreenBuffer.getCharPos(chars.text, 0, bb[0]), py);
                 selection.last.set(ConsoleScreenBuffer.getCharPos(chars.text, 0, bb[1]), py);
+                doAutoSelectDown(py, sym, doAutoSelectUp(py, sym, AUTOSELECT_LINES_MAX));
                 getCenterText(selection.first.x, selection.first.y, selectionMarkerFirst);
                 getCenterText(selection.last.x, selection.last.y, selectionMarkerLast);
             }
         }
+    }
+
+    protected int doAutoSelectUp(int py, final char sym, int ly) {
+        final int[] bb = new int[2];
+        final ConsoleScreenBuffer.BufferTextRange chars =
+                new ConsoleScreenBuffer.BufferTextRange();
+        py--;
+        while (ly > 0 && selection.first.x == 0 && consoleInput.currScrBuf.isLineWrapped(py) &&
+                consoleInput.currScrBuf.getChars(0, py, Integer.MAX_VALUE, chars) >= 0) {
+            final int ptr = chars.start + chars.length - 1;
+            CharsAutoSelector.select(chars.text, chars.start, chars.start + chars.length,
+                    ptr, sym, bb);
+            selection.first.set(ConsoleScreenBuffer.getCharPos(chars.text, 0, bb[0]), py);
+            ly--;
+            py--;
+        }
+        return ly;
+    }
+
+    protected int doAutoSelectDown(int py, final char sym, int ly) {
+        final int[] bb = new int[2];
+        final ConsoleScreenBuffer.BufferTextRange chars =
+                new ConsoleScreenBuffer.BufferTextRange();
+        py++;
+        while (ly > 0 && selection.last.x == consoleInput.currScrBuf.getWidth() - 1 &&
+                consoleInput.currScrBuf.isLineWrapped(py - 1) &&
+                consoleInput.currScrBuf.getChars(0, py, Integer.MAX_VALUE, chars) >= 0) {
+            final int ptr = chars.start;
+            CharsAutoSelector.select(chars.text, chars.start, chars.start + chars.length,
+                    ptr, sym, bb);
+            selection.last.set(ConsoleScreenBuffer.getCharPos(chars.text, 0, bb[1]), py);
+            ly--;
+            py++;
+        }
+        return ly;
     }
 
     protected boolean scrollPtWithBuffer(@NonNull final Point pt,
@@ -1479,6 +1535,19 @@ public class ConsoleScreenView extends ScrollableView
                         s.last.y
                 ), selectionPaint);
             }
+            if (selectionWrappedLineMarker != null && !selection.isRectangular)
+                for (int j = _draw_textRect.top; j < _draw_textRect.bottom; j++)
+                    if (consoleInput.currScrBuf.isLineWrapped(j)) {
+                        final int x = getWidth();
+                        final int y = (int) getBufferDrawPosYF(j + 0.5F);
+                        final int sx = selectionWrappedLineMarker.getIntrinsicWidth();
+                        final int sy = selectionWrappedLineMarker.getIntrinsicHeight();
+                        canvas.save();
+                        canvas.translate(x - sx, y - sy / 2);
+                        selectionWrappedLineMarker.setBounds(0, 0, sx, sy);
+                        selectionWrappedLineMarker.draw(canvas);
+                        canvas.restore();
+                    }
             if (selectionMarker != null) {
                 if (selectionMarkerPtr != null) {
                     drawMarker(canvas, selectionMarkerPtr, selectionMarker, mFontHeight * 3);
