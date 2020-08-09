@@ -1454,7 +1454,8 @@ public class ConsoleScreenView extends ScrollableView
         if (selectionMode && selection != null) {
             final int selH = Math.abs(selection.last.y - selection.first.y) + 1;
             if (selH == 1 || selection.isRectangular) {
-                canvas.drawRect(getBufferDrawRectInc(selection.first, selection.last), selectionPaint);
+                canvas.drawRect(getBufferDrawRectInc(selection.first, selection.last),
+                        selectionPaint);
             } else if (selH >= 2) {
                 final ConsoleScreenSelection s = selection.getDirect();
                 canvas.drawRect(getBufferDrawRectInc(

@@ -84,7 +84,9 @@ public final class CharsAutoSelector {
         if (v instanceof CharBuffer && ((CharBuffer) v).hasArray()) {
             final CharBuffer cb = (CharBuffer) v;
             select(cb.array(), cb.arrayOffset() + cb.position(),
-                    cb.arrayOffset() + cb.limit(), ptr, ret);
+                    cb.arrayOffset() + cb.limit(), cb.arrayOffset() + ptr, ret);
+            ret[0] -= cb.arrayOffset();
+            ret[1] -= cb.arrayOffset();
         } else throw new IllegalArgumentException("Not a CharBuffer with array");
     }
 }

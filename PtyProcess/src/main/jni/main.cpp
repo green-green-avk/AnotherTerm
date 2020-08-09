@@ -344,8 +344,9 @@ static jlong JNICALL m_getArgMax(JNIEnv *const env, const jobject jthis) {
 }
 
 static jboolean JNICALL m_isSymlink(JNIEnv *const env, const jobject jthis, const jstring path) {
-    struct stat st;
     const char *const _path = env->GetStringUTFChars(path, nullptr);
+    if (env->ExceptionCheck() == JNI_TRUE) return JNI_FALSE;
+    struct stat st;
     const jboolean r = (jboolean) ((lstat(_path, &st) == 0 &&
                                     (st.st_mode & S_IFMT) == S_IFLNK) ? JNI_TRUE
                                                                       : JNI_FALSE);

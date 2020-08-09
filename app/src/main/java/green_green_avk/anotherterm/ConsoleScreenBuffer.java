@@ -32,9 +32,9 @@ public final class ConsoleScreenBuffer {
         @NonNull
         public char[] text = EMPTY_BUF;
         public int start = 0;
-        byte startXOff = 0;
+        public byte startXOff = 0;
         public int length = 0;
-        byte endXOff = 0;
+        public byte endXOff = 0;
 
         public void reinit() {
             text = EMPTY_BUF;
