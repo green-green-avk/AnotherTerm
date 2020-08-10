@@ -65,7 +65,7 @@ public final class CharsAutoSelector {
         final byte cat;
         if (ptr >= v.length || (cat = getCat(catSym)) <= LAST_GROUP) {
             ret[0] = 0;
-            ret[1] = end - 1;
+            ret[1] = end;
             return;
         }
         int i;
@@ -76,7 +76,7 @@ public final class CharsAutoSelector {
         for (i = ptr; i < end; ++i) {
             if (!match(v[i], cat)) break;
         }
-        ret[1] = i - 1;
+        ret[1] = i;
     }
 
     public static void select(@NonNull final CharSequence v,

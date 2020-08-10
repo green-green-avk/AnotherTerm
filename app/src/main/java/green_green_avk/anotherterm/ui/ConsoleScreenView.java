@@ -1195,7 +1195,7 @@ public class ConsoleScreenView extends ScrollableView
                 CharsAutoSelector.select(chars.text, chars.start, chars.start + chars.length,
                         ptr, sym, bb);
                 selection.first.set(ConsoleScreenBuffer.getCharPos(chars.text, 0, bb[0]), py);
-                selection.last.set(ConsoleScreenBuffer.getCharPos(chars.text, 0, bb[1]), py);
+                selection.last.set(ConsoleScreenBuffer.getCharPos(chars.text, 0, bb[1]) - 1, py);
                 doAutoSelectDown(py, sym, doAutoSelectUp(py, sym, AUTOSELECT_LINES_MAX));
                 getCenterText(selection.first.x, selection.first.y, selectionMarkerFirst);
                 getCenterText(selection.last.x, selection.last.y, selectionMarkerLast);
@@ -1231,7 +1231,7 @@ public class ConsoleScreenView extends ScrollableView
             final int ptr = chars.start;
             CharsAutoSelector.select(chars.text, chars.start, chars.start + chars.length,
                     ptr, sym, bb);
-            selection.last.set(ConsoleScreenBuffer.getCharPos(chars.text, 0, bb[1]), py);
+            selection.last.set(ConsoleScreenBuffer.getCharPos(chars.text, 0, bb[1]) - 1, py);
             ly--;
             py++;
         }
