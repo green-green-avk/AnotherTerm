@@ -10,13 +10,11 @@ import androidx.annotation.Keep;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
-import java.io.File;
 import java.io.FileDescriptor;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.lang.reflect.InvocationTargetException;
-import java.util.Locale;
 import java.util.Map;
 
 @Keep
@@ -445,9 +443,10 @@ public final class PtyProcess extends Process {
 
     @NonNull
     public static String getPathByFd(final int fd) throws IOException {
-        final String pp = String.format(Locale.ROOT, "/proc/self/fd/%d", fd);
-        if (!isSymlink(pp)) throw new IOException("Failed getting path by fd: bad symlink: " + pp);
-        return new File(pp).getCanonicalPath();
+        // See https://github.com/green-green-avk/AnotherTerm/issues/7
+        final String pp = pathByFd(fd);
+        if (pp == null) throw new IOException("Failed getting path by fd " + fd);
+        return pp;
     }
 
     // Actual before API 21 only
@@ -465,6 +464,10 @@ public final class PtyProcess extends Process {
 
     @Keep
     public static native boolean isSymlink(@NonNull String path);
+
+    @Keep
+    @Nullable
+    private static native String pathByFd(int fd);
 
     /*
      * It seems, android.system.Os class is trying to be linked by Dalvik even when inside

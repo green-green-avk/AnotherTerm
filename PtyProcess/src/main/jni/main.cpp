@@ -6,6 +6,7 @@
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <sys/wait.h>
+#include <sys/mman.h>
 #include <signal.h>
 #include "pty_compat.h"
 #include <unistd.h>
@@ -354,6 +355,83 @@ static jboolean JNICALL m_isSymlink(JNIEnv *const env, const jobject jthis, cons
     return r;
 }
 
+static int _pathByFd(char *const realPath, const size_t realPathSize, const char *const procPath) {
+    struct stat st1;
+    if (stat(procPath, &st1) != 0) return -1;
+    const ssize_t r = readlink(procPath, realPath, realPathSize - 1);
+    if (r < 0) return -1;
+    realPath[r] = '\0';
+    struct stat st2;
+    if (stat(realPath, &st2) != 0 || st1.st_dev != st2.st_dev || st1.st_ino != st2.st_ino)
+        return -1;
+    return 0;
+}
+
+#define REALPATH_SIZE (PATH_MAX + 1)
+
+static jstring JNICALL m_pathByFd(JNIEnv *const env, const jobject jthis, const jint fd) {
+    if (fd == -1) return nullptr;
+    char procPath[64];
+    sprintf(procPath, "/proc/self/fd/%u", fd);
+    {
+        char realPath[REALPATH_SIZE];
+        if (_pathByFd(realPath, REALPATH_SIZE, procPath) == 0)
+            return env->NewStringUTF(realPath);
+    }
+    {
+        // Old (API < 21 of some vendors) release mode?
+        // Huh... A little (ugly) step outside the umbrella...
+//        __android_log_print(ANDROID_LOG_ERROR, CLASS_NAME,
+//                "pathByFd failed [%s] : plan B", procPath);
+        char *const realPath =
+                (char *) mmap(nullptr, REALPATH_SIZE,
+                              PROT_READ | PROT_WRITE, MAP_ANON | MAP_SHARED,
+                              -1, 0);
+        if (realPath == MAP_FAILED) {
+            __android_log_print(ANDROID_LOG_ERROR, CLASS_NAME,
+                    "[errno: %d] %s [%s]", errno, strError("pathByFd mmap() failed"), procPath);
+            return nullptr;
+        }
+        realPath[0] = '\0';
+        const pid_t pid = fork();
+        if (pid == -1) {
+            __android_log_print(ANDROID_LOG_ERROR, CLASS_NAME,
+                    "[errno: %d] %s [%s]", errno, strError("pathByFd fork() failed"), procPath);
+            munmap(realPath, REALPATH_SIZE);
+            return nullptr;
+        }
+        if (pid != 0) {
+            int st;
+            while (true) {
+                const int r = waitpid(pid, &st, 0);
+                if (r == -1) {
+                    if (errno == EINTR) continue;
+                    __android_log_print(ANDROID_LOG_ERROR, CLASS_NAME,
+                            "[errno: %d] %s [%s]", errno,
+                            strError("pathByFd waitpid() failed"), procPath);
+                    munmap(realPath, REALPATH_SIZE);
+                    return nullptr;
+                }
+                break;
+            }
+            if (!WIFEXITED(st) || (WEXITSTATUS(st) != 0) || (realPath[0] == '\0')) {
+                __android_log_print(ANDROID_LOG_ERROR, CLASS_NAME,
+                        "pathByFd child failed [%s]", procPath);
+                munmap(realPath, REALPATH_SIZE);
+                return nullptr;
+            }
+            const jstring ret = env->NewStringUTF(realPath);
+            munmap(realPath, REALPATH_SIZE);
+            return ret;
+        } else {
+            if (_pathByFd(realPath, REALPATH_SIZE, procPath) == 0) _exit(0);
+            __android_log_print(ANDROID_LOG_ERROR, CLASS_NAME,
+                    "forked pathByFd failed [%s]", procPath);
+            _exit(127);
+        }
+    }
+}
+
 static const JNINativeMethod methodTable[] = {
         {"execve",                 "(Ljava/lang/String;[Ljava/lang/String;[Ljava/lang/String;)L" CLASS_NAME ";",
         (void *) m_execve},
@@ -369,7 +447,8 @@ static const JNINativeMethod methodTable[] = {
         {"isatty",                 "(I)Z",                  (void *) m_isatty},
         {"getSize",                "(I[I)V",                (void *) m_getSize},
         {"getArgMax",              "()J",                   (void *) m_getArgMax},
-        {"isSymlink",              "(Ljava/lang/String;)Z", (void *) m_isSymlink}
+        {"isSymlink",              "(Ljava/lang/String;)Z", (void *) m_isSymlink},
+        {"pathByFd",               "(I)Ljava/lang/String;", (void *) m_pathByFd}
 };
 
 extern "C"
