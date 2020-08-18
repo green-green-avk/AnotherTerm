@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">Another Term (Debug)</string>
+    <string name="title_activity_favorite_editor">Favorite Editor (Debug)</string>
+    <string name="title_activity_key_mapping_editor">Key Mapping Editor (Debug)</string>
+    <string name="action_share_with_new_session">Share with a newly created session (Debug)</string>
+</resources>

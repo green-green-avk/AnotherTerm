@@ -15,8 +15,8 @@
         <p>To start a session (from Tasker, for example) use:</p>
         <p><b>Intent target:</b> <i>service</i></p>
         <p>
-        <b>Package:</b>
-        <clipboard>green_green_avk.anotherterm</clipboard>
+        <b>Package (application ID):</b>
+        <clipboard>green_green_avk.anotherterm</clipboard>[.<i>variant</i>]
         </p>
         <p>
         <b>Class:</b>

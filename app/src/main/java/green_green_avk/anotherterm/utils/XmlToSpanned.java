@@ -26,6 +26,7 @@ import java.io.StringReader;
 import java.util.Stack;
 import java.util.regex.Pattern;
 
+import green_green_avk.anotherterm.BuildConfig;
 import green_green_avk.anotherterm.R;
 
 public final class XmlToSpanned {
@@ -123,6 +124,11 @@ public final class XmlToSpanned {
                 case "a": {
                     String href = parser.getAttributeValue(null, "href");
                     if (href == null) href = "";
+                    else {
+                        if (href.length() > 6 && href.startsWith("info:/") && href.charAt(6) != '/') {
+                            href = "info://" + BuildConfig.APPLICATION_ID + href.substring(5);
+                        }
+                    }
                     startSpan(new URLSpan(href), output.length());
                     break;
                 }

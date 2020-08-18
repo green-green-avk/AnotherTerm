@@ -16,7 +16,7 @@
 <li>Local Linux PTY is supported. Feel free to use
 <a href=\"https://green-green-avk.github.io/AnotherTerm-docs/installing-linux-under-proot.html#main_content\">
 PRoot with some Linux environment</a>.</li>
-<li><a href=\"info://green_green_avk.anotherterm/termsh_man\">
+<li><a href=\"info:/termsh_man\">
 Shell tool</a> to interact with the Android environment is also present.
 <ul>
 <li>Content exchange between other applications and own files / pipes has been implemented.</li>

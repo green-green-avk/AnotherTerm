@@ -28,7 +28,7 @@
         </ul>
         See also:
         <ul>
-        <li><a href=\"info://green_green_avk.anotherterm/share_input\">Content sharing with Another Term</a></li>
+        <li><a href=\"info:/share_input\">Content sharing with Another Term</a></li>
         </ul>
         </p>
         <p>Commands:
@@ -36,7 +36,7 @@
         <li><b>termsh</b> (<clipboard>$LIB_DIR/libtermsh.so</clipboard>) &#x2014; a tool to
         use Android functionality from the shell.
         Run with <code>help</code> command for
-        <a href=\"info://green_green_avk.anotherterm/termsh_man\">details</a>.</li>
+        <a href=\"info:/termsh_man\">details</a>.</li>
         </ul></p>
     ]]></string>
 </resources>

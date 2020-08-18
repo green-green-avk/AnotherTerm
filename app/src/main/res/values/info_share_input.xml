@@ -13,7 +13,7 @@
         or <i><code>android.intent.extra.TEXT</code></i> if former is not defined.
         <br/>Suffix <clipboard>_URI</clipboard> is used
         if input text is &gt; 4096&#160;B and cached by Another Term under a content URI
-        (see <code><a href=\"info://green_green_avk.anotherterm/termsh_man\">termsh uri</a></code>).
+        (see <code><a href=\"info:/termsh_man\">termsh uri</a></code>).
         <br/>Any text will be represented as an HTML and encoded appropriately if needed.</li>
         <li><clipboard>INPUT_URIS</clipboard> &#x2014;
         a space separated list of <i><code>android.intent.extra.STREAM</code></i>.</li>
