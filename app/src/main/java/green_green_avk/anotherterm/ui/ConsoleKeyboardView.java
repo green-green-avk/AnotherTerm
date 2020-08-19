@@ -255,29 +255,23 @@ public class ConsoleKeyboardView extends ExtKeyboardView implements
         outAttrs.actionLabel = null;
         outAttrs.inputType = InputType.TYPE_NULL;
         outAttrs.imeOptions = EditorInfo.IME_ACTION_NONE;
-        // in any case event dispatching seems very unreliable here I have no idea why, so - full editor
-        return new BaseInputConnection(this, true) {
-            /*
-                        @Override
-                        public Editable getEditable() {
-                            return softEditable;
-                        }
-            */
+        return new BaseInputConnection(this, false) {
             @Override
             public boolean sendKeyEvent(final KeyEvent event) {
-                if (event.getAction() != KeyEvent.ACTION_UP) return true;
-//                Log.w("Soft_input", Character.toString((char) event.getUnicodeChar(event.getMetaState())));
-                if (consoleOutput != null) consoleOutput.feed(event);
+                if (consoleOutput == null) return true;
+                switch (event.getAction()) {
+                    case KeyEvent.ACTION_UP:
+                        return true;
+                    case KeyEvent.ACTION_MULTIPLE:
+                        if (event.getKeyCode() == KeyEvent.KEYCODE_UNKNOWN) {
+                            final String cc = event.getCharacters();
+                            if (cc != null) consoleOutput.feed(cc);
+                        }
+                        return true;
+                }
+                consoleOutput.feed(event);
                 return true;
             }
-
-            @Override
-            public boolean commitText(final CharSequence text, final int newCursorPosition) {
-//                Log.w("Soft_input (commit)", text.toString());
-                if (consoleOutput != null) consoleOutput.feed(text.toString());
-                return super.commitText(text, newCursorPosition);
-            }
-
         };
     }
 
