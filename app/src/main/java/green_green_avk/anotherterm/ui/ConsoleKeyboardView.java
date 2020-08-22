@@ -6,6 +6,7 @@ import android.content.res.Configuration;
 import android.content.res.Resources;
 import android.graphics.Rect;
 import android.inputmethodservice.KeyboardView;
+import android.os.Build;
 import android.text.InputType;
 import android.util.AttributeSet;
 import android.view.InputDevice;
@@ -251,10 +252,22 @@ public class ConsoleKeyboardView extends ExtKeyboardView implements
     }
 
     @Override
+    public boolean onKeyPreIme(final int keyCode, final KeyEvent event) {
+        if (consoleOutput == null) return true;
+        if (event.isCtrlPressed() || event.getKeyCode() == KeyEvent.KEYCODE_ESCAPE) {
+            if (event.getAction() == KeyEvent.ACTION_DOWN) consoleOutput.feed(event);
+            return true;
+        }
+        return super.onKeyPreIme(keyCode, event);
+    }
+
+    @Override
     public InputConnection onCreateInputConnection(final EditorInfo outAttrs) {
         outAttrs.actionLabel = null;
         outAttrs.inputType = InputType.TYPE_NULL;
-        outAttrs.imeOptions = EditorInfo.IME_ACTION_NONE;
+        outAttrs.imeOptions = EditorInfo.IME_ACTION_NONE | EditorInfo.IME_FLAG_NO_FULLSCREEN |
+                (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O ?
+                        EditorInfo.IME_FLAG_NO_PERSONALIZED_LEARNING : 0);
         return new BaseInputConnection(this, false) {
             @Override
             public boolean sendKeyEvent(final KeyEvent event) {
@@ -268,8 +281,19 @@ public class ConsoleKeyboardView extends ExtKeyboardView implements
                             if (cc != null) consoleOutput.feed(cc);
                         }
                         return true;
+                    case KeyEvent.ACTION_DOWN:
+                        consoleOutput.feed(event);
                 }
-                consoleOutput.feed(event);
+                return true;
+            }
+
+            @Override
+            public boolean setComposingText(final CharSequence text, final int newCursorPosition) {
+                return true;
+            }
+
+            @Override
+            public boolean setSelection(final int start, final int end) {
                 return true;
             }
         };
