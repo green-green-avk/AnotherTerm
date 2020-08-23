@@ -58,22 +58,6 @@ public class ConsoleKeyboardView extends ExtKeyboardView implements
 
     private void init() {
         setOnKeyboardActionListener(this);
-        setOnKeyListener(new OnKeyListener() {
-            @Override
-            public boolean onKey(final View v, final int keyCode, final KeyEvent event) {
-                if (keyCode == KeyEvent.KEYCODE_BACK)
-                    return false; // Don't prevent default behavior
-                if ((event.getSource() & InputDevice.SOURCE_ANY & (
-                        InputDevice.SOURCE_MOUSE
-                                | InputDevice.SOURCE_STYLUS
-                                | InputDevice.SOURCE_TRACKBALL
-                )) != 0) return false; // Mouse right & middle buttons...
-                if (event.getAction() != KeyEvent.ACTION_UP) return true;
-//                Log.w("Hard_input", Integer.toString(keyCode));
-                if (consoleOutput != null) consoleOutput.feed(event);
-                return true;
-            }
-        });
         setFocusableInTouchMode(true);
         requestFocus();
     }
@@ -253,9 +237,9 @@ public class ConsoleKeyboardView extends ExtKeyboardView implements
 
     @Override
     public boolean onKeyPreIme(final int keyCode, final KeyEvent event) {
-        if (consoleOutput == null) return true;
         if (event.isCtrlPressed() || event.getKeyCode() == KeyEvent.KEYCODE_ESCAPE) {
-            if (event.getAction() == KeyEvent.ACTION_DOWN) consoleOutput.feed(event);
+            if (consoleOutput != null && event.getAction() == KeyEvent.ACTION_DOWN)
+                consoleOutput.feed(event);
             return true;
         }
         return super.onKeyPreIme(keyCode, event);
@@ -268,35 +252,47 @@ public class ConsoleKeyboardView extends ExtKeyboardView implements
         outAttrs.imeOptions = EditorInfo.IME_ACTION_NONE | EditorInfo.IME_FLAG_NO_FULLSCREEN |
                 (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O ?
                         EditorInfo.IME_FLAG_NO_PERSONALIZED_LEARNING : 0);
-        return new BaseInputConnection(this, false) {
-            @Override
-            public boolean sendKeyEvent(final KeyEvent event) {
-                if (consoleOutput == null) return true;
-                switch (event.getAction()) {
-                    case KeyEvent.ACTION_UP:
-                        return true;
-                    case KeyEvent.ACTION_MULTIPLE:
-                        if (event.getKeyCode() == KeyEvent.KEYCODE_UNKNOWN) {
-                            final String cc = event.getCharacters();
-                            if (cc != null) consoleOutput.feed(cc);
-                        }
-                        return true;
-                    case KeyEvent.ACTION_DOWN:
-                        consoleOutput.feed(event);
-                }
-                return true;
-            }
+        return new BaseInputConnection(this, false);
+    }
 
-            @Override
-            public boolean setComposingText(final CharSequence text, final int newCursorPosition) {
-                return true;
-            }
+    @Override
+    public boolean onKeyDown(final int keyCode, final KeyEvent event) {
+        if (isBypassKey(event)) return super.onKeyDown(keyCode, event);
+        if (consoleOutput != null) consoleOutput.feed(event);
+        return true;
+    }
 
-            @Override
-            public boolean setSelection(final int start, final int end) {
-                return true;
-            }
-        };
+    @Override
+    public boolean onKeyMultiple(final int keyCode, final int repeatCount, KeyEvent event) {
+        if (isBypassKey(event)) return super.onKeyMultiple(keyCode, repeatCount, event);
+        if (consoleOutput != null && event.getKeyCode() == KeyEvent.KEYCODE_UNKNOWN) {
+            final String cc = event.getCharacters();
+            if (cc != null) consoleOutput.feed(cc);
+        }
+        return true;
+    }
+
+    @Override
+    public boolean onKeyLongPress(final int keyCode, final KeyEvent event) {
+        if (isBypassKey(event)) return super.onKeyLongPress(keyCode, event);
+        return true;
+    }
+
+    @Override
+    public boolean onKeyUp(final int keyCode, final KeyEvent event) {
+        if (isBypassKey(event)) return super.onKeyUp(keyCode, event);
+        return true;
+    }
+
+    private boolean isBypassKey(@NonNull final KeyEvent event) {
+        if (event.isSystem())
+            return true; // Don't prevent default behavior
+        if ((event.getSource() & InputDevice.SOURCE_ANY & (
+                InputDevice.SOURCE_MOUSE
+                        | InputDevice.SOURCE_STYLUS
+                        | InputDevice.SOURCE_TRACKBALL
+        )) != 0) return true; // Mouse right & middle buttons...
+        return false;
     }
 
     @Override
