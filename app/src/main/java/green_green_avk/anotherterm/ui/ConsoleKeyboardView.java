@@ -10,6 +10,7 @@ import android.os.Build;
 import android.text.InputType;
 import android.util.AttributeSet;
 import android.view.InputDevice;
+import android.view.KeyCharacterMap;
 import android.view.KeyEvent;
 import android.view.View;
 import android.view.WindowManager;
@@ -36,6 +37,7 @@ public class ConsoleKeyboardView extends ExtKeyboardView implements
     protected boolean wasKey = false;
 
     protected int keyHeightDp = 0;
+    public boolean builtInKeyboardAltAsFn = false;
 
 //    protected final SpannableStringBuilder softEditable = new SpannableStringBuilder();
 
@@ -235,11 +237,15 @@ public class ConsoleKeyboardView extends ExtKeyboardView implements
             setHidden(v);
     }
 
+    private boolean isAltFn(@NonNull final KeyEvent event) {
+        return builtInKeyboardAltAsFn && event.getDeviceId() == KeyCharacterMap.BUILT_IN_KEYBOARD;
+    }
+
     @Override
     public boolean onKeyPreIme(final int keyCode, final KeyEvent event) {
         if (event.isCtrlPressed() || event.getKeyCode() == KeyEvent.KEYCODE_ESCAPE) {
             if (consoleOutput != null && event.getAction() == KeyEvent.ACTION_DOWN)
-                consoleOutput.feed(event);
+                consoleOutput.feed(event, isAltFn(event));
             return true;
         }
         return super.onKeyPreIme(keyCode, event);
@@ -258,7 +264,7 @@ public class ConsoleKeyboardView extends ExtKeyboardView implements
     @Override
     public boolean onKeyDown(final int keyCode, final KeyEvent event) {
         if (isBypassKey(event)) return super.onKeyDown(keyCode, event);
-        if (consoleOutput != null) consoleOutput.feed(event);
+        if (consoleOutput != null) consoleOutput.feed(event, isAltFn(event));
         return true;
     }
 

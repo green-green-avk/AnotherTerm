@@ -1,5 +1,6 @@
 package green_green_avk.anotherterm;
 
+import android.view.KeyCharacterMap;
 import android.view.KeyEvent;
 import android.view.MotionEvent;
 
@@ -55,53 +56,58 @@ public final class ConsoleOutput {
     }
 
     @Nullable
-    public String getKeySeq(final int code, final int modifiers) {
+    private String getKeySeq(final int code, final int modifiers) {
         final int appMode = (appCursorKeys ? TermKeyMap.APP_MODE_CURSOR : 0)
                 | (appNumKeys ? TermKeyMap.APP_MODE_NUMPAD : 0)
                 | (appDECBKM ? TermKeyMap.APP_MODE_DECBKM : 0);
         return keyMap.get(code, modifiers, appMode);
     }
 
+    @Nullable
+    public String getKeySeq(final int code,
+                            final boolean shift, final boolean alt, final boolean ctrl) {
+        return getKeySeq(code, (shift ? 1 : 0) | (alt ? 2 : 0) | (ctrl ? 4 : 0));
+    }
+
     public void feed(final int code, final boolean shift, final boolean alt, final boolean ctrl) {
         if (code == ExtKeyboard.KEYCODE_NONE) return;
         if (code < 0) {
             char c = (char) -code;
-            if (ctrl) {
-                if ((c & 0x40) != 0) {
-                    c &= 0x1F;
-                } else if (c == 0x3F) {
-                    c = 0x7F;
+            if (c < 128) {
+                if (ctrl) {
+                    if ((c & 0x40) != 0) {
+                        c &= 0x1F;
+                    } else if (c == 0x3F) {
+                        c = 0x7F;
+                    }
                 }
-            }
-            if (alt) {
-                feed("\u001B" + c);
-                return;
+                if (alt) {
+                    feed("\u001B" + c);
+                    return;
+                }
             }
             feed(Character.toString(c));
             return;
         }
-        final int modifiers =
-                ((shift ? 1 : 0) |
-                        (alt ? 2 : 0) |
-                        (ctrl ? 4 : 0));
-        final String r = getKeySeq(code, modifiers);
+        final String r = getKeySeq(code, shift, alt, ctrl);
         if (r != null) feed(r);
     }
 
-    public void feed(@NonNull final KeyEvent event) {
+    public void feed(@NonNull final KeyEvent event, final boolean altAsFn) {
+        final boolean alt = event.isAltPressed() && !altAsFn;
         final int code = event.getKeyCode();
-        final int modifiers =
-                ((event.isShiftPressed() ? 1 : 0) |
-                        (event.isAltPressed() ? 2 : 0) |
-                        (event.isCtrlPressed() ? 4 : 0));
-        final String r = getKeySeq(code, modifiers);
+        final String r = getKeySeq(code, event.isShiftPressed(), alt, event.isCtrlPressed());
         if (r != null) {
             feed(r);
             return;
         }
-        final char c = (char) event.getUnicodeChar(event.getMetaState() & KeyEvent.META_SHIFT_MASK);
-        if (c != 0) {
-            feed(-c, event.isShiftPressed(), event.isAltPressed(), event.isCtrlPressed());
+        final int c = event.getUnicodeChar(event.getMetaState() &
+                (KeyEvent.META_SHIFT_MASK | KeyEvent.META_FUNCTION_ON | KeyEvent.META_SYM_ON |
+                        KeyEvent.META_CAPS_LOCK_ON | KeyEvent.META_NUM_LOCK_ON |
+                        KeyEvent.META_SCROLL_LOCK_ON | KeyEvent.META_META_MASK |
+                        (altAsFn ? KeyEvent.META_ALT_MASK : 0)));
+        if (c != 0 && (c & KeyCharacterMap.COMBINING_ACCENT) == 0) { // TODO
+            feed(-c, event.isShiftPressed(), alt, event.isCtrlPressed());
         }
     }
 

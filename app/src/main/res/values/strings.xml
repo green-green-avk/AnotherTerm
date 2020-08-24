@@ -237,4 +237,7 @@
     <string name="action_generate_token">Generate token</string>
     <string name="action_remove_token">Remove token</string>
     <string name="label_keep_screen_on">Keep Screen On</string>
+    <string name="label_built_in_keyboard_alt_as_fn">Alt on a built-in keyboard acts as Fn</string>
+    <string name="label_built_in_keyboard_alt_as_fn__off">Off - better for most devices</string>
+    <string name="label_built_in_keyboard_alt_as_fn__on">On - better for SCH-I415 and similar</string>
 </resources>

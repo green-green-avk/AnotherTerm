@@ -41,6 +41,10 @@ public final class App extends Application {
         public int terminal_key_repeat_interval;
 
         @Keep
+        @Param(defRes = R.bool.terminal_key_alt_as_fn)
+        public boolean terminal_key_alt_as_fn;
+
+        @Keep
         @Param(defRes = R.string.terminal_mouse_layout)
         public String terminal_mouse_layout;
 
