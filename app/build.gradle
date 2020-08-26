@@ -1,4 +1,5 @@
 apply plugin: 'com.android.application'
+apply plugin: 'placeholder-resolver'
 
 android {
     compileSdkVersion 28
@@ -43,6 +44,7 @@ android {
 
     applicationVariants.all { variant ->
         variant.resValue "string", "versionName", variant.versionName
+        variant.resValue "string", "applicationId", variant.applicationId
     }
 
     buildTypes {
