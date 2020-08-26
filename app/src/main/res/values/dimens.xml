@@ -13,6 +13,8 @@
     <dimen name="entry_separator">12sp</dimen>
     <dimen name="entry_height">64dp</dimen>
     <dimen name="settings_row_minHeight">40sp</dimen>
+    <dimen name="preference_title_size">16sp</dimen>
+    <dimen name="preference_summary_size">14sp</dimen>
     <dimen name="uiOptionSize">32sp</dimen>
     <fraction name="horizontal_bias_begin">0.0</fraction>
 </resources>

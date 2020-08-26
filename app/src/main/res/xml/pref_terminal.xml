@@ -83,7 +83,6 @@
         <CheckBoxPreference
             android:defaultValue="@bool/terminal_key_alt_as_fn"
             android:key="terminal_key_alt_as_fn"
-            android:singleLineTitle="false"
             android:summaryOff="@string/label_built_in_keyboard_alt_as_fn__off"
             android:summaryOn="@string/label_built_in_keyboard_alt_as_fn__on"
             android:title="@string/label_built_in_keyboard_alt_as_fn" />
