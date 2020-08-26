@@ -22,11 +22,11 @@
 
     <string name="action_send_signal">Send a Signal</string>
     <string name="action_send_signal_to_fg_pg">Send a signal to the foreground process group</string>
-    <string name="label_sighup">SIGHUP</string>
-    <string name="label_sigint">SIGINT</string>
-    <string name="label_sigquit">SIGQUIT</string>
-    <string name="label_sigabrt">SIGABRT</string>
-    <string name="label_sigkill">SIGKILL</string>
-    <string name="label_sigalrm">SIGALRM</string>
-    <string name="label_sigterm">SIGTERM</string>
+    <string name="label_sighup" translatable="false">SIGHUP</string>
+    <string name="label_sigint" translatable="false">SIGINT</string>
+    <string name="label_sigquit" translatable="false">SIGQUIT</string>
+    <string name="label_sigabrt" translatable="false">SIGABRT</string>
+    <string name="label_sigkill" translatable="false">SIGKILL</string>
+    <string name="label_sigalrm" translatable="false">SIGALRM</string>
+    <string name="label_sigterm" translatable="false">SIGTERM</string>
 </resources>

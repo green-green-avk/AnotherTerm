@@ -11,8 +11,8 @@
     <string name="action_settings">Settings</string>
     <string name="action_ssh_keys_settings">SSH Keys Settings</string>
     <string name="action_new_favorite">New Favorite</string>
-    <string name="conntype_uart">UART</string>
-    <string name="conntype_ssh">SSH</string>
+    <string name="conntype_uart" translatable="false">UART</string>
+    <string name="conntype_ssh" translatable="false">SSH</string>
     <string name="msg_copied_to_clipboard">Copied to clipboard</string>
     <string name="msg_connecting___">Connecting…</string>
     <string name="msg_connected">Connected</string>
@@ -83,13 +83,13 @@
     <string name="title_info">Info</string>
     <string name="desc_not_found"><![CDATA[<h1>Not Found</h1>]]></string>
     <string name="desc_rendering___"><![CDATA[<h1>Rendering…</h1>]]></string>
-    <string name="conntype_telnet">Telnet</string>
+    <string name="conntype_telnet" translatable="false">Telnet</string>
     <string name="title_activity_settings">Settings</string>
     <string name="label_key_map">Key Map</string>
     <string name="label_host_keys">Host Keys</string>
-    <string name="unit_ms">ms</string>
-    <string name="unit_sp">sp</string>
-    <string name="unit_dp">dp</string>
+    <string name="unit_ms" translatable="false">ms</string>
+    <string name="unit_sp" translatable="false">sp</string>
+    <string name="unit_dp" translatable="false">dp</string>
     <string name="action_settings_terminal">Terminal</string>
     <string name="msg_cannot_parse_uri">Cannot parse URI</string>
     <string name="msg_nothing_to_copy_to_clipboard">Nothing to copy to clipboard</string>
@@ -180,12 +180,12 @@
     <string name="label_colon_x11_first_port_plus">:6000+</string>
     <string name="label_baudrate">Baud Rate</string>
     <string name="label_field_div">/</string>
-    <string name="label_mod_shift">Shift</string>
-    <string name="label_mod_alt">Alt</string>
-    <string name="label_mod_control">Ctrl</string>
+    <string name="label_mod_shift" translatable="false">Shift</string>
+    <string name="label_mod_alt" translatable="false">Alt</string>
+    <string name="label_mod_control" translatable="false">Ctrl</string>
     <string name="action_menu">Menu</string>
     <string name="mark_active">Active</string>
-    <string name="unit_percent">%</string>
+    <string name="unit_percent" translatable="false">%</string>
     <string name="label_scroll">Scroll</string>
     <string name="label_follow_the_history_buffer">Follow the history buffer</string>
     <string name="summary_if_its_visible_fraction_gte">if its visible fraction is ≥</string>
@@ -227,7 +227,7 @@
     <string name="msg_saved_to_scratchpad">Saved to the scratchpad</string>
     <string name="msg_via_scratchpad">Via scratchpad</string>
     <string name="msg_nothing_to_save">Nothing to save</string>
-    <string name="unit_kib">KiB</string>
+    <string name="unit_kib" translatable="false">KiB</string>
     <string name="label_use_for_copy_share">Use for copy/share</string>
     <string name="summary_if_data_size_is_gte">if data size is ≥</string>
     <string name="title_empty">Empty</string>

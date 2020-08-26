@@ -21,12 +21,17 @@ public final class TermKeyMapRulesDefault {
 
     private static final class KeyMap {
         public final int appMode;
+        @Nullable
         public final String[] normal;
+        @Nullable
         public final String normalFmt;
+        @Nullable
         public final String[] app;
+        @Nullable
         public final String appFmt;
 
-        public KeyMap(int am, String[] n, String nf, String[] a, String af) {
+        public KeyMap(final int am, @Nullable final String[] n, @Nullable final String nf,
+                      @Nullable final String[] a, @Nullable final String af) {
             appMode = am;
             normal = n;
             normalFmt = nf;
@@ -38,7 +43,7 @@ public final class TermKeyMapRulesDefault {
     private static final SparseArray<KeyMap> keyCodes = new SparseArray<>();
     private static final Set<Integer> supportedKeys;
 
-    private static String[] S(String v) {
+    private static String[] S(final String v) {
         return new String[]{v};
     }
 
@@ -89,18 +94,18 @@ public final class TermKeyMapRulesDefault {
         return supportedKeys;
     }
 
-    public static boolean contains(int code) {
+    public static boolean contains(final int code) {
         return keyCodes.indexOfKey(code) >= 0;
     }
 
-    public static int getAppMode(int code) {
+    public static int getAppMode(final int code) {
         final KeyMap m = keyCodes.get(code);
         if (m == null) return TermKeyMap.APP_MODE_DEFAULT;
         return m.appMode;
     }
 
     @Nullable
-    public static String get(int code, int modifiers, int appMode) {
+    public static String get(final int code, final int modifiers, final int appMode) {
         final KeyMap m = keyCodes.get(code);
         if (m == null) return null;
         String r = null;
@@ -115,13 +120,13 @@ public final class TermKeyMapRulesDefault {
             }
         }
         if (r == null) {
-            if (modifiers < m.normal.length) {
+            if (m.normal != null && modifiers < m.normal.length) {
                 r = m.normal[modifiers];
             }
             if (r == null) {
                 if (m.normalFmt != null) {
                     r = String.format(m.normalFmt, modifiers + 1);
-                } else {
+                } else if (m.normal != null) {
                     r = m.normal[modifiers & (m.normal.length - 1)];
                 }
             }

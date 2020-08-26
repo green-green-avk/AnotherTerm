@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="value_default_local_param_execute"><![CDATA[
+    <string name="value_default_local_param_execute" translatable="false"><![CDATA[
 export TMPDIR=\"$DATA_DIR/tmp\"\
 mkdir -p \"$TMPDIR\"\
 export TERMSH=\"$LIB_DIR/libtermsh.so\"\
