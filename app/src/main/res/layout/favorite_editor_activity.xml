@@ -248,6 +248,7 @@
                             android:id="@+id/fav_wakelock_acquire_on_connect"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
+                            android:checked="true"
                             android:hint="@string/hint_acquire_wake_lock_on_connect"
                             android:text="@string/action_acquire_on_connect" />
 
@@ -255,6 +256,7 @@
                             android:id="@+id/fav_wakelock_release_on_disconnect"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
+                            android:checked="true"
                             android:hint="@string/hint_release_wake_lock_on_disconnect"
                             android:text="@string/action_release_on_disconnect" />
 

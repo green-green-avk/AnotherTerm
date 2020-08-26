@@ -1600,6 +1600,8 @@ public final class TermSh {
                                     ps.put("execute", execute);
                                     if (opts.containsKey("term"))
                                         ps.put("terminal_string", opts.get("term"));
+                                    ps.put("wakelock.acquire_on_connect", true);
+                                    ps.put("wakelock.release_on_disconnect", true);
                                     FavoritesManager.set(name, ps);
                                 }
                             });
