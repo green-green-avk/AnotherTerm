@@ -1712,7 +1712,7 @@ public final class TermSh {
         public void run() {
             LocalServerSocket serverSocket = null;
             try {
-                serverSocket = new LocalServerSocket(ui.ctx.getPackageName() + ".termsh");
+                serverSocket = new LocalServerSocket(BuildConfig.APPLICATION_ID + ".termsh");
                 while (!Thread.interrupted()) {
                     final LocalSocket socket = serverSocket.accept();
                     ui.runOnUiThread(new Runnable() {

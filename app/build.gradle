@@ -30,10 +30,7 @@ android {
 
         externalNativeBuild {
             cmake {
-                cFlags "-DAPPLICATION_ID=\\\"${applicationId}\\\"",
-                        "-DSHELL_SESSION_TOKEN_VAR=\\\"$SHELL_SESSION_TOKEN_VAR\\\""
-                cppFlags "-DAPPLICATION_ID=\\\"${applicationId}\\\"",
-                        "-DSHELL_SESSION_TOKEN_VAR=\\\"$SHELL_SESSION_TOKEN_VAR\\\""
+                cppFlags "-DSHELL_SESSION_TOKEN_VAR=\\\"$SHELL_SESSION_TOKEN_VAR\\\""
             }
         }
     }
@@ -51,12 +48,22 @@ android {
     buildTypes {
         debug {
             applicationIdSuffix ".debug"
+            externalNativeBuild {
+                cmake {
+                    cppFlags "-DAPPLICATION_ID=\\\"${android.defaultConfig.applicationId}${applicationIdSuffix}\\\""
+                }
+            }
         }
         release {
             minifyEnabled true
             shrinkResources true
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'),
                     'proguard-rules.pro'
+            externalNativeBuild {
+                cmake {
+                    cppFlags "-DAPPLICATION_ID=\\\"${android.defaultConfig.applicationId}${applicationIdSuffix}\\\""
+                }
+            }
         }
     }
 }
