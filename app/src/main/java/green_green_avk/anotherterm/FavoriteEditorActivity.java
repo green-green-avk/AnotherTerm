@@ -489,6 +489,7 @@ public final class FavoriteEditorActivity extends AppCompatActivity {
 
     private void asNew() {
         mMakeNew = true;
+        deleteToken(null);
         setTitle(R.string.new_favorite);
         findViewById(R.id.b_remove).setVisibility(View.GONE);
         findViewById(R.id.b_clone).setVisibility(View.GONE);
@@ -496,6 +497,7 @@ public final class FavoriteEditorActivity extends AppCompatActivity {
 
     private void asNewFrom() {
         mMakeNew = true;
+        deleteToken(null);
         setTitle(getString(R.string.new_favorite_from_s, mOldName));
         findViewById(R.id.b_remove).setVisibility(View.GONE);
         findViewById(R.id.b_clone).setVisibility(View.GONE);
