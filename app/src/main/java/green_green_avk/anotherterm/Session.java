@@ -9,12 +9,14 @@ import androidx.annotation.Nullable;
 import java.util.Map;
 
 import green_green_avk.anotherterm.backends.EventBasedBackendModuleWrapper;
+import green_green_avk.anotherterm.ui.ConsoleKeyboardView;
 import green_green_avk.anotherterm.ui.ConsoleScreenView;
 
 public final class Session {
 
     public static final class UiState {
         public final ConsoleScreenView.State csv = new ConsoleScreenView.State();
+        public final ConsoleKeyboardView.State ckv = new ConsoleKeyboardView.State();
         public int screenOrientation = ActivityInfo.SCREEN_ORIENTATION_UNSPECIFIED;
         public boolean keepScreenOn = false;
     }

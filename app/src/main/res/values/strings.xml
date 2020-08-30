@@ -1,6 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="app_name">Another Term</string>
+    <string name="state_off">Off</string>
+    <string name="state_on">On</string>
     <string name="action_confirm">Confirm</string>
     <string name="action_close">Close</string>
     <string name="action_delete">Delete</string>
@@ -199,7 +201,7 @@
     <string name="action_select_mode">Select mode</string>
     <string name="action_terminal_menu">Terminal menu</string>
     <string name="action_nav_up">Navigate up</string>
-    <string name="hint_off">off</string>
+    <string name="hint_off">@string/state_off</string>
     <string name="hint_do_not_change">do not change</string>
     <string name="label_data_bits">Data Bits</string>
     <string name="label_stop_bits">Stop Bits</string>
@@ -240,4 +242,5 @@
     <string name="label_built_in_keyboard_alt_as_fn">Alt on a built-in keyboard acts as Fn</string>
     <string name="label_built_in_keyboard_alt_as_fn__off">Off - better for most devices</string>
     <string name="label_built_in_keyboard_alt_as_fn__on">On - better for SCH-I415 and similar</string>
+    <string name="label_use_system_software_keyboard_by_default">Use system software keyboard by default</string>
 </resources>

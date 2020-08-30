@@ -1,7 +1,6 @@
 package green_green_avk.anotherterm;
 
 import android.app.AlertDialog;
-import android.app.Dialog;
 import android.content.ClipData;
 import android.content.ClipboardManager;
 import android.content.Context;
@@ -131,20 +130,6 @@ public final class ConsoleActivity extends AppCompatActivity
                 WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
     }
 
-    /*
-    @Override
-    public void onWindowFocusChanged(boolean hasFocus) {
-        super.onWindowFocusChanged(hasFocus);
-        if (hasFocus) UiUtils.hideSystemUi(this);
-    }
-
-    @Override
-    public boolean dispatchTouchEvent(MotionEvent ev) {
-        UiUtils.hideSystemUi(this);
-        return super.dispatchTouchEvent(ev);
-    }
-    */
-
     @Override
     public void onMultiWindowModeChanged(final boolean isInMultiWindowMode) {
         super.onMultiWindowModeChanged(isInMultiWindowMode);
@@ -187,8 +172,6 @@ public final class ConsoleActivity extends AppCompatActivity
         }
 
         setContentView(R.layout.console_activity);
-//        UiUtils.setHiddenSystemUi(this);
-//        UiUtils.setShrinkBottomWhenCovered(this);
 
         mCsv = findViewById(R.id.screen);
         mCkv = findViewById(R.id.keyboard);
@@ -214,17 +197,7 @@ public final class ConsoleActivity extends AppCompatActivity
         mCsv.setFontSize(((App) getApplication()).settings.terminal_font_default_size_sp
                 * getResources().getDisplayMetrics().scaledDensity);
 
-/*
-        mCsv.setOnTouchListener(
-                new View.OnTouchListener() {
-                    @Override
-                    public boolean onTouch(final View v, final MotionEvent event) {
-//                        UiUtils.hideSystemUi(ConsoleActivity.this); // For earlier versions
-                        return false;
-                    }
-                }
-        );
-*/
+        mCkv.useIme(((App) getApplication()).settings.terminal_key_default_ime);
 
         setTitle(mSession.input.currScrBuf.windowTitle);
 
@@ -237,6 +210,7 @@ public final class ConsoleActivity extends AppCompatActivity
         mCsv.setScreenSize(asSize(mSession.connectionParams.get("screen_cols")),
                 asSize(mSession.connectionParams.get("screen_rows")));
         mSession.uiState.csv.apply(mCsv);
+        mSession.uiState.ckv.apply(mCkv);
 
         ConsoleService.addListener(sessionsListener);
         invalidateWakeLock();
@@ -281,6 +255,7 @@ public final class ConsoleActivity extends AppCompatActivity
     protected void onPause() {
         ((BackendUiInteractionActivityCtx) mSession.backend.wrapped.getUi()).setActivity(null);
         mSession.uiState.csv.save(mCsv);
+        mSession.uiState.ckv.save(mCkv);
         mSession.uiState.screenOrientation = screenOrientation;
         mSession.thumbnail = mCsv.makeThumbnail(256, 128);
         super.onPause();
@@ -525,7 +500,6 @@ public final class ConsoleActivity extends AppCompatActivity
 
     public void onSwitchIme(final View v) {
         mCkv.useIme(!mCkv.isIme());
-//        UiUtils.hideSystemUi(this);
     }
 
     public void onSelectMode(final View v) {
@@ -624,7 +598,6 @@ public final class ConsoleActivity extends AppCompatActivity
                 .setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(final DialogInterface dialog, final int which) {
-                        UiUtils.hideIME((Dialog) dialog);
                         if (mSession != null) {
                             int width;
                             int height;
@@ -662,7 +635,6 @@ public final class ConsoleActivity extends AppCompatActivity
                 .setNegativeButton(android.R.string.cancel, new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(final DialogInterface dialog, final int which) {
-                        UiUtils.hideIME((Dialog) dialog);
                         dialog.cancel();
                     }
                 })

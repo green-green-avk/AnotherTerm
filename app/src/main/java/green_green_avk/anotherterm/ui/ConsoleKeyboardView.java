@@ -12,7 +12,6 @@ import android.util.AttributeSet;
 import android.view.InputDevice;
 import android.view.KeyCharacterMap;
 import android.view.KeyEvent;
-import android.view.View;
 import android.view.WindowManager;
 import android.view.inputmethod.BaseInputConnection;
 import android.view.inputmethod.EditorInfo;
@@ -21,6 +20,7 @@ import android.view.inputmethod.InputMethodManager;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.core.view.ViewCompat;
 
 import green_green_avk.anotherterm.ConsoleInput;
 import green_green_avk.anotherterm.ConsoleOutput;
@@ -36,10 +36,25 @@ public class ConsoleKeyboardView extends ExtKeyboardView implements
 
     protected boolean wasKey = false;
 
+    protected boolean imeEnabled = false;
+
     protected int keyHeightDp = 0;
     public boolean builtInKeyboardAltAsFn = false;
 
-//    protected final SpannableStringBuilder softEditable = new SpannableStringBuilder();
+    public static class State {
+        private boolean init = false;
+        private boolean useIme = false;
+
+        public void save(@NonNull final ConsoleKeyboardView v) {
+            useIme = v.isIme();
+            init = true;
+        }
+
+        public void apply(@NonNull final ConsoleKeyboardView v) {
+            if (!init) return;
+            v.useIme(useIme);
+        }
+    }
 
     public ConsoleKeyboardView(final Context context, @Nullable final AttributeSet attrs) {
         super(context, attrs);
@@ -105,11 +120,7 @@ public class ConsoleKeyboardView extends ExtKeyboardView implements
         final ExtKeyboard.Configuration kc = new ExtKeyboard.Configuration();
         kc.keyHeight = (int) (keyHeightDp * res.getDisplayMetrics().density);
         setKeyboard(new ExtKeyboard(getContext(), kbdRes, kc));
-        if (cfg.hardKeyboardHidden == Configuration.HARDKEYBOARDHIDDEN_YES) {
-            showIme(isHidden());
-        } else {
-            showIme(false); // Hardware keyboard backspace key suppression bug workaround
-        }
+        useIme(isIme());
     }
 
     public void setConsoleInput(@NonNull final ConsoleInput consoleInput) {
@@ -147,43 +158,28 @@ public class ConsoleKeyboardView extends ExtKeyboardView implements
         consoleOutput.paste(v);
     }
 
-    protected int getImeHeight() {
-        final View v = getRootView();
-        final Rect vr = new Rect();
-        v.getWindowVisibleDisplayFrame(vr);
-        final int h = v.getBottom() - vr.bottom;
-        if (h < 0) return 0;
-        return (h > UiUtils.getNavBarHeight(getContext())) ? h : 0;
-    }
-
     @Override
-    public void onSizeChanged(final int w, final int h, final int oldw, final int oldh) {
-        super.onSizeChanged(w, h, oldw, oldh);
-    }
-
-    protected boolean imeIsShown = false;
-
-    @Override
-    protected void onWindowVisibilityChanged(final int visibility) {
-        super.onWindowVisibilityChanged(visibility);
-        if (visibility == VISIBLE) {
-            if (isHidden()) useIme(true);
-        } else
-            _hideIme();
+    public void onWindowFocusChanged(final boolean hasWindowFocus) {
+        super.onWindowFocusChanged(hasWindowFocus);
+        if (hasWindowFocus) useIme(isIme());
     }
 
     protected void _showIme() {
         final InputMethodManager imm = (InputMethodManager) getContext()
                 .getSystemService(Context.INPUT_METHOD_SERVICE);
         if (imm == null) return;
-        imeIsShown = imm.showSoftInput(this, InputMethodManager.SHOW_FORCED);
+        imeEnabled = true;
+        requestFocus();
+        imm.restartInput(this);
+        imm.showSoftInput(this, InputMethodManager.SHOW_IMPLICIT);
     }
 
     protected void _hideIme() {
         final InputMethodManager imm = (InputMethodManager) getContext()
                 .getSystemService(Context.INPUT_METHOD_SERVICE);
-        imeIsShown = !imm.hideSoftInputFromWindow(getWindowToken(), 0);
-        requestLayout();
+        if (imm == null) return;
+        if (imm.isActive(this)) imm.hideSoftInputFromWindow(getWindowToken(), 0);
+        imeEnabled = false;
     }
 
     protected final Runnable rShowSelf = new Runnable() {
@@ -231,7 +227,7 @@ public class ConsoleKeyboardView extends ExtKeyboardView implements
 
     public void useIme(final boolean v) {
         if (getResources().getConfiguration().hardKeyboardHidden ==
-                Configuration.HARDKEYBOARDHIDDEN_YES)
+                Configuration.HARDKEYBOARDHIDDEN_YES && ViewCompat.isAttachedToWindow(this))
             showIme(v); // Hardware keyboard backspace key suppression bug workaround
         else
             setHidden(v);
@@ -252,7 +248,13 @@ public class ConsoleKeyboardView extends ExtKeyboardView implements
     }
 
     @Override
+    public boolean onCheckIsTextEditor() {
+        return imeEnabled;
+    }
+
+    @Override
     public InputConnection onCreateInputConnection(final EditorInfo outAttrs) {
+        if (!imeEnabled) return null;
         outAttrs.actionLabel = null;
         outAttrs.inputType = InputType.TYPE_NULL;
         outAttrs.imeOptions = EditorInfo.IME_ACTION_NONE | EditorInfo.IME_FLAG_NO_FULLSCREEN |
@@ -299,11 +301,6 @@ public class ConsoleKeyboardView extends ExtKeyboardView implements
                         | InputDevice.SOURCE_TRACKBALL
         )) != 0) return true; // Mouse right & middle buttons...
         return false;
-    }
-
-    @Override
-    public boolean onCheckIsTextEditor() {
-        return true;
     }
 
     @Override

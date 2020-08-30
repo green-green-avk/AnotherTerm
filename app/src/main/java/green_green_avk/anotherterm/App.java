@@ -41,6 +41,10 @@ public final class App extends Application {
         public int terminal_key_repeat_interval;
 
         @Keep
+        @Param(defRes = R.bool.terminal_key_default_ime)
+        public boolean terminal_key_default_ime;
+
+        @Keep
         @Param(defRes = R.bool.terminal_key_alt_as_fn)
         public boolean terminal_key_alt_as_fn;
 

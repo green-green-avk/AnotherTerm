@@ -123,10 +123,6 @@ public final class BackendUiDialogs implements BackendUiInteraction,
                                 new DialogInterface.OnClickListener() {
                                     @Override
                                     public void onClick(final DialogInterface dialog, final int which) {
-                        /* Workaround: the soft keyboard usually remains visible
-                        after the dialog ends */
-                                        UiUtils.hideIME((Dialog) dialog);
-                                        // ---
                                         if (which == DialogInterface.BUTTON_POSITIVE) {
                                             promptState = null;
                                             result.set(et.getText().toString());

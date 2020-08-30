@@ -211,6 +211,8 @@
         app:shadowColor="@color/colorShadow"
         app:shadowRadius="16" />
 
+    <!-- Alternative:
+    https://stackoverflow.com/questions/21092888/windowsoftinputmode-adjustresize-not-working-with-translucent-action-navbar/22266717#22266717 -->
     <green_green_avk.anotherterm.ui.BottomImePlaceholderView
         android:layout_width="match_parent"
         android:layout_height="wrap_content" />

@@ -541,7 +541,12 @@ public abstract class ExtKeyboardView extends View /*implements View.OnClickList
     @Override
     public void onMeasure(final int widthMeasureSpec, final int heightMeasureSpec) {
         if (mHidden) {
-            setMeasuredDimension(0, 0);
+            if (Build.VERSION.SDK_INT >= 28) setMeasuredDimension(
+                    getDefaultSize(getDesiredWidth(), widthMeasureSpec, getLayoutParams().width),
+                    1 // for API >= 28 must have nonzero size to be focusable
+            );
+            else
+                setMeasuredDimension(0, 0);
             return;
         }
         setMeasuredDimension(
@@ -575,7 +580,10 @@ public abstract class ExtKeyboardView extends View /*implements View.OnClickList
     @Override
     protected void onDraw(final Canvas canvas) {
         super.onDraw(canvas);
-        if (mHidden) return;
+        if (mHidden) {
+            if (Build.VERSION.SDK_INT >= 28) getBackground().draw(canvas); // nonzero size
+            return;
+        }
         if (!mDirtyRect.isEmpty() || mBuffer == null) {
             onBufferDraw();
         }
