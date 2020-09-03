@@ -22,8 +22,8 @@ android {
          */
         //noinspection OldTargetApi
         targetSdkVersion 28
-        versionCode 64
-        versionName "MkIIIv5"
+        versionCode 65
+        versionName "MkIIIv6"
         vectorDrawables.useSupportLibrary = true
 
         def SHELL_SESSION_TOKEN_VAR = "SHELL_SESSION_TOKEN"
@@ -62,7 +62,7 @@ android {
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
             externalNativeBuild {
                 cmake {
-                    cppFlags "-DAPPLICATION_ID=\\\"${android.defaultConfig.applicationId}${applicationIdSuffix}\\\""
+                    cppFlags "-DAPPLICATION_ID=\\\"${android.defaultConfig.applicationId}\\\""
                 }
             }
         }
