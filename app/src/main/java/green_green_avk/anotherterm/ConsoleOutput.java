@@ -77,7 +77,11 @@ public final class ConsoleOutput {
                 if (ctrl) {
                     if ((c & 0x40) != 0) {
                         c &= 0x1F;
-                    } else if (c == 0x3F) {
+                    } else if (c == ' ') { // Mapped earlier; added just in case.
+                        c = 0x00;
+                    } else if (c == '/') { // xterm
+                        c = 0x1F;
+                    } else if (c == '?') {
                         c = 0x7F;
                     }
                 }
