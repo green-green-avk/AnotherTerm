@@ -19,9 +19,6 @@ import androidx.annotation.RequiresApi;
 
 @RequiresApi(23)
 public final class DozeFragment extends Fragment {
-    public DozeFragment() {
-    }
-
     @Override
     public View onCreateView(final LayoutInflater inflater, final ViewGroup container,
                              final Bundle savedInstanceState) {
@@ -32,10 +29,10 @@ public final class DozeFragment extends Fragment {
     public void onResume() {
         super.onResume();
         final Activity activity = getActivity();
-        final String packageName = activity.getApplicationContext().getPackageName();
+        final String packageName = activity.getPackageName();
         final PowerManager pm = (PowerManager) activity.getSystemService(Context.POWER_SERVICE);
         final boolean isOpt = !pm.isIgnoringBatteryOptimizations(packageName);
-        ((TextView) getView().findViewById(R.id.f_is_optimized)).setText(
+        getView().<TextView>findViewById(R.id.f_state).setText(
                 isOpt
                         ? R.string.optimized
                         : R.string.not_optimized);
@@ -45,7 +42,8 @@ public final class DozeFragment extends Fragment {
         bSwitch.setOnCheckedChangeListener(
                 new CompoundButton.OnCheckedChangeListener() {
                     @Override
-                    public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+                    public void onCheckedChanged(final CompoundButton buttonView,
+                                                 final boolean isChecked) {
                         openSettings(buttonView);
                     }
                 });
@@ -57,10 +55,12 @@ public final class DozeFragment extends Fragment {
         final String packageName = activity.getApplicationContext().getPackageName();
         final PowerManager pm = (PowerManager) activity.getSystemService(Context.POWER_SERVICE);
         if (pm.isIgnoringBatteryOptimizations(packageName))
-            intent.setAction(Settings.ACTION_IGNORE_BATTERY_OPTIMIZATION_SETTINGS);
+            intent.setAction(Settings.ACTION_IGNORE_BATTERY_OPTIMIZATION_SETTINGS)
+                    .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_NO_HISTORY |
+                            Intent.FLAG_ACTIVITY_EXCLUDE_FROM_RECENTS);
         else {
-            intent.setAction(Settings.ACTION_REQUEST_IGNORE_BATTERY_OPTIMIZATIONS);
-            intent.setData(Uri.parse("package:" + packageName));
+            intent.setAction(Settings.ACTION_REQUEST_IGNORE_BATTERY_OPTIMIZATIONS)
+                    .setData(Uri.parse("package:" + packageName));
         }
         this.startActivity(intent);
     }

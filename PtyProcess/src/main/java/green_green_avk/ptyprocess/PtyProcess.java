@@ -1,6 +1,5 @@
 package green_green_avk.ptyprocess;
 
-import android.annotation.TargetApi;
 import android.os.Build;
 import android.os.ParcelFileDescriptor;
 import android.system.ErrnoException;
@@ -9,6 +8,7 @@ import android.system.Os;
 import androidx.annotation.Keep;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.annotation.RequiresApi;
 
 import java.io.FileDescriptor;
 import java.io.IOException;
@@ -475,7 +475,7 @@ public final class PtyProcess extends Process {
      * API 19 is affected at least.
      * Moving to separate class to work it around.
      */
-    @TargetApi(Build.VERSION_CODES.LOLLIPOP)
+    @RequiresApi(Build.VERSION_CODES.LOLLIPOP)
     private static final class Utils21 {
         private Utils21() {
         }

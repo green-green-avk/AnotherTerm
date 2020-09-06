@@ -131,8 +131,7 @@ public final class PluginsManagerFragment extends Fragment {
                                                 "package", pkg.packageName, null
                                         ))
                         );
-                    } catch (final ActivityNotFoundException ignored) {
-                    } catch (final SecurityException ignored) {
+                    } catch (final ActivityNotFoundException | SecurityException ignored) {
                     }
                 }
             });

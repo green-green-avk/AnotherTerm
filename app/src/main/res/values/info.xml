@@ -22,7 +22,7 @@
     <string name="desc_keymap_escapes"><![CDATA[
 <h1>Key Map Escapes</h1>
 <p>All symbols are represented in the UTF-16 encoding and will be converted to the output stream
-in according to the current console character set.</p>
+in according to a current console character set.</p>
 <ul>
 <li><b>\\\\</b> &#x2014; `\\\'</li>
 <li><b>\\{000-377}</b> &#x2014; Octal symbol code</li>

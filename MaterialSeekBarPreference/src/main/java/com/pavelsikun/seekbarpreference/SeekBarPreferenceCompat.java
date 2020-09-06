@@ -1,6 +1,5 @@
 package com.pavelsikun.seekbarpreference;
 
-import android.annotation.TargetApi;
 import android.content.Context;
 import android.content.res.TypedArray;
 import android.os.Build;
@@ -8,6 +7,7 @@ import android.util.AttributeSet;
 import android.view.View;
 
 import androidx.annotation.Nullable;
+import androidx.annotation.RequiresApi;
 import androidx.preference.Preference;
 import androidx.preference.PreferenceViewHolder;
 
@@ -20,7 +20,7 @@ public class SeekBarPreferenceCompat extends Preference implements View.OnClickL
 
     private PreferenceControllerDelegate controllerDelegate;
 
-    @TargetApi(Build.VERSION_CODES.LOLLIPOP)
+    @RequiresApi(Build.VERSION_CODES.LOLLIPOP)
     public SeekBarPreferenceCompat(final Context context, final AttributeSet attrs,
                                    final int defStyleAttr, final int defStyleRes) {
         super(context, attrs, defStyleAttr, defStyleRes);

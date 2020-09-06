@@ -18,7 +18,6 @@ package green_green_avk.anotherterm.ui;
 
 /* Changed by Aleksandr Kiselev */
 
-import android.annotation.TargetApi;
 import android.content.Context;
 import android.content.res.ColorStateList;
 import android.content.res.TypedArray;
@@ -43,6 +42,7 @@ import android.widget.PopupWindow;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.annotation.RequiresApi;
 import androidx.appcompat.content.res.AppCompatResources;
 import androidx.core.util.Pools;
 
@@ -140,7 +140,7 @@ public abstract class ExtKeyboardView extends View /*implements View.OnClickList
         init(context, attrs, defStyleAttr, R.style.AppExtKeyboardViewStyle);
     }
 
-    @TargetApi(Build.VERSION_CODES.LOLLIPOP)
+    @RequiresApi(Build.VERSION_CODES.LOLLIPOP)
     public ExtKeyboardView(final Context context, @Nullable final AttributeSet attrs,
                            final int defStyleAttr, final int defStyleRes) {
         super(context, attrs, defStyleAttr, defStyleRes);

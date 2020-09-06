@@ -1,6 +1,5 @@
 package green_green_avk.anotherterm.ui;
 
-import android.annotation.TargetApi;
 import android.app.Activity;
 import android.content.Context;
 import android.graphics.Rect;
@@ -10,6 +9,7 @@ import android.view.View;
 import android.view.WindowManager;
 
 import androidx.annotation.Nullable;
+import androidx.annotation.RequiresApi;
 
 import green_green_avk.anotherterm.utils.WeakHandler;
 
@@ -31,7 +31,7 @@ public final class BottomImePlaceholderView extends View {
         super(context, attrs, defStyleAttr);
     }
 
-    @TargetApi(Build.VERSION_CODES.LOLLIPOP)
+    @RequiresApi(Build.VERSION_CODES.LOLLIPOP)
     public BottomImePlaceholderView(final Context context, @Nullable final AttributeSet attrs,
                                     final int defStyleAttr, final int defStyleRes) {
         super(context, attrs, defStyleAttr, defStyleRes);

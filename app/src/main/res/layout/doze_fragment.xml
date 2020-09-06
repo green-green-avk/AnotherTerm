@@ -19,7 +19,7 @@
             android:layout_height="match_parent"
             android:alpha="0.1"
             android:scaleType="fitCenter"
-            app:srcCompat="@drawable/ic_battery"
+            app:srcCompat="@drawable/ic_battery_pict"
             tools:ignore="ContentDescription" />
 
         <ScrollView
@@ -51,11 +51,11 @@
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintLeft_toLeftOf="parent"
             app:layout_constraintTop_toTopOf="parent"
-            app:srcCompat="@drawable/ic_battery"
+            app:srcCompat="@drawable/ic_battery_pict"
             tools:ignore="ContentDescription" />
 
         <TextView
-            android:id="@+id/f_is_optimized"
+            android:id="@+id/f_state"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:paddingLeft="@dimen/text_separator"

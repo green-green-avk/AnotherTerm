@@ -1,6 +1,5 @@
 package com.pavelsikun.seekbarpreference;
 
-import android.annotation.TargetApi;
 import android.content.Context;
 import android.content.res.TypedArray;
 import android.os.Build;
@@ -9,6 +8,7 @@ import android.util.AttributeSet;
 import android.view.View;
 
 import androidx.annotation.Nullable;
+import androidx.annotation.RequiresApi;
 
 /**
  * Created by Pavel Sikun on 21.05.16.
@@ -19,7 +19,7 @@ public class SeekBarPreference extends Preference implements View.OnClickListene
 
     private PreferenceControllerDelegate controllerDelegate;
 
-    @TargetApi(Build.VERSION_CODES.LOLLIPOP)
+    @RequiresApi(Build.VERSION_CODES.LOLLIPOP)
     public SeekBarPreference(final Context context, final AttributeSet attrs,
                              final int defStyleAttr, final int defStyleRes) {
         super(context, attrs, defStyleAttr, defStyleRes);

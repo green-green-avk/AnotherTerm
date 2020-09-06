@@ -1,6 +1,5 @@
 package green_green_avk.anotherterm.ui;
 
-import android.annotation.TargetApi;
 import android.content.Context;
 import android.os.Build;
 import android.util.AttributeSet;
@@ -9,6 +8,7 @@ import android.view.MotionEvent;
 import android.view.View;
 
 import androidx.annotation.Nullable;
+import androidx.annotation.RequiresApi;
 
 public abstract class GestureView extends View
         implements GestureDetector.OnGestureListener, GestureDetector.OnDoubleTapListener/*,
@@ -32,7 +32,7 @@ public abstract class GestureView extends View
         mGestureDetector = new GestureDetector(getContext(), this);
     }
 
-    @TargetApi(Build.VERSION_CODES.LOLLIPOP)
+    @RequiresApi(Build.VERSION_CODES.LOLLIPOP)
     public GestureView(final Context context, @Nullable final AttributeSet attrs,
                        final int defStyleAttr, final int defStyleRes) {
         super(context, attrs, defStyleAttr, defStyleRes);
