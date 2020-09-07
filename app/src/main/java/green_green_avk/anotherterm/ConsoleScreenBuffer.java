@@ -269,20 +269,22 @@ public final class ConsoleScreenBuffer {
     }
 
     public static int encodeAttrs(@NonNull final ConsoleScreenCharAttrs a) {
-        int fgColor;
+        final int fgColor;
         final int bgColor;
         if (a.inverse) {
             fgColor = a.bgColor;
-            bgColor = a.fgColor;
+            bgColor = a.fgColorIndexed ?
+                    ConsoleScreenCharAttrs.getBasicColor(a.fgColor) : a.fgColor;
         } else {
-            fgColor = a.fgColor;
+            if (a.fgColorIndexed) {
+                if (a.bold)
+                    fgColor = ConsoleScreenCharAttrs.getBasicColor(a.fgColor | 8);
+                else if (a.faint)
+                    fgColor = (ConsoleScreenCharAttrs.getBasicColor(a.fgColor) >> 1)
+                            & 0xFF7F7F7F | 0xFF000000;
+                else fgColor = ConsoleScreenCharAttrs.getBasicColor(a.fgColor);
+            } else fgColor = a.fgColor;
             bgColor = a.bgColor;
-        }
-        if (!a.richColor) {
-            if (a.bold)
-                fgColor = (fgColor << 1) | 0xFF000001;
-            else if (a.faint)
-                fgColor &= 0xFF3F3F3F;
         }
         return (encodeColor(fgColor) << 20)
                 | (encodeColor(bgColor) << 8)
@@ -301,7 +303,7 @@ public final class ConsoleScreenBuffer {
     }
 
     public static void decodeAttrs(final int v, @NonNull final ConsoleScreenCharAttrs a) {
-        a.richColor = false;
+        a.fgColorIndexed = false;
         a.fgColor = decodeColor(v >> 20);
         a.bgColor = decodeColor(v >> 8);
         a.bold = (v & 1) != 0;

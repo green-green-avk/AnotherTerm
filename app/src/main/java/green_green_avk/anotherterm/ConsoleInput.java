@@ -590,40 +590,26 @@ public final class ConsoleInput implements BytesSink {
                                     default:
                                         if ((a >= 30) && (a <= 37)) {
                                             final int v = a - 30;
-                                            aa.fgColor = Color.rgb(
-                                                    Misc.bitsAs(v, 1, 127),
-                                                    Misc.bitsAs(v, 2, 127),
-                                                    Misc.bitsAs(v, 4, 127)
-                                            );
-                                            aa.richColor = false;
+                                            aa.fgColor = v;
+                                            aa.fgColorIndexed = true;
                                             break;
                                         }
                                         if ((a >= 40) && (a <= 47)) {
                                             final int v = a - 40;
-                                            aa.bgColor = Color.rgb(
-                                                    Misc.bitsAs(v, 1, 127),
-                                                    Misc.bitsAs(v, 2, 127),
-                                                    Misc.bitsAs(v, 4, 127)
-                                            );
+                                            aa.bgColor = ConsoleScreenCharAttrs
+                                                    .getBasicColor(v);
                                             break;
                                         }
                                         if ((a >= 90) && (a <= 97)) {
                                             final int v = a - 90;
-                                            aa.fgColor = Color.rgb(
-                                                    Misc.bitsAs(v, 1, 255),
-                                                    Misc.bitsAs(v, 2, 255),
-                                                    Misc.bitsAs(v, 4, 255)
-                                            );
-                                            aa.richColor = false;
+                                            aa.fgColor = v | 8;
+                                            aa.fgColorIndexed = true;
                                             break;
                                         }
                                         if ((a >= 100) && (a <= 107)) {
                                             final int v = a - 100;
-                                            aa.bgColor = Color.rgb(
-                                                    Misc.bitsAs(v, 1, 255),
-                                                    Misc.bitsAs(v, 2, 255),
-                                                    Misc.bitsAs(v, 4, 255)
-                                            );
+                                            aa.bgColor = ConsoleScreenCharAttrs
+                                                    .getBasicColor(v | 8);
                                             break;
                                         }
                                         if (LOG_UNKNOWN_ESC)
@@ -801,7 +787,7 @@ public final class ConsoleInput implements BytesSink {
         }
         if (isFg) {
             mCurrAttrs.fgColor = color;
-            mCurrAttrs.richColor = true;
+            mCurrAttrs.fgColorIndexed = false;
         } else mCurrAttrs.bgColor = color;
         return i;
     }
