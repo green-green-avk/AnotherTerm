@@ -14,6 +14,10 @@
         android:icon="@drawable/ic_battery_charging_full_black_24dp"
         android:title="@string/action_settings_keepalive_and_battery_optimization" />
     <header
+        android:fragment="green_green_avk.anotherterm.DeviceStorageAccessFragment"
+        android:icon="@drawable/ic_sdcard"
+        android:title="@string/action_device_storage_access_permission" />
+    <header
         android:fragment="green_green_avk.anotherterm.PluginsManagerFragment"
         android:icon="@drawable/ic_check_black"
         android:title="@string/action_settings_plugins" />

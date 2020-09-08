@@ -40,6 +40,7 @@ public final class SettingsActivity extends AppCompatPreferenceActivity {
                 || TerminalPreferenceFragment.class.getName().equals(fragmentName)
                 || CustomFontsFragment.class.getName().equals(fragmentName)
                 || DozeFragment.class.getName().equals(fragmentName)
+                || DeviceStorageAccessFragment.class.getName().equals(fragmentName)
                 || PluginsManagerFragment.class.getName().equals(fragmentName);
     }
 

@@ -2,6 +2,7 @@ package green_green_avk.anotherterm.utils;
 
 import android.content.Context;
 import android.content.ContextWrapper;
+import android.content.pm.PackageManager;
 import android.net.Uri;
 import android.os.Build;
 import android.util.SparseArray;
@@ -9,6 +10,7 @@ import android.util.SparseBooleanArray;
 import android.util.SparseIntArray;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.RequiresApi;
 import androidx.core.content.FileProvider;
 
 import java.io.File;
@@ -17,10 +19,12 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.nio.charset.Charset;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.NoSuchElementException;
 import java.util.Queue;
+import java.util.Set;
 
 import green_green_avk.anotherterm.App;
 import green_green_avk.anotherterm.BuildConfig;
@@ -261,6 +265,16 @@ public final class Misc {
 
     public static boolean bitsAs(int v, int m) {
         return (v & m) != 0;
+    }
+
+    @RequiresApi(23)
+    @NonNull
+    public static Set<String> checkSelfPermissions(@NonNull final Context ctx,
+                                                   @NonNull final String[] perms) {
+        final Set<String> r = new HashSet<>();
+        for (final String perm : perms)
+            if (ctx.checkSelfPermission(perm) != PackageManager.PERMISSION_GRANTED) r.add(perm);
+        return r;
     }
 
     @NonNull

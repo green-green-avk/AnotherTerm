@@ -3,6 +3,8 @@
     <string name="app_name">Another Term</string>
     <string name="state_off">Off</string>
     <string name="state_on">On</string>
+    <string name="state_disabled">Disabled</string>
+    <string name="state_enabled">Enabled</string>
     <string name="action_confirm">Confirm</string>
     <string name="action_close">Close</string>
     <string name="action_delete">Delete</string>
@@ -40,6 +42,18 @@
             <li><a href=\"https://developer.android.com/training/monitoring-device-state/doze-standby\">https://developer.android.com/training/monitoring-device-state/doze-standby</a></li>
         </ul>
     ]]></string>
+
+    <string name="action_device_storage_access_permission">Device Storage Access Permission</string>
+    <string name="desc_device_storage_access"><![CDATA[
+        <p>If you want to have access to the shared device storage locations from the local shell,
+        you need to enable Android storage access permission for this application.</p>
+        <p><b>Warning: </b>As long as you can run ANY binary… Just warning.</p>
+        <br/>
+        <p><b>Note: </b>The application will likely be terminated with all of its running sessions
+        in the moment this setting is switched from the <i>on</i> to <i>off</i> state.
+        It is an Android behavior.</p>
+    ]]></string>
+    <string name="desc_unable_to_open_app_settings">Unable to open the application settings screen on this device. You can navigate to it manually though.</string>
 
     <string name="action_add_fav">Add Favorite</string>
     <string name="label_name">Name</string>
@@ -152,7 +166,7 @@
     <string name="action_app_info">Application Info</string>
     <string name="action_info_page">Info Page</string>
     <string name="action_settings_plugins">Plugins</string>
-    <string name="label_enabled">Enabled</string>
+    <string name="label_enabled">@string/state_enabled</string>
     <string name="label_application_icon">Application Icon</string>
     <string name="msg_nothing_to_search">Nothing to search</string>
     <string name="msg_stalled_transactions_detected">Stalled transactions detected, plugin seems broken</string>
