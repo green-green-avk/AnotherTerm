@@ -15,4 +15,5 @@
     <color name="colorMiddleTr">#7F7F7F7F</color>
     <color name="colorTextCursor">#7FFFFFFF</color>
     <color name="colorTextSelection">#7F00FF00</color>
+    <color name="colorConsoleBackground">#000000</color>
 </resources>
