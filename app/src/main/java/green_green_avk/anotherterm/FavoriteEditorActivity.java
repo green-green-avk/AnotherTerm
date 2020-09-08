@@ -28,6 +28,7 @@ import java.util.UUID;
 import green_green_avk.anotherterm.backends.BackendModule;
 import green_green_avk.anotherterm.backends.BackendsList;
 import green_green_avk.anotherterm.ui.UiUtils;
+import green_green_avk.anotherterm.utils.BooleanCaster;
 import green_green_avk.anotherterm.utils.PreferenceStorage;
 import green_green_avk.anotherterm.utils.PreferenceUiWrapper;
 import green_green_avk.anotherterm.utils.RawPreferenceUiWrapper;
@@ -339,9 +340,9 @@ public final class FavoriteEditorActivity extends AppCompatActivity {
         }
         setSizeText(mScrColsW, mPrefsSt.get("screen_cols"));
         setSizeText(mScrRowsW, mPrefsSt.get("screen_rows"));
-        mTerminateOD.setChecked(Boolean.TRUE.equals(mPrefsSt.get("terminate.on_disconnect")));
-        mWakeLockAOC.setChecked(Boolean.TRUE.equals(mPrefsSt.get("wakelock.acquire_on_connect")));
-        mWakeLockROD.setChecked(Boolean.TRUE.equals(mPrefsSt.get("wakelock.release_on_disconnect")));
+        mTerminateOD.setChecked(BooleanCaster.CAST(mPrefsSt.get("terminate.on_disconnect")));
+        mWakeLockAOC.setChecked(BooleanCaster.CAST(mPrefsSt.get("wakelock.acquire_on_connect")));
+        mWakeLockROD.setChecked(BooleanCaster.CAST(mPrefsSt.get("wakelock.release_on_disconnect")));
         final Object charset = mPrefsSt.get("charset");
         if (charset != null) {
             final int pos = C.charsetList.indexOf(charset.toString());
