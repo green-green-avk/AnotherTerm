@@ -278,6 +278,7 @@ public final class ConsoleActivity extends AppCompatActivity
                 ViewGroup.LayoutParams.WRAP_CONTENT));
 
 // Module related
+// --------------
 
         if (mSession != null) {
             final BackendModule be = mSession.backend.wrapped;
@@ -380,7 +381,7 @@ public final class ConsoleActivity extends AppCompatActivity
             }
         }
 
-//=======
+// ==============
 
         final PopupWindow window = new PopupWindow(popupView, ViewGroup.LayoutParams.WRAP_CONTENT,
                 ViewGroup.LayoutParams.WRAP_CONTENT, true);

@@ -174,8 +174,9 @@ public final class BackendUiDialogs implements BackendUiInteraction,
                                 return false;
                             }
                         });
-                /* Workaround: not all devices have the problem with
-                the invisible soft keyboard here */
+                        et.requestFocus();
+                        /* Workaround: not all devices have the problem with
+                        the invisible soft keyboard here */
                         final Window w = d.getWindow();
                         if (w != null)
                             w.setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_VISIBLE);
