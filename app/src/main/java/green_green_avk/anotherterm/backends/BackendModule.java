@@ -347,7 +347,7 @@ public abstract class BackendModule {
         synchronized (mWakeLockLock) {
             unsetWakeLock();
             final PowerManager.WakeLock wl = pm.newWakeLock(PowerManager.PARTIAL_WAKE_LOCK,
-                    ctx.getPackageName() + ".BackendModule:");
+                    ctx.getPackageName() + "/" + this.getClass().getName());
             wl.setReferenceCounted(false);
             mWakeLock = wl;
         }

@@ -20,6 +20,7 @@ import android.view.inputmethod.InputMethodManager;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.annotation.RequiresApi;
 import androidx.core.view.ViewCompat;
 
 import green_green_avk.anotherterm.ConsoleInput;
@@ -67,6 +68,7 @@ public class ConsoleKeyboardView extends ExtKeyboardView implements
         init();
     }
 
+    @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
     public ConsoleKeyboardView(final Context context, @Nullable final AttributeSet attrs,
                                final int defStyleAttr, final int defStyleRes) {
         super(context, attrs, defStyleAttr, defStyleRes);
