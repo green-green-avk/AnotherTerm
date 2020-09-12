@@ -38,6 +38,7 @@ public final class SettingsActivity extends AppCompatPreferenceActivity {
     protected boolean isValidFragment(final String fragmentName) {
         return PreferenceFragment.class.getName().equals(fragmentName)
                 || TerminalPreferenceFragment.class.getName().equals(fragmentName)
+                || HwKeyMapEditorFragment.class.getName().equals(fragmentName)
                 || CustomFontsFragment.class.getName().equals(fragmentName)
                 || DozeFragment.class.getName().equals(fragmentName)
                 || DeviceStorageAccessFragment.class.getName().equals(fragmentName)

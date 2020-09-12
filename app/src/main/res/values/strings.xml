@@ -253,8 +253,17 @@
     <string name="action_generate_token">Generate token</string>
     <string name="action_remove_token">Remove token</string>
     <string name="label_keep_screen_on">Keep Screen On</string>
-    <string name="label_built_in_keyboard_alt_as_fn">Alt on a built-in keyboard acts as Fn</string>
-    <string name="label_built_in_keyboard_alt_as_fn__off">Off - better for most devices</string>
-    <string name="label_built_in_keyboard_alt_as_fn__on">On - better for SCH-I415 and similar</string>
     <string name="label_use_system_software_keyboard_by_default">Use system software keyboard by default</string>
+    <string name="action_settings_hardware_keys_mapping">Hardware keys mapping</string>
+    <string name="note_hw_key_map"><![CDATA[
+        <p><kbd>VOLUME_UP</kbd> and <kbd>VOLUME_DOWN</kbd> buttons
+        are already used for font size adjustment and thus cannot be mapped.</p>
+        <p>Please, don\'t hesitate report anything you have doubts about:
+        it\'s an experimental feature.</p>
+    ]]></string>
+    <string name="label_press_a_key_to_add">Press a key to add</string>
+    <string name="label_built_in">Built-in</string>
+    <string name="label_external">External</string>
+    <string name="label_key_block">Turn off</string>
+    <string name="label_key_bypass">Don\'t use as a terminal modifier</string>
 </resources>

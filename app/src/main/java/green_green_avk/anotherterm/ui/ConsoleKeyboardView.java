@@ -9,7 +9,7 @@ import android.inputmethodservice.KeyboardView;
 import android.os.Build;
 import android.text.InputType;
 import android.util.AttributeSet;
-import android.view.InputDevice;
+import android.util.SparseArray;
 import android.view.KeyCharacterMap;
 import android.view.KeyEvent;
 import android.view.WindowManager;
@@ -25,6 +25,7 @@ import androidx.core.view.ViewCompat;
 
 import green_green_avk.anotherterm.ConsoleInput;
 import green_green_avk.anotherterm.ConsoleOutput;
+import green_green_avk.anotherterm.HwKeyMapManager;
 import green_green_avk.anotherterm.R;
 
 public class ConsoleKeyboardView extends ExtKeyboardView implements
@@ -40,7 +41,8 @@ public class ConsoleKeyboardView extends ExtKeyboardView implements
     protected boolean imeEnabled = false;
 
     protected int keyHeightDp = 0;
-    public boolean builtInKeyboardAltAsFn = false;
+    @NonNull
+    private HwKeyMap hwKeyMap = HwKeyMap.DEFAULT;
 
     public static class State {
         private boolean init = false;
@@ -235,18 +237,133 @@ public class ConsoleKeyboardView extends ExtKeyboardView implements
             setHidden(v);
     }
 
-    private boolean isAltFn(@NonNull final KeyEvent event) {
-        return builtInKeyboardAltAsFn && event.getDeviceId() == KeyCharacterMap.BUILT_IN_KEYBOARD;
+    @NonNull
+    public HwKeyMap getHwKeyMap() {
+        return hwKeyMap;
+    }
+
+    public void setHwKeyMap(@Nullable final HwKeyMap hwKeyMap) {
+        this.hwKeyMap = hwKeyMap == null ? HwKeyMap.DEFAULT : hwKeyMap;
+        metaStateFilterCache.clear();
+    }
+
+    private static int getMetaStateByKeycode(final int keycode) {
+        switch (keycode) {
+            case KeyEvent.KEYCODE_SHIFT_LEFT:
+                return KeyEvent.META_SHIFT_LEFT_ON | KeyEvent.META_SHIFT_ON;
+            case KeyEvent.KEYCODE_SHIFT_RIGHT:
+                return KeyEvent.META_SHIFT_RIGHT_ON | KeyEvent.META_SHIFT_ON;
+            case KeyEvent.KEYCODE_ALT_LEFT:
+                return KeyEvent.META_ALT_LEFT_ON | KeyEvent.META_ALT_ON;
+            case KeyEvent.KEYCODE_ALT_RIGHT:
+                return KeyEvent.META_ALT_RIGHT_ON | KeyEvent.META_ALT_ON;
+            case KeyEvent.KEYCODE_CTRL_LEFT:
+                return KeyEvent.META_CTRL_LEFT_ON | KeyEvent.META_CTRL_ON;
+            case KeyEvent.KEYCODE_CTRL_RIGHT:
+                return KeyEvent.META_CTRL_RIGHT_ON | KeyEvent.META_CTRL_ON;
+            case KeyEvent.KEYCODE_META_LEFT:
+                return KeyEvent.META_META_LEFT_ON | KeyEvent.META_META_ON;
+            case KeyEvent.KEYCODE_META_RIGHT:
+                return KeyEvent.META_META_RIGHT_ON | KeyEvent.META_META_ON;
+            case KeyEvent.KEYCODE_SYM:
+                return KeyEvent.META_SYM_ON;
+            case KeyEvent.KEYCODE_FUNCTION:
+                return KeyEvent.META_FUNCTION_ON;
+        }
+        return 0;
+    }
+
+    private static final int META_ALL_MASK = KeyEvent.normalizeMetaState(-1);
+    private static final int META_DEF_MASK = META_ALL_MASK
+            & ~(KeyEvent.META_ALT_ON
+            | KeyEvent.META_ALT_LEFT_ON | KeyEvent.META_ALT_RIGHT_ON
+            | KeyEvent.META_CTRL_ON
+            | KeyEvent.META_CTRL_LEFT_ON | KeyEvent.META_CTRL_RIGHT_ON);
+    private static final int[] modifierKeys = new int[]{
+            KeyEvent.KEYCODE_SHIFT_LEFT, KeyEvent.KEYCODE_SHIFT_RIGHT,
+            KeyEvent.KEYCODE_ALT_LEFT, KeyEvent.KEYCODE_ALT_RIGHT,
+            KeyEvent.KEYCODE_CTRL_LEFT, KeyEvent.KEYCODE_CTRL_RIGHT,
+            KeyEvent.KEYCODE_META_LEFT, KeyEvent.KEYCODE_META_RIGHT,
+            KeyEvent.KEYCODE_SYM,
+            KeyEvent.KEYCODE_FUNCTION
+    };
+
+    private final SparseArray<int[]> metaStateFilterCache = new SparseArray<>();
+    private static final int[] metaStateFilterDefault = new int[]{META_ALL_MASK, META_DEF_MASK};
+
+    private int[] getMetaStateFilter(@NonNull final KeyEvent event) {
+        final int id = hwKeyMap.getDevId(event);
+        if (id < 0) return metaStateFilterDefault;
+        final int[] r = metaStateFilterDefault.clone();
+        final int idx = metaStateFilterCache.indexOfKey(id);
+        if (idx >= 0) return metaStateFilterCache.valueAt(idx);
+        for (final int k : modifierKeys) {
+            final int t = hwKeyMap.get(k, id);
+            if (t == HwKeyMap.KEYCODE_ACTION_DEFAULT) continue;
+            final int m = getMetaStateByKeycode(k);
+            if (t == HwKeyMap.KEYCODE_ACTION_BYPASS) {
+                r[0] &= ~m;
+                r[1] |= m;
+            } else {
+                r[0] &= ~m;
+                r[1] &= ~m;
+            }
+        }
+        metaStateFilterCache.put(id, r);
+        return r;
+    }
+
+    private int metaState = 0; // For the custom modifiers mapping.
+    private int accent = 0;
+
+    private boolean send(@NonNull final KeyEvent event) {
+        if (consoleOutput == null) return false;
+        final int[] filter = getMetaStateFilter(event);
+        final int eventMetaState =
+                KeyEvent.normalizeMetaState((event.getMetaState() & filter[0]) | metaState);
+        final boolean shift = (eventMetaState & KeyEvent.META_SHIFT_ON) != 0;
+        final boolean alt = (eventMetaState & KeyEvent.META_ALT_ON) != 0;
+        final boolean ctrl = (eventMetaState & KeyEvent.META_CTRL_ON) != 0;
+        int code = hwKeyMap.get(event);
+        if (code < 0) code = event.getKeyCode();
+        final String r = consoleOutput.getKeySeq(code, shift, alt, ctrl);
+        if (r != null) {
+            consoleOutput.feed(r);
+            return true;
+        }
+        final int c = event.getKeyCharacterMap().get(code,
+                KeyEvent.normalizeMetaState(event.getMetaState() & filter[1]));
+        if (c == 0) return false;
+        if ((c & KeyCharacterMap.COMBINING_ACCENT) == 0) {
+            final int fullChar;
+            if (accent != 0) {
+                fullChar = KeyCharacterMap.getDeadChar(accent, c);
+                accent = 0;
+                if (fullChar == 0) return true;
+            } else fullChar = c;
+            consoleOutput.feed(-fullChar, shift, alt, ctrl);
+        } else {
+            accent = c & KeyCharacterMap.COMBINING_ACCENT_MASK;
+        }
+        return true;
     }
 
     @Override
     public boolean onKeyPreIme(final int keyCode, final KeyEvent event) {
-        if (event.isCtrlPressed() || event.getKeyCode() == KeyEvent.KEYCODE_ESCAPE) {
-            if (consoleOutput != null && event.getAction() == KeyEvent.ACTION_DOWN)
-                consoleOutput.feed(event, isAltFn(event));
-            return true;
+        if (HwKeyMapManager.isBypassKey(event) || hwKeyMap.get(event) < 0)
+            return super.onKeyPreIme(keyCode, event);
+        switch (event.getAction()) {
+            case KeyEvent.ACTION_DOWN:
+                onKeyDown(keyCode, event);
+                break;
+            case KeyEvent.ACTION_MULTIPLE:
+                onKeyMultiple(keyCode, event.getRepeatCount(), event);
+                break;
+            case KeyEvent.ACTION_UP:
+                onKeyUp(keyCode, event);
+                break;
         }
-        return super.onKeyPreIme(keyCode, event);
+        return true;
     }
 
     @Override
@@ -267,42 +384,46 @@ public class ConsoleKeyboardView extends ExtKeyboardView implements
 
     @Override
     public boolean onKeyDown(final int keyCode, final KeyEvent event) {
-        if (isBypassKey(event)) return super.onKeyDown(keyCode, event);
-        if (consoleOutput != null) consoleOutput.feed(event, isAltFn(event));
+        final int mk = hwKeyMap.get(event);
+        if (isBypassKey(event, mk < 0)) return super.onKeyDown(keyCode, event);
+        metaState |= getMetaStateByKeycode(mk);
+        send(event);
         return true;
     }
 
     @Override
     public boolean onKeyMultiple(final int keyCode, final int repeatCount, final KeyEvent event) {
-        if (isBypassKey(event)) return super.onKeyMultiple(keyCode, repeatCount, event);
-        if (consoleOutput != null && event.getKeyCode() == KeyEvent.KEYCODE_UNKNOWN) {
-            final String cc = event.getCharacters();
-            if (cc != null) consoleOutput.feed(cc);
+        if (event.getKeyCode() == KeyEvent.KEYCODE_UNKNOWN) {
+            if (consoleOutput != null) {
+                final String cc = event.getCharacters();
+                if (cc != null) consoleOutput.feed(cc);
+            }
+            return true;
         }
+        final int mk = hwKeyMap.get(event);
+        if (isBypassKey(event, mk < 0))
+            return super.onKeyMultiple(keyCode, repeatCount, event);
         return true;
     }
 
     @Override
     public boolean onKeyLongPress(final int keyCode, final KeyEvent event) {
-        if (isBypassKey(event)) return super.onKeyLongPress(keyCode, event);
+        final int mk = hwKeyMap.get(event);
+        if (isBypassKey(event, mk < 0))
+            return super.onKeyLongPress(keyCode, event);
         return true;
     }
 
     @Override
     public boolean onKeyUp(final int keyCode, final KeyEvent event) {
-        if (isBypassKey(event)) return super.onKeyUp(keyCode, event);
+        final int mk = hwKeyMap.get(event);
+        if (isBypassKey(event, mk < 0)) return super.onKeyUp(keyCode, event);
+        metaState &= ~getMetaStateByKeycode(mk);
         return true;
     }
 
-    private boolean isBypassKey(@NonNull final KeyEvent event) {
-        if (event.isSystem())
-            return true; // Don't prevent default behavior
-        if ((event.getSource() & InputDevice.SOURCE_ANY & (
-                InputDevice.SOURCE_MOUSE
-                        | InputDevice.SOURCE_STYLUS
-                        | InputDevice.SOURCE_TRACKBALL
-        )) != 0) return true; // Mouse right & middle buttons...
-        return false;
+    private static boolean isBypassKey(@NonNull final KeyEvent event, final boolean notRemapped) {
+        return HwKeyMapManager.isBypassKey(event) || (notRemapped && event.isSystem());
     }
 
     @Override

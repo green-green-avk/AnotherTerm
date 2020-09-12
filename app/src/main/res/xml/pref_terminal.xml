@@ -87,13 +87,6 @@
             android:summaryOn="@string/state_on"
             android:title="@string/label_use_system_software_keyboard_by_default" />
 
-        <CheckBoxPreference
-            android:defaultValue="@bool/terminal_key_alt_as_fn"
-            android:key="terminal_key_alt_as_fn"
-            android:summaryOff="@string/label_built_in_keyboard_alt_as_fn__off"
-            android:summaryOn="@string/label_built_in_keyboard_alt_as_fn__on"
-            android:title="@string/label_built_in_keyboard_alt_as_fn" />
-
     </PreferenceCategory>
 
     <PreferenceCategory

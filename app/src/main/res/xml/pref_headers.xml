@@ -6,6 +6,10 @@
         android:icon="@drawable/ic_computer_black_24dp"
         android:title="@string/action_settings_terminal" />
     <header
+        android:fragment="green_green_avk.anotherterm.HwKeyMapEditorFragment"
+        android:icon="@drawable/ic_keyboard_black_48dp"
+        android:title="@string/action_settings_hardware_keys_mapping" />
+    <header
         android:fragment="green_green_avk.anotherterm.CustomFontsFragment"
         android:icon="@drawable/ic_font_black_48dp"
         android:title="@string/action_custom_font" />

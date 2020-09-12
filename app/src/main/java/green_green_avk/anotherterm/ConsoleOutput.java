@@ -1,7 +1,5 @@
 package green_green_avk.anotherterm;
 
-import android.view.KeyCharacterMap;
-import android.view.KeyEvent;
 import android.view.MotionEvent;
 
 import androidx.annotation.NonNull;
@@ -95,35 +93,6 @@ public final class ConsoleOutput {
         }
         final String r = getKeySeq(code, shift, alt, ctrl);
         if (r != null) feed(r);
-    }
-
-    private int accent = 0;
-
-    public void feed(@NonNull final KeyEvent event, final boolean altAsFn) {
-        final boolean alt = event.isAltPressed() && !altAsFn;
-        final int code = event.getKeyCode();
-        final String r = getKeySeq(code, event.isShiftPressed(), alt, event.isCtrlPressed());
-        if (r != null) {
-            feed(r);
-            return;
-        }
-        final int c = event.getUnicodeChar(event.getMetaState() &
-                (KeyEvent.META_SHIFT_MASK | KeyEvent.META_FUNCTION_ON | KeyEvent.META_SYM_ON |
-                        KeyEvent.META_CAPS_LOCK_ON | KeyEvent.META_NUM_LOCK_ON |
-                        KeyEvent.META_SCROLL_LOCK_ON | KeyEvent.META_META_MASK |
-                        (altAsFn ? KeyEvent.META_ALT_MASK : 0)));
-        if (c == 0) return;
-        if ((c & KeyCharacterMap.COMBINING_ACCENT) == 0) {
-            final int fullChar;
-            if (accent != 0) {
-                fullChar = KeyCharacterMap.getDeadChar(accent, c);
-                accent = 0;
-                if (fullChar == 0) return;
-            } else fullChar = c;
-            feed(-fullChar, event.isShiftPressed(), alt, event.isCtrlPressed());
-        } else {
-            accent = c & KeyCharacterMap.COMBINING_ACCENT_MASK;
-        }
     }
 
     public void feed(@NonNull final String v) {

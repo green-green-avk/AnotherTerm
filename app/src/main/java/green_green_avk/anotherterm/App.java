@@ -45,10 +45,6 @@ public final class App extends Application {
         public boolean terminal_key_default_ime;
 
         @Keep
-        @Param(defRes = R.bool.terminal_key_alt_as_fn)
-        public boolean terminal_key_alt_as_fn;
-
-        @Keep
         @Param(defRes = R.string.terminal_mouse_layout)
         public String terminal_mouse_layout;
 
@@ -69,6 +65,12 @@ public final class App extends Application {
     }
 
     public final Settings settings = new Settings();
+    private static Settings sSettings = null;
+
+    @Nullable
+    public static Settings getSettings() {
+        return sSettings;
+    }
 
     public ScratchpadManager scratchpadManager = null;
 
@@ -85,9 +87,11 @@ public final class App extends Application {
         super.onCreate();
         PluginsManager.init(this);
         settings.init(this, PreferenceManager.getDefaultSharedPreferences(this));
+        sSettings = settings;
         FontsManager.init(this);
         FontsManager.setFrom(settings.terminal_font_default_fromfiles);
         TermKeyMapManager.init(this);
+        HwKeyMapManager.init(this);
         FavoritesManager.init(this);
         scratchpadManager = new ScratchpadManager(this, "scratchpad");
         termSh = new TermSh(this);
