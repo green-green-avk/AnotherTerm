@@ -13,6 +13,7 @@
         android:layout_height="wrap_content"
         android:paddingLeft="@dimen/text_separator"
         android:paddingRight="@dimen/text_separator"
+        android:textColor="?android:attr/editTextColor"
         tools:text="KEYCODE" />
 
     <TextView
@@ -21,12 +22,17 @@
         android:layout_height="wrap_content"
         android:paddingLeft="@dimen/text_separator"
         android:paddingRight="@dimen/text_separator"
+        android:textColor="?android:attr/editTextColor"
         tools:text="BUILT-IN" />
 
-    <Space
+    <ImageView
         android:layout_width="0dp"
-        android:layout_height="0dp"
-        android:layout_weight="1" />
+        android:layout_height="wrap_content"
+        android:layout_weight="1"
+        android:scaleType="centerInside"
+        app:srcCompat="@drawable/ic_assoc"
+        app:tint="?android:attr/textColorTertiary"
+        tools:ignore="ContentDescription" />
 
     <Spinner
         android:id="@+id/toKeycode"

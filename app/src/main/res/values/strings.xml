@@ -256,14 +256,25 @@
     <string name="label_use_system_software_keyboard_by_default">Use system software keyboard by default</string>
     <string name="action_settings_hardware_keys_mapping">Hardware keys mapping</string>
     <string name="note_hw_key_map"><![CDATA[
-        <p><kbd>VOLUME_UP</kbd> and <kbd>VOLUME_DOWN</kbd> buttons
-        are already used for font size adjustment and thus cannot be mapped.</p>
         <p>Please, don\'t hesitate report anything you have doubts about:
         it\'s an experimental feature.</p>
+        <p><kbd>VOLUME_UP</kbd> and <kbd>VOLUME_DOWN</kbd> buttons
+        are already used for font size adjustment and thus cannot be mapped.</p>
+        <ul>
+        <li>\"Block\" means \"Completely turn off a key\"</li>
+        <li>\"Bypass\" means \"Bypass as is and use to determine the final key code only,
+        do not use as a terminal key modifier\"</li>
+        </ul>
+        <p>For example: in <b>SCH-I415</b>,
+        the <kbd>Fn</kbd> is actually visible as the <i>Left Alt</i>
+        and should be bypassed to work as expected.</p>
+        <p>Android own modifier flags are used by default
+        but in some cases they could be broken by IME.
+        Mapping a modifier key to itself could help in this case.</p>
     ]]></string>
     <string name="label_press_a_key_to_add">Press a key to add</string>
     <string name="label_built_in">Built-in</string>
     <string name="label_external">External</string>
-    <string name="label_key_block">Turn off</string>
-    <string name="label_key_bypass">Don\'t use as a terminal modifier</string>
+    <string name="label_key_block">Block</string>
+    <string name="label_key_bypass">Bypass</string>
 </resources>

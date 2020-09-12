@@ -11,7 +11,6 @@
     <green_green_avk.anotherterm.ui.HtmlTextView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:textStyle="italic"
         app:xmlText="@string/note_hw_key_map" />
 
     <ListView
@@ -24,8 +23,10 @@
         android:id="@+id/action_add"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:background="@drawable/bg_grid_btn"
+        android:layout_gravity="end"
+        android:background="@drawable/list_item_btn_background"
         android:contentDescription="@string/action_add"
+        android:padding="6sp"
         app:srcCompat="@android:drawable/ic_menu_add" />
 
 </LinearLayout>

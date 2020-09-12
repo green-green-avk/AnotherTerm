@@ -199,9 +199,12 @@ public final class HwKeyMapEditorFragment extends Fragment {
                 if (devId < 0 || HwKeyMapManager.isBypassKey(event)
                         || keyCode == KeyEvent.KEYCODE_UNKNOWN) return false;
                 if (event.getAction() == KeyEvent.ACTION_DOWN) {
-                    keymap.set(keyCode, keymap.getDevId(event), KeyEvent.KEYCODE_UNKNOWN);
-                    HwKeyMapManager.set(keymap);
-                    adapter.notifyDataSetChanged();
+                    final int km = keymap.get(keyCode, devId);
+                    if (km == HwKeyMap.KEYCODE_ACTION_DEFAULT) {
+                        keymap.set(keyCode, devId, KeyEvent.KEYCODE_UNKNOWN);
+                        HwKeyMapManager.set(keymap);
+                        adapter.notifyDataSetChanged();
+                    }
                     d.dismiss();
                 }
                 return true;
