@@ -17,6 +17,7 @@ public final class Session {
     public static final class UiState {
         public final ConsoleScreenView.State csv = new ConsoleScreenView.State();
         public final ConsoleKeyboardView.State ckv = new ConsoleKeyboardView.State();
+        public float fontSizeDp = 0F; // Invariant for resolution switching
         public int screenOrientation = ActivityInfo.SCREEN_ORIENTATION_UNSPECIFIED;
         public boolean keepScreenOn = false;
     }

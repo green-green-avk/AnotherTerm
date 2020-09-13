@@ -11,6 +11,7 @@ import android.graphics.Rect;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
+import android.util.DisplayMetrics;
 import android.util.Log;
 import android.util.TypedValue;
 import android.view.KeyEvent;
@@ -73,7 +74,6 @@ public final class ConsoleActivity extends AppCompatActivity
     private VisibilityAnimator mScrollHomeVA = null;
 
     private ViewGroup wNavBar = null;
-    private View wOptionsMenu = null;
 
     private TextView wTitle = null;
     private ImageView wMouseMode = null;
@@ -181,21 +181,24 @@ public final class ConsoleActivity extends AppCompatActivity
         mScrollHomeVA = new VisibilityAnimator(findViewById(R.id.scrollHome));
 
         wNavBar = findViewById(R.id.nav_bar);
-        wOptionsMenu = findViewById(R.id.action_options_menu);
 
         wTitle = findViewById(R.id.title);
         wMouseMode = findViewById(R.id.action_mouse_mode);
 
         wConnecting = findViewById(R.id.connecting);
 
-        registerForContextMenu(wOptionsMenu);
-
         final FontProvider fp = new ConsoleFontProvider();
         mCsv.setFont(fp);
         mCkv.setFont(fp); // Old Android devices have no glyphs for some special symbols
 
-        mCsv.setFontSize(((App) getApplication()).settings.terminal_font_default_size_sp
-                * getResources().getDisplayMetrics().scaledDensity);
+        final DisplayMetrics dm = getResources().getDisplayMetrics();
+
+        if (mSession.uiState.fontSizeDp <= 0F)
+            mSession.uiState.fontSizeDp =
+                    ((App) getApplication()).settings.terminal_font_default_size_sp *
+                            (dm.scaledDensity / dm.density);
+        mCsv.setFontSize(mSession.uiState.fontSizeDp *
+                getResources().getDisplayMetrics().density);
 
         mCkv.useIme(((App) getApplication()).settings.terminal_key_default_ime);
 
@@ -254,6 +257,8 @@ public final class ConsoleActivity extends AppCompatActivity
     @Override
     protected void onPause() {
         ((BackendUiInteractionActivityCtx) mSession.backend.wrapped.getUi()).setActivity(null);
+        mSession.uiState.fontSizeDp = mCsv.getFontSize() /
+                getResources().getDisplayMetrics().density;
         mSession.uiState.csv.save(mCsv);
         mSession.uiState.ckv.save(mCkv);
         mSession.uiState.screenOrientation = screenOrientation;
@@ -264,6 +269,9 @@ public final class ConsoleActivity extends AppCompatActivity
     @Override
     protected void onDestroy() {
         if (menuPopupWindow != null) menuPopupWindow.dismiss();
+        mSession.input.removeOnInvalidateSink(this);
+        mCkv.unsetConsoleInput();
+        mCsv.unsetConsoleInput();
         super.onDestroy();
     }
 
@@ -716,15 +724,19 @@ public final class ConsoleActivity extends AppCompatActivity
     @Override
     public boolean dispatchKeyEvent(final KeyEvent event) {
         if (event.getAction() == KeyEvent.ACTION_DOWN) {
+            final DisplayMetrics dm = getResources().getDisplayMetrics();
+            final float step = dm.density;
             switch (event.getKeyCode()) {
                 case KeyEvent.KEYCODE_VOLUME_UP: {
-                    if (mCsv.getFontSize() < 64F)
-                        mCsv.setFontSize(mCsv.getFontSize() + 1F);
+                    if (mCsv.getFontSize() / dm.scaledDensity <
+                            getResources().getInteger(R.integer.terminal_font_size_max_sp))
+                        mCsv.setFontSize(mCsv.getFontSize() + step);
                     return true;
                 }
                 case KeyEvent.KEYCODE_VOLUME_DOWN: {
-                    if (mCsv.getFontSize() > 4F)
-                        mCsv.setFontSize(mCsv.getFontSize() - 1F);
+                    if (mCsv.getFontSize() / dm.scaledDensity >
+                            getResources().getInteger(R.integer.terminal_font_size_min_sp))
+                        mCsv.setFontSize(mCsv.getFontSize() - step);
                     return true;
                 }
             }

@@ -91,7 +91,7 @@ public final class ConsoleInput implements BytesSink {
         void onInvalidateSink(@Nullable Rect rect);
     }
 
-    private Set<OnInvalidateSink> mOnInvalidateSink =
+    private final Set<OnInvalidateSink> mOnInvalidateSink =
             Collections.newSetFromMap(new WeakHashMap<OnInvalidateSink, Boolean>());
 
     public void addOnInvalidateSink(@NonNull final OnInvalidateSink h) {

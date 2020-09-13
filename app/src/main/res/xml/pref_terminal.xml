@@ -13,9 +13,9 @@
             app:msbp_dialogEnabled="true"
             app:msbp_dialogIcon="@drawable/ic_font_black_48dp"
             app:msbp_interval="1"
-            app:msbp_maxValue="32"
+            app:msbp_maxValue="@integer/terminal_font_size_max_sp"
             app:msbp_measurementUnit="@string/unit_sp"
-            app:msbp_minValue="4" />
+            app:msbp_minValue="@integer/terminal_font_size_min_sp" />
 
     </PreferenceCategory>
 

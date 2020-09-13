@@ -21,11 +21,12 @@
 
             <EditText
                 android:id="@+id/width"
-                android:layout_width="wrap_content"
+                android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
                 android:importantForAutofill="no"
                 android:inputType="number" />
+
         </TableRow>
 
         <TableRow>
@@ -38,11 +39,12 @@
 
             <EditText
                 android:id="@+id/height"
-                android:layout_width="wrap_content"
+                android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
                 android:importantForAutofill="no"
                 android:inputType="number" />
+
         </TableRow>
 
     </TableLayout>

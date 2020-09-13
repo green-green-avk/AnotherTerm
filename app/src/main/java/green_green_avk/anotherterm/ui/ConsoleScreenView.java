@@ -67,7 +67,6 @@ public class ConsoleScreenView extends ScrollableView
 
     public static class State {
         private PointF scrollPosition = null;
-        private float fontSize = 0;
         private boolean resizeBufferXOnUi = true;
         private boolean resizeBufferYOnUi = true;
 
@@ -75,7 +74,6 @@ public class ConsoleScreenView extends ScrollableView
             scrollPosition = v.scrollPosition;
             resizeBufferXOnUi = v.resizeBufferXOnUi;
             resizeBufferYOnUi = v.resizeBufferYOnUi;
-            fontSize = v.getFontSize();
         }
 
         public void apply(@NonNull final ConsoleScreenView v) {

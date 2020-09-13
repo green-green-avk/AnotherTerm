@@ -1,0 +1,5 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <integer name="terminal_font_size_min_sp">4</integer>
+    <integer name="terminal_font_size_max_sp">32</integer>
+</resources>

@@ -98,7 +98,6 @@
             app:tintMode="src_atop" />
 
         <ImageView
-            android:id="@+id/action_options_menu"
             android:layout_width="wrap_content"
             android:layout_height="match_parent"
             android:adjustViewBounds="true"
