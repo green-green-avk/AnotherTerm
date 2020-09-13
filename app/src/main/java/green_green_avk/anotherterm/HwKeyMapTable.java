@@ -1,7 +1,6 @@
 package green_green_avk.anotherterm;
 
 import android.util.SparseIntArray;
-import android.view.KeyCharacterMap;
 import android.view.KeyEvent;
 
 import androidx.annotation.NonNull;
@@ -11,18 +10,17 @@ import green_green_avk.anotherterm.ui.HwKeyMap;
 public final class HwKeyMapTable extends HwKeyMap {
     public static final int BUILT_IN = 0;
     public static final int EXTERNAL = 1;
-    public static final int DEV_IDS_NUM = 2;
 
     private final SparseIntArray map = new SparseIntArray();
 
     private int key(final int keycode, final int devId) {
-        return (keycode & 0xFFFF) | ((devId & 0xFFFF) << 16);
+        return (keycode & 0xFFFF) | (devId << 16);
     }
 
     @Override
     public int getDevId(@NonNull final KeyEvent event) {
-        if (event.getDeviceId() == KeyCharacterMap.VIRTUAL_KEYBOARD) return -1; // Of no use.
-        return event.getDeviceId() <= KeyCharacterMap.SPECIAL_FUNCTION ? BUILT_IN : EXTERNAL;
+        if (HwKeyMapManager.isVirtual(event)) return -1; // Of no use.
+        return HwKeyMapManager.isExternal(event) ? EXTERNAL : BUILT_IN;
     }
 
     @Override
@@ -44,7 +42,7 @@ public final class HwKeyMapTable extends HwKeyMap {
 
         private Entry(final int key, final int toKeycode) {
             keycode = key & 0xFFFF;
-            devId = key >>> 16;
+            devId = key >> 16;
             this.toKeycode = toKeycode;
         }
     }

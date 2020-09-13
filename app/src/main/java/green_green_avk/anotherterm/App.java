@@ -65,12 +65,12 @@ public final class App extends Application {
     }
 
     public final Settings settings = new Settings();
-    private static Settings sSettings = null;
+//    private static Settings sSettings = null;
 
-    @Nullable
-    public static Settings getSettings() {
-        return sSettings;
-    }
+//    @Nullable
+//    public static Settings getSettings() {
+//        return sSettings;
+//    }
 
     public ScratchpadManager scratchpadManager = null;
 
@@ -87,7 +87,7 @@ public final class App extends Application {
         super.onCreate();
         PluginsManager.init(this);
         settings.init(this, PreferenceManager.getDefaultSharedPreferences(this));
-        sSettings = settings;
+//        sSettings = settings;
         FontsManager.init(this);
         FontsManager.setFrom(settings.terminal_font_default_fromfiles);
         TermKeyMapManager.init(this);

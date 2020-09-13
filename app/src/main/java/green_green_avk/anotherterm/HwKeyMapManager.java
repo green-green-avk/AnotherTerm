@@ -2,6 +2,7 @@ package green_green_avk.anotherterm;
 
 import android.content.Context;
 import android.content.SharedPreferences;
+import android.os.Build;
 import android.util.SparseIntArray;
 import android.view.InputDevice;
 import android.view.KeyCharacterMap;
@@ -66,20 +67,29 @@ public final class HwKeyMapManager {
         else throw new IllegalArgumentException("Unable to process this HwKeyMap type");
     }
 
+    public static boolean isVirtual(@NonNull final KeyEvent event) {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN)
+            return event.getDevice().isVirtual();
+        return event.getDeviceId() == KeyCharacterMap.VIRTUAL_KEYBOARD;
+    }
+
+    public static boolean isExternal(@NonNull final KeyEvent event) {
+        // We can only guess before API 29.
+        return event.getDeviceId() > KeyCharacterMap.SPECIAL_FUNCTION;
+    }
+
     public static boolean isBypassKey(@NonNull final KeyEvent event) {
         if ((event.getSource() & InputDevice.SOURCE_ANY & (
                 InputDevice.SOURCE_MOUSE
                         | InputDevice.SOURCE_STYLUS
                         | InputDevice.SOURCE_TRACKBALL
         )) != 0) return true; // Mouse right & middle buttons...
-        if (event.getDeviceId() == KeyCharacterMap.VIRTUAL_KEYBOARD) return event.isSystem();
-        if (event.getDeviceId() <= KeyCharacterMap.SPECIAL_FUNCTION)
+        if (isVirtual(event)) return event.isSystem();
+        if (!isExternal(event))
             switch (event.getKeyCode()) {
                 case KeyEvent.KEYCODE_HOME:
-                case KeyEvent.KEYCODE_VOLUME_UP: // Font size.
-                case KeyEvent.KEYCODE_VOLUME_DOWN: // Font size.
                 case KeyEvent.KEYCODE_POWER:
-                    return true; // Don't prevent default behavior.
+                    return true; // Just in case.
             }
         return false;
     }

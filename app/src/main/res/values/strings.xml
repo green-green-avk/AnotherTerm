@@ -258,8 +258,6 @@
     <string name="note_hw_key_map"><![CDATA[
         <p>Please, don\'t hesitate report anything you have doubts about:
         it\'s an experimental feature.</p>
-        <p><kbd>VOLUME_UP</kbd> and <kbd>VOLUME_DOWN</kbd> buttons
-        are already used for font size adjustment and thus cannot be mapped.</p>
         <ul>
         <li>\"Block\" means \"Completely turn off a key\"</li>
         <li>\"Bypass\" means \"Bypass as is and use to determine the final key code only,
@@ -271,10 +269,13 @@
         <p>Android own modifier flags are used by default
         but in some cases they could be broken by IME.
         Mapping a modifier key to itself could help in this case.</p>
+        <p><b>Note:</b> This application own screen keyboard is not affected by and does not affect
+        Android soft input / hardware keyboard modifier keys state.</p>
     ]]></string>
     <string name="label_press_a_key_to_add">Press a key to add</string>
-    <string name="label_built_in">Built-in</string>
-    <string name="label_external">External</string>
+    <string name="label_dev_unknown">Unknown</string>
+    <string name="label_dev_built_in">Built-in</string>
+    <string name="label_dev_external">External</string>
     <string name="label_key_block">Block</string>
     <string name="label_key_bypass">Bypass</string>
 </resources>

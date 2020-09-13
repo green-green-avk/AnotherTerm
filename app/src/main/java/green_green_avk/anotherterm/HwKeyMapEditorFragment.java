@@ -24,11 +24,14 @@ import java.util.List;
 import green_green_avk.anotherterm.ui.HwKeyMap;
 
 public final class HwKeyMapEditorFragment extends Fragment {
-    private static final int[] devIdsDict = new int[HwKeyMapTable.DEV_IDS_NUM];
+    private static final int[] devIdsDict = new int[]{
+            R.string.label_dev_built_in,
+            R.string.label_dev_external
+    };
 
-    static {
-        devIdsDict[HwKeyMapTable.BUILT_IN] = R.string.label_built_in;
-        devIdsDict[HwKeyMapTable.EXTERNAL] = R.string.label_external;
+    private int getDevIdLabel(final int devId) {
+        if (devId < 0 || devId >= devIdsDict.length) return R.string.label_dev_unknown;
+        return devIdsDict[devId];
     }
 
     private final class ToKeycode {
@@ -121,7 +124,7 @@ public final class HwKeyMapEditorFragment extends Fragment {
                     .inflate(R.layout.hw_key_map_editor_entry, parent, false);
             final HwKeyMapTable.Entry entry = keymap.getEntry(position);
             v.<TextView>findViewById(R.id.keycode).setText(TermKeyMap.keyCodeToString(entry.keycode));
-            v.<TextView>findViewById(R.id.devId).setText(devIdsDict[entry.devId]);
+            v.<TextView>findViewById(R.id.devId).setText(getDevIdLabel(entry.devId));
             final Spinner wToKeycode = v.findViewById(R.id.toKeycode);
             final List<ToKeycode> al = KeyEvent.isModifierKey(entry.keycode) ?
                     toKeycodeListForModifiers : toKeycodeList;
