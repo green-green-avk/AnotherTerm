@@ -30,16 +30,20 @@ import android.widget.ImageView;
 import android.widget.PopupWindow;
 import android.widget.RadioGroup;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.annotation.Keep;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.math.MathUtils;
 import androidx.core.widget.TextViewCompat;
 
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Method;
 import java.nio.charset.Charset;
+import java.text.NumberFormat;
+import java.text.ParseException;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.LinkedList;
@@ -58,6 +62,7 @@ import green_green_avk.anotherterm.ui.ScreenMouseView;
 import green_green_avk.anotherterm.ui.ScrollableView;
 import green_green_avk.anotherterm.ui.UiUtils;
 import green_green_avk.anotherterm.ui.VisibilityAnimator;
+import green_green_avk.anotherterm.utils.BooleanCaster;
 
 public final class ConsoleActivity extends AppCompatActivity
         implements ConsoleInput.OnInvalidateSink, ScrollableView.OnScroll,
@@ -66,6 +71,7 @@ public final class ConsoleActivity extends AppCompatActivity
     private int mSessionKey = -1;
     private Session mSession = null;
     private int screenOrientation = ActivityInfo.SCREEN_ORIENTATION_UNSPECIFIED;
+    private boolean autoFitTerminal = false;
     private ConsoleScreenView mCsv = null;
     private ConsoleKeyboardView mCkv = null;
     private ScreenMouseView mSmv = null;
@@ -130,6 +136,44 @@ public final class ConsoleActivity extends AppCompatActivity
                 WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
     }
 
+    private float clampFontSize(final float size) {
+        final DisplayMetrics dm = getResources().getDisplayMetrics();
+        return MathUtils.clamp(size,
+                getResources().getInteger(R.integer.terminal_font_size_min_sp)
+                        * dm.scaledDensity,
+                getResources().getInteger(R.integer.terminal_font_size_max_sp)
+                        * dm.scaledDensity);
+    }
+
+    // There are two dimensions, so a resize could lead to one more resize.
+    private boolean inFitFontSize = false;
+
+    private void fitFontSize() {
+        if (inFitFontSize) return;
+        inFitFontSize = true;
+        try {
+            final int width = mCsv.getWidth();
+            final int height = mCsv.getHeight();
+            float fsX = Float.POSITIVE_INFINITY;
+            float fsY = Float.POSITIVE_INFINITY;
+            final float base = 100F; // A reasonable value for the test.
+            if (!mCsv.resizeBufferXOnUi || !mCsv.resizeBufferYOnUi) {
+                final float[] charSize = mCsv.getCharSize(base);
+                if (!mCsv.resizeBufferXOnUi) {
+                    fsX = base * width / charSize[0] /
+                            mSession.input.currScrBuf.getWidth();
+                }
+                if (!mCsv.resizeBufferYOnUi) {
+                    fsY = base * height / charSize[1] /
+                            mSession.input.currScrBuf.getHeight();
+                }
+                mCsv.setFontSize(clampFontSize(Math.min(fsX, fsY)));
+            }
+        } finally {
+            inFitFontSize = false;
+        }
+    }
+
     @Override
     public void onMultiWindowModeChanged(final boolean isInMultiWindowMode) {
         super.onMultiWindowModeChanged(isInMultiWindowMode);
@@ -187,18 +231,22 @@ public final class ConsoleActivity extends AppCompatActivity
 
         wConnecting = findViewById(R.id.connecting);
 
+        final boolean isNew = mSession.uiState.fontSizeDp == 0F;
+        if (isNew) autoFitTerminal =
+                BooleanCaster.CAST(mSession.connectionParams.get("font_size_auto"));
+        else autoFitTerminal = mSession.uiState.fontSizeDp < 0F;
+
         final FontProvider fp = new ConsoleFontProvider();
         mCsv.setFont(fp);
         mCkv.setFont(fp); // Old Android devices have no glyphs for some special symbols
 
         final DisplayMetrics dm = getResources().getDisplayMetrics();
 
-        if (mSession.uiState.fontSizeDp <= 0F)
-            mSession.uiState.fontSizeDp =
-                    ((App) getApplication()).settings.terminal_font_default_size_sp *
-                            (dm.scaledDensity / dm.density);
+        if (isNew && !autoFitTerminal) mSession.uiState.fontSizeDp =
+                ((App) getApplication()).settings.terminal_font_default_size_sp *
+                        (dm.scaledDensity / dm.density);
         mCsv.setFontSize(mSession.uiState.fontSizeDp *
-                getResources().getDisplayMetrics().density);
+                getResources().getDisplayMetrics().density, false);
 
         mCkv.useIme(((App) getApplication()).settings.terminal_key_default_ime);
 
@@ -210,7 +258,7 @@ public final class ConsoleActivity extends AppCompatActivity
         mCsv.onScroll = this;
         mCsv.onStateChange = this;
 
-        mCsv.setScreenSize(asSize(mSession.connectionParams.get("screen_cols")),
+        if (isNew) mCsv.setScreenSize(asSize(mSession.connectionParams.get("screen_cols")),
                 asSize(mSession.connectionParams.get("screen_rows")));
         mSession.uiState.csv.apply(mCsv);
         mSession.uiState.ckv.apply(mCkv);
@@ -257,8 +305,8 @@ public final class ConsoleActivity extends AppCompatActivity
     @Override
     protected void onPause() {
         ((BackendUiInteractionActivityCtx) mSession.backend.wrapped.getUi()).setActivity(null);
-        mSession.uiState.fontSizeDp = mCsv.getFontSize() /
-                getResources().getDisplayMetrics().density;
+        mSession.uiState.fontSizeDp = autoFitTerminal ? -1F : (mCsv.getFontSize() /
+                getResources().getDisplayMetrics().density);
         mSession.uiState.csv.save(mCsv);
         mSession.uiState.ckv.save(mCkv);
         mSession.uiState.screenOrientation = screenOrientation;
@@ -455,6 +503,14 @@ public final class ConsoleActivity extends AppCompatActivity
     }
 
     @Override
+    public void onInvalidateSinkResize(final int cols, final int rows) {
+        if (autoFitTerminal) fitFontSize();
+        Toast.makeText(this,
+                cols + " " + getString(R.string.label_dims_div) + " " + rows,
+                Toast.LENGTH_SHORT).show();
+    }
+
+    @Override
     protected void onTitleChanged(final CharSequence title, final int color) {
         super.onTitleChanged(title, color);
         wTitle.setText(title);
@@ -466,6 +522,13 @@ public final class ConsoleActivity extends AppCompatActivity
         mScrollHomeVA.setVisibility(scrollableView.scrollPosition.y + 0.1F <
                 Math.min(0F, scrollableView.getBottomScrollLimit()) ?
                 View.VISIBLE : View.INVISIBLE);
+    }
+
+    @Override
+    public void onTerminalAreaResize(final int width, final int height) {
+        if (autoFitTerminal && mSession != null) {
+            fitFontSize();
+        }
     }
 
     @Override
@@ -573,6 +636,7 @@ public final class ConsoleActivity extends AppCompatActivity
                 getLayoutInflater().inflate(R.layout.buffer_size_dialog, null);
         final EditText wWidth = v.findViewById(R.id.width);
         final EditText wHeight = v.findViewById(R.id.height);
+        final EditText wFontSize = v.findViewById(R.id.fontSize);
         final RadioGroup wOrientation = v.findViewById(R.id.orientation);
         if (mCsv.resizeBufferXOnUi)
             wWidth.setHint(getString(R.string.hint_int_value_p_auto_p,
@@ -587,6 +651,13 @@ public final class ConsoleActivity extends AppCompatActivity
         else {
             wHeight.setText(String.valueOf(mSession.input.currScrBuf.getHeight()));
             wHeight.setHint(R.string.hint_auto);
+        }
+        if (autoFitTerminal && (!mCsv.resizeBufferXOnUi || !mCsv.resizeBufferYOnUi)) {
+            wFontSize.setText("");
+        } else {
+            wFontSize.setText(NumberFormat.getNumberInstance()
+                    .format(mCsv.getFontSize() /
+                            getResources().getDisplayMetrics().scaledDensity));
         }
         switch (screenOrientation) {
             case ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE:
@@ -620,7 +691,23 @@ public final class ConsoleActivity extends AppCompatActivity
                             } catch (final IllegalArgumentException e) {
                                 height = 0;
                             }
-                            mCsv.setScreenSize(width, height);
+                            final String fontSizeStr = wFontSize.getText().toString();
+                            if (fontSizeStr.trim().isEmpty()) {
+                                mCsv.setScreenSize(width, height);
+                                autoFitTerminal = !mCsv.resizeBufferXOnUi || !mCsv.resizeBufferYOnUi;
+                                if (autoFitTerminal) fitFontSize();
+                            } else {
+                                try {
+                                    final float fontSize = NumberFormat.getNumberInstance()
+                                            .parse(fontSizeStr).floatValue();
+                                    autoFitTerminal = false;
+                                    mCsv.setFontSize(clampFontSize(fontSize *
+                                                    getResources().getDisplayMetrics().scaledDensity),
+                                            false);
+                                    mCsv.setScreenSize(width, height);
+                                } catch (final ParseException ignored) {
+                                }
+                            }
                             mCsv.onInvalidateSink(null);
                             switch (wOrientation.getCheckedRadioButtonId()) {
                                 case R.id.orientation_landscape:
@@ -724,19 +811,17 @@ public final class ConsoleActivity extends AppCompatActivity
     @Override
     public boolean dispatchKeyEvent(final KeyEvent event) {
         if (event.getAction() == KeyEvent.ACTION_DOWN) {
-            final DisplayMetrics dm = getResources().getDisplayMetrics();
-            final float step = dm.density;
             switch (event.getKeyCode()) {
                 case KeyEvent.KEYCODE_VOLUME_UP: {
-                    if (mCsv.getFontSize() / dm.scaledDensity <
-                            getResources().getInteger(R.integer.terminal_font_size_max_sp))
-                        mCsv.setFontSize(mCsv.getFontSize() + step);
+                    mCsv.setFontSize(clampFontSize(mCsv.getFontSize() +
+                            getResources().getDisplayMetrics().density));
+                    autoFitTerminal = false;
                     return true;
                 }
                 case KeyEvent.KEYCODE_VOLUME_DOWN: {
-                    if (mCsv.getFontSize() / dm.scaledDensity >
-                            getResources().getInteger(R.integer.terminal_font_size_min_sp))
-                        mCsv.setFontSize(mCsv.getFontSize() - step);
+                    mCsv.setFontSize(clampFontSize(mCsv.getFontSize() -
+                            getResources().getDisplayMetrics().density));
+                    autoFitTerminal = false;
                     return true;
                 }
             }

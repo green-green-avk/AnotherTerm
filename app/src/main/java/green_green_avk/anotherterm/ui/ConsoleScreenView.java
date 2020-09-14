@@ -57,6 +57,8 @@ public class ConsoleScreenView extends ScrollableView
         implements ConsoleInput.OnInvalidateSink, ConsoleInput.OnBufferScroll {
 
     public interface OnStateChange {
+        void onTerminalAreaResize(int width, int height);
+
         void onSelectionModeChange(boolean mode);
 
         /**
@@ -81,7 +83,6 @@ public class ConsoleScreenView extends ScrollableView
             v.scrollPosition.set(scrollPosition);
             v.resizeBufferXOnUi = resizeBufferXOnUi;
             v.resizeBufferYOnUi = resizeBufferYOnUi;
-            v.setFontSize(fontSize);
             v.execOnScroll();
         }
     }
@@ -136,6 +137,7 @@ public class ConsoleScreenView extends ScrollableView
 
     private boolean mBlinkState = true;
     private WeakHandler mHandler = null;
+    protected boolean isChanging = false;
 
     protected static final int[] noneSelectionModeState = new int[0];
     protected static final int[] linesSelectionModeState = new int[]{R.attr.state_select_lines};
@@ -484,12 +486,20 @@ public class ConsoleScreenView extends ScrollableView
                 0F);
     }
 
-    protected void applyFont() {
+    public float[] getCharSize(final float fontSize) {
+        final float r[] = new float[2];
         final Paint p = new Paint();
         fontProvider.setPaint(p, Typeface.NORMAL);
-        p.setTextSize(mFontSize);
-        mFontHeight = p.getFontSpacing();
-        mFontWidth = p.measureText("A");
+        p.setTextSize(fontSize);
+        r[1] = p.getFontSpacing();
+        r[0] = p.measureText("A");
+        return r;
+    }
+
+    protected void applyFont() {
+        final float[] charSize = getCharSize(mFontSize);
+        mFontHeight = charSize[1];
+        mFontWidth = charSize[0];
         fgPaint.setTextSize(mFontSize);
         setScrollScale(mFontWidth, mFontHeight);
     }
@@ -516,10 +526,20 @@ public class ConsoleScreenView extends ScrollableView
      * @param size [px]
      */
     public void setFontSize(final float size) {
+        setFontSize(size, !isChanging);
+    }
+
+    /**
+     * @param size   [px]
+     * @param resize Do terminal screen resize
+     */
+    public void setFontSize(final float size, final boolean resize) {
         mFontSize = size;
         applyFont();
-        resizeBuffer();
-        ViewCompat.postInvalidateOnAnimation(this);
+        if (resize) {
+            resizeBuffer();
+            ViewCompat.postInvalidateOnAnimation(this);
+        }
         if (onStateChange != null) onStateChange.onFontSizeChange(getFontSize());
     }
 
@@ -852,8 +872,20 @@ public class ConsoleScreenView extends ScrollableView
     }
 
     @Override
+    public void onInvalidateSinkResize(final int cols, final int rows) {
+    }
+
+    @Override
     protected void onSizeChanged(final int w, final int h, final int oldw, final int oldh) {
         super.onSizeChanged(w, h, oldw, oldh);
+        if (onStateChange != null) {
+            isChanging = true;
+            try {
+                onStateChange.onTerminalAreaResize(w, h);
+            } finally {
+                isChanging = false;
+            }
+        }
         resizeBuffer();
         terminalScrollbars.onResize();
     }

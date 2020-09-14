@@ -119,6 +119,9 @@
     <string name="msg_usd_serial_port_s_reconnected">USB serial port %s reconnected</string>
     <string name="label_cols">Cols</string>
     <string name="label_rows">Rows</string>
+    <string name="label_font_size">Font size</string>
+    <string name="label_font_size_auto">Scale to fit</string>
+    <string name="hint_font_size_auto">Scale font to fit</string>
     <string name="action_terminal_screen">Terminal Screen</string>
     <string name="dialog_title_terminal_screen">Terminal screen size and orientation</string>
     <string name="hint_auto">auto</string>

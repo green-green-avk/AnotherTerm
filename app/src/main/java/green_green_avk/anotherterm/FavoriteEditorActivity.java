@@ -3,11 +3,14 @@ package green_green_avk.anotherterm;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
+import android.text.Editable;
+import android.text.TextWatcher;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Checkable;
+import android.widget.CompoundButton;
 import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.Spinner;
@@ -41,6 +44,7 @@ public final class FavoriteEditorActivity extends AppCompatActivity {
     private EditText mNameW;
     private EditText mScrColsW;
     private EditText mScrRowsW;
+    private CompoundButton mFontSizeAutoW;
     private Checkable mTerminateOD;
     private Checkable mWakeLockAOC;
     private Checkable mWakeLockROD;
@@ -256,6 +260,8 @@ public final class FavoriteEditorActivity extends AppCompatActivity {
         ps.put("keymap", ((TermKeyMapManager.Meta) mKeyMapW.getSelectedItem()).name);
         ps.put("screen_cols", getSize(mScrColsW));
         ps.put("screen_rows", getSize(mScrRowsW));
+        ps.put("font_size_auto", mFontSizeAutoW.isChecked() &&
+                mFontSizeAutoW.getVisibility() == View.VISIBLE);
         ps.put("terminate.on_disconnect", mTerminateOD.isChecked());
         ps.put("wakelock.acquire_on_connect", mWakeLockAOC.isChecked());
         ps.put("wakelock.release_on_disconnect", mWakeLockROD.isChecked());
@@ -340,6 +346,7 @@ public final class FavoriteEditorActivity extends AppCompatActivity {
         }
         setSizeText(mScrColsW, mPrefsSt.get("screen_cols"));
         setSizeText(mScrRowsW, mPrefsSt.get("screen_rows"));
+        mFontSizeAutoW.setChecked(BooleanCaster.CAST(mPrefsSt.get("font_size_auto")));
         mTerminateOD.setChecked(BooleanCaster.CAST(mPrefsSt.get("terminate.on_disconnect")));
         mWakeLockAOC.setChecked(BooleanCaster.CAST(mPrefsSt.get("wakelock.acquire_on_connect")));
         mWakeLockROD.setChecked(BooleanCaster.CAST(mPrefsSt.get("wakelock.release_on_disconnect")));
@@ -372,6 +379,12 @@ public final class FavoriteEditorActivity extends AppCompatActivity {
         if (n != null) mNameW.setText(n.toString().trim());
     }
 
+    private void refreshScreenParams() {
+        mFontSizeAutoW.setVisibility((mScrColsW.getText().toString().trim().isEmpty()
+                && mScrRowsW.getText().toString().trim().isEmpty())
+                ? View.GONE : View.VISIBLE);
+    }
+
     @Override
     protected void onSaveInstanceState(@NonNull final Bundle outState) {
         super.onSaveInstanceState(outState);
@@ -395,6 +408,7 @@ public final class FavoriteEditorActivity extends AppCompatActivity {
         mNameW = findViewById(R.id.fav_name);
         mScrColsW = findViewById(R.id.fav_scr_cols);
         mScrRowsW = findViewById(R.id.fav_scr_rows);
+        mFontSizeAutoW = findViewById(R.id.fav_font_size_auto);
         mTerminateOD = findViewById(R.id.fav_terminate_on_disconnect);
         mWakeLockAOC = findViewById(R.id.fav_wakelock_acquire_on_connect);
         mWakeLockROD = findViewById(R.id.fav_wakelock_release_on_disconnect);
@@ -409,6 +423,26 @@ public final class FavoriteEditorActivity extends AppCompatActivity {
         mCharsetW.setSaveEnabled(false);
         mKeyMapW.setSaveEnabled(false);
         mTypeW.setSaveEnabled(false);
+
+        final TextWatcher colsRowsWatcher = new TextWatcher() {
+            @Override
+            public void beforeTextChanged(final CharSequence s, final int start,
+                                          final int count, final int after) {
+            }
+
+            @Override
+            public void onTextChanged(final CharSequence s, final int start,
+                                      final int before, final int count) {
+                refreshScreenParams();
+            }
+
+            @Override
+            public void afterTextChanged(final Editable s) {
+            }
+        };
+        mScrColsW.addTextChangedListener(colsRowsWatcher);
+        mScrRowsW.addTextChangedListener(colsRowsWatcher);
+        refreshScreenParams();
 
         final ArrayAdapter aType = new ArrayAdapter<>(this,
                 android.R.layout.simple_spinner_item, BackendsList.getTitles(this));

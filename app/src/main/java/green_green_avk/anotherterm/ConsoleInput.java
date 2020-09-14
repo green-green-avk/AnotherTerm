@@ -89,6 +89,8 @@ public final class ConsoleInput implements BytesSink {
 
     public interface OnInvalidateSink {
         void onInvalidateSink(@Nullable Rect rect);
+
+        void onInvalidateSinkResize(int cols, int rows);
     }
 
     private final Set<OnInvalidateSink> mOnInvalidateSink =
@@ -105,6 +107,11 @@ public final class ConsoleInput implements BytesSink {
     public void invalidateSink() {
         for (final OnInvalidateSink h : mOnInvalidateSink)
             h.onInvalidateSink(null);
+    }
+
+    private void invalidateSinkResize(final int cols, final int rows) {
+        for (final OnInvalidateSink h : mOnInvalidateSink)
+            h.onInvalidateSinkResize(cols, rows);
     }
 
     public interface OnBufferScroll {
@@ -136,12 +143,16 @@ public final class ConsoleInput implements BytesSink {
     }
 
     public void resize(int w, int h) {
+        final int ow = mainScrBuf.getWidth();
+        final int oh = mainScrBuf.getHeight();
         mainScrBuf.resize(w, h);
         w = mainScrBuf.getWidth();
         h = mainScrBuf.getHeight();
         altScrBuf.resize(w, h, h);
+        if (w == ow && h == oh) return;
         if (backendModule != null)
             backendModule.resize(w, h, w * 16, h * 16);
+        invalidateSinkResize(w, h);
     }
 
     public boolean isAltBuf() {

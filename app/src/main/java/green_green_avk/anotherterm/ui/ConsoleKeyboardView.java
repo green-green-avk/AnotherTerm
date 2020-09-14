@@ -114,6 +114,10 @@ public class ConsoleKeyboardView extends ExtKeyboardView implements
         }
     }
 
+    @Override
+    public void onInvalidateSinkResize(final int cols, final int rows) {
+    }
+
     private void applyConfig(@NonNull final Configuration cfg) {
         final Resources res = getContext().getResources();
         final float keyW = cfg.screenWidthDp / cfg.fontScale / 20;

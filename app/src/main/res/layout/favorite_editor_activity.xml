@@ -192,6 +192,12 @@
 
                         </LinearLayout>
 
+                        <CheckBox
+                            android:id="@+id/fav_font_size_auto"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="@string/hint_font_size_auto" />
+
                     </com.google.android.flexbox.FlexboxLayout>
 
                 </TableRow>
