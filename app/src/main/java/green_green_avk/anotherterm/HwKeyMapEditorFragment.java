@@ -3,7 +3,6 @@ package green_green_avk.anotherterm;
 import android.app.AlertDialog;
 import android.app.Fragment;
 import android.os.Bundle;
-import android.view.Gravity;
 import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -128,7 +127,7 @@ public final class HwKeyMapEditorFragment extends Fragment {
             final Spinner wToKeycode = v.findViewById(R.id.toKeycode);
             final List<ToKeycode> al = KeyEvent.isModifierKey(entry.keycode) ?
                     toKeycodeListForModifiers : toKeycodeList;
-            final ArrayAdapter<ToKeycode> a = new ArrayAdapter<ToKeycode>(parent.getContext(),
+            final ArrayAdapter<ToKeycode> a = new ArrayAdapter<>(parent.getContext(),
                     android.R.layout.simple_spinner_item, al);
             a.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
             wToKeycode.setAdapter(a);
@@ -188,9 +187,8 @@ public final class HwKeyMapEditorFragment extends Fragment {
     }
 
     public void onAdd(final View view) {
-        final TextView v = new TextView(this.getActivity());
-        v.setGravity(Gravity.CENTER);
-        v.setText(R.string.label_press_a_key_to_add);
+        final View v = LayoutInflater.from(this.getActivity())
+                .inflate(R.layout.hw_key_map_editor_prompt, null);
         v.setFocusableInTouchMode(true);
         final AlertDialog d = new AlertDialog.Builder(getActivity()).setView(v)
                 .setNegativeButton(android.R.string.cancel, null).create();
