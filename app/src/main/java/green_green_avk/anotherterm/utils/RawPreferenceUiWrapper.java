@@ -14,6 +14,7 @@ import android.widget.EditText;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 
 import java.util.Arrays;
 import java.util.HashMap;
@@ -29,8 +30,10 @@ public final class RawPreferenceUiWrapper implements PreferenceUiWrapper {
     private final Map<String, List<?>> listsOpts = new HashMap<>();
     private final Set<String> changedFields = new HashSet<>();
     private boolean isFrozen = false;
+    private int delayedInitNum = 0;
+    private boolean delayedInitDone = true;
 
-    private void searchForTags(@NonNull final View root) {
+    private void setupViews(@NonNull final View root) {
         final Object tag = root.getTag();
         if (tag instanceof String) {
             final String[] chs = ((String) tag).split("/");
@@ -43,7 +46,6 @@ public final class RawPreferenceUiWrapper implements PreferenceUiWrapper {
                     @Override
                     public void beforeTextChanged(final CharSequence s, final int start,
                                                   final int count, final int after) {
-
                     }
 
                     @Override
@@ -52,39 +54,49 @@ public final class RawPreferenceUiWrapper implements PreferenceUiWrapper {
                         if (!isFrozen) {
                             changedFields.add(pName);
                             ((EditText) root).setTextColor(color);
+                            callOnChanged(pName);
                         }
                     }
 
                     @Override
                     public void afterTextChanged(final Editable s) {
-
                     }
                 });
-// TODO: Not now.
-/*
             } else if (root instanceof AdapterView) {
-                final Drawable bg = root.getBackground();
+                delayedInitNum++;
                 ((AdapterView) root).setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
                     @Override
-                    public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
-                        changedFields.add(pName);
+                    public void onItemSelected(final AdapterView<?> parent, final View view,
+                                               final int position, final long id) {
+                        if (!isFrozen) {
+//                            changedFields.add(pName);
+                            callOnChanged(pName);
+                            completeDelayedInit();
+                        }
                     }
 
                     @Override
                     public void onNothingSelected(AdapterView<?> parent) {
-                        changedFields.add(pName);
-                        setBg(root, bg);
+                        if (!isFrozen) {
+//                            changedFields.add(pName);
+                            callOnChanged(pName);
+                            completeDelayedInit();
+                        }
                     }
                 });
+                changedFields.add(pName); // TODO: Not now.
             } else if (root instanceof CompoundButton) {
-                final Drawable bg = root.getBackground();
                 ((CompoundButton) root).setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
                     @Override
-                    public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-                        changedFields.add(pName);
+                    public void onCheckedChanged(final CompoundButton buttonView,
+                                                 final boolean isChecked) {
+                        if (!isFrozen) {
+//                            changedFields.add(pName);
+                            callOnChanged(pName);
+                        }
                     }
                 });
-*/
+                changedFields.add(pName); // TODO: Not now.
             } else {
                 changedFields.add(pName);
             }
@@ -94,20 +106,36 @@ public final class RawPreferenceUiWrapper implements PreferenceUiWrapper {
         if (root instanceof ViewGroup) {
             for (int i = 0; i < ((ViewGroup) root).getChildCount(); ++i) {
                 final View v = ((ViewGroup) root).getChildAt(i);
-                searchForTags(v);
+                setupViews(v);
+            }
+        }
+    }
+
+    private void completeDelayedInit() {
+        if (!delayedInitDone) {
+            delayedInitNum--;
+            if (delayedInitNum == 0) {
+                delayedInitDone = true;
+                callOnInitialized();
             }
         }
     }
 
     public void clear() {
         views.clear();
+        delayedInitNum = 0;
     }
 
     public void addBranch(@NonNull final View root) {
-        searchForTags(root);
+        delayedInitDone = false;
+        setupViews(root);
+        if (delayedInitNum == 0) {
+            delayedInitDone = true;
+            callOnInitialized();
+        }
     }
 
-    public void freeze(final boolean v) {
+    private void freeze(final boolean v) {
         isFrozen = v;
     }
 
@@ -242,8 +270,33 @@ public final class RawPreferenceUiWrapper implements PreferenceUiWrapper {
     }
 
     @Override
+    public void setDefaultPreferences(@NonNull final Map<String, ?> pp) {
+        freeze(true);
+        try {
+            setPreferences(pp);
+        } finally {
+            freeze(false);
+        }
+    }
+
+    @Override
     @NonNull
     public Set<String> getChangedFields() {
         return changedFields;
+    }
+
+    private Callbacks callbacks = null;
+
+    private void callOnInitialized() {
+        if (callbacks != null) callbacks.onInitialized();
+    }
+
+    private void callOnChanged(final String key) {
+        if (callbacks != null) callbacks.onChanged(key);
+    }
+
+    @Override
+    public void setCallbacks(@Nullable final Callbacks callbacks) {
+        this.callbacks = callbacks;
     }
 }

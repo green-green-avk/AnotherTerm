@@ -3,6 +3,7 @@ package green_green_avk.anotherterm.utils;
 import android.view.View;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 
 import java.util.Map;
 import java.util.Set;
@@ -32,6 +33,23 @@ public interface PreferenceUiWrapper {
 
     void setPreferences(@NonNull Map<String, ?> pp);
 
+    void setDefaultPreferences(@NonNull Map<String, ?> pp);
+
+    /**
+     * @return Fields defined by user, not default.
+     */
     @NonNull
     Set<String> getChangedFields();
+
+    interface Callbacks {
+
+        void onInitialized();
+
+        /**
+         * @param key field name.
+         */
+        void onChanged(String key);
+    }
+
+    void setCallbacks(@Nullable Callbacks callbacks);
 }

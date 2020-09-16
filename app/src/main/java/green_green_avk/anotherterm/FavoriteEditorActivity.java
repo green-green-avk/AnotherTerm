@@ -4,15 +4,14 @@ import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
 import android.text.Editable;
+import android.text.SpannableStringBuilder;
 import android.text.TextWatcher;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
-import android.widget.Checkable;
 import android.widget.CompoundButton;
 import android.widget.EditText;
-import android.widget.ImageButton;
 import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -31,6 +30,7 @@ import java.util.UUID;
 import green_green_avk.anotherterm.backends.BackendModule;
 import green_green_avk.anotherterm.backends.BackendsList;
 import green_green_avk.anotherterm.ui.UiUtils;
+import green_green_avk.anotherterm.ui.ViewValueListener;
 import green_green_avk.anotherterm.utils.BooleanCaster;
 import green_green_avk.anotherterm.utils.PreferenceStorage;
 import green_green_avk.anotherterm.utils.PreferenceUiWrapper;
@@ -45,9 +45,9 @@ public final class FavoriteEditorActivity extends AppCompatActivity {
     private EditText mScrColsW;
     private EditText mScrRowsW;
     private CompoundButton mFontSizeAutoW;
-    private Checkable mTerminateOD;
-    private Checkable mWakeLockAOC;
-    private Checkable mWakeLockROD;
+    private CompoundButton mTerminateOD;
+    private CompoundButton mWakeLockAOC;
+    private CompoundButton mWakeLockROD;
     private Spinner mCharsetW;
     private Spinner mKeyMapW;
     private Spinner mTypeW;
@@ -59,7 +59,7 @@ public final class FavoriteEditorActivity extends AppCompatActivity {
     private View mCurrMSL = null;
     private PreferenceStorage mPrefsSt = new PreferenceStorage();
     private boolean mInSetPreferences = false;
-    private boolean saveAndClose = false;
+    private boolean isNeedSave = false;
 
     private static void warnByHint(@NonNull final View view, final String msg) {
         if (view instanceof TextView) {
@@ -102,6 +102,7 @@ public final class FavoriteEditorActivity extends AppCompatActivity {
             Toast.makeText(this, R.string.msg_clipboard_does_not_contain_applicable_settings,
                     Toast.LENGTH_SHORT).show();
         }
+        setNeedSave(true);
     }
 
     public void remove(final View view) {
@@ -136,9 +137,9 @@ public final class FavoriteEditorActivity extends AppCompatActivity {
                     FavoritesManager.remove(mOldName);
                 }
                 mOldName = name;
+                isNeedSave = false;
                 asEdit();
                 Toast.makeText(FavoriteEditorActivity.this, R.string.msg_saved, Toast.LENGTH_SHORT).show();
-                if (saveAndClose) finish();
             }
         };
         if ((mMakeNew || !name.equals(mOldName)) && FavoritesManager.contains(name))
@@ -147,8 +148,9 @@ public final class FavoriteEditorActivity extends AppCompatActivity {
     }
 
     private void close(@NonNull final Runnable r) {
-        if (saveAndClose)
-            UiUtils.confirm(this, getString(R.string.msg_discard_settings_and_continue_confirmation), r);
+        if (isNeedSave)
+            UiUtils.confirm(this,
+                    getString(R.string.msg_unsaved_changes_confirmation), r);
         else r.run();
     }
 
@@ -180,9 +182,15 @@ public final class FavoriteEditorActivity extends AppCompatActivity {
     public void generateToken(final View view) {
         mTokenW.setText(UUID.randomUUID().toString());
         mTokenFG.setVisibility(View.VISIBLE);
+        setNeedSave(true);
     }
 
     public void deleteToken(final View view) {
+        deleteToken();
+        setNeedSave(true);
+    }
+
+    private void deleteToken() {
         mTokenFG.setVisibility(View.INVISIBLE);
         mTokenW.setText("");
     }
@@ -284,9 +292,7 @@ public final class FavoriteEditorActivity extends AppCompatActivity {
         mCurrMSL.setSaveFromParentEnabled(false);
         mContainer.addView(mCurrMSL);
         mPrefs.addBranch(mCurrMSL);
-        mPrefs.freeze(true);
-        mPrefs.setPreferences(getDefaultPreferences());
-        mPrefs.freeze(false);
+        mPrefs.setDefaultPreferences(getDefaultPreferences());
         final Map<String, ?> values = new HashMap<>(mPrefsSt.get());
         values.keySet().retainAll(mPrefs.getChangedFields());
         mPrefs.setPreferences(values);
@@ -385,6 +391,67 @@ public final class FavoriteEditorActivity extends AppCompatActivity {
                 ? View.GONE : View.VISIBLE);
     }
 
+    private CharSequence editorTitle = null;
+
+    private void setEditorTitle(@NonNull final CharSequence v) {
+        editorTitle = v;
+        refreshEditorTitle();
+    }
+
+    private void refreshEditorTitle() {
+        setTitle(isNeedSave ? new SpannableStringBuilder(editorTitle)
+                .append(getText(R.string.title_suffix_has_unsaved_changes)) : editorTitle);
+    }
+
+    private void setNeedSave(final boolean v) {
+        if (v == isNeedSave) return;
+        isNeedSave = v;
+        refreshEditorTitle();
+    }
+
+    // TODO: Get rid of this mess.
+    private boolean isInInit = true;
+    private boolean isTypeOptInit = false;
+    private boolean isMainOptsInit = false;
+    private boolean isModuleOptsInit = false;
+    private final ViewValueListener lNeedSave = new ViewValueListener() {
+        @Override
+        protected void onChanged(@NonNull final View view, @Nullable final Object value) {
+            if (!isInInit)
+                setNeedSave(true);
+        }
+    };
+    private final ViewValueListener lNeedSaveDelayed = new ViewValueListener() {
+        private int toInit = 0;
+
+        @Override
+        protected void onChanged(@NonNull View view, @Nullable Object value) {
+            if (!isInInit)
+                setNeedSave(true);
+            if (!isMainOptsInit) {
+                toInit--;
+                if (toInit == 0) {
+                    isMainOptsInit = true;
+                    onInitComplete();
+                }
+            }
+        }
+
+        @Override
+        public void adoptView(@NonNull View view) {
+            toInit++;
+            super.adoptView(view);
+        }
+    };
+
+    private void onInitComplete() {
+        if (isTypeOptInit && isMainOptsInit && isModuleOptsInit) {
+            // Preferences loading ends here.
+            // (AdepterView usually posts onItemSelected() execution on some weird time.)
+            isInInit = false;
+        }
+    }
+
     @Override
     protected void onSaveInstanceState(@NonNull final Bundle outState) {
         super.onSaveInstanceState(outState);
@@ -395,11 +462,26 @@ public final class FavoriteEditorActivity extends AppCompatActivity {
         mPrefsSt.putAll(pm);
         outState.putSerializable("E_PARAMS", (Serializable) mPrefsSt.get());
         outState.putStringArray("E_SET_PARAMS", mPrefs.getChangedFields().toArray(new String[0]));
+        outState.putBoolean("E_NEED_SAVE", isNeedSave);
     }
 
     @Override
     protected void onCreate(@Nullable final Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        mPrefs.setCallbacks(new PreferenceUiWrapper.Callbacks() {
+            @Override
+            public void onInitialized() {
+                isModuleOptsInit = true;
+                onInitComplete();
+            }
+
+            @Override
+            public void onChanged(final String key) {
+                if (!isInInit)
+                    setNeedSave(true);
+            }
+        });
+        editorTitle = getTitle();
         setContentView(R.layout.favorite_editor_activity);
 
         UiUtils.enableAnimation(getWindow().getDecorView());
@@ -424,6 +506,8 @@ public final class FavoriteEditorActivity extends AppCompatActivity {
         mKeyMapW.setSaveEnabled(false);
         mTypeW.setSaveEnabled(false);
 
+        lNeedSave.adoptView(mNameW);
+
         final TextWatcher colsRowsWatcher = new TextWatcher() {
             @Override
             public void beforeTextChanged(final CharSequence s, final int start,
@@ -433,6 +517,8 @@ public final class FavoriteEditorActivity extends AppCompatActivity {
             @Override
             public void onTextChanged(final CharSequence s, final int start,
                                       final int before, final int count) {
+                if (!isInInit)
+                    setNeedSave(true);
                 refreshScreenParams();
             }
 
@@ -443,6 +529,14 @@ public final class FavoriteEditorActivity extends AppCompatActivity {
         mScrColsW.addTextChangedListener(colsRowsWatcher);
         mScrRowsW.addTextChangedListener(colsRowsWatcher);
         refreshScreenParams();
+        lNeedSave.adoptView(mFontSizeAutoW);
+
+        lNeedSave.adoptView(mTerminateOD);
+        lNeedSave.adoptView(mWakeLockAOC);
+        lNeedSave.adoptView(mWakeLockROD);
+
+        lNeedSaveDelayed.adoptView(mCharsetW);
+        lNeedSaveDelayed.adoptView(mKeyMapW);
 
         final ArrayAdapter aType = new ArrayAdapter<>(this,
                 android.R.layout.simple_spinner_item, BackendsList.getTitles(this));
@@ -450,7 +544,8 @@ public final class FavoriteEditorActivity extends AppCompatActivity {
         mTypeW.setAdapter(aType);
         mTypeW.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             @Override
-            public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+            public void onItemSelected(final AdapterView<?> parent, final View view,
+                                       final int position, final long id) {
                 if (mInSetPreferences) mInSetPreferences = false;
                 else {
                     final Map<String, Object> pm = mPrefs.getPreferences();
@@ -459,10 +554,16 @@ public final class FavoriteEditorActivity extends AppCompatActivity {
                 }
                 removeOptions();
                 addOptionsByTypeId(position);
+                if (!isInInit)
+                    setNeedSave(true);
+                if (!isTypeOptInit) {
+                    isTypeOptInit = true;
+                    onInitComplete();
+                }
             }
 
             @Override
-            public void onNothingSelected(AdapterView<?> parent) {
+            public void onNothingSelected(final AdapterView<?> parent) {
                 removeOptions();
             }
         });
@@ -486,6 +587,7 @@ public final class FavoriteEditorActivity extends AppCompatActivity {
             setPreferencesOnlyChanged(new PreferenceStorage((Map<String, ?>) savedInstanceState.get("E_PARAMS")));
             mOldName = savedInstanceState.getString("E_OLD_NAME");
             mMakeNew = savedInstanceState.getBoolean("E_NEW");
+            isNeedSave = savedInstanceState.getBoolean("E_NEED_SAVE", isNeedSave);
             if (mMakeNew) {
                 if (mOldName != null) asNewFrom();
                 else asNew();
@@ -496,9 +598,7 @@ public final class FavoriteEditorActivity extends AppCompatActivity {
         final Intent intent = getIntent();
         final Uri uri = intent.getData();
         if (uri != null) {
-            saveAndClose = true;
-            ((ImageButton) findViewById(R.id.b_ok))
-                    .setImageResource(R.drawable.ic_check_black);
+            isNeedSave = true;
             mOldName = null;
             asNew();
             try {
@@ -524,23 +624,23 @@ public final class FavoriteEditorActivity extends AppCompatActivity {
 
     private void asNew() {
         mMakeNew = true;
-        deleteToken(null);
-        setTitle(R.string.new_favorite);
+        deleteToken();
+        setEditorTitle(getString(R.string.new_favorite));
         findViewById(R.id.b_remove).setVisibility(View.GONE);
         findViewById(R.id.b_clone).setVisibility(View.GONE);
     }
 
     private void asNewFrom() {
         mMakeNew = true;
-        deleteToken(null);
-        setTitle(getString(R.string.new_favorite_from_s, mOldName));
+        deleteToken();
+        setEditorTitle(getString(R.string.new_favorite_from_s, mOldName));
         findViewById(R.id.b_remove).setVisibility(View.GONE);
         findViewById(R.id.b_clone).setVisibility(View.GONE);
     }
 
     private void asEdit() {
         mMakeNew = false;
-        setTitle(getString(R.string.edit_favorite_s, mOldName));
+        setEditorTitle(getString(R.string.edit_favorite_s, mOldName));
         findViewById(R.id.b_remove).setVisibility(View.VISIBLE);
         findViewById(R.id.b_clone).setVisibility(View.VISIBLE);
     }

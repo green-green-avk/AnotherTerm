@@ -6,6 +6,7 @@ import android.content.res.Resources;
 import android.net.Uri;
 import android.os.Bundle;
 import android.text.Editable;
+import android.text.SpannableStringBuilder;
 import android.text.TextWatcher;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -32,6 +33,7 @@ import green_green_avk.anotherterm.utils.Unescape;
 public final class TermKeyMapEditorActivity extends AppCompatActivity {
     private static final String KEYMAP_KEY = "E_KEYMAP";
     private static final String KEY_KEY = "E_KEY";
+    private static final String NEED_SAVE_KEY = "E_NEED_SAVE";
     private static final int DEF_POS = 0;
 
     public static void start(@Nullable final Context context, @Nullable final String name) {
@@ -104,36 +106,45 @@ public final class TermKeyMapEditorActivity extends AppCompatActivity {
             final int code = keys[position];
             ((TextView) view).setText(TermKeyMap.keyCodeToString(code));
             final Resources res = view.getContext().getResources();
-            view.setBackgroundColor(res.getColor(activity.isKeyCodeChanged(code)
+            view.setBackgroundColor(res.getColor(activity.isKeyCodeRedefined(code)
                     ? R.color.colorAccentTr
                     : android.R.color.transparent));
         }
     }
 
     private KeysAdapter keysAdapter = null;
+    private CharSequence title = null;
+    private CharSequence titleNeedSave = null;
 
     private TermKeyMapRules.Editable keyMap = null;
     private int currentKeyCode = -1;
+    private boolean isNeedSave = false;
 
-    private final HashSet<Integer> changedKeyCodes = new HashSet<>();
+    private void setNeedSave(final boolean v) {
+        if (v == isNeedSave) return;
+        isNeedSave = v;
+        setTitle(v ? titleNeedSave : title);
+    }
 
-    private void updateChangedKeyCodes(final int code) {
+    private final HashSet<Integer> redefinedKeyCodes = new HashSet<>();
+
+    private void updateRedefinedKeyCodes(final int code) {
         for (int m = 0; m < TermKeyMap.MODIFIERS_SIZE; m++)
             if (keyMap.get(code, m, TermKeyMap.APP_MODE_NONE) != null
                     || keyMap.get(code, m, TermKeyMap.APP_MODE_DEFAULT) != null) {
-                changedKeyCodes.add(code);
+                redefinedKeyCodes.add(code);
                 return;
             }
-        changedKeyCodes.remove(code);
+        redefinedKeyCodes.remove(code);
     }
 
-    private void updateChangedKeyCodes() {
+    private void updateRedefinedKeyCodes() {
         for (final int code : TermKeyMapRulesDefault.getSupportedKeys())
-            updateChangedKeyCodes(code);
+            updateRedefinedKeyCodes(code);
     }
 
-    private boolean isKeyCodeChanged(final int code) {
-        return changedKeyCodes.contains(code);
+    private boolean isKeyCodeRedefined(final int code) {
+        return redefinedKeyCodes.contains(code);
     }
 
     @Nullable
@@ -146,54 +157,51 @@ public final class TermKeyMapEditorActivity extends AppCompatActivity {
         }
     }
 
+    private boolean byUser = true;
+
     private void prepareKeyField(@NonNull final View v, final int m, final int am) {
         ((EditText) v).addTextChangedListener(new TextWatcher() {
             @Override
             public void beforeTextChanged(final CharSequence s,
                                           final int start, final int count, final int after) {
-
             }
 
             @Override
             public void onTextChanged(final CharSequence s,
                                       final int start, final int before, final int count) {
-
             }
 
             @Override
             public void afterTextChanged(final Editable s) {
-                if (currentKeyCode >= 0) {
+                if (byUser && currentKeyCode >= 0) {
                     keyMap.set(currentKeyCode, m, am, nullUnescape(s.toString()));
-                    updateChangedKeyCodes(currentKeyCode);
+                    updateRedefinedKeyCodes(currentKeyCode);
+                    setNeedSave(true);
                     keysAdapter.notifyDataSetChanged();
                 }
             }
         });
-        /*
-        v.setOnFocusChangeListener(new View.OnFocusChangeListener() {
-            @Override
-            public void onFocusChange(final View v, final boolean hasFocus) {
-                if (!hasFocus && currentKeyCode >= 0)
-                    keyMap.set(currentKeyCode, m, am, ((EditText) v).getText().toString());
-            }
-        });
-        */
     }
 
     private void refreshKeysView() {
-        final ViewGroup keysView = findViewById(R.id.keys);
-        for (int m = 0; m < TermKeyMap.MODIFIERS_SIZE; ++m) {
-            final View v = keysView.getChildAt(m);
-            final EditText nView = v.findViewById(R.id.normal);
-            final EditText aView = v.findViewById(R.id.app);
-            nView.setHint(Escape.c(TermKeyMapManager.defaultKeyMap.get(currentKeyCode, m,
-                    TermKeyMap.APP_MODE_NONE)));
-            aView.setHint(Escape.c(TermKeyMapManager.defaultKeyMap.get(currentKeyCode, m,
-                    TermKeyMap.APP_MODE_DEFAULT)));
-            nView.setText(Escape.c(keyMap.get(currentKeyCode, m,
-                    TermKeyMap.APP_MODE_NONE)));
-            aView.setText(Escape.c(keyMap.get(currentKeyCode, m,
-                    TermKeyMap.APP_MODE_DEFAULT)));
+        byUser = false;
+        try {
+            final ViewGroup keysView = findViewById(R.id.keys);
+            for (int m = 0; m < TermKeyMap.MODIFIERS_SIZE; ++m) {
+                final View v = keysView.getChildAt(m);
+                final EditText nView = v.findViewById(R.id.normal);
+                final EditText aView = v.findViewById(R.id.app);
+                nView.setHint(Escape.c(TermKeyMapManager.defaultKeyMap.get(currentKeyCode, m,
+                        TermKeyMap.APP_MODE_NONE)));
+                aView.setHint(Escape.c(TermKeyMapManager.defaultKeyMap.get(currentKeyCode, m,
+                        TermKeyMap.APP_MODE_DEFAULT)));
+                nView.setText(Escape.c(keyMap.get(currentKeyCode, m,
+                        TermKeyMap.APP_MODE_NONE)));
+                aView.setText(Escape.c(keyMap.get(currentKeyCode, m,
+                        TermKeyMap.APP_MODE_DEFAULT)));
+            }
+        } finally {
+            byUser = true;
         }
     }
 
@@ -202,11 +210,15 @@ public final class TermKeyMapEditorActivity extends AppCompatActivity {
         super.onSaveInstanceState(outState);
         outState.putSerializable(KEYMAP_KEY, keyMap);
         outState.putInt(KEY_KEY, currentKeyCode);
+        outState.putBoolean(NEED_SAVE_KEY, isNeedSave);
     }
 
     @Override
     protected void onCreate(@Nullable final Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        title = getTitle();
+        titleNeedSave = new SpannableStringBuilder(title)
+                .append(getText(R.string.title_suffix_has_unsaved_changes));
         setContentView(R.layout.term_key_map_editor_activity);
 
         UiUtils.enableAnimation(getWindow().getDecorView());
@@ -215,18 +227,20 @@ public final class TermKeyMapEditorActivity extends AppCompatActivity {
         if (savedInstanceState != null) {
             keyMap = (TermKeyMapRules.Editable) savedInstanceState.get(KEYMAP_KEY);
             currentKeyCode = savedInstanceState.getInt(KEY_KEY, currentKeyCode);
+            setNeedSave(savedInstanceState.getBoolean(NEED_SAVE_KEY, isNeedSave));
         } else if (getIntent().getData() != null) {
             try {
                 final Uri uri = getIntent().getData();
                 keyMap = TermKeyMapRulesParser.fromUri(uri);
                 name = uri.getQueryParameter("name");
+                setNeedSave(true);
             } catch (final IllegalArgumentException e) {
                 keyMap = (TermKeyMapRules.Editable) TermKeyMapManager.getRules(name);
             }
         } else {
             keyMap = (TermKeyMapRules.Editable) TermKeyMapManager.getRules(name);
         }
-        updateChangedKeyCodes();
+        updateRedefinedKeyCodes();
         setName(name);
         final AdapterView keyView = findViewById(R.id.f_key);
         keysAdapter = new KeysAdapter(this);
@@ -248,7 +262,7 @@ public final class TermKeyMapEditorActivity extends AppCompatActivity {
 
         final int keyPos;
         if (currentKeyCode < 0) {
-            keyPos = 0;
+            keyPos = DEF_POS;
             currentKeyCode = (int) keysAdapter.getItemId(keyPos);
         } else keyPos = keysAdapter.getPos(currentKeyCode);
         if (keyView instanceof ListView) {
@@ -295,6 +309,34 @@ public final class TermKeyMapEditorActivity extends AppCompatActivity {
         Toast.makeText(this, R.string.msg_saved, Toast.LENGTH_SHORT).show();
     }
 
+    private void close(@NonNull final Runnable r) {
+        if (isNeedSave)
+            UiUtils.confirm(this,
+                    getString(R.string.msg_unsaved_changes_confirmation), r);
+        else r.run();
+    }
+
+    @Override
+    public void onBackPressed() {
+        close(new Runnable() {
+            @Override
+            public void run() {
+                TermKeyMapEditorActivity.super.onBackPressed();
+            }
+        });
+    }
+
+    @Override
+    public boolean onSupportNavigateUp() {
+        close(new Runnable() {
+            @Override
+            public void run() {
+                TermKeyMapEditorActivity.super.onSupportNavigateUp();
+            }
+        });
+        return true;
+    }
+
     public void save(final View v) {
         final String name = getName();
         if (name.isEmpty()) {
@@ -305,9 +347,13 @@ public final class TermKeyMapEditorActivity extends AppCompatActivity {
                     @Override
                     public void run() {
                         save(name);
+                        setNeedSave(false);
                     }
                 });
-            else save(name);
+            else {
+                save(name);
+                setNeedSave(false);
+            }
         }
     }
 
@@ -327,10 +373,11 @@ public final class TermKeyMapEditorActivity extends AppCompatActivity {
                     Toast.LENGTH_SHORT).show();
             return;
         }
-        updateChangedKeyCodes();
+        updateRedefinedKeyCodes();
         keysAdapter.notifyDataSetChanged();
         setName(uri.getQueryParameter("name"));
         refreshKeysView();
+        setNeedSave(true);
     }
 
     public void copy(final View view) {
