@@ -13,6 +13,7 @@
 #include <stdlib.h>
 #include <errno.h>
 #include <string.h>
+#include <stdio.h>
 #include <poll.h>
 
 #include <android/log.h>
@@ -142,19 +143,38 @@ m_execve(JNIEnv *const env, const jobject jthis,
         releaseStrings(envp);
         return env->NewObject(g_class, g_ctrId, fdPtm, pid);
     }
-    { // TODO: /proc/<pid>/fd seems better
-        const int fdlimit = (int) (sysconf(_SC_OPEN_MAX));
-        int fd = 3;
-        while (fd < fdlimit) close(fd++);
-
+    {
+        /*
+         * https://man7.org/linux/man-pages/man2/execve.2.html
+         * ...
+         * The dispositions of any signals that are being caught are reset to
+         * the default (signal(7)).
+         * ...
+         *
+         * It seems not exactly true for Android. (API >= 28 Samsung only?)
+         */
+        int sig = 1;
+        while (sig <= SIGUNUSED) {
+            const sighandler_t sh = signal(sig, SIG_DFL);
+#ifdef DEBUG
+            if (sh != SIG_DFL)
+                __android_log_print(ANDROID_LOG_DEBUG, CLASS_NAME,
+                    "Signal %u was %016X\n", sig, (long) sh);
+#endif
+            sig++;
+        }
         sigset_t signals_to_unblock;
         sigfillset(&signals_to_unblock);
         sigprocmask(SIG_UNBLOCK, &signals_to_unblock, nullptr);
+
+        // TODO: /proc/<pid>/fd seems better
+        const int fdlimit = (int) (sysconf(_SC_OPEN_MAX));
+        int fd = 3;
+        while (fd < fdlimit) close(fd++);
     }
     if (envp == nullptr) execv(filename, args);
     else execve(filename, args, envp);
-    __android_log_print(ANDROID_LOG_ERROR, CLASS_NAME,
-            "[errno: %d] %s [%s]", errno, strError("Exec failed"), filename);
+    fprintf(stderr, "[errno: %d] %s [%s]", errno, strError("Exec failed"), filename);
     _exit(127);
 }
 
@@ -176,11 +196,8 @@ static void JNICALL m_destroy(JNIEnv *const env, const jobject jthis) {
     const jint fdPtm = env->GetIntField(jthis, g_fdPtmId);
     if (env->ExceptionCheck() == JNI_TRUE) return;
     if (fdPtm < 0) return;
-    const jint pid = env->GetIntField(jthis, g_pidId);
-    if (env->ExceptionCheck() == JNI_TRUE) return;
     const int pgid = tcgetpgrp(fdPtm);
     if (pgid > 0) killpg(pgid, SIGHUP);
-    kill(pid, SIGTERM);
     env->SetIntField(jthis, g_fdPtmId, -1);
     if (env->ExceptionCheck() == JNI_TRUE) return;
     close(fdPtm);
