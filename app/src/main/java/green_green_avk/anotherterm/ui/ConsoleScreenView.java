@@ -783,9 +783,11 @@ public class ConsoleScreenView extends ScrollableView
     }
 
     public void unsetConsoleInput() {
-        consoleInput.removeOnBufferScroll(this);
-        consoleInput.removeOnInvalidateSink(this);
-        consoleInput = null;
+        if (consoleInput != null) {
+            consoleInput.removeOnBufferScroll(this);
+            consoleInput.removeOnInvalidateSink(this);
+            consoleInput = null;
+        }
     }
 
     public int getKeyHeightDp() {

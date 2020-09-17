@@ -139,7 +139,7 @@ public class ConsoleKeyboardView extends ExtKeyboardView implements
     }
 
     public void unsetConsoleInput() {
-        consoleInput.removeOnInvalidateSink(this);
+        if (consoleInput != null) consoleInput.removeOnInvalidateSink(this);
         consoleOutput = null;
         consoleInput = null;
     }

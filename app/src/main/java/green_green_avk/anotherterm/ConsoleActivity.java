@@ -317,9 +317,9 @@ public final class ConsoleActivity extends AppCompatActivity
     @Override
     protected void onDestroy() {
         if (menuPopupWindow != null) menuPopupWindow.dismiss();
-        mSession.input.removeOnInvalidateSink(this);
-        mCkv.unsetConsoleInput();
-        mCsv.unsetConsoleInput();
+        if (mSession != null) mSession.input.removeOnInvalidateSink(this);
+        if (mCkv != null) mCkv.unsetConsoleInput();
+        if (mCsv != null) mCsv.unsetConsoleInput();
         super.onDestroy();
     }
 
