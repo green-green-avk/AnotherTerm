@@ -3,32 +3,41 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
-    android:layout_height="wrap_content"
-    android:gravity="center_vertical"
+    android:layout_height="@dimen/uiOptionSize"
     android:orientation="horizontal">
 
     <TextView
         android:id="@+id/keycode"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
+        android:layout_width="0dp"
+        android:layout_height="match_parent"
+        android:layout_weight="2"
+        android:gravity="center_vertical"
+        android:lines="1"
         android:paddingLeft="@dimen/text_separator"
         android:paddingRight="@dimen/text_separator"
         android:textColor="?android:attr/editTextColor"
+        app:autoSizeMaxTextSize="@dimen/uiOptionMaxTextSize"
+        app:autoSizeMinTextSize="@dimen/text_size_min"
+        app:autoSizeTextType="uniform"
         tools:text="KEYCODE" />
 
-    <TextView
+    <ImageView
         android:id="@+id/devId"
         android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:paddingLeft="@dimen/text_separator"
-        android:paddingRight="@dimen/text_separator"
-        android:textColor="?android:attr/editTextColor"
-        tools:text="BUILT-IN" />
+        android:layout_height="@dimen/uiOptionMaxTextSize"
+        android:layout_gravity="center"
+        android:adjustViewBounds="true"
+        android:scaleType="centerInside"
+        app:tint="?android:attr/editTextColor"
+        tools:contentDescription="@string/label_dev_built_in"
+        tools:ignore="ContentDescription"
+        tools:srcCompat="@drawable/ic_screen_orientation_portrait" />
 
     <ImageView
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:layout_weight="1"
+        android:layout_width="wrap_content"
+        android:layout_height="@dimen/uiOptionMaxTextSize"
+        android:layout_gravity="center"
+        android:adjustViewBounds="true"
         android:scaleType="centerInside"
         app:srcCompat="@drawable/ic_assoc"
         app:tint="?android:attr/textColorTertiary"
@@ -36,15 +45,18 @@
 
     <Spinner
         android:id="@+id/toKeycode"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content" />
+        android:layout_width="0dp"
+        android:layout_height="match_parent"
+        android:layout_weight="2" />
 
     <ImageButton
         android:id="@+id/action_delete"
         android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
+        android:layout_height="match_parent"
+        android:adjustViewBounds="true"
         android:background="@drawable/bg_grid_btn"
         android:contentDescription="@string/action_delete"
+        android:scaleType="centerInside"
         app:srcCompat="@android:drawable/ic_menu_delete" />
 
 </LinearLayout>

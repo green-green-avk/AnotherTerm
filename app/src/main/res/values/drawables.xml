@@ -6,4 +6,7 @@
     <drawable name="ic_menu_edit">@android:drawable/ic_menu_edit</drawable>
     <drawable name="ic_menu_help">@android:drawable/ic_menu_help</drawable>
     <drawable name="ic_menu_scratchpad">@android:drawable/ic_menu_agenda</drawable>
+    <drawable name="ic_dev_unknown">@drawable/ic_menu_help</drawable>
+    <drawable name="ic_dev_built_in">@drawable/ic_screen_orientation_portrait</drawable>
+    <drawable name="ic_dev_external">@drawable/ic_keyboard</drawable>
 </resources>

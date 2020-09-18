@@ -10,11 +10,14 @@ import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.BaseAdapter;
+import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.Spinner;
 import android.widget.TextView;
 
+import androidx.annotation.DrawableRes;
 import androidx.annotation.NonNull;
+import androidx.annotation.StringRes;
 
 import java.util.AbstractList;
 import java.util.Arrays;
@@ -23,14 +26,29 @@ import java.util.List;
 import green_green_avk.anotherterm.ui.HwKeyMap;
 
 public final class HwKeyMapEditorFragment extends Fragment {
-    private static final int[] devIdsDict = new int[]{
-            R.string.label_dev_built_in,
-            R.string.label_dev_external
+    private static final class DevIdLabel {
+        @DrawableRes
+        final int icon;
+        @StringRes
+        final int desc;
+
+        public DevIdLabel(@DrawableRes final int icon, @StringRes final int desc) {
+            this.icon = icon;
+            this.desc = desc;
+        }
+    }
+
+    private static final DevIdLabel devIdLabelUnknown =
+            new DevIdLabel(R.drawable.ic_dev_unknown, R.string.label_dev_unknown);
+
+    private static final DevIdLabel[] devIdLabels = new DevIdLabel[]{
+            new DevIdLabel(R.drawable.ic_dev_built_in, R.string.label_dev_built_in),
+            new DevIdLabel(R.drawable.ic_dev_external, R.string.label_dev_external)
     };
 
-    private int getDevIdLabel(final int devId) {
-        if (devId < 0 || devId >= devIdsDict.length) return R.string.label_dev_unknown;
-        return devIdsDict[devId];
+    private DevIdLabel getDevIdLabel(final int devId) {
+        if (devId < 0 || devId >= devIdLabels.length) return devIdLabelUnknown;
+        return devIdLabels[devId];
     }
 
     private final class ToKeycode {
@@ -122,14 +140,17 @@ public final class HwKeyMapEditorFragment extends Fragment {
             else v = LayoutInflater.from(parent.getContext())
                     .inflate(R.layout.hw_key_map_editor_entry, parent, false);
             final HwKeyMapTable.Entry entry = keymap.getEntry(position);
-            v.<TextView>findViewById(R.id.keycode).setText(TermKeyMap.keyCodeToString(entry.keycode));
-            v.<TextView>findViewById(R.id.devId).setText(getDevIdLabel(entry.devId));
+            v.<TextView>findViewById(R.id.keycode)
+                    .setText(TermKeyMap.keyCodeToString(entry.keycode));
+            final ImageView wDevId = v.findViewById(R.id.devId);
+            wDevId.setImageResource(getDevIdLabel(entry.devId).icon);
+            wDevId.setContentDescription(getString(getDevIdLabel(entry.devId).desc));
             final Spinner wToKeycode = v.findViewById(R.id.toKeycode);
             final List<ToKeycode> al = KeyEvent.isModifierKey(entry.keycode) ?
                     toKeycodeListForModifiers : toKeycodeList;
             final ArrayAdapter<ToKeycode> a = new ArrayAdapter<>(parent.getContext(),
-                    android.R.layout.simple_spinner_item, al);
-            a.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+                    R.layout.spinner_autosize_entry, al);
+            a.setDropDownViewResource(R.layout.spinner_autosize_dropdown_entry);
             wToKeycode.setAdapter(a);
             int ap = 0;
             for (int i = 0; i < al.size(); i++)
