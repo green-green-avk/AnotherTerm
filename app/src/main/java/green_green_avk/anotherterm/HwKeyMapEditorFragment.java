@@ -53,21 +53,35 @@ public final class HwKeyMapEditorFragment extends Fragment {
 
     private final class ToKeycode {
         public final int value;
+        public final int toggleMode;
         @NonNull
         private final Object label;
 
         @Override
         @NonNull
         public String toString() {
-            if (label instanceof String) return (String) label;
-            if (label instanceof Integer && getActivity() != null)
-                return getActivity().getString((Integer) label);
-            return "-";
+            final String r;
+            if (label instanceof String) r = (String) label;
+            else if (label instanceof Integer && getActivity() != null)
+                r = getActivity().getString((Integer) label);
+            else r = "-";
+            switch (toggleMode) {
+                case HwKeyMap.TOGGLE_ONESHOT:
+                    return r + "\uD83D\uDD12¹";
+                case HwKeyMap.TOGGLE_ON_OFF:
+                    return r + "\uD83D\uDD12";
+            }
+            return r;
+        }
+
+        public ToKeycode(final int value, final int toggleMode, @NonNull final Object label) {
+            this.value = value;
+            this.toggleMode = toggleMode;
+            this.label = label;
         }
 
         private ToKeycode(final int value, @NonNull final Object label) {
-            this.value = value;
-            this.label = label;
+            this(value, HwKeyMap.TOGGLE_NONE, label);
         }
 
         private ToKeycode(final int value) {
@@ -79,7 +93,11 @@ public final class HwKeyMapEditorFragment extends Fragment {
             new ToKeycode(HwKeyMap.KEYCODE_ACTION_BYPASS, R.string.label_key_bypass), // Modifiers only.
             new ToKeycode(KeyEvent.KEYCODE_UNKNOWN, R.string.label_key_block),
             new ToKeycode(KeyEvent.KEYCODE_CTRL_LEFT, R.string.label_mod_control),
+            new ToKeycode(KeyEvent.KEYCODE_CTRL_LEFT, HwKeyMap.TOGGLE_ONESHOT, R.string.label_mod_control),
+            new ToKeycode(KeyEvent.KEYCODE_CTRL_LEFT, HwKeyMap.TOGGLE_ON_OFF, R.string.label_mod_control),
             new ToKeycode(KeyEvent.KEYCODE_ALT_LEFT, R.string.label_mod_alt),
+            new ToKeycode(KeyEvent.KEYCODE_ALT_LEFT, HwKeyMap.TOGGLE_ONESHOT, R.string.label_mod_alt),
+            new ToKeycode(KeyEvent.KEYCODE_ALT_LEFT, HwKeyMap.TOGGLE_ON_OFF, R.string.label_mod_alt),
             new ToKeycode(KeyEvent.KEYCODE_ESCAPE),
             new ToKeycode(KeyEvent.KEYCODE_FORWARD_DEL),
             new ToKeycode(KeyEvent.KEYCODE_INSERT),
@@ -143,8 +161,8 @@ public final class HwKeyMapEditorFragment extends Fragment {
             v.<TextView>findViewById(R.id.keycode)
                     .setText(TermKeyMap.keyCodeToString(entry.keycode));
             final ImageView wDevId = v.findViewById(R.id.devId);
-            wDevId.setImageResource(getDevIdLabel(entry.devId).icon);
-            wDevId.setContentDescription(getString(getDevIdLabel(entry.devId).desc));
+            wDevId.setImageResource(getDevIdLabel(entry.devType).icon);
+            wDevId.setContentDescription(getString(getDevIdLabel(entry.devType).desc));
             final Spinner wToKeycode = v.findViewById(R.id.toKeycode);
             final List<ToKeycode> al = KeyEvent.isModifierKey(entry.keycode) ?
                     toKeycodeListForModifiers : toKeycodeList;
@@ -153,18 +171,23 @@ public final class HwKeyMapEditorFragment extends Fragment {
             a.setDropDownViewResource(R.layout.spinner_autosize_dropdown_entry);
             wToKeycode.setAdapter(a);
             int ap = 0;
-            for (int i = 0; i < al.size(); i++)
-                if (al.get(i).value == entry.toKeycode) {
+            for (int i = 0; i < al.size(); i++) {
+                final ToKeycode ae = al.get(i);
+                if (ae.value == entry.toKeycode && ae.toggleMode == entry.toggleMode) {
                     ap = i;
                     break;
                 }
+            }
             wToKeycode.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
                 @Override
                 public void onItemSelected(final AdapterView<?> parent, final View view,
                                            final int position, final long id) {
-                    final int v = a.getItem(position).value;
-                    if (keymap.get(entry.keycode, entry.devId) == v) return;
-                    keymap.set(entry.keycode, entry.devId, v);
+                    final ToKeycode ae = a.getItem(position);
+                    if (keymap.get(entry.keycode, entry.devType) == ae.value
+                            && keymap.getToggleMode(entry.keycode, entry.devType) == ae.toggleMode)
+                        return;
+                    keymap.set(entry.keycode, entry.devType, ae.value);
+                    keymap.setToggleMode(entry.keycode, entry.devType, ae.toggleMode);
                     HwKeyMapManager.set(keymap);
                     notifyDataSetChanged();
                 }
@@ -177,7 +200,8 @@ public final class HwKeyMapEditorFragment extends Fragment {
             v.findViewById(R.id.action_delete).setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(final View v) {
-                    keymap.set(entry.keycode, entry.devId, HwKeyMap.KEYCODE_ACTION_DEFAULT);
+                    keymap.set(entry.keycode, entry.devType, HwKeyMap.KEYCODE_ACTION_DEFAULT);
+                    keymap.setToggleMode(entry.keycode, entry.devType, HwKeyMap.TOGGLE_NONE);
                     HwKeyMapManager.set(keymap);
                     notifyDataSetChanged();
                 }
@@ -217,7 +241,7 @@ public final class HwKeyMapEditorFragment extends Fragment {
         v.setOnKeyListener(new View.OnKeyListener() {
             @Override
             public boolean onKey(final View v, final int keyCode, final KeyEvent event) {
-                final int devId = keymap.getDevId(event);
+                final int devId = keymap.getDevType(event);
                 if (devId < 0 || HwKeyMapManager.isBypassKey(event)
                         || keyCode == KeyEvent.KEYCODE_UNKNOWN) return false;
                 if (event.getAction() == KeyEvent.ACTION_DOWN) {

@@ -34,14 +34,23 @@ public final class HwKeyMapManager {
         final HwKeyMapTable r = new HwKeyMapTable();
         for (final Map.Entry<String, ?> t : m.entrySet()) {
             if (!(t.getValue() instanceof Integer)) continue;
-            final int keycode = (int) (Integer) t.getValue();
+            final int value = (int) (Integer) t.getValue();
             final int key;
-            try {
-                key = Integer.parseInt(t.getKey());
-            } catch (final NumberFormatException e) {
-                continue;
+            if (t.getKey().charAt(0) == 't') {
+                try {
+                    key = Integer.parseInt(t.getKey().substring(1));
+                } catch (final NumberFormatException e) {
+                    continue;
+                }
+                r.getToggleModeMap().put(key, value);
+            } else {
+                try {
+                    key = Integer.parseInt(t.getKey());
+                } catch (final NumberFormatException e) {
+                    continue;
+                }
+                r.getMap().put(key, value);
             }
-            r.getMap().put(key, keycode);
         }
         cache = r;
         return r;
@@ -53,6 +62,10 @@ public final class HwKeyMapManager {
         final SparseIntArray m = km.getMap();
         for (int i = 0; i < m.size(); i++) {
             editor.putInt(Integer.toString(m.keyAt(i)), m.valueAt(i));
+        }
+        final SparseIntArray mt = km.getToggleModeMap();
+        for (int i = 0; i < mt.size(); i++) {
+            editor.putInt("t" + mt.keyAt(i), mt.valueAt(i));
         }
         editor.apply();
         cache = null;
