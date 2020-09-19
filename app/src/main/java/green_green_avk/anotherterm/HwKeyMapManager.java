@@ -81,8 +81,10 @@ public final class HwKeyMapManager {
     }
 
     public static boolean isVirtual(@NonNull final KeyEvent event) {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN)
-            return event.getDevice().isVirtual();
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN) {
+            final InputDevice dev = event.getDevice();
+            return dev != null && dev.isVirtual();
+        }
         return event.getDeviceId() == KeyCharacterMap.VIRTUAL_KEYBOARD;
     }
 

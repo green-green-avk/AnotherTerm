@@ -22,8 +22,8 @@ android {
          */
         //noinspection OldTargetApi
         targetSdkVersion 28
-        versionCode 72
-        versionName "MkIIIv13"
+        versionCode 73
+        versionName "MkIIIv14"
         vectorDrawables.useSupportLibrary = true
 
         def SHELL_SESSION_TOKEN_VAR = "SHELL_SESSION_TOKEN"
