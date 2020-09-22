@@ -10,7 +10,8 @@
     <string name="welcome_desc"><![CDATA[
         <ul>
         <li>Long tap matters.</li>
-        <li>Use sound volume buttons to change the font size when on the terminal screen.</li>
+        <li>Use sound volume buttons (if they are not mapped)
+        to change the font size when in the terminal window.</li>
         <li>For other questions see
         <a href=\"https://green-green-avk.github.io/AnotherTerm-docs/\">the official site</a>.</li>
         </ul>

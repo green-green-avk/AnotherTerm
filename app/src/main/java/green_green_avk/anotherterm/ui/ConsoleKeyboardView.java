@@ -1,5 +1,6 @@
 package green_green_avk.anotherterm.ui;
 
+import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.content.Context;
 import android.content.res.Configuration;
@@ -31,6 +32,7 @@ import green_green_avk.anotherterm.ConsoleInput;
 import green_green_avk.anotherterm.ConsoleOutput;
 import green_green_avk.anotherterm.HwKeyMapManager;
 import green_green_avk.anotherterm.R;
+import green_green_avk.anotherterm.utils.KeyIntervalDetector;
 
 public class ConsoleKeyboardView extends ExtKeyboardView implements
         KeyboardView.OnKeyboardActionListener, ConsoleInput.OnInvalidateSink {
@@ -47,6 +49,7 @@ public class ConsoleKeyboardView extends ExtKeyboardView implements
     protected int keyHeightDp = 0;
     @NonNull
     private HwKeyMap hwKeyMap = HwKeyMap.DEFAULT;
+    private int hwDoubleKeyPressInterval = 500; // [ms]
 
     public static class State {
         private boolean init = false;
@@ -245,41 +248,43 @@ public class ConsoleKeyboardView extends ExtKeyboardView implements
             setHidden(v);
     }
 
-    @Override
-    protected void onLayout(final boolean changed,
-                            final int left, final int top, final int right, final int bottom) {
-        super.onLayout(changed, left, top, right, bottom);
-        metaPopup.invalidate(); // Good enough.
-    }
-
     @NonNull
     public HwKeyMap getHwKeyMap() {
         return hwKeyMap;
     }
 
-    public void setHwKeyMap(@Nullable final HwKeyMap hwKeyMap) {
-        this.hwKeyMap = hwKeyMap == null ? HwKeyMap.DEFAULT : hwKeyMap;
+    public void setHwKeyMap(@Nullable final HwKeyMap v) {
+        this.hwKeyMap = v == null ? HwKeyMap.DEFAULT : v;
         metaStateFilterCache.clear();
     }
 
+    public int getHwDoubleKeyPressInterval() {
+        return hwDoubleKeyPressInterval;
+    }
+
+    public void setHwDoubleKeyPressInterval(final int v) {
+        this.hwDoubleKeyPressInterval = v;
+    }
+
+    // No basic modifiers allowed in the intermediate calculations.
     private static int getMetaStateByKeycode(final int keycode) {
         switch (keycode) {
             case KeyEvent.KEYCODE_SHIFT_LEFT:
-                return KeyEvent.META_SHIFT_LEFT_ON | KeyEvent.META_SHIFT_ON;
+                return KeyEvent.META_SHIFT_LEFT_ON;
             case KeyEvent.KEYCODE_SHIFT_RIGHT:
-                return KeyEvent.META_SHIFT_RIGHT_ON | KeyEvent.META_SHIFT_ON;
+                return KeyEvent.META_SHIFT_RIGHT_ON;
             case KeyEvent.KEYCODE_ALT_LEFT:
-                return KeyEvent.META_ALT_LEFT_ON | KeyEvent.META_ALT_ON;
+                return KeyEvent.META_ALT_LEFT_ON;
             case KeyEvent.KEYCODE_ALT_RIGHT:
-                return KeyEvent.META_ALT_RIGHT_ON | KeyEvent.META_ALT_ON;
+                return KeyEvent.META_ALT_RIGHT_ON;
             case KeyEvent.KEYCODE_CTRL_LEFT:
-                return KeyEvent.META_CTRL_LEFT_ON | KeyEvent.META_CTRL_ON;
+                return KeyEvent.META_CTRL_LEFT_ON;
             case KeyEvent.KEYCODE_CTRL_RIGHT:
-                return KeyEvent.META_CTRL_RIGHT_ON | KeyEvent.META_CTRL_ON;
+                return KeyEvent.META_CTRL_RIGHT_ON;
             case KeyEvent.KEYCODE_META_LEFT:
-                return KeyEvent.META_META_LEFT_ON | KeyEvent.META_META_ON;
+                return KeyEvent.META_META_LEFT_ON;
             case KeyEvent.KEYCODE_META_RIGHT:
-                return KeyEvent.META_META_RIGHT_ON | KeyEvent.META_META_ON;
+                return KeyEvent.META_META_RIGHT_ON;
             case KeyEvent.KEYCODE_SYM:
                 return KeyEvent.META_SYM_ON;
             case KeyEvent.KEYCODE_FUNCTION:
@@ -288,12 +293,11 @@ public class ConsoleKeyboardView extends ExtKeyboardView implements
         return 0;
     }
 
-    private static final int META_ALL_MASK = KeyEvent.normalizeMetaState(-1);
+    private static final int META_ALL_MASK = KeyEvent.normalizeMetaState(-1)
+            & ~(KeyEvent.META_SHIFT_ON | KeyEvent.META_ALT_ON
+            | KeyEvent.META_CTRL_ON | KeyEvent.META_META_ON);
     private static final int META_DEF_MASK = META_ALL_MASK
-            & ~(KeyEvent.META_ALT_ON
-            | KeyEvent.META_ALT_LEFT_ON | KeyEvent.META_ALT_RIGHT_ON
-            | KeyEvent.META_CTRL_ON
-            | KeyEvent.META_CTRL_LEFT_ON | KeyEvent.META_CTRL_RIGHT_ON);
+            & ~(KeyEvent.META_ALT_MASK | KeyEvent.META_CTRL_MASK);
     private static final int[] modifierKeys = new int[]{
             KeyEvent.KEYCODE_SHIFT_LEFT, KeyEvent.KEYCODE_SHIFT_RIGHT,
             KeyEvent.KEYCODE_ALT_LEFT, KeyEvent.KEYCODE_ALT_RIGHT,
@@ -328,22 +332,22 @@ public class ConsoleKeyboardView extends ExtKeyboardView implements
         return r;
     }
 
-    private int metaState = 0; // For the custom modifiers mapping.
+    // For the custom modifiers mapping.
+    private int metaState = 0;
+    private int metaStateToggle = 0;
     private int metaStateToggleOneShot = 0;
-    private int metaStateToggleOnOff = 0;
-    private int accent = 0;
 
-    private void metaOnKey() {
-        metaStateToggleOneShot = 0;
-        metaStateToggleOnOff &= ~metaState;
+    private void metaStateOnKey() {
+        metaStateToggle &= ~(metaState | metaStateToggleOneShot);
     }
 
     private final class MetaPopup {
+        @SuppressLint("InflateParams")
         private final View g = LayoutInflater.from(getContext())
-                .inflate(R.layout.info_overlay, null);
+                .inflate(R.layout.hw_modifiers_overlay, null);
         private final PopupWindow w = new PopupWindow(g,
                 WindowManager.LayoutParams.MATCH_PARENT,
-                WindowManager.LayoutParams.MATCH_PARENT);
+                WindowManager.LayoutParams.WRAP_CONTENT);
         private final TextView v =
                 (TextView) ((g instanceof TextView) ? g : g.findViewById(R.id.text));
 
@@ -352,17 +356,7 @@ public class ConsoleKeyboardView extends ExtKeyboardView implements
             w.setTouchable(false);
         }
 
-        private void invalidate() {
-            if (w.isShowing()) {
-                hide();
-                show();
-            }
-        }
-
         private void show() {
-            final Rect r = new Rect();
-            getRootView().getWindowVisibleDisplayFrame(r);
-            w.setHeight(r.bottom);
             w.showAtLocation(getRootView(), 0, 0, 0);
         }
 
@@ -379,45 +373,51 @@ public class ConsoleKeyboardView extends ExtKeyboardView implements
     private int prevStickyMetaState = 0;
 
     private void invalidateHwMetaIndication() {
-        final int stickyMetaState = (metaStateToggleOneShot | metaStateToggleOnOff) & ~metaState;
+        final int stickyMetaState = metaStateToggle & ~metaState;
         if (stickyMetaState == prevStickyMetaState) return;
         final StringBuilder text = new StringBuilder();
         if ((stickyMetaState & KeyEvent.META_ALT_MASK) != 0) {
             text.append("[");
             text.append(getContext().getString(R.string.label_mod_alt));
-            text.append("]");
+            text.append("]\uD83D\uDD12");
+            if ((stickyMetaState & metaStateToggleOneShot & KeyEvent.META_ALT_MASK) != 0)
+                text.append("¹");
         }
         if ((stickyMetaState & KeyEvent.META_CTRL_MASK) != 0) {
+            if (text.length() > 0) text.append("+");
             text.append("[");
             text.append(getContext().getString(R.string.label_mod_control));
-            text.append("]");
+            text.append("]\uD83D\uDD12");
+            if ((stickyMetaState & metaStateToggleOneShot & KeyEvent.META_CTRL_MASK) != 0)
+                text.append("¹");
         }
         if (text.length() == 0) {
-            metaPopup.setText("");
             metaPopup.hide();
+            metaPopup.setText("");
         } else {
-            text.append("\uD83D\uDD12");
             metaPopup.setText(text);
             metaPopup.show();
         }
         prevStickyMetaState = stickyMetaState;
     }
 
+    private int accent = 0;
+
     private boolean send(@NonNull final KeyEvent event) {
         if (consoleOutput == null) return false;
         final int[] filter = getMetaStateFilter(event);
         final int eventMetaState =
                 KeyEvent.normalizeMetaState((event.getMetaState() & filter[0]) | metaState
-                        | metaStateToggleOneShot | metaStateToggleOnOff);
-        final boolean shift = (eventMetaState & KeyEvent.META_SHIFT_ON) != 0;
-        final boolean alt = (eventMetaState & KeyEvent.META_ALT_ON) != 0;
-        final boolean ctrl = (eventMetaState & KeyEvent.META_CTRL_ON) != 0;
+                        | metaStateToggle);
+        final boolean shift = (eventMetaState & KeyEvent.META_SHIFT_MASK) != 0;
+        final boolean alt = (eventMetaState & KeyEvent.META_ALT_MASK) != 0;
+        final boolean ctrl = (eventMetaState & KeyEvent.META_CTRL_MASK) != 0;
         int code = hwKeyMap.get(event);
         if (code < 0) code = event.getKeyCode();
         final String r = consoleOutput.getKeySeq(code, shift, alt, ctrl);
         if (r != null) {
             consoleOutput.feed(r);
-            metaOnKey();
+            metaStateOnKey();
             return true;
         }
         final int c = event.getKeyCharacterMap().get(code,
@@ -431,7 +431,7 @@ public class ConsoleKeyboardView extends ExtKeyboardView implements
                 if (fullChar == 0) return true;
             } else fullChar = c;
             consoleOutput.feed(-fullChar, shift, alt, ctrl);
-            metaOnKey();
+            metaStateOnKey();
         } else {
             accent = c & KeyCharacterMap.COMBINING_ACCENT_MASK;
         }
@@ -472,26 +472,41 @@ public class ConsoleKeyboardView extends ExtKeyboardView implements
         return new BaseInputConnection(this, false);
     }
 
+    private final KeyIntervalDetector metaStateDoublePressDetector = new KeyIntervalDetector();
+
     @Override
     public boolean onKeyDown(final int keyCode, final KeyEvent event) {
         final int mk = hwKeyMap.get(event);
         if (isBypassKey(event, mk < 0)) return super.onKeyDown(keyCode, event);
         final int ms = getMetaStateByKeycode(mk);
-        if (ms != 0)
-            switch (hwKeyMap.getToggleMode(event)) {
-                case HwKeyMap.TOGGLE_ONESHOT:
-                    metaStateToggleOneShot ^= ms;
-                    metaStateToggleOnOff &= ~ms;
-                    break;
-                case HwKeyMap.TOGGLE_ON_OFF:
-                    metaStateToggleOnOff ^= ms;
-                    metaStateToggleOneShot &= ~ms;
-                    break;
-                default:
-                    metaStateToggleOneShot &= ~ms;
-                    metaStateToggleOnOff &= ~ms;
+        if (ms != 0) {
+            final int toggleMode = hwKeyMap.getToggleMode(event);
+            final long interval = metaStateDoublePressDetector.sample(event);
+            final boolean isDouble = interval >= 0 && interval <= hwDoubleKeyPressInterval;
+            if (isDouble) {
+                switch (toggleMode) {
+                    case HwKeyMap.TOGGLE_ONESHOT:
+                    case HwKeyMap.TOGGLE_ON_OFF:
+                        metaStateToggleOneShot ^= ms;
+                        metaStateToggle |= ms;
+                        break;
+                }
+            } else {
+                if ((metaStateToggle & ms) == 0)
+                    switch (toggleMode) {
+                        case HwKeyMap.TOGGLE_ONESHOT:
+                            metaStateToggleOneShot |= ms;
+                            metaStateToggle |= ms;
+                            break;
+                        case HwKeyMap.TOGGLE_ON_OFF:
+                            metaStateToggleOneShot &= ~ms;
+                            metaStateToggle |= ms;
+                            break;
+                    }
+                else metaStateToggle &= ~ms;
             }
-        metaState |= ms;
+            metaState |= ms;
+        }
         send(event);
         invalidateHwMetaIndication();
         return true;

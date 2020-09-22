@@ -43,6 +43,8 @@ Local PTY, USB and Bluetooth serial ports, SSH and Telnet terminal client for An
 
 * Builtin screen keyboard and mouse.
 
+* Hardware buttons mapping.
+
 * Different charsets and customizable key mapping support.
 
 
