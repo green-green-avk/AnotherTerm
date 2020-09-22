@@ -22,8 +22,8 @@ android {
          */
         //noinspection OldTargetApi
         targetSdkVersion 28
-        versionCode 73
-        versionName "MkIIIv15-dev"
+        versionCode 74
+        versionName "MkIIIv15"
         vectorDrawables.useSupportLibrary = true
 
         resConfigs "en"
