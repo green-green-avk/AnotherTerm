@@ -26,6 +26,8 @@ android {
         versionName "MkIIIv15-dev"
         vectorDrawables.useSupportLibrary = true
 
+        resConfigs "en"
+
         def SHELL_SESSION_TOKEN_VAR = "SHELL_SESSION_TOKEN"
         buildConfigField "String", "SHELL_SESSION_TOKEN_VAR", "\"$SHELL_SESSION_TOKEN_VAR\""
 
