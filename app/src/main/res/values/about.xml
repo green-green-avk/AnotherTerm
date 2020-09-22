@@ -1,12 +1,12 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
 <string name="desc_about"><![CDATA[
-<h1>Introduction</h1>
-<p>Why another one? Just to have:</p>
+<h1>Highlights</h1>
 <ul>
     <li>UART, SSH, Telnet and local PTY support in the same application;</li>
     <li>Adequate screen input methods as long as a terminal requires specific keyboard
-    functions.</li>
+    functions;</li>
+    <li>Ability to set fixed screen columns and/or rows numbers.</li>
 </ul>
 <h1>Features</h1>
 <ul>
