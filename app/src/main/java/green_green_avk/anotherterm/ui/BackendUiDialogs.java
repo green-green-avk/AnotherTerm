@@ -287,7 +287,7 @@ public final class BackendUiDialogs implements BackendUiInteraction,
                         if (ctx == null) return;
                         final DialogInterface.OnClickListener listener = new DialogInterface.OnClickListener() {
                             @Override
-                            public void onClick(DialogInterface dialog, int which) {
+                            public void onClick(final DialogInterface dialog, final int which) {
                                 if (which == DialogInterface.BUTTON_POSITIVE) {
                                     promptState = null;
                                     ContentRequester.request(result, ContentRequester.Type.BYTES,
@@ -301,7 +301,7 @@ public final class BackendUiDialogs implements BackendUiInteraction,
                         final Dialog d = new AlertDialog.Builder(ctx)
                                 .setOnCancelListener(new DialogInterface.OnCancelListener() {
                                     @Override
-                                    public void onCancel(DialogInterface dialog) {
+                                    public void onCancel(final DialogInterface dialog) {
                                         promptState = null;
                                         result.set(null);
                                     }

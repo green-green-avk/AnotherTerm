@@ -68,7 +68,7 @@ public final class ContentRequester extends Requester {
             @SuppressLint("StaticFieldLeak") final AsyncTask<Object, Object, Object> task =
                     new AsyncTask<Object, Object, Object>() {
                         @Override
-                        protected Object doInBackground(Object... params) {
+                        protected Object doInBackground(final Object... params) {
                             final byte[] buf;
                             try {
                                 buf = Misc.toArray(is);

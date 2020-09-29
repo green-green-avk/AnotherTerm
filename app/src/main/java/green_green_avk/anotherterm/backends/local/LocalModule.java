@@ -201,10 +201,11 @@ public final class LocalModule extends BackendModule {
         final ParametersWrapper pp = new ParametersWrapper(params);
         terminalString = pp.getString("terminal_string", terminalString);
         execute = pp.getString("execute", execute);
-        sessionData.permissions = 0;
+        long _perms = 0;
         for (final Map.Entry<String, SessionData.PermMeta> m : SessionData.permByName.entrySet())
             if (pp.getBoolean("perm_" + m.getKey(), false))
-                sessionData.permissions |= m.getValue().bits; // Sync is not required here
+                _perms |= m.getValue().bits;
+        sessionData.permissions = _perms;
         for (final Map.Entry<String, ?> p : params.entrySet())
             if (p.getKey() != null && p.getKey().startsWith(ENV_INPUT_PREFIX) &&
                     p.getValue() instanceof String)
