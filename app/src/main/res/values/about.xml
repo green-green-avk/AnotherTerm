@@ -1,6 +1,12 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
 <string name="desc_about"><![CDATA[
+<h1>Links</h1>
+<ul>
+<li><a href=\"https://green-green-avk.github.io/AnotherTerm-docs/\">Wiki</a></li>
+<li><a href=\"https://green-green-avk.github.io/AnotherTerm-docs/issues.html#main_content\">Bugs and issues</a></li>
+<li><a href=\"https://github.com/green-green-avk/AnotherTerm\">Source at GitHub</a></li>
+</ul>
 <h1>Highlights</h1>
 <ul>
     <li>UART, SSH, Telnet and local PTY support in the same application;</li>
@@ -35,11 +41,6 @@ to access the Android environment and own API to create them as separate APKs.</
 <li>Builtin screen keyboard and mouse.</li>
 <li>Hardware buttons mapping.</li>
 <li>Different charsets and customizable key mapping support.</li>
-</ul>
-<h1>Links</h1>
-<ul>
-<li><a href=\"https://green-green-avk.github.io/AnotherTerm-docs/\">Wiki</a></li>
-<li><a href=\"https://github.com/green-green-avk/AnotherTerm\">Source at GitHub</a></li>
 </ul>
 <h1>Credits</h1>
 <p>Thanks to:</p>

@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-<string name="desc_main_help"><![CDATA[
-<h1>Introduction</h1>
-<p>See <a href=\"https://green-green-avk.github.io/AnotherTerm-docs/\">the official site</a>.</p>
+    <string name="desc_main_help"><![CDATA[
+<h1><a href=\"https://green-green-avk.github.io/AnotherTerm-docs/\">Wiki</a></h1>
+<h1><a href=\"https://green-green-avk.github.io/AnotherTerm-docs/issues.html#main_content\">Bugs and issues</a></h1>
 <h1>Common features</h1>
 <ul>
 <li><a href=\"info:/scratchpad\">Scratchpad</a></li>
@@ -18,7 +18,7 @@
 <li><a href=\"https://green-green-avk.github.io/AnotherTerm-docs/installing-linux-under-proot.html#main_content\">Installing Linux under PRoot</a></li>
 <li><a href=\"https://green-green-avk.github.io/AnotherTerm-docs/installing-libusb-for-nonrooted-android.html#main_content\">Installing libusb for nonrooted Android</a></li>
 </ul>
-]]></string>
+    ]]></string>
     <string name="desc_keymap_escapes"><![CDATA[
 <h1>Key Map Escapes</h1>
 <p>All symbols are represented in the UTF-16 encoding and will be converted to the output stream
@@ -36,5 +36,5 @@ in according to a current console character set.</p>
 <li><b>\\f</b> &#x2014; Form Feed (\\u000C)</li>
 <li><b>\\r</b> &#x2014; CR (\\u000D)</li>
 </ul>
-]]></string>
+    ]]></string>
 </resources>
