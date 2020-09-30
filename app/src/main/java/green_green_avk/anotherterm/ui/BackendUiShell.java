@@ -49,8 +49,8 @@ public final class BackendUiShell implements BackendUiInteraction, BackendUiInte
     }
 
     @Override
-    public byte[] promptContent(@NonNull final String message, @NonNull final String mimeType)
-            throws InterruptedException {
+    public byte[] promptContent(@NonNull final String message, @NonNull final String mimeType,
+                                final long sizeLimit) throws InterruptedException, IOException {
         return new byte[0];
     }
 

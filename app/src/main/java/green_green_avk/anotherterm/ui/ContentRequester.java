@@ -28,8 +28,9 @@ public final class ContentRequester extends Requester {
     public static final class UIFragment extends Requester.UiFragment {
         private final int requestCode = generateRequestCode();
 
-        private BlockingSync<?> result = null;
+        private BlockingSync<Object> result = null;
         private Type type = null;
+        private long sizeLimit = 0;
 
         @Override
         public void onActivityResult(final int requestCode, final int resultCode,
@@ -46,15 +47,14 @@ public final class ContentRequester extends Requester {
                 return;
             }
             if (type == Type.URI) {
-                ((BlockingSync<Uri>) result).set(uri);
+                result.set(uri);
                 return;
             }
             final InputStream is;
             try {
-                is = getContext().getContentResolver().openInputStream(uri);
+                is = requireContext().getContentResolver().openInputStream(uri);
             } catch (final Throwable e) {
-                // TODO: Error reporting
-                result.set(null);
+                result.set(e);
                 return;
             }
             if (is == null) {
@@ -62,7 +62,7 @@ public final class ContentRequester extends Requester {
                 return;
             }
             if (type == Type.STREAM) {
-                ((BlockingSync<InputStream>) result).set(is);
+                result.set(is);
                 return;
             }
             @SuppressLint("StaticFieldLeak") final AsyncTask<Object, Object, Object> task =
@@ -71,9 +71,10 @@ public final class ContentRequester extends Requester {
                         protected Object doInBackground(final Object... params) {
                             final byte[] buf;
                             try {
-                                buf = Misc.toArray(is);
-                            } catch (final IOException ignored) {
-                                result.set(null);
+                                buf = Misc.toArray(is, sizeLimit);
+                            } catch (final IOException | OutOfMemoryError e) {
+                                // TODO: OutOfMemoryError - 2b|~2b?
+                                result.set(e);
                                 return null;
                             } finally {
                                 try {
@@ -81,30 +82,34 @@ public final class ContentRequester extends Requester {
                                 } catch (final IOException ignored) {
                                 }
                             }
-                            ((BlockingSync<byte[]>) result).set(buf);
+                            result.set(buf);
                             return null;
                         }
                     };
             task.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR, (Object[]) null);
         }
 
-        public void requestContent(@NonNull final BlockingSync<?> result, final Type type,
+        public void requestContent(@NonNull final BlockingSync<Object> result, final Type type,
+                                   final long sizeLimit,
                                    @NonNull final String message, @NonNull final String mimeType) {
             this.result = result;
             this.type = type;
+            this.sizeLimit = sizeLimit;
             final Intent i = new Intent(Intent.ACTION_GET_CONTENT)
                     .addCategory(Intent.CATEGORY_OPENABLE).setType(mimeType);
             startActivityForResult(Intent.createChooser(i, message), requestCode);
         }
     }
 
-    public static void request(@NonNull final BlockingSync<?> result, final Type type,
+    public static void request(@NonNull final BlockingSync<Object> result, final Type type,
+                               final long sizeLimit,
                                @NonNull final Context ctx, @NonNull final String message,
                                @NonNull final String mimeType) {
         ((FragmentActivity) ctx).runOnUiThread(new Runnable() {
             @Override
             public void run() {
-                prepare(ctx, new UIFragment()).requestContent(result, type, message, mimeType);
+                prepare(ctx, new UIFragment()).requestContent(result, type, sizeLimit,
+                        message, mimeType);
             }
         });
     }

@@ -39,6 +39,8 @@ import green_green_avk.anotherterm.utils.SshHostKeyRepository;
 
 public final class SshModule extends BackendModule {
 
+    private static final long CERT_FILE_SIZE_MAX = 1024 * 1024;
+
     @Keep
     public static final Meta meta = new Meta(SshModule.class, "ssh") {
         @Override
@@ -379,9 +381,17 @@ public final class SshModule extends BackendModule {
         final IdentityRepository ir = jsch.getIdentityRepository();
         jsch.setIdentityRepository(new IdentityRepository() {
             private void prompt() {
-                final byte[] key;
+                byte[] key;
                 try {
-                    key = ui.promptContent("Server requests key identification", "*/*");
+                    while (true) {
+                        try {
+                            key = ui.promptContent("Server requests key identification",
+                                    "*/*", CERT_FILE_SIZE_MAX);
+                            break;
+                        } catch (final IOException e) {
+                            ui.showToast("Unable to load the key: " + e.getLocalizedMessage());
+                        }
+                    }
                 } catch (final InterruptedException e) {
                     throw new BackendInterruptedException(e);
                 }

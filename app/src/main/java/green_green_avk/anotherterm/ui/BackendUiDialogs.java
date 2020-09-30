@@ -22,6 +22,7 @@ import androidx.annotation.Nullable;
 import androidx.annotation.UiThread;
 import androidx.recyclerview.widget.LinearLayoutManager;
 
+import java.io.IOException;
 import java.lang.ref.WeakReference;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -275,11 +276,11 @@ public final class BackendUiDialogs implements BackendUiInteraction,
     }
 
     @Override
-    public byte[] promptContent(@NonNull final String message, @NonNull final String mimeType)
-            throws InterruptedException {
+    public byte[] promptContent(@NonNull final String message, @NonNull final String mimeType,
+                                final long sizeLimit) throws InterruptedException, IOException {
         try {
             synchronized (promptLock) {
-                final BlockingSync<byte[]> result = new BlockingSync<>();
+                final BlockingSync<Object> result = new BlockingSync<>();
                 promptState = new Runnable() {
                     @Override
                     public void run() {
@@ -291,6 +292,7 @@ public final class BackendUiDialogs implements BackendUiInteraction,
                                 if (which == DialogInterface.BUTTON_POSITIVE) {
                                     promptState = null;
                                     ContentRequester.request(result, ContentRequester.Type.BYTES,
+                                            sizeLimit,
                                             ctx, message, mimeType);
                                     dialog.dismiss();
                                 } else {
@@ -315,7 +317,14 @@ public final class BackendUiDialogs implements BackendUiInteraction,
                     }
                 };
                 handler.post(promptState);
-                return result.get();
+                final Object r = result.get();
+                if (r instanceof byte[])
+                    return (byte[]) r;
+                if (r instanceof IOException)
+                    throw (IOException) r;
+                if (r instanceof Throwable)
+                    throw new IOException(((Throwable) r).getLocalizedMessage());
+                return null;
             }
         } finally {
             promptState = null;

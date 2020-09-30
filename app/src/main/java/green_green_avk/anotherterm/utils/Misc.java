@@ -104,17 +104,23 @@ public final class Misc {
     // IOUtils.toByteArray() from the Apache Commons IO
     // looks like something very strange in term of efficiency...
     @NonNull
-    public static byte[] toArray(@NonNull final InputStream is) throws IOException {
+    public static byte[] toArray(@NonNull final InputStream is,
+                                 final long sizeLimit) throws IOException {
         final Queue<byte[]> q = new LinkedList<>();
         byte[] buf = new byte[4096];
         q.add(buf);
         int off = 0;
         int len = buf.length;
         int l;
+        int total = 0;
         while ((l = is.read(buf, off, len)) >= 0) {
             off += l;
             len -= l;
             if (len == 0) {
+                total += off;
+                if (sizeLimit > 0 && total > sizeLimit)
+                    throw new IOException(String.format("Content size exceeds %d bytes limit",
+                            sizeLimit));
                 buf = new byte[buf.length];
                 q.add(buf);
                 off = 0;
