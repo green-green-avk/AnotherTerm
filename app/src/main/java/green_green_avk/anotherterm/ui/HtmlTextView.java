@@ -4,6 +4,7 @@ import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.res.TypedArray;
 import android.os.AsyncTask;
+import android.os.Build;
 import android.text.Spanned;
 import android.text.SpannedString;
 import android.text.method.LinkMovementMethod;
@@ -15,6 +16,7 @@ import androidx.core.text.HtmlCompat;
 
 import green_green_avk.anotherterm.R;
 import green_green_avk.anotherterm.utils.XmlToSpanned;
+import me.saket.bettermovementmethod.BetterLinkMovementMethod;
 
 public class HtmlTextView extends androidx.appcompat.widget.AppCompatTextView {
     public boolean async = false;
@@ -47,9 +49,23 @@ public class HtmlTextView extends androidx.appcompat.widget.AppCompatTextView {
 
     public void setSpannedText(@Nullable final Spanned spannedText) {
         if (spannedText != null) {
-            // https://blog.uncommon.is/a-better-way-to-handle-links-in-textview-27bb70b2d31c ?
-            // https://github.com/saket/Better-Link-Movement-Method ?
-            setMovementMethod(LinkMovementMethod.getInstance());
+            if (Build.VERSION.SDK_INT >= 16)
+                // https://issuetracker.google.com/issues/37068143
+                // https://stackoverflow.com/questions/22810147/error-when-selecting-text-from-textview-java-lang-indexoutofboundsexception-se
+                // https://stackoverflow.com/questions/33821008/illegalargumentexception-while-selecting-text-in-android-textview/34072449
+                // Spotted:
+                // Android 8.1 (SDK 27)
+                // java.lang.IndexOutOfBoundsException:
+                //   at android.text.SpannableStringInternal.checkRange (SpannableStringInternal.java:442)
+                // ...
+                // Android 6.0 (SDK 23)
+                // java.lang.IllegalArgumentException:
+                //   at android.text.method.WordIterator.checkOffsetIsValid (WordIterator.java:380)
+                // ...
+                // Mitigated by 'me.saket:better-link-movement-method:2.2.0'.
+                setMovementMethod(BetterLinkMovementMethod.getInstance());
+            else
+                setMovementMethod(LinkMovementMethod.getInstance());
             setText(spannedText);
         }
     }

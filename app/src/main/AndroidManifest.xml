@@ -4,6 +4,8 @@
     package="green_green_avk.anotherterm"
     android:installLocation="internalOnly">
 
+    <uses-sdk tools:overrideLibrary="me.saket.bettermovementmethod" />
+
     <uses-feature
         android:name="android.hardware.bluetooth"
         android:required="false" />
