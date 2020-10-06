@@ -1,0 +1,1 @@
+Lokale Shell, USB/Bluetooth Serial Port Dongles, SSH und Telnet Client
