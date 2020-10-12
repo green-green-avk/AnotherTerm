@@ -74,7 +74,7 @@ android {
 dependencies {
     implementation fileTree(include: ['*.jar'], dir: 'libs')
     implementation 'androidx.appcompat:appcompat:1.2.0'
-    implementation 'androidx.constraintlayout:constraintlayout:2.0.1'
+    implementation 'androidx.constraintlayout:constraintlayout:2.0.2'
     implementation 'androidx.asynclayoutinflater:asynclayoutinflater:1.0.0'
     implementation 'androidx.vectordrawable:vectordrawable:1.1.0'
     //noinspection GradleDependency // Dalvik in Android 4 can't newer versions...
