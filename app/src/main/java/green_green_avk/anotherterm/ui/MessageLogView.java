@@ -18,43 +18,44 @@ import green_green_avk.anotherterm.utils.LogMessage;
 
 public class MessageLogView extends RecyclerView {
 
-    public MessageLogView(Context context) {
+    public MessageLogView(final Context context) {
         super(context);
     }
 
-    public MessageLogView(Context context, @Nullable AttributeSet attrs) {
+    public MessageLogView(final Context context, @Nullable final AttributeSet attrs) {
         super(context, attrs);
     }
 
-    public MessageLogView(Context context, @Nullable AttributeSet attrs, int defStyle) {
+    public MessageLogView(final Context context, @Nullable final AttributeSet attrs,
+                          final int defStyle) {
         super(context, attrs, defStyle);
     }
 
     protected static class ViewHolder extends RecyclerView.ViewHolder {
 
-        public ViewHolder(View v) {
+        public ViewHolder(final View v) {
             super(v);
         }
     }
 
     public static class Adapter extends RecyclerView.Adapter<MessageLogView.ViewHolder> {
-
+        @NonNull
         protected final ArrayList<LogMessage> msgs;
 
-        public Adapter(ArrayList<LogMessage> msgs) {
+        public Adapter(@NonNull final ArrayList<LogMessage> msgs) {
             this.msgs = msgs;
         }
 
-        @NonNull
         @Override
-        public ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
+        @NonNull
+        public ViewHolder onCreateViewHolder(@NonNull final ViewGroup parent, final int viewType) {
             final View v = LayoutInflater.from(parent.getContext())
                     .inflate(R.layout.log_message_entry, parent, false);
             return new MessageLogView.ViewHolder(v);
         }
 
         @Override
-        public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
+        public void onBindViewHolder(@NonNull final ViewHolder holder, final int position) {
             final TextView timestamp = holder.itemView.findViewById(R.id.f_timestamp);
             final TextView message = holder.itemView.findViewById(R.id.f_message);
             final LogMessage msg = msgs.get(position);

@@ -143,7 +143,7 @@ public final class LocalModule extends BackendModule {
     }
 
     private static final Map<Long, SessionData> sessionDataMap = new ConcurrentHashMap<>();
-    private static SecureRandom rng = new SecureRandom();
+    private static final SecureRandom rng = new SecureRandom();
 
     public static final long NO_SESSION = 0;
 

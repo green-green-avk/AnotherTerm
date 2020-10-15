@@ -25,7 +25,7 @@ public abstract class HwKeyMap {
 
     public static final HwKeyMap DEFAULT = new HwKeyMap() {
         @Override
-        public int getDevType(@NonNull KeyEvent event) {
+        public int getDevType(@NonNull final KeyEvent event) {
             return -1;
         }
 
