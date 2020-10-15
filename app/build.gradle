@@ -3,6 +3,7 @@ apply plugin: 'placeholder-resolver'
 
 android {
     compileSdkVersion 28
+    android.ndkVersion '21.3.6528147'
 
     defaultConfig {
         applicationId 'green_green_avk.anotherterm'
@@ -62,6 +63,7 @@ android {
             minifyEnabled true
             shrinkResources true
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
+            ndk.debugSymbolLevel 'FULL'
             externalNativeBuild {
                 cmake {
                     cppFlags "-DAPPLICATION_ID=\\\"${android.defaultConfig.applicationId}\\\""
