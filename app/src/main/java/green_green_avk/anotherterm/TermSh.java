@@ -13,6 +13,7 @@ import android.net.LocalServerSocket;
 import android.net.LocalSocket;
 import android.net.Uri;
 import android.os.AsyncTask;
+import android.os.Build;
 import android.os.Handler;
 import android.os.ParcelFileDescriptor;
 import android.os.Process;
@@ -460,13 +461,126 @@ public final class TermSh {
                 return new FileOutputStream(fd);
             }
 
-            @NonNull
-            private FileDescriptor[] getFds() throws IOException {
-                return new FileDescriptor[]{
-                        ((FileInputStream) stdIn).getFD(),
-                        ((FileOutputStream) stdOut).getFD(),
-                        ((FileOutputStream) stdErr).getFD()
+            private ParcelFileDescriptor wrapInputAsPipe(
+                    @NonNull final PtyProcess.InterruptableFileInputStream is)
+                    throws IOException {
+                final ParcelFileDescriptor[] pipe = ParcelFileDescriptor.createPipe();
+                final Thread thread = new Thread() {
+                    @Override
+                    public void run() {
+                        final OutputStream os =
+                                new ParcelFileDescriptor.AutoCloseOutputStream(pipe[1]);
+                        try {
+                            Misc.copy(os, is);
+                        } catch (final IOException ignored) {
+                        } finally {
+                            try {
+                                os.close();
+                            } catch (final IOException ignored) {
+                            }
+                        }
+                    }
                 };
+                thread.setDaemon(true);
+                thread.start();
+                return pipe[0];
+            }
+
+            private ParcelFileDescriptor wrapOutputAsPipe(
+                    @NonNull final PtyProcess.PfdFileOutputStream os)
+                    throws IOException {
+                final ParcelFileDescriptor[] pipe = ParcelFileDescriptor.createPipe();
+                final Thread thread = new Thread() {
+                    @Override
+                    public void run() {
+                        final InputStream is =
+                                new ParcelFileDescriptor.AutoCloseInputStream(pipe[0]);
+                        try {
+                            Misc.copy(os, is);
+                        } catch (final IOException ignored) {
+                        } finally {
+                            try {
+                                is.close();
+                            } catch (final IOException ignored) {
+                            }
+                        }
+                    }
+                };
+                thread.setDaemon(true);
+                thread.start();
+                return pipe[1];
+            }
+
+            private static final class ExchangeableFds {
+                @NonNull
+                public final FileDescriptor[] fds;
+                @Nullable
+                private final Runnable onSent;
+
+                public ExchangeableFds(@NonNull final FileDescriptor[] fds,
+                                       @Nullable final Runnable onSent) {
+                    this.fds = fds;
+                    this.onSent = onSent;
+                }
+
+                public void recycle() {
+                    if (onSent != null)
+                        onSent.run();
+                }
+            }
+
+            @NonNull
+            private ExchangeableFds getExchangeableFds() throws IOException {
+                if (Build.VERSION.SDK_INT < 28)
+                    return new ExchangeableFds(new FileDescriptor[]{
+                            ((FileInputStream) stdIn).getFD(),
+                            ((FileOutputStream) stdOut).getFD(),
+                            ((FileOutputStream) stdErr).getFD()
+                    }, null);
+                else {
+                    // ... avc: denied { read write } for
+                    // comm=4173796E635461736B202332 path="/dev/pts/0" dev="devpts" ino=3
+                    // scontext=u:r:untrusted_app:s0:c136,c256,c512,c768
+                    // tcontext=u:object_r:untrusted_app_all_devpts:s0:c135,c256,c512,c768
+                    // tclass=chr_file permissive=0
+                    // Google cares about our health!
+                    final Object[] streams = new Object[]{stdIn, stdOut, stdErr};
+                    final ParcelFileDescriptor[] toClose = new ParcelFileDescriptor[streams.length];
+                    final FileDescriptor[] wfds = new FileDescriptor[streams.length];
+                    for (int i = 0; i < streams.length; i++) {
+                        if (streams[i] instanceof PtyProcess.InterruptableFileInputStream) {
+                            final PtyProcess.InterruptableFileInputStream s =
+                                    (PtyProcess.InterruptableFileInputStream) streams[i];
+                            if (PtyProcess.isatty(s.pfd)) {
+                                toClose[i] = wrapInputAsPipe(s);
+                                wfds[i] = toClose[i].getFileDescriptor();
+                            } else {
+                                toClose[i] = null;
+                                wfds[i] = s.getFD();
+                            }
+                        } else if (streams[i] instanceof PtyProcess.PfdFileOutputStream) {
+                            final PtyProcess.PfdFileOutputStream s =
+                                    (PtyProcess.PfdFileOutputStream) streams[i];
+                            if (PtyProcess.isatty(s.pfd)) {
+                                toClose[i] = wrapOutputAsPipe(s);
+                                wfds[i] = toClose[i].getFileDescriptor();
+                            } else {
+                                toClose[i] = null;
+                                wfds[i] = s.getFD();
+                            }
+                        } else throw new ClassCastException();
+                    }
+                    return new ExchangeableFds(wfds, new Runnable() {
+                        @Override
+                        public void run() {
+                            for (final ParcelFileDescriptor pfd : toClose)
+                                try {
+                                    if (pfd != null) pfd.close();
+                                } catch (final IOException ignored) {
+                                }
+                        }
+                    });
+                }
             }
 
             private static long parseShellSessionToken(@NonNull final InputStream is)
@@ -1641,6 +1755,8 @@ public final class TermSh {
                                     plugin.unbind();
                                 }
                             } else {
+                                final ShellCmdIO.ExchangeableFds efds =
+                                        shellCmd.getExchangeableFds();
                                 try {
                                     shellCmd.setOnTerminate(new Runnable() {
                                         @Override
@@ -1651,10 +1767,11 @@ public final class TermSh {
                                     exitStatus = plugin.exec(
                                             Arrays.copyOfRange(shellCmd.args,
                                                     ap.position + 1, shellCmd.args.length),
-                                            shellCmd.getFds()
+                                            efds.fds
                                     );
                                 } finally {
                                     shellCmd.setOnTerminate(null);
+                                    efds.recycle();
                                     plugin.unbind();
                                 }
                             }

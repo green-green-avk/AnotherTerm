@@ -427,10 +427,8 @@ public final class PtyProcess extends Process {
         }
     }
 
-    public static boolean isatty(final InputStream s) {
-        if (s instanceof InterruptableFileInputStream)
-            return isatty(((InterruptableFileInputStream) s).pfd.getFd());
-        throw new IllegalArgumentException("Unsupported stream type");
+    public static boolean isatty(@NonNull final ParcelFileDescriptor pfd) {
+        return isatty(pfd.getFd());
     }
 
     public static void getSize(final OutputStream s, @NonNull int[] result) throws IOException {
