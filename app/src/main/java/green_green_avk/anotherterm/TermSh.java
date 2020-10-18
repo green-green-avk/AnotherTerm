@@ -1722,13 +1722,15 @@ public final class TermSh {
                             break;
                         }
                         case "plugin": {
-                            shellCmd.requirePerms(LocalModule.SessionData.PERM_PLUGINEXEC);
                             final BinaryGetOpts.Parser ap = new BinaryGetOpts.Parser(shellCmd.args);
                             ap.skip();
                             final Map<String, ?> opts = ap.parse(PLUGIN_OPTS);
                             if (shellCmd.args.length - ap.position < 1)
                                 throw new ParseException("Wrong number of arguments");
                             final String pkgName = Misc.fromUTF8(shellCmd.args[ap.position]);
+                            if (!PluginsManager.getBooleanFeature(pkgName,
+                                    PluginsManager.F_ESSENTIAL))
+                                shellCmd.requirePerms(LocalModule.SessionData.PERM_PLUGINEXEC);
                             final ComponentName cn = Plugin.getComponent(ui.ctx, pkgName);
                             if (cn == null)
                                 throw new IOException(ui.ctx.getString(R.string.msg_s_is_not_a_plugin, pkgName));

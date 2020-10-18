@@ -28,6 +28,8 @@ public final class PluginsManager {
     private PluginsManager() {
     }
 
+    public static final String F_ESSENTIAL = "essential";
+
     @SuppressLint("PackageManagerGetSignatures")
     public static List<PackageInfo> getPlugins() {
         final PackageManager pm = ctx.getPackageManager();
@@ -141,14 +143,34 @@ public final class PluginsManager {
         editor.apply();
     }
 
+    public static boolean getBooleanFeature(@NonNull final String packageName,
+                                            @NonNull final String feature) {
+        return pluginsFeaturesPrefs.getBoolean(packageName + ":" + feature, false);
+    }
+
+    public static void setFeature(@NonNull final String packageName, @NonNull final String feature,
+                                  final boolean value) {
+        final SharedPreferences.Editor editor = pluginsFeaturesPrefs.edit();
+        if (value)
+            editor.putBoolean(packageName + ":" + feature, true);
+        else
+            editor.remove(packageName + ":" + feature);
+        editor.apply();
+    }
+
     @SuppressLint("StaticFieldLeak")
     private static Context ctx = null;
     private static SharedPreferences trustedPluginsPrefs = null;
+    private static SharedPreferences pluginsFeaturesPrefs = null;
 
     public static void init(@NonNull final Context context) {
         ctx = context.getApplicationContext();
         trustedPluginsPrefs = ctx.getSharedPreferences(
-                ctx.getPackageName() + "_trusted_plugins",
+                BuildConfig.APPLICATION_ID + "_trusted_plugins",
+                Context.MODE_PRIVATE
+        );
+        pluginsFeaturesPrefs = ctx.getSharedPreferences(
+                BuildConfig.APPLICATION_ID + "_plugins_features",
                 Context.MODE_PRIVATE
         );
     }

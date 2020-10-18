@@ -50,61 +50,79 @@
         tools:ignore="RtlHardcoded,SmallSp"
         tools:text="package" />
 
-    <LinearLayout
+    <com.google.android.flexbox.FlexboxLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:gravity="right|center_vertical"
-        android:orientation="horizontal"
+        android:layoutDirection="ltr"
+        app:alignItems="center"
+        app:dividerDrawable="@drawable/sp_text"
+        app:flexDirection="row"
+        app:flexWrap="wrap"
+        app:justifyContent="flex_end"
+        app:showDivider="middle"
         tools:ignore="RtlHardcoded">
 
         <TextView
             android:id="@+id/warning"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:gravity="center_vertical"
-            android:textAlignment="gravity"
-            android:textColor="@color/colorHintWarning"
-            tools:text="Warning" />
-
-        <Space
-            android:layout_width="@dimen/text_separator"
-            android:layout_height="wrap_content" />
-
-        <CheckBox
-            android:id="@+id/enabled"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="@string/label_enabled" />
+            android:gravity="center_horizontal"
+            android:textAlignment="gravity"
+            android:textColor="@color/colorHintWarning"
+            android:visibility="gone"
+            app:layout_flexGrow="1"
+            tools:text="Warning"
+            tools:visibility="visible" />
 
-        <Space
-            android:layout_width="@dimen/text_separator"
-            android:layout_height="wrap_content" />
+        <com.google.android.flexbox.FlexboxLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layoutDirection="ltr"
+            app:alignItems="center"
+            app:dividerDrawable="@drawable/sp_text"
+            app:flexDirection="row"
+            app:flexWrap="nowrap"
+            app:justifyContent="flex_end"
+            app:showDivider="middle"
+            tools:ignore="RtlHardcoded">
 
-        <ImageButton
-            android:id="@+id/appInfo"
-            android:layout_width="@android:dimen/app_icon_size"
-            android:layout_height="@android:dimen/app_icon_size"
-            android:background="@drawable/bg_grid_btn"
-            android:contentDescription="@string/action_app_info"
-            android:scaleType="fitCenter"
-            android:tint="@color/colorPrimary"
-            app:srcCompat="@drawable/ic_info" />
+            <CheckBox
+                android:id="@+id/essential"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/label_always_accessible" />
 
-        <Space
-            android:layout_width="@dimen/text_separator"
-            android:layout_height="wrap_content" />
+            <CheckBox
+                android:id="@+id/enabled"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/label_enabled"
+                app:layout_flexShrink="0" />
 
-        <ImageButton
-            android:id="@+id/info"
-            android:layout_width="@android:dimen/app_icon_size"
-            android:layout_height="@android:dimen/app_icon_size"
-            android:background="@drawable/bg_grid_btn"
-            android:contentDescription="@string/action_info_page"
-            android:scaleType="fitCenter"
-            android:tint="@color/colorPrimary"
-            app:srcCompat="@drawable/ic_help" />
+            <ImageButton
+                android:id="@+id/appInfo"
+                android:layout_width="@android:dimen/app_icon_size"
+                android:layout_height="@android:dimen/app_icon_size"
+                android:background="@drawable/bg_grid_btn"
+                android:contentDescription="@string/action_app_info"
+                android:scaleType="fitCenter"
+                android:tint="@color/colorPrimary"
+                app:layout_flexShrink="0"
+                app:srcCompat="@drawable/ic_info" />
 
-    </LinearLayout>
+            <ImageButton
+                android:id="@+id/info"
+                android:layout_width="@android:dimen/app_icon_size"
+                android:layout_height="@android:dimen/app_icon_size"
+                android:background="@drawable/bg_grid_btn"
+                android:contentDescription="@string/action_info_page"
+                android:scaleType="fitCenter"
+                android:tint="@color/colorPrimary"
+                app:layout_flexShrink="0"
+                app:srcCompat="@drawable/ic_help" />
+
+        </com.google.android.flexbox.FlexboxLayout>
+
+    </com.google.android.flexbox.FlexboxLayout>
 
 </LinearLayout>

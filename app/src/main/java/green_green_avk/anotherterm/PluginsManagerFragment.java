@@ -74,6 +74,7 @@ public final class PluginsManagerFragment extends Fragment {
             final PackageInfo pkg = plugins.get(position);
             final TextView wWarning = holder.itemView.findViewById(R.id.warning);
             final CompoundButton wEnabled = holder.itemView.findViewById(R.id.enabled);
+            final CompoundButton wEssential = holder.itemView.findViewById(R.id.essential);
             final View wInfo = holder.itemView.findViewById(R.id.info);
             final View wAppInfo = holder.itemView.findViewById(R.id.appInfo);
             final TextView wPkgName = holder.itemView.findViewById(R.id.package_name);
@@ -99,18 +100,27 @@ public final class PluginsManagerFragment extends Fragment {
             wEnabled.setChecked(PluginsManager.verify(pkg));
             wEnabled.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
                 @Override
-                public void onCheckedChanged(final CompoundButton v,
-                                             final boolean isChecked) {
+                public void onCheckedChanged(final CompoundButton v, final boolean isChecked) {
                     try {
                         v.getContext().sendBroadcast(new Intent().setClassName(pkg.packageName,
                                 "green_green_avk.anothertermshellpluginutils_perms.PermissionRequestReceiver"
                         ).setData(Uri.fromParts(
-                                "package", v.getContext().getPackageName(), isChecked ? null : "revoke"
+                                "package", BuildConfig.APPLICATION_ID,
+                                isChecked ? null : "revoke"
                         )));
                     } catch (final SecurityException ignored) {
                     }
                     if (isChecked) PluginsManager.grant(pkg);
                     else PluginsManager.revoke(pkg);
+                }
+            });
+            wEssential.setChecked(PluginsManager.getBooleanFeature(pkg.packageName,
+                    PluginsManager.F_ESSENTIAL));
+            wEssential.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+                @Override
+                public void onCheckedChanged(final CompoundButton v, final boolean isChecked) {
+                    PluginsManager.setFeature(pkg.packageName, PluginsManager.F_ESSENTIAL,
+                            isChecked);
                 }
             });
             wInfo.setOnClickListener(new View.OnClickListener() {
@@ -135,7 +145,9 @@ public final class PluginsManagerFragment extends Fragment {
                     }
                 }
             });
-            wWarning.setText(Plugin.isStalled(pkg.packageName) ?
+            final boolean stalled = Plugin.isStalled(pkg.packageName);
+            wWarning.setVisibility(stalled ? View.VISIBLE : View.GONE);
+            wWarning.setText(stalled ?
                     wWarning.getContext()
                             .getString(R.string.msg_stalled_transactions_detected)
                     : ""); // TODO: Dynamic update?

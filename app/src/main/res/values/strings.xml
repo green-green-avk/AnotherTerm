@@ -170,6 +170,7 @@
     <string name="action_info_page">Info Page</string>
     <string name="action_settings_plugins">Plugins</string>
     <string name="label_enabled">@string/state_enabled</string>
+    <string name="label_always_accessible">Always accessible</string>
     <string name="label_application_icon">Application Icon</string>
     <string name="msg_nothing_to_search">Nothing to search</string>
     <string name="msg_stalled_transactions_detected">Stalled transactions detected, plugin seems broken</string>
