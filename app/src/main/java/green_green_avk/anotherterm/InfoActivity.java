@@ -47,6 +47,7 @@ public final class InfoActivity extends AppCompatActivity {
         res.put("/shell_env_man", new Source(R.string.desc_shell_env_help, Source.Type.XML));
         res.put("/termsh_man", new Source(R.string.desc_termsh_help, Source.Type.XML));
         res.put("/help", new Source(R.string.desc_main_help, Source.Type.XML));
+        res.put("/w_x", new Source(R.string.news_w_x, Source.Type.XML));
     }
 
     @Override

@@ -89,7 +89,10 @@ public final class HwKeyMapManager {
     }
 
     public static boolean isExternal(@NonNull final KeyEvent event) {
-        // We can only guess before API 29.
+        if (Build.VERSION.SDK_INT >= 29) {
+            final InputDevice dev = event.getDevice();
+            return dev != null && dev.isExternal();
+        }
         return event.getDeviceId() > KeyCharacterMap.SPECIAL_FUNCTION;
     }
 

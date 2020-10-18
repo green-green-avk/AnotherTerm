@@ -260,6 +260,7 @@ public final class LocalModule extends BackendModule {
         env.put("APP_APK", context.getApplicationInfo().sourceDir);
         env.put("APP_ID", BuildConfig.APPLICATION_ID);
         env.put("APP_VERSION", BuildConfig.VERSION_NAME);
+        env.put("APP_TARGET_SDK", Integer.toString(BuildConfig.TARGET_SDK_VERSION));
         env.put("MY_DEVICE_ABIS", TextUtils.join(" ", Misc.getAbis()));
         env.put("MY_ANDROID_SDK", Integer.toString(Build.VERSION.SDK_INT));
         // Input URIs

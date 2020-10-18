@@ -1,13 +1,12 @@
 apply plugin: 'com.android.library'
 
 android {
-    compileSdkVersion 28
+    compileSdkVersion 29
     android.ndkVersion '21.3.6528147'
 
     defaultConfig {
         minSdkVersion 14
-        //noinspection OldTargetApi
-        targetSdkVersion 28
+        targetSdkVersion 29
         versionCode 1
         versionName "1.0"
     }

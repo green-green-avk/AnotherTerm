@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="title_news">News</string>
+    <string name="news_w_x"><![CDATA[
+        <h1>Google <b>w^x</b> policy on Androids&#xA0;10 and higher</h1>
+        <h2>Warning!</h2>
+        <ol>
+        <li>Google enforces target API >= 29 (<code>targetSdkVersion</code>)
+        for all application updates at Google Play
+        from November&#xA0;1&#xA0;2020.</li>
+        <li>An application targeted API >= 29 cannot <code>execve()</code> any binaries
+        from any file tree locations that is writable by it on Androids&#xA0;10 and higher.</li>
+        </ol>
+        <h2>Mitigation</h2>
+        <p>From this point <b>Another Term</b> becomes split into two flavors:
+        <ul>
+        <li><code>green_green_avk.anotherterm</code> becomes targeting API&#xA0;29
+        and still published at Google Play.
+        <b>Another Term Shell Plugin - Android&#xA0;10 Essentials</b>
+        will be published in order to provide <b>PRoot</b> / <b>minitar</b> /
+        <i>possibly some launcher for binaries</i> for Androids&#xA0;10 and higher.</li>
+        <li><code>green_green_avk.anotherterm.oldgood</code> is still targeting API&#xA0;28
+        and published at GitHub only.</li>
+        </ul>
+        </p>
+        <p>
+<a href=\"https://green-green-avk.github.io/AnotherTerm-docs/local-shell-w-x.html#main_content\">Details</a>
+        </p>
+    ]]></string>
+</resources>

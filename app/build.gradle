@@ -2,27 +2,13 @@ apply plugin: 'com.android.application'
 apply plugin: 'placeholder-resolver'
 
 android {
-    compileSdkVersion 28
+    compileSdkVersion 29
     android.ndkVersion '21.3.6528147'
 
     defaultConfig {
         applicationId 'green_green_avk.anotherterm'
         minSdkVersion 14
-        /*
-         * execve() kernel call for any user writable location is blocked for user applications
-         * since API 29 as a part of w^x policy enforcement in order to "increase security"...
-         * Android becomes hostile to its users... :(
-         *
-         * execve() is essential for the Local Terminal functionality of this application
-         * (and for many other applications too).
-         *
-         * Possibly, I'll put PRoot inside to mitigate it as long as it's still possible
-         * to set the memory page execution flag.
-         *
-         * So, left it targeted to API 28 for now till the decision will be made.
-         */
-        //noinspection OldTargetApi
-        targetSdkVersion 28
+        targetSdkVersion 29
         versionCode 76
         versionName "MkIIIv18-dev"
         vectorDrawables.useSupportLibrary = true
@@ -35,6 +21,7 @@ android {
         externalNativeBuild {
             cmake {
                 cppFlags "-DSHELL_SESSION_TOKEN_VAR=\\\"$SHELL_SESSION_TOKEN_VAR\\\""
+                arguments "-DAPP_ID_BASE=\\\"${applicationId}\\\""
             }
         }
     }
@@ -48,6 +35,8 @@ android {
     applicationVariants.all { variant ->
         variant.resValue "string", "versionName", variant.versionName
         variant.resValue "string", "applicationId", variant.applicationId
+        variant.buildConfigField "int", "TARGET_SDK_VERSION",
+                "${variant.mergedFlavor.targetSdkVersion.apiLevel}"
     }
 
     buildTypes {
@@ -55,7 +44,7 @@ android {
             applicationIdSuffix ".debug"
             externalNativeBuild {
                 cmake {
-                    cppFlags "-DAPPLICATION_ID=\\\"${android.defaultConfig.applicationId}${applicationIdSuffix}\\\""
+                    arguments "-DAPP_ID_TYPE=\\\"${applicationIdSuffix}\\\""
                 }
             }
         }
@@ -66,9 +55,29 @@ android {
             ndk.debugSymbolLevel 'FULL'
             externalNativeBuild {
                 cmake {
-                    cppFlags "-DAPPLICATION_ID=\\\"${android.defaultConfig.applicationId}\\\""
+                    arguments "-DAPP_ID_TYPE=\\\"\\\""
                 }
             }
+        }
+    }
+
+    flavorDimensions "compat"
+
+    productFlavors {
+        googleplay {
+            dimension "compat"
+            externalNativeBuild.cmake.arguments "-DAPP_ID_SDK=\\\"\\\""
+        }
+        oldgoogleplay {
+            dimension "compat"
+            targetSdkVersion 28
+            externalNativeBuild.cmake.arguments "-DAPP_ID_SDK=\\\"\\\""
+        }
+        oldgood {
+            dimension "compat"
+            applicationIdSuffix ".oldgood"
+            targetSdkVersion 28
+            externalNativeBuild.cmake.arguments "-DAPP_ID_SDK=\\\"${applicationIdSuffix}\\\""
         }
     }
 }
