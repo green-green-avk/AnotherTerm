@@ -48,13 +48,8 @@ public final class NewsDialog {
     static {
         if (Build.VERSION.SDK_INT >= 29 && BuildConfig.TARGET_SDK_VERSION >= 29)
             news = new Entry[]{
-                    new Entry(R.string.news_w_x,
-                            Date.UTC(120, 9, 18, 0, 0, 0))
-            };
-        else if (Build.VERSION.SDK_INT >= 29 && "oldgoogleplay".equals(BuildConfig.FLAVOR))
-            news = new Entry[]{
-                    new Entry(R.string.news_w_x,
-                            Date.UTC(120, 9, 17, 0, 0, 0))
+                    new Entry(R.string.news_api29,
+                            Date.UTC(120, 9, 27, 0, 0, 0))
             };
         else
             news = new Entry[]{};
@@ -69,6 +64,7 @@ public final class NewsDialog {
     }
 
     public static void setSeen(@NonNull final Context ctx) {
+        if (news.length <= 0) return;
         final SharedPreferences ps = PreferenceManager.getDefaultSharedPreferences(ctx);
         final SharedPreferences.Editor e = ps.edit();
         e.putLong("news_seen", news[news.length - 1].timestamp + 1);

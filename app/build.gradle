@@ -68,11 +68,6 @@ android {
             dimension "compat"
             externalNativeBuild.cmake.arguments "-DAPP_ID_SDK=\\\"\\\""
         }
-        oldgoogleplay {
-            dimension "compat"
-            targetSdkVersion 28
-            externalNativeBuild.cmake.arguments "-DAPP_ID_SDK=\\\"\\\""
-        }
         oldgood {
             dimension "compat"
             applicationIdSuffix ".oldgood"

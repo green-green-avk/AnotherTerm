@@ -2,22 +2,17 @@
 <resources>
     <string name="desc_main_help"><![CDATA[
 <h1><a href=\"https://green-green-avk.github.io/AnotherTerm-docs/\">Wiki</a></h1>
-<h1><a href=\"https://green-green-avk.github.io/AnotherTerm-docs/issues.html#main_content\">Bugs and issues</a></h1>
-<h1>Common features</h1>
+<h1>Offline reference</h1>
+<h2>Common features</h2>
 <ul>
 <li><a href=\"info:/scratchpad\">Scratchpad</a></li>
 </ul>
-<h1>Local shell</h1>
+<h2>Local shell</h2>
 <ul>
-<li><a href=\"https://green-green-avk.github.io/AnotherTerm-docs/local-shell.html#main_content\">Basic info</a></li>
 <li><a href=\"info:/shell_env_man\">Environment</a></li>
 <li><a href=\"info:/termsh_man\"><b>termsh</b></a></li>
 <li><a href=\"info:/share_input\">Content sharing with Another Term</a></li>
 <li><a href=\"info:/fav_token\">Start a session by an intent</a></li>
-<li><a href=\"https://green-green-avk.github.io/AnotherTerm-docs/local-shell-plugins.html#main_content\">Shell plugins</a></li>
-<li><a href=\"https://green-green-avk.github.io/AnotherTerm-docs/installing-linux-under-proot.html#main_content\">Installing Linux under PRoot</a></li>
-<li><a href=\"https://green-green-avk.github.io/AnotherTerm-docs/installing-libusb-for-nonrooted-android.html#main_content\">Installing libusb for nonrooted Android</a></li>
-<li><a href=\"info:/w_x\">Android&#xA0;10 and higher <b>w^x</b> policy</a></li>
 </ul>
     ]]></string>
     <string name="desc_keymap_escapes"><![CDATA[

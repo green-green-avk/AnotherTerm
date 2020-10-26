@@ -47,11 +47,10 @@ public final class InfoActivity extends AppCompatActivity {
         res.put("/shell_env_man", new Source(R.string.desc_shell_env_help, Source.Type.XML));
         res.put("/termsh_man", new Source(R.string.desc_termsh_help, Source.Type.XML));
         res.put("/help", new Source(R.string.desc_main_help, Source.Type.XML));
-        res.put("/w_x", new Source(R.string.news_w_x, Source.Type.XML));
     }
 
     @Override
-    protected void onCreate(final Bundle savedInstanceState) {
+    protected void onCreate(@Nullable final Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.progress);
         new AsyncLayoutInflater(this).inflate(R.layout.info_activity,

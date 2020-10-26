@@ -20,6 +20,8 @@
         <li><clipboard>APP_APK</clipboard> &#x2014; path to the <b>Another Term</b> APK.</li>
         <li><clipboard>APP_ID</clipboard> &#x2014; <b>Another Term</b> application id.</li>
         <li><clipboard>APP_VERSION</clipboard> &#x2014; <b>Another Term</b> version.</li>
+        <li><clipboard>APP_TARGET_SDK</clipboard> &#x2014; <b>Another Term</b>
+        <code>targetSdkVersion</code>.</li>
         <li><clipboard>MY_DEVICE_ABIS</clipboard> &#x2014; supported architectures list
         from the most preferable to the least preferable.</li>
         <li><clipboard>MY_ANDROID_SDK</clipboard> &#x2014; Android SDK version.</li>
