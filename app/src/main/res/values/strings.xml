@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="app_name">Another Term</string>
+    <string name="msg_feature_class_not_found">%s: Android has no implementation for it…</string>
     <string name="state_off">Off</string>
     <string name="state_on">On</string>
     <string name="state_disabled">Disabled</string>

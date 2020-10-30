@@ -32,6 +32,7 @@ import java.util.Vector;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import green_green_avk.anotherterm.R;
 import green_green_avk.anotherterm.backends.BackendException;
 import green_green_avk.anotherterm.backends.BackendInterruptedException;
 import green_green_avk.anotherterm.backends.BackendModule;
@@ -491,8 +492,8 @@ public final class SshModule extends BackendModule {
             session.setConfig("compression.c2s", cfgComp);
             session.setConfig("StrictHostKeyChecking", "ask");
             session.setConfig("PreferredAuthentications", preferKeyAuth
-                    ? "none,publickey,gssapi-with-mic,keyboard-interactive,password"
-                    : "none,gssapi-with-mic,keyboard-interactive,password,publickey");
+                    ? "none,publickey,keyboard-interactive,password"
+                    : "none,keyboard-interactive,password,publickey");
             session.setServerAliveInterval(keepaliveInterval);
             session.setServerAliveCountMax(10);
             if (X11) {
@@ -528,6 +529,10 @@ public final class SshModule extends BackendModule {
         } catch (final IOException e) {
             disconnect();
             throw new BackendException(e);
+        } catch (final NoClassDefFoundError e) {
+            disconnect();
+            throw new BackendException(context.getString(R.string.msg_feature_class_not_found,
+                    e.getLocalizedMessage()));
         }
         if (isAcquireWakeLockOnConnect()) acquireWakeLock();
     }
