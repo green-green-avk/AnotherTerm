@@ -12,6 +12,8 @@ import android.os.Build;
 import android.util.Log;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+import androidx.annotation.RequiresApi;
 
 import com.felhr.usbserial.UsbSerialDevice;
 import com.felhr.usbserial.UsbSerialInterface;
@@ -40,6 +42,17 @@ final class UsbImpl extends Impl {
         return usbManager;
     }
 
+    @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
+    @Nullable
+    private static String getSerialNumber(@NonNull final UsbDevice dev) {
+        try {
+            return dev.getSerialNumber();
+        } catch (final SecurityException e) {
+            // Hidden if no read permission given (Android 10 and targetSdkVersion 29)
+            return "*";
+        }
+    }
+
     @NonNull
     private static String getDeviceDesc(@NonNull final UsbDevice dev) {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
@@ -48,7 +61,7 @@ final class UsbImpl extends Impl {
                         "%s [%04X], %s [%04X], ver: %s, SN: %s",
                         dev.getManufacturerName(), dev.getVendorId(),
                         dev.getProductName(), dev.getProductId(),
-                        dev.getVersion(), dev.getSerialNumber());
+                        dev.getVersion(), getSerialNumber(dev));
             }
             return String.format(Locale.getDefault(),
                     "%s [%04X], %s [%04X], SN: %s",
