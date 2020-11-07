@@ -94,7 +94,7 @@ dependencies {
     implementation 'androidx.preference:preference:1.1.1'
     implementation project(':MaterialSeekBarPreference')
     implementation project(':PtyProcess')
-    implementation project(':usbserial')
+    implementation 'com.github.felHR85:UsbSerial:6.1.0'
     implementation 'com.jcraft:jsch:0.1.55'
     implementation project(':TelnetClient')
     implementation 'org.apache.commons:commons-collections4:4.4'

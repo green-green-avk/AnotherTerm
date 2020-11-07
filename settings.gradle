@@ -1,2 +1,1 @@
-include ':app', ':usbserial', ':MaterialSeekBarPreference', ':TelnetClient', ':PtyProcess'
-include ':bluetoothspp'
+include ':app', ':MaterialSeekBarPreference', ':TelnetClient', ':PtyProcess', ':bluetoothspp'
