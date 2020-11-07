@@ -36,6 +36,7 @@ import androidx.annotation.Keep;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.content.res.ResourcesCompat;
 import androidx.core.math.MathUtils;
 import androidx.core.widget.TextViewCompat;
 
@@ -441,8 +442,8 @@ public final class ConsoleActivity extends AppCompatActivity
 
         final PopupWindow window = new PopupWindow(popupView, ViewGroup.LayoutParams.WRAP_CONTENT,
                 ViewGroup.LayoutParams.WRAP_CONTENT, true);
-        window.setBackgroundDrawable(getResources().getDrawable(
-                android.R.drawable.dialog_holo_light_frame));
+        window.setBackgroundDrawable(ResourcesCompat.getDrawable(getResources(),
+                android.R.drawable.dialog_holo_light_frame, null));
         window.setSplitTouchEnabled(true);
         window.setAnimationStyle(android.R.style.Animation_Dialog);
         return window;
