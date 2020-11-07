@@ -48,13 +48,18 @@ Local PTY, USB and Bluetooth serial ports, SSH and Telnet terminal client for An
 * Different charsets and customizable key mapping support.
 
 
-## 3rd party components
+## Dependencies
 
 * USB UART: <https://github.com/felHR85/UsbSerial>
 * SSH: <http://www.jcraft.com/jsch/>
 * Console font: <https://www.fontsquirrel.com/fonts/dejavu-sans-mono>
 * MaterialSeekBarPreference: <https://github.com/MrBIMC/MaterialSeekBarPreference>
 * BetterLinkMovementMethod: <https://github.com/saket/Better-Link-Movement-Method>
+* Android String XML Reference: <https://github.com/LikeTheSalad/android-string-reference>
+* Android Maven Gradle Plugin: <https://github.com/dcendents/android-maven-gradle-plugin>
+* Apache Commons: <https://commons.apache.org/>
+* The Android Open Source Project (Official Google Android API and support libraries):
+  <https://source.android.com/>
 
 
 ## Cryptography usage note

@@ -60,7 +60,16 @@ to access the Android environment and own API to create them as separate APKs.</
     (<a href=\"https://github.com/MrBIMC/MaterialSeekBarPreference/blob/master/README.md#collaborators\">Apache 2 license</a>);</li>
     <li>The author of the
     <a href=\"https://github.com/saket/Better-Link-Movement-Method\">BetterLinkMovementMethod</a>
-    (<a href=\"https://github.com/saket/Better-Link-Movement-Method/blob/master/LICENSE.md\">license</a>).</li>
+    (<a href=\"https://github.com/saket/Better-Link-Movement-Method/blob/master/LICENSE.md\">license</a>);</li>
+    <li><a href=\"https://github.com/LikeTheSalad/android-string-reference\">Android String XML Reference</a>
+    (<a href=\"https://github.com/LikeTheSalad/android-string-reference/blob/master/LICENSE.txt\">license</a>);</li>
+    <li><a href=\"https://github.com/dcendents/android-maven-gradle-plugin\">Android Maven Gradle Plugin</a>
+    (<a href=\"https://github.com/dcendents/android-maven-gradle-plugin/blob/develop/LICENSE\">license</a>);</li>
+    <li><a href=\"https://commons.apache.org/\">Apache Commons</a>
+    (<a href=\"http://www.apache.org/licenses/LICENSE-2.0.txt\">Apache 2 license</a>);</li>
+    <li><a href=\"https://source.android.com/\">The Android Open Source Project
+    (official Google Android API and support libraries)</a>
+    (<a href=\"http://www.apache.org/licenses/LICENSE-2.0.txt\">Apache 2 license</a>).</li>
 </ul>
 <h1>Cryptography usage note</h1>
 <p>The only part of this application that touches on cryptography is the SSH client used to
