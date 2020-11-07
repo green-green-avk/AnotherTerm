@@ -53,6 +53,8 @@ Local PTY, USB and Bluetooth serial ports, SSH and Telnet terminal client for An
 * USB UART: <https://github.com/felHR85/UsbSerial>
 * SSH: <http://www.jcraft.com/jsch/>
 * Console font: <https://www.fontsquirrel.com/fonts/dejavu-sans-mono>
+* MaterialSeekBarPreference: <https://github.com/MrBIMC/MaterialSeekBarPreference>
+* BetterLinkMovementMethod: <https://github.com/saket/Better-Link-Movement-Method>
 
 
 ## Cryptography usage note
