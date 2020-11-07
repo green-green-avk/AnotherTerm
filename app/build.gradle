@@ -97,7 +97,7 @@ dependencies {
     //noinspection GradleDependency // Dalvik in Android 4 can't newer versions...
     implementation 'org.apache.commons:commons-collections4:4.2'
     implementation 'com.github.green-green-avk:LibUsbManager:1.2'
-    implementation 'com.github.green-green-avk:anothertermshellpluginutils:1.10'
+    implementation 'com.github.green-green-avk:anothertermshellpluginutils:1.11'
     implementation project(path: ':bluetoothspp')
     implementation 'me.saket:better-link-movement-method:2.2.0'
 }

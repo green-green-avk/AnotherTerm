@@ -101,14 +101,22 @@ public final class PluginsManagerFragment extends Fragment {
             wEnabled.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
                 @Override
                 public void onCheckedChanged(final CompoundButton v, final boolean isChecked) {
+                    final Intent i = new Intent().setData(Uri.fromParts(
+                            "package", BuildConfig.APPLICATION_ID,
+                            isChecked ? null : "revoke"
+                    ));
                     try {
-                        v.getContext().sendBroadcast(new Intent().setClassName(pkg.packageName,
-                                "green_green_avk.anothertermshellpluginutils_perms.PermissionRequestReceiver"
-                        ).setData(Uri.fromParts(
-                                "package", BuildConfig.APPLICATION_ID,
-                                isChecked ? null : "revoke"
-                        )));
-                    } catch (final SecurityException ignored) {
+                        v.getContext().startActivity(i.setClassName(pkg.packageName,
+                                "green_green_avk.anothertermshellpluginutils_perms.PermissionRequestActivity"
+                        ));
+                    } catch (final SecurityException | ActivityNotFoundException e) {
+                        // Old plugin
+                        try {
+                            v.getContext().sendBroadcast(i.setClassName(pkg.packageName,
+                                    "green_green_avk.anothertermshellpluginutils_perms.PermissionRequestReceiver"
+                            ));
+                        } catch (final SecurityException ignored) {
+                        }
                     }
                     if (isChecked) PluginsManager.grant(pkg);
                     else PluginsManager.revoke(pkg);
