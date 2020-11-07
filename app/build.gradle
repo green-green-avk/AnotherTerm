@@ -10,7 +10,7 @@ android {
         minSdkVersion 14
         targetSdkVersion 29
         versionCode 80
-        versionName "MkIIIv21"
+        versionName "MkIIIv22-dev"
         vectorDrawables.useSupportLibrary = true
 
         resConfigs "en"
