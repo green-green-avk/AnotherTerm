@@ -14,6 +14,7 @@ import android.os.Bundle;
 import android.util.DisplayMetrics;
 import android.util.Log;
 import android.util.TypedValue;
+import android.view.Gravity;
 import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.MotionEvent;
@@ -506,9 +507,11 @@ public final class ConsoleActivity extends AppCompatActivity
     @Override
     public void onInvalidateSinkResize(final int cols, final int rows) {
         if (autoFitTerminal) fitFontSize();
-        Toast.makeText(this,
+        final Toast t = Toast.makeText(this,
                 cols + " " + getString(R.string.label_dims_div) + " " + rows,
-                Toast.LENGTH_SHORT).show();
+                Toast.LENGTH_SHORT);
+        t.setGravity(Gravity.CENTER, 0, 0);
+        t.show();
     }
 
     @Override
