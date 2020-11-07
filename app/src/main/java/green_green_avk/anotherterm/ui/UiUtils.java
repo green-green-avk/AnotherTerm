@@ -121,9 +121,18 @@ public final class UiUtils {
                                       @NonNull final String title) {
         final ClipboardManager clipboard = (ClipboardManager) ctx.getSystemService(Context.CLIPBOARD_SERVICE);
         if (clipboard == null) throw new IllegalStateException("Can't get ClipboardManager");
-        clipboard.setPrimaryClip(new ClipData(title,
-                new String[]{ClipDescription.MIMETYPE_TEXT_PLAIN, ClipDescription.MIMETYPE_TEXT_URILIST},
-                new ClipData.Item(uri.toString(), null, uri)));
+        try {
+            clipboard.setPrimaryClip(new ClipData(title,
+                    new String[]{ClipDescription.MIMETYPE_TEXT_PLAIN, ClipDescription.MIMETYPE_TEXT_URILIST},
+                    new ClipData.Item(uri.toString(), null, uri)));
+        } catch (final Throwable e) {
+            if (e instanceof AndroidException || e.getCause() instanceof AndroidException) {
+                // TODO: workaround
+                Toast.makeText(ctx, R.string.msg_too_large_to_copy_to_clipboard, Toast.LENGTH_SHORT).show();
+                return;
+            }
+            throw e;
+        }
     }
 
     public static void toClipboard(@NonNull final Context ctx, @NonNull final Uri uri,
