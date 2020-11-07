@@ -606,6 +606,7 @@ public final class FavoriteEditorActivity extends AppCompatActivity {
             } catch (final BackendModule.ParametersUriParseException e) {
                 Toast.makeText(this, R.string.msg_cannot_parse_uri, Toast.LENGTH_SHORT).show();
             }
+            NewsDialog.showUnseen(this);
             return;
         }
 

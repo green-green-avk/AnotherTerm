@@ -2,7 +2,6 @@ package green_green_avk.anotherterm;
 
 import android.app.AlertDialog;
 import android.content.Context;
-import android.content.DialogInterface;
 import android.content.SharedPreferences;
 import android.os.Build;
 import android.preference.PreferenceManager;
@@ -35,12 +34,8 @@ public final class NewsDialog {
             this.timestamp = timestamp;
         }
 
-        private static final Comparator<Entry> timeOrder = new Comparator<Entry>() {
-            @Override
-            public int compare(final Entry o1, final Entry o2) {
-                return o1.timestamp < o2.timestamp ? -1 : o1.timestamp > o2.timestamp ? 1 : 0;
-            }
-        };
+        private static final Comparator<Entry> timeOrder =
+                (o1, o2) -> Long.compare(o1.timestamp, o2.timestamp);
     }
 
     private static final Entry[] news;
@@ -81,10 +76,8 @@ public final class NewsDialog {
         @NonNull
         @Override
         public ViewHolder onCreateViewHolder(@NonNull final ViewGroup parent, final int viewType) {
-            final HtmlTextView v = new HtmlTextView(parent.getContext());
-            v.setTextIsSelectable(true);
-            v.setBackgroundResource(android.R.drawable.gallery_thumb);
-            return new ViewHolder(v);
+            return new ViewHolder(LayoutInflater.from(parent.getContext())
+                    .inflate(R.layout.news_entry, parent, false));
         }
 
         @Override
@@ -111,12 +104,7 @@ public final class NewsDialog {
         list.setLayoutManager(new LinearLayoutManager(ctx));
         list.setAdapter(new Adapter(num));
         new AlertDialog.Builder(ctx).setView(v).setCancelable(false)
-                .setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(final DialogInterface dialog, final int which) {
-                        setSeen(ctx);
-                    }
-                }).show();
+                .setPositiveButton(android.R.string.ok, (dialog, which) -> setSeen(ctx)).show();
     }
 
     public static void showUnseen(@NonNull final Context ctx) {

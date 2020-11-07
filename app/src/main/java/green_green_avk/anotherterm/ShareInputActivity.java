@@ -165,6 +165,7 @@ public final class ShareInputActivity extends AppCompatActivity {
         setContentView(R.layout.share_input_activity);
         prepareFavoritesList();
         observer.onChanged();
+        NewsDialog.showUnseen(this);
     }
 
     @Override

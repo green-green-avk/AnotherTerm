@@ -293,6 +293,8 @@ public final class TermKeyMapEditorActivity extends AppCompatActivity {
                 }
             });
         }
+
+        NewsDialog.showUnseen(this);
     }
 
     @NonNull
