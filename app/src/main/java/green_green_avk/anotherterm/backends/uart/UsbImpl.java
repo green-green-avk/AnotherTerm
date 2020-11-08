@@ -9,6 +9,8 @@ import android.hardware.usb.UsbDevice;
 import android.hardware.usb.UsbDeviceConnection;
 import android.hardware.usb.UsbManager;
 import android.os.Build;
+import android.os.Handler;
+import android.os.Looper;
 import android.util.Log;
 
 import androidx.annotation.NonNull;
@@ -204,8 +206,13 @@ final class UsbImpl extends Impl {
             throw new BackendException("Cannot obtain USB service");
         }
         usbAccessGranted.clear();
-        usbManager.requestPermission(device, PendingIntent.getBroadcast(base.getContext(),
-                0, new Intent(ACTION_USB_PERMISSION), 0));
+        new Handler(Looper.getMainLooper()).post(new Runnable() {
+            @Override
+            public void run() {
+                usbManager.requestPermission(device, PendingIntent.getBroadcast(base.getContext(),
+                        0, new Intent(ACTION_USB_PERMISSION), 0));
+            }
+        });
         try {
             if (!usbAccessGranted.get()) {
                 if (reconnect) return;
