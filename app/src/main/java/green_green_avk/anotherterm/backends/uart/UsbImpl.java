@@ -124,8 +124,8 @@ final class UsbImpl extends Impl {
         super(base);
     }
 
-    @NonNull
     @Override
+    @NonNull
     OutputStream getOutputStream() {
         return input;
     }
@@ -134,7 +134,7 @@ final class UsbImpl extends Impl {
     private static final String ACTION_USB_ATTACHED = "android.hardware.usb.action.USB_DEVICE_ATTACHED";
     private static final String ACTION_USB_DETACHED = "android.hardware.usb.action.USB_DEVICE_DETACHED";
     private final BroadcastReceiver mUsbReceiver = new BroadcastReceiver() {
-        public void onReceive(final Context context, final Intent intent) {
+        public void onReceive(final Context context, @NonNull final Intent intent) {
             final String action = intent.getAction();
             if (action == null) return;
             switch (action) {
@@ -215,7 +215,12 @@ final class UsbImpl extends Impl {
         });
         try {
             if (!usbAccessGranted.get()) {
-                if (reconnect) return;
+                if (reconnect) {
+                    base.getUi().showToast(base.getContext().getString(
+                            R.string.msg_usd_serial_port_s_reconnected_no_perm,
+                            device.getDeviceName()));
+                    return;
+                }
                 disconnect();
                 throw new BackendException("Permission denied for device " + device);
             }
@@ -231,7 +236,7 @@ final class UsbImpl extends Impl {
         serialPort = UsbSerialDevice.createUsbSerialDevice(device, connection);
         if (serialPort == null) {
             disconnect();
-            throw new BackendException("Device " + device + " not supported");
+            throw new BackendException("Device " + device + " is not supported");
         }
         if (!serialPort.open()) {
             disconnect();
@@ -247,7 +252,7 @@ final class UsbImpl extends Impl {
         serialPort.read(readCallback);
     }
 
-    private UsbSerialInterface.UsbReadCallback readCallback =
+    final private UsbSerialInterface.UsbReadCallback readCallback =
             new UsbSerialInterface.UsbReadCallback() {
                 @Override
                 public void onReceivedData(final byte[] bytes) {

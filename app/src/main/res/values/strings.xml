@@ -122,6 +122,9 @@
     <string name="title_about">About</string>
     <string name="msg_usd_serial_port_s_disconnected">USB serial port %s disconnected</string>
     <string name="msg_usd_serial_port_s_reconnected">USB serial port %s reconnected</string>
+    <string name="msg_usd_serial_port_s_reconnected_no_perm">
+        USB serial port %s was reconnected but the access permission has not been granted
+    </string>
     <string name="label_cols">Cols</string>
     <string name="label_rows">Rows</string>
     <string name="label_font_size">Font size</string>
