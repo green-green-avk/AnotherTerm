@@ -97,26 +97,34 @@ final class UsbImpl extends Impl {
     private static final Object deviceLock = new Object();
     private final Object commonLock = new Object();
 
-    private boolean mIsConnected = false;
+    private volatile boolean mIsConnected = false;
+    private volatile boolean mIsConnecting = false;
+    private volatile boolean mIsConnInt = false;
 
-    private UsbDevice device = null;
-    private UsbDeviceConnection connection = null;
-    private UsbSerialDevice serialPort = null;
+    private volatile UsbDevice device = null;
+    private volatile UsbDeviceConnection connection = null;
+    private volatile UsbSerialDevice serialPort = null;
 
     private final OutputStream input = new OutputStream() {
         @Override
         public void write(final int b) {
-            if (mIsConnected) serialPort.write(new byte[]{(byte) b});
+            final UsbSerialDevice p = serialPort;
+            if (mIsConnected && p != null)
+                p.write(new byte[]{(byte) b});
         }
 
         @Override
         public void write(@NonNull final byte[] b, final int off, final int len) {
-            if (mIsConnected) serialPort.write(Arrays.copyOfRange(b, off, off + len));
+            final UsbSerialDevice p = serialPort;
+            if (mIsConnected && p != null)
+                p.write(Arrays.copyOfRange(b, off, off + len));
         }
 
         @Override
         public void write(@NonNull final byte[] b) {
-            if (mIsConnected) serialPort.write(b);
+            final UsbSerialDevice p = serialPort;
+            if (mIsConnected && p != null)
+                p.write(b);
         }
     };
 
@@ -149,11 +157,14 @@ final class UsbImpl extends Impl {
                         base.getUi().showToast(context.getString(
                                 R.string.msg_usd_serial_port_s_reconnected,
                                 dev.getDeviceName()));
+                        device = dev;
                         final Thread t = new Thread() {
                             @Override
                             public void run() {
                                 try {
-                                    makeConnection(true);
+                                    synchronized (commonLock) {
+                                        makeConnection(true);
+                                    }
                                 } catch (final BackendException e) {
                                     base.reportError(e);
                                 }
@@ -166,6 +177,7 @@ final class UsbImpl extends Impl {
                 case ACTION_USB_DETACHED:
                     final UsbDevice dev = intent.getParcelableExtra(UsbManager.EXTRA_DEVICE);
                     if (mIsConnected && device.equals(dev)) {
+                        tmpDisconnect();
                         base.getUi().showToast(context.getString(
                                 R.string.msg_usd_serial_port_s_disconnected,
                                 dev.getDeviceName()));
@@ -199,57 +211,56 @@ final class UsbImpl extends Impl {
     }
 
     private void makeConnection(final boolean reconnect) {
-        final UsbManager usbManager =
-                (UsbManager) base.getContext().getSystemService(Context.USB_SERVICE);
-        if (usbManager == null) {
-            disconnect();
-            throw new BackendException("Cannot obtain USB service");
-        }
-        usbAccessGranted.clear();
-        new Handler(Looper.getMainLooper()).post(new Runnable() {
-            @Override
-            public void run() {
-                usbManager.requestPermission(device, PendingIntent.getBroadcast(base.getContext(),
-                        0, new Intent(ACTION_USB_PERMISSION), 0));
-            }
-        });
         try {
-            if (!usbAccessGranted.get()) {
-                if (reconnect) {
-                    base.getUi().showToast(base.getContext().getString(
-                            R.string.msg_usd_serial_port_s_reconnected_no_perm,
-                            device.getDeviceName()));
-                    return;
+            final UsbManager usbManager =
+                    (UsbManager) base.getContext().getSystemService(Context.USB_SERVICE);
+            if (usbManager == null)
+                throw new BackendException("Cannot obtain USB service");
+            usbAccessGranted.clear();
+            if (mIsConnInt)
+                return; // Interrupted by disconnect
+            new Handler(Looper.getMainLooper()).post(new Runnable() {
+                @Override
+                public void run() {
+                    usbManager.requestPermission(device, PendingIntent.getBroadcast(base.getContext(),
+                            0, new Intent(ACTION_USB_PERMISSION), 0));
                 }
-                disconnect();
-                throw new BackendException("Permission denied for device " + device);
+            });
+            try {
+                if (!usbAccessGranted.get()) {
+                    if (mIsConnInt)
+                        return; // Interrupted by disconnect
+                    if (reconnect) {
+                        base.getUi().showToast(base.getContext().getString(
+                                R.string.msg_usd_serial_port_s_reconnected_no_perm,
+                                device.getDeviceName()));
+                        return;
+                    }
+                    throw new BackendException("Permission denied for device " + device);
+                }
+            } catch (final InterruptedException e) {
+                throw new BackendException("UI request interrupted");
             }
-        } catch (final InterruptedException e) {
+            connection = usbManager.openDevice(device);
+            if (connection == null)
+                throw new BackendException("Cannot connect to device " + device);
+            serialPort = UsbSerialDevice.createUsbSerialDevice(device, connection);
+            if (serialPort == null)
+                throw new BackendException("Device " + device + " is not supported");
+            if (!serialPort.open())
+                throw new BackendException("Device " + device + " driver error");
+            // TODO: com.felhr.usbserial should be extended in order to read current device settings
+            if (base.baudrate > 0) serialPort.setBaudRate(base.baudrate);
+            if (base.dataBits != UartModule.OPT_PRESERVE) serialPort.setDataBits(base.dataBits);
+            if (base.stopBits != UartModule.OPT_PRESERVE) serialPort.setStopBits(base.stopBits);
+            if (base.parity != UartModule.OPT_PRESERVE) serialPort.setParity(base.parity);
+            if (base.flowControl != UartModule.OPT_PRESERVE)
+                serialPort.setFlowControl(base.flowControl);
+            serialPort.read(readCallback);
+        } catch (final Throwable e) {
             disconnect();
-            throw new BackendException("UI request interrupted");
+            throw e;
         }
-        connection = usbManager.openDevice(device);
-        if (connection == null) {
-            disconnect();
-            throw new BackendException("Cannot connect to device " + device);
-        }
-        serialPort = UsbSerialDevice.createUsbSerialDevice(device, connection);
-        if (serialPort == null) {
-            disconnect();
-            throw new BackendException("Device " + device + " is not supported");
-        }
-        if (!serialPort.open()) {
-            disconnect();
-            throw new BackendException("Device " + device + " driver error");
-        }
-        // TODO: com.felhr.usbserial should be extended in order to read current device settings
-        if (base.baudrate > 0) serialPort.setBaudRate(base.baudrate);
-        if (base.dataBits != UartModule.OPT_PRESERVE) serialPort.setDataBits(base.dataBits);
-        if (base.stopBits != UartModule.OPT_PRESERVE) serialPort.setStopBits(base.stopBits);
-        if (base.parity != UartModule.OPT_PRESERVE) serialPort.setParity(base.parity);
-        if (base.flowControl != UartModule.OPT_PRESERVE)
-            serialPort.setFlowControl(base.flowControl);
-        serialPort.read(readCallback);
     }
 
     final private UsbSerialInterface.UsbReadCallback readCallback =
@@ -276,38 +287,49 @@ final class UsbImpl extends Impl {
     @Override
     void connect() throws UartModule.AdapterNotFoundException {
         synchronized (commonLock) {
-            if (mIsConnected) return;
+            if (mIsConnecting) return;
+            mIsConnecting = true;
             synchronized (deviceLock) {
                 obtainDevice();
                 activeDevices.add(device);
             }
-            final IntentFilter iflt = new IntentFilter(ACTION_USB_PERMISSION);
-            iflt.addAction(ACTION_USB_ATTACHED);
-            iflt.addAction(ACTION_USB_DETACHED);
-            base.getContext().registerReceiver(mUsbReceiver, iflt);
             try {
-                makeConnection(false);
+                final IntentFilter iflt = new IntentFilter(ACTION_USB_PERMISSION);
+                iflt.addAction(ACTION_USB_ATTACHED);
+                iflt.addAction(ACTION_USB_DETACHED);
+                base.getContext().registerReceiver(mUsbReceiver, iflt);
             } catch (final Throwable e) {
-                activeDevices.remove(device);
+                disconnect();
                 throw e;
             }
+            makeConnection(false);
             mIsConnected = true;
         }
         if (base.isAcquireWakeLockOnConnect()) base.acquireWakeLock();
     }
 
-    @Override
-    void disconnect() {
+    private void tmpDisconnect() {
         synchronized (commonLock) {
-            if (!mIsConnected) return;
-            mIsConnected = false;
-            activeDevices.remove(device);
             if (serialPort != null) serialPort.close();
             serialPort = null;
             if (connection != null) connection.close();
             connection = null;
+        }
+    }
+
+    @Override
+    void disconnect() {
+        if (!mIsConnecting) return;
+        mIsConnInt = true;
+        usbAccessGranted.set(false);
+        synchronized (commonLock) {
+            mIsConnInt = false;
+            mIsConnected = false;
+            activeDevices.remove(device);
+            tmpDisconnect();
             if (device != null) device = null;
             base.getContext().unregisterReceiver(mUsbReceiver);
+            mIsConnecting = false;
         }
     }
 
@@ -320,7 +342,7 @@ final class UsbImpl extends Impl {
 
     @Override
     protected void finalize() throws Throwable {
-        if (device != null) activeDevices.remove(device);
+        disconnect();
         super.finalize();
     }
 }
