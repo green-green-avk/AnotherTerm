@@ -18,4 +18,5 @@
     <dimen name="uiOptionSize">32sp</dimen>
     <dimen name="uiOptionMaxTextSize">24sp</dimen>
     <fraction name="horizontal_bias_begin">0.0</fraction>
+    <dimen name="scratchpad_span_width_min">256sp</dimen>
 </resources>

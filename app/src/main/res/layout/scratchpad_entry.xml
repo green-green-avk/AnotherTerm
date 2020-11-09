@@ -4,8 +4,6 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:layout_marginTop="@dimen/field_margin"
-    android:layout_marginBottom="@dimen/field_margin"
     android:background="@drawable/list_item_btn_background"
     android:baselineAligned="false"
     android:orientation="horizontal">
@@ -15,6 +13,22 @@
         android:layout_height="match_parent"
         android:layout_weight="1"
         android:orientation="vertical">
+
+        <TextView
+            android:id="@+id/name"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:ellipsize="none"
+            android:fadingEdge="horizontal"
+            android:overScrollMode="ifContentScrolls"
+            android:requiresFadingEdge="horizontal"
+            android:scrollbars="horizontal"
+            android:scrollHorizontally="true"
+            android:singleLine="true"
+            android:textColor="@color/colorPrimaryDark"
+            android:textIsSelectable="true"
+            android:typeface="monospace"
+            tools:text="00000000-0000-0000-0000-000000000000.txt" />
 
         <LinearLayout
             android:layout_width="match_parent"
@@ -68,6 +82,28 @@
             android:contentDescription="@string/action_delete"
             android:focusable="true"
             app:srcCompat="@drawable/ic_delete"
+            app:tint="@color/colorPrimary" />
+
+        <ImageView
+            android:id="@+id/edit"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:adjustViewBounds="true"
+            android:background="@drawable/bg_grid_btn"
+            android:contentDescription="@string/action_edit"
+            android:focusable="true"
+            app:srcCompat="@drawable/ic_edit"
+            app:tint="@color/colorPrimary" />
+
+        <ImageView
+            android:id="@+id/view"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:adjustViewBounds="true"
+            android:background="@drawable/bg_grid_btn"
+            android:contentDescription="@string/action_view"
+            android:focusable="true"
+            app:srcCompat="@drawable/ic_view"
             app:tint="@color/colorPrimary" />
 
         <ImageView

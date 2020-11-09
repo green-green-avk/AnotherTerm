@@ -10,6 +10,7 @@
     <string name="action_close">Close</string>
     <string name="action_delete">Delete</string>
     <string name="action_edit">Edit</string>
+    <string name="action_view">View</string>
     <string name="action_copy">Copy</string>
     <string name="action_paste">Paste</string>
     <string name="action_charset">Character Set</string>
