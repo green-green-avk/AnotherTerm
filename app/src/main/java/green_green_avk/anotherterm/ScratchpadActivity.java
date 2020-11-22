@@ -110,7 +110,7 @@ public final class ScratchpadActivity extends AppCompatActivity {
                         .setDataAndType(uri, type != null ? type : "text/plain")
                         .addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION
                                 | Intent.FLAG_GRANT_WRITE_URI_PERMISSION);
-                startActivity(i);
+                startActivity(Intent.createChooser(i, getString(R.string.action_edit)));
             });
             holder.itemView.findViewById(R.id.view).setOnClickListener(v -> {
                 final Uri uri;
@@ -123,7 +123,7 @@ public final class ScratchpadActivity extends AppCompatActivity {
                 final Intent i = new Intent(Intent.ACTION_VIEW)
                         .setDataAndType(uri, type != null ? type : "text/plain")
                         .addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
-                startActivity(i);
+                startActivity(Intent.createChooser(i, getString(R.string.action_view)));
             });
             holder.itemView.findViewById(R.id.copy).setOnClickListener(v -> {
                 final Uri uri;
