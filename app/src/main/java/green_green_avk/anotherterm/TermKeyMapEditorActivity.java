@@ -269,14 +269,10 @@ public final class TermKeyMapEditorActivity extends AppCompatActivity {
             ((ListView) keyView).setItemChecked(keyPos, true);
             ((ListView) keyView).smoothScrollToPosition(keyPos);
             refreshKeysView();
-            keyView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-                @Override
-                public void onItemClick(final AdapterView<?> parent, final View view,
-                                        final int position, final long id) {
-                    ((ListView) parent).setItemChecked(position, true);
-                    currentKeyCode = (int) id;
-                    refreshKeysView();
-                }
+            keyView.setOnItemClickListener((parent, view, position, id) -> {
+                ((ListView) parent).setItemChecked(position, true);
+                currentKeyCode = (int) id;
+                refreshKeysView();
             });
         } else {
             if (currentKeyCode >= 0) keyView.setSelection(keysAdapter.getPos(currentKeyCode));
@@ -320,22 +316,12 @@ public final class TermKeyMapEditorActivity extends AppCompatActivity {
 
     @Override
     public void onBackPressed() {
-        close(new Runnable() {
-            @Override
-            public void run() {
-                TermKeyMapEditorActivity.super.onBackPressed();
-            }
-        });
+        close(TermKeyMapEditorActivity.super::onBackPressed);
     }
 
     @Override
     public boolean onSupportNavigateUp() {
-        close(new Runnable() {
-            @Override
-            public void run() {
-                TermKeyMapEditorActivity.super.onSupportNavigateUp();
-            }
-        });
+        close(TermKeyMapEditorActivity.super::onSupportNavigateUp);
         return true;
     }
 
@@ -345,12 +331,9 @@ public final class TermKeyMapEditorActivity extends AppCompatActivity {
             Toast.makeText(this, getString(R.string.msg_name_must_not_be_empty), Toast.LENGTH_SHORT).show();
         } else {
             if (TermKeyMapManager.contains(name))
-                UiUtils.confirm(this, getString(R.string.prompt_overwrite), new Runnable() {
-                    @Override
-                    public void run() {
-                        save(name);
-                        setNeedSave(false);
-                    }
+                UiUtils.confirm(this, getString(R.string.prompt_overwrite), () -> {
+                    save(name);
+                    setNeedSave(false);
                 });
             else {
                 save(name);

@@ -46,7 +46,7 @@ public final class HwKeyMapEditorFragment extends Fragment {
             new DevIdLabel(R.drawable.ic_dev_external, R.string.label_dev_external)
     };
 
-    private DevIdLabel getDevIdLabel(final int devId) {
+    private static DevIdLabel getDevIdLabel(final int devId) {
         if (devId < 0 || devId >= devIdLabels.length) return devIdLabelUnknown;
         return devIdLabels[devId];
     }
@@ -197,14 +197,11 @@ public final class HwKeyMapEditorFragment extends Fragment {
                 }
             });
             wToKeycode.setSelection(ap);
-            v.findViewById(R.id.action_delete).setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(final View v) {
-                    keymap.set(entry.keycode, entry.devType, HwKeyMap.KEYCODE_ACTION_DEFAULT);
-                    keymap.setToggleMode(entry.keycode, entry.devType, HwKeyMap.TOGGLE_NONE);
-                    HwKeyMapManager.set(keymap);
-                    notifyDataSetChanged();
-                }
+            v.findViewById(R.id.action_delete).setOnClickListener(v1 -> {
+                keymap.set(entry.keycode, entry.devType, HwKeyMap.KEYCODE_ACTION_DEFAULT);
+                keymap.setToggleMode(entry.keycode, entry.devType, HwKeyMap.TOGGLE_NONE);
+                HwKeyMapManager.set(keymap);
+                notifyDataSetChanged();
             });
             return v;
         }
@@ -222,12 +219,7 @@ public final class HwKeyMapEditorFragment extends Fragment {
         final ListView wList = v.findViewById(R.id.list);
         wList.setAdapter(adapter);
         wList.setFocusable(false);
-        v.findViewById(R.id.action_add).setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(final View v) {
-                onAdd(v);
-            }
-        });
+        v.findViewById(R.id.action_add).setOnClickListener(this::onAdd);
         return v;
     }
 
@@ -238,23 +230,20 @@ public final class HwKeyMapEditorFragment extends Fragment {
         final AlertDialog d = new AlertDialog.Builder(getActivity()).setView(v)
                 .setNegativeButton(android.R.string.cancel, null).create();
         v.requestFocus();
-        v.setOnKeyListener(new View.OnKeyListener() {
-            @Override
-            public boolean onKey(final View v, final int keyCode, final KeyEvent event) {
-                final int devId = keymap.getDevType(event);
-                if (devId < 0 || HwKeyMapManager.isBypassKey(event)
-                        || keyCode == KeyEvent.KEYCODE_UNKNOWN) return false;
-                if (event.getAction() == KeyEvent.ACTION_DOWN) {
-                    final int km = keymap.get(keyCode, devId);
-                    if (km == HwKeyMap.KEYCODE_ACTION_DEFAULT) {
-                        keymap.set(keyCode, devId, KeyEvent.KEYCODE_UNKNOWN);
-                        HwKeyMapManager.set(keymap);
-                        adapter.notifyDataSetChanged();
-                    }
-                    d.dismiss();
+        v.setOnKeyListener((v1, keyCode, event) -> {
+            final int devId = keymap.getDevType(event);
+            if (devId < 0 || HwKeyMapManager.isBypassKey(event)
+                    || keyCode == KeyEvent.KEYCODE_UNKNOWN) return false;
+            if (event.getAction() == KeyEvent.ACTION_DOWN) {
+                final int km = keymap.get(keyCode, devId);
+                if (km == HwKeyMap.KEYCODE_ACTION_DEFAULT) {
+                    keymap.set(keyCode, devId, KeyEvent.KEYCODE_UNKNOWN);
+                    HwKeyMapManager.set(keymap);
+                    adapter.notifyDataSetChanged();
                 }
-                return true;
+                d.dismiss();
             }
+            return true;
         });
         d.show();
     }

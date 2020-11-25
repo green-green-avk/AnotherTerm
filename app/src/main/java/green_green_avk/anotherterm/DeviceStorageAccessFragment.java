@@ -11,7 +11,6 @@ import android.provider.Settings;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.CompoundButton;
 import android.widget.Switch;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -47,13 +46,7 @@ public final class DeviceStorageAccessFragment extends Fragment {
         bSwitch.setOnCheckedChangeListener(null);
         bSwitch.setChecked(notGranted.size() == 0);
         bSwitch.setOnCheckedChangeListener(
-                new CompoundButton.OnCheckedChangeListener() {
-                    @Override
-                    public void onCheckedChanged(final CompoundButton buttonView,
-                                                 final boolean isChecked) {
-                        openSettings(buttonView);
-                    }
-                });
+                (buttonView, isChecked) -> openSettings(buttonView));
     }
 
     public void openSettings(final View v) {
@@ -67,7 +60,7 @@ public final class DeviceStorageAccessFragment extends Fragment {
                         .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_NO_HISTORY |
                                 Intent.FLAG_ACTIVITY_EXCLUDE_FROM_RECENTS));
             } catch (final ActivityNotFoundException | SecurityException e) {
-                Toast.makeText(activity, R.string.desc_unable_to_open_app_settings,
+                Toast.makeText(activity, R.string.msg_unable_to_open_app_settings,
                         Toast.LENGTH_LONG).show();
                 getView().<Switch>findViewById(R.id.b_switch).setChecked(true);
             }

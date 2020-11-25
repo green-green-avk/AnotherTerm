@@ -11,7 +11,6 @@ import android.provider.Settings;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.CompoundButton;
 import android.widget.Switch;
 import android.widget.TextView;
 
@@ -40,13 +39,7 @@ public final class DozeFragment extends Fragment {
         bSwitch.setOnCheckedChangeListener(null);
         bSwitch.setChecked(isOpt);
         bSwitch.setOnCheckedChangeListener(
-                new CompoundButton.OnCheckedChangeListener() {
-                    @Override
-                    public void onCheckedChanged(final CompoundButton buttonView,
-                                                 final boolean isChecked) {
-                        openSettings(buttonView);
-                    }
-                });
+                (buttonView, isChecked) -> openSettings(buttonView));
     }
 
     public void openSettings(final View v) {
