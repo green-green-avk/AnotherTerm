@@ -39,11 +39,11 @@ public final class HwKeyMapEditorFragment extends Fragment {
     }
 
     private static final DevIdLabel devIdLabelUnknown =
-            new DevIdLabel(R.drawable.ic_dev_unknown, R.string.label_dev_unknown);
+            new DevIdLabel(R.drawable.ic_keys_unknown, R.string.label_dev_unknown);
 
     private static final DevIdLabel[] devIdLabels = new DevIdLabel[]{
-            new DevIdLabel(R.drawable.ic_dev_built_in, R.string.label_dev_built_in),
-            new DevIdLabel(R.drawable.ic_dev_external, R.string.label_dev_external)
+            new DevIdLabel(R.drawable.ic_keys_built_in, R.string.label_dev_built_in),
+            new DevIdLabel(R.drawable.ic_keys_external, R.string.label_dev_external)
     };
 
     private static DevIdLabel getDevIdLabel(final int devId) {
