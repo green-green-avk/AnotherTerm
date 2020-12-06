@@ -1,12 +1,4 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="title_news">News</string>
-    <string name="news_api29"><![CDATA[
-        <h1>The application is now targets API&#xA0;29</h1>
-        <p>
-        If something will go wrong, please,
-        <a href=\"https://green-green-avk.github.io/AnotherTerm-docs/\">see the web site</a>
-        / <a href=\"https://github.com/green-green-avk/AnotherTerm/issues\">post a bug</a>.
-        </p>
-    ]]></string>
 </resources>

@@ -3,7 +3,6 @@ package green_green_avk.anotherterm;
 import android.app.AlertDialog;
 import android.content.Context;
 import android.content.SharedPreferences;
-import android.os.Build;
 import android.preference.PreferenceManager;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -16,7 +15,6 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import java.util.Arrays;
 import java.util.Comparator;
-import java.util.Date;
 
 import green_green_avk.anotherterm.ui.HtmlTextView;
 
@@ -41,13 +39,7 @@ public final class NewsDialog {
     private static final Entry[] news;
 
     static {
-        if (Build.VERSION.SDK_INT >= 29 && BuildConfig.TARGET_SDK_VERSION >= 29)
-            news = new Entry[]{
-                    new Entry(R.string.news_api29,
-                            Date.UTC(120, 9, 27, 0, 0, 0))
-            };
-        else
-            news = new Entry[]{};
+        news = new Entry[]{};
     }
 
     public static int getUnseen(@NonNull final Context ctx) {
