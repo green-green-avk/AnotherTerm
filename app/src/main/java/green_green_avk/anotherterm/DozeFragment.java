@@ -2,6 +2,7 @@ package green_green_avk.anotherterm;
 
 import android.app.Activity;
 import android.app.Fragment;
+import android.content.ActivityNotFoundException;
 import android.content.Context;
 import android.content.Intent;
 import android.net.Uri;
@@ -13,6 +14,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Switch;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.annotation.RequiresApi;
 
@@ -43,18 +45,24 @@ public final class DozeFragment extends Fragment {
     }
 
     public void openSettings(final View v) {
-        final Intent intent = new Intent();
         final Activity activity = getActivity();
         final String packageName = activity.getApplicationContext().getPackageName();
         final PowerManager pm = (PowerManager) activity.getSystemService(Context.POWER_SERVICE);
-        if (pm.isIgnoringBatteryOptimizations(packageName))
-            intent.setAction(Settings.ACTION_IGNORE_BATTERY_OPTIMIZATION_SETTINGS)
-                    .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_NO_HISTORY |
-                            Intent.FLAG_ACTIVITY_EXCLUDE_FROM_RECENTS);
-        else {
-            intent.setAction(Settings.ACTION_REQUEST_IGNORE_BATTERY_OPTIMIZATIONS)
-                    .setData(Uri.parse("package:" + packageName));
+        if (!pm.isIgnoringBatteryOptimizations(packageName)) {
+            try {
+                this.startActivity(new Intent(Settings.ACTION_REQUEST_IGNORE_BATTERY_OPTIMIZATIONS)
+                        .setData(Uri.parse("package:" + packageName)));
+                return;
+            } catch (final ActivityNotFoundException | SecurityException ignored) {
+            }
         }
-        this.startActivity(intent);
+        try {
+            this.startActivity(new Intent(Settings.ACTION_IGNORE_BATTERY_OPTIMIZATION_SETTINGS)
+                    .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_NO_HISTORY |
+                            Intent.FLAG_ACTIVITY_EXCLUDE_FROM_RECENTS));
+        } catch (final ActivityNotFoundException | SecurityException e) {
+            Toast.makeText(activity, R.string.msg_unable_to_open_doze_settings,
+                    Toast.LENGTH_LONG).show();
+        }
     }
 }

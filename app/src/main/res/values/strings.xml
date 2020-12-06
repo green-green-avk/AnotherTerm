@@ -44,6 +44,10 @@
             <li><a href=\"https://developer.android.com/training/monitoring-device-state/doze-standby\">https://developer.android.com/training/monitoring-device-state/doze-standby</a></li>
         </ul>
     ]]></string>
+    <string name="msg_unable_to_open_doze_settings">
+        Unable to open the Battery Optimization settings screen on this device.
+        You can navigate to it manually though if available.
+    </string>
 
     <string name="action_device_storage_access_permission">Device Storage Access Permission</string>
     <string name="desc_device_storage_access"><![CDATA[
