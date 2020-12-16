@@ -106,14 +106,11 @@ public final class FavoriteEditorActivity extends AppCompatActivity {
     }
 
     public void remove(final View view) {
-        final Runnable r = new Runnable() {
-            @Override
-            public void run() {
-                if (mOldName != null)
-                    FavoritesManager.remove(mOldName);
-                finish();
-                Toast.makeText(FavoriteEditorActivity.this, R.string.msg_favorite_deleted, Toast.LENGTH_SHORT).show();
-            }
+        final Runnable r = () -> {
+            if (mOldName != null)
+                FavoritesManager.remove(mOldName);
+            finish();
+            Toast.makeText(FavoriteEditorActivity.this, R.string.msg_favorite_deleted, Toast.LENGTH_SHORT).show();
         };
         UiUtils.confirm(this, getString(R.string.do_you_want_to_delete_this_favorite), r);
     }
@@ -129,18 +126,15 @@ public final class FavoriteEditorActivity extends AppCompatActivity {
         if (name == null) return;
         final PreferenceStorage ps = getPreferences();
         if (checkAndWarn(ps)) return;
-        final Runnable r = new Runnable() {
-            @Override
-            public void run() {
-                FavoritesManager.set(name, ps);
-                if ((!mMakeNew) && (!name.equals(mOldName))) {
-                    FavoritesManager.remove(mOldName);
-                }
-                mOldName = name;
-                isNeedSave = false;
-                asEdit();
-                Toast.makeText(FavoriteEditorActivity.this, R.string.msg_saved, Toast.LENGTH_SHORT).show();
+        final Runnable r = () -> {
+            FavoritesManager.set(name, ps);
+            if ((!mMakeNew) && (!name.equals(mOldName))) {
+                FavoritesManager.remove(mOldName);
             }
+            mOldName = name;
+            isNeedSave = false;
+            asEdit();
+            Toast.makeText(FavoriteEditorActivity.this, R.string.msg_saved, Toast.LENGTH_SHORT).show();
         };
         if ((mMakeNew || !name.equals(mOldName)) && FavoritesManager.contains(name))
             UiUtils.confirm(this, getString(R.string.msg_favorite_s_is_already_exists_replace, name), r);
@@ -156,22 +150,12 @@ public final class FavoriteEditorActivity extends AppCompatActivity {
 
     @Override
     public void onBackPressed() {
-        close(new Runnable() {
-            @Override
-            public void run() {
-                FavoriteEditorActivity.super.onBackPressed();
-            }
-        });
+        close(FavoriteEditorActivity.super::onBackPressed);
     }
 
     @Override
     public boolean onSupportNavigateUp() {
-        close(new Runnable() {
-            @Override
-            public void run() {
-                FavoriteEditorActivity.super.onSupportNavigateUp();
-            }
-        });
+        close(FavoriteEditorActivity.super::onSupportNavigateUp);
         return true;
     }
 

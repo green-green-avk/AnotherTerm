@@ -12,6 +12,7 @@ import green_green_avk.ptyprocess.PtyProcess;
 
 public final class ChrootedFile {
     public interface Ops {
+        @NonNull
         ParcelFileDescriptor open(@NonNull String path, int flags) throws IOException;
     }
 

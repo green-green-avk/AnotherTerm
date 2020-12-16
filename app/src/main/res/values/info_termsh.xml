@@ -54,10 +54,10 @@ when stream is read to its EOF or it can be closed by
 <li><code>-s|--size &lt;size&gt;</code> &#x2014; size in bytes to provide in the query answer
 if input is a stream. The Google GMail client, for example, treats absence of the size as
 zero size even in case of a stream.</li>
-<li><code>-w|--wait</code> &#x2014; wait for the stream until it reaches EOF then closes it
-and exits; <code>$TERMSH</code> termination is also closes the stream. Use when you need
+<li><code>-w|--wait</code> &#x2014; wait for the stream until it reaches EOF then close it
+and exit; <code>$TERMSH</code> termination also closes the stream. Use when you need
 to keep a shell pipe line running;<br/>
-example: <code>tar -czv * | $TERMSH uri -w</code></li>
+example: <code>tar -czv * | \"$TERMSH\" uri -w</code></li>
 <li><code>-c|--close-stream &lt;URI&gt;</code> &#x2014; unbind the stream <code>&lt;URI&gt;</code>
 and free related resources.</li>
 <li><code>-l|--list-streams</code> &#x2014; list all bound stream URIs.</li>

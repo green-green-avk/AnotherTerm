@@ -159,7 +159,7 @@ m_execve(JNIEnv *const env, const jobject jthis,
 #ifdef DEBUG
             if (sh != SIG_DFL)
                 __android_log_print(ANDROID_LOG_DEBUG, CLASS_NAME,
-                    "Signal %u was %016X\n", sig, (long) sh);
+                                    "Signal %u was %016X", sig, (long) sh);
 #endif
             sig++;
         }
@@ -172,9 +172,11 @@ m_execve(JNIEnv *const env, const jobject jthis,
         int fd = 3;
         while (fd < fdlimit) close(fd++);
     }
-    if (envp == nullptr) execv(filename, args);
-    else execve(filename, args, envp);
-    fprintf(stderr, "[errno: %d] %s [%s]", errno, strError("Exec failed"), filename);
+    if (envp == nullptr)
+        execv(filename, args);
+    else
+        execve(filename, args, envp);
+    fprintf(stderr, "[errno: %d] %s [%s]\n", errno, strError("Exec failed"), filename);
     _exit(127);
 }
 
@@ -406,14 +408,16 @@ static jstring JNICALL m_pathByFd(JNIEnv *const env, const jobject jthis, const 
                               -1, 0);
         if (realPath == MAP_FAILED) {
             __android_log_print(ANDROID_LOG_ERROR, CLASS_NAME,
-                    "[errno: %d] %s [%s]", errno, strError("pathByFd mmap() failed"), procPath);
+                                "[errno: %d] %s [%s]", errno,
+                                strError("pathByFd mmap() failed"), procPath);
             return nullptr;
         }
         realPath[0] = '\0';
         const pid_t pid = fork();
         if (pid == -1) {
             __android_log_print(ANDROID_LOG_ERROR, CLASS_NAME,
-                    "[errno: %d] %s [%s]", errno, strError("pathByFd fork() failed"), procPath);
+                                "[errno: %d] %s [%s]", errno,
+                                strError("pathByFd fork() failed"), procPath);
             munmap(realPath, REALPATH_SIZE);
             return nullptr;
         }
@@ -424,8 +428,8 @@ static jstring JNICALL m_pathByFd(JNIEnv *const env, const jobject jthis, const 
                 if (r == -1) {
                     if (errno == EINTR) continue;
                     __android_log_print(ANDROID_LOG_ERROR, CLASS_NAME,
-                            "[errno: %d] %s [%s]", errno,
-                            strError("pathByFd waitpid() failed"), procPath);
+                                        "[errno: %d] %s [%s]", errno,
+                                        strError("pathByFd waitpid() failed"), procPath);
                     munmap(realPath, REALPATH_SIZE);
                     return nullptr;
                 }
@@ -433,7 +437,7 @@ static jstring JNICALL m_pathByFd(JNIEnv *const env, const jobject jthis, const 
             }
             if (!WIFEXITED(st) || (WEXITSTATUS(st) != 0) || (realPath[0] == '\0')) {
                 __android_log_print(ANDROID_LOG_ERROR, CLASS_NAME,
-                        "pathByFd child failed [%s]", procPath);
+                                    "pathByFd child failed [%s]", procPath);
                 munmap(realPath, REALPATH_SIZE);
                 return nullptr;
             }
@@ -443,7 +447,7 @@ static jstring JNICALL m_pathByFd(JNIEnv *const env, const jobject jthis, const 
         } else {
             if (_pathByFd(realPath, REALPATH_SIZE, procPath) == 0) _exit(0);
             __android_log_print(ANDROID_LOG_ERROR, CLASS_NAME,
-                    "forked pathByFd failed [%s]", procPath);
+                                "forked pathByFd failed [%s]", procPath);
             _exit(127);
         }
     }
@@ -451,7 +455,7 @@ static jstring JNICALL m_pathByFd(JNIEnv *const env, const jobject jthis, const 
 
 static const JNINativeMethod methodTable[] = {
         {"execve",                 "(Ljava/lang/String;[Ljava/lang/String;[Ljava/lang/String;)L" CLASS_NAME ";",
-        (void *) m_execve},
+                                                            (void *) m_execve},
         {"destroy",                "()V",                   (void *) m_destroy},
         {"waitForExit",            "(I)I",                  (void *) m_waitForExit},
         {"sendSignalToForeground", "(I)V",                  (void *) m_sendSignalToForeground},

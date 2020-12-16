@@ -69,16 +69,15 @@ static ssize_t sendFds(const int sockfd, const void *const data, const size_t le
         return -1;
     }
     alignas(struct cmsghdr) char cmsg_buf[cmsg_space];
-    iovec iov = {.iov_base = const_cast<void *>(data), .iov_len = len};
+    iovec iov = {.iov_base = (void *) data, .iov_len = len};
     const msghdr msg = {
             .msg_name = nullptr,
             .msg_namelen = 0,
             .msg_iov = &iov,
             .msg_iovlen = 1,
             .msg_control = cmsg_buf,
-            // We can't cast to the actual type of the field, because it's different across platforms.
-            .msg_controllen = static_cast<unsigned int>(cmsg_space),
-            .msg_flags = 0,
+            .msg_controllen = sizeof(cmsg_buf),
+            .msg_flags = 0
     };
     struct cmsghdr *const cmsg = CMSG_FIRSTHDR(&msg);
     cmsg->cmsg_level = SOL_SOCKET;
@@ -88,17 +87,12 @@ static ssize_t sendFds(const int sockfd, const void *const data, const size_t le
     for (size_t i = 0; i < fdsc; ++i) {
         cmsg_fds[i] = fds[i];
     }
-#if defined(__linux__)
-    const int flags = MSG_NOSIGNAL;
-#else
-    const int flags = 0;
-#endif
-    return TEMP_FAILURE_RETRY(sendmsg(sockfd, &msg, flags));
+    return TEMP_FAILURE_RETRY(sendmsg(sockfd, &msg, MSG_NOSIGNAL));
 }
 
 static void readAllOrExit(const int sock, void *const buf, const size_t len) {
     if (len == 0) return;
-    int offset = 0;
+    size_t offset = 0;
     while (true) {
         const ssize_t r = read(sock, (char *) buf + offset, len - offset);
         if (r <= 0) {
@@ -113,7 +107,7 @@ static void readAllOrExit(const int sock, void *const buf, const size_t len) {
 
 static void writeAllOrExit(const int sock, const void *const buf, const size_t len) {
     if (len == 0) return;
-    int offset = 0;
+    size_t offset = 0;
     while (true) {
         const ssize_t r = write(sock, (char *) buf + offset, len - offset);
         if (r <= 0) {
@@ -177,7 +171,7 @@ static void _onSignalExit(int s) {
 
 static uint64_t getenvuqOrExit(const char *const name) {
     const char *const vs = getenv(name);
-    if (vs == NULL || *vs == '\0') return 0;
+    if (vs == nullptr || *vs == '\0') return 0;
     char *p;
     uint64_t v = strtoull(vs, &p, 16);
     if (*p != '\0') {

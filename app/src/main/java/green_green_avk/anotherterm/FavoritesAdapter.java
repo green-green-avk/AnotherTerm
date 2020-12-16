@@ -23,14 +23,9 @@ public final class FavoritesAdapter extends RecyclerView.Adapter<FavoritesAdapte
     private View.OnCreateContextMenuListener mOnCreateContextMenuListener = null;
 
     @Keep // Must be kept to prevent its unexpected collection
-    private final Runnable onFavsChanged = new Runnable() {
-        @Override
-        public void run() {
-            updateDataset();
-        }
-    };
+    private final Runnable onFavsChanged = this::updateDataset;
 
-    private boolean mExportableOnly;
+    private final boolean mExportableOnly;
 
     public FavoritesAdapter() {
         this(false);

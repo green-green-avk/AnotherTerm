@@ -131,28 +131,20 @@ public final class TermSh {
         }
 
         private void postNotification(final String message, final int id) {
-            handler.post(new Runnable() {
-                @Override
-                public void run() {
-                    final Notification n = new NotificationCompat.Builder(
-                            ctx.getApplicationContext(), USER_NOTIFICATION_CHANNEL_ID)
-                            .setContentTitle(message)
-                            .setSmallIcon(R.drawable.ic_stat_serv)
-                            .setPriority(NotificationCompat.PRIORITY_HIGH)
-                            .setAutoCancel(true)
-                            .build();
-                    NotificationManagerCompat.from(ctx).notify(C.TERMSH_USER_TAG, id, n);
-                }
+            handler.post(() -> {
+                final Notification n = new NotificationCompat.Builder(
+                        ctx.getApplicationContext(), USER_NOTIFICATION_CHANNEL_ID)
+                        .setContentTitle(message)
+                        .setSmallIcon(R.drawable.ic_stat_serv)
+                        .setPriority(NotificationCompat.PRIORITY_HIGH)
+                        .setAutoCancel(true)
+                        .build();
+                NotificationManagerCompat.from(ctx).notify(C.TERMSH_USER_TAG, id, n);
             });
         }
 
         private void removeNotification(final int id) {
-            handler.post(new Runnable() {
-                @Override
-                public void run() {
-                    NotificationManagerCompat.from(ctx).cancel(C.TERMSH_USER_TAG, id);
-                }
-            });
+            handler.post(() -> NotificationManagerCompat.from(ctx).cancel(C.TERMSH_USER_TAG, id));
         }
     }
 
@@ -376,12 +368,7 @@ public final class TermSh {
 
             private <T> T waitFor(@NonNull final Future<T> task)
                     throws ExecutionException, InterruptedException {
-                this.setOnTerminate(new Runnable() {
-                    @Override
-                    public void run() {
-                        task.cancel(true);
-                    }
-                });
+                this.setOnTerminate(() -> task.cancel(true));
                 try {
                     return task.get();
                 } finally {
@@ -461,7 +448,7 @@ public final class TermSh {
                 return new FileOutputStream(fd);
             }
 
-            private ParcelFileDescriptor wrapInputAsPipe(
+            private static ParcelFileDescriptor wrapInputAsPipe(
                     @NonNull final PtyProcess.InterruptableFileInputStream is)
                     throws IOException {
                 final ParcelFileDescriptor[] pipe = ParcelFileDescriptor.createPipe();
@@ -486,7 +473,7 @@ public final class TermSh {
                 return pipe[0];
             }
 
-            private ParcelFileDescriptor wrapOutputAsPipe(
+            private static ParcelFileDescriptor wrapOutputAsPipe(
                     @NonNull final PtyProcess.PfdFileOutputStream os)
                     throws IOException {
                 final ParcelFileDescriptor[] pipe = ParcelFileDescriptor.createPipe();
@@ -570,15 +557,12 @@ public final class TermSh {
                             }
                         } else throw new ClassCastException();
                     }
-                    return new ExchangeableFds(wfds, new Runnable() {
-                        @Override
-                        public void run() {
-                            for (final ParcelFileDescriptor pfd : toClose)
-                                try {
-                                    if (pfd != null) pfd.close();
-                                } catch (final IOException ignored) {
-                                }
-                        }
+                    return new ExchangeableFds(wfds, () -> {
+                        for (final ParcelFileDescriptor pfd : toClose)
+                            try {
+                                if (pfd != null) pfd.close();
+                            } catch (final IOException ignored) {
+                            }
                     });
                 }
             }
@@ -676,6 +660,7 @@ public final class TermSh {
 
             private final ChrootedFile.Ops ops = new ChrootedFile.Ops() {
                 @Override
+                @NonNull
                 public ParcelFileDescriptor open(@NonNull final String path, final int flags)
                         throws IOException, ParseException {
                     return ShellCmdIO.this.open(path, flags);
@@ -932,24 +917,17 @@ public final class TermSh {
                                    @NonNull final RunnableT runnable)
                 throws InterruptedException, IOException {
             final BlockingSync<Throwable> result = new BlockingSync<>();
-            ui.runOnUiThread(new Runnable() {
-                @Override
-                public void run() {
-                    try {
-                        runnable.run();
-                    } catch (final Throwable e) {
-                        result.set(e);
-                        return;
-                    }
-                    result.set(null);
+            ui.runOnUiThread(() -> {
+                try {
+                    runnable.run();
+                } catch (final Throwable e) {
+                    result.set(e);
+                    return;
                 }
+                result.set(null);
             });
-            final Throwable e = shellCmd.waitFor(result, new Runnable() {
-                @Override
-                public void run() {
-                    result.setIfIsNotSet(new IOException("Request terminated"));
-                }
-            });
+            final Throwable e = shellCmd.waitFor(result, () ->
+                    result.setIfIsNotSet(new IOException("Request terminated")));
             if (e != null) throw new IOException(e.getMessage());
         }
 
@@ -1053,29 +1031,22 @@ public final class TermSh {
                                                 mime,
                                                 (String) opts.get("name"),
                                                 (Integer) opts.get("size"),
-                                                new StreamProvider.OnResult() {
-                                                    @Override
-                                                    public void onResult(final Object msg) {
-                                                        result.set(null);
-                                                    }
-                                                });
+                                                msg -> result.set(null));
                                         shellCmd.stdOut.write(Misc.toUTF8(uri.toString() + "\n"));
                                         if (opts.containsKey("wait")) {
-                                            shellCmd.waitFor(result, new Runnable() {
-                                                @Override
-                                                public void run() {
-                                                    try {
-                                                        StreamProvider.releaseUri(uri);
-                                                    } finally {
-                                                        result.set(null);
-                                                    }
+                                            shellCmd.waitFor(result, () -> {
+                                                try {
+                                                    StreamProvider.releaseUri(uri);
+                                                } finally {
+                                                    result.set(null);
                                                 }
                                             });
                                         }
                                         break;
                                     }
                                     case 1: {
-                                        final String filename = Misc.fromUTF8(shellCmd.args[ap.position]);
+                                        final String filename =
+                                                Misc.fromUTF8(shellCmd.args[ap.position]);
                                         final File file = shellCmd.getOriginalFile(filename);
                                         checkFile(file);
                                         final Uri uri = Misc.getFileUri(ui.ctx, file);
@@ -1170,12 +1141,7 @@ public final class TermSh {
                                     name = (String) opts.get("name");
                                     uri = StreamProvider.obtainUri(shellCmd.stdIn, mimeType,
                                             name, (Integer) opts.get("size"),
-                                            new StreamProvider.OnResult() {
-                                                @Override
-                                                public void onResult(final Object msg) {
-                                                    result.set(null);
-                                                }
-                                            });
+                                            msg -> result.set(null));
                                     titles.add(name != null ? name :
                                             ui.ctx.getString(R.string.name_stream_default));
                                     uris.add(uri);
@@ -1201,15 +1167,12 @@ public final class TermSh {
                                         .getType(uri));
                             }
                             if (!hasStdIn) result.set(null);
-                            final Runnable rCancel = new Runnable() {
-                                @Override
-                                public void run() {
-                                    try {
-                                        for (final Uri uri : uris)
-                                            StreamProvider.releaseUri(uri);
-                                    } finally {
-                                        result.set(null);
-                                    }
+                            final Runnable rCancel = () -> {
+                                try {
+                                    for (final Uri uri1 : uris)
+                                        StreamProvider.releaseUri(uri1);
+                                } finally {
+                                    result.set(null);
                                 }
                             };
                             final Intent intent;
@@ -1314,13 +1277,7 @@ public final class TermSh {
                             final BlockingSync<Intent> r = new BlockingSync<>();
                             final Intent i = new Intent(Intent.ACTION_GET_CONTENT)
                                     .addCategory(Intent.CATEGORY_OPENABLE).setType(mime);
-                            final RequesterActivity.OnResult onResult =
-                                    new RequesterActivity.OnResult() {
-                                        @Override
-                                        public void onResult(@Nullable final Intent result) {
-                                            r.setIfIsNotSet(result);
-                                        }
-                                    };
+                            final RequesterActivity.OnResult onResult = r::setIfIsNotSet;
                             final RequesterActivity.Request request;
                             if (opts.containsKey("notify"))
                                 request = RequesterActivity.request(
@@ -1340,14 +1297,11 @@ public final class TermSh {
                                     throw e;
                                 }
                             }
-                            final Intent ri = shellCmd.waitFor(r, new Runnable() {
-                                @Override
-                                public void run() {
-                                    try {
-                                        request.cancel();
-                                    } finally {
-                                        r.setIfIsNotSet(null);
-                                    }
+                            final Intent ri = shellCmd.waitFor(r, () -> {
+                                try {
+                                    request.cancel();
+                                } finally {
+                                    r.setIfIsNotSet(null);
                                 }
                             });
                             final Uri uri;
@@ -1644,12 +1598,7 @@ public final class TermSh {
                             }
                             final BackendUiInteraction gui = shellCmd.getGui();
                             final String prompt = Misc.fromUTF8(shellCmd.args[2]);
-                            shellCmd.setOnTerminate(new Runnable() {
-                                @Override
-                                public void run() {
-                                    cancel(true);
-                                }
-                            });
+                            shellCmd.setOnTerminate(() -> cancel(true));
                             try {
                                 if (gui.promptYesNo(
                                         ui.ctx.getString(R.string.msg_permission_confirmation,
@@ -1681,12 +1630,9 @@ public final class TermSh {
                             if (shellCmd.args.length != 2)
                                 throw new ParseException("Wrong number of arguments");
                             final String name = Misc.fromUTF8(shellCmd.args[1]);
-                            runOnUiThread(shellCmd, new RunnableT() {
-                                @Override
-                                public void run() {
-                                    if (!FavoritesManager.contains(name)) {
-                                        exitStatus = 2;
-                                    }
+                            runOnUiThread(shellCmd, () -> {
+                                if (!FavoritesManager.contains(name)) {
+                                    exitStatus = 2;
                                 }
                             });
                             break;
@@ -1700,24 +1646,21 @@ public final class TermSh {
                                 throw new ParseException("Wrong number of arguments");
                             final String name = Misc.fromUTF8(shellCmd.args[ap.position]);
                             final String execute = Misc.fromUTF8(shellCmd.args[ap.position + 1]);
-                            runOnUiThread(shellCmd, new RunnableT() {
-                                @Override
-                                public void run() throws IOException {
-                                    if (FavoritesManager.contains(name)) {
-                                        shellCmd.stdErr.write(Misc.toUTF8("Favorite `" + name
-                                                + "' is already exists\n"));
-                                        exitStatus = 2;
-                                        return;
-                                    }
-                                    final PreferenceStorage ps = new PreferenceStorage();
-                                    ps.put("type", BackendsList.get(LocalModule.class).typeStr);
-                                    ps.put("execute", execute);
-                                    if (opts.containsKey("term"))
-                                        ps.put("terminal_string", opts.get("term"));
-                                    ps.put("wakelock.acquire_on_connect", true);
-                                    ps.put("wakelock.release_on_disconnect", true);
-                                    FavoritesManager.set(name, ps);
+                            runOnUiThread(shellCmd, () -> {
+                                if (FavoritesManager.contains(name)) {
+                                    shellCmd.stdErr.write(Misc.toUTF8("Favorite `" + name
+                                            + "' is already exists\n"));
+                                    exitStatus = 2;
+                                    return;
                                 }
+                                final PreferenceStorage ps = new PreferenceStorage();
+                                ps.put("type", BackendsList.get(LocalModule.class).typeStr);
+                                ps.put("execute", execute);
+                                if (opts.containsKey("term"))
+                                    ps.put("terminal_string", opts.get("term"));
+                                ps.put("wakelock.acquire_on_connect", true);
+                                ps.put("wakelock.release_on_disconnect", true);
+                                FavoritesManager.set(name, ps);
                             });
                             break;
                         }
@@ -1733,7 +1676,8 @@ public final class TermSh {
                                 shellCmd.requirePerms(LocalModule.SessionData.PERM_PLUGINEXEC);
                             final ComponentName cn = Plugin.getComponent(ui.ctx, pkgName);
                             if (cn == null)
-                                throw new IOException(ui.ctx.getString(R.string.msg_s_is_not_a_plugin, pkgName));
+                                throw new IOException(ui.ctx.getString(
+                                        R.string.msg_s_is_not_a_plugin, pkgName));
                             if (!PluginsManager.verify(pkgName))
                                 throw new IOException(ui.ctx.getString(
                                         R.string.msg_s_is_not_permitted_to_run, pkgName));
@@ -1760,12 +1704,8 @@ public final class TermSh {
                                 final ShellCmdIO.ExchangeableFds efds =
                                         shellCmd.getExchangeableFds();
                                 try {
-                                    shellCmd.setOnTerminate(new Runnable() {
-                                        @Override
-                                        public void run() {
-                                            plugin.signal(Protocol.SIG_FINALIZE);
-                                        }
-                                    });
+                                    shellCmd.setOnTerminate(() ->
+                                            plugin.signal(Protocol.SIG_FINALIZE));
                                     exitStatus = plugin.exec(
                                             Arrays.copyOfRange(shellCmd.args,
                                                     ap.position + 1, shellCmd.args.length),
@@ -1836,12 +1776,8 @@ public final class TermSh {
                 serverSocket = new LocalServerSocket(BuildConfig.APPLICATION_ID + ".termsh");
                 while (!Thread.interrupted()) {
                     final LocalSocket socket = serverSocket.accept();
-                    ui.runOnUiThread(new Runnable() {
-                        @Override
-                        public void run() {
-                            new ClientTask().executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR, socket);
-                        }
-                    });
+                    ui.runOnUiThread(() -> new ClientTask()
+                            .executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR, socket));
                 }
             } catch (final InterruptedIOException ignored) {
             } catch (final IOException e) {

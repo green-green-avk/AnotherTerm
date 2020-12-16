@@ -12,7 +12,7 @@
         android:layout_height="wrap_content"
         android:hint="@string/label_terminal_string"
         android:importantForAutofill="no"
-        android:inputType="textPersonName"
+        android:inputType="textNoSuggestions"
         android:tag="terminal_string"
         android:text="xterm"
         tools:ignore="HardcodedText" />
