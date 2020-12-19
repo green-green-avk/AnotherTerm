@@ -6,6 +6,7 @@ import android.app.NotificationChannel;
 import android.app.NotificationManager;
 import android.content.ActivityNotFoundException;
 import android.content.ComponentName;
+import android.content.ContentResolver;
 import android.content.Context;
 import android.content.Intent;
 import android.database.Cursor;
@@ -319,6 +320,7 @@ public final class TermSh {
         private static final class ShellCmdIO {
             private static final byte CMD_EXIT = 0;
             private static final byte CMD_OPEN = 1;
+            private static final byte CMD_EXECP = 2;
 
             private static final int ARGLEN_MAX = 1024 * 1024;
             private static final byte[][] NOARGS = new byte[0][];
@@ -658,6 +660,41 @@ public final class TermSh {
                 }
             }
 
+            // execvp(args[0], {args[1..], "/proc/<termsh-PID>/fd/<FD> ..."})
+            private int execvp(@NonNull final String[] args, @NonNull final FileDescriptor[] fds)
+                    throws ParseException, IOException {
+                final int errno;
+                try {
+                    final DataOutputStream dos = new DataOutputStream(socket.getOutputStream());
+                    dos.writeByte(CMD_EXECP);
+                    socket.setFileDescriptorsForSend(fds);
+                    try {
+                        dos.writeByte(args.length);
+                    } finally {
+                        socket.setFileDescriptorsForSend(null); // Non-null? Queue? HA-HA!
+                    }
+                    for (final String arg : args) {
+                        final byte[] rawArg = Misc.toUTF8(arg);
+                        dos.writeInt(rawArg.length);
+                        dos.write(rawArg);
+                    }
+                    final DataInputStream dis = new DataInputStream(socket.getInputStream());
+                    final byte result = dis.readByte();
+                    if (result == 0) {
+                        return dis.readInt();
+                    }
+                    errno = dis.readInt();
+                } catch (final IOException e) {
+                    throw new ParseException(e.getMessage());
+                }
+                switch (errno) {
+                    case PtyProcess.ENOENT:
+                        throw new FileNotFoundException(args[0] + ": No such file or directory");
+                    default:
+                        throw new ShellErrnoException(args[0] + ": execvp() fails with errno=" + errno, errno);
+                }
+            }
+
             private final ChrootedFile.Ops ops = new ChrootedFile.Ops() {
                 @Override
                 @NonNull
@@ -782,6 +819,22 @@ public final class TermSh {
                 throw new FileNotFoundException(uri.toString() + " does not exist");
             }
             return os;
+        }
+
+        @NonNull
+        private ParcelFileDescriptor openFile(@NonNull final Uri uri) throws FileNotFoundException {
+            final ContentResolver cr = ui.ctx.getContentResolver();
+            ParcelFileDescriptor pfd;
+            try {
+                pfd = cr.openFileDescriptor(uri, "rw"); // Read only? We dunno, LOL...
+                if (pfd == null)
+                    throw new FileNotFoundException();
+            } catch (final SecurityException | FileNotFoundException e) {
+                pfd = cr.openFileDescriptor(uri, "r");
+                if (pfd == null)
+                    throw new FileNotFoundException();
+            }
+            return pfd;
         }
 
         @Nullable
@@ -1449,6 +1502,33 @@ public final class TermSh {
                                 } finally {
                                     is.close();
                                 }
+                            }
+                            break;
+                        }
+                        case "with-uris": {
+                            if (shellCmd.args.length < 4)
+                                throw new ParseException("Not enough arguments");
+                            final String[] args = new String[shellCmd.args.length - 2];
+                            for (int i = 1; i < shellCmd.args.length - 1; i++)
+                                args[i - 1] = Misc.fromUTF8(shellCmd.args[i]);
+                            final String[] uris =
+                                    Misc.fromUTF8(shellCmd.args[shellCmd.args.length - 1])
+                                            .split("\\s+");
+                            final ArrayList<ParcelFileDescriptor> pfds = new ArrayList<>();
+                            try {
+                                for (final String uriStr : uris) {
+                                    pfds.add(openFile(Uri.parse(uriStr)));
+                                }
+                                final FileDescriptor[] fds = new FileDescriptor[pfds.size()];
+                                for (int i = 0; i < pfds.size(); i++)
+                                    fds[i] = pfds.get(i).getFileDescriptor();
+                                exitStatus = shellCmd.execvp(args, fds);
+                            } finally {
+                                for (final ParcelFileDescriptor pfd : pfds)
+                                    if (pfd != null) try {
+                                        pfd.close();
+                                    } catch (final IOException ignored) {
+                                    }
                             }
                             break;
                         }

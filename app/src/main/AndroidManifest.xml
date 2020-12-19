@@ -119,6 +119,19 @@
             </intent-filter>
         </activity>
 
+        <activity-alias
+            android:name=".OpenInputActivity"
+            android:label="@string/action_open_in_new_session"
+            android:targetActivity=".ShareInputActivity">
+            <intent-filter>
+                <action android:name="android.intent.action.VIEW" />
+                <action android:name="android.intent.action.EDIT" />
+
+                <category android:name="android.intent.category.DEFAULT" />
+                <data android:mimeType="*/*" />
+            </intent-filter>
+        </activity-alias>
+
         <activity
             android:name=".ConsoleActivity"
             android:configChanges="keyboardHidden|keyboard"

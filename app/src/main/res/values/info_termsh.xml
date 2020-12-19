@@ -205,6 +205,22 @@ uri=\"$(\"$TERMSH\" pick -u)\"<br/>
 </dd><br/>
 
 <dt><p><code>
+with-uris &lt;name&gt; &lt;arg0&gt; [&lt;args...&gt;] &lt;URIs&gt;
+</code></p></dt>
+<dd>
+It\'s supposed to be used with
+<a href=\"info:/share_input\">content sharing, viewing and editing</a> feature.
+It runs a command with specified <code>&lt;URIs&gt;</code> represented by the <i>procfs fd</i> entries.
+The <code>&lt;URIs&gt;</code> is a single argument with the entries delimited by whitespaces.
+The URIs\' content provider must be able to return the whole file descriptors for them.
+<p>It returns the actual command exit status and <code>127</code> or <code>1</code>
+in case of own failure.</p>
+<p>Effect is the same as of
+<p><code>execp(name, arg0, args..., \"/proc/PID/fd/FD_URI0 /proc/PID/fd/FD_URI1 ...\")</code></p></p>
+<p><a href=\"https://green-green-avk.github.io/AnotherTerm-docs/local-shell-utility.html#cmd_with-uris\"><b>More info</b></a></p>
+</dd><br/>
+
+<dt><p><code>
 name &lt;URI&gt;
 </code></p></dt>
 <dd>

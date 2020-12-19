@@ -1,12 +1,22 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="desc_share_input_help"><![CDATA[
-        <h1>Content sharing with Another Term</h1>
-        <p>In order to process a <i><code>android.intent.action.SEND</code></i> or
-        <i><code>android.intent.action.SEND_MULTIPLE</code></i> action,
+        <h1>Content sharing, viewing and editing with Another&#xA0;Term</h1>
+        <p>In order to process a <i><code>android.intent.action.SEND</code></i>,
+        <i><code>android.intent.action.SEND_MULTIPLE</code></i>,
+        <i><code>android.intent.action.VIEW</code></i> or
+        <i><code>android.intent.action.EDIT</code></i> action,
         a new session with several additional environment variables will be created
-        from a user selected profile.</p>
-        <p>Environment variables:</p>
+        from a session profile selected by user from an additional chooser dialog.
+        <b>\"Show in &#x00AB;share with&#x00BB; / &#x00AB;open in&#x00BB; chooser dialog\"</b>
+        checkbox should be set in a session profile to make it visible.</p>
+        <p><b>Note:</b> Any URIs passed to Another&#xA0;Term are accessible
+        from all of its local shell sessions.
+        However there is no way to enumerate them
+        except cases of large texts sharing by value (see below)
+        when <code>termsh uri -l</code> can be used.</p>
+        <h2>Environment variables</h2>
+        <h3>Sharing</h3>
         <ul>
         <li><clipboard>INPUT_HTML</clipboard>[2|3|…][<clipboard>_URI</clipboard>] &#x2014;
         <i><code>android.intent.extra.HTML_TEXT</code></i>
@@ -24,5 +34,13 @@
         <li><clipboard>INPUT_EMAIL_</clipboard>{<clipboard>TO</clipboard>|<clipboard>CC</clipboard>|<clipboard>BCC</clipboard>} &#x2014;
         <i><code>android.intent.extra.{EMAIL|CC|BCC}</code></i> respectively.</li>
         </ul>
+        <h3>Viewing and editing</h3>
+        <ul>
+        <li><clipboard>INPUT_ACTION</clipboard> &#x2014; <code>Intent.getAction()</code>.</li>
+        <li><clipboard>INPUT_MIME</clipboard> &#x2014; <code>Intent.getType()</code>.</li>
+        <li><clipboard>INPUT_URI</clipboard> &#x2014; content URI.</li>
+        </ul>
+        <p><code><a href=\"info:/termsh_man\">termsh with-uris</a></code>
+        is supposed to be used with the <code>INPUT_URI</code>.</p>
     ]]></string>
 </resources>

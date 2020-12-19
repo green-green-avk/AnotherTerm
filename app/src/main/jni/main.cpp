@@ -14,6 +14,7 @@
 #include <termios.h>
 #include <signal.h>
 #include <fcntl.h>
+#include <sys/wait.h>
 
 #include <android/log.h>
 
@@ -58,6 +59,45 @@ static size_t getOpts(options_t *const options, const int argc, const char *cons
         next:;
     }
     return i;
+}
+
+static ssize_t recvFds(const int sockfd, void *const data, const size_t len,
+                       int *const fds, size_t *const fdsc) {
+    alignas(struct cmsghdr) char cmsg_buf[PAGE_SIZE];
+    iovec iov = {.iov_base = (void *) data, .iov_len = len};
+    msghdr msg = {
+            .msg_name = nullptr,
+            .msg_namelen = 0,
+            .msg_iov = &iov,
+            .msg_iovlen = 1,
+            .msg_control = cmsg_buf,
+            .msg_controllen = sizeof(cmsg_buf),
+            .msg_flags = 0
+    };
+    const ssize_t r = TEMP_FAILURE_RETRY(recvmsg(sockfd, &msg, MSG_NOSIGNAL));
+    if (r < 0) {
+        if (errno == EPIPE)
+            return 0;
+        return r;
+    }
+    if (msg.msg_flags & (MSG_CTRUNC | MSG_OOB | MSG_ERRQUEUE))
+        return -1;
+    size_t cmsg_fdsc = 0;
+    for (struct cmsghdr *cmsg = CMSG_FIRSTHDR(&msg);
+         cmsg != nullptr; cmsg = CMSG_NXTHDR(&msg, cmsg)) {
+        if (cmsg->cmsg_level != SOL_SOCKET || cmsg->cmsg_type != SCM_RIGHTS)
+            continue;
+        const size_t n = ((cmsg->cmsg_len - CMSG_LEN(0)) / sizeof(int));
+        const int *const cmsg_fds = (int *) CMSG_DATA(cmsg);
+        for (size_t i = 0; i < n; i++) {
+            if (cmsg_fdsc + i >= *fdsc)
+                return -1;
+            fds[cmsg_fdsc + i] = cmsg_fds[i];
+        }
+        cmsg_fdsc += n;
+    }
+    *fdsc = cmsg_fdsc;
+    return r;
 }
 
 static ssize_t sendFds(const int sockfd, const void *const data, const size_t len,
@@ -120,6 +160,17 @@ static void writeAllOrExit(const int sock, const void *const buf, const size_t l
     }
 }
 
+static ssize_t recvFdsOrExit(const int sock, void *const buf, const size_t len,
+                             int *const fds, size_t *const fdsc) {
+    const ssize_t r = recvFds(sock, buf, len, fds, fdsc);
+    if (r <= 0) {
+        close(sock);
+        perror("Error receiving data with fds from termsh server");
+        exit(1);
+    }
+    return r;
+}
+
 static void sendFdsOrExit(const int sock, const void *const buf, const size_t len,
                           const int *const fds, const size_t fdsc) {
     const ssize_t r = sendFds(sock, buf, len, fds, fdsc);
@@ -168,6 +219,7 @@ static void _onSignalExit(int s) {
 
 #define CMD_EXIT 0
 #define CMD_OPEN 1
+#define CMD_EXECP 2
 
 static uint64_t getenvuqOrExit(const char *const name) {
     const char *const vs = getenv(name);
@@ -198,6 +250,41 @@ static int fixFd(const int fd) {
         if (r != -1) return r;
     }
     return fd;
+}
+
+static char *readStringOrExit(const int sock) {
+    uint32_t str_len;
+    readAllOrExit(sock, &str_len, sizeof(str_len));
+    str_len = ntohl(str_len);
+    if (str_len >= PAGE_SIZE) {
+        fprintf(stderr, "Argument is too long\n");
+        exit(1);
+    }
+    char *str = (char *) malloc(str_len + 1);
+    if (str == nullptr) {
+        perror("malloc() failed");
+        exit(1);
+    }
+    readAllOrExit(sock, str, str_len);
+    str[str_len] = '\0';
+    return str;
+}
+
+static void readStringsOrExit(const int sock, char **const list, const size_t len) {
+    for (int i = 0; i < len; i++)
+        list[i] = readStringOrExit(sock);
+}
+
+static void freeStrings(char **const list, const size_t len) {
+    for (int i = 0; i < len; i++)
+        free(list[i]);
+}
+
+static void returnErrno(const int sock) {
+    const char result = -1;
+    writeAllOrExit(sock, &result, sizeof(result));
+    const int32_t err = htonl(errno);
+    writeAllOrExit(sock, &err, sizeof(err));
 }
 
 int main(const int argc, const char *const *const argv) {
@@ -322,14 +409,66 @@ int main(const int argc, const char *const *const argv) {
                 name[name_len] = '\0';
                 const int r = open(name, flags, 00600);
                 if (r == -1) {
-                    const char result = -1;
-                    writeAllOrExit(sock, &result, sizeof(result));
-                    const int32_t err = htonl(errno);
-                    writeAllOrExit(sock, &err, sizeof(err));
+                    returnErrno(sock);
                 } else {
                     const char result = 0;
                     sendFdsOrExit(sock, &result, sizeof(result), &r, 1);
                     close(r);
+                }
+                break;
+            }
+            case CMD_EXECP: {
+                size_t fds_num = 64;
+                int fds[fds_num];
+                uint8_t args_num;
+                recvFdsOrExit(sock, &args_num, sizeof(args_num), fds, &fds_num);
+                if (args_num < 2) {
+                    fprintf(stderr, "CMD_EXEC: arguments number < 2\n");
+                    exit(1);
+                }
+                char fds_arg[fds_num * 64]; // enough
+                const pid_t fd_pid = getpid();
+                size_t pos = 0;
+                for (size_t i = 0; i < fds_num; i++) {
+                    pos += sprintf(fds_arg + pos, "/proc/%u/fd/%u ", fd_pid, fds[i]);
+                }
+                fds_arg[pos - 1] = '\0';
+                char *args[args_num + 2];
+                readStringsOrExit(sock, args, args_num);
+                args[args_num] = fds_arg;
+                args[args_num + 1] = nullptr;
+                const pid_t pid = fork();
+                if (pid == -1) {
+                    perror("fork() failed");
+                    returnErrno(sock);
+                    break;
+                }
+                if (pid != 0) {
+                    freeStrings(args, args_num);
+                    int st;
+                    pid_t r;
+                    while (true) {
+                        r = waitpid(pid, &st, 0);
+                        if (r == -1 && errno == EINTR) continue;
+                        break;
+                    }
+                    for (size_t i = 0; i < fds_num; i++)
+                        close(fds[i]);
+                    if (r == -1) {
+                        perror("waitpid() failed");
+                        returnErrno(sock);
+                    } else {
+                        const char result = 0;
+                        writeAllOrExit(sock, &result, sizeof(result));
+                        const int32_t ret = htonl(st);
+                        writeAllOrExit(sock, &ret, sizeof(ret));
+                    }
+                } else {
+                    for (size_t i = 0; i < fds_num; i++)
+                        close(fds[i]);
+                    execvp(args[0], args + 1);
+                    perror("execvp() failed");
+                    exit(127);
                 }
                 break;
             }

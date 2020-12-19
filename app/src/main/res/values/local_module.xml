@@ -21,7 +21,7 @@
     ]]></string>
 
     <string name="label_fav_shareable">
-        Show in &#x00AB;share with&#x00BB; selection dialog
+        Show in &#x00AB;share with&#x00BB; / &#x00AB;open in&#x00BB; chooser dialog
     </string>
 
     <string name="action_send_signal">Send a Signal</string>

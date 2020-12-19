@@ -59,6 +59,74 @@ public final class ShareInputActivity extends AppCompatActivity {
                 .putExtra(C.IFK_MSG_SESS_KEY, key));
     }
 
+    private void fillSendArgs(@NonNull final PreferenceStorage ps) {
+        final ShareCompat.IntentReader intentReader = ShareCompat.IntentReader.from(this);
+        putIfSet(ps, "$input.mime", intentReader.getType(), "text/plain");
+        putIfSet(ps, "$input.email_to", intentReader.getEmailTo());
+        putIfSet(ps, "$input.email_cc", intentReader.getEmailCc());
+        putIfSet(ps, "$input.email_bcc", intentReader.getEmailBcc());
+        putIfSet(ps, "$input.subject", intentReader.getSubject(), "text/plain");
+        final String text = intentReader.getHtmlText();
+        if (text != null) {
+            putIfSet(ps, "$input.html", text, "text/html");
+        } else { // ShareCompat can't... :(
+            final Intent intent = getIntent();
+            Iterable<String> htmlTexts =
+                    intent.getStringArrayListExtra(IntentCompat.EXTRA_HTML_TEXT);
+            if (htmlTexts == null) {
+                final ArrayList<CharSequence> texts =
+                        intent.getCharSequenceArrayListExtra(Intent.EXTRA_TEXT);
+                if (texts != null) {
+                    htmlTexts = () -> new Iterator<String>() {
+                        private final Iterator<CharSequence> it = texts.iterator();
+
+                        @Override
+                        public boolean hasNext() {
+                            return it.hasNext();
+                        }
+
+                        @Override
+                        public String next() {
+                            return HtmlUtils.toHtml(it.next());
+                        }
+                    };
+                }
+            }
+            if (htmlTexts != null) {
+                int i = 1;
+                for (final String t : htmlTexts) {
+                    putIfSet(ps, "$input.html" + (i == 1 ? "" : i), t, "text/html");
+                    i++;
+                }
+            }
+        }
+        if (intentReader.getStreamCount() > 0)
+            ps.put("$input.uris", TextUtils.join(" ", new AbstractList<Uri>() {
+                @Override
+                public Uri get(final int index) {
+                    return intentReader.getStream(index);
+                }
+
+                @Override
+                public int size() {
+                    return intentReader.getStreamCount();
+                }
+            }));
+    }
+
+    private void fillOpenArgs(@NonNull final PreferenceStorage ps) {
+        final Intent intent = getIntent();
+        final Uri data = intent.getData();
+        if (data == null) return;
+        ps.put("$input.uri", data.toString());
+        final String type = intent.getType();
+        if (type != null)
+            ps.put("$input.mime", type);
+        final String action = intent.getAction();
+        if (action != null)
+            ps.put("$input.action", action);
+    }
+
     private void prepareFavoritesList() {
         final RecyclerView l = findViewById(R.id.favorites_list);
         l.setLayoutManager(new LinearLayoutManager(this));
@@ -69,59 +137,13 @@ public final class ShareInputActivity extends AppCompatActivity {
             final PreferenceStorage ps = FavoritesManager.get(name);
             final int key;
             ps.put("name", name); // Some mark
-            final ShareCompat.IntentReader intentReader =
-                    ShareCompat.IntentReader.from(ShareInputActivity.this);
-            putIfSet(ps, "$input.mime", intentReader.getType(), "text/plain");
-            putIfSet(ps, "$input.email_to", intentReader.getEmailTo());
-            putIfSet(ps, "$input.email_cc", intentReader.getEmailCc());
-            putIfSet(ps, "$input.email_bcc", intentReader.getEmailBcc());
-            putIfSet(ps, "$input.subject", intentReader.getSubject(), "text/plain");
-            final String text = intentReader.getHtmlText();
-            if (text != null) {
-                putIfSet(ps, "$input.html", text, "text/html");
-            } else { // ShareCompat can't... :(
-                final Intent intent = getIntent();
-                Iterable<String> htmlTexts =
-                        intent.getStringArrayListExtra(IntentCompat.EXTRA_HTML_TEXT);
-                if (htmlTexts == null) {
-                    final ArrayList<CharSequence> texts =
-                            intent.getCharSequenceArrayListExtra(Intent.EXTRA_TEXT);
-                    if (texts != null) {
-                        htmlTexts = () -> new Iterator<String>() {
-                            private final Iterator<CharSequence> it = texts.iterator();
-
-                            @Override
-                            public boolean hasNext() {
-                                return it.hasNext();
-                            }
-
-                            @Override
-                            public String next() {
-                                return HtmlUtils.toHtml(it.next());
-                            }
-                        };
-                    }
-                }
-                if (htmlTexts != null) {
-                    int i = 1;
-                    for (final String t : htmlTexts) {
-                        putIfSet(ps, "$input.html" + (i == 1 ? "" : i), t, "text/html");
-                        i++;
-                    }
-                }
+            final String action = getIntent().getAction();
+            if (Intent.ACTION_SEND.equals(action) ||
+                    Intent.ACTION_SEND_MULTIPLE.equals(action)) {
+                fillSendArgs(ps);
+            } else {
+                fillOpenArgs(ps);
             }
-            if (intentReader.getStreamCount() > 0)
-                ps.put("$input.uris", TextUtils.join(" ", new AbstractList<Uri>() {
-                    @Override
-                    public Uri get(final int index) {
-                        return intentReader.getStream(index);
-                    }
-
-                    @Override
-                    public int size() {
-                        return intentReader.getStreamCount();
-                    }
-                }));
             try {
                 key = ConsoleService.startSession(ShareInputActivity.this, ps.get());
             } catch (final ConsoleService.Exception | BackendException e) {
