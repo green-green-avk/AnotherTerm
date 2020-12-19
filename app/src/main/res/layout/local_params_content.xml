@@ -102,6 +102,29 @@
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:gravity="center_vertical"
+        android:orientation="horizontal">
+
+        <CheckBox
+            android:id="@+id/f_shareable"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="@dimen/text_margin"
+            android:layout_marginRight="@dimen/text_margin"
+            android:tag="shareable"
+            android:text="@string/label_fav_shareable" />
+
+        <ImageButton
+            style="@style/AppWidget.Editor.ImageButton.Horizontal"
+            android:contentDescription="@string/action_info"
+            android:onClick="infoShareable"
+            app:srcCompat="@drawable/ic_help" />
+
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
         android:orientation="horizontal">
 
         <TextView

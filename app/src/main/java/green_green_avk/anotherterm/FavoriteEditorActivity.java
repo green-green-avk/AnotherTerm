@@ -184,6 +184,11 @@ public final class FavoriteEditorActivity extends AppCompatActivity {
                 .setData(Uri.parse("info://local/fav_token")));
     }
 
+    public void infoShareable(final View view) {
+        startActivity(new Intent(this, InfoActivity.class)
+                .setData(Uri.parse("info://local/share_input")));
+    }
+
     @Nullable
     private String getName() {
         final String name = mNameW.getText().toString().trim();

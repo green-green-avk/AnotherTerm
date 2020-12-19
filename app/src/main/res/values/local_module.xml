@@ -20,6 +20,10 @@
         <p>Shell plugins execution by <b>termsh</b>.</p>
     ]]></string>
 
+    <string name="label_fav_shareable">
+        Show in &#x00AB;share with&#x00BB; selection dialog
+    </string>
+
     <string name="action_send_signal">Send a Signal</string>
     <string name="action_send_signal_to_fg_pg">Send a signal to the foreground process group</string>
     <string name="label_sighup" translatable="false">SIGHUP</string>
