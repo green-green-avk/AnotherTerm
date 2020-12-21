@@ -44,6 +44,8 @@ public final class InfoActivity extends AppCompatActivity {
         res.put("/scratchpad", new Source(R.string.desc_scratchpad_help, Source.Type.XML));
         res.put("/share_input", new Source(R.string.desc_share_input_help, Source.Type.XML));
         res.put("/fav_token", new Source(R.string.desc_fav_token_help, Source.Type.XML));
+        res.put("/shell_perm_favmgmt", new Source(R.string.desc_favorites_management, Source.Type.XML));
+        res.put("/shell_perm_pluginexec", new Source(R.string.desc_plugins_execution, Source.Type.XML));
         res.put("/shell_env_man", new Source(R.string.desc_shell_env_help, Source.Type.XML));
         res.put("/termsh_man", new Source(R.string.desc_termsh_help, Source.Type.XML));
         res.put("/help", new Source(R.string.desc_main_help, Source.Type.XML));

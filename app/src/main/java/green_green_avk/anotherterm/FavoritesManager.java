@@ -20,7 +20,7 @@ public final class FavoritesManager {
     private static final SharedPreferencesSet prefs = new SharedPreferencesSet();
 
     private static final Set<Runnable> onChangeListeners =
-            Collections.newSetFromMap(new WeakHashMap<Runnable, Boolean>());
+            Collections.newSetFromMap(new WeakHashMap<>());
 
     private static void execOnChangeListeners() {
         for (final Runnable r : onChangeListeners) {
@@ -38,8 +38,8 @@ public final class FavoritesManager {
         return prefs.enumerate();
     }
 
-    public static boolean contains(@NonNull final String key) {
-        return prefs.contains(key);
+    public static boolean contains(@NonNull final String name) {
+        return prefs.contains(name);
     }
 
     @NonNull

@@ -17,7 +17,10 @@
     ]]></string>
     <string name="label_plugins_execution">Plugins execution</string>
     <string name="desc_plugins_execution"><![CDATA[
-        <p>Shell plugins execution by <b>termsh</b>.</p>
+        <p>Shell plugins execution by <b>termsh</b>.
+        Plugins set as &#x00AB;Always accessible&#x00BB;
+        in the Plugins settings can be run independently
+        of this permission state.</p>
     ]]></string>
 
     <string name="label_fav_shareable">

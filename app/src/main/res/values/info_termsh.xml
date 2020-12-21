@@ -15,7 +15,10 @@ for the time of command execution.
 (Beware, <kbd>Ctrl</kbd>-<kbd>C</kbd> etc. are not captured by a PTY in this mode.)</li>
 </ul>
 
-<h4>Commands:</h4>
+<h4>Commands</h4>
+
+<p><b>Note:</b> Any UI elements (except notifications) and related commands
+will block until a terminal activity corresponding to the related session is shown.</p>
 
 <dl>
 
@@ -224,14 +227,15 @@ in case of own failure.</p>
 name &lt;URI&gt;
 </code></p></dt>
 <dd>
-Get the name provided by content provider (or deduced from the URI)*
+Get the name provided by content provider (or deduced from the URI)*.
 </dd><br/>
 
 <dt><p><code>
 size [--insecure] &lt;URI&gt;
 </code></p></dt>
 <dd>
-Get the size provided by content provider (or <code>null</code> if not defined)
+Get the size provided by content provider or HTTP <code>content-length</code> header
+(or <code>null</code> if not defined).
 </dd><br/>
 
 <dt><p><code>
@@ -285,7 +289,9 @@ request-permission &lt;name&gt; &lt;message&gt;
 </code></p></dt>
 <dd>Ask the user by a dialog.
 <ul type=\"none\">
-<li><code>&lt;name&gt;</code> &#x2014; can be: <code>favmgmt</code>, <code>pluginexec</code>.</li>
+<li><code>&lt;name&gt;</code> &#x2014; can be:
+<a href=\"info:/shell_perm_favmgmt\"><code>favmgmt</code></a>,
+<a href=\"info:/shell_perm_pluginexec\"><code>pluginexec</code></a>.</li>
 <li><code>&lt;message&gt;</code> &#x2014; to show.</li>
 </ul>
 <p>Return codes:</p>

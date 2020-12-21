@@ -1728,8 +1728,6 @@ public final class TermSh {
                             final String execute = Misc.fromUTF8(shellCmd.args[ap.position + 1]);
                             runOnUiThread(shellCmd, () -> {
                                 if (FavoritesManager.contains(name)) {
-                                    shellCmd.stdErr.write(Misc.toUTF8("Favorite `" + name
-                                            + "' is already exists\n"));
                                     exitStatus = 2;
                                     return;
                                 }
@@ -1742,6 +1740,9 @@ public final class TermSh {
                                 ps.put("wakelock.release_on_disconnect", true);
                                 FavoritesManager.set(name, ps);
                             });
+                            if (exitStatus == 2)
+                                shellCmd.stdErr.write(Misc.toUTF8("Favorite `" + name
+                                        + "' is already exists\n"));
                             break;
                         }
                         case "plugin": {

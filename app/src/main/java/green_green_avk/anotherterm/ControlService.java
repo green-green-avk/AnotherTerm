@@ -76,6 +76,7 @@ public final class ControlService extends Service {
     }
 
     @Override
+    @Nullable
     public IBinder onBind(final Intent intent) {
         // Not yet...
         return null;
