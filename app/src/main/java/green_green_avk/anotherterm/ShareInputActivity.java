@@ -54,6 +54,11 @@ public final class ShareInputActivity extends AppCompatActivity {
         if (value != null) ps.put(name, TextUtils.join(" ", value));
     }
 
+    private static void putIfSet(@NonNull final PreferenceStorage ps,
+                                 @NonNull final String name, @Nullable final String value) {
+        if (value != null) ps.put(name, value);
+    }
+
     private void showSession(final int key) {
         startActivity(new Intent(this, ConsoleActivity.class)
                 .putExtra(C.IFK_MSG_SESS_KEY, key));
@@ -61,7 +66,8 @@ public final class ShareInputActivity extends AppCompatActivity {
 
     private void fillSendArgs(@NonNull final PreferenceStorage ps) {
         final ShareCompat.IntentReader intentReader = ShareCompat.IntentReader.from(this);
-        putIfSet(ps, "$input.mime", intentReader.getType(), "text/plain");
+        putIfSet(ps, "$input.action", getIntent().getAction());
+        putIfSet(ps, "$input.mime", intentReader.getType());
         putIfSet(ps, "$input.email_to", intentReader.getEmailTo());
         putIfSet(ps, "$input.email_cc", intentReader.getEmailCc());
         putIfSet(ps, "$input.email_bcc", intentReader.getEmailBcc());
@@ -119,12 +125,8 @@ public final class ShareInputActivity extends AppCompatActivity {
         final Uri data = intent.getData();
         if (data == null) return;
         ps.put("$input.uri", data.toString());
-        final String type = intent.getType();
-        if (type != null)
-            ps.put("$input.mime", type);
-        final String action = intent.getAction();
-        if (action != null)
-            ps.put("$input.action", action);
+        putIfSet(ps, "$input.mime", intent.getType());
+        putIfSet(ps, "$input.action", intent.getAction());
     }
 
     private void prepareFavoritesList() {

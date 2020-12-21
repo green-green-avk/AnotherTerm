@@ -19,6 +19,8 @@
         since a sessions started: they will expire otherwise.
         There are no other related time limitations in Android.</p>
         <h2>Environment variables</h2>
+        <li><clipboard>INPUT_ACTION</clipboard> &#x2014; <code>Intent.getAction()</code>.</li>
+        <li><clipboard>INPUT_MIME</clipboard> &#x2014; <code>Intent.getType()</code>.</li>
         <h3>Sharing</h3>
         <ul>
         <li><clipboard>INPUT_HTML</clipboard>[2|3|…][<clipboard>_URI</clipboard>] &#x2014;
@@ -30,8 +32,6 @@
         <br/>Any text will be represented as an HTML and encoded appropriately if needed.</li>
         <li><clipboard>INPUT_URIS</clipboard> &#x2014;
         a space separated list of <i><code>android.intent.extra.STREAM</code></i>.</li>
-        <li><clipboard>INPUT_MIME</clipboard> &#x2014;
-        <code>Intent.getType()</code>.</li>
         <li><clipboard>INPUT_SUBJECT</clipboard> &#x2014;
         <i><code>android.intent.extra.SUBJECT</code></i>.</li>
         <li><clipboard>INPUT_EMAIL_</clipboard>{<clipboard>TO</clipboard>|<clipboard>CC</clipboard>|<clipboard>BCC</clipboard>} &#x2014;
@@ -39,8 +39,6 @@
         </ul>
         <h3>Viewing and editing</h3>
         <ul>
-        <li><clipboard>INPUT_ACTION</clipboard> &#x2014; <code>Intent.getAction()</code>.</li>
-        <li><clipboard>INPUT_MIME</clipboard> &#x2014; <code>Intent.getType()</code>.</li>
         <li><clipboard>INPUT_URI</clipboard> &#x2014; content URI.</li>
         </ul>
         <p><code><a href=\"info:/termsh_man\">termsh with-uris</a></code>
