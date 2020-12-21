@@ -151,7 +151,7 @@ public final class TermSh {
 
     private static final class UiServer implements Runnable {
         private static final Pattern URI_PATTERN = Pattern.compile("^(?:[a-zA-Z0-9+.-]+)://");
-        private static final BinaryGetOpts.Options SIZE_OPTS =
+        private static final BinaryGetOpts.Options URI_WEB_OPTS =
                 new BinaryGetOpts.Options(new BinaryGetOpts.Option[]{
                         new BinaryGetOpts.Option("insecure", new String[]{"--insecure"},
                                 BinaryGetOpts.Option.Type.NONE)
@@ -892,6 +892,30 @@ public final class TermSh {
             }
         }
 
+        @Nullable
+        private String getMime(@NonNull final Uri uri, final boolean insecure) throws IOException {
+            final String scheme = uri.getScheme();
+            if (scheme == null) throw new MalformedURLException("Malformed URL: " + uri.toString());
+            switch (scheme) {
+                case "http":
+                case "https": {
+                    final URL url = new URL(uri.toString());
+                    final URLConnection conn = url.openConnection();
+                    if (conn instanceof HttpsURLConnection && insecure) {
+                        ((HttpsURLConnection) conn)
+                                .setSSLSocketFactory(SslHelper.trustAllCertsCtx.getSocketFactory());
+                    }
+                    try {
+                        conn.connect();
+                        return conn.getContentType();
+                    } catch (final IOException e) {
+                        throw fixURLConnectionException(e, uri);
+                    }
+                }
+            }
+            return ui.ctx.getContentResolver().getType(uri);
+        }
+
         private void printHelp(@NonNull final String value, @NonNull final OutputStream output)
                 throws IOException {
             if (output instanceof PtyProcess.PfdFileOutputStream) {
@@ -1547,7 +1571,7 @@ public final class TermSh {
                         case "size": {
                             final BinaryGetOpts.Parser ap = new BinaryGetOpts.Parser(shellCmd.args);
                             ap.skip();
-                            final Map<String, ?> opts = ap.parse(SIZE_OPTS);
+                            final Map<String, ?> opts = ap.parse(URI_WEB_OPTS);
                             if (shellCmd.args.length - ap.position != 1)
                                 throw new ParseException("Wrong number of arguments");
                             final Uri uri = Uri.parse(Misc.fromUTF8(shellCmd.args[ap.position]));
@@ -1557,6 +1581,21 @@ public final class TermSh {
                                 exitStatus = 2;
                             } else
                                 shellCmd.stdOut.write(Misc.toUTF8(size + "\n"));
+                            break;
+                        }
+                        case "mime": {
+                            final BinaryGetOpts.Parser ap = new BinaryGetOpts.Parser(shellCmd.args);
+                            ap.skip();
+                            final Map<String, ?> opts = ap.parse(URI_WEB_OPTS);
+                            if (shellCmd.args.length - ap.position != 1)
+                                throw new ParseException("Wrong number of arguments");
+                            final Uri uri = Uri.parse(Misc.fromUTF8(shellCmd.args[ap.position]));
+                            final String mime = getMime(uri, opts.containsKey("insecure"));
+                            if (mime == null) {
+                                shellCmd.stdOut.write(Misc.toUTF8(C.UNDEFINED_FILE_MIME + "\n"));
+                                exitStatus = 2;
+                            } else
+                                shellCmd.stdOut.write(Misc.toUTF8(mime + "\n"));
                             break;
                         }
                         case "serial": {

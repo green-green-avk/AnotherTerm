@@ -239,6 +239,14 @@ Get the size provided by content provider or HTTP <code>content-length</code> he
 </dd><br/>
 
 <dt><p><code>
+mime [--insecure] &lt;URI&gt;
+</code></p></dt>
+<dd>
+Get the mime-type provided by content provider or HTTP <code>content-type</code> header
+(or <code>*/*</code> if not defined).
+</dd><br/>
+
+<dt><p><code>
 serial -l|--list<br/>
 serial [-a|--adapter &lt;address&gt;] [-i|--insecure] [&lt;baudrate&gt;[/&lt;databits&gt;[/&lt;stopbits&gt;[/&lt;parity&gt;[/&lt;flowcontrol&gt;]]]]]
 </code></p></dt>
