@@ -117,11 +117,16 @@ treats absence of the size as zero size even in case of a stream.</li>
 <li><code>-p|--prompt &lt;prompt&gt;</code> &#x2014; to show in the chooser dialog.</li>
 <li><code>--text &lt;text&gt;</code> &#x2014;
 <i><code>android.intent.extra.TEXT</code></i>.</li>
+<li><code>--text-stdin</code> &#x2014;
+the same but from the <i>stdin</i>***.</li>
 <li><code>--html &lt;HTML&gt;</code> &#x2014;
 <i><code>android.intent.extra.HTML_TEXT</code></i>.
 <br/><i><code>android.intent.extra.TEXT</code></i> will be set to
 <code>Html.fromHtml(&lt;HTML&gt;)</code>
-if no <code>--text &lt;text&gt;</code> is specified.</li>
+if no <code>--text &lt;text&gt;</code> or
+<code>--text-stdin</code> is specified.</li>
+<li><code>--html-stdin</code> &#x2014;
+the same but from the <i>stdin</i>***.</li>
 <li><code>--subject &lt;subject&gt;</code> &#x2014;
 <i><code>android.intent.extra.SUBJECT</code></i>.</li>
 <li><code>--email-to &lt;address[ address]...&gt;</code> &#x2014;
@@ -138,6 +143,9 @@ require the stream size to be known beforehand...
 Streaming will not work with them in the case above.</p>
 <p><code>convert cat.jpg -grayscale average cat_gray.jpg &amp;&amp; \"$TERMSH\" send --subject \'My cat\' --text \'Attached.\' cat_gray.jpg</code>
 <br/>This will.</p>
+<p>Or just <a href=\"info:/share_input\">resharing</a> text content by value:
+<br/><code>\"$TERMSH\" cat \"$INPUT_URI\" | \"$TERMSH\" send --text-stdin</code><br/>
+can be useful to create an e-mail letter using a text file as its content.</p>
 </dd><br/>
 
 <dt><p><code>
@@ -361,6 +369,7 @@ with one millisecond granularity.</p>
 exit code <code>2</code> is returned.</li>
 <li>** Any UI element started by a script will not be shown and block
 until related shell session UI become active.</li>
+<li>*** The scratchpad marshalling limit applies.</li>
 </ul>
 
 <h4>Environment variables:</h4>

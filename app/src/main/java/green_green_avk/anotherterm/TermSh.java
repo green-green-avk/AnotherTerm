@@ -235,6 +235,8 @@ public final class TermSh {
                                 BinaryGetOpts.Option.Type.STRING),
                         new BinaryGetOpts.Option("html", new String[]{"--html"},
                                 BinaryGetOpts.Option.Type.STRING),
+                        new BinaryGetOpts.Option("html-stdin", new String[]{"--html-stdin"},
+                                BinaryGetOpts.Option.Type.NONE),
                         new BinaryGetOpts.Option("mime", new String[]{"-m", "--mime"},
                                 BinaryGetOpts.Option.Type.STRING),
                         new BinaryGetOpts.Option("name", new String[]{"-n", "--name"},
@@ -248,7 +250,9 @@ public final class TermSh {
                         new BinaryGetOpts.Option("subject", new String[]{"--subject"},
                                 BinaryGetOpts.Option.Type.STRING),
                         new BinaryGetOpts.Option("text", new String[]{"--text"},
-                                BinaryGetOpts.Option.Type.STRING)
+                                BinaryGetOpts.Option.Type.STRING),
+                        new BinaryGetOpts.Option("text-stdin", new String[]{"--text-stdin"},
+                                BinaryGetOpts.Option.Type.NONE)
                 });
         private static final BinaryGetOpts.Options SERIAL_OPTS =
                 new BinaryGetOpts.Options(new BinaryGetOpts.Option[]{
@@ -916,6 +920,29 @@ public final class TermSh {
             return ui.ctx.getContentResolver().getType(uri);
         }
 
+        // limit is in chars
+        @NonNull
+        private static String readPipe(@NonNull final InputStream is, final int limit,
+                                       @NonNull final String limitMsg)
+                throws IOException {
+            final char[] buf = new char[4096];
+            final StringBuilder sb = new StringBuilder();
+            final Reader isr = new InputStreamReader(is, Misc.UTF8);
+            int len = 0;
+            int n;
+            while ((n = isr.read(buf)) > 0) {
+                sb.append(buf, 0, n);
+                len += n;
+                if (len > limit)
+                    throw new IOException(limitMsg);
+            }
+            return sb.toString();
+        }
+
+        private int getDefaultMarshallingLimit() {
+            return ((App) ui.ctx.getApplicationContext()).settings.scratchpad_use_threshold * 1024;
+        }
+
         private void printHelp(@NonNull final String value, @NonNull final OutputStream output)
                 throws IOException {
             if (output instanceof PtyProcess.PfdFileOutputStream) {
@@ -1210,40 +1237,6 @@ public final class TermSh {
                             String name;
                             Uri uri;
                             final BlockingSync<Object> result = new BlockingSync<>();
-                            boolean hasStdIn = false;
-                            for (int i = ap.position; i < shellCmd.args.length; i++) {
-                                name = Misc.fromUTF8(shellCmd.args[i]);
-                                if ("-".equals(name)) {
-                                    if (hasStdIn) continue;
-                                    name = (String) opts.get("name");
-                                    uri = StreamProvider.obtainUri(shellCmd.stdIn, mimeType,
-                                            name, (Integer) opts.get("size"),
-                                            msg -> result.set(null));
-                                    titles.add(name != null ? name :
-                                            ui.ctx.getString(R.string.name_stream_default));
-                                    uris.add(uri);
-                                    aggregateMime.quietMerge(mimeType);
-                                    hasStdIn = true;
-                                    continue;
-                                }
-                                if (URI_PATTERN.matcher(name).find()) {
-                                    uri = Uri.parse(name);
-                                    if (uris.contains(uri)) continue;
-                                    final String title = getName(uri);
-                                    titles.add(title != null ? title :
-                                            ui.ctx.getString(R.string.name_stream_default));
-                                } else {
-                                    final File file = shellCmd.getOriginalFile(name);
-                                    checkFile(file);
-                                    uri = Misc.getFileUri(ui.ctx, file);
-                                    if (uris.contains(uri)) continue;
-                                    titles.add(file.getName());
-                                }
-                                uris.add(uri);
-                                aggregateMime.quietMerge(ui.ctx.getContentResolver()
-                                        .getType(uri));
-                            }
-                            if (!hasStdIn) result.set(null);
                             final Runnable rCancel = () -> {
                                 try {
                                     for (final Uri uri1 : uris)
@@ -1252,58 +1245,118 @@ public final class TermSh {
                                     result.set(null);
                                 }
                             };
-                            final Intent intent;
-                            if (uris.size() > 1) {
-                                intent = new Intent(Intent.ACTION_SEND_MULTIPLE);
-                                intent.putParcelableArrayListExtra(Intent.EXTRA_STREAM,
-                                        new ArrayList<>(uris));
-                            } else {
-                                intent = new Intent(Intent.ACTION_SEND);
-                                if (uris.size() == 1)
-                                    intent.putExtra(Intent.EXTRA_STREAM, uris.iterator().next());
-                            }
-                            final String text = (String) opts.get("text");
-                            if (text != null) {
-                                intent.putExtra(Intent.EXTRA_TEXT, (CharSequence) text);
-                            }
-                            final String html = (String) opts.get("html");
-                            if (html != null) {
-                                if (text == null) {
-                                    intent.putExtra(Intent.EXTRA_TEXT, Html.fromHtml(html));
+                            boolean hasStdIn = false;
+                            try {
+                                for (int i = ap.position; i < shellCmd.args.length; i++) {
+                                    name = Misc.fromUTF8(shellCmd.args[i]);
+                                    if ("-".equals(name)) {
+                                        if (hasStdIn)
+                                            throw new ParseException("Error: more than one argument refers stdin");
+                                        name = (String) opts.get("name");
+                                        uri = StreamProvider.obtainUri(shellCmd.stdIn, mimeType,
+                                                name, (Integer) opts.get("size"),
+                                                msg -> result.set(null));
+                                        titles.add(name != null ? name :
+                                                ui.ctx.getString(R.string.name_stream_default));
+                                        uris.add(uri);
+                                        aggregateMime.quietMerge(mimeType);
+                                        hasStdIn = true;
+                                        continue;
+                                    }
+                                    if (URI_PATTERN.matcher(name).find()) {
+                                        uri = Uri.parse(name);
+                                        if (uris.contains(uri)) continue;
+                                        final String title = getName(uri);
+                                        titles.add(title != null ? title :
+                                                ui.ctx.getString(R.string.name_stream_default));
+                                    } else {
+                                        final File file = shellCmd.getOriginalFile(name);
+                                        checkFile(file);
+                                        uri = Misc.getFileUri(ui.ctx, file);
+                                        if (uris.contains(uri)) continue;
+                                        titles.add(file.getName());
+                                    }
+                                    uris.add(uri);
+                                    aggregateMime.quietMerge(ui.ctx.getContentResolver()
+                                            .getType(uri));
                                 }
-                                intent.putExtra(IntentCompat.EXTRA_HTML_TEXT, html);
-                                aggregateMime.quietMerge("text/html");
-                            } else if (text != null) {
-                                aggregateMime.quietMerge("text/plain");
-                            }
-                            IntentUtils.putExtraIfSet(intent, Intent.EXTRA_SUBJECT,
-                                    (String) opts.get("subject"));
-                            IntentUtils.putSpaceListExtraIfSet(intent, Intent.EXTRA_EMAIL,
-                                    (String) opts.get("email-to"));
-                            IntentUtils.putSpaceListExtraIfSet(intent, Intent.EXTRA_CC,
-                                    (String) opts.get("email-cc"));
-                            IntentUtils.putSpaceListExtraIfSet(intent, Intent.EXTRA_BCC,
-                                    (String) opts.get("email-bcc"));
-                            intent.setType(aggregateMime.isSet ? aggregateMime.get() : mimeType);
-                            if (opts.containsKey("notify"))
-                                RequesterActivity.showAsNotification(ui.ctx,
-                                        Intent.createChooser(intent, prompt),
-                                        ui.ctx.getString(R.string.title_shell_of_s,
-                                                ui.ctx.getString(R.string.app_name)),
-                                        prompt +
-                                                " (" + TextUtils.join(", ", titles) + ")",
-                                        REQUEST_NOTIFICATION_CHANNEL_ID,
-                                        NotificationCompat.PRIORITY_HIGH);
-                            else {
-                                try {
+                                if (!hasStdIn) result.set(null);
+                                final Intent intent;
+                                if (uris.size() > 1) {
+                                    intent = new Intent(Intent.ACTION_SEND_MULTIPLE);
+                                    intent.putParcelableArrayListExtra(Intent.EXTRA_STREAM,
+                                            new ArrayList<>(uris));
+                                } else {
+                                    intent = new Intent(Intent.ACTION_SEND);
+                                    if (uris.size() == 1)
+                                        intent.putExtra(Intent.EXTRA_STREAM, uris.iterator().next());
+                                }
+                                final boolean textStdin = opts.containsKey("text-stdin");
+                                String text = (String) opts.get("text");
+                                if (text != null) {
+                                    if (textStdin)
+                                        throw new ParseException("Error: --text and --text-stdin in the same time");
+                                } else if (textStdin) {
+                                    if (hasStdIn)
+                                        throw new ParseException("Error: more than one argument refers stdin");
+                                    hasStdIn = true;
+                                }
+                                final boolean htmlStdin = opts.containsKey("html-stdin");
+                                String html = (String) opts.get("html");
+                                if (html != null) {
+                                    if (htmlStdin)
+                                        throw new ParseException("Error: --html and --html-stdin in the same time");
+                                } else if (htmlStdin) {
+                                    if (hasStdIn)
+                                        throw new ParseException("Error: more than one argument refers stdin");
+                                    hasStdIn = true;
+                                }
+                                if (text == null && textStdin) {
+                                    text = readPipe(shellCmd.stdIn, getDefaultMarshallingLimit(),
+                                            "Text value exceeds marshalling limit");
+                                } else if (html == null && htmlStdin) {
+                                    html = readPipe(shellCmd.stdIn, getDefaultMarshallingLimit(),
+                                            "HTML value exceeds marshalling limit");
+                                }
+                                if (text != null) {
+                                    intent.putExtra(Intent.EXTRA_TEXT, (CharSequence) text);
+                                }
+                                if (html != null) {
+                                    if (text == null) {
+                                        intent.putExtra(Intent.EXTRA_TEXT, Html.fromHtml(html));
+                                    }
+                                    intent.putExtra(IntentCompat.EXTRA_HTML_TEXT, html);
+                                    aggregateMime.quietMerge("text/html");
+                                } else if (text != null) {
+                                    aggregateMime.quietMerge("text/plain");
+                                }
+                                IntentUtils.putExtraIfSet(intent, Intent.EXTRA_SUBJECT,
+                                        (String) opts.get("subject"));
+                                IntentUtils.putSpaceListExtraIfSet(intent, Intent.EXTRA_EMAIL,
+                                        (String) opts.get("email-to"));
+                                IntentUtils.putSpaceListExtraIfSet(intent, Intent.EXTRA_CC,
+                                        (String) opts.get("email-cc"));
+                                IntentUtils.putSpaceListExtraIfSet(intent, Intent.EXTRA_BCC,
+                                        (String) opts.get("email-bcc"));
+                                intent.setType(aggregateMime.isSet ? aggregateMime.get() : mimeType);
+                                if (opts.containsKey("notify"))
+                                    RequesterActivity.showAsNotification(ui.ctx,
+                                            Intent.createChooser(intent, prompt),
+                                            ui.ctx.getString(R.string.title_shell_of_s,
+                                                    ui.ctx.getString(R.string.app_name)),
+                                            prompt +
+                                                    " (" + TextUtils.join(", ", titles) + ")",
+                                            REQUEST_NOTIFICATION_CHANNEL_ID,
+                                            NotificationCompat.PRIORITY_HIGH);
+                                else {
                                     final BackendUiDialogs gui = shellCmd.getGui();
                                     gui.waitForUi();
                                     ui.ctx.startActivity(Intent.createChooser(intent, prompt)
                                             .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK));
-                                } catch (final Throwable e) {
-                                    rCancel.run();
-                                    throw e;
                                 }
+                            } catch (final Throwable e) {
+                                rCancel.run();
+                                throw e;
                             }
                             shellCmd.waitFor(result, rCancel);
                             break;
