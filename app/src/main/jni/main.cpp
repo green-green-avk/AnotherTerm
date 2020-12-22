@@ -354,18 +354,6 @@ int main(const int argc, const char *const *const argv) {
         const uint64_t _st = htobe64(shellSessionToken);
         writeAllOrExit(sock, &_st, sizeof(_st));
     }
-    {
-        char buf[PATH_MAX];
-        if (getcwd(buf, sizeof(buf)) == nullptr) {
-            close(sock);
-            perror("Error getting CWD");
-            exit(1);
-        }
-        const size_t l = strlen(buf);
-        const uint32_t _l = htonl(l); // always big-endian
-        writeAllOrExit(sock, &_l, 4);
-        writeAllOrExit(sock, buf, l);
-    }
     // Android LocalSocket is good but still poorly implemented:
     // there is no poll() method and raw FD is also inaccessible...
     // This pipe is only for signals / exit tracking now:

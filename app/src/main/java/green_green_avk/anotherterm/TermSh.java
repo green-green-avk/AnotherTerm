@@ -96,12 +96,6 @@ public final class TermSh {
     private static final String REQUEST_NOTIFICATION_CHANNEL_ID =
             TermSh.class.getName() + ".request";
 
-    private static File getFileWithCWD(@NonNull final String cwd, @NonNull final String fn) {
-        final File f = new File(fn);
-        if (f.isAbsolute()) return f;
-        return new File(cwd, fn);
-    }
-
     private static void checkFile(@NonNull final File file) throws FileNotFoundException {
         if (!file.exists())
             throw new FileNotFoundException("No such file");
@@ -345,8 +339,6 @@ public final class TermSh {
             @Nullable
             private final LocalModule.SessionData shellSessionData;
             @NonNull
-            private final String currDir;
-            @NonNull
             private final byte[][] args;
             private volatile Runnable onTerminate = null;
 
@@ -580,17 +572,6 @@ public final class TermSh {
             }
 
             @NonNull
-            private static String parsePwd(@NonNull final InputStream is)
-                    throws IOException, ParseException {
-                final DataInputStream dis = new DataInputStream(is);
-                final int l = dis.readInt();
-                if (l < 0 || l > ARGLEN_MAX) throw new ParseException("Current dir parse error");
-                final byte[] buf = new byte[l];
-                dis.readFully(buf);
-                return Misc.fromUTF8(buf);
-            }
-
-            @NonNull
             private static byte[][] parseArgs(@NonNull final InputStream is)
                     throws IOException, ParseException {
                 /*
@@ -745,7 +726,6 @@ public final class TermSh {
                 this.socket = socket;
                 cis = socket.getInputStream();
                 shellSessionToken = parseShellSessionToken(cis);
-                currDir = parsePwd(cis);
                 args = parseArgs(cis);
                 final FileDescriptor[] ioFds = socket.getAncillaryFileDescriptors();
                 if (ioFds == null || ioFds.length != 4) {
