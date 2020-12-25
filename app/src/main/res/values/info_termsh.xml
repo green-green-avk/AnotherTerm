@@ -118,7 +118,7 @@ treats absence of the size as zero size even in case of a stream.</li>
 <li><code>--text &lt;text&gt;</code> &#x2014;
 <i><code>android.intent.extra.TEXT</code></i>.</li>
 <li><code>--text-stdin</code> &#x2014;
-the same but from the <i>stdin</i>***.</li>
+the same but from the <i>stdin</i>**.</li>
 <li><code>--html &lt;HTML&gt;</code> &#x2014;
 <i><code>android.intent.extra.HTML_TEXT</code></i>.
 <br/><i><code>android.intent.extra.TEXT</code></i> will be set to
@@ -126,7 +126,7 @@ the same but from the <i>stdin</i>***.</li>
 if no <code>--text &lt;text&gt;</code> or
 <code>--text-stdin</code> is specified.</li>
 <li><code>--html-stdin</code> &#x2014;
-the same but from the <i>stdin</i>***.</li>
+the same but from the <i>stdin</i>**.</li>
 <li><code>--subject &lt;subject&gt;</code> &#x2014;
 <i><code>android.intent.extra.SUBJECT</code></i>.</li>
 <li><code>--email-to &lt;address[ address]...&gt;</code> &#x2014;
@@ -365,18 +365,20 @@ with one millisecond granularity.</p>
 
 <h4>Notes:</h4>
 <ul type=\"none\">
-<li>* If file name deduction fails, <code>unnamed</code> is used and
+<li>* &#x2014; If file name deduction fails, <code>unnamed</code> is used and
 exit code <code>2</code> is returned.</li>
-<li>** Any UI element started by a script will not be shown and block
-until related shell session UI become active.</li>
-<li>*** The scratchpad marshalling limit applies.</li>
+<li>** &#x2014; The scratchpad marshalling limit applies.</li>
 </ul>
 
 <h4>Environment variables:</h4>
 <ul type=\"none\">
-<li><code>TERMSH_UID</code> &#x2014; a real UID for this application to use for spoofing detection.
+<li><clipboard>TERMSH_UID</clipboard> &#x2014;
+a real UID for this application to use for spoofing detection.
 It should be set by the user in case the emulated UID is different
 (chrooted environment, for example).</li>
+<li><clipboard>SHELL_SESSION_TOKEN</clipboard> &#x2014;
+a session permissions and terminal window token.
+Set by <b>Another&#xA0;Term</b> itself.</li>
 </ul>
 ]]></string>
 </resources>
