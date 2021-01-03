@@ -6,6 +6,7 @@ import androidx.annotation.RequiresApi;
 
 public class BackendInterruptedException extends RuntimeException {
     public BackendInterruptedException() {
+        super();
     }
 
     public BackendInterruptedException(final String message) {

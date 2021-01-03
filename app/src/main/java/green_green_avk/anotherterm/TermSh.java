@@ -822,7 +822,7 @@ public final class TermSh {
         }
 
         @Nullable
-        private String deduceName(@NonNull final Uri uri) {
+        private static String deduceName(@NonNull final Uri uri) {
             return uri.getLastPathSegment();
         }
 

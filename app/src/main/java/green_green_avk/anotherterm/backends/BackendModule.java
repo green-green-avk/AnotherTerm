@@ -212,6 +212,7 @@ public abstract class BackendModule {
 
     public static final class ParametersUriParseException extends RuntimeException {
         public ParametersUriParseException() {
+            super();
         }
 
         public ParametersUriParseException(final String message) {
