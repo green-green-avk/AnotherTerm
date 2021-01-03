@@ -14,7 +14,7 @@ public final class EscOsc {
         } else {
             body = Compat.subSequence(v, 2, v.length() - 1).toString();
         }
-        args = body.split(";");
+        args = body.split(";", -1);
     }
 
     public int getIntArg(final int n, final int def) {
