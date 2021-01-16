@@ -19,7 +19,7 @@ import java.util.TimerTask;
 import java.util.WeakHashMap;
 
 // Netty seems excessively bulky and
-// org.apache.commons.net.telnet seems... nope int rems of efficiency, just nope.
+// org.apache.commons.net.telnet seems... nope in terms of efficiency, just nope.
 
 // No Android dependencies are required.
 
@@ -454,7 +454,7 @@ public class TelnetClient {
         try {
             len = iss.read(inputBuffer.array(),
                     inputBuffer.arrayOffset() + inputBuffer.position(),
-                    inputBuffer.limit());
+                    inputBuffer.limit() - inputBuffer.position());
         } catch (final IOException e) {
             throw new TelnetClientException(e);
         }
@@ -475,7 +475,8 @@ public class TelnetClient {
                 }
                 final int e = parseEscape(inputBuffer);
                 if (e < 0) { // partial escape
-                    if (inputBuffer.position() == 0 && inputBuffer.limit() == inputBuffer.capacity()) {
+                    if (inputBuffer.position() == 0 &&
+                            inputBuffer.limit() == inputBuffer.capacity()) {
                         // too long escape
                         markup.add(markPool.obtain(inputBuffer, Mark.Type.DATA));
                         return markup;
