@@ -14,6 +14,7 @@ import android.util.Log;
 
 import androidx.annotation.CheckResult;
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.annotation.UiThread;
 import androidx.core.app.NotificationCompat;
 import androidx.core.app.TaskStackBuilder;
@@ -46,6 +47,7 @@ public final class ConsoleService extends Service {
     private static final String EMSG_NI_CONNTYPE = "This Connection type is not implemented yet";
     private static final int ID_FG = 1;
     private static final String NOTIFICATION_CHANNEL_ID = ConsoleService.class.getName();
+
     private static ConsoleService instance = null;
 
     public static ConsoleService getInstance() {
@@ -81,11 +83,11 @@ public final class ConsoleService extends Service {
     }
 
     private void tryFg() {
-        final TaskStackBuilder tsb = TaskStackBuilder.create(getApplicationContext());
-        tsb.addNextIntentWithParentStack(
-                new Intent(getApplicationContext(), SessionsActivity.class)
-                        .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
-        );
+        final TaskStackBuilder tsb = TaskStackBuilder.create(getApplicationContext())
+                .addNextIntentWithParentStack(
+                        new Intent(getApplicationContext(), SessionsActivity.class)
+                                .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+                );
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             final NotificationChannel nc = new NotificationChannel(NOTIFICATION_CHANNEL_ID,
                     getString(R.string.app_name),
@@ -111,8 +113,9 @@ public final class ConsoleService extends Service {
     }
 
     @Override
+    @Nullable
     public IBinder onBind(final Intent intent) {
-        throw new UnsupportedOperationException("Not supposed to be bound");
+        return null;
     }
 
     private static int currKey = 0;
