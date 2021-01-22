@@ -834,10 +834,10 @@ public final class ConsoleInput implements BytesSink {
                         consoleOutput.keyAutorepeat = value;
                     return;
                 case 9:
-                    if (consoleOutput != null) {
-                        if (value) consoleOutput.unsetMouse();
-                        consoleOutput.mouseX10 = value;
-                    }
+                    if (consoleOutput != null)
+                        consoleOutput.mouseTracking = value ?
+                                ConsoleOutput.MouseTracking.X10
+                                : ConsoleOutput.MouseTracking.NONE;
                     return;
                 case 25:
                     cursorVisibility = value;
@@ -851,40 +851,46 @@ public final class ConsoleInput implements BytesSink {
                         consoleOutput.appDECBKM = value;
                     return;
                 case 1000:
-                    if (consoleOutput != null) {
-                        if (value) consoleOutput.unsetMouse();
-                        consoleOutput.mouseX11 = value;
-                    }
+                    if (consoleOutput != null)
+                        consoleOutput.mouseTracking = value ?
+                                ConsoleOutput.MouseTracking.X11
+                                : ConsoleOutput.MouseTracking.NONE;
                     return;
                 case 1001:
                     if (consoleOutput != null)
-                        consoleOutput.mouseHighlight = value;
+                        consoleOutput.mouseTracking = value ?
+                                ConsoleOutput.MouseTracking.HIGHLIGHT
+                                : ConsoleOutput.MouseTracking.NONE;
                     return;
                 case 1002:
                     if (consoleOutput != null)
-                        consoleOutput.mouseButtonEvent = value;
+                        consoleOutput.mouseTracking = value ?
+                                ConsoleOutput.MouseTracking.BUTTON_EVENT
+                                : ConsoleOutput.MouseTracking.NONE;
                     return;
                 case 1003:
                     if (consoleOutput != null)
-                        consoleOutput.mouseAnyEvent = value;
+                        consoleOutput.mouseTracking = value ?
+                                ConsoleOutput.MouseTracking.ANY_EVENT
+                                : ConsoleOutput.MouseTracking.NONE;
                     return;
                 case 1005:
-                    if (consoleOutput != null) {
-                        if (value) consoleOutput.unsetMouse();
-                        consoleOutput.mouseUTF8 = value;
-                    }
+                    if (consoleOutput != null)
+                        consoleOutput.mouseProtocol = value ?
+                                ConsoleOutput.MouseProtocol.UTF8
+                                : ConsoleOutput.MouseProtocol.NORMAL;
                     return;
                 case 1006:
-                    if (consoleOutput != null) {
-                        if (value) consoleOutput.unsetMouse();
-                        consoleOutput.mouseSGR = value;
-                    }
+                    if (consoleOutput != null)
+                        consoleOutput.mouseProtocol = value ?
+                                ConsoleOutput.MouseProtocol.SGR
+                                : ConsoleOutput.MouseProtocol.NORMAL;
                     return;
                 case 1015:
-                    if (consoleOutput != null) {
-                        if (value) consoleOutput.unsetMouse();
-                        consoleOutput.mouseURXVT = value;
-                    }
+                    if (consoleOutput != null)
+                        consoleOutput.mouseProtocol = value ?
+                                ConsoleOutput.MouseProtocol.URXVT
+                                : ConsoleOutput.MouseProtocol.NORMAL;
                     return;
                 case 47:
                 case 1047:

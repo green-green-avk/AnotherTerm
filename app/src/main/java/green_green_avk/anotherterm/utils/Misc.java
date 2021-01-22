@@ -13,12 +13,15 @@ import androidx.annotation.NonNull;
 import androidx.annotation.RequiresApi;
 import androidx.core.content.FileProvider;
 
+import org.apache.commons.lang3.ArrayUtils;
+
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.nio.charset.Charset;
+import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedList;
@@ -43,6 +46,18 @@ public final class Misc {
     @NonNull
     public static byte[] toUTF8(@NonNull final String v) {
         return v.getBytes(UTF8);
+    }
+
+    @NonNull
+    public static byte[] repeat(@NonNull final byte[] v, final int n) {
+        if (n <= 0)
+            return ArrayUtils.EMPTY_BYTE_ARRAY;
+        if (n == 1)
+            return v;
+        byte[] r = Arrays.copyOf(v, v.length * n);
+        for (long l = v.length; l != 0 && l < r.length; l <<= 1)
+            System.arraycopy(r, 0, r, (int) l, (int) Math.min(l, r.length - l));
+        return r;
     }
 
     public static void copy(@NonNull final OutputStream os, @NonNull final InputStream is)

@@ -5,17 +5,26 @@ import android.view.MotionEvent;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
-import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.ArrayUtils;
 
 import java.nio.charset.Charset;
+import java.util.Arrays;
 import java.util.Locale;
 
 import green_green_avk.anotherterm.backends.EventBasedBackendModuleWrapper;
 import green_green_avk.anotherterm.ui.ExtKeyboard;
+import green_green_avk.anotherterm.utils.Misc;
 
 public final class ConsoleOutput {
-    private Charset charset;
-    private TermKeyMapRules keyMap;
+    public enum MouseTracking {NONE, X10, X11, HIGHLIGHT, BUTTON_EVENT, ANY_EVENT}
+
+    public enum MouseProtocol {NORMAL, SGR, URXVT, UTF8}
+
+    @NonNull
+    private Charset charset = Charset.defaultCharset();
+    @NonNull
+    private TermKeyMapRules keyMap = TermKeyMapManager.defaultKeyMap;
+    @Nullable
     public EventBasedBackendModuleWrapper backendModule = null;
 
     public boolean appCursorKeys = false; // DECCKM
@@ -23,33 +32,26 @@ public final class ConsoleOutput {
     public boolean appDECBKM = false; // DECBKM
     public boolean keyAutorepeat = true; // DECARM
     public boolean bracketedPasteMode = false;
-    public boolean mouseX10 = false;
-    public boolean mouseX11 = false;
-    public boolean mouseHighlight = false;
-    public boolean mouseButtonEvent = false;
-    public boolean mouseAnyEvent = false;
-    public boolean mouseUTF8 = false;
-    public boolean mouseSGR = false;
-    public boolean mouseURXVT = false;
+    @NonNull
+    public MouseTracking mouseTracking = MouseTracking.NONE;
+    @NonNull
+    public MouseProtocol mouseProtocol = MouseProtocol.NORMAL;
 
-    public ConsoleOutput() {
-        setCharset(Charset.defaultCharset());
-        setKeyMap(TermKeyMapManager.defaultKeyMap);
-    }
-
+    @NonNull
     public Charset getCharset() {
         return charset;
     }
 
-    public void setCharset(final Charset ch) {
+    public void setCharset(@NonNull final Charset ch) {
         charset = ch;
     }
 
+    @NonNull
     public TermKeyMapRules getKeyMap() {
         return keyMap;
     }
 
-    public void setKeyMap(final TermKeyMapRules km) {
+    public void setKeyMap(@NonNull final TermKeyMapRules km) {
         keyMap = km;
     }
 
@@ -101,6 +103,12 @@ public final class ConsoleOutput {
         }
     }
 
+    public void feed(@NonNull final byte[] v) {
+        if (backendModule != null) {
+            backendModule.write(v);
+        }
+    }
+
     public void paste(@NonNull final String v) {
         feed(bracketedPasteMode ? "\u001B[200~" + v + "\u001B[201~" : v);
     }
@@ -114,15 +122,7 @@ public final class ConsoleOutput {
     }
 
     public boolean isMouseSupported() {
-        return mouseSGR || mouseX11 || mouseX10;
-    }
-
-    public void unsetMouse() {
-        mouseURXVT = false;
-        mouseSGR = false;
-        mouseUTF8 = false;
-        mouseX11 = false;
-        mouseX10 = false;
+        return mouseTracking != MouseTracking.NONE && mouseTracking != MouseTracking.HIGHLIGHT;
     }
 
     public enum MouseEventType {PRESS, RELEASE, MOVE, VSCROLL}
@@ -131,46 +131,96 @@ public final class ConsoleOutput {
     public static final int MOUSE_RIGHT = MotionEvent.BUTTON_SECONDARY;
     public static final int MOUSE_MIDDLE = MotionEvent.BUTTON_TERTIARY;
 
-    public void feed(final MouseEventType type, final int buttons, final int x, final int y) {
-        if (!isMouseSupported()) return;
+    public void feed(@NonNull final MouseEventType type,
+                     final int buttons, final int x, final int y) {
         feed(type, buttons, x, y, false, false, false); // TODO: fix
     }
 
-    public void feed(final MouseEventType type, final int buttons, final int x, final int y,
+    public void feed(@NonNull final MouseEventType type,
+                     final int buttons, final int x, final int y,
                      final boolean shift, final boolean alt, final boolean ctrl) {
-        if (!isMouseSupported()) return;
+        if (!isMouseSupported())
+            return;
+        if (mouseTracking == MouseTracking.X10 && type != MouseEventType.PRESS)
+            return;
         final boolean wheel = type == MouseEventType.VSCROLL;
-        if (wheel && buttons == 0) return;
-        final int button = (!mouseSGR && type == MouseEventType.RELEASE) ? 3 :
-                (wheel && buttons > 0) ? 64 :
-                        (wheel && buttons < 0) ? 65 :
-                                (buttons & MOUSE_LEFT) != 0 ? 0 :
-                                        (buttons & MOUSE_RIGHT) != 0 ? 2 :
-                                                (buttons & MOUSE_MIDDLE) != 0 ? 1 : 3;
-        final int modifiers =
+        if (wheel && buttons == 0)
+            return;
+        final int code;
+        if (type == MouseEventType.MOVE) {
+            if ((mouseTracking != MouseTracking.BUTTON_EVENT || buttons == 0)
+                    && mouseTracking != MouseTracking.ANY_EVENT)
+                return;
+            code = 32;
+        } else
+            code = 0;
+        final int button =
+                ((mouseProtocol == MouseProtocol.NORMAL || mouseProtocol == MouseProtocol.URXVT)
+                        && type == MouseEventType.RELEASE) ? 3 :
+                        (wheel && buttons > 0) ? 64 :
+                                (wheel && buttons < 0) ? 65 :
+                                        (buttons & MOUSE_LEFT) != 0 ? 0 :
+                                                (buttons & MOUSE_RIGHT) != 0 ? 2 :
+                                                        (buttons & MOUSE_MIDDLE) != 0 ? 1 : 3;
+        final int modifiers = (mouseTracking == MouseTracking.X10) ? 0 :
                 ((shift ? 4 : 0) |
                         (alt ? 8 : 0) |
                         (ctrl ? 16 : 0));
-        int code = 0;
-        if (type == MouseEventType.MOVE) code += 32;
-        if (mouseSGR) { // TODO: Add some outdated protocols...
-            String out = String.format(Locale.ROOT, "\u001B[<%d;%d;%d%c",
-                    code + button + modifiers, x + 1, y + 1,
-                    type == MouseEventType.RELEASE ? 'm' : 'M');
-            if (wheel) out = StringUtils.repeat(out, Math.min(Math.abs(buttons), 32));
-            feed(out);
-        } else if ((mouseX11 && type != MouseEventType.MOVE)
-                || (mouseButtonEvent && !(type == MouseEventType.MOVE && button == 3))
-                || mouseAnyEvent) {
-            String out = String.format(Locale.ROOT, "\u001B[M%c%c%c",
-                    code + button + modifiers + 32, x + 33, y + 33);
-            if (wheel) out = StringUtils.repeat(out, Math.min(Math.abs(buttons), 32));
-            feed(out);
-        } else if (mouseX10 && (type == MouseEventType.PRESS || wheel)) {
-            String out = String.format(Locale.ROOT, "\u001B[M%c%c%c",
-                    code + button + 32, x + 33, y + 33);
-            if (wheel) out = StringUtils.repeat(out, Math.min(Math.abs(buttons), 32));
-            feed(out);
+        byte[] out;
+        switch (mouseProtocol) {
+            case NORMAL: {
+                if (x < 0 || x > 222 || y < 0 || y > 222)
+                    return;
+                out = ArrayUtils.addAll("\u001B[M".getBytes(charset), // or ASCII?
+                        (byte) (code + button + modifiers + 32),
+                        (byte) (x + 33), (byte) (y + 33));
+                break;
+            }
+            case SGR:
+                if (x < 0 || x > 9999 || y < 0 || y > 9999)
+                    return;
+                out = String.format(Locale.ROOT, "\u001B[<%d;%d;%d%c",
+                        code + button + modifiers, x + 1, y + 1,
+                        type == MouseEventType.RELEASE ? 'm' : 'M').getBytes(charset);
+                break;
+            case URXVT:
+                if (x < 0 || x > 9999 || y < 0 || y > 9999)
+                    return;
+                out = String.format(Locale.ROOT, "\u001B[%d;%d;%dM",
+                        code + button + modifiers + 32, x + 1, y + 1).getBytes(charset);
+                break;
+            case UTF8: {
+                if (x < 0 || y < 0)
+                    return;
+                final byte[] buf = new byte[6];
+                int p = 0;
+                try {
+                    p += utf8Encode(buf, p, code + button + modifiers + 32);
+                    p += utf8Encode(buf, p, x + 33);
+                    p += utf8Encode(buf, p, y + 33);
+                } catch (final IllegalArgumentException e) {
+                    return;
+                }
+                final byte[] prefix = "\u001B[M".getBytes(charset); // or UTF8?
+                out = Arrays.copyOf(prefix, prefix.length + p);
+                System.arraycopy(buf, 0, out, prefix.length, p);
+                break;
+            }
+            default:
+                return;
         }
+        if (wheel) out = Misc.repeat(out, Math.min(Math.abs(buttons), 32));
+        feed(out);
+    }
+
+    private static int utf8Encode(@NonNull final byte[] buf, final int p, final int v) {
+        if (v < 0 || v > 2047) throw new IllegalArgumentException();
+        if (v < 128) {
+            buf[p] = (byte) v;
+            return 1;
+        }
+        buf[p] = (byte) ((v >> 6) & 0x1F | 0xC0);
+        buf[p + 1] = (byte) (v & 0x3F | 0x80);
+        return 2;
     }
 }
