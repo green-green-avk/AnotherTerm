@@ -7,7 +7,8 @@ import java.nio.CharBuffer;
 import java.util.Iterator;
 import java.util.NoSuchElementException;
 
-public final class InputTokenizer implements Iterator<InputTokenizer.Token>, Iterable<InputTokenizer.Token> {
+public final class InputTokenizer
+        implements Iterator<InputTokenizer.Token>, Iterable<InputTokenizer.Token> {
     private static final int SEQ_MAXLEN = 256;
 
     public static final class Token {
@@ -48,10 +49,10 @@ public final class InputTokenizer implements Iterator<InputTokenizer.Token>, Ite
     private void getOsc(int pos) {
         for (; pos < mEnd; ++pos) {
             switch (mBufArr[pos]) {
-                case 27:
+                case '\u001B':
                     if (pos + 1 >= mEnd || mBufArr[pos + 1] != '\\') break;
                     ++pos;
-                case 7:
+                case '\u0007':
                     found(pos);
                     return;
             }
@@ -71,7 +72,7 @@ public final class InputTokenizer implements Iterator<InputTokenizer.Token>, Ite
 
     private void getEsc(int pos) {
         for (; pos < mEnd; ++pos) {
-            if (mBufArr[pos] < 32 || mBufArr[pos] >= 48) {
+            if (mBufArr[pos] < 0x20 || mBufArr[pos] >= 0x30) {
                 found(pos);
                 return;
             }
@@ -80,7 +81,7 @@ public final class InputTokenizer implements Iterator<InputTokenizer.Token>, Ite
     }
 
     private void getNext() {
-        if (mEnd <= mPos) {
+        if (mPos >= mEnd) {
             mToken = null;
             return;
         }
@@ -107,7 +108,7 @@ public final class InputTokenizer implements Iterator<InputTokenizer.Token>, Ite
         }
         mType = Token.Type.ESC;
         ++pos;
-        if (mEnd <= pos) {
+        if (pos >= mEnd) {
             mToken = null;
             return;
         }
@@ -126,8 +127,8 @@ public final class InputTokenizer implements Iterator<InputTokenizer.Token>, Ite
         }
     }
 
-    @NonNull
     @Override
+    @NonNull
     public Token next() {
         if (!mGotNext) getNext();
         if (mToken == null) throw new NoSuchElementException();
@@ -144,8 +145,8 @@ public final class InputTokenizer implements Iterator<InputTokenizer.Token>, Ite
         return mToken != null;
     }
 
-    @NonNull
     @Override
+    @NonNull
     public Iterator<Token> iterator() {
         return this;
     }

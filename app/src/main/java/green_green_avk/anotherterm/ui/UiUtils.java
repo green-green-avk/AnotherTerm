@@ -7,7 +7,6 @@ import android.content.ClipData;
 import android.content.ClipDescription;
 import android.content.ClipboardManager;
 import android.content.Context;
-import android.content.DialogInterface;
 import android.net.Uri;
 import android.os.Build;
 import android.text.Layout;
@@ -222,47 +221,40 @@ public final class UiUtils {
 
     @NonNull
     public static Iterable<View> getIterable(@Nullable final View root) {
-        return new Iterable<View>() {
+        return () -> new Iterator<View>() {
+            private View v = root;
+            private final Stack<Integer> ii = new Stack<>(); // a little optimization
 
-            @NonNull
             @Override
-            public Iterator<View> iterator() {
-                return new Iterator<View>() {
-                    private View v = root;
-                    private final Stack<Integer> ii = new Stack<>(); // a little optimization
+            public boolean hasNext() {
+                return v != null;
+            }
 
-                    @Override
-                    public boolean hasNext() {
-                        return v != null;
-                    }
-
-                    @Override
-                    public View next() {
-                        if (v == null) throw new NoSuchElementException();
-                        final View r = v;
-                        if (v instanceof ViewGroup) {
-                            v = ((ViewGroup) v).getChildAt(0);
-                            ii.push(0);
-                        } else {
-                            while (true) {
-                                if (v == root) {
-                                    v = null;
-                                    break;
-                                }
-                                final ViewGroup p = (ViewGroup) v.getParent();
-                                final int i = ii.pop() + 1;
-                                if (p.getChildCount() == i) {
-                                    v = p;
-                                    continue;
-                                }
-                                v = p.getChildAt(i);
-                                ii.push(i);
-                                break;
-                            }
+            @Override
+            public View next() {
+                if (v == null) throw new NoSuchElementException();
+                final View r = v;
+                if (v instanceof ViewGroup) {
+                    v = ((ViewGroup) v).getChildAt(0);
+                    ii.push(0);
+                } else {
+                    while (true) {
+                        if (v == root) {
+                            v = null;
+                            break;
                         }
-                        return r;
+                        final ViewGroup p = (ViewGroup) v.getParent();
+                        final int i = ii.pop() + 1;
+                        if (p.getChildCount() == i) {
+                            v = p;
+                            continue;
+                        }
+                        v = p.getChildAt(i);
+                        ii.push(i);
+                        break;
                     }
-                };
+                }
+                return r;
             }
         };
     }
@@ -296,18 +288,10 @@ public final class UiUtils {
                                @NonNull final Runnable onConfirm) {
         new AlertDialog.Builder(ctx)
                 .setMessage(msg)
-                .setNegativeButton(android.R.string.no, new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(final DialogInterface dialog, final int which) {
-                        dialog.cancel();
-                    }
-                })
-                .setPositiveButton(android.R.string.yes, new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(final DialogInterface dialog, final int which) {
-                        dialog.dismiss();
-                        onConfirm.run();
-                    }
+                .setNegativeButton(android.R.string.no, (dialog, which) -> dialog.cancel())
+                .setPositiveButton(android.R.string.yes, (dialog, which) -> {
+                    dialog.dismiss();
+                    onConfirm.run();
                 })
                 .show();
     }
@@ -321,18 +305,10 @@ public final class UiUtils {
     }
 
     public static void setShowContextMenuOnClick(@NonNull final View v) {
-        v.setOnLongClickListener(new View.OnLongClickListener() {
-            @Override
-            public boolean onLongClick(final View v) {
-                showContextMenuOnBottom(v);
-                return true;
-            }
+        v.setOnLongClickListener(v1 -> {
+            showContextMenuOnBottom(v1);
+            return true;
         });
-        v.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(final View v) {
-                showContextMenuOnBottom(v);
-            }
-        });
+        v.setOnClickListener(UiUtils::showContextMenuOnBottom);
     }
 }

@@ -139,9 +139,9 @@ public final class ConsoleService extends Service {
         final BackendModule tbe;
         try {
             tbe = (BackendModule) klass.newInstance();
-        } catch (IllegalAccessException e) {
+        } catch (final IllegalAccessException e) {
             throw new Exception(EMSG_NI_CONNTYPE);
-        } catch (InstantiationException e) {
+        } catch (final InstantiationException e) {
             throw new Exception(EMSG_NI_CONNTYPE);
         }
         final ConsoleInput ci = new ConsoleInput();
@@ -152,7 +152,7 @@ public final class ConsoleService extends Service {
                     charsetStr != null ? Charset.forName(charsetStr) : Charset.defaultCharset();
             ci.setCharset(charset);
             co.setCharset(charset);
-        } catch (IllegalArgumentException e) {
+        } catch (final IllegalArgumentException e) {
             Log.e("Charset", charsetStr, e);
         }
         String keyMapStr = (String) cp.get("keymap");
@@ -160,12 +160,7 @@ public final class ConsoleService extends Service {
         co.setKeyMap(TermKeyMapManager.get(keyMapStr));
         final int key = obtainKey();
         tbe.setContext(ctx);
-        tbe.setOnWakeLockEvent(new Runnable() {
-            @Override
-            public void run() {
-                execOnSessionChange(key);
-            }
-        }, new Handler());
+        tbe.setOnWakeLockEvent(() -> execOnSessionChange(key), new Handler());
         tbe.setAcquireWakeLockOnConnect(Boolean.TRUE.equals(cp.get("wakelock.acquire_on_connect")));
         tbe.setReleaseWakeLockOnDisconnect(Boolean.TRUE.equals(cp.get("wakelock.release_on_disconnect")));
         tbe.setUi(new BackendUiDialogs());
@@ -286,7 +281,7 @@ public final class ConsoleService extends Service {
         }
     }
 
-    public static class Listener {
+    public static abstract class Listener {
         protected void onSessionsListChange() {
         }
 
@@ -295,7 +290,7 @@ public final class ConsoleService extends Service {
     }
 
     private static final Set<Listener> listeners =
-            Collections.newSetFromMap(new WeakHashMap<Listener, Boolean>());
+            Collections.newSetFromMap(new WeakHashMap<>());
 
     public static void addListener(@NonNull final Listener listener) {
         listeners.add(listener);

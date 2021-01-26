@@ -105,12 +105,8 @@ public final class ContentRequester extends Requester {
                                final long sizeLimit,
                                @NonNull final Context ctx, @NonNull final String message,
                                @NonNull final String mimeType) {
-        ((FragmentActivity) ctx).runOnUiThread(new Runnable() {
-            @Override
-            public void run() {
+        ((FragmentActivity) ctx).runOnUiThread(() ->
                 prepare(ctx, new UIFragment()).requestContent(result, type, sizeLimit,
-                        message, mimeType);
-            }
-        });
+                        message, mimeType));
     }
 }

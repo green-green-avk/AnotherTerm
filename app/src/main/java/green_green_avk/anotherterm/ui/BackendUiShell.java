@@ -27,8 +27,8 @@ public final class BackendUiShell implements BackendUiInteraction, BackendUiInte
         }
     }
 
-    @Nullable
     @Override
+    @Nullable
     public String promptPassword(@NonNull final String message) throws InterruptedException {
         return null;
     }
@@ -49,6 +49,7 @@ public final class BackendUiShell implements BackendUiInteraction, BackendUiInte
     }
 
     @Override
+    @Nullable
     public byte[] promptContent(@NonNull final String message, @NonNull final String mimeType,
                                 final long sizeLimit) throws InterruptedException, IOException {
         return new byte[0];

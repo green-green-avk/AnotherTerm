@@ -178,98 +178,74 @@ public final class Misc {
     // Some sugar if boxing is affordable
     @NonNull
     public static Iterable<Integer> getKeysIterable(@NonNull final SparseArray o) {
-        return new Iterable<Integer>() {
-            @NonNull
+        return () -> new Iterator<Integer>() {
+            private int i = 0;
+
             @Override
-            public Iterator<Integer> iterator() {
-                return new Iterator<Integer>() {
-                    private int i = 0;
+            public boolean hasNext() {
+                return i < o.size();
+            }
 
-                    @Override
-                    public boolean hasNext() {
-                        return i < o.size();
-                    }
-
-                    @Override
-                    public Integer next() {
-                        if (!hasNext()) throw new NoSuchElementException();
-                        return o.keyAt(i++);
-                    }
-                };
+            @Override
+            public Integer next() {
+                if (!hasNext()) throw new NoSuchElementException();
+                return o.keyAt(i++);
             }
         };
     }
 
     @NonNull
     public static Iterable<Integer> getKeysIterable(@NonNull final SparseBooleanArray o) {
-        return new Iterable<Integer>() {
-            @NonNull
+        return () -> new Iterator<Integer>() {
+            private int i = 0;
+
             @Override
-            public Iterator<Integer> iterator() {
-                return new Iterator<Integer>() {
-                    private int i = 0;
+            public boolean hasNext() {
+                return i < o.size();
+            }
 
-                    @Override
-                    public boolean hasNext() {
-                        return i < o.size();
-                    }
-
-                    @Override
-                    public Integer next() {
-                        if (!hasNext()) throw new NoSuchElementException();
-                        return o.keyAt(i++);
-                    }
-                };
+            @Override
+            public Integer next() {
+                if (!hasNext()) throw new NoSuchElementException();
+                return o.keyAt(i++);
             }
         };
     }
 
     @NonNull
     public static Iterable<Integer> getTrueKeysIterable(@NonNull final SparseBooleanArray o) {
-        return new Iterable<Integer>() {
-            @NonNull
+        return () -> new Iterator<Integer>() {
+            private int i = 0;
+
             @Override
-            public Iterator<Integer> iterator() {
-                return new Iterator<Integer>() {
-                    private int i = 0;
+            public boolean hasNext() {
+                while (i < o.size()) if (o.valueAt(i)) return true;
+                else ++i;
+                return false;
+            }
 
-                    @Override
-                    public boolean hasNext() {
-                        while (i < o.size()) if (o.valueAt(i)) return true;
-                        else ++i;
-                        return false;
-                    }
-
-                    @Override
-                    public Integer next() {
-                        if (!hasNext()) throw new NoSuchElementException();
-                        return o.keyAt(i++);
-                    }
-                };
+            @Override
+            public Integer next() {
+                if (!hasNext()) throw new NoSuchElementException();
+                return o.keyAt(i++);
             }
         };
     }
 
     @NonNull
     public static Iterable<Integer> getKeysIterable(@NonNull final SparseIntArray o) {
-        return new Iterable<Integer>() {
-            @NonNull
+        return () -> new Iterator<Integer>() {
+            int i = 0;
+
             @Override
-            public Iterator<Integer> iterator() {
-                return new Iterator<Integer>() {
-                    int i = 0;
+            public boolean hasNext() {
+                return i < o.size();
+            }
 
-                    @Override
-                    public boolean hasNext() {
-                        return i < o.size();
-                    }
-
-                    @Override
-                    public Integer next() {
-                        if (!hasNext()) throw new NoSuchElementException();
-                        return o.keyAt(i++);
-                    }
-                };
+            @Override
+            public Integer next() {
+                if (!hasNext()) throw new NoSuchElementException();
+                return o.keyAt(i++);
             }
         };
     }

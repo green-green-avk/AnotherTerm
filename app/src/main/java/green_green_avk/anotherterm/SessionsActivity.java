@@ -1,11 +1,9 @@
 package green_green_avk.anotherterm;
 
 import android.app.AlertDialog;
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
-import android.view.ContextMenu;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -61,23 +59,20 @@ public final class SessionsActivity extends AppCompatActivity {
             iib[i] = ent.getValue() != BackendModule.Meta.ADAPTER_READY;
             i++;
         }
-        new AlertDialog.Builder(this).setItems(ii, new DialogInterface.OnClickListener() {
-            @Override
-            public void onClick(final DialogInterface dialog, final int which) {
-                if (iib[which]) return;
-                ps.put("adapter", ii[which].split(" ", 2)[0]);
-                final int key;
-                try {
-                    key = ConsoleService.startSession(SessionsActivity.this, ps.get());
-                } catch (final ConsoleService.Exception | BackendException e) {
-                    Toast.makeText(SessionsActivity.this, e.getMessage(),
-                            Toast.LENGTH_LONG).show();
-                    dialog.dismiss();
-                    return;
-                }
-                showSession(key);
+        new AlertDialog.Builder(this).setItems(ii, (dialog, which) -> {
+            if (iib[which]) return;
+            ps.put("adapter", ii[which].split(" ", 2)[0]);
+            final int key;
+            try {
+                key = ConsoleService.startSession(SessionsActivity.this, ps.get());
+            } catch (final ConsoleService.Exception | BackendException e) {
+                Toast.makeText(SessionsActivity.this, e.getMessage(),
+                        Toast.LENGTH_LONG).show();
                 dialog.dismiss();
+                return;
             }
+            showSession(key);
+            dialog.dismiss();
         }).setCancelable(true).show();
     }
 
@@ -86,66 +81,47 @@ public final class SessionsActivity extends AppCompatActivity {
         l.setLayoutManager(new LinearLayoutManager(this));
         final FavoritesAdapter a = new FavoritesAdapter();
         l.setAdapter(a);
-        a.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(final View view) {
-                final String name = a.getName(l.getChildAdapterPosition(view));
-                final PreferenceStorage ps = FavoritesManager.get(name);
-                final int key;
-                ps.put("name", name); // Some mark
-                try {
-                    final Object adapter = ps.get("adapter");
-                    if (adapter == null) {
-                        final Map<String, Integer> adaptersList = ConsoleService.getBackendByParams(
-                                ps.get()).meta.getAdapters(SessionsActivity.this);
-                        if (adaptersList != null) {
-                            if (adaptersList.isEmpty())
-                                throw new BackendException(getString(
-                                        R.string.msg_no_adapters_connected));
-                            showAdapterDialog(ps, adaptersList);
-                            return;
-                        }
+        a.setOnClickListener(view -> {
+            final String name = a.getName(l.getChildAdapterPosition(view));
+            final PreferenceStorage ps = FavoritesManager.get(name);
+            final int key;
+            ps.put("name", name); // Some mark
+            try {
+                final Object adapter = ps.get("adapter");
+                if (adapter == null) {
+                    final Map<String, Integer> adaptersList = ConsoleService.getBackendByParams(
+                            ps.get()).meta.getAdapters(SessionsActivity.this);
+                    if (adaptersList != null) {
+                        if (adaptersList.isEmpty())
+                            throw new BackendException(getString(
+                                    R.string.msg_no_adapters_connected));
+                        showAdapterDialog(ps, adaptersList);
+                        return;
                     }
-                    key = ConsoleService.startSession(SessionsActivity.this, ps.get());
-                } catch (final ConsoleService.Exception | BackendException e) {
-                    Toast.makeText(SessionsActivity.this, e.getMessage(),
-                            Toast.LENGTH_LONG).show();
-                    return;
                 }
-                showSession(key);
+                key = ConsoleService.startSession(SessionsActivity.this, ps.get());
+            } catch (final ConsoleService.Exception | BackendException e) {
+                Toast.makeText(SessionsActivity.this, e.getMessage(),
+                        Toast.LENGTH_LONG).show();
+                return;
             }
+            showSession(key);
         });
-        a.setOnCreateContextMenuListener(new View.OnCreateContextMenuListener() {
-            @Override
-            public void onCreateContextMenu(final ContextMenu menu, final View view,
-                                            final ContextMenu.ContextMenuInfo menuInfo) {
-                final String name = a.getName(l.getChildLayoutPosition(view));
-                getMenuInflater().inflate(R.menu.menu_favorite, menu);
-                menu.findItem(R.id.fav_edit).setOnMenuItemClickListener(
-                        new MenuItem.OnMenuItemClickListener() {
-                            @Override
-                            public boolean onMenuItemClick(final MenuItem item) {
-                                showEditFavoriteDlg(name);
-                                return true;
-                            }
-                        });
-                menu.findItem(R.id.fav_delete).setOnMenuItemClickListener(
-                        new MenuItem.OnMenuItemClickListener() {
-                            @Override
-                            public boolean onMenuItemClick(final MenuItem item) {
-                                FavoritesManager.remove(name);
-                                return true;
-                            }
-                        });
-                menu.findItem(R.id.fav_clone).setOnMenuItemClickListener(
-                        new MenuItem.OnMenuItemClickListener() {
-                            @Override
-                            public boolean onMenuItemClick(final MenuItem item) {
-                                showEditFavoriteDlg(name, true);
-                                return true;
-                            }
-                        });
-            }
+        a.setOnCreateContextMenuListener((menu, view, menuInfo) -> {
+            final String name = a.getName(l.getChildLayoutPosition(view));
+            getMenuInflater().inflate(R.menu.menu_favorite, menu);
+            menu.findItem(R.id.fav_edit).setOnMenuItemClickListener(item -> {
+                showEditFavoriteDlg(name);
+                return true;
+            });
+            menu.findItem(R.id.fav_delete).setOnMenuItemClickListener(item -> {
+                FavoritesManager.remove(name);
+                return true;
+            });
+            menu.findItem(R.id.fav_clone).setOnMenuItemClickListener(item -> {
+                showEditFavoriteDlg(name, true);
+                return true;
+            });
         });
         a.registerAdapterDataObserver(observer);
     }
@@ -155,46 +131,31 @@ public final class SessionsActivity extends AppCompatActivity {
         l.setLayoutManager(new LinearLayoutManager(this));
         final SessionsAdapter a = new SessionsAdapter();
         l.setAdapter(a);
-        a.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(final View v) {
-                final int key = a.getKey(l.getChildAdapterPosition(v));
-                showSession(key);
-            }
+        a.setOnClickListener(v -> {
+            final int key = a.getKey(l.getChildAdapterPosition(v));
+            showSession(key);
         });
-        a.setOnCreateContextMenuListener(new View.OnCreateContextMenuListener() {
-            @Override
-            public void onCreateContextMenu(final ContextMenu menu, final View view,
-                                            final ContextMenu.ContextMenuInfo menuInfo) {
-                final int key = a.getKey(l.getChildLayoutPosition(view));
-                getMenuInflater().inflate(R.menu.menu_session, menu);
-                menu.findItem(R.id.action_terminate).setOnMenuItemClickListener(
-                        new MenuItem.OnMenuItemClickListener() {
-                            @Override
-                            public boolean onMenuItemClick(final MenuItem item) {
-                                try {
-                                    ConsoleService.stopSession(key);
-                                } catch (final NoSuchElementException ignored) {
-                                }
-                                return true;
-                            }
-                        });
-                menu.findItem(R.id.action_toggle_wake_lock).setOnMenuItemClickListener(
-                        new MenuItem.OnMenuItemClickListener() {
-                            @Override
-                            public boolean onMenuItemClick(final MenuItem item) {
-                                final BackendModule be;
-                                try {
-                                    be = ConsoleService.getSession(key).backend.wrapped;
-                                } catch (final NoSuchElementException e) {
-                                    return true;
-                                }
-                                if (be.isWakeLockHeld()) be.releaseWakeLock();
-                                else be.acquireWakeLock();
-                                return true;
-                            }
-                        });
-            }
+        a.setOnCreateContextMenuListener((menu, view, menuInfo) -> {
+            final int key = a.getKey(l.getChildLayoutPosition(view));
+            getMenuInflater().inflate(R.menu.menu_session, menu);
+            menu.findItem(R.id.action_terminate).setOnMenuItemClickListener(item -> {
+                try {
+                    ConsoleService.stopSession(key);
+                } catch (final NoSuchElementException ignored) {
+                }
+                return true;
+            });
+            menu.findItem(R.id.action_toggle_wake_lock).setOnMenuItemClickListener(item -> {
+                final BackendModule be;
+                try {
+                    be = ConsoleService.getSession(key).backend.wrapped;
+                } catch (final NoSuchElementException e) {
+                    return true;
+                }
+                if (be.isWakeLockHeld()) be.releaseWakeLock();
+                else be.acquireWakeLock();
+                return true;
+            });
         });
         a.registerAdapterDataObserver(observer);
     }

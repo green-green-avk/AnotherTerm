@@ -1020,7 +1020,8 @@ public final class TermSh {
             private volatile int exitStatus = 0;
 
             @Override
-            protected Object doInBackground(final Object[] objects) {
+            @Nullable
+            protected Object doInBackground(@NonNull final Object[] objects) {
                 final LocalSocket socket = (LocalSocket) objects[0];
                 final ShellCmdIO shellCmd;
                 try {

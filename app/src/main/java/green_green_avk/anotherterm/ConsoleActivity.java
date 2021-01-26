@@ -4,7 +4,6 @@ import android.app.AlertDialog;
 import android.content.ClipData;
 import android.content.ClipboardManager;
 import android.content.Context;
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.ActivityInfo;
 import android.graphics.Rect;
@@ -47,7 +46,6 @@ import java.nio.charset.Charset;
 import java.text.NumberFormat;
 import java.text.ParseException;
 import java.util.Collections;
-import java.util.Comparator;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
@@ -118,11 +116,11 @@ public final class ConsoleActivity extends AppCompatActivity
         wConnecting.setVisibility(mSession.backend.isConnecting() ? View.VISIBLE : View.GONE);
     }
 
-    private int getFirstSessionKey() {
+    private static int getFirstSessionKey() {
         return ConsoleService.sessionKeys.listIterator(0).next();
     }
 
-    private int getLastSessionKey() {
+    private static int getLastSessionKey() {
         return ConsoleService.sessionKeys.listIterator(ConsoleService.sessionKeys.size()).previous();
     }
 
@@ -342,13 +340,7 @@ public final class ConsoleActivity extends AppCompatActivity
             final BackendModule be = mSession.backend.wrapped;
             final List<Map.Entry<Method, BackendModule.ExportedUIMethod>> uiMethods =
                     new LinkedList<>(BackendsList.get(be.getClass()).meta.methods.entrySet());
-            Collections.sort(uiMethods, new Comparator<Map.Entry<Method, BackendModule.ExportedUIMethod>>() {
-                @Override
-                public int compare(final Map.Entry<Method, BackendModule.ExportedUIMethod> o1,
-                                   final Map.Entry<Method, BackendModule.ExportedUIMethod> o2) {
-                    return o1.getValue().order() - o2.getValue().order();
-                }
-            });
+            Collections.sort(uiMethods, (o1, o2) -> o1.getValue().order() - o2.getValue().order());
             final ViewGroup moduleUiView = popupView.findViewById(R.id.module_ui);
             for (final Map.Entry<Method, BackendModule.ExportedUIMethod> m : uiMethods) {
                 final Class<?>[] paramTypes = m.getKey().getParameterTypes();
@@ -357,12 +349,9 @@ public final class ConsoleActivity extends AppCompatActivity
                     final TextView mi = (TextView) LayoutInflater.from(this)
                             .inflate(R.layout.module_ui_button, moduleUiView, false);
                     mi.setText(m.getValue().titleRes());
-                    mi.setOnClickListener(new View.OnClickListener() {
-                        @Override
-                        public void onClick(final View item) {
-                            be.callMethod(m.getKey());
-                            if (menuPopupWindow != null) menuPopupWindow.dismiss();
-                        }
+                    mi.setOnClickListener(item -> {
+                        be.callMethod(m.getKey());
+                        if (menuPopupWindow != null) menuPopupWindow.dismiss();
                     });
                     moduleUiView.addView(mi);
                 } else if (paramTypes.length == 1 && retType == Void.TYPE) {
@@ -384,12 +373,9 @@ public final class ConsoleActivity extends AppCompatActivity
                                 final TextView mi = (TextView) LayoutInflater.from(this)
                                         .inflate(R.layout.module_ui_button, smg, false);
                                 mi.setText(ae.titleRes()[ai]);
-                                mi.setOnClickListener(new View.OnClickListener() {
-                                    @Override
-                                    public void onClick(final View item) {
-                                        be.callMethod(m.getKey(), value);
-                                        if (menuPopupWindow != null) menuPopupWindow.dismiss();
-                                    }
+                                mi.setOnClickListener(item -> {
+                                    be.callMethod(m.getKey(), value);
+                                    if (menuPopupWindow != null) menuPopupWindow.dismiss();
                                 });
                                 smg.addView(mi);
                             }
@@ -405,33 +391,23 @@ public final class ConsoleActivity extends AppCompatActivity
                         final TextView mi = (TextView) LayoutInflater.from(this)
                                 .inflate(R.layout.module_ui_button, moduleUiView, false);
                         mi.setText(m.getValue().titleRes());
-                        mi.setOnClickListener(new View.OnClickListener() {
-                            @Override
-                            public void onClick(final View item) {
-                                final long bits = (long) be.callMethod(m.getKey(), 0L, 0L);
-                                final boolean[] values = new boolean[a.values().length];
-                                final String[] titles = new String[a.values().length];
-                                for (int ai = 0; ai < a.values().length; ai++) {
-                                    values[ai] = (bits & a.values()[ai]) == a.values()[ai];
-                                    titles[ai] = getString(a.titleRes()[ai]);
-                                }
-                                new AlertDialog.Builder(ConsoleActivity.this)
-                                        .setTitle(m.getValue().titleRes())
-                                        .setMultiChoiceItems(titles, values,
-                                                new DialogInterface.OnMultiChoiceClickListener() {
-                                                    @Override
-                                                    public void onClick(final DialogInterface dialog,
-                                                                        final int which,
-                                                                        final boolean isChecked) {
-                                                        be.callMethod(m.getKey(),
-                                                                isChecked ?
-                                                                        a.values()[which] : 0L,
-                                                                a.values()[which]);
-                                                    }
-                                                })
-                                        .setCancelable(true)
-                                        .show();
+                        mi.setOnClickListener(item -> {
+                            final long bits = (long) be.callMethod(m.getKey(), 0L, 0L);
+                            final boolean[] values = new boolean[a.values().length];
+                            final String[] titles = new String[a.values().length];
+                            for (int ai = 0; ai < a.values().length; ai++) {
+                                values[ai] = (bits & a.values()[ai]) == a.values()[ai];
+                                titles[ai] = getString(a.titleRes()[ai]);
                             }
+                            new AlertDialog.Builder(ConsoleActivity.this)
+                                    .setTitle(m.getValue().titleRes())
+                                    .setMultiChoiceItems(titles, values,
+                                            (dialog, which, isChecked) -> be.callMethod(m.getKey(),
+                                                    isChecked ?
+                                                            a.values()[which] : 0L,
+                                                    a.values()[which]))
+                                    .setCancelable(true)
+                                    .show();
                         });
                         moduleUiView.addView(mi);
                     }
@@ -603,34 +579,27 @@ public final class ConsoleActivity extends AppCompatActivity
         final ArrayAdapter<String> a = new ArrayAdapter<>(this,
                 R.layout.dialogmenu_entry, C.charsetList);
         new AlertDialog.Builder(this)
-                .setSingleChoiceItems(a, p, new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(final DialogInterface dialog, final int which) {
-                        if (mSession == null) return;
-                        final String charsetStr = a.getItem(which);
-                        try {
-                            final Charset charset = Charset.forName(charsetStr);
-                            mSession.input.setCharset(charset);
-                            mSession.output.setCharset(charset);
-                        } catch (IllegalArgumentException e) {
-                            Log.e("Charset", charsetStr, e);
-                        }
-                        refreshMenuPopup();
-                        dialog.dismiss();
+                .setSingleChoiceItems(a, p, (dialog, which) -> {
+                    if (mSession == null) return;
+                    final String charsetStr = a.getItem(which);
+                    try {
+                        final Charset charset = Charset.forName(charsetStr);
+                        mSession.input.setCharset(charset);
+                        mSession.output.setCharset(charset);
+                    } catch (IllegalArgumentException e) {
+                        Log.e("Charset", charsetStr, e);
                     }
+                    refreshMenuPopup();
+                    dialog.dismiss();
                 }).setCancelable(true).show();
     }
 
     public void onMenuKeymap(final View view) {
         if (mSession == null) return;
-        TermKeyMapManagerUi.showList(this, new TermKeyMapAdapter.OnSelectListener() {
-            @Override
-            public void onSelect(final boolean isBuiltIn, final String name,
-                                 final TermKeyMapRules rules, final String title) {
-                if (mSession == null) return;
-                mSession.output.setKeyMap(rules);
-                refreshMenuPopup();
-            }
+        TermKeyMapManagerUi.showList(this, (isBuiltIn, name, rules, title) -> {
+            if (mSession == null) return;
+            mSession.output.setKeyMap(rules);
+            refreshMenuPopup();
         }, mSession.output.getKeyMap());
     }
 
@@ -679,65 +648,57 @@ public final class ConsoleActivity extends AppCompatActivity
         new AlertDialog.Builder(this)
                 .setView(v)
                 .setTitle(R.string.dialog_title_terminal_screen)
-                .setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(final DialogInterface dialog, final int which) {
-                        if (mSession != null) {
-                            int width;
-                            int height;
-                            try {
-                                width = Integer.parseInt(wWidth.getText().toString());
-                            } catch (final IllegalArgumentException e) {
-                                width = 0;
-                            }
-                            try {
-                                height = Integer.parseInt(wHeight.getText().toString());
-                            } catch (final IllegalArgumentException e) {
-                                height = 0;
-                            }
-                            final String fontSizeStr = wFontSize.getText().toString();
-                            if (fontSizeStr.trim().isEmpty()) {
-                                mCsv.setScreenSize(width, height);
-                                autoFitTerminal = !mCsv.resizeBufferXOnUi || !mCsv.resizeBufferYOnUi;
-                                if (autoFitTerminal) fitFontSize();
-                            } else {
-                                try {
-                                    final float fontSize = NumberFormat.getNumberInstance()
-                                            .parse(fontSizeStr).floatValue();
-                                    autoFitTerminal = false;
-                                    mCsv.setFontSize(clampFontSize(fontSize *
-                                                    getResources().getDisplayMetrics().scaledDensity),
-                                            false);
-                                    mCsv.setScreenSize(width, height);
-                                } catch (final ParseException ignored) {
-                                }
-                            }
-                            mCsv.onInvalidateSink(null);
-                            switch (wOrientation.getCheckedRadioButtonId()) {
-                                case R.id.orientation_landscape:
-                                    screenOrientation = ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE;
-                                    break;
-                                case R.id.orientation_portrait:
-                                    screenOrientation = ActivityInfo.SCREEN_ORIENTATION_PORTRAIT;
-                                    break;
-                                case R.id.orientation_sensor:
-                                    screenOrientation = ActivityInfo.SCREEN_ORIENTATION_FULL_SENSOR;
-                                    break;
-                                default:
-                                    screenOrientation = ActivityInfo.SCREEN_ORIENTATION_UNSPECIFIED;
-                            }
-                            setRequestedOrientation(screenOrientation);
+                .setPositiveButton(android.R.string.ok, (dialog, which) -> {
+                    if (mSession != null) {
+                        int width;
+                        int height;
+                        try {
+                            width = Integer.parseInt(wWidth.getText().toString());
+                        } catch (final IllegalArgumentException e) {
+                            width = 0;
                         }
-                        refreshMenuPopup();
-                        dialog.dismiss();
+                        try {
+                            height = Integer.parseInt(wHeight.getText().toString());
+                        } catch (final IllegalArgumentException e) {
+                            height = 0;
+                        }
+                        final String fontSizeStr = wFontSize.getText().toString();
+                        if (fontSizeStr.trim().isEmpty()) {
+                            mCsv.setScreenSize(width, height);
+                            autoFitTerminal = !mCsv.resizeBufferXOnUi || !mCsv.resizeBufferYOnUi;
+                            if (autoFitTerminal) fitFontSize();
+                        } else {
+                            try {
+                                final float fontSize = NumberFormat.getNumberInstance()
+                                        .parse(fontSizeStr).floatValue();
+                                autoFitTerminal = false;
+                                mCsv.setFontSize(clampFontSize(fontSize *
+                                                getResources().getDisplayMetrics().scaledDensity),
+                                        false);
+                                mCsv.setScreenSize(width, height);
+                            } catch (final ParseException ignored) {
+                            }
+                        }
+                        mCsv.onInvalidateSink(null);
+                        switch (wOrientation.getCheckedRadioButtonId()) {
+                            case R.id.orientation_landscape:
+                                screenOrientation = ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE;
+                                break;
+                            case R.id.orientation_portrait:
+                                screenOrientation = ActivityInfo.SCREEN_ORIENTATION_PORTRAIT;
+                                break;
+                            case R.id.orientation_sensor:
+                                screenOrientation = ActivityInfo.SCREEN_ORIENTATION_FULL_SENSOR;
+                                break;
+                            default:
+                                screenOrientation = ActivityInfo.SCREEN_ORIENTATION_UNSPECIFIED;
+                        }
+                        setRequestedOrientation(screenOrientation);
                     }
+                    refreshMenuPopup();
+                    dialog.dismiss();
                 })
-                .setNegativeButton(android.R.string.cancel, new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(final DialogInterface dialog, final int which) {
-                        dialog.cancel();
-                    }
-                })
+                .setNegativeButton(android.R.string.cancel, (dialog, which) -> dialog.cancel())
                 .setCancelable(true)
                 .show();
     }
@@ -785,12 +746,7 @@ public final class ConsoleActivity extends AppCompatActivity
     public void onMenuTerminate(final View view) {
         if (view != null) {
             UiUtils.confirm(this, getString(R.string.prompt_terminate_the_session),
-                    new Runnable() {
-                        @Override
-                        public void run() {
-                            onMenuTerminate(null);
-                        }
-                    });
+                    () -> onMenuTerminate(null));
             return;
         }
         try {
@@ -809,7 +765,8 @@ public final class ConsoleActivity extends AppCompatActivity
 
     @Override
     public boolean dispatchGenericMotionEvent(final MotionEvent ev) {
-        return mbwa.onDispatchGenericMotionEvent(ev) ? mbwa.result : super.dispatchGenericMotionEvent(ev);
+        return mbwa.onDispatchGenericMotionEvent(ev) ?
+                mbwa.result : super.dispatchGenericMotionEvent(ev);
     }
 
     @Override

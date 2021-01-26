@@ -15,6 +15,7 @@ public interface BackendUiInteraction {
 
     void showToast(@NonNull String message);
 
+    @Nullable
     byte[] promptContent(@NonNull String message, @NonNull String mimeType, long sizeLimit)
             throws InterruptedException, IOException;
 

@@ -11,6 +11,7 @@ import androidx.annotation.Nullable;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.nio.ByteBuffer;
+import java.nio.CharBuffer;
 import java.nio.charset.Charset;
 import java.util.Collections;
 import java.util.Deque;
@@ -83,7 +84,7 @@ public final class ConsoleInput implements BytesSink {
             consoleOutput.feed(v);
     }
 
-    public void setCharset(final Charset ch) {
+    public void setCharset(@NonNull final Charset ch) {
         mStrConv = new InputStreamReader(mInputBuf, ch);
     }
 
@@ -94,7 +95,7 @@ public final class ConsoleInput implements BytesSink {
     }
 
     private final Set<OnInvalidateSink> mOnInvalidateSink =
-            Collections.newSetFromMap(new WeakHashMap<OnInvalidateSink, Boolean>());
+            Collections.newSetFromMap(new WeakHashMap<>());
 
     public void addOnInvalidateSink(@NonNull final OnInvalidateSink h) {
         mOnInvalidateSink.add(h);
@@ -119,7 +120,7 @@ public final class ConsoleInput implements BytesSink {
     }
 
     private Set<OnBufferScroll> mOnBufferScroll =
-            Collections.newSetFromMap(new WeakHashMap<OnBufferScroll, Boolean>());
+            Collections.newSetFromMap(new WeakHashMap<>());
 
     public void addOnBufferScroll(@NonNull final OnBufferScroll h) {
         mOnBufferScroll.add(h);
@@ -304,7 +305,7 @@ public final class ConsoleInput implements BytesSink {
                                 break;
                             }
                             if (LOG_UNKNOWN_ESC)
-                                Log.w("CtrlSeq", "OSC: " + t.value.toString());
+                                Log.w("CtrlSeq", "OSC: " + osc.body);
                             break;
                         }
                         case CSI:
@@ -405,12 +406,14 @@ public final class ConsoleInput implements BytesSink {
                                                 (int) t.value.charAt(0));
                             }
                             break;
-                        case TEXT:
+                        case TEXT: {
                             currScrBuf.setCurrentAttrs(mCurrAttrs);
-                            if (insertMode) currScrBuf.insertChars(t.value.length());
-                            currScrBuf.setChars(DecTerminalCharsets.translate(t.value,
-                                    decGxCharsets[decGlCharset]));
+                            final CharBuffer text = DecTerminalCharsets.translate(t.value,
+                                    decGxCharsets[decGlCharset]);
+                            if (insertMode) currScrBuf.insertChars(text.length());
+                            currScrBuf.setChars(text);
                             break;
+                        }
                     }
                 }
             }

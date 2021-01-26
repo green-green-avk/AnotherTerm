@@ -194,7 +194,7 @@ public final class LocalModule extends BackendModule {
     private String execute = "";
 
     private static final String ENV_INPUT_PREFIX = "$input.";
-    private Map<String, String> envInput = new HashMap<>();
+    private final Map<String, String> envInput = new HashMap<>();
 
     @Override
     public void setParameters(@NonNull final Map<String, ?> params) {
@@ -206,6 +206,7 @@ public final class LocalModule extends BackendModule {
             if (pp.getBoolean("perm_" + m.getKey(), false))
                 _perms |= m.getValue().bits;
         sessionData.permissions = _perms;
+        envInput.clear();
         for (final Map.Entry<String, ?> p : params.entrySet())
             if (p.getKey() != null && p.getKey().startsWith(ENV_INPUT_PREFIX) &&
                     p.getValue() instanceof String)
@@ -273,21 +274,18 @@ public final class LocalModule extends BackendModule {
             readerThread = new Thread(new ProcOutputR(p.getInputStream()));
             readerThread.setDaemon(true);
             readerThread.start();
-            final Thread keeper = new Thread(new Runnable() {
-                @Override
-                public void run() {
-                    int status = 0;
-                    while (true) {
-                        try {
-                            status = p.waitFor();
-                        } catch (final InterruptedException ignored) {
-                            continue;
-                        }
-                        break;
+            final Thread keeper = new Thread(() -> {
+                int status;
+                while (true) {
+                    try {
+                        status = p.waitFor();
+                    } catch (final InterruptedException ignored) {
+                        continue;
                     }
-                    disconnect();
-                    reportState(new DisconnectStateMessage("Process exited with status " + status));
+                    break;
                 }
+                disconnect();
+                reportState(new DisconnectStateMessage("Process exited with status " + status));
             });
             keeper.setDaemon(true);
             keeper.start();
