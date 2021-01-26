@@ -300,10 +300,12 @@ public final class ConsoleActivity extends AppCompatActivity
         mSmv.setButtons("wide".equals(((App) getApplication()).settings.terminal_mouse_layout) ?
                 R.layout.screen_mouse_buttons_wide : R.layout.screen_mouse_buttons);
         ((BackendUiInteractionActivityCtx) mSession.backend.wrapped.getUi()).setActivity(this);
+        mSession.output.setMouseFocus(true);
     }
 
     @Override
     protected void onPause() {
+        mSession.output.setMouseFocus(false);
         ((BackendUiInteractionActivityCtx) mSession.backend.wrapped.getUi()).setActivity(null);
         mSession.uiState.fontSizeDp = autoFitTerminal ? -1F : (mCsv.getFontSize() /
                 getResources().getDisplayMetrics().density);

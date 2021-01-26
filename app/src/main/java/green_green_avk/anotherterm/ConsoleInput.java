@@ -877,6 +877,10 @@ public final class ConsoleInput implements BytesSink {
                                 ConsoleOutput.MouseTracking.ANY_EVENT
                                 : ConsoleOutput.MouseTracking.NONE;
                     return;
+                case 1004:
+                    if (consoleOutput != null)
+                        consoleOutput.mouseFocusInOut = value;
+                    return;
                 case 1005:
                     if (consoleOutput != null)
                         consoleOutput.mouseProtocol = value ?

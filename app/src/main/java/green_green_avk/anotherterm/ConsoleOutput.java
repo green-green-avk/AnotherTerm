@@ -36,6 +36,7 @@ public final class ConsoleOutput {
     public MouseTracking mouseTracking = MouseTracking.NONE;
     @NonNull
     public MouseProtocol mouseProtocol = MouseProtocol.NORMAL;
+    public boolean mouseFocusInOut = false;
 
     @NonNull
     public Charset getCharset() {
@@ -123,6 +124,19 @@ public final class ConsoleOutput {
 
     public boolean isMouseSupported() {
         return mouseTracking != MouseTracking.NONE && mouseTracking != MouseTracking.HIGHLIGHT;
+    }
+
+    private boolean hasMouseFocus = false;
+
+    public void setMouseFocus(final boolean v) {
+        if (v == hasMouseFocus)
+            return;
+        hasMouseFocus = v;
+        if (mouseFocusInOut)
+            if (v)
+                feed("\u001B[I");
+            else
+                feed("\u001B[O");
     }
 
     public enum MouseEventType {PRESS, RELEASE, MOVE, VSCROLL}
