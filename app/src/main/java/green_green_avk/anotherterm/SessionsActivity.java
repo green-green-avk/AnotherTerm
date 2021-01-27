@@ -21,6 +21,8 @@ import java.util.NoSuchElementException;
 
 import green_green_avk.anotherterm.backends.BackendException;
 import green_green_avk.anotherterm.backends.BackendModule;
+import green_green_avk.anotherterm.backends.BackendsList;
+import green_green_avk.anotherterm.ui.UiUtils;
 import green_green_avk.anotherterm.utils.PreferenceStorage;
 
 public final class SessionsActivity extends AppCompatActivity {
@@ -110,6 +112,22 @@ public final class SessionsActivity extends AppCompatActivity {
             });
             menu.findItem(R.id.fav_clone).setOnMenuItemClickListener(item -> {
                 showEditFavoriteDlg(name, true);
+                return true;
+            });
+            menu.findItem(R.id.fav_copy).setOnMenuItemClickListener(item -> {
+                if (!FavoritesManager.contains(name))
+                    return true;
+                final PreferenceStorage ps = FavoritesManager.get(name);
+                ps.put("name", name);
+                try {
+                    UiUtils.uriToClipboard(this, BackendsList.toUri(ps.get()),
+                            getString(R.string.title_terminal_s_link_s, name,
+                                    getString(R.string.linktype_connection_settings)));
+                } catch (final IllegalStateException e) {
+                    return true;
+                }
+                Toast.makeText(this, R.string.msg_copied_to_clipboard, Toast.LENGTH_SHORT)
+                        .show();
                 return true;
             });
         });

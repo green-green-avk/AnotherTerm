@@ -17,4 +17,8 @@
         android:id="@+id/fav_clone"
         android:title="@string/action_clone" />
 
+    <item
+        android:id="@+id/fav_copy"
+        android:title="@string/action_copy" />
+
 </menu>
