@@ -59,11 +59,6 @@ public final class ShareInputActivity extends AppCompatActivity {
         if (value != null) ps.put(name, value);
     }
 
-    private void showSession(final int key) {
-        startActivity(new Intent(this, ConsoleActivity.class)
-                .putExtra(C.IFK_MSG_SESS_KEY, key));
-    }
-
     private void fillSendArgs(@NonNull final PreferenceStorage ps) {
         final ShareCompat.IntentReader intentReader = ShareCompat.IntentReader.from(this);
         putIfSet(ps, "$input.action", getIntent().getAction());
@@ -153,7 +148,7 @@ public final class ShareInputActivity extends AppCompatActivity {
                         Toast.LENGTH_LONG).show();
                 return;
             }
-            showSession(key);
+            ConsoleActivity.showSession(this, key);
             finish();
         });
         a.registerAdapterDataObserver(observer);

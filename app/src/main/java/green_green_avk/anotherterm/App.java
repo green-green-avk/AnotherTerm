@@ -13,6 +13,10 @@ public final class App extends Application {
 
     public static final class Settings extends green_green_avk.anotherterm.utils.Settings {
         @Keep
+        @Param(defRes = R.bool.terminal_use_recents)
+        public boolean terminal_use_recents;
+
+        @Keep
         @Param(defRes = R.bool.terminal_font_default_fromfiles)
         public boolean terminal_font_default_fromfiles;
 

@@ -14,7 +14,6 @@ public final class C {
     public static final String IFK_MSG_NEW = JAVA_PKG_NAME + ".MSG_NEW";
     public static final String IFK_MSG_NAME = JAVA_PKG_NAME + ".MSG_NAME";
     public static final String IFK_MSG_SESS_KEY = JAVA_PKG_NAME + ".MSG_SESS_KEY";
-    public static final String IFK_MSG_SESS_TAIL = JAVA_PKG_NAME + ".MSG_SESS_TAIL";
     public static final String IFK_MSG_ID = JAVA_PKG_NAME + ".MSG_ID";
     public static final String IFK_MSG_INTENT = JAVA_PKG_NAME + ".MSG_INTENT";
     public static final String IFK_ACTION_NEW = JAVA_PKG_NAME + ".ACTION_NEW";

@@ -309,4 +309,5 @@
     <string name="label_dev_external">External</string>
     <string name="label_key_block">Block</string>
     <string name="label_key_bypass">Bypass</string>
+    <string name="label_keep_terminal_activities_on_the_recents_screen">Keep terminal activities on the Recents screen</string>
 </resources>

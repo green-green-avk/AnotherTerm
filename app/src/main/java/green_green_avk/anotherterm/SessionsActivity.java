@@ -38,16 +38,6 @@ public final class SessionsActivity extends AppCompatActivity {
         startActivity(intent);
     }
 
-    private void showSession(final int key) {
-        startActivity(new Intent(this, ConsoleActivity.class)
-                .putExtra(C.IFK_MSG_SESS_KEY, key));
-    }
-
-    private void showSession(final boolean fromTail) {
-        startActivity(new Intent(this, ConsoleActivity.class)
-                .putExtra(C.IFK_MSG_SESS_TAIL, fromTail));
-    }
-
     private void showAdapterDialog(@NonNull final PreferenceStorage ps,
                                    @NonNull final Map<String, Integer> list) {
         final String[] ii = new String[list.size()];
@@ -71,7 +61,7 @@ public final class SessionsActivity extends AppCompatActivity {
                 dialog.dismiss();
                 return;
             }
-            showSession(key);
+            ConsoleActivity.showSession(this, key);
             dialog.dismiss();
         }).setCancelable(true).show();
     }
@@ -105,7 +95,7 @@ public final class SessionsActivity extends AppCompatActivity {
                         Toast.LENGTH_LONG).show();
                 return;
             }
-            showSession(key);
+            ConsoleActivity.showSession(this, key);
         });
         a.setOnCreateContextMenuListener((menu, view, menuInfo) -> {
             final String name = a.getName(l.getChildLayoutPosition(view));
@@ -133,7 +123,7 @@ public final class SessionsActivity extends AppCompatActivity {
         l.setAdapter(a);
         a.setOnClickListener(v -> {
             final int key = a.getKey(l.getChildAdapterPosition(v));
-            showSession(key);
+            ConsoleActivity.showSession(this, key);
         });
         a.setOnCreateContextMenuListener((menu, view, menuInfo) -> {
             final int key = a.getKey(l.getChildLayoutPosition(view));

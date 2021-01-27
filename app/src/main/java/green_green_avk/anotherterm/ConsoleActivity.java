@@ -1,5 +1,6 @@
 package green_green_avk.anotherterm;
 
+import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.ClipData;
 import android.content.ClipboardManager;
@@ -68,6 +69,41 @@ public final class ConsoleActivity extends AppCompatActivity
         implements ConsoleInput.OnInvalidateSink, ScrollableView.OnScroll,
         ConsoleScreenView.OnStateChange {
 
+    @NonNull
+    public static Intent getShowSessionIntent(@NonNull final Context ctx, final int key) {
+        final App app;
+        if (ctx instanceof App)
+            app = (App) ctx;
+        else if (ctx instanceof Activity)
+            app = (App) ((Activity) ctx).getApplication();
+        else
+            app = null;
+        return getShowSessionIntent(ctx, key,
+                app != null && app.settings.terminal_use_recents);
+    }
+
+    @NonNull
+    public static Intent getShowSessionIntent(@NonNull final Context ctx, final int key,
+                                              final boolean inRecents) {
+        final Intent intent = new Intent(ctx, ConsoleActivity.class)
+                .putExtra(C.IFK_MSG_SESS_KEY, key);
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+            intent.setData(Uri.parse("key:" + key));
+            if (inRecents)
+                intent.addFlags(Intent.FLAG_ACTIVITY_NEW_DOCUMENT);
+        }
+        return intent;
+    }
+
+    public static void showSession(@NonNull final Context ctx, final int key) {
+        ctx.startActivity(getShowSessionIntent(ctx, key));
+    }
+
+    public static void showSession(@NonNull final Context ctx, final int key,
+                                   final boolean inRecents) {
+        ctx.startActivity(getShowSessionIntent(ctx, key, inRecents));
+    }
+
     private int mSessionKey = -1;
     private Session mSession = null;
     private int screenOrientation = ActivityInfo.SCREEN_ORIENTATION_UNSPECIFIED;
@@ -114,14 +150,6 @@ public final class ConsoleActivity extends AppCompatActivity
     private void invalidateLoadingState() {
         if (mSession == null) return;
         wConnecting.setVisibility(mSession.backend.isConnecting() ? View.VISIBLE : View.GONE);
-    }
-
-    private static int getFirstSessionKey() {
-        return ConsoleService.sessionKeys.listIterator(0).next();
-    }
-
-    private static int getLastSessionKey() {
-        return ConsoleService.sessionKeys.listIterator(ConsoleService.sessionKeys.size()).previous();
     }
 
     private static int asSize(final Object o) {
@@ -191,14 +219,10 @@ public final class ConsoleActivity extends AppCompatActivity
         }
         final Intent intent = getIntent();
         if (!intent.hasExtra(C.IFK_MSG_SESS_KEY)) {
-            if (intent.getBooleanExtra(C.IFK_MSG_SESS_TAIL, false)) {
-                mSessionKey = getLastSessionKey();
-            } else {
-                mSessionKey = getFirstSessionKey();
-            }
-        } else {
-            mSessionKey = intent.getIntExtra(C.IFK_MSG_SESS_KEY, 0);
+            finish();
+            return;
         }
+        mSessionKey = intent.getIntExtra(C.IFK_MSG_SESS_KEY, 0);
         try {
             mSession = ConsoleService.getSession(mSessionKey);
         } catch (final NoSuchElementException e) {
