@@ -18,6 +18,7 @@ public final class C {
     public static final String IFK_MSG_INTENT = JAVA_PKG_NAME + ".MSG_INTENT";
     public static final String IFK_ACTION_NEW = JAVA_PKG_NAME + ".ACTION_NEW";
     public static final String IFK_ACTION_CANCEL = JAVA_PKG_NAME + ".ACTION_CANCEL";
+    public static final String TERMSH_UI_TAG = "TERMSH_UI";
     public static final String TERMSH_USER_TAG = "TERMSH_USER";
     public static final String REQUEST_USER_TAG = "REQUEST_USER";
     public static final String UNNAMED_FILE_NAME = "unnamed";

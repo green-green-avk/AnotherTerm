@@ -163,7 +163,7 @@ public final class ConsoleService extends Service {
         tbe.setOnWakeLockEvent(() -> execOnSessionChange(key), new Handler());
         tbe.setAcquireWakeLockOnConnect(Boolean.TRUE.equals(cp.get("wakelock.acquire_on_connect")));
         tbe.setReleaseWakeLockOnDisconnect(Boolean.TRUE.equals(cp.get("wakelock.release_on_disconnect")));
-        tbe.setUi(new BackendUiDialogs());
+        tbe.setUi(new BackendUiDialogs(key));
         tbe.setParameters(cp);
 
         final Session.Properties pp = new Session.Properties();

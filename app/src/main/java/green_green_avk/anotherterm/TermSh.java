@@ -4,6 +4,7 @@ import android.annotation.SuppressLint;
 import android.app.Notification;
 import android.app.NotificationChannel;
 import android.app.NotificationManager;
+import android.app.PendingIntent;
 import android.content.ActivityNotFoundException;
 import android.content.ComponentName;
 import android.content.ContentResolver;
@@ -23,6 +24,7 @@ import android.text.Html;
 import android.text.TextUtils;
 import android.util.Log;
 
+import androidx.annotation.Keep;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.UiThread;
@@ -59,9 +61,10 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.NoSuchElementException;
 import java.util.Set;
+import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutionException;
-import java.util.concurrent.Future;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.regex.Pattern;
 
@@ -91,6 +94,8 @@ import green_green_avk.anothertermshellpluginutils.StringContent;
 import green_green_avk.ptyprocess.PtyProcess;
 
 public final class TermSh {
+    private static final String UI_NOTIFICATION_CHANNEL_ID =
+            TermSh.class.getName() + ".ui";
     private static final String USER_NOTIFICATION_CHANNEL_ID =
             TermSh.class.getName() + ".user";
     private static final String REQUEST_NOTIFICATION_CHANNEL_ID =
@@ -111,6 +116,19 @@ public final class TermSh {
 
         private final AtomicInteger notificationId = new AtomicInteger(0);
 
+        @Keep
+        private final ConsoleService.Listener sessionsListener = new ConsoleService.Listener() {
+            @Override
+            protected void onSessionChange(final int key) {
+                if (ConsoleService.isSessionTerminated(key))
+                    removeUiNotification(key);
+            }
+        };
+
+        {
+            ConsoleService.addListener(sessionsListener);
+        }
+
         @UiThread
         private UiBridge(@NonNull final Context context) {
             ctx = context;
@@ -125,7 +143,55 @@ public final class TermSh {
             return notificationId.getAndIncrement();
         }
 
-        private void postNotification(final String message, final int id) {
+        private void postUiNotification(final int key, @NonNull final String message) {
+            handler.post(() -> {
+                final Notification n = new NotificationCompat.Builder(
+                        ctx.getApplicationContext(), UI_NOTIFICATION_CHANNEL_ID)
+                        .setContentTitle(message)
+                        .setSmallIcon(R.drawable.ic_stat_serv)
+                        .setPriority(NotificationCompat.PRIORITY_HIGH)
+                        .setAutoCancel(true)
+                        .setContentIntent(PendingIntent.getActivity(ctx, 0,
+                                ConsoleActivity.getShowSessionIntent(ctx, key),
+                                PendingIntent.FLAG_ONE_SHOT
+                                        | PendingIntent.FLAG_UPDATE_CURRENT))
+                        .build();
+                NotificationManagerCompat.from(ctx).notify(C.TERMSH_UI_TAG, key, n);
+            });
+        }
+
+        private void removeUiNotification(final int key) {
+            handler.post(() -> NotificationManagerCompat.from(ctx).cancel(C.TERMSH_UI_TAG, key));
+        }
+
+        private void postUiAwaitsNotification(final int key) {
+            handler.post(() -> {
+                final Session session;
+                try {
+                    session = ConsoleService.getSession(key);
+                } catch (final NoSuchElementException e) {
+                    return;
+                }
+                String title = session.input.currScrBuf.windowTitle;
+                if (title == null) title = ConsoleService.getSessionTitle(key);
+                postUiNotification(key, "UI awaits in " + title);
+            });
+        }
+
+        private void waitForUiWithNotification(@NonNull final BackendUiDialogs gui)
+                throws InterruptedException {
+            if (!gui.hasUi()) {
+                final int key = gui.getSessionKey();
+                postUiAwaitsNotification(key);
+                try {
+                    gui.waitForUi();
+                } finally {
+                    removeUiNotification(key);
+                }
+            }
+        }
+
+        private void postUserNotification(@NonNull final String message, final int id) {
             handler.post(() -> {
                 final Notification n = new NotificationCompat.Builder(
                         ctx.getApplicationContext(), USER_NOTIFICATION_CHANNEL_ID)
@@ -138,7 +204,7 @@ public final class TermSh {
             });
         }
 
-        private void removeNotification(final int id) {
+        private void removeUserNotification(final int id) {
             handler.post(() -> NotificationManagerCompat.from(ctx).cancel(C.TERMSH_USER_TAG, id));
         }
     }
@@ -357,31 +423,48 @@ public final class TermSh {
                 }
             };
 
-            private void setOnTerminate(@Nullable final Runnable onTerminate) {
+            @Nullable
+            private Runnable setOnTerminate(@Nullable final Runnable onTerminate) {
                 synchronized (closeLock) {
-                    if (onTerminate != null && closed) onTerminate.run();
-                    else this.onTerminate = onTerminate;
+                    if (onTerminate != null && closed) {
+                        onTerminate.run();
+                        return null;
+                    }
+                    final Runnable r = this.onTerminate;
+                    this.onTerminate = onTerminate;
+                    return r;
                 }
             }
 
-            private <T> T waitFor(@NonNull final Future<T> task)
+            private <T> T waitFor(@NonNull final Callable<T> task)
                     throws ExecutionException, InterruptedException {
-                this.setOnTerminate(() -> task.cancel(true));
+                final Thread thread = Thread.currentThread();
+                final Runnable ot = this.setOnTerminate(() -> {
+                    try {
+                        thread.interrupt();
+                    } catch (final Throwable e) {
+                        throw new Error("Cannot stop waiting! We are doomed!!!");
+                    }
+                });
                 try {
-                    return task.get();
+                    return task.call();
+                } catch (final Exception e) {
+                    if (e instanceof InterruptedException)
+                        throw (InterruptedException) e;
+                    throw new ExecutionException(e);
                 } finally {
-                    this.setOnTerminate(null);
+                    this.setOnTerminate(ot);
                 }
             }
 
             private <T> T waitFor(@NonNull final BlockingSync<T> result,
                                   @NonNull final Runnable onTerminate)
                     throws InterruptedException {
-                this.setOnTerminate(onTerminate);
+                final Runnable ot = this.setOnTerminate(onTerminate);
                 try {
                     return result.get();
                 } finally {
-                    this.setOnTerminate(null);
+                    this.setOnTerminate(ot);
                 }
             }
 
@@ -721,6 +804,21 @@ public final class TermSh {
                 return (BackendUiDialogs) ui;
             }
 
+            @NonNull
+            private BackendUiDialogs waitForGuiWithNotification(@NonNull final UiBridge ui)
+                    throws InterruptedException {
+                final BackendUiDialogs gui = getGui();
+                try {
+                    waitFor(() -> {
+                        ui.waitForUiWithNotification(gui);
+                        return null;
+                    });
+                } catch (final ExecutionException e) {
+                    throw new ShellUiException(e.getMessage());
+                }
+                return gui;
+            }
+
             private ShellCmdIO(@NonNull final LocalSocket socket)
                     throws IOException, ParseException {
                 this.socket = socket;
@@ -1056,7 +1154,7 @@ public final class TermSh {
                             if (opts.containsKey("remove")) {
                                 if (_id == null)
                                     throw new ParseException("`id' argument is mandatory");
-                                ui.removeNotification(_id);
+                                ui.removeUserNotification(_id);
                                 break;
                             }
                             final int id = _id == null ? ui.getNextNotificationId() : _id;
@@ -1071,7 +1169,7 @@ public final class TermSh {
                                     final CharBuffer buf = CharBuffer.allocate(8192);
                                     String m = "";
                                     while (true) {
-                                        ui.postNotification(m, id);
+                                        ui.postUserNotification(m, id);
                                         if (reader.read(buf) < 0) break;
                                         if (buf.remaining() < 2) { // TODO: correct
                                             buf.position(buf.limit() / 2);
@@ -1085,7 +1183,7 @@ public final class TermSh {
                                 default:
                                     throw new ParseException("Bad arguments");
                             }
-                            ui.postNotification(msg, id);
+                            ui.postUserNotification(msg, id);
                             break;
                         }
                         case "uri": {
@@ -1194,8 +1292,7 @@ public final class TermSh {
                                             REQUEST_NOTIFICATION_CHANNEL_ID,
                                             NotificationCompat.PRIORITY_HIGH);
                                 else {
-                                    final BackendUiDialogs gui = shellCmd.getGui();
-                                    gui.waitForUi();
+                                    shellCmd.waitForGuiWithNotification(ui);
                                     ui.ctx.startActivity(ci);
                                 }
                             } else {
@@ -1330,8 +1427,7 @@ public final class TermSh {
                                             REQUEST_NOTIFICATION_CHANNEL_ID,
                                             NotificationCompat.PRIORITY_HIGH);
                                 else {
-                                    final BackendUiDialogs gui = shellCmd.getGui();
-                                    gui.waitForUi();
+                                    shellCmd.waitForGuiWithNotification(ui);
                                     ui.ctx.startActivity(Intent.createChooser(intent, prompt)
                                             .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK));
                                 }
@@ -1399,8 +1495,7 @@ public final class TermSh {
                                         NotificationCompat.PRIORITY_HIGH);
                             else {
                                 try {
-                                    final BackendUiDialogs gui = shellCmd.getGui();
-                                    gui.waitForUi();
+                                    shellCmd.waitForGuiWithNotification(ui);
                                     request = RequesterActivity.request(
                                             ui.ctx, Intent.createChooser(i, prompt), onResult);
                                 } catch (final Throwable e) {
@@ -1749,8 +1844,8 @@ public final class TermSh {
                                 exitStatus = 3;
                                 break;
                             }
-                            final BackendUiInteraction gui = shellCmd.getGui();
                             final String prompt = Misc.fromUTF8(shellCmd.args[2]);
+                            final BackendUiDialogs gui = shellCmd.waitForGuiWithNotification(ui);
                             shellCmd.setOnTerminate(() -> cancel(true));
                             try {
                                 if (gui.promptYesNo(
@@ -1956,6 +2051,12 @@ public final class TermSh {
             final NotificationManager nm =
                     (NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);
             nm.createNotificationChannel(new NotificationChannel(
+                    UI_NOTIFICATION_CHANNEL_ID,
+                    context.getString(R.string.title_shell_of_s,
+                            context.getString(R.string.app_name)),
+                    NotificationManager.IMPORTANCE_HIGH
+            ));
+            nm.createNotificationChannel(new NotificationChannel(
                     USER_NOTIFICATION_CHANNEL_ID,
                     context.getString(R.string.title_shell_of_s,
                             context.getString(R.string.app_name)),
@@ -1963,7 +2064,7 @@ public final class TermSh {
             ));
             nm.createNotificationChannel(new NotificationChannel(
                     REQUEST_NOTIFICATION_CHANNEL_ID,
-                    context.getString(R.string.title_shell_script_request_of_s,
+                    context.getString(R.string.title_shell_script_in_s_said_,
                             context.getString(R.string.app_name)),
                     NotificationManager.IMPORTANCE_HIGH
             ));

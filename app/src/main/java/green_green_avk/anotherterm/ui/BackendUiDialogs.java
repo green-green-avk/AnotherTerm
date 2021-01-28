@@ -36,7 +36,7 @@ import green_green_avk.anotherterm.utils.WeakBlockingSync;
 
 // TODO: Split into UI and UI thread connector queue classes
 public final class BackendUiDialogs implements BackendUiInteraction,
-        BackendUiInteractionActivityCtx {
+        BackendUiInteractionActivityCtx, BackendUiSessionBridge {
 
     private final Handler handler = new Handler(Looper.getMainLooper());
 
@@ -292,7 +292,22 @@ public final class BackendUiDialogs implements BackendUiInteraction,
         return r;
     }
 
+    public boolean hasUi() {
+        return ctxRef.getNoBlock() != null;
+    }
+
     public void waitForUi() throws InterruptedException {
         ctxRef.get();
+    }
+
+    private final int sessionKey;
+
+    @Override
+    public int getSessionKey() {
+        return sessionKey;
+    }
+
+    public BackendUiDialogs(final int sessionKey) {
+        this.sessionKey = sessionKey;
     }
 }
