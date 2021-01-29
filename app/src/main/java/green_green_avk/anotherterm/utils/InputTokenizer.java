@@ -11,6 +11,8 @@ public final class InputTokenizer
         implements Iterator<InputTokenizer.Token>, Iterable<InputTokenizer.Token> {
     private static final int SEQ_MAXLEN = 256;
 
+    public boolean _8BitMode = true;
+
     public static final class Token {
         public enum Type {
             TEXT, CTL, ESC, CSI, OSC
@@ -52,6 +54,10 @@ public final class InputTokenizer
                 case '\u001B':
                     if (pos + 1 >= mEnd || mBufArr[pos + 1] != '\\') break;
                     ++pos;
+                    found(pos); // ST
+                    return;
+                case '\u009C': // ST
+                    if (!_8BitMode) break;
                 case '\u0007':
                     found(pos);
                     return;
@@ -86,14 +92,24 @@ public final class InputTokenizer
             return;
         }
         int pos = mPos;
-        while (mBufArr[pos] > 0x1F && mBufArr[pos] != 0x7F) {
-            if (++pos >= mEnd) {
-                mType = Token.Type.TEXT;
-                mToken = Compat.subSequence(mBuf, mPos, mEnd);
-                mPos = mEnd;
-                return;
+        if (_8BitMode)
+            while (mBufArr[pos] > 0x1F && mBufArr[pos] < 0x7F || mBufArr[pos] > 0x9F) {
+                if (++pos >= mEnd) {
+                    mType = Token.Type.TEXT;
+                    mToken = Compat.subSequence(mBuf, mPos, mEnd);
+                    mPos = mEnd;
+                    return;
+                }
             }
-        }
+        else
+            while (mBufArr[pos] > 0x1F && mBufArr[pos] != 0x7F) {
+                if (++pos >= mEnd) {
+                    mType = Token.Type.TEXT;
+                    mToken = Compat.subSequence(mBuf, mPos, mEnd);
+                    mPos = mEnd;
+                    return;
+                }
+            }
         if (pos > mPos) {
             mType = Token.Type.TEXT;
             mToken = Compat.subSequence(mBuf, mPos, pos);
@@ -101,12 +117,23 @@ public final class InputTokenizer
             return;
         }
         if (mBufArr[pos] != '\u001B') {
+            if (_8BitMode) {
+                switch (mBufArr[pos]) {
+                    case '\u009B':
+                        mType = Token.Type.CSI;
+                        getCsi(pos + 1);
+                        return;
+                    case '\u009D':
+                        mType = Token.Type.OSC;
+                        getOsc(pos + 1);
+                        return;
+                }
+            }
             mType = Token.Type.CTL;
             mToken = Compat.subSequence(mBuf, pos, pos + 1);
             mPos = pos + 1;
             return;
         }
-        mType = Token.Type.ESC;
         ++pos;
         if (pos >= mEnd) {
             mToken = null;
@@ -121,10 +148,15 @@ public final class InputTokenizer
                 mType = Token.Type.OSC;
                 getOsc(pos + 1);
                 return;
-            default:
-                getEsc(pos);
-                return;
         }
+        if (mBufArr[pos] >= 0x40 && mBufArr[pos] < 0x60) {
+            mType = Token.Type.CTL;
+            mToken = Compat.subSequence(mBuf, mPos, pos + 1);
+            mPos = pos + 1;
+            return;
+        }
+        mType = Token.Type.ESC;
+        getEsc(pos);
     }
 
     @Override

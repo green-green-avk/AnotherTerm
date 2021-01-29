@@ -14,6 +14,10 @@
 <li><a href=\"info:/share_input\">Content sharing, viewing and editing with Another&#xA0;Term</a></li>
 <li><a href=\"info:/fav_token\">Start a session by an intent</a></li>
 </ul>
+<h2>Notes</h2>
+<ul>
+<li><a href=\"info:/8_bit_C1\">8-bit C1 control codes support</a></li>
+</ul>
     ]]></string>
     <string name="desc_keymap_escapes"><![CDATA[
 <h1>Key Map Escapes</h1>

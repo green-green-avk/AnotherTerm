@@ -38,6 +38,7 @@ public final class InfoActivity extends AppCompatActivity {
 
     static {
         res.put("/no_info", new Source(R.string.msg_no_info_page, Source.Type.XML));
+        res.put("/8_bit_C1", new Source(R.string.desc_8_bit_c1_mode_help, Source.Type.XML));
         res.put("/keymap_escapes", new Source(R.string.desc_keymap_escapes, Source.Type.XML));
         res.put("/scratchpad", new Source(R.string.desc_scratchpad_help, Source.Type.XML));
         res.put("/share_input", new Source(R.string.desc_share_input_help, Source.Type.XML));

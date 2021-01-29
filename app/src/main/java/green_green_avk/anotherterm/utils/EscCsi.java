@@ -24,13 +24,14 @@ public final class EscCsi {
         suf_i++;
         if (suf_i == end_i) suffix = "";
         else suffix = Compat.subSequence(v, suf_i, end_i).toString();
-        final char pre = v.charAt(2);
+        final int skip = v.charAt(0) == '\u001B' ? 2 : 1; // 7-bit / 8-bit
+        final char pre = v.charAt(skip);
         if (pre >= 60 && pre <= 63) {
             prefix = pre;
-            body = Compat.subSequence(v, 3, suf_i).toString();
+            body = Compat.subSequence(v, skip + 1, suf_i).toString();
         } else {
             prefix = 0;
-            body = Compat.subSequence(v, 2, suf_i).toString();
+            body = Compat.subSequence(v, skip, suf_i).toString();
         }
         args = body.split(";", -1);
     }

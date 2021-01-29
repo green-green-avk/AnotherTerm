@@ -9,10 +9,11 @@ public final class EscOsc {
     public final String[] args;
 
     public EscOsc(@NonNull final CharBuffer v) throws IllegalArgumentException {
-        if (v.charAt(v.length() - 1) == '\\') {
-            body = Compat.subSequence(v, 2, v.length() - 2).toString();
+        final int skip = v.charAt(0) == '\u001B' ? 2 : 1; // 7-bit / 8-bit
+        if (v.charAt(v.length() - 2) == '\u001B') {
+            body = Compat.subSequence(v, skip, v.length() - 2).toString();
         } else {
-            body = Compat.subSequence(v, 2, v.length() - 1).toString();
+            body = Compat.subSequence(v, skip, v.length() - 1).toString();
         }
         args = body.split(";", -1);
     }

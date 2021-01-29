@@ -22,6 +22,7 @@ public final class ConsoleOutput {
 
     @NonNull
     private Charset charset = Charset.defaultCharset();
+    private boolean _8BitMode = false;
     @NonNull
     private TermKeyMapRules keyMap = TermKeyMapManager.defaultKeyMap;
     @Nullable
@@ -47,6 +48,14 @@ public final class ConsoleOutput {
         charset = ch;
     }
 
+    public boolean get8BitMode() {
+        return _8BitMode;
+    }
+
+    public void set8BitMode(final boolean v) {
+        _8BitMode = v;
+    }
+
     @NonNull
     public TermKeyMapRules getKeyMap() {
         return keyMap;
@@ -56,12 +65,45 @@ public final class ConsoleOutput {
         keyMap = km;
     }
 
+    @NonNull
+    public String csi() {
+        return _8BitMode ? "\u009B" : "\u001B[";
+    }
+
+    @NonNull
+    private String fixC1(@NonNull final String v) {
+        if (!_8BitMode)
+            return v;
+        int p;
+        p = v.indexOf('\u001B');
+        if (p < 0 || p + 1 == v.length())
+            return v;
+        final StringBuilder sb = new StringBuilder(v.length());
+        int pp = 0;
+        do {
+            sb.append(v, pp, p);
+            p++;
+            if (p >= v.length())
+                return sb.append('\u001B').toString();
+            final char c = v.charAt(p);
+            if (c >= 0x40 && c < 0x60) {
+                sb.append((char) (c + 0x40));
+                p++;
+                pp = p;
+            } else
+                pp = p - 1;
+            p = v.indexOf('\u001B', p);
+        } while (p >= 0);
+        return sb.append(v, pp, v.length()).toString();
+    }
+
     @Nullable
     private String getKeySeq(final int code, final int modifiers) {
         final int appMode = (appCursorKeys ? TermKeyMap.APP_MODE_CURSOR : 0)
                 | (appNumKeys ? TermKeyMap.APP_MODE_NUMPAD : 0)
                 | (appDECBKM ? TermKeyMap.APP_MODE_DECBKM : 0);
-        return keyMap.get(code, modifiers, appMode);
+        final String r = keyMap.get(code, modifiers, appMode);
+        return r != null ? fixC1(r) : null;
     }
 
     @Nullable
@@ -98,6 +140,12 @@ public final class ConsoleOutput {
         if (r != null) feed(r);
     }
 
+    public void feedEsc(@NonNull final String v) {
+        if (backendModule != null) {
+            backendModule.write(fixC1(v).getBytes(charset));
+        }
+    }
+
     public void feed(@NonNull final String v) {
         if (backendModule != null) {
             backendModule.write(v.getBytes(charset));
@@ -111,7 +159,7 @@ public final class ConsoleOutput {
     }
 
     public void paste(@NonNull final String v) {
-        feed(bracketedPasteMode ? "\u001B[200~" + v + "\u001B[201~" : v);
+        feed(bracketedPasteMode ? csi() + "200~" + v + csi() + "201~" : v);
     }
 
     public void vScroll(int lines) {
@@ -134,9 +182,9 @@ public final class ConsoleOutput {
         hasMouseFocus = v;
         if (mouseFocusInOut)
             if (v)
-                feed("\u001B[I");
+                feed(csi() + "I");
             else
-                feed("\u001B[O");
+                feed(csi() + "O");
     }
 
     public enum MouseEventType {PRESS, RELEASE, MOVE, VSCROLL}
@@ -185,7 +233,7 @@ public final class ConsoleOutput {
             case NORMAL: {
                 if (x < 0 || x > 222 || y < 0 || y > 222)
                     return;
-                out = ArrayUtils.addAll("\u001B[M".getBytes(charset), // or ASCII?
+                out = ArrayUtils.addAll((csi() + "M").getBytes(charset), // or ASCII?
                         (byte) (code + button + modifiers + 32),
                         (byte) (x + 33), (byte) (y + 33));
                 break;
@@ -193,14 +241,14 @@ public final class ConsoleOutput {
             case SGR:
                 if (x < 0 || x > 9999 || y < 0 || y > 9999)
                     return;
-                out = String.format(Locale.ROOT, "\u001B[<%d;%d;%d%c",
+                out = String.format(Locale.ROOT, csi() + "<%d;%d;%d%c",
                         code + button + modifiers, x + 1, y + 1,
                         type == MouseEventType.RELEASE ? 'm' : 'M').getBytes(charset);
                 break;
             case URXVT:
                 if (x < 0 || x > 9999 || y < 0 || y > 9999)
                     return;
-                out = String.format(Locale.ROOT, "\u001B[%d;%d;%dM",
+                out = String.format(Locale.ROOT, csi() + "%d;%d;%dM",
                         code + button + modifiers + 32, x + 1, y + 1).getBytes(charset);
                 break;
             case UTF8: {
@@ -215,7 +263,7 @@ public final class ConsoleOutput {
                 } catch (final IllegalArgumentException e) {
                     return;
                 }
-                final byte[] prefix = "\u001B[M".getBytes(charset); // or UTF8?
+                final byte[] prefix = (csi() + "M").getBytes(charset); // or UTF8?
                 out = Arrays.copyOf(prefix, prefix.length + p);
                 System.arraycopy(buf, 0, out, prefix.length, p);
                 break;

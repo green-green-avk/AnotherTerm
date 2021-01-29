@@ -79,13 +79,21 @@ public final class ConsoleInput implements BytesSink {
         setCharset(Charset.defaultCharset());
     }
 
-    private void sendBack(final String v) {
+    private void sendBackCsi(@NonNull final String v) {
         if (consoleOutput != null)
-            consoleOutput.feed(v);
+            consoleOutput.feed(consoleOutput.csi() + v);
     }
 
     public void setCharset(@NonNull final Charset ch) {
         mStrConv = new InputStreamReader(mInputBuf, ch);
+    }
+
+    public boolean get8BitMode() {
+        return mInputTokenizer._8BitMode;
+    }
+
+    public void set8BitMode(final boolean v) {
+        mInputTokenizer._8BitMode = v;
     }
 
     public interface OnInvalidateSink {
@@ -313,18 +321,17 @@ public final class ConsoleInput implements BytesSink {
                             break;
                         case ESC:
                             switch (t.value.charAt(1)) {
-                                case 'D': // IND
-                                    ind();
-                                    break;
-                                case 'E': // NEL
-                                    ind();
-                                    cr();
-                                    break;
-                                case 'H': // HTS
-                                    tabSet(currScrBuf.getPosX());
-                                    break;
-                                case 'M': // RI (Reverse linefeed)
-                                    ri();
+                                case ' ':
+                                    switch (t.value.charAt(2)) {
+                                        case 'F':
+                                            if (consoleOutput != null)
+                                                consoleOutput.set8BitMode(false);
+                                            break;
+                                        case 'G':
+                                            if (consoleOutput != null)
+                                                consoleOutput.set8BitMode(true);
+                                            break;
+                                    }
                                     break;
                                 case 'c':
                                     reset();
@@ -376,8 +383,10 @@ public final class ConsoleInput implements BytesSink {
                                                         .toString());
                             }
                             break;
-                        case CTL:
-                            switch (t.value.charAt(0)) {
+                        case CTL: {
+                            final char ctl = t.value.length() == 2 ?
+                                    (char) (t.value.charAt(1) + 0x40) : t.value.charAt(0);
+                            switch (ctl) {
                                 case '\r':
                                     cr();
                                     break;
@@ -400,12 +409,25 @@ public final class ConsoleInput implements BytesSink {
                                 case '\u000F':
                                     decGlCharset = 0;
                                     break;
+                                case '\u0084': // IND
+                                    ind();
+                                    break;
+                                case '\u0085': // NEL
+                                    ind();
+                                    cr();
+                                    break;
+                                case '\u0088': // HTS
+                                    tabSet(currScrBuf.getPosX());
+                                    break;
+                                case '\u008D': // RI (Reverse linefeed)
+                                    ri();
+                                    break;
                                 default:
                                     if (LOG_UNKNOWN_ESC)
-                                        Log.w("CtrlSeq", "CTL: " +
-                                                (int) t.value.charAt(0));
+                                        Log.w("CtrlSeq", "CTL: " + (int) ctl);
                             }
                             break;
+                        }
                         case TEXT: {
                             currScrBuf.setCurrentAttrs(mCurrAttrs);
                             final CharBuffer text = DecTerminalCharsets.translate(t.value,
@@ -431,17 +453,17 @@ public final class ConsoleInput implements BytesSink {
                 case 0:
                     switch (csi.type) {
                         case 'c':
-                            sendBack("\u001B[?6c"); // TODO: VT102 yet...
+                            sendBackCsi("?62;1c"); // TODO: VT220/132cols yet...
 //                        Log.i("CtrlSeq", "Terminal type request");
                             return;
                         case 'n':
                             if (csi.args.length == 0) break;
                             switch (csi.args[0]) {
                                 case "5":
-                                    sendBack("\u001B[0n"); // Terminal OK
+                                    sendBackCsi("0n"); // Terminal OK
                                     return;
                                 case "6":
-                                    sendBack("\u001B[" + (currScrBuf.getPosY() + 1) + ";" +
+                                    sendBackCsi((currScrBuf.getPosY() + 1) + ";" +
                                             (currScrBuf.getPosX() + 1) + "R");
                                     return;
                             }
@@ -733,6 +755,15 @@ public final class ConsoleInput implements BytesSink {
                     break;
                 case '?':
                     switch (csi.type) {
+                        case 'n':
+                            if (csi.args.length == 0) break;
+                            switch (csi.args[0]) {
+                                case "6":
+                                    sendBackCsi((currScrBuf.getPosY() + 1) + ";" +
+                                            (currScrBuf.getPosX() + 1) + "R");
+                                    return;
+                            }
+                            break;
                         case 'h':
                         case 'l': {
                             final int opt = csi.getIntArg(0, -1);
@@ -752,6 +783,30 @@ public final class ConsoleInput implements BytesSink {
                             decPrivateMode.save(opt);
                             return;
                         }
+                    }
+                    break;
+            }
+        if ("\"".equals(csi.suffix))
+            switch (csi.prefix) {
+                case 0:
+                    switch (csi.type) {
+                        case 'p':
+                            final int level = csi.getIntArg(0, 62);
+                            if (level < 61 || level > 65)
+                                break;
+                            if (level > 61) {
+                                set8BitMode(true);
+                                if (consoleOutput != null && csi.args.length >= 2) {
+                                    final int _8BitOutput = csi.getIntArg(1, 1);
+                                    if (_8BitOutput >= 0 && _8BitOutput <= 2)
+                                        consoleOutput.set8BitMode(_8BitOutput != 1);
+                                }
+                            } else {
+                                set8BitMode(false);
+                                if (consoleOutput != null)
+                                    consoleOutput.set8BitMode(false);
+                            }
+                            return;
                     }
                     break;
             }
