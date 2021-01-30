@@ -432,8 +432,10 @@ public final class ConsoleInput implements BytesSink {
                             currScrBuf.setCurrentAttrs(mCurrAttrs);
                             final CharBuffer text = DecTerminalCharsets.translate(t.value,
                                     decGxCharsets[decGlCharset]);
-                            if (insertMode) currScrBuf.insertChars(text.length());
-                            currScrBuf.setChars(text);
+                            if (insertMode)
+                                currScrBuf.insertChars(text);
+                            else
+                                currScrBuf.setChars(text);
                             break;
                         }
                     }

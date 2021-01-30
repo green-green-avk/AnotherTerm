@@ -746,10 +746,16 @@ public final class ConsoleScreenBuffer {
         currentAttrs = encodeAttrs(ca);
     }
 
+    /**
+     * Single width symbols only.
+     */
     public void fillAll(final char value) {
         fill(0, 0, mWidth, mHeight, value);
     }
 
+    /**
+     * Single width symbols only.
+     */
     public void fill(final int left, final int top, final int right, final int bottom,
                      final char value) {
         for (final Row row : getRowsForWrite(top, bottom)) {
@@ -903,13 +909,15 @@ public final class ConsoleScreenBuffer {
     /**
      * It's... complicated.
      *
-     * @param row
-     * @param startX
-     * @param endX
-     * @param buf
-     * @param bufLen
-     * @param bufDX  - just a hint about screen position difference
-     * @param attrs
+     * @param row    - to paste into
+     * @param startX - of area to paste over
+     * @param endX   - of area to paste over
+     * @param buf    - to paste
+     *               (its {@link CharBuffer#position} will be incremented by <tt>bufLen</tt>)
+     * @param bufLen - how many chars to insert
+     * @param bufDX  - difference in columns between the substitution and the initial area
+     *               (purely for speed up)
+     * @param attrs  - attributes
      */
     private void pasteChars(@NonNull final Row row, final int startX, final int endX,
                             @Nullable final Object buf, final int bufLen, final int bufDX,
@@ -942,7 +950,8 @@ public final class ConsoleScreenBuffer {
                 rowEnd &= F_IND_MASK;
                 rowEnd = Unicode.stepBack(row.text, 0, rowEnd);
             }
-            textNeedExtraLen = bufLen - toEnd + toStart + rowEnd - row.text.length;
+            rowEnd += Math.max(bufLen - toEnd + toStart, 0);
+            textNeedExtraLen = rowEnd - row.text.length;
         } else {
             rowEnd = row.text.length;
             textNeedExtraLen = bufLen + toStart - row.text.length;
@@ -978,19 +987,29 @@ public final class ConsoleScreenBuffer {
         Arrays.fill(row.attrs, attrsStart, attrsEnd, attrs);
     }
 
+    public int insertChars(@NonNull final String s) {
+        return setChars(mPos.x, mPos.y, s, true, mPos);
+    }
+
+    public int insertChars(@NonNull final CharBuffer s) {
+        return setChars(mPos.x, mPos.y, s, true, mPos);
+    }
+
     public int setChars(@NonNull final String s) {
-        return setChars(mPos.x, mPos.y, s, mPos);
+        return setChars(mPos.x, mPos.y, s, false, mPos);
     }
 
     public int setChars(@NonNull final CharBuffer s) {
-        return setChars(mPos.x, mPos.y, s, mPos);
+        return setChars(mPos.x, mPos.y, s, false, mPos);
     }
 
-    public int setChars(final int x, final int y, @NonNull final String s, final Point endPos) {
-        return setChars(x, y, CharBuffer.wrap(s), endPos);
+    public int setChars(final int x, final int y, @NonNull final String s, final boolean insert,
+                        @NonNull final Point endPos) {
+        return setChars(x, y, CharBuffer.wrap(s), insert, endPos);
     }
 
-    public int setChars(int x, int y, @NonNull final CharBuffer s, @NonNull final Point endPos) {
+    public int setChars(int x, int y, @NonNull final CharBuffer s, final boolean insert,
+                        @NonNull final Point endPos) {
         Row row;
         if (wrap && x == mWidth) {
             row = getRowForWrite(y);
@@ -1003,12 +1022,19 @@ public final class ConsoleScreenBuffer {
         final CharBuffer buf = s.duplicate();
         int endX = Unicode.getScreenLength(buf, buf.remaining()) + x;
         int len;
+        boolean _i = false;
         if (endX > mWidth) {
             endX = mWidth;
             len = getNextEndIndex(buf, endX - x, 0);
-        } else len = buf.remaining();
+        } else {
+            len = buf.remaining();
+            _i = insert;
+        }
         int lenX = endX - x;
-        pasteChars(row, x, endX, buf, len, 0, currentAttrs);
+        if (_i)
+            pasteChars(row, x, x, buf, len, lenX, currentAttrs);
+        else
+            pasteChars(row, x, endX, buf, len, 0, currentAttrs);
         row.wrapPos = 0;
         if (wrap) {
             while (buf.remaining() > 0) {
@@ -1019,8 +1045,14 @@ public final class ConsoleScreenBuffer {
                 if (endX > mWidth) {
                     endX = mWidth;
                     len = getNextEndIndex(buf, endX, 0);
-                } else len = buf.remaining();
-                pasteChars(row, 0, endX, buf, len, 0, currentAttrs);
+                } else {
+                    len = buf.remaining();
+                    _i = insert;
+                }
+                if (_i)
+                    pasteChars(row, 0, 0, buf, len, endX, currentAttrs);
+                else
+                    pasteChars(row, 0, endX, buf, len, 0, currentAttrs);
                 row.wrapPos = 0;
                 lenX += endX;
             }
