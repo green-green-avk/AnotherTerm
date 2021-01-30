@@ -714,7 +714,6 @@ public final class ConsoleScreenBuffer {
 
     public void setPos(@NonNull final ConsoleScreenBuffer csb) {
         mPos.set(csb.mPos.x, csb.mPos.y);
-        mPosSaved.set(csb.mPosSaved.x, csb.mPosSaved.y);
     }
 
     public void setTBMargins(final int top, final int bottom) {
