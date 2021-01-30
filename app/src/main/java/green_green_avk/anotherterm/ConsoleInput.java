@@ -11,7 +11,6 @@ import androidx.annotation.Nullable;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.nio.ByteBuffer;
-import java.nio.CharBuffer;
 import java.nio.charset.Charset;
 import java.util.Collections;
 import java.util.Deque;
@@ -57,6 +56,8 @@ public final class ConsoleInput implements BytesSink {
     private final char[][] mSavedDecGxCharsets = new char[][]{null, null, null, null};
     private int mSavedDecGlCharset = 0;
 
+    private int complianceLevel = 2;
+
     public boolean numLed = false;
     public boolean capsLed = false;
     public boolean scrollLed = false;
@@ -82,6 +83,35 @@ public final class ConsoleInput implements BytesSink {
     private void sendBackCsi(@NonNull final String v) {
         if (consoleOutput != null)
             consoleOutput.feed(consoleOutput.csi() + v);
+    }
+
+    public int getComplianceLevel() {
+        return complianceLevel;
+    }
+
+    /**
+     * @param level - 0 - VT52
+     *              1 - VT100
+     *              2 - VT200
+     */
+    public void setComplianceLevel(final int level) {
+        complianceLevel = level;
+        if (level > 1) {
+            set8BitMode(true);
+        } else {
+            set8BitMode(false);
+            if (consoleOutput != null)
+                consoleOutput.set8BitMode(false);
+        }
+    }
+
+    public boolean get8BitOutput() {
+        return consoleOutput != null && consoleOutput.get8BitMode();
+    }
+
+    public void set8BitOutput(final boolean v) {
+        if (complianceLevel > 1 && consoleOutput != null)
+            consoleOutput.set8BitMode(v);
     }
 
     public void setCharset(@NonNull final Charset ch) {
@@ -127,7 +157,7 @@ public final class ConsoleInput implements BytesSink {
         void onBufferScroll(int from, int to, int n);
     }
 
-    private Set<OnBufferScroll> mOnBufferScroll =
+    private final Set<OnBufferScroll> mOnBufferScroll =
             Collections.newSetFromMap(new WeakHashMap<>());
 
     public void addOnBufferScroll(@NonNull final OnBufferScroll h) {
@@ -291,6 +321,17 @@ public final class ConsoleInput implements BytesSink {
         currScrBuf.restorePos();
     }
 
+    private void putText(@NonNull final CharSequence v) {
+        currScrBuf.setCurrentAttrs(mCurrAttrs);
+        final CharSequence text = DecTerminalCharsets.translate(v, decGxCharsets[decGlCharset]);
+        if (text.length() <= 0)
+            return;
+        if (insertMode)
+            currScrBuf.insertChars(text);
+        else
+            currScrBuf.setChars(text);
+    }
+
     @Override
     public void feed(@NonNull final ByteBuffer v) {
         if (v.remaining() == 0) return;
@@ -324,12 +365,10 @@ public final class ConsoleInput implements BytesSink {
                                 case ' ':
                                     switch (t.value.charAt(2)) {
                                         case 'F':
-                                            if (consoleOutput != null)
-                                                consoleOutput.set8BitMode(false);
+                                            set8BitOutput(false);
                                             break;
                                         case 'G':
-                                            if (consoleOutput != null)
-                                                consoleOutput.set8BitMode(true);
+                                            set8BitOutput(true);
                                             break;
                                     }
                                     break;
@@ -429,13 +468,7 @@ public final class ConsoleInput implements BytesSink {
                             break;
                         }
                         case TEXT: {
-                            currScrBuf.setCurrentAttrs(mCurrAttrs);
-                            final CharBuffer text = DecTerminalCharsets.translate(t.value,
-                                    decGxCharsets[decGlCharset]);
-                            if (insertMode)
-                                currScrBuf.insertChars(text);
-                            else
-                                currScrBuf.setChars(text);
+                            putText(t.value);
                             break;
                         }
                     }
@@ -799,17 +832,11 @@ public final class ConsoleInput implements BytesSink {
                             final int level = csi.getIntArg(0, 62);
                             if (level < 61 || level > 65)
                                 break;
-                            if (level > 61) {
-                                set8BitMode(true);
-                                if (consoleOutput != null && csi.args.length >= 2) {
-                                    final int _8BitOutput = csi.getIntArg(1, 1);
-                                    if (_8BitOutput >= 0 && _8BitOutput <= 2)
-                                        consoleOutput.set8BitMode(_8BitOutput != 1);
-                                }
-                            } else {
-                                set8BitMode(false);
-                                if (consoleOutput != null)
-                                    consoleOutput.set8BitMode(false);
+                            setComplianceLevel(level - 60);
+                            if (csi.args.length >= 2) {
+                                final int _8BitOutput = csi.getIntArg(1, 1);
+                                if (_8BitOutput >= 0 && _8BitOutput <= 2)
+                                    set8BitOutput(_8BitOutput != 1);
                             }
                             return;
                     }

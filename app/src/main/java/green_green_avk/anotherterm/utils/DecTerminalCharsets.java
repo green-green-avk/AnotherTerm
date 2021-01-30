@@ -37,9 +37,10 @@ public final class DecTerminalCharsets {
     };
 
     @NonNull
-    public static CharBuffer translate(@NonNull final CharBuffer b, @Nullable final char[] table) {
+    public static CharSequence translate(@NonNull final CharSequence b,
+                                         @Nullable final char[] table) {
         if (table == null) return b;
-        final int len = b.remaining();
+        final int len = b.length();
         final CharBuffer r = CharBuffer.allocate(len);
         final char[] ra = r.array();
         for (int i = 0; i < len; ++i) {

@@ -996,7 +996,7 @@ public final class ConsoleScreenBuffer {
         Arrays.fill(row.attrs, attrsStart, attrsEnd, attrs);
     }
 
-    public int insertChars(@NonNull final String s) {
+    public int insertChars(@NonNull final CharSequence s) {
         return setChars(mPos.x, mPos.y, s, true, mPos);
     }
 
@@ -1004,7 +1004,7 @@ public final class ConsoleScreenBuffer {
         return setChars(mPos.x, mPos.y, s, true, mPos);
     }
 
-    public int setChars(@NonNull final String s) {
+    public int setChars(@NonNull final CharSequence s) {
         return setChars(mPos.x, mPos.y, s, false, mPos);
     }
 
@@ -1012,13 +1012,15 @@ public final class ConsoleScreenBuffer {
         return setChars(mPos.x, mPos.y, s, false, mPos);
     }
 
-    public int setChars(final int x, final int y, @NonNull final String s, final boolean insert,
-                        @NonNull final Point endPos) {
+    public int setChars(final int x, final int y, @NonNull final CharSequence s,
+                        final boolean insert, @NonNull final Point endPos) {
+        if (s instanceof CharBuffer)
+            return setChars(x, y, (CharBuffer) s, insert, endPos);
         return setChars(x, y, CharBuffer.wrap(s), insert, endPos);
     }
 
-    public int setChars(int x, int y, @NonNull final CharBuffer s, final boolean insert,
-                        @NonNull final Point endPos) {
+    public int setChars(int x, int y, @NonNull final CharBuffer s,
+                        final boolean insert, @NonNull final Point endPos) {
         Row row;
         if (wrap && x == mWidth) {
             row = getRowForWrite(y);
