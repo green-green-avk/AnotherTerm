@@ -26,6 +26,7 @@
 package green_green_avk.anotherterm.utils;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 
 import java.nio.CharBuffer;
 
@@ -351,5 +352,18 @@ public final class Unicode {
             i += Character.charCount(cp);
         }
         return r;
+    }
+
+    @Nullable
+    public static String getLastSymbol(@NonNull final CharSequence s) {
+        if (s.length() <= 0)
+            return null;
+        char c = s.charAt(s.length() - 1);
+        if (Character.isLowSurrogate(c) && s.length() > 1) {
+            char ch = s.charAt(s.length() - 2);
+            if (Character.isHighSurrogate(ch))
+                return String.valueOf(new char[]{ch, c});
+        }
+        return String.valueOf(c);
     }
 }

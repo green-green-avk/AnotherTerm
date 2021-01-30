@@ -7,6 +7,9 @@ import android.util.SparseBooleanArray;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.core.math.MathUtils;
+
+import org.apache.commons.lang3.StringUtils;
 
 import java.io.IOException;
 import java.io.InputStreamReader;
@@ -30,6 +33,7 @@ import green_green_avk.anotherterm.utils.EscCsi;
 import green_green_avk.anotherterm.utils.EscOsc;
 import green_green_avk.anotherterm.utils.InputTokenizer;
 import green_green_avk.anotherterm.utils.Misc;
+import green_green_avk.anotherterm.utils.Unicode;
 
 public final class ConsoleInput implements BytesSink {
     private static final boolean LOG_UNKNOWN_ESC = false; // BuildConfig.DEBUG
@@ -55,6 +59,8 @@ public final class ConsoleInput implements BytesSink {
     private final ConsoleScreenCharAttrs mSavedCurrAttrs = new ConsoleScreenCharAttrs();
     private final char[][] mSavedDecGxCharsets = new char[][]{null, null, null, null};
     private int mSavedDecGlCharset = 0;
+
+    private String lastSymbol = null;
 
     private int complianceLevel = 2;
 
@@ -326,6 +332,9 @@ public final class ConsoleInput implements BytesSink {
         final CharSequence text = DecTerminalCharsets.translate(v, decGxCharsets[decGlCharset]);
         if (text.length() <= 0)
             return;
+        final String ls = Unicode.getLastSymbol(text);
+        if (ls != null)
+            lastSymbol = ls;
         if (insertMode)
             currScrBuf.insertChars(text);
         else
@@ -727,6 +736,12 @@ public final class ConsoleInput implements BytesSink {
                             }
                             break;
                         }
+                        case 'b':
+                            if (lastSymbol != null)
+                                putText(StringUtils.repeat(lastSymbol,
+                                        MathUtils.clamp(csi.getIntArg(0, 1),
+                                                1, 4096)));
+                            return;
                         case 'q': { // DECLL
                             for (int i = 0; i < csi.args.length; ++i)
                                 switch (csi.getIntArg(i, 0)) {
