@@ -15,11 +15,19 @@ public final class InputTokenizer
 
     public static final class Token {
         public enum Type {
-            TEXT, CTL, ESC, CSI, OSC
+            TEXT, CTL, ESC, CSI, OSC, SS2, SS3
         }
 
         public Type type;
         public CharBuffer value;
+
+        @NonNull
+        public CharSequence getArg() {
+            if (value.charAt(0) == '\u001B')
+                return Compat.subSequence(value, 2, value.length());
+            else
+                return Compat.subSequence(value, 1, value.length());
+        }
     }
 
     private final Token ownToken = new Token();
@@ -85,6 +93,23 @@ public final class InputTokenizer
         notFound(pos);
     }
 
+    private void getExtraSymbol(int pos) {
+        if (pos >= mEnd) {
+            mToken = null;
+            return;
+        }
+        if (Character.isHighSurrogate(mBufArr[pos])) {
+            ++pos;
+            if (pos >= mEnd) {
+                mToken = null;
+                return;
+            }
+            if (!Character.isLowSurrogate(mBufArr[pos]))
+                --pos;
+        }
+        found(pos);
+    }
+
     private void setTextEnd(int pos) {
         if (Character.isHighSurrogate(mBufArr[pos]))
             --pos;
@@ -131,6 +156,14 @@ public final class InputTokenizer
                         mType = Token.Type.OSC;
                         getOsc(pos + 1);
                         return;
+                    case '\u008E':
+                        mType = Token.Type.SS2;
+                        getExtraSymbol(pos + 1);
+                        return;
+                    case '\u008F':
+                        mType = Token.Type.SS3;
+                        getExtraSymbol(pos + 1);
+                        return;
                 }
             }
             mType = Token.Type.CTL;
@@ -151,6 +184,14 @@ public final class InputTokenizer
             case ']':
                 mType = Token.Type.OSC;
                 getOsc(pos + 1);
+                return;
+            case 'N':
+                mType = Token.Type.SS2;
+                getExtraSymbol(pos + 1);
+                return;
+            case 'O':
+                mType = Token.Type.SS3;
+                getExtraSymbol(pos + 1);
                 return;
         }
         if (mBufArr[pos] >= 0x40 && mBufArr[pos] < 0x60) {

@@ -369,6 +369,20 @@ public final class ConsoleInput implements BytesSink {
                         case CSI:
                             parseCsi(new EscCsi(t.value));
                             break;
+                        case SS2: {
+                            final int tmp = decGlCharset;
+                            decGlCharset = 2;
+                            putText(t.getArg());
+                            decGlCharset = tmp;
+                            break;
+                        }
+                        case SS3: {
+                            final int tmp = decGlCharset;
+                            decGlCharset = 3;
+                            putText(t.getArg());
+                            decGlCharset = tmp;
+                            break;
+                        }
                         case ESC:
                             switch (t.value.charAt(1)) {
                                 case ' ':
