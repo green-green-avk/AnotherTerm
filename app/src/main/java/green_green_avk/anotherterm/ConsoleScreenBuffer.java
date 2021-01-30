@@ -122,10 +122,7 @@ public final class ConsoleScreenBuffer {
 
         public void setLimit(final int limit) {
             mLimit = limit;
-            if (size() > limit) {
-                for (final Row row : mRows.subList(limit, size())) row.clear(0);
-                mPoolSize = mRows.size() - limit;
-            }
+            crop(limit);
         }
 
         public int size() {
@@ -136,6 +133,14 @@ public final class ConsoleScreenBuffer {
             mPoolSize = mRows.size();
             for (final Row row : mRows) {
                 row.clear(DEF_CHAR_ATTRS);
+            }
+        }
+
+        public void crop(final int lines) {
+            if (size() > lines) {
+                for (final Row row : mRows.subList(lines, size()))
+                    row.clear(DEF_CHAR_ATTRS);
+                mPoolSize = mRows.size() - lines;
             }
         }
 
@@ -765,8 +770,12 @@ public final class ConsoleScreenBuffer {
         }
     }
 
-    public void eraseAll() {
-        scroll(mHeight, currentAttrs);
+    public void eraseAll() { // Current screen
+        eraseLines(0, mHeight);
+    }
+
+    public void eraseAllSaved() { // History
+        mBuffer.crop(mHeight);
     }
 
     public void eraseLines(final int from, final int to) {

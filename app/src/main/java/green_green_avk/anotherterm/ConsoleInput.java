@@ -536,6 +536,9 @@ public final class ConsoleInput implements BytesSink {
                                 case 2:
                                     currScrBuf.eraseAll();
                                     return;
+                                case 3:
+                                    currScrBuf.eraseAllSaved();
+                                    return;
                             }
                             break;
                         case 'K':
