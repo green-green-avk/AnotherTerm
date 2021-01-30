@@ -41,8 +41,7 @@ public final class InputTokenizer
     private void notFound(final int pos) {
         if ((pos - mPos) > SEQ_MAXLEN) {
             mType = Token.Type.TEXT;
-            mToken = Compat.subSequence(mBuf, mPos, pos);
-            mPos = pos;
+            setTextEnd(pos);
             return;
         }
         mToken = null;
@@ -86,6 +85,13 @@ public final class InputTokenizer
         notFound(pos);
     }
 
+    private void setTextEnd(int pos) {
+        if (Character.isHighSurrogate(mBufArr[pos]))
+            --pos;
+        mToken = Compat.subSequence(mBuf, mPos, pos);
+        mPos = pos;
+    }
+
     private void getNext() {
         if (mPos >= mEnd) {
             mToken = null;
@@ -96,8 +102,7 @@ public final class InputTokenizer
             while (mBufArr[pos] > 0x1F && mBufArr[pos] < 0x7F || mBufArr[pos] > 0x9F) {
                 if (++pos >= mEnd) {
                     mType = Token.Type.TEXT;
-                    mToken = Compat.subSequence(mBuf, mPos, mEnd);
-                    mPos = mEnd;
+                    setTextEnd(mEnd);
                     return;
                 }
             }
@@ -105,8 +110,7 @@ public final class InputTokenizer
             while (mBufArr[pos] > 0x1F && mBufArr[pos] != 0x7F) {
                 if (++pos >= mEnd) {
                     mType = Token.Type.TEXT;
-                    mToken = Compat.subSequence(mBuf, mPos, mEnd);
-                    mPos = mEnd;
+                    setTextEnd(mEnd);
                     return;
                 }
             }
@@ -181,6 +185,11 @@ public final class InputTokenizer
     @NonNull
     public Iterator<Token> iterator() {
         return this;
+    }
+
+    @NonNull
+    public CharBuffer getLeftovers() {
+        return mBuf;
     }
 
     public void tokenize(@NonNull final Readable v) throws IOException {
