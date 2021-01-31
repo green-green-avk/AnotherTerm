@@ -742,13 +742,15 @@ public final class ConsoleInput implements BytesSink {
                             return;
                         case 'h':
                         case 'l': {
-                            final boolean value = csi.type == 'h';
-                            switch (csi.getIntArg(0, 0)) {
-                                case 4:
-                                    insertMode = value;
-                                    return;
+                            for (int i = 0; i < csi.args.length; i++) {
+                                final boolean value = csi.type == 'h';
+                                switch (csi.getIntArg(i, 0)) {
+                                    case 4:
+                                        insertMode = value;
+                                        break;
+                                }
                             }
-                            break;
+                            return;
                         }
                         case 'b':
                             if (lastSymbol != null)
@@ -833,21 +835,27 @@ public final class ConsoleInput implements BytesSink {
                             break;
                         case 'h':
                         case 'l': {
-                            final int opt = csi.getIntArg(0, -1);
-                            if (opt < 0) break;
-                            decPrivateMode.set(opt, csi.type == 'h');
+                            for (int i = 0; i < csi.args.length; i++) {
+                                final int opt = csi.getIntArg(i, -1);
+                                if (opt < 0) break;
+                                decPrivateMode.set(opt, csi.type == 'h');
+                            }
                             return;
                         }
                         case 'r': {
-                            final int opt = csi.getIntArg(0, -1);
-                            if (opt < 0) break;
-                            decPrivateMode.restore(opt);
+                            for (int i = 0; i < csi.args.length; i++) {
+                                final int opt = csi.getIntArg(i, -1);
+                                if (opt < 0) break;
+                                decPrivateMode.restore(opt);
+                            }
                             return;
                         }
                         case 's': {
-                            final int opt = csi.getIntArg(0, -1);
-                            if (opt < 0) break;
-                            decPrivateMode.save(opt);
+                            for (int i = 0; i < csi.args.length; i++) {
+                                final int opt = csi.getIntArg(i, -1);
+                                if (opt < 0) break;
+                                decPrivateMode.save(opt);
+                            }
                             return;
                         }
                     }
