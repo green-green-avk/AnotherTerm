@@ -91,6 +91,13 @@ public final class ConsoleInput implements BytesSink {
             consoleOutput.feed(consoleOutput.csi() + v);
     }
 
+    private void sendBackOscSt(@NonNull final String v) {
+        if (consoleOutput != null)
+            consoleOutput.feed(consoleOutput.osc() +
+                    v.replaceAll("[\\x00-\\x1F\\x7F-\\x9F]", " ")
+                    + consoleOutput.st());
+    }
+
     public int getComplianceLevel() {
         return complianceLevel;
     }
@@ -803,6 +810,16 @@ public final class ConsoleInput implements BytesSink {
                         case 't':
                             if (csi.args.length == 2) break;
                             switch (csi.getIntArg(0, 0)) {
+                                case 11:
+                                    if (consoleOutput == null || consoleOutput.hasMouseFocus())
+                                        sendBackCsi("1t");
+                                    else
+                                        sendBackCsi("2t");
+                                    return;
+                                case 21:
+                                    sendBackOscSt("l" + (currScrBuf.windowTitle != null ?
+                                            currScrBuf.windowTitle : ""));
+                                    return;
                                 case 22:
                                     switch (csi.getIntArg(1, 0)) {
                                         case 0:

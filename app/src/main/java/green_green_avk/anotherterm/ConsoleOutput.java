@@ -71,6 +71,16 @@ public final class ConsoleOutput {
     }
 
     @NonNull
+    public String st() {
+        return _8BitMode ? "\u009C" : "\u001B\\";
+    }
+
+    @NonNull
+    public String osc() {
+        return _8BitMode ? "\u009D" : "\u001B]";
+    }
+
+    @NonNull
     private String fixC1(@NonNull final String v) {
         if (!_8BitMode)
             return v;
@@ -174,12 +184,16 @@ public final class ConsoleOutput {
         return mouseTracking != MouseTracking.NONE && mouseTracking != MouseTracking.HIGHLIGHT;
     }
 
-    private boolean hasMouseFocus = false;
+    private boolean mHasMouseFocus = false;
+
+    public boolean hasMouseFocus() {
+        return mHasMouseFocus;
+    }
 
     public void setMouseFocus(final boolean v) {
-        if (v == hasMouseFocus)
+        if (v == mHasMouseFocus)
             return;
-        hasMouseFocus = v;
+        mHasMouseFocus = v;
         if (mouseFocusInOut)
             if (v)
                 feed(csi() + "I");
