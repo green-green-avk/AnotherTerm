@@ -202,7 +202,8 @@ public final class ConsoleService extends Service {
             @Override
             public void onError(@NonNull final Throwable e) {
 //                ci.currScrBuf.setChars(e.toString());
-                tbe.getUi().showMessage(e.getMessage());
+                final String msg = e.getMessage();
+                tbe.getUi().showMessage(msg != null ? msg : e.toString());
             }
 
             @Override
@@ -251,7 +252,8 @@ public final class ConsoleService extends Service {
     @NonNull
     public static Session getSession(final int key) {
         final Session s = sessions.get(key);
-        if (s == null) throw new NoSuchElementException("No session with the specified key exists");
+        if (s == null)
+            throw new NoSuchElementException("No session with the specified key exists");
         return s;
     }
 
