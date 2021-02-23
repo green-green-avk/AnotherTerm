@@ -8,6 +8,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.pm.ActivityInfo;
 import android.graphics.Rect;
+import android.graphics.drawable.Drawable;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
@@ -117,6 +118,8 @@ public final class ConsoleActivity extends AppCompatActivity
 
     private ViewGroup wNavBar = null;
 
+    private ImageView wUp = null;
+    private Drawable wUpImDef = null;
     private TextView wTitle = null;
     private ImageView wMouseMode = null;
 
@@ -135,6 +138,11 @@ public final class ConsoleActivity extends AppCompatActivity
             invalidateLoadingState();
         }
     };
+
+    private boolean getUseRecents() {
+        return Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP &&
+                ((App) getApplication()).settings.terminal_use_recents;
+    }
 
     private void invalidateWakeLock() {
         if (mSession == null) return;
@@ -250,6 +258,8 @@ public final class ConsoleActivity extends AppCompatActivity
 
         wNavBar = findViewById(R.id.nav_bar);
 
+        wUp = findViewById(R.id.action_nav_up);
+        wUpImDef = wUp.getDrawable();
         wTitle = findViewById(R.id.title);
         wMouseMode = findViewById(R.id.action_mouse_mode);
 
@@ -324,6 +334,10 @@ public final class ConsoleActivity extends AppCompatActivity
         mSmv.setButtons("wide".equals(((App) getApplication()).settings.terminal_mouse_layout) ?
                 R.layout.screen_mouse_buttons_wide : R.layout.screen_mouse_buttons);
         ((BackendUiInteractionActivityCtx) mSession.backend.wrapped.getUi()).setActivity(this);
+        if (getUseRecents())
+            wUp.setImageResource(R.drawable.ic_recents_black);
+        else
+            wUp.setImageDrawable(wUpImDef);
         mSession.output.setMouseFocus(true);
     }
 
@@ -563,7 +577,13 @@ public final class ConsoleActivity extends AppCompatActivity
 
     public void onNavUp(final View v) {
         final Intent pa = getSupportParentActivityIntent();
-        if (pa != null) supportNavigateUpTo(pa);
+        if (pa == null) return;
+        if (getUseRecents()) {
+            startActivity(pa.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP
+                    | Intent.FLAG_ACTIVITY_NEW_TASK));
+            return;
+        }
+        supportNavigateUpTo(pa);
     }
 
     public void onMouseMode(final View v) {
