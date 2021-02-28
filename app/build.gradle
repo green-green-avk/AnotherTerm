@@ -70,11 +70,22 @@ android {
 
     productFlavors {
         googleplay {
+            // Purely for Google Play publishing
+            // (to comply with possible future app-bundle requirement)
             dimension "compat"
             externalNativeBuild.cmake.arguments "-DAPP_ID_SDK=\\\"\\\""
         }
-        oldgood {
+        redist {
+            // Redistributable downgradable all-in-one apk
             dimension "compat"
+            versionCode 90 // Fixed to enable downgradability
+            applicationIdSuffix ".redist"
+            externalNativeBuild.cmake.arguments "-DAPP_ID_SDK=\\\"${applicationIdSuffix}\\\""
+        }
+        oldgood {
+            // Redistributable downgradable all-in-one apk with target API 28
+            dimension "compat"
+            versionCode 90 // Fixed to enable downgradability
             applicationIdSuffix ".oldgood"
             targetSdkVersion 28
             externalNativeBuild.cmake.arguments "-DAPP_ID_SDK=\\\"${applicationIdSuffix}\\\""
