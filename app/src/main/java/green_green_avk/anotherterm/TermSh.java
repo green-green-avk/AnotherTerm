@@ -94,12 +94,7 @@ import green_green_avk.anothertermshellpluginutils.StringContent;
 import green_green_avk.ptyprocess.PtyProcess;
 
 public final class TermSh {
-    private static final String UI_NOTIFICATION_CHANNEL_ID =
-            TermSh.class.getName() + ".ui";
-    private static final String USER_NOTIFICATION_CHANNEL_ID =
-            TermSh.class.getName() + ".user";
-    private static final String REQUEST_NOTIFICATION_CHANNEL_ID =
-            TermSh.class.getName() + ".request";
+    private static final String NOTIFICATION_CHANNEL_ID = TermSh.class.getName();
 
     private static void checkFile(@NonNull final File file) throws FileNotFoundException {
         if (!file.exists())
@@ -146,7 +141,7 @@ public final class TermSh {
         private void postUiNotification(final int key, @NonNull final String message) {
             handler.post(() -> {
                 final Notification n = new NotificationCompat.Builder(
-                        ctx.getApplicationContext(), UI_NOTIFICATION_CHANNEL_ID)
+                        ctx.getApplicationContext(), NOTIFICATION_CHANNEL_ID)
                         .setContentTitle(message)
                         .setSmallIcon(R.drawable.ic_stat_serv)
                         .setPriority(NotificationCompat.PRIORITY_HIGH)
@@ -194,7 +189,7 @@ public final class TermSh {
         private void postUserNotification(@NonNull final String message, final int id) {
             handler.post(() -> {
                 final Notification n = new NotificationCompat.Builder(
-                        ctx.getApplicationContext(), USER_NOTIFICATION_CHANNEL_ID)
+                        ctx.getApplicationContext(), NOTIFICATION_CHANNEL_ID)
                         .setContentTitle(message)
                         .setSmallIcon(R.drawable.ic_stat_serv)
                         .setPriority(NotificationCompat.PRIORITY_HIGH)
@@ -1286,10 +1281,10 @@ public final class TermSh {
                                 if (opts.containsKey("notify"))
                                     RequesterActivity.showAsNotification(ui.ctx,
                                             ci,
-                                            ui.ctx.getString(R.string.title_shell_of_s,
+                                            ui.ctx.getString(R.string.title_shell_of_s_script_notification_,
                                                     ui.ctx.getString(R.string.app_name)),
                                             prompt + " (" + filename + ")",
-                                            REQUEST_NOTIFICATION_CHANNEL_ID,
+                                            NOTIFICATION_CHANNEL_ID,
                                             NotificationCompat.PRIORITY_HIGH);
                                 else {
                                     shellCmd.waitForGuiWithNotification(ui);
@@ -1420,11 +1415,11 @@ public final class TermSh {
                                 if (opts.containsKey("notify"))
                                     RequesterActivity.showAsNotification(ui.ctx,
                                             Intent.createChooser(intent, prompt),
-                                            ui.ctx.getString(R.string.title_shell_of_s,
+                                            ui.ctx.getString(R.string.title_shell_of_s_script_notification_,
                                                     ui.ctx.getString(R.string.app_name)),
                                             prompt +
                                                     " (" + TextUtils.join(", ", titles) + ")",
-                                            REQUEST_NOTIFICATION_CHANNEL_ID,
+                                            NOTIFICATION_CHANNEL_ID,
                                             NotificationCompat.PRIORITY_HIGH);
                                 else {
                                     shellCmd.waitForGuiWithNotification(ui);
@@ -1489,9 +1484,9 @@ public final class TermSh {
                             if (opts.containsKey("notify"))
                                 request = RequesterActivity.request(
                                         ui.ctx, Intent.createChooser(i, prompt), onResult,
-                                        ui.ctx.getString(R.string.title_shell_of_s,
+                                        ui.ctx.getString(R.string.title_shell_of_s_script_notification_,
                                                 ui.ctx.getString(R.string.app_name)),
-                                        prompt, REQUEST_NOTIFICATION_CHANNEL_ID,
+                                        prompt, NOTIFICATION_CHANNEL_ID,
                                         NotificationCompat.PRIORITY_HIGH);
                             else {
                                 try {
@@ -2051,20 +2046,8 @@ public final class TermSh {
             final NotificationManager nm =
                     (NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);
             nm.createNotificationChannel(new NotificationChannel(
-                    UI_NOTIFICATION_CHANNEL_ID,
+                    NOTIFICATION_CHANNEL_ID,
                     context.getString(R.string.title_shell_of_s,
-                            context.getString(R.string.app_name)),
-                    NotificationManager.IMPORTANCE_HIGH
-            ));
-            nm.createNotificationChannel(new NotificationChannel(
-                    USER_NOTIFICATION_CHANNEL_ID,
-                    context.getString(R.string.title_shell_of_s,
-                            context.getString(R.string.app_name)),
-                    NotificationManager.IMPORTANCE_HIGH
-            ));
-            nm.createNotificationChannel(new NotificationChannel(
-                    REQUEST_NOTIFICATION_CHANNEL_ID,
-                    context.getString(R.string.title_shell_script_in_s_said_,
                             context.getString(R.string.app_name)),
                     NotificationManager.IMPORTANCE_HIGH
             ));
