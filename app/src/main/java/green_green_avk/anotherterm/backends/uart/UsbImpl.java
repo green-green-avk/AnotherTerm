@@ -92,8 +92,7 @@ final class UsbImpl extends Impl {
     }
 
     private static final Set<UsbDevice> activeDevices =
-            Collections.synchronizedSet(Collections.newSetFromMap(
-                    new WeakHashMap<UsbDevice, Boolean>()));
+            Collections.synchronizedSet(Collections.newSetFromMap(new WeakHashMap<>()));
     private static final Object deviceLock = new Object();
     private final Object commonLock = new Object();
 
@@ -219,13 +218,9 @@ final class UsbImpl extends Impl {
             usbAccessGranted.clear();
             if (mIsConnInt)
                 return; // Interrupted by disconnect
-            new Handler(Looper.getMainLooper()).post(new Runnable() {
-                @Override
-                public void run() {
-                    usbManager.requestPermission(device, PendingIntent.getBroadcast(base.getContext(),
-                            0, new Intent(ACTION_USB_PERMISSION), 0));
-                }
-            });
+            new Handler(Looper.getMainLooper()).post(() -> usbManager.requestPermission(device,
+                    PendingIntent.getBroadcast(base.getContext(), 0,
+                            new Intent(ACTION_USB_PERMISSION), 0)));
             try {
                 if (!usbAccessGranted.get()) {
                     if (mIsConnInt)
@@ -263,7 +258,7 @@ final class UsbImpl extends Impl {
         }
     }
 
-    final private UsbSerialInterface.UsbReadCallback readCallback =
+    private final UsbSerialInterface.UsbReadCallback readCallback =
             new UsbSerialInterface.UsbReadCallback() {
                 @Override
                 public void onReceivedData(final byte[] bytes) {
@@ -289,9 +284,14 @@ final class UsbImpl extends Impl {
         synchronized (commonLock) {
             if (mIsConnecting) return;
             mIsConnecting = true;
-            synchronized (deviceLock) {
-                obtainDevice();
-                activeDevices.add(device);
+            try {
+                synchronized (deviceLock) {
+                    obtainDevice();
+                    activeDevices.add(device);
+                }
+            } catch (final Throwable e) {
+                mIsConnecting = false;
+                throw e;
             }
             try {
                 final IntentFilter iflt = new IntentFilter(ACTION_USB_PERMISSION);
@@ -328,7 +328,10 @@ final class UsbImpl extends Impl {
             activeDevices.remove(device);
             tmpDisconnect();
             if (device != null) device = null;
-            base.getContext().unregisterReceiver(mUsbReceiver);
+            try {
+                base.getContext().unregisterReceiver(mUsbReceiver);
+            } catch (final IllegalArgumentException ignored) {
+            }
             mIsConnecting = false;
         }
     }
