@@ -133,7 +133,7 @@
         </activity-alias>
 
         <activity
-            android:name=".ConsoleActivity"
+            android:name=".AnsiConsoleActivity"
             android:configChanges="keyboardHidden|keyboard"
             android:label="Console"
             android:launchMode="singleTop"

@@ -161,15 +161,13 @@ public final class TermSh {
 
         private void postUiAwaitsNotification(final int key) {
             handler.post(() -> {
-                final Session session;
+                final AnsiSession session;
                 try {
-                    session = ConsoleService.getSession(key);
+                    session = ConsoleService.getAnsiSession(key);
                 } catch (final NoSuchElementException e) {
                     return;
                 }
-                String title = session.input.currScrBuf.windowTitle;
-                if (title == null) title = ConsoleService.getSessionTitle(key);
-                postUiNotification(key, "UI awaits in " + title);
+                postUiNotification(key, "UI awaits in " + session.getTitle());
             });
         }
 

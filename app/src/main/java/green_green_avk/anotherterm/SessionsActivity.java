@@ -56,7 +56,7 @@ public final class SessionsActivity extends AppCompatActivity {
             ps.put("adapter", ii[which].split(" ", 2)[0]);
             final int key;
             try {
-                key = ConsoleService.startSession(SessionsActivity.this, ps.get());
+                key = ConsoleService.startAnsiSession(SessionsActivity.this, ps.get());
             } catch (final ConsoleService.Exception | BackendException e) {
                 Toast.makeText(SessionsActivity.this, e.getMessage(),
                         Toast.LENGTH_LONG).show();
@@ -91,7 +91,7 @@ public final class SessionsActivity extends AppCompatActivity {
                         return;
                     }
                 }
-                key = ConsoleService.startSession(SessionsActivity.this, ps.get());
+                key = ConsoleService.startAnsiSession(SessionsActivity.this, ps.get());
             } catch (final ConsoleService.Exception | BackendException e) {
                 Toast.makeText(SessionsActivity.this, e.getMessage(),
                         Toast.LENGTH_LONG).show();
@@ -153,17 +153,20 @@ public final class SessionsActivity extends AppCompatActivity {
                 }
                 return true;
             });
-            menu.findItem(R.id.action_toggle_wake_lock).setOnMenuItemClickListener(item -> {
-                final BackendModule be;
-                try {
-                    be = ConsoleService.getSession(key).backend.wrapped;
-                } catch (final NoSuchElementException e) {
+            if (ConsoleService.hasAnsiSession(key))
+                menu.findItem(R.id.action_toggle_wake_lock).setOnMenuItemClickListener(item -> {
+                    final BackendModule be;
+                    try {
+                        be = ConsoleService.getAnsiSession(key).backend.wrapped;
+                    } catch (final NoSuchElementException e) {
+                        return true;
+                    }
+                    if (be.isWakeLockHeld()) be.releaseWakeLock();
+                    else be.acquireWakeLock();
                     return true;
-                }
-                if (be.isWakeLockHeld()) be.releaseWakeLock();
-                else be.acquireWakeLock();
-                return true;
-            });
+                });
+            else
+                menu.removeItem(R.id.action_toggle_wake_lock);
         });
         a.registerAdapterDataObserver(observer);
     }

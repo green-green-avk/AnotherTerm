@@ -62,7 +62,7 @@ public final class ControlService extends Service {
         final PreferenceStorage ps = getFav(intent);
         if (ps == null) return;
         try {
-            ConsoleService.startSession(this, ps.get());
+            ConsoleService.startAnsiSession(this, ps.get());
         } catch (final ConsoleService.Exception | BackendException ignored) {
         }
     }

@@ -212,6 +212,8 @@
     <string name="label_screen_mouse">Screen Mouse</string>
     <string name="label_screen_mouse_buttons_layout">Buttons layout</string>
     <string name="label_dims_div">X</string>
+    <string name="label_dims_s2">%1$s X %2$s</string>
+    <string name="label_dims_i2">%1$d X %2$d</string>
     <string name="hint_display">display</string>
     <string name="label_x11_">X11:</string>
     <string name="label_colon_x11_first_port_plus">:6000+</string>

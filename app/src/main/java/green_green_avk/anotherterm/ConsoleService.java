@@ -25,7 +25,6 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
-import java.util.Locale;
 import java.util.Map;
 import java.util.NoSuchElementException;
 import java.util.Set;
@@ -133,7 +132,8 @@ public final class ConsoleService extends Service {
     }
 
     @UiThread
-    public static int startSession(@NonNull final Context ctx, @NonNull final Map<String, ?> cp) {
+    public static int startAnsiSession(@NonNull final Context ctx,
+                                       @NonNull final Map<String, ?> cp) {
         final Context appCtx = ctx.getApplicationContext();
         final Class<?> klass = getBackendByParams(cp).impl;
         final BackendModule tbe;
@@ -166,7 +166,7 @@ public final class ConsoleService extends Service {
         tbe.setUi(new BackendUiDialogs(key));
         tbe.setParameters(cp);
 
-        final Session.Properties pp = new Session.Properties();
+        final AnsiSession.Properties pp = new AnsiSession.Properties();
         pp.terminateOnDisconnect = Boolean.TRUE.equals(cp.get("terminate.on_disconnect"));
 
         final EventBasedBackendModuleWrapper be = new EventBasedBackendModuleWrapper(
@@ -215,9 +215,10 @@ public final class ConsoleService extends Service {
         ci.backendModule = be;
         co.backendModule = be;
 
-        final Session s = new Session(cp, ci, co, be, pp);
+        final AnsiSession s = new AnsiSession(cp, ci, co, be, pp);
 
-        ci.setWindowTitle(getSessionTitle(s, key));
+        final Object name = cp.get("name");
+        ci.setWindowTitle(name != null ? name.toString() + " - #" + key : "#" + key);
 
         sessions.put(key, s);
         sessionKeys.add(key);
@@ -233,10 +234,12 @@ public final class ConsoleService extends Service {
     @UiThread
     public static void stopSession(final int key) {
         final Session s = getSession(key);
-        s.backend.stop();
+        if (s instanceof AnsiSession)
+            ((AnsiSession) s).backend.stop();
         sessionKeys.remove((Integer) key);
         sessions.remove(key);
-        if (sessionKeys.size() <= 0) tryStop();
+        if (sessionKeys.size() <= 0)
+            tryStop();
         execOnSessionChange(key);
         execOnSessionsListChange();
     }
@@ -244,7 +247,13 @@ public final class ConsoleService extends Service {
     @UiThread
     @CheckResult
     public static boolean isSessionTerminated(final int key) {
-        return !sessions.containsKey(key);
+        return !hasSession(key);
+    }
+
+    @UiThread
+    @CheckResult
+    public static boolean hasSession(final int key) {
+        return sessions.get(key) != null;
     }
 
     @UiThread
@@ -259,16 +268,18 @@ public final class ConsoleService extends Service {
 
     @UiThread
     @CheckResult
-    @NonNull
-    private static String getSessionTitle(@NonNull final Session s, final int key) {
-        return String.format(Locale.ROOT, "%1$s #%2$d", s.connectionParams.get("name"), key);
+    public static boolean hasAnsiSession(final int key) {
+        return sessions.get(key) instanceof AnsiSession;
     }
 
     @UiThread
     @CheckResult
     @NonNull
-    public static String getSessionTitle(final int key) {
-        return getSessionTitle(getSession(key), key);
+    public static AnsiSession getAnsiSession(final int key) {
+        final Session s = getSession(key);
+        if (!(s instanceof AnsiSession))
+            throw new NoSuchElementException("No ANSI session with the specified key exists");
+        return (AnsiSession) s;
     }
 
     private static void execOnSessionsListChange() {

@@ -14,6 +14,8 @@ import androidx.annotation.Keep;
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
+import green_green_avk.anotherterm.backends.EventBasedBackendModuleWrapper;
+
 public final class SessionsAdapter extends RecyclerView.Adapter<SessionsAdapter.ViewHolder> {
     private View.OnClickListener mOnClick = null;
     private View.OnCreateContextMenuListener mOnCreateContextMenuListener = null;
@@ -64,9 +66,7 @@ public final class SessionsAdapter extends RecyclerView.Adapter<SessionsAdapter.
         final TextView titleView = holder.itemView.findViewById(R.id.title);
         final int key = ConsoleService.sessionKeys.get(position);
         final Session session = ConsoleService.getSession(key);
-        String title = session.input.currScrBuf.windowTitle;
-        if (title == null) title = ConsoleService.getSessionTitle(key);
-        titleView.setText(title);
+        titleView.setText(session.getTitle());
         ImageView thumbnailView = holder.itemView.findViewById(R.id.thumbnail);
         if (session.thumbnail != null) {
             thumbnailView.setImageBitmap(session.thumbnail);
@@ -74,18 +74,24 @@ public final class SessionsAdapter extends RecyclerView.Adapter<SessionsAdapter.
             thumbnailView.setImageResource(R.drawable.list_item_background);
         }
         final TextView descriptionView = holder.itemView.findViewById(R.id.description);
-        descriptionView.setText(session.backend.wrapped.getConnDesc());
         final TextView stateView = holder.itemView.findViewById(R.id.state);
-        stateView.setText(session.backend.isConnected() ? R.string.msg_connected :
-                session.backend.isConnecting() ? R.string.msg_connecting___ :
-                        R.string.msg_disconnected);
-        if (session.backend.wrapped.isWakeLockHeld()) {
-            stateView.append(", ");
-            final SpannableStringBuilder b = new SpannableStringBuilder().append(holder.itemView
-                    .getContext().getString(R.string.label_wake_lock));
-            b.setSpan(new ForegroundColorSpan(Color.RED), 0, b.length(),
-                    Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
-            stateView.append(b);
+        if (session instanceof AnsiSession) {
+            final EventBasedBackendModuleWrapper tbe = ((AnsiSession) session).backend;
+            descriptionView.setText(tbe.wrapped.getConnDesc());
+            stateView.setText(tbe.isConnected() ? R.string.msg_connected :
+                    tbe.isConnecting() ? R.string.msg_connecting___ :
+                            R.string.msg_disconnected);
+            if (tbe.wrapped.isWakeLockHeld()) {
+                stateView.append(", ");
+                final SpannableStringBuilder b = new SpannableStringBuilder().append(holder.itemView
+                        .getContext().getString(R.string.label_wake_lock));
+                b.setSpan(new ForegroundColorSpan(Color.RED), 0, b.length(),
+                        Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
+                stateView.append(b);
+            }
+        } else {
+            descriptionView.setText("");
+            stateView.setText("");
         }
     }
 

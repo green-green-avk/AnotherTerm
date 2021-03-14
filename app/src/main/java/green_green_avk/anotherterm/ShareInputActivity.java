@@ -142,7 +142,7 @@ public final class ShareInputActivity extends AppCompatActivity {
                 fillOpenArgs(ps);
             }
             try {
-                key = ConsoleService.startSession(ShareInputActivity.this, ps.get());
+                key = ConsoleService.startAnsiSession(ShareInputActivity.this, ps.get());
             } catch (final ConsoleService.Exception | BackendException e) {
                 Toast.makeText(ShareInputActivity.this, e.getMessage(),
                         Toast.LENGTH_LONG).show();
