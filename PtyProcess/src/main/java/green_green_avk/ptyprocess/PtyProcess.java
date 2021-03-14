@@ -14,7 +14,7 @@ import java.io.FileDescriptor;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.lang.reflect.InvocationTargetException;
+import java.nio.ByteBuffer;
 import java.util.Map;
 
 @Keep
@@ -178,6 +178,25 @@ public final class PtyProcess extends Process {
     public static final int IS_ERROR = -1;
     public static final int IS_RUNNING = -2;
     public static final int IS_EINTR = -3;
+
+    public static final int SHUT_RD = 0;
+    public static final int SHUT_WR = 1;
+    public static final int SHUT_RDWR = 2;
+
+    public static final int PROT_NONE = 0;
+    public static final int PROT_READ = 1;
+    public static final int PROT_WRITE = 2;
+    public static final int PROT_EXEC = 4;
+
+    public static final int MAP_TYPE = 0x0f;
+    public static final int MAP_SHARED = 0x01;
+    public static final int MAP_PRIVATE = 0x02;
+    public static final int MAP_SHARED_VALIDATE = 0x03;
+    public static final int MAP_ANONYMOUS = 0x20;
+    public static final int MAP_ANON = MAP_ANONYMOUS;
+    public static final int MAP_POPULATE = 0x008000;
+    public static final int MAP_NONBLOCK = 0x010000;
+    public static final int MAP_SYNC = 0x080000;
 
     static {
         System.loadLibrary("ptyprocess");
@@ -467,6 +486,15 @@ public final class PtyProcess extends Process {
     @Nullable
     private static native String pathByFd(int fd);
 
+    private static int getFdIntHelper(@NonNull final FileDescriptor fd,
+                                      @NonNull final String msg) throws IOException {
+        try {
+            return (int) FileDescriptor.class.getMethod("getInt$").invoke(fd);
+        } catch (final Exception e) {
+            throw new IOException(msg);
+        }
+    }
+
     /*
      * It seems, android.system.Os class is trying to be linked by Dalvik even when inside
      * appropriate if statement and raises java.lang.VerifyError on the constructor call...
@@ -485,6 +513,34 @@ public final class PtyProcess extends Process {
                 throw new IOException(e.getMessage(), e);
             }
         }
+
+        private static void shutdown(@NonNull final FileDescriptor fd, final int how)
+                throws IOException {
+            try {
+                Os.shutdown(fd, how);
+            } catch (final ErrnoException e) {
+                throw new IOException(e.getMessage(), e);
+            }
+        }
+
+        private static long mmap(final long address, final long byteCount,
+                                 final int prot, final int flags,
+                                 @Nullable final FileDescriptor fd, final long offset)
+                throws IOException {
+            try {
+                return Os.mmap(address, byteCount, prot, flags, fd, offset);
+            } catch (final ErrnoException e) {
+                throw new IOException(e.getMessage(), e);
+            }
+        }
+
+        private static void munmap(final long address, final long byteCount) throws IOException {
+            try {
+                Os.munmap(address, byteCount);
+            } catch (final ErrnoException e) {
+                throw new IOException(e.getMessage(), e);
+            }
+        }
     }
 
     private static final String sCloseWaError = "Cannot close socket: workaround failed";
@@ -495,17 +551,56 @@ public final class PtyProcess extends Process {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
             Utils21.close(fd);
         } else {
-            final int _fd;
-            try {
-                _fd = (int) FileDescriptor.class.getMethod("getInt$").invoke(fd);
-            } catch (final IllegalAccessException e) {
-                throw new IOException(sCloseWaError);
-            } catch (final InvocationTargetException e) {
-                throw new IOException(sCloseWaError);
-            } catch (final NoSuchMethodException e) {
-                throw new IOException(sCloseWaError);
-            }
-            ParcelFileDescriptor.adoptFd(_fd).close();
+            ParcelFileDescriptor.adoptFd(getFdIntHelper(fd, sCloseWaError)).close();
         }
     }
+
+    private static final String sShutdownWaError = "Cannot shutdown socket: workaround failed";
+
+    public static void shutdown(@Nullable final FileDescriptor fd, final int how)
+            throws IOException {
+        if (fd == null || !fd.valid())
+            throw new IOException("Bad FD");
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+            Utils21.shutdown(fd, how);
+        } else {
+            shutdown(getFdIntHelper(fd, sShutdownWaError), how);
+        }
+    }
+
+    @Keep
+    private static native void shutdown(int fd, int how) throws IOException;
+
+    @Keep
+    public static native ByteBuffer asByteBuffer(long address, long byteCount);
+
+    @Keep
+    public static native long getAddress(@NonNull ByteBuffer buffer);
+
+    private static final String sMmapWaError = "Cannot mmap: workaround failed";
+
+    public static long mmap(long address, long byteCount, int prot, int flags,
+                            @Nullable FileDescriptor fd, long offset) throws IOException {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+            return Utils21.mmap(address, byteCount, prot, flags, fd, offset);
+        } else {
+            return mmapCompat(address, byteCount, prot, flags,
+                    fd != null ? getFdIntHelper(fd, sMmapWaError) : -1, offset);
+        }
+    }
+
+    @Keep
+    private static native long mmapCompat(long address, long byteCount, int prot, int flags,
+                                          int fd, long offset) throws IOException;
+
+    public static void munmap(final long address, final long byteCount) throws IOException {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+            Utils21.munmap(address, byteCount);
+        } else {
+            munmapCompat(address, byteCount);
+        }
+    }
+
+    @Keep
+    private static native void munmapCompat(long address, long byteCount) throws IOException;
 }

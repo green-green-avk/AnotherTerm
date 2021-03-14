@@ -65,7 +65,7 @@ import green_green_avk.anotherterm.ui.VisibilityAnimator;
 import green_green_avk.anotherterm.utils.BooleanCaster;
 
 public final class AnsiConsoleActivity extends ConsoleActivity
-        implements ConsoleInput.OnInvalidateSink, ScrollableView.OnScroll,
+        implements AnsiConsoleInput.OnInvalidateSink, ScrollableView.OnScroll,
         ConsoleScreenView.OnStateChange {
 
     private AnsiSession mSession = null;
@@ -310,7 +310,7 @@ public final class AnsiConsoleActivity extends ConsoleActivity
     @NonNull
     private PopupWindow createMenuPopup() {
         @SuppressLint("InflateParams") final View popupView =
-                LayoutInflater.from(this).inflate(R.layout.console_menu, null);
+                LayoutInflater.from(this).inflate(R.layout.ansi_console_menu, null);
         popupView.setLayoutParams(new ViewGroup.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT,
                 ViewGroup.LayoutParams.WRAP_CONTENT));
 
@@ -583,7 +583,7 @@ public final class AnsiConsoleActivity extends ConsoleActivity
                 .setSingleChoiceItems(a, p, (dialog, which) -> {
                     if (mSession == null) return;
                     mSession.input.setComplianceLevel(which == 1 ?
-                            0 : ConsoleInput.defaultComplianceLevel);
+                            0 : AnsiConsoleInput.defaultComplianceLevel);
                     mSession.input.invalidateSink();
                     refreshMenuPopup();
                     dialog.dismiss();

@@ -16,7 +16,7 @@ import green_green_avk.anotherterm.backends.EventBasedBackendModuleWrapper;
 import green_green_avk.anotherterm.ui.ExtKeyboard;
 import green_green_avk.anotherterm.utils.Misc;
 
-public final class ConsoleOutput {
+public final class AnsiConsoleOutput implements IConsoleOutput {
     public enum MouseTracking {NONE, X10, X11, HIGHLIGHT, BUTTON_EVENT, ANY_EVENT}
 
     public enum MouseProtocol {NORMAL, SGR, URXVT, UTF8}
@@ -127,17 +127,25 @@ public final class ConsoleOutput {
         return r != null ? fixC1(r) : null;
     }
 
+    @Override
+    public boolean getKeyAutorepeat() {
+        return keyAutorepeat;
+    }
+
+    @Override
     @AnyRes
     public int getLayoutRes() {
         return _vt52 ? R.array.vt52_keyboard : R.array.ansi_keyboard;
     }
 
+    @Override
     @Nullable
     public String getKeySeq(final int code,
                             final boolean shift, final boolean alt, final boolean ctrl) {
         return getKeySeq(code, (shift ? 1 : 0) | (alt ? 2 : 0) | (ctrl ? 4 : 0));
     }
 
+    @Override
     public void feed(final int code, final boolean shift, final boolean alt, final boolean ctrl) {
         if (code == ExtKeyboard.KEYCODE_NONE) return;
         if (code < 0) {
@@ -166,12 +174,18 @@ public final class ConsoleOutput {
         if (r != null) feed(r);
     }
 
+    @Override
+    public void feed(final int code, final boolean pressed) {
+        // Nothing to do here
+    }
+
     public void feedEsc(@NonNull final String v) {
         if (backendModule != null) {
             backendModule.write(fixC1(v).getBytes(charset));
         }
     }
 
+    @Override
     public void feed(@NonNull final String v) {
         if (backendModule != null) {
             backendModule.write(v.getBytes(charset));
@@ -184,6 +198,7 @@ public final class ConsoleOutput {
         }
     }
 
+    @Override
     public void paste(@NonNull final String v) {
         feed(bracketedPasteMode ? csi() + "200~" + v + csi() + "201~" : v);
     }

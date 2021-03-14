@@ -27,9 +27,9 @@ public final class AnsiSession extends Session {
     @NonNull
     public final Map<String, ?> connectionParams;
     @NonNull
-    public final ConsoleInput input;
+    public final AnsiConsoleInput input;
     @NonNull
-    public final ConsoleOutput output;
+    public final AnsiConsoleOutput output;
     @NonNull
     public final EventBasedBackendModuleWrapper backend;
     @NonNull
@@ -38,8 +38,8 @@ public final class AnsiSession extends Session {
     public final UiState uiState = new UiState();
 
     public AnsiSession(@NonNull final Map<String, ?> cp,
-                       @NonNull final ConsoleInput ci,
-                       @NonNull final ConsoleOutput co,
+                       @NonNull final AnsiConsoleInput ci,
+                       @NonNull final AnsiConsoleOutput co,
                        @NonNull final EventBasedBackendModuleWrapper be,
                        @NonNull final Properties pp) {
         connectionParams = cp;

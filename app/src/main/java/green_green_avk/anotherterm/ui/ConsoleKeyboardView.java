@@ -30,16 +30,16 @@ import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
 import androidx.core.view.ViewCompat;
 
-import green_green_avk.anotherterm.ConsoleInput;
-import green_green_avk.anotherterm.ConsoleOutput;
+import green_green_avk.anotherterm.AnsiConsoleInput;
 import green_green_avk.anotherterm.HwKeyMapManager;
+import green_green_avk.anotherterm.IConsoleOutput;
 import green_green_avk.anotherterm.R;
 import green_green_avk.anotherterm.utils.KeyIntervalDetector;
 
 public class ConsoleKeyboardView extends ExtKeyboardView implements
-        KeyboardView.OnKeyboardActionListener, ConsoleInput.OnInvalidateSink {
-    protected ConsoleInput consoleInput = null;
-    protected ConsoleOutput consoleOutput = null;
+        KeyboardView.OnKeyboardActionListener, AnsiConsoleInput.OnInvalidateSink {
+    protected AnsiConsoleInput consoleInput = null;
+    protected IConsoleOutput consoleOutput = null;
 
     protected boolean ctrl = false;
     protected boolean alt = false;
@@ -160,11 +160,15 @@ public class ConsoleKeyboardView extends ExtKeyboardView implements
         useIme(isIme());
     }
 
-    public void setConsoleInput(@NonNull final ConsoleInput consoleInput) {
+    public void setConsoleInput(@NonNull final AnsiConsoleInput consoleInput) {
         this.consoleInput = consoleInput;
         this.consoleOutput = this.consoleInput.consoleOutput;
         this.consoleInput.addOnInvalidateSink(this);
         onInvalidateSink(null);
+    }
+
+    public void setConsoleOutputOnly(@NonNull final IConsoleOutput consoleOutput) {
+        this.consoleOutput = consoleOutput;
     }
 
     public void unsetConsoleInput() {
@@ -175,7 +179,7 @@ public class ConsoleKeyboardView extends ExtKeyboardView implements
 
     @Override
     public boolean getAutoRepeat() {
-        return consoleOutput == null || consoleOutput.keyAutorepeat;
+        return consoleOutput == null || consoleOutput.getKeyAutorepeat();
     }
 
     public int getKeyHeightDp() {
@@ -610,6 +614,8 @@ public class ConsoleKeyboardView extends ExtKeyboardView implements
                 wasKey = false;
                 break;
         }
+        if (consoleOutput != null)
+            consoleOutput.feed(primaryCode, true);
     }
 
 //    @Override
@@ -655,6 +661,8 @@ public class ConsoleKeyboardView extends ExtKeyboardView implements
 
     @Override
     public void onRelease(final int primaryCode) {
+        if (consoleOutput != null)
+            consoleOutput.feed(primaryCode, false);
     }
 
     @Override

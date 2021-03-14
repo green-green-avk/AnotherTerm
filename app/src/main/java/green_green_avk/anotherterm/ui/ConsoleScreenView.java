@@ -47,8 +47,8 @@ import androidx.appcompat.content.res.AppCompatResources;
 import androidx.core.math.MathUtils;
 import androidx.core.view.ViewCompat;
 
-import green_green_avk.anotherterm.ConsoleInput;
-import green_green_avk.anotherterm.ConsoleOutput;
+import green_green_avk.anotherterm.AnsiConsoleInput;
+import green_green_avk.anotherterm.AnsiConsoleOutput;
 import green_green_avk.anotherterm.ConsoleScreenBuffer;
 import green_green_avk.anotherterm.ConsoleScreenCharAttrs;
 import green_green_avk.anotherterm.R;
@@ -56,7 +56,7 @@ import green_green_avk.anotherterm.utils.CharsAutoSelector;
 import green_green_avk.anotherterm.utils.WeakHandler;
 
 public class ConsoleScreenView extends ScrollableView
-        implements ConsoleInput.OnInvalidateSink, ConsoleInput.OnBufferScroll {
+        implements AnsiConsoleInput.OnInvalidateSink, AnsiConsoleInput.OnBufferScroll {
 
     public interface OnStateChange {
         void onTerminalAreaResize(int width, int height);
@@ -96,7 +96,7 @@ public class ConsoleScreenView extends ScrollableView
     protected static final int INTERVAL_BLINK = 500; // ms
     protected static final long SELECTION_MOVE_START_DELAY = 200; // ms
     protected static final int AUTOSELECT_LINES_MAX = 128;
-    protected ConsoleInput consoleInput = null;
+    protected AnsiConsoleInput consoleInput = null;
     public final ConsoleScreenCharAttrs charAttrs = new ConsoleScreenCharAttrs();
     protected final Paint fgPaint = new Paint();
     protected final Paint bgPaint = new Paint();
@@ -774,7 +774,7 @@ public class ConsoleScreenView extends ScrollableView
         bgPaint.setColor(charAttrs.bgColor);
     }
 
-    public void setConsoleInput(@NonNull final ConsoleInput consoleInput) {
+    public void setConsoleInput(@NonNull final AnsiConsoleInput consoleInput) {
         this.consoleInput = consoleInput;
         this.consoleInput.addOnInvalidateSink(this);
         this.consoleInput.addOnBufferScroll(this);
@@ -1032,7 +1032,7 @@ public class ConsoleScreenView extends ScrollableView
                             if (buttons == 0) break;
                             mButtons = bs;
                         }
-                        consoleInput.consoleOutput.feed(ConsoleOutput.MouseEventType.PRESS,
+                        consoleInput.consoleOutput.feed(AnsiConsoleOutput.MouseEventType.PRESS,
                                 buttons, x, y);
                         mXY.x = x;
                         mXY.y = y;
@@ -1045,7 +1045,7 @@ public class ConsoleScreenView extends ScrollableView
                                         ? MotionEvent.BUTTON_PRIMARY
                                         : (mButtons = getButtons(event));
 
-                        consoleInput.consoleOutput.feed(ConsoleOutput.MouseEventType.MOVE,
+                        consoleInput.consoleOutput.feed(AnsiConsoleOutput.MouseEventType.MOVE,
                                 buttons, x, y);
                         mXY.x = x;
                         mXY.y = y;
@@ -1062,7 +1062,7 @@ public class ConsoleScreenView extends ScrollableView
                             if (buttons == 0) break;
                             mButtons = bs;
                         }
-                        consoleInput.consoleOutput.feed(ConsoleOutput.MouseEventType.RELEASE,
+                        consoleInput.consoleOutput.feed(AnsiConsoleOutput.MouseEventType.RELEASE,
                                 buttons, x, y);
                         unsetCurrentSelectionMarker();
                         inGesture = false;
@@ -1115,12 +1115,12 @@ public class ConsoleScreenView extends ScrollableView
                         final int upButtons = ~buttons & mButtons;
                         mButtons = buttons;
                         if (downButtons != 0)
-                            consoleInput.consoleOutput.feed(ConsoleOutput.MouseEventType.PRESS,
+                            consoleInput.consoleOutput.feed(AnsiConsoleOutput.MouseEventType.PRESS,
                                     downButtons, x, y);
-                        consoleInput.consoleOutput.feed(ConsoleOutput.MouseEventType.MOVE,
+                        consoleInput.consoleOutput.feed(AnsiConsoleOutput.MouseEventType.MOVE,
                                 buttons, x, y);
                         if (upButtons != 0)
-                            consoleInput.consoleOutput.feed(ConsoleOutput.MouseEventType.RELEASE,
+                            consoleInput.consoleOutput.feed(AnsiConsoleOutput.MouseEventType.RELEASE,
                                     upButtons, x, y);
                         mXY.x = x;
                         mXY.y = y;
@@ -1129,7 +1129,7 @@ public class ConsoleScreenView extends ScrollableView
                     case MotionEvent.ACTION_SCROLL: {
                         final float vScroll = event.getAxisValue(MotionEvent.AXIS_VSCROLL);
                         if (vScroll != 0)
-                            consoleInput.consoleOutput.feed(ConsoleOutput.MouseEventType.VSCROLL,
+                            consoleInput.consoleOutput.feed(AnsiConsoleOutput.MouseEventType.VSCROLL,
                                     (int) vScroll, x, y);
                         break;
                     }
@@ -1263,9 +1263,9 @@ public class ConsoleScreenView extends ScrollableView
                 buttons = mButtons & ~getButtons(e);
             }
             if (buttons != 0) {
-                consoleInput.consoleOutput.feed(ConsoleOutput.MouseEventType.PRESS,
+                consoleInput.consoleOutput.feed(AnsiConsoleOutput.MouseEventType.PRESS,
                         buttons, x, y);
-                consoleInput.consoleOutput.feed(ConsoleOutput.MouseEventType.RELEASE,
+                consoleInput.consoleOutput.feed(AnsiConsoleOutput.MouseEventType.RELEASE,
                         buttons, x, y);
             }
         } else {

@@ -144,12 +144,12 @@ public final class ConsoleService extends Service {
         } catch (final InstantiationException e) {
             throw new Exception(EMSG_NI_CONNTYPE);
         }
-        final ConsoleInput ci = new ConsoleInput();
-        final ConsoleOutput co = new ConsoleOutput();
+        final AnsiConsoleInput ci = new AnsiConsoleInput();
+        final AnsiConsoleOutput co = new AnsiConsoleOutput();
         ci.consoleOutput = co;
         final String termComplianceStr = (String) cp.get("term_compliance");
         ci.setComplianceLevel("vt52compat".equals(termComplianceStr) ?
-                0 : ConsoleInput.defaultComplianceLevel);
+                0 : AnsiConsoleInput.defaultComplianceLevel);
         final String charsetStr = (String) cp.get("charset");
         try {
             final Charset charset =
@@ -235,10 +235,28 @@ public final class ConsoleService extends Service {
     }
 
     @UiThread
+    public static int startGraphicsSession(@NonNull final Context ctx,
+                                           @NonNull final GraphicsCompositor compositor) {
+        final Context appCtx = ctx.getApplicationContext();
+        final int key = obtainKey();
+
+        final GraphicsSession s = new GraphicsSession(compositor);
+        sessions.put(key, s);
+        sessionKeys.add(key);
+
+        tryStart(appCtx);
+        execOnSessionsListChange();
+
+        return key;
+    }
+
+    @UiThread
     public static void stopSession(final int key) {
         final Session s = getSession(key);
         if (s instanceof AnsiSession)
             ((AnsiSession) s).backend.stop();
+        else if (s instanceof GraphicsSession)
+            ((GraphicsSession) s).compositor.stop();
         sessionKeys.remove((Integer) key);
         sessions.remove(key);
         if (sessionKeys.size() <= 0)
@@ -283,6 +301,22 @@ public final class ConsoleService extends Service {
         if (!(s instanceof AnsiSession))
             throw new NoSuchElementException("No ANSI session with the specified key exists");
         return (AnsiSession) s;
+    }
+
+    @UiThread
+    @CheckResult
+    public static boolean hasGraphicsSession(final int key) {
+        return sessions.get(key) instanceof GraphicsSession;
+    }
+
+    @UiThread
+    @CheckResult
+    @NonNull
+    public static GraphicsSession getGraphicsSession(final int key) {
+        final Session s = getSession(key);
+        if (!(s instanceof GraphicsSession))
+            throw new NoSuchElementException("No Graphics session with the specified key exists");
+        return (GraphicsSession) s;
     }
 
     private static void execOnSessionsListChange() {

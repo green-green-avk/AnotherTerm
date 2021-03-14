@@ -38,6 +38,8 @@ public abstract class ConsoleActivity extends AppCompatActivity {
         final Class<? extends Activity> a;
         if (s instanceof AnsiSession)
             a = AnsiConsoleActivity.class;
+        else if (s instanceof GraphicsSession)
+            a = GraphicsConsoleActivity.class;
         else
             throw new IllegalArgumentException("Bad session key");
         final Intent intent = new Intent(ctx, a).putExtra(C.IFK_MSG_SESS_KEY, key);

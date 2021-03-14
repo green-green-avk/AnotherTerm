@@ -35,12 +35,12 @@ import green_green_avk.anotherterm.utils.InputTokenizer;
 import green_green_avk.anotherterm.utils.Misc;
 import green_green_avk.anotherterm.utils.Unicode;
 
-public final class ConsoleInput implements BytesSink {
+public final class AnsiConsoleInput implements BytesSink {
     private static final boolean LOG_UNKNOWN_ESC = false; // BuildConfig.DEBUG
 
     public static final int defaultComplianceLevel = 2;
 
-    public ConsoleOutput consoleOutput = null;
+    public AnsiConsoleOutput consoleOutput = null;
     public EventBasedBackendModuleWrapper backendModule = null;
     public ConsoleScreenBuffer currScrBuf;
     private final ConsoleScreenBuffer mainScrBuf;
@@ -1119,8 +1119,8 @@ public final class ConsoleInput implements BytesSink {
                 case 9:
                     if (consoleOutput != null)
                         consoleOutput.mouseTracking = value ?
-                                ConsoleOutput.MouseTracking.X10
-                                : ConsoleOutput.MouseTracking.NONE;
+                                AnsiConsoleOutput.MouseTracking.X10
+                                : AnsiConsoleOutput.MouseTracking.NONE;
                     return;
                 case 25:
                     cursorVisibility = value;
@@ -1136,26 +1136,26 @@ public final class ConsoleInput implements BytesSink {
                 case 1000:
                     if (consoleOutput != null)
                         consoleOutput.mouseTracking = value ?
-                                ConsoleOutput.MouseTracking.X11
-                                : ConsoleOutput.MouseTracking.NONE;
+                                AnsiConsoleOutput.MouseTracking.X11
+                                : AnsiConsoleOutput.MouseTracking.NONE;
                     return;
                 case 1001:
                     if (consoleOutput != null)
                         consoleOutput.mouseTracking = value ?
-                                ConsoleOutput.MouseTracking.HIGHLIGHT
-                                : ConsoleOutput.MouseTracking.NONE;
+                                AnsiConsoleOutput.MouseTracking.HIGHLIGHT
+                                : AnsiConsoleOutput.MouseTracking.NONE;
                     return;
                 case 1002:
                     if (consoleOutput != null)
                         consoleOutput.mouseTracking = value ?
-                                ConsoleOutput.MouseTracking.BUTTON_EVENT
-                                : ConsoleOutput.MouseTracking.NONE;
+                                AnsiConsoleOutput.MouseTracking.BUTTON_EVENT
+                                : AnsiConsoleOutput.MouseTracking.NONE;
                     return;
                 case 1003:
                     if (consoleOutput != null)
                         consoleOutput.mouseTracking = value ?
-                                ConsoleOutput.MouseTracking.ANY_EVENT
-                                : ConsoleOutput.MouseTracking.NONE;
+                                AnsiConsoleOutput.MouseTracking.ANY_EVENT
+                                : AnsiConsoleOutput.MouseTracking.NONE;
                     return;
                 case 1004:
                     if (consoleOutput != null)
@@ -1164,20 +1164,20 @@ public final class ConsoleInput implements BytesSink {
                 case 1005:
                     if (consoleOutput != null)
                         consoleOutput.mouseProtocol = value ?
-                                ConsoleOutput.MouseProtocol.UTF8
-                                : ConsoleOutput.MouseProtocol.NORMAL;
+                                AnsiConsoleOutput.MouseProtocol.UTF8
+                                : AnsiConsoleOutput.MouseProtocol.NORMAL;
                     return;
                 case 1006:
                     if (consoleOutput != null)
                         consoleOutput.mouseProtocol = value ?
-                                ConsoleOutput.MouseProtocol.SGR
-                                : ConsoleOutput.MouseProtocol.NORMAL;
+                                AnsiConsoleOutput.MouseProtocol.SGR
+                                : AnsiConsoleOutput.MouseProtocol.NORMAL;
                     return;
                 case 1015:
                     if (consoleOutput != null)
                         consoleOutput.mouseProtocol = value ?
-                                ConsoleOutput.MouseProtocol.URXVT
-                                : ConsoleOutput.MouseProtocol.NORMAL;
+                                AnsiConsoleOutput.MouseProtocol.URXVT
+                                : AnsiConsoleOutput.MouseProtocol.NORMAL;
                     return;
                 case 47:
                 case 1047:

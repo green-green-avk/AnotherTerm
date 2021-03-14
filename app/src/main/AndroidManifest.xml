@@ -145,6 +145,19 @@
                 android:value=".SessionsActivity" />
         </activity>
 
+        <activity
+            android:name=".GraphicsConsoleActivity"
+            android:configChanges="keyboardHidden|keyboard"
+            android:label="Console"
+            android:launchMode="singleTop"
+            android:parentActivityName=".SessionsActivity"
+            android:theme="@style/AppConsoleTheme"
+            android:windowSoftInputMode="adjustResize">
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value=".SessionsActivity" />
+        </activity>
+
         <service
             android:name=".ConsoleService"
             android:enabled="true"

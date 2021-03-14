@@ -16,6 +16,7 @@
             <option value="$PROJECT_DIR$/TelnetClient" />
             <option value="$PROJECT_DIR$/app" />
             <option value="$PROJECT_DIR$/bluetoothspp" />
+            <option value="$PROJECT_DIR$/wayland" />
           </set>
         </option>
         <option name="resolveModulePerSourceSet" value="false" />

@@ -6,6 +6,7 @@
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <sys/wait.h>
+#include <sys/socket.h>
 #include <sys/mman.h>
 #include <signal.h>
 #include "pty_compat.h"
@@ -453,23 +454,61 @@ static jstring JNICALL m_pathByFd(JNIEnv *const env, const jobject jthis, const 
     }
 }
 
+static void JNICALL m_shutdown(JNIEnv *const env, const jobject jthis,
+                               const jint fd, const jint how) {
+    if (shutdown(fd, how) != 0)
+        env->ThrowNew(g_IOEC, strError("shutdown() failed"));
+}
+
+static jobject JNICALL m_asByteBuffer(JNIEnv *const env, const jobject jthis,
+                                      const jlong address, const jlong byteCount) {
+    return env->NewDirectByteBuffer((void *) address, byteCount);
+}
+
+static jlong JNICALL m_getByteBufferAddress(JNIEnv *const env, const jobject jthis,
+                                            const jobject buffer) {
+    return (jlong) env->GetDirectBufferAddress(buffer);
+}
+
+static jlong JNICALL m_mmap(JNIEnv *const env, const jobject jthis,
+                            const jlong address, const jlong byteCount,
+                            const jint prot, const jint flags,
+                            const jint fd, const jlong offset) {
+    void *const r = mmap((void *) address, byteCount, prot, flags, fd, offset);
+    if (r == MAP_FAILED)
+        env->ThrowNew(g_IOEC, strError("mmap() failed"));
+    return (jlong) r;
+}
+
+static void JNICALL m_munmap(JNIEnv *const env, const jobject jthis,
+                             const jlong address, const jlong byteCount) {
+    const int r = munmap((void *) address, byteCount);
+    if (r != 0)
+        env->ThrowNew(g_IOEC, strError("munmap() failed"));
+}
+
 static const JNINativeMethod methodTable[] = {
         {"execve",                 "(Ljava/lang/String;[Ljava/lang/String;[Ljava/lang/String;)L" CLASS_NAME ";",
-                                                            (void *) m_execve},
-        {"destroy",                "()V",                   (void *) m_destroy},
-        {"waitForExit",            "(I)I",                  (void *) m_waitForExit},
-        {"sendSignalToForeground", "(I)V",                  (void *) m_sendSignalToForeground},
-        {"resize",                 "(IIII)V",               (void *) m_resize},
-        {"readByte",               "()I",                   (void *) m_readByte},
-        {"readBuf",                "([BII)I",               (void *) m_readBuf},
-        {"writeByte",              "(I)V",                  (void *) m_writeByte},
-        {"writeBuf",               "([BII)V",               (void *) m_writeBuf},
-        {"pollForRead",            "(II)Z",                 (void *) m_pollForRead},
-        {"isatty",                 "(I)Z",                  (void *) m_isatty},
-        {"getSize",                "(I[I)V",                (void *) m_getSize},
-        {"getArgMax",              "()J",                   (void *) m_getArgMax},
-        {"isSymlink",              "(Ljava/lang/String;)Z", (void *) m_isSymlink},
-        {"pathByFd",               "(I)Ljava/lang/String;", (void *) m_pathByFd}
+                                                                (void *) m_execve},
+        {"destroy",                "()V",                       (void *) m_destroy},
+        {"waitForExit",            "(I)I",                      (void *) m_waitForExit},
+        {"sendSignalToForeground", "(I)V",                      (void *) m_sendSignalToForeground},
+        {"resize",                 "(IIII)V",                   (void *) m_resize},
+        {"readByte",               "()I",                       (void *) m_readByte},
+        {"readBuf",                "([BII)I",                   (void *) m_readBuf},
+        {"writeByte",              "(I)V",                      (void *) m_writeByte},
+        {"writeBuf",               "([BII)V",                   (void *) m_writeBuf},
+        {"pollForRead",            "(II)Z",                     (void *) m_pollForRead},
+        {"shutdown",               "(II)V",                     (void *) m_shutdown},
+        {"isatty",                 "(I)Z",                      (void *) m_isatty},
+        {"getSize",                "(I[I)V",                    (void *) m_getSize},
+        {"getArgMax",              "()J",                       (void *) m_getArgMax},
+        {"isSymlink",              "(Ljava/lang/String;)Z",     (void *) m_isSymlink},
+        {"pathByFd",               "(I)Ljava/lang/String;",     (void *) m_pathByFd},
+        {"asByteBuffer",           "(JJ)Ljava/nio/ByteBuffer;", (void *) m_asByteBuffer},
+        {"getAddress",             "(Ljava/nio/ByteBuffer;)J",  (void *) m_getByteBufferAddress},
+        {"mmapCompat",             "(JJIIIJ)J",                 (void *) m_mmap},
+        {"munmapCompat",           "(JJ)V",                     (void *) m_munmap}
 };
 
 extern "C"

@@ -1,0 +1,131 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    tools:context=".GraphicsConsoleActivity">
+
+    <LinearLayout
+        android:id="@+id/nav_bar"
+        android:layout_width="match_parent"
+        android:layout_height="?attr/actionBarSize"
+        android:background="@drawable/bg_keyboard"
+        android:gravity="center_vertical"
+        android:orientation="horizontal">
+
+        <ImageView
+            android:id="@+id/action_nav_up"
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:adjustViewBounds="true"
+            android:background="@drawable/bg_grid_black_btn"
+            android:contentDescription="@string/action_nav_up"
+            android:onClick="onNavUp"
+            android:scaleType="centerInside"
+            app:srcCompat="?attr/homeAsUpIndicator"
+            app:tint="@android:color/tertiary_text_dark" />
+
+        <TextView
+            android:id="@+id/title"
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_marginLeft="@dimen/text_margin"
+            android:layout_marginTop="1dp"
+            android:layout_marginRight="@dimen/text_margin"
+            android:layout_marginBottom="1dp"
+            android:layout_weight="1"
+            android:ellipsize="middle"
+            android:gravity="center_vertical"
+            android:textColor="@android:color/secondary_text_dark"
+            app:autoSizeMinTextSize="@dimen/text_size_min"
+            app:autoSizeTextType="uniform"
+            tools:text="Title" />
+
+        <ImageView
+            android:id="@+id/action_ime"
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:adjustViewBounds="true"
+            android:background="@drawable/bg_grid_black_btn"
+            android:contentDescription="@string/action_switch_screen_keyboard"
+            android:onClick="onSwitchIme"
+            android:scaleType="centerInside"
+            app:srcCompat="@drawable/ic_keyboard"
+            app:tint="@color/console_toolbar_icon"
+            app:tintMode="src_atop" />
+
+        <ImageView
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:adjustViewBounds="true"
+            android:background="@drawable/bg_grid_black_btn"
+            android:contentDescription="@string/action_terminate"
+            android:onClick="onTerminate"
+            android:scaleType="centerInside"
+            app:srcCompat="@drawable/ic_close"
+            app:tint="@android:color/tertiary_text_dark" />
+
+    </LinearLayout>
+
+    <FrameLayout
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1">
+
+        <green_green_avk.anotherterm.ui.GlGraphicsCompositorView
+            android:id="@+id/screen"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent" />
+
+        <green_green_avk.anotherterm.ui.ScreenMouseView
+            android:id="@+id/mouse"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent" />
+
+        <ImageView
+            android:id="@+id/bell"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="right|top"
+            android:alpha="1"
+            android:visibility="invisible"
+            app:srcCompat="@drawable/ic_bell_24"
+            app:tint="@color/colorAccenttissimo"
+            app:tintMode="multiply"
+            tools:ignore="ContentDescription,RtlHardcoded"
+            tools:visibility="visible" />
+
+    </FrameLayout>
+
+    <green_green_avk.anotherterm.ui.ConsoleKeyboardView
+        android:id="@+id/keyboard"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="@drawable/bg_keyboard"
+        android:keyTextColor="@android:color/darker_gray"
+        android:keyTextSize="12sp"
+        android:labelTextSize="12sp"
+        android:visibility="visible"
+        app:autoRepeatDelay="1000"
+        app:keyBackground="@drawable/bg_key1"
+        app:keyTextColor="@color/colorAccent"
+        app:ledBackground="@drawable/bg_led1"
+        app:popupBackground="@drawable/bg_popup"
+        app:popupDelay="100"
+        app:popupKeyBackground="@drawable/bg_popup_key"
+        app:popupKeySize="48dp"
+        app:popupKeyTextColor="@color/screen_keyboard_popup_key"
+        app:popupShadowColor="@color/colorShadow"
+        app:popupShadowRadius="24"
+        app:shadowColor="@color/colorShadow"
+        app:shadowRadius="16" />
+
+    <!-- Alternative:
+    https://stackoverflow.com/questions/21092888/windowsoftinputmode-adjustresize-not-working-with-translucent-action-navbar/22266717#22266717 -->
+    <green_green_avk.anotherterm.ui.BottomImePlaceholderView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content" />
+
+</LinearLayout>

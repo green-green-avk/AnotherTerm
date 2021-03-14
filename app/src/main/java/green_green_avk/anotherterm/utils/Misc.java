@@ -175,9 +175,27 @@ public final class Misc {
         return (App) ctx;
     }
 
+    @NonNull
+    public static <T> Iterable<T> getValuesIterable(@NonNull final SparseArray<T> o) {
+        return () -> new Iterator<T>() {
+            private int i = 0;
+
+            @Override
+            public boolean hasNext() {
+                return i < o.size();
+            }
+
+            @Override
+            public T next() {
+                if (!hasNext()) throw new NoSuchElementException();
+                return o.valueAt(i++);
+            }
+        };
+    }
+
     // Some sugar if boxing is affordable
     @NonNull
-    public static Iterable<Integer> getKeysIterable(@NonNull final SparseArray o) {
+    public static Iterable<Integer> getKeysIterable(@NonNull final SparseArray<?> o) {
         return () -> new Iterator<Integer>() {
             private int i = 0;
 

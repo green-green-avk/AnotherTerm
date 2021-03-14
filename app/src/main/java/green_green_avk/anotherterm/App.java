@@ -86,6 +86,9 @@ public final class App extends Application {
     @Keep
     public LibUsbManager libUsbManager = null;
 
+    @Keep
+    public WlTermServer wlTermServer = null;
+
     @Override
     public void onCreate() {
         super.onCreate();
@@ -100,5 +103,6 @@ public final class App extends Application {
         scratchpadManager = new ScratchpadManager(this, "scratchpad");
         termSh = new TermSh(this);
         libUsbManager = new LibUsbManager(this);
+        wlTermServer = new WlTermServer(this);
     }
 }
