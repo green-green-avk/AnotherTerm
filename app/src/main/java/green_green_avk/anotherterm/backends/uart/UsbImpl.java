@@ -34,6 +34,7 @@ import green_green_avk.anotherterm.R;
 import green_green_avk.anotherterm.backends.BackendException;
 import green_green_avk.anotherterm.backends.BackendModule;
 import green_green_avk.anotherterm.utils.BlockingSync;
+import green_green_avk.anotherterm.utils.Misc;
 
 final class UsbImpl extends Impl {
 
@@ -157,29 +158,27 @@ final class UsbImpl extends Impl {
                                 R.string.msg_usd_serial_port_s_reconnected,
                                 dev.getDeviceName()));
                         device = dev;
-                        final Thread t = new Thread() {
-                            @Override
-                            public void run() {
-                                try {
-                                    synchronized (commonLock) {
-                                        makeConnection(true);
-                                    }
-                                } catch (final BackendException e) {
-                                    base.reportError(e);
+                        Misc.runOnThread(() -> {
+                            try {
+                                synchronized (commonLock) {
+                                    makeConnection(true);
                                 }
+                            } catch (final BackendException e) {
+                                base.reportError(e);
                             }
-                        };
-                        t.start();
+                        });
                     }
                     break;
                 }
                 case ACTION_USB_DETACHED:
                     final UsbDevice dev = intent.getParcelableExtra(UsbManager.EXTRA_DEVICE);
                     if (mIsConnected && device.equals(dev)) {
-                        tmpDisconnect();
-                        base.getUi().showToast(context.getString(
-                                R.string.msg_usd_serial_port_s_disconnected,
-                                dev.getDeviceName()));
+                        Misc.runOnThread(() -> {
+                            tmpDisconnect();
+                            base.getUi().showToast(context.getString(
+                                    R.string.msg_usd_serial_port_s_disconnected,
+                                    dev.getDeviceName()));
+                        });
                     }
                     break;
             }

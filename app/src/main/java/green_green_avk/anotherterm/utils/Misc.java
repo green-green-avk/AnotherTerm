@@ -264,6 +264,10 @@ public final class Misc {
         return (v & m) != 0;
     }
 
+    public static void runOnThread(@NonNull final Runnable r) {
+        new Thread(r).start();
+    }
+
     @RequiresApi(23)
     @NonNull
     public static Set<String> checkSelfPermissions(@NonNull final Context ctx,
