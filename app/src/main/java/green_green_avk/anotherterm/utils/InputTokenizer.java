@@ -111,7 +111,7 @@ public final class InputTokenizer
     }
 
     private void setTextEnd(int pos) {
-        if (Character.isHighSurrogate(mBufArr[pos]))
+        if (pos > mPos && Character.isHighSurrogate(mBufArr[pos - 1]))
             --pos;
         mToken = Compat.subSequence(mBuf, mPos, pos);
         mPos = pos;
