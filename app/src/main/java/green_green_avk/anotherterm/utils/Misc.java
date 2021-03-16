@@ -250,17 +250,17 @@ public final class Misc {
         };
     }
 
-    public static <T extends Comparable<T>> T clamp(@NonNull T v, T min, T max) {
+    public static <T extends Comparable<T>> T clamp(@NonNull final T v, final T min, final T max) {
         if (v.compareTo(min) < 0) return min;
         if (v.compareTo(max) > 0) return max;
         return v;
     }
 
-    public static int bitsAs(int v, int m, int r) {
+    public static int bitsAs(final int v, final int m, final int r) {
         return ((v & m) != 0) ? r : 0;
     }
 
-    public static boolean bitsAs(int v, int m) {
+    public static boolean bitsAs(final int v, final int m) {
         return (v & m) != 0;
     }
 
