@@ -3,7 +3,7 @@
 
     <header
         android:fragment="green_green_avk.anotherterm.SettingsActivity$TerminalPreferenceFragment"
-        android:icon="@drawable/ic_computer_black_24dp"
+        android:icon="@drawable/ic_computer_black_48dp"
         android:title="@string/action_settings_terminal" />
     <header
         android:fragment="green_green_avk.anotherterm.HwKeyMapEditorFragment"
@@ -15,7 +15,7 @@
         android:title="@string/action_custom_font" />
     <header
         android:fragment="green_green_avk.anotherterm.DozeFragment"
-        android:icon="@drawable/ic_battery_charging_full_black_24dp"
+        android:icon="@drawable/ic_battery_charging_full_black_48dp"
         android:title="@string/action_settings_keepalive_and_battery_optimization" />
     <header
         android:fragment="green_green_avk.anotherterm.DeviceStorageAccessFragment"

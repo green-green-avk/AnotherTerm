@@ -183,7 +183,7 @@
                         android:layout_width="wrap_content"
                         android:layout_height="match_parent"
                         android:adjustViewBounds="true"
-                        app:srcCompat="@drawable/ic_computer_black_24dp"
+                        app:srcCompat="@drawable/ic_computer_black_48dp"
                         app:tint="@color/colorPrimaryDark" />
 
                     <TextView

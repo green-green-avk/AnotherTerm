@@ -164,7 +164,7 @@ public class ExtKeyboard {
          */
         public int mode = 0;
 
-        private ExtKeyboard parent;
+        private final ExtKeyboard parent;
 
         public Row(@NonNull final ExtKeyboard parent) {
             this.parent = parent;
@@ -259,7 +259,7 @@ public class ExtKeyboard {
         /**
          * The keyboard that this key belongs to
          */
-        private ExtKeyboard keyboard;
+        private final ExtKeyboard keyboard;
         /**
          * If this key pops up a mini keyboard, this is the resource id for the XML layout for that
          * keyboard.
@@ -606,7 +606,7 @@ public class ExtKeyboard {
     @NonNull
     public Set<Key> getKeysByCode(final int code) {
         final Set<Key> kk = mKeysByCode.get(code);
-        return kk == null ? Collections.<Key>emptySet() : kk;
+        return kk == null ? Collections.emptySet() : kk;
     }
 
     protected int getHorizontalGap() {
@@ -713,7 +713,7 @@ public class ExtKeyboard {
 
     private void addKeyByCode(final Key key) {
         if (!key.modifier && key.type != Key.LED) return;
-        for (KeyFcn fcn : key.functions) {
+        for (final KeyFcn fcn : key.functions) {
             if (fcn.code == KEYCODE_NONE) continue;
             Set<Key> keys = mKeysByCode.get(fcn.code);
             if (keys == null) {

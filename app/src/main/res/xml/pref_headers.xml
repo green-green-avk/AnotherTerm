@@ -3,7 +3,7 @@
 
     <header
         android:fragment="green_green_avk.anotherterm.SettingsActivity$TerminalPreferenceFragment"
-        android:icon="@drawable/ic_computer_black_24dp"
+        android:icon="@drawable/ic_computer_black_48dp"
         android:title="@string/action_settings_terminal" />
     <header
         android:fragment="green_green_avk.anotherterm.HwKeyMapEditorFragment"

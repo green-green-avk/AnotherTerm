@@ -6,6 +6,7 @@ import android.content.res.TypedArray;
 import android.graphics.Canvas;
 import android.graphics.Rect;
 import android.graphics.drawable.Drawable;
+import android.os.Build;
 import android.os.SystemClock;
 import android.util.AttributeSet;
 import android.view.Gravity;
@@ -21,6 +22,7 @@ import androidx.annotation.CheckResult;
 import androidx.annotation.LayoutRes;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.annotation.RequiresApi;
 import androidx.appcompat.content.res.AppCompatResources;
 import androidx.core.view.ViewCompat;
 
@@ -50,6 +52,7 @@ public class ScreenMouseView extends ScrollableView {
         init(context, attrs, defStyleAttr, R.style.AppScreenMouseViewStyle);
     }
 
+    @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
     public ScreenMouseView(final Context context, @Nullable final AttributeSet attrs,
                            final int defStyleAttr, final int defStyleRes) {
         super(context, attrs, defStyleAttr, defStyleRes);
@@ -86,38 +89,31 @@ public class ScreenMouseView extends ScrollableView {
                 ViewGroup.LayoutParams.MATCH_PARENT
         ));
         overlayView.setOnTouchListener(overlayOnTouch);
-        overlay = new PopupWindow(overlayView, ViewGroup.LayoutParams.MATCH_PARENT,
+        overlay = new PopupWindow(overlayView,
+                ViewGroup.LayoutParams.MATCH_PARENT,
                 ViewGroup.LayoutParams.MATCH_PARENT);
         overlay.setSplitTouchEnabled(true);
         overlay.setAnimationStyle(android.R.style.Animation_Dialog);
     }
 
-    protected static final OnTouchListener overlayOnTouch = new OnTouchListener() {
-        @SuppressLint("ClickableViewAccessibility")
-        @Override
-        public boolean onTouch(final View v, final MotionEvent event) {
-            return true;
-        }
-    };
+    @SuppressLint("ClickableViewAccessibility")
+    protected static final OnTouchListener overlayOnTouch = (v, event) -> true;
 
-    protected final OnTouchListener buttonsOnTouch = new OnTouchListener() {
-        @SuppressLint("ClickableViewAccessibility")
-        @Override
-        public boolean onTouch(final View v, final MotionEvent event) {
-            switch (event.getAction()) {
-                case MotionEvent.ACTION_DOWN:
-                case MotionEvent.ACTION_UP:
-                case MotionEvent.ACTION_MOVE:
-                    return onOverlayButton(v, event);
-            }
-            return false;
+    @SuppressLint("ClickableViewAccessibility")
+    protected final OnTouchListener buttonsOnTouch = (v, event) -> {
+        switch (event.getAction()) {
+            case MotionEvent.ACTION_DOWN:
+            case MotionEvent.ACTION_UP:
+            case MotionEvent.ACTION_MOVE:
+                return onOverlayButton(v, event);
         }
+        return false;
     };
 
     protected void applyButtons() {
         if (overlayButtonsView != null) return;
-        overlayButtonsView = LayoutInflater.from(getContext()).inflate(buttonsLayoutResId, overlayView,
-                false);
+        overlayButtonsView = LayoutInflater.from(getContext()).inflate(buttonsLayoutResId,
+                overlayView, false);
         overlayView.removeAllViewsInLayout();
         overlayView.addView(overlayButtonsView);
         for (final View v : UiUtils.getIterable(overlayButtonsView)) {
@@ -414,7 +410,7 @@ public class ScreenMouseView extends ScrollableView {
     protected static MotionEvent obtainEvent(final float x, final float y, final int action,
                                              final int buttons, final int actionButton,
                                              final int vScroll) {
-        // ActionButton can be set only by means of hack using reflection; I prefer to avoid it.
+        // ActionButton can be set only by means of hack using reflections; I prefer to avoid it.
         // TODO: or not to do?.. Hack...
         final long ts = SystemClock.uptimeMillis();
         final MotionEvent.PointerProperties[] pp = {new MotionEvent.PointerProperties()};

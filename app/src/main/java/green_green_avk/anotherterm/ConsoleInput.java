@@ -448,7 +448,8 @@ public final class ConsoleInput implements BytesSink {
                                 default:
                                     if (LOG_UNKNOWN_ESC)
                                         Log.w("CtrlSeq", "ESC: " +
-                                                Compat.subSequence(t.value, 1, t.value.remaining())
+                                                Compat.subSequence(t.value,
+                                                        1, t.value.remaining())
                                                         .toString());
                             }
                             break;

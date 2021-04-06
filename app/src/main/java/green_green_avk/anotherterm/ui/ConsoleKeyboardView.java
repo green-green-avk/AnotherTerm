@@ -197,31 +197,25 @@ public class ConsoleKeyboardView extends ExtKeyboardView implements
         imeEnabled = false;
     }
 
-    protected final Runnable rShowSelf = new Runnable() {
-        @Override
-        public void run() {
-            final Context ctx = getContext();
-            if (ctx instanceof Activity)
-                ((Activity) ctx).getWindow().setSoftInputMode(
-                        WindowManager.LayoutParams.SOFT_INPUT_STATE_UNCHANGED |
-                                WindowManager.LayoutParams.SOFT_INPUT_ADJUST_NOTHING);
-            mHidden = false;
-            requestLayout();
-        }
+    protected final Runnable rShowSelf = () -> {
+        final Context ctx = getContext();
+        if (ctx instanceof Activity)
+            ((Activity) ctx).getWindow().setSoftInputMode(
+                    WindowManager.LayoutParams.SOFT_INPUT_STATE_UNCHANGED |
+                            WindowManager.LayoutParams.SOFT_INPUT_ADJUST_NOTHING);
+        mHidden = false;
+        requestLayout();
     };
 
-    protected final Runnable rHideSelf = new Runnable() {
-        @Override
-        public void run() {
-            final Context ctx = getContext();
-            if (ctx instanceof Activity) {
-                ((Activity) ctx).getWindow().setSoftInputMode(
-                        WindowManager.LayoutParams.SOFT_INPUT_STATE_UNCHANGED |
-                                WindowManager.LayoutParams.SOFT_INPUT_ADJUST_RESIZE);
-            }
-            mHidden = true;
-            requestLayout();
+    protected final Runnable rHideSelf = () -> {
+        final Context ctx = getContext();
+        if (ctx instanceof Activity) {
+            ((Activity) ctx).getWindow().setSoftInputMode(
+                    WindowManager.LayoutParams.SOFT_INPUT_STATE_UNCHANGED |
+                            WindowManager.LayoutParams.SOFT_INPUT_ADJUST_RESIZE);
         }
+        mHidden = true;
+        requestLayout();
     };
 
     protected void showIme(final boolean v) {

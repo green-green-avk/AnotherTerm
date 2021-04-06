@@ -6,7 +6,7 @@
     app:verticalGap="0dp">
 
     <Row
-        app:keyWidth="7.14%p"
+        app:keyWidth="7.1%p"
         app:verticalGap="2dp">
         <Key
             app:code="111"
@@ -14,7 +14,6 @@
         <Key
             app:code="65536"
             app:keyLabel="Wake"
-            app:keyWidth="7.14%p"
             app:type="led" />
         <Key
             app:code="131"

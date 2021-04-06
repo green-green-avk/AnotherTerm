@@ -267,6 +267,7 @@ public abstract class ExtKeyboardView extends View /*implements View.OnClickList
         mHandler.removeMessages(MSG_REPEAT);
         mTouchedKeys.clear();
         mKeyboard = keyboard;
+        mDirtyRect.union(0, 0, getWidth(), getHeight());
         requestLayout();
     }
 
@@ -321,7 +322,7 @@ public abstract class ExtKeyboardView extends View /*implements View.OnClickList
 
     public void invalidateModifierKeys(final int code) {
         if (mKeyboard != null)
-            for (ExtKeyboard.Key key : mKeyboard.getKeysByCode(code))
+            for (final ExtKeyboard.Key key : mKeyboard.getKeysByCode(code))
                 invalidateKey(key);
     }
 
@@ -564,7 +565,10 @@ public abstract class ExtKeyboardView extends View /*implements View.OnClickList
                     h - getPaddingTop() - getPaddingBottom());
         }
         mTouchedKeys.clear();
-        mBuffer = null;
+        if (mBuffer != null) {
+            mBuffer.recycle();
+            mBuffer = null;
+        }
     }
 
     @Override
@@ -596,6 +600,8 @@ public abstract class ExtKeyboardView extends View /*implements View.OnClickList
             // Make sure our bitmap is at least 1x1
             final int width = Math.max(1, getWidth());
             final int height = Math.max(1, getHeight());
+            if (mBuffer != null)
+                mBuffer.recycle();
             mBuffer = Bitmap.createBitmap(width, height, Bitmap.Config.ARGB_8888);
             mCanvas = new Canvas(mBuffer);
             mDirtyRect.union(0, 0, getWidth(), getHeight());
@@ -779,15 +785,12 @@ public abstract class ExtKeyboardView extends View /*implements View.OnClickList
             }
         }
 
-        protected final Runnable rShow = new Runnable() {
-            @Override
-            public void run() {
-                if (keyState == null) return;
-                ExtKeyboardView.this.getLocationInWindow(mWindowCoords);
-                window.showAtLocation(ExtKeyboardView.this, Gravity.NO_GRAVITY,
-                        (int) (mWindowCoords[0] + keyState.coords.x - window.getWidth() / 2),
-                        (int) (mWindowCoords[1] + keyState.coords.y - window.getHeight() / 2));
-            }
+        protected final Runnable rShow = () -> {
+            if (keyState == null) return;
+            ExtKeyboardView.this.getLocationInWindow(mWindowCoords);
+            window.showAtLocation(ExtKeyboardView.this, Gravity.NO_GRAVITY,
+                    (int) (mWindowCoords[0] + keyState.coords.x - window.getWidth() / 2),
+                    (int) (mWindowCoords[1] + keyState.coords.y - window.getHeight() / 2));
         };
 
         public void show() {

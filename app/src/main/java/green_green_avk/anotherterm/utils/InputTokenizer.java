@@ -167,8 +167,7 @@ public final class InputTokenizer
                 }
             }
             mType = Token.Type.CTL;
-            mToken = Compat.subSequence(mBuf, pos, pos + 1);
-            mPos = pos + 1;
+            found(pos);
             return;
         }
         ++pos;
@@ -196,8 +195,7 @@ public final class InputTokenizer
         }
         if (mBufArr[pos] >= 0x40 && mBufArr[pos] < 0x60) {
             mType = Token.Type.CTL;
-            mToken = Compat.subSequence(mBuf, mPos, pos + 1);
-            mPos = pos + 1;
+            found(pos);
             return;
         }
         mType = Token.Type.ESC;

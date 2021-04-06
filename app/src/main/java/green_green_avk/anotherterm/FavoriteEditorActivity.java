@@ -414,7 +414,7 @@ public final class FavoriteEditorActivity extends AppCompatActivity {
         private int toInit = 0;
 
         @Override
-        protected void onChanged(@NonNull View view, @Nullable Object value) {
+        protected void onChanged(@NonNull final View view, @Nullable final Object value) {
             if (!isInInit)
                 setNeedSave(true);
             if (!isMainOptsInit) {
@@ -427,7 +427,7 @@ public final class FavoriteEditorActivity extends AppCompatActivity {
         }
 
         @Override
-        public void adoptView(@NonNull View view) {
+        public void adoptView(@NonNull final View view) {
             toInit++;
             super.adoptView(view);
         }

@@ -38,9 +38,11 @@ import android.widget.PopupWindow;
 import android.widget.Toast;
 
 import androidx.annotation.CallSuper;
+import androidx.annotation.CheckResult;
 import androidx.annotation.LayoutRes;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.annotation.RequiresApi;
 import androidx.appcompat.content.res.AppCompatResources;
 import androidx.core.math.MathUtils;
 import androidx.core.view.ViewCompat;
@@ -178,85 +180,55 @@ public class ConsoleScreenView extends ScrollableView
             smv = getContentView().findViewById(R.id.b_select_mode);
             refresh();
             getContentView().findViewById(R.id.b_close)
-                    .setOnClickListener(new OnClickListener() {
-                        @Override
-                        public void onClick(final View v) {
-                            setSelectionMode(false);
-                        }
-                    });
-            smv.setOnClickListener(new OnClickListener() {
-                @Override
-                public void onClick(final View v) {
-                    if (getSelectionModeIsExpr()) setSelectionModeIsExpr(false);
-                    else {
-                        if (getSelectionIsRect()) setSelectionModeIsExpr(true);
-                        setSelectionIsRect(!getSelectionIsRect());
-                    }
-                    refresh();
+                    .setOnClickListener(v -> setSelectionMode(false));
+            smv.setOnClickListener(v -> {
+                if (getSelectionModeIsExpr()) setSelectionModeIsExpr(false);
+                else {
+                    if (getSelectionIsRect()) setSelectionModeIsExpr(true);
+                    setSelectionIsRect(!getSelectionIsRect());
                 }
+                refresh();
             });
             getContentView().findViewById(R.id.b_select_all)
-                    .setOnClickListener(new OnClickListener() {
-                        @Override
-                        public void onClick(final View v) {
-                            selectAll();
-                            setSelectionModeIsExpr(false);
-                            setSelectionIsRect(true);
-                            setSelectionMode(true);
-                        }
+                    .setOnClickListener(v -> {
+                        selectAll();
+                        setSelectionModeIsExpr(false);
+                        setSelectionIsRect(true);
+                        setSelectionMode(true);
                     });
             getContentView().findViewById(R.id.b_copy)
-                    .setOnClickListener(new OnClickListener() {
-                        @Override
-                        public void onClick(final View v) {
-                            UiUtils.toClipboard(getContext(), getSelectedText());
-                        }
-                    });
+                    .setOnClickListener(v -> UiUtils.toClipboard(getContext(), getSelectedText()));
             getContentView().findViewById(R.id.b_put)
-                    .setOnClickListener(new OnClickListener() {
-                        @Override
-                        public void onClick(final View v) {
-                            if (consoleInput == null || consoleInput.consoleOutput == null) return;
-                            final String s = getSelectedText();
-                            if (s != null) consoleInput.consoleOutput.paste(s);
-                        }
+                    .setOnClickListener(v -> {
+                        if (consoleInput == null || consoleInput.consoleOutput == null) return;
+                        final String s = getSelectedText();
+                        if (s != null) consoleInput.consoleOutput.paste(s);
                     });
             getContentView().findViewById(R.id.b_web)
-                    .setOnClickListener(new OnClickListener() {
-                        @Override
-                        public void onClick(final View v) {
-                            final String s = getSelectedText();
-                            if (s == null) {
-                                Toast.makeText(getContext(), R.string.msg_nothing_to_search,
-                                        Toast.LENGTH_SHORT).show();
-                                return;
-                            }
+                    .setOnClickListener(v -> {
+                        final String s = getSelectedText();
+                        if (s == null) {
+                            Toast.makeText(getContext(), R.string.msg_nothing_to_search,
+                                    Toast.LENGTH_SHORT).show();
+                            return;
+                        }
+                        try {
+                            getContext().startActivity(new Intent(Intent.ACTION_VIEW,
+                                    Uri.parse(s.replaceAll("\\s+", ""))));
+                        } catch (final ActivityNotFoundException e) {
                             try {
-                                getContext().startActivity(new Intent(Intent.ACTION_VIEW,
-                                        Uri.parse(s.replaceAll("\\s+", ""))));
-                            } catch (final ActivityNotFoundException e) {
-                                try {
-                                    getContext().startActivity(new Intent(Intent.ACTION_WEB_SEARCH)
-                                            .putExtra(SearchManager.QUERY, s));
-                                } catch (final ActivityNotFoundException ignored) {
-                                }
+                                getContext().startActivity(new Intent(Intent.ACTION_WEB_SEARCH)
+                                        .putExtra(SearchManager.QUERY, s));
+                            } catch (final ActivityNotFoundException ignored) {
                             }
                         }
                     });
             getContentView().findViewById(R.id.b_share)
-                    .setOnClickListener(new OnClickListener() {
-                        @Override
-                        public void onClick(final View v) {
-                            UiUtils.sharePlainText((Activity) getContext(), getSelectedText());
-                        }
-                    });
+                    .setOnClickListener(v ->
+                            UiUtils.sharePlainText((Activity) getContext(), getSelectedText()));
             getContentView().findViewById(R.id.b_scratchpad)
-                    .setOnClickListener(new OnClickListener() {
-                        @Override
-                        public void onClick(final View v) {
-                            UiUtils.toScratchpad((Activity) getContext(), getSelectedText());
-                        }
-                    });
+                    .setOnClickListener(v ->
+                            UiUtils.toScratchpad(getContext(), getSelectedText()));
         }
 
         protected void calcPos() {
@@ -321,6 +293,7 @@ public class ConsoleScreenView extends ScrollableView
         terminalScrollbars = new TerminalScrollbars();
     }
 
+    @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
     public ConsoleScreenView(final Context context, @Nullable final AttributeSet attrs,
                              final int defStyleAttr, final int defStyleRes) {
         super(context, attrs, defStyleAttr, defStyleRes);
@@ -466,6 +439,7 @@ public class ConsoleScreenView extends ScrollableView
     }
 
     @Override
+    @CheckResult
     public float getTopScrollLimit() {
         return (consoleInput == null) ? 0F : Math.min(
                 consoleInput.currScrBuf.getHeight() - getRows(),
@@ -473,6 +447,7 @@ public class ConsoleScreenView extends ScrollableView
     }
 
     @Override
+    @CheckResult
     public float getBottomScrollLimit() {
         return (consoleInput == null) ? 0F : Math.max(
                 consoleInput.currScrBuf.getHeight() - getRows(),
@@ -480,12 +455,15 @@ public class ConsoleScreenView extends ScrollableView
     }
 
     @Override
+    @CheckResult
     public float getRightScrollLimit() {
         return (consoleInput == null) ? 0F : Math.max(
                 consoleInput.currScrBuf.getWidth() - getCols(),
                 0F);
     }
 
+    @CheckResult
+    @NonNull
     public float[] getCharSize(final float fontSize) {
         final float r[] = new float[2];
         final Paint p = new Paint();
@@ -518,6 +496,7 @@ public class ConsoleScreenView extends ScrollableView
     /**
      * @return [px]
      */
+    @CheckResult
     public float getFontSize() {
         return mFontSize;
     }
@@ -543,6 +522,7 @@ public class ConsoleScreenView extends ScrollableView
         if (onStateChange != null) onStateChange.onFontSizeChange(getFontSize());
     }
 
+    @CheckResult
     public float getScrollFollowHistoryThreshold() {
         return scrollFollowHistoryThreshold;
     }
@@ -556,6 +536,7 @@ public class ConsoleScreenView extends ScrollableView
         scrollFollowHistoryThreshold = v;
     }
 
+    @CheckResult
     public float getSelectionPadSize() {
         return selectionPadSize;
     }
@@ -570,6 +551,7 @@ public class ConsoleScreenView extends ScrollableView
         else selectionPopup.hide();
     }
 
+    @CheckResult
     public boolean getSelectionMode() {
         return selectionMode;
     }
@@ -595,6 +577,7 @@ public class ConsoleScreenView extends ScrollableView
         if (onStateChange != null) onStateChange.onSelectionModeChange(mode);
     }
 
+    @CheckResult
     public boolean getSelectionIsRect() {
         return selection != null && selection.isRectangular;
     }
@@ -606,6 +589,7 @@ public class ConsoleScreenView extends ScrollableView
         }
     }
 
+    @CheckResult
     public boolean getSelectionModeIsExpr() {
         return selectionModeIsExpr;
     }
@@ -626,6 +610,7 @@ public class ConsoleScreenView extends ScrollableView
         }
     }
 
+    @CheckResult
     public boolean getMouseMode() {
         return mouseMode;
     }
@@ -737,14 +722,17 @@ public class ConsoleScreenView extends ScrollableView
         r.y = getBufferTextPosY(y);
     }
 
+    @CheckResult
     public int getCols() {
         return (int) (getWidth() / mFontWidth);
     }
 
+    @CheckResult
     public int getRows() {
         return (int) (getHeight() / mFontHeight);
     }
 
+    @CheckResult
     public boolean isOnScreen(float x, float y) {
         x -= scrollPosition.x;
         y -= scrollPosition.y;
@@ -790,6 +778,7 @@ public class ConsoleScreenView extends ScrollableView
         }
     }
 
+    @CheckResult
     public int getKeyHeightDp() {
         return keyHeightDp;
     }
@@ -801,6 +790,7 @@ public class ConsoleScreenView extends ScrollableView
         }
     }
 
+    @CheckResult
     @Nullable
     public String getSelectedText() {
         if (consoleInput == null) return null;
@@ -846,6 +836,7 @@ public class ConsoleScreenView extends ScrollableView
         return result;
     }
 
+    @CheckResult
     @Nullable
     public Bitmap makeThumbnail(int w, int h) {
         if (getWidth() <= 0 || getHeight() <= 0)
@@ -913,11 +904,13 @@ public class ConsoleScreenView extends ScrollableView
                         MotionEvent.BUTTON_PRIMARY : 0));
     }
 
+    @CheckResult
     public static boolean isMouseEvent(@Nullable final MotionEvent event) {
         return event != null &&
                 event.getToolType(0) != MotionEvent.TOOL_TYPE_FINGER;
     }
 
+    @CheckResult
     public boolean isMouseSupported() {
         return consoleInput != null && consoleInput.consoleOutput != null &&
                 consoleInput.consoleOutput.isMouseSupported();
@@ -1378,24 +1371,12 @@ public class ConsoleScreenView extends ScrollableView
             popupV.setClippingEnabled(false);
             popupV.setSplitTouchEnabled(false);
             popupV.setAnimationStyle(android.R.style.Animation_Dialog);
-            vTrackH.addOnLayoutChangeListener(new OnLayoutChangeListener() {
-                @Override
-                public void onLayoutChange(final View v, final int left, final int top,
-                                           final int right, final int bottom,
-                                           final int oldLeft, final int oldTop,
-                                           final int oldRight, final int oldBottom) {
-                    refreshH();
-                }
-            });
-            vTrackV.addOnLayoutChangeListener(new OnLayoutChangeListener() {
-                @Override
-                public void onLayoutChange(final View v, final int left, final int top,
-                                           final int right, final int bottom,
-                                           final int oldLeft, final int oldTop,
-                                           final int oldRight, final int oldBottom) {
-                    refreshV();
-                }
-            });
+            vTrackH.addOnLayoutChangeListener(
+                    (v, left, top, right, bottom, oldLeft, oldTop, oldRight, oldBottom) ->
+                            refreshH());
+            vTrackV.addOnLayoutChangeListener(
+                    (v, left, top, right, bottom, oldLeft, oldTop, oldRight, oldBottom) ->
+                            refreshV());
         }
 
         private void onResize() {

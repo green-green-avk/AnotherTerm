@@ -6,7 +6,7 @@
     app:verticalGap="0dp">
 
     <Row
-        app:keyWidth="7.14%p"
+        app:keyWidth="7.1%p"
         app:verticalGap="2dp">
         <Key
             app:code="111"
@@ -14,7 +14,6 @@
         <Key
             app:code="65536"
             app:keyLabel="Wake"
-            app:keyWidth="7.14%p"
             app:type="led" />
         <Key
             app:code="131"
@@ -71,14 +70,14 @@
         <Key
             app:code="67"
             app:keyLabel="&#x232B;"
-            app:keyWidth="10%p" /><!-- BS -->
+            app:keyWidth="8%p" /><!-- BS -->
     </Row>
 
     <Row>
         <Key
             app:code="61"
             app:keyLabel="&#x21B9;"
-            app:keyWidth="10%p" /><!-- Tab -->
+            app:keyWidth="8%p" /><!-- Tab -->
         <Key app:keyLabel="qQ" />
         <Key app:keyLabel="wW" />
         <Key app:keyLabel="eE" />
@@ -124,7 +123,7 @@
         <Key
             app:code="66"
             app:keyLabel="&#x23CE;"
-            app:keyWidth="13%p" /><!-- Enter -->
+            app:keyWidth="11%p" /><!-- Enter -->
     </Row>
 
     <Row>
@@ -132,7 +131,7 @@
             app:code="59"
             app:isModifier="true"
             app:keyLabel="&#x21EB;"
-            app:keyWidth="10%p" /><!-- Shift -->
+            app:keyWidth="11%p" /><!-- Shift -->
         <Key app:keyLabel="zZ" />
         <Key app:keyLabel="xX" />
         <Key app:keyLabel="cC" />
@@ -145,7 +144,7 @@
         <Key app:keyLabel="/?" />
         <Key
             app:code="19"
-            app:horizontalGap="5%p"
+            app:horizontalGap="4%p"
             app:keyLabel="&#x2191;" /><!-- Up -->
     </Row>
 
@@ -163,10 +162,9 @@
         <Key
             app:code="62"
             app:keyLabel="&#x2423;"
-            app:keyWidth="10%p" /><!-- Space -->
+            app:keyWidth="12%p" /><!-- Space -->
         <Key
             app:code="122"
-            app:horizontalGap="3%p"
             app:keyLabel="Home" />
         <Key
             app:code="123"
@@ -185,7 +183,7 @@
             app:keyLabel="Pd" />
         <Key
             app:code="21"
-            app:horizontalGap="3%p"
+            app:horizontalGap="4%p"
             app:keyLabel="&#x2190;" /><!-- Left -->
         <Key
             app:code="20"

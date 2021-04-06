@@ -489,8 +489,9 @@ public final class PtyProcess extends Process {
 
     private static final String sCloseWaError = "Cannot close socket: workaround failed";
 
-    public static void close(@NonNull final FileDescriptor fd) throws IOException {
-        if (!fd.valid()) return;
+    public static void close(@Nullable final FileDescriptor fd) throws IOException {
+        if (fd == null || !fd.valid())
+            throw new IOException("Bad FD");
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
             Utils21.close(fd);
         } else {

@@ -2,13 +2,16 @@ package green_green_avk.anotherterm.ui;
 
 import android.content.Context;
 import android.graphics.PointF;
+import android.os.Build;
 import android.util.AttributeSet;
 import android.view.MotionEvent;
 import android.widget.Scroller;
 
 import androidx.annotation.CallSuper;
+import androidx.annotation.CheckResult;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.annotation.RequiresApi;
 import androidx.core.math.MathUtils;
 import androidx.core.view.ViewCompat;
 
@@ -42,6 +45,7 @@ public abstract class ScrollableView extends GestureView {
         mScroller = new Scroller(getContext());
     }
 
+    @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
     public ScrollableView(final Context context, @Nullable final AttributeSet attrs,
                           final int defStyleAttr, final int defStyleRes) {
         super(context, attrs, defStyleAttr, defStyleRes);
@@ -70,25 +74,30 @@ public abstract class ScrollableView extends GestureView {
         return (int) (v * scrollScale.y);
     }
 
+    @CheckResult
     public float getLeftScrollLimit() {
         return 0;
     }
 
+    @CheckResult
     public float getTopScrollLimit() {
         return 0;
     }
 
+    @CheckResult
     public float getRightScrollLimit() {
         return 0;
     }
 
+    @CheckResult
     public float getBottomScrollLimit() {
         return 0;
     }
 
     @CallSuper
     protected void execOnScroll() {
-        if (onScroll != null) onScroll.onScroll(this);
+        if (onScroll != null)
+            onScroll.onScroll(this);
     }
 
     @Override
