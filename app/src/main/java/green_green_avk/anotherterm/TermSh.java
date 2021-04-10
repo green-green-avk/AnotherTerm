@@ -820,7 +820,12 @@ public final class TermSh {
                 args = parseArgs(cis);
                 final FileDescriptor[] ioFds = socket.getAncillaryFileDescriptors();
                 if (ioFds == null || ioFds.length != 4) {
-                    if (ioFds != null) for (final FileDescriptor fd : ioFds) PtyProcess.close(fd);
+                    if (ioFds != null)
+                        for (final FileDescriptor fd : ioFds)
+                            try {
+                                PtyProcess.close(fd);
+                            } catch (final IOException ignored) {
+                            }
                     throw new ParseException("Bad descriptors");
                 }
                 stdIn = wrapInputFD(ioFds[0]);
@@ -2024,12 +2029,13 @@ public final class TermSh {
             } catch (final InterruptedIOException ignored) {
             } catch (final IOException e) {
                 Log.e("TermShServer", "IO", e);
+            } finally {
+                if (serverSocket != null)
+                    try {
+                        serverSocket.close();
+                    } catch (final IOException ignored) {
+                    }
             }
-            if (serverSocket != null)
-                try {
-                    serverSocket.close();
-                } catch (final IOException ignored) {
-                }
         }
     }
 
