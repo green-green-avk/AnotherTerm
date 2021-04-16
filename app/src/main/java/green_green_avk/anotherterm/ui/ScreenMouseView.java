@@ -105,6 +105,7 @@ public class ScreenMouseView extends ScrollableView {
             case MotionEvent.ACTION_DOWN:
             case MotionEvent.ACTION_UP:
             case MotionEvent.ACTION_MOVE:
+            case MotionEvent.ACTION_CANCEL:
                 return onOverlayButton(v, event);
         }
         return false;
@@ -214,13 +215,17 @@ public class ScreenMouseView extends ScrollableView {
             }
         }
     */
+
+    private final int[] _overlayLoc = new int[2];
+
     protected void setOverlayCoords(@NonNull final MotionEvent event) {
+        overlayView.getLocationOnScreen(_overlayLoc);
         int width = overlayButtonsView.getLayoutParams().width;
         int height = overlayButtonsView.getLayoutParams().height;
         if (width <= 0) width = overlayButtonsView.getWidth();
         if (height <= 0) height = overlayButtonsView.getHeight();
-        overlayButtonsView.setX(event.getRawX() - (float) width / 2);
-        overlayButtonsView.setY(event.getRawY() - (float) height / 2);
+        overlayButtonsView.setX(event.getRawX() - _overlayLoc[0] - (float) width / 2);
+        overlayButtonsView.setY(event.getRawY() - _overlayLoc[1] - (float) height / 2);
     }
 
     @CheckResult
@@ -295,8 +300,12 @@ public class ScreenMouseView extends ScrollableView {
                 final long ts = SystemClock.uptimeMillis();
                 final MotionEvent me = MotionEvent.obtain(ts, ts, action,
                         event.getX(), event.getY(), 0);
-                final boolean r = super.onTouchEvent(me);
-                me.recycle();
+                final boolean r;
+                try {
+                    r = super.onTouchEvent(me);
+                } finally {
+                    me.recycle();
+                }
                 return r;
             }
             case MotionEvent.ACTION_POINTER_DOWN:
@@ -335,6 +344,7 @@ public class ScreenMouseView extends ScrollableView {
         switch (event.getAction()) {
             case MotionEvent.ACTION_DOWN:
             case MotionEvent.ACTION_UP:
+            case MotionEvent.ACTION_CANCEL:
                 break;
             default:
                 return true;
@@ -358,6 +368,7 @@ public class ScreenMouseView extends ScrollableView {
                 mOverlayButtons |= button;
                 break;
             case MotionEvent.ACTION_UP:
+            case MotionEvent.ACTION_CANCEL:
                 mOverlayButtons &= ~button;
                 break;
         }
