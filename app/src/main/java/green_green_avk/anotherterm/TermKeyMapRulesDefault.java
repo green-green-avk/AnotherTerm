@@ -67,6 +67,25 @@ public final class TermKeyMapRulesDefault {
         keyCodes.put(KeyEvent.KEYCODE_INSERT, new KeyMap(NONE, S("\u001B[2~"), "\u001B[2;%d~", null, null));
         keyCodes.put(KeyEvent.KEYCODE_FORWARD_DEL, new KeyMap(NONE, S("\u001B[3~"), "\u001B[3;%d~", null, null));
 
+        keyCodes.put(KeyEvent.KEYCODE_NUMPAD_0, new KeyMap(NUMPAD, S("0"), null, S("\u001B[2~"), "\u001B[2;%d~"));
+        keyCodes.put(KeyEvent.KEYCODE_NUMPAD_1, new KeyMap(NUMPAD, S("1"), null, S("\u001BOF"), null));
+        keyCodes.put(KeyEvent.KEYCODE_NUMPAD_2, new KeyMap(NUMPAD, S("2"), null, S("\u001B[B"), "\u001B[1;%dB"));
+        keyCodes.put(KeyEvent.KEYCODE_NUMPAD_3, new KeyMap(NUMPAD, S("3"), null, S("\u001B[6~"), "\u001B[6;%d~"));
+        keyCodes.put(KeyEvent.KEYCODE_NUMPAD_4, new KeyMap(NUMPAD, S("4"), null, S("\u001B[D"), "\u001B[1;%dD"));
+        keyCodes.put(KeyEvent.KEYCODE_NUMPAD_5, new KeyMap(NUMPAD, S("5"), null, S("\u001B[E"), "\u001B[2;%dE"));
+        keyCodes.put(KeyEvent.KEYCODE_NUMPAD_6, new KeyMap(NUMPAD, S("6"), null, S("\u001B[C"), "\u001B[1;%dC"));
+        keyCodes.put(KeyEvent.KEYCODE_NUMPAD_7, new KeyMap(NUMPAD, S("7"), null, S("\u001BOH"), null));
+        keyCodes.put(KeyEvent.KEYCODE_NUMPAD_8, new KeyMap(NUMPAD, S("8"), null, S("\u001B[A"), "\u001B[1;%dA"));
+        keyCodes.put(KeyEvent.KEYCODE_NUMPAD_9, new KeyMap(NUMPAD, S("9"), null, S("\u001B[5~"), "\u001B[5;%d~"));
+        keyCodes.put(KeyEvent.KEYCODE_NUMPAD_DIVIDE, new KeyMap(NUMPAD, S("/"), null, S("\u001BOo"), null));
+        keyCodes.put(KeyEvent.KEYCODE_NUMPAD_MULTIPLY, new KeyMap(NUMPAD, S("*"), null, S("\u001BOj"), null));
+        keyCodes.put(KeyEvent.KEYCODE_NUMPAD_SUBTRACT, new KeyMap(NUMPAD, S("-"), null, S("\u001BOm"), null));
+        keyCodes.put(KeyEvent.KEYCODE_NUMPAD_ADD, new KeyMap(NUMPAD, S("+"), null, S("\u001BOk"), null));
+        keyCodes.put(KeyEvent.KEYCODE_NUMPAD_DOT, new KeyMap(NUMPAD, S("."), null, S("\u001B[3~"), "\u001B[3;%d~"));
+        keyCodes.put(KeyEvent.KEYCODE_NUMPAD_COMMA, new KeyMap(NUMPAD, S(","), null, S("\u001BOl"), null));
+        keyCodes.put(KeyEvent.KEYCODE_NUMPAD_ENTER, new KeyMap(NUMPAD, new String[]{"\r", null, "\u001B\r"}, null, S("\u001BOM"), null));
+        keyCodes.put(KeyEvent.KEYCODE_NUMPAD_EQUALS, new KeyMap(NUMPAD, S("="), null, S("\u001BOX"), null));
+
         keyCodes.put(KeyEvent.KEYCODE_F1, new KeyMap(NONE, S("\u001BOP"), "\u001B[1;%dP", null, null));
         keyCodes.put(KeyEvent.KEYCODE_F2, new KeyMap(NONE, S("\u001BOQ"), "\u001B[1;%dQ", null, null));
         keyCodes.put(KeyEvent.KEYCODE_F3, new KeyMap(NONE, S("\u001BOR"), "\u001B[1;%dR", null, null));
