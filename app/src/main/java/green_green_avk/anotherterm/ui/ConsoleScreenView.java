@@ -73,11 +73,13 @@ public class ConsoleScreenView extends ScrollableView
         private PointF scrollPosition = null;
         private boolean resizeBufferXOnUi = true;
         private boolean resizeBufferYOnUi = true;
+        private boolean appHScrollEnabled = false;
 
         public void save(@NonNull final ConsoleScreenView v) {
             scrollPosition = v.scrollPosition;
             resizeBufferXOnUi = v.resizeBufferXOnUi;
             resizeBufferYOnUi = v.resizeBufferYOnUi;
+            appHScrollEnabled = v.appHScrollEnabled;
         }
 
         public void apply(@NonNull final ConsoleScreenView v) {
@@ -85,6 +87,7 @@ public class ConsoleScreenView extends ScrollableView
             v.scrollPosition.set(scrollPosition);
             v.resizeBufferXOnUi = resizeBufferXOnUi;
             v.resizeBufferYOnUi = resizeBufferYOnUi;
+            v.appHScrollEnabled = appHScrollEnabled;
             v.execOnScroll();
         }
     }
@@ -1132,9 +1135,18 @@ public class ConsoleScreenView extends ScrollableView
 
     private int getNextAppTextY(final float dY) {
         prevAppTextVScrollPos += dY;
-        final int lines = (int) prevAppTextVScrollPos;
-        prevAppTextVScrollPos -= lines;
-        return lines;
+        final int rows = (int) prevAppTextVScrollPos;
+        prevAppTextVScrollPos -= rows;
+        return rows;
+    }
+
+    private float prevAppTextHScrollPos = 0;
+
+    private int getNextAppTextX(final float dX) {
+        prevAppTextHScrollPos += dX;
+        final int cols = (int) prevAppTextHScrollPos;
+        prevAppTextHScrollPos -= cols;
+        return cols;
     }
 
     @NonNull
@@ -1142,18 +1154,46 @@ public class ConsoleScreenView extends ScrollableView
 
     private boolean wasAppTextScrolling = false;
 
+    private boolean appHScrollEnabled = false;
+
+    @CheckResult
+    public boolean isAppHScrollEnabled() {
+        return appHScrollEnabled;
+    }
+
+    public void setAppHScrollEnabled(final boolean appHScrollEnabled) {
+        this.appHScrollEnabled = appHScrollEnabled;
+    }
+
     @Override
     public boolean onScroll(final MotionEvent e1, final MotionEvent e2,
                             final float distanceX, final float distanceY) {
         if (consoleInput != null && consoleInput.consoleOutput != null &&
-                consoleInput.isAltBuf() && getRows() >= consoleInput.currScrBuf.getHeight()) {
-            if (scrollPosition.y != 0) {
-                scrollPosition.y = 0;
+                consoleInput.isAltBuf()) {
+            float bufDX = distanceX;
+            float bufDY = distanceY;
+            boolean invalidateScroll = false;
+            if (getRows() >= consoleInput.currScrBuf.getHeight()) {
+                if (scrollPosition.y != 0) {
+                    scrollPosition.y = 0;
+                    invalidateScroll = true;
+                }
+                bufDY = 0;
+                consoleInput.consoleOutput.vScroll(getNextAppTextY(distanceY / scrollScale.y));
+            }
+            if (appHScrollEnabled && getCols() >= consoleInput.currScrBuf.getWidth()) {
+                if (scrollPosition.x != 0) {
+                    scrollPosition.x = 0;
+                    invalidateScroll = true;
+                }
+                bufDX = 0;
+                consoleInput.consoleOutput.hScroll(getNextAppTextX(distanceX / scrollScale.x));
+            }
+            if (invalidateScroll) {
                 execOnScroll();
                 ViewCompat.postInvalidateOnAnimation(this);
             }
-            consoleInput.consoleOutput.vScroll(getNextAppTextY(distanceY / scrollScale.y));
-            return super.onScroll(e1, e2, distanceX, 0);
+            return (bufDY == 0 && bufDX == 0) || super.onScroll(e1, e2, bufDX, bufDY);
         }
         return super.onScroll(e1, e2, distanceX, distanceY);
     }
@@ -1162,15 +1202,38 @@ public class ConsoleScreenView extends ScrollableView
     public boolean onFling(final MotionEvent e1, final MotionEvent e2,
                            final float velocityX, final float velocityY) {
         if (consoleInput != null && consoleInput.consoleOutput != null &&
-                consoleInput.isAltBuf() && getRows() >= consoleInput.currScrBuf.getHeight()) {
-            if (scrollPosition.y != 0) {
-                scrollPosition.y = 0;
+                consoleInput.isAltBuf()) {
+            float bufDX = velocityX;
+            float bufDY = velocityY;
+            float appDX = 0;
+            float appDY = 0;
+            boolean invalidateScroll = false;
+            if (getRows() >= consoleInput.currScrBuf.getHeight()) {
+                if (scrollPosition.y != 0) {
+                    scrollPosition.y = 0;
+                    invalidateScroll = true;
+                }
+                bufDY = 0;
+                appDY = velocityY;
+            }
+            if (appHScrollEnabled && getCols() >= consoleInput.currScrBuf.getWidth()) {
+                if (scrollPosition.x != 0) {
+                    scrollPosition.x = 0;
+                    invalidateScroll = true;
+                }
+                bufDX = 0;
+                appDX = velocityX;
+            }
+            if (invalidateScroll) {
                 execOnScroll();
                 ViewCompat.postInvalidateOnAnimation(this);
             }
-            appTextScroller.forceFinished(true);
-            appTextScroller.fling(0, -(int) (velocityY / scrollScale.y));
-            return super.onFling(e1, e2, velocityX, 0);
+            if (appDY != 0 || appDX != 0) {
+                appTextScroller.forceFinished(true);
+                appTextScroller.fling(-(int) (appDX / scrollScale.x),
+                        -(int) (appDY / scrollScale.y));
+            }
+            return (bufDY == 0 && bufDX == 0) || super.onFling(e1, e2, bufDX, bufDY);
         }
         return super.onFling(e1, e2, velocityX, velocityY);
     }

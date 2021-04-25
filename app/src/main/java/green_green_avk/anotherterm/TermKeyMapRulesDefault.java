@@ -98,8 +98,10 @@ public final class TermKeyMapRulesDefault {
         keyCodes.put(KeyEvent.KEYCODE_F10, new KeyMap(NONE, S("\u001B[21~"), "\u001B[21;%d~", null, null));
         keyCodes.put(KeyEvent.KEYCODE_F11, new KeyMap(NONE, S("\u001B[23~"), "\u001B[23;%d~", null, null));
         keyCodes.put(KeyEvent.KEYCODE_F12, new KeyMap(NONE, S("\u001B[24~"), "\u001B[24;%d~", null, null));
-        keyCodes.put(TermKeyMap.KEYCODE_SCROLL_SCREEN_UP, new KeyMap(CURSOR, S("\u001B[A"), null, S("\u001BOA"), null));
-        keyCodes.put(TermKeyMap.KEYCODE_SCROLL_SCREEN_DOWN, new KeyMap(CURSOR, S("\u001B[B"), null, S("\u001BOB"), null));
+        keyCodes.put(TermKeyMap.KEYCODE_APP_SCROLL_UP, new KeyMap(CURSOR, S("\u001B[A"), null, S("\u001BOA"), null));
+        keyCodes.put(TermKeyMap.KEYCODE_APP_SCROLL_DOWN, new KeyMap(CURSOR, S("\u001B[B"), null, S("\u001BOB"), null));
+        keyCodes.put(TermKeyMap.KEYCODE_APP_SCROLL_LEFT, new KeyMap(CURSOR, S("\u001B[D"), null, S("\u001BOD"), null));
+        keyCodes.put(TermKeyMap.KEYCODE_APP_SCROLL_RIGHT, new KeyMap(CURSOR, S("\u001B[C"), null, S("\u001BOC"), null));
 
         final Set<Integer> _supportedKeys = new HashSet<>();
         for (int i = 0; i < keyCodes.size(); ++i) {

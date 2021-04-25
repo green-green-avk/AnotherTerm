@@ -278,6 +278,7 @@
     <string name="action_generate_token">Generate token</string>
     <string name="action_remove_token">Remove token</string>
     <string name="label_keep_screen_on">Keep Screen On</string>
+    <string name="label_horizontal_app_scrolling">Horizontal app scrolling</string>
     <string name="label_use_system_software_keyboard_by_default">Use system software keyboard by default</string>
     <string name="action_settings_hardware_keys_mapping">Hardware keys mapping</string>
     <string name="note_hw_key_map"><![CDATA[

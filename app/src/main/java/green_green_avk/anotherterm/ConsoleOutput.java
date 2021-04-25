@@ -172,12 +172,20 @@ public final class ConsoleOutput {
         feed(bracketedPasteMode ? csi() + "200~" + v + csi() + "201~" : v);
     }
 
-    public void vScroll(int lines) {
-        if (lines == 0) return;
-        if (lines < 0) while (lines++ < 0)
-            feed(TermKeyMap.KEYCODE_SCROLL_SCREEN_UP, false, false, false);
-        else while (lines-- > 0)
-            feed(TermKeyMap.KEYCODE_SCROLL_SCREEN_DOWN, false, false, false);
+    public void vScroll(int rows) {
+        if (rows == 0) return;
+        if (rows < 0) while (rows++ < 0)
+            feed(TermKeyMap.KEYCODE_APP_SCROLL_UP, false, false, false);
+        else while (rows-- > 0)
+            feed(TermKeyMap.KEYCODE_APP_SCROLL_DOWN, false, false, false);
+    }
+
+    public void hScroll(int cols) {
+        if (cols == 0) return;
+        if (cols < 0) while (cols++ < 0)
+            feed(TermKeyMap.KEYCODE_APP_SCROLL_LEFT, false, false, false);
+        else while (cols-- > 0)
+            feed(TermKeyMap.KEYCODE_APP_SCROLL_RIGHT, false, false, false);
     }
 
     public boolean isMouseSupported() {

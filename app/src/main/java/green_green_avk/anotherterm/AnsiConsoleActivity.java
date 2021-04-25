@@ -410,9 +410,11 @@ public final class AnsiConsoleActivity extends ConsoleActivity
 
     private void refreshMenuPopup() {
         if (menuPopupWindow == null || !menuPopupWindow.isShowing()) return;
+        final View popupView = menuPopupWindow.getContentView();
+        popupView.<CompoundButton>findViewById(R.id.horizontal_app_scrolling)
+                .setChecked(mCsv.isAppHScrollEnabled());
         if (mSession != null) {
             final BackendModule be = mSession.backend.wrapped;
-            final View popupView = menuPopupWindow.getContentView();
             popupView.<CompoundButton>findViewById(R.id.wakelock).setChecked(be.isWakeLockHeld());
             popupView.<CompoundButton>findViewById(R.id.keep_screen_on)
                     .setChecked(mSession.uiState.keepScreenOn);
@@ -734,6 +736,12 @@ public final class AnsiConsoleActivity extends ConsoleActivity
         applyKeepScreenOn();
         if (view instanceof Checkable)
             ((Checkable) view).setChecked(mSession.uiState.keepScreenOn);
+    }
+
+    public void onMenuToggleHorizontalAppScrolling(final View view) {
+        mCsv.setAppHScrollEnabled(!mCsv.isAppHScrollEnabled());
+        if (view instanceof Checkable)
+            ((Checkable) view).setChecked(mCsv.isAppHScrollEnabled());
     }
 
     public void onMenuTerminate(final View view) {

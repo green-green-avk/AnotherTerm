@@ -87,6 +87,29 @@
 
     </LinearLayout>
 
+    <LinearLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="0.5dp"
+        android:background="@drawable/bg_console_menu"
+        android:gravity="right"
+        android:orientation="horizontal">
+
+        <CheckBox
+            android:id="@+id/horizontal_app_scrolling"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:gravity="center_vertical"
+            android:minHeight="@dimen/uiOptionSize"
+            android:onClick="onMenuToggleHorizontalAppScrolling"
+            android:paddingLeft="@dimen/text_separator"
+            android:paddingRight="@dimen/text_separator"
+            android:text="@string/label_horizontal_app_scrolling"
+            android:textColor="?android:attr/colorBackground"
+            app:buttonTint="@android:color/background_light" />
+
+    </LinearLayout>
+
     <FrameLayout
         android:layout_width="wrap_content"
         android:layout_height="4dp"

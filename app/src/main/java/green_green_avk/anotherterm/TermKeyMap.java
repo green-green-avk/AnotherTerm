@@ -17,9 +17,12 @@ public class TermKeyMap implements TermKeyMapRules {
 
     public static final int MODIFIERS_SIZE = 8;
 
-    public static final int KEYCODE_SCROLL_SCREEN_UP = KeyEvent.getMaxKeyCode() + 1;
-    public static final int KEYCODE_SCROLL_SCREEN_DOWN = KeyEvent.getMaxKeyCode() + 2;
-    public static final int KEYCODES_COUNT = KeyEvent.getMaxKeyCode() + 3;
+    public static final int KEYCODE_USER_RANGE = 384;
+    public static final int KEYCODE_APP_SCROLL_UP = KEYCODE_USER_RANGE;
+    public static final int KEYCODE_APP_SCROLL_DOWN = KEYCODE_USER_RANGE + 1;
+    public static final int KEYCODE_APP_SCROLL_LEFT = KEYCODE_USER_RANGE + 2;
+    public static final int KEYCODE_APP_SCROLL_RIGHT = KEYCODE_USER_RANGE + 3;
+    public static final int KEYCODES_COUNT = KEYCODE_USER_RANGE + 4;
 
     private static final class KeyMap {
         public int appMode;
@@ -146,8 +149,10 @@ public class TermKeyMap implements TermKeyMapRules {
     static {
         keyLabels.put(KeyEvent.KEYCODE_DEL, "BACKSPACE");
         keyLabels.put(KeyEvent.KEYCODE_FORWARD_DEL, "DELETE");
-        keyLabels.put(KEYCODE_SCROLL_SCREEN_UP, "Scroll screen up (alt. buffer only)");
-        keyLabels.put(KEYCODE_SCROLL_SCREEN_DOWN, "Scroll screen down (alt. buffer only)");
+        keyLabels.put(KEYCODE_APP_SCROLL_UP, "On scroll up (alt. buffer only)");
+        keyLabels.put(KEYCODE_APP_SCROLL_DOWN, "On scroll down (alt. buffer only)");
+        keyLabels.put(KEYCODE_APP_SCROLL_LEFT, "On scroll left (alt. buffer only)");
+        keyLabels.put(KEYCODE_APP_SCROLL_RIGHT, "On scroll right (alt. buffer only)");
     }
 
     @NonNull
