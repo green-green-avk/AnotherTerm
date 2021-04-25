@@ -12,6 +12,7 @@ public final class InputTokenizer
     private static final int SEQ_MAXLEN = 256;
 
     public boolean _8BitMode = true;
+    public boolean vt52Mode = false;
 
     public static final class Token {
         public enum Type {
@@ -117,9 +118,49 @@ public final class InputTokenizer
         mPos = pos;
     }
 
+    private void getVT52() {
+        int pos = mPos;
+        while (mBufArr[pos] > 0x1F && mBufArr[pos] != 0x7F) {
+            if (++pos >= mEnd) {
+                mType = Token.Type.TEXT;
+                setTextEnd(mEnd);
+                return;
+            }
+        }
+        if (pos > mPos) {
+            mType = Token.Type.TEXT;
+            mToken = Compat.subSequence(mBuf, mPos, pos);
+            mPos = pos;
+            return;
+        }
+        if (mBufArr[pos] != '\u001B') {
+            mType = Token.Type.CTL;
+            found(pos);
+            return;
+        }
+        mType = Token.Type.ESC;
+        ++pos;
+        if (pos >= mEnd) {
+            mToken = null;
+            return;
+        }
+        if (mBufArr[pos] == 'Y') {
+            pos += 2;
+            if (pos >= mEnd) {
+                mToken = null;
+                return;
+            }
+        }
+        found(pos);
+    }
+
     private void getNext() {
         if (mPos >= mEnd) {
             mToken = null;
+            return;
+        }
+        if (vt52Mode) {
+            getVT52();
             return;
         }
         int pos = mPos;

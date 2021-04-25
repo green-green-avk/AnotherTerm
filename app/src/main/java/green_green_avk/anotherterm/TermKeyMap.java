@@ -22,7 +22,11 @@ public class TermKeyMap implements TermKeyMapRules {
     public static final int KEYCODE_APP_SCROLL_DOWN = KEYCODE_USER_RANGE + 1;
     public static final int KEYCODE_APP_SCROLL_LEFT = KEYCODE_USER_RANGE + 2;
     public static final int KEYCODE_APP_SCROLL_RIGHT = KEYCODE_USER_RANGE + 3;
-    public static final int KEYCODES_COUNT = KEYCODE_USER_RANGE + 4;
+    public static final int KEYCODES_SET_MASK = 0x1FF;
+    public static final int KEYCODES_SET_COUNT = KEYCODES_SET_MASK + 1;
+    public static final int KEYCODES_COUNT = KEYCODES_SET_COUNT * 2;
+    public static final int KEYCODES_VT52 = KEYCODES_SET_COUNT;
+    public static final int KEYCODE_LINEFEED = KEYCODE_USER_RANGE + 0x10; // VT52
 
     private static final class KeyMap {
         public int appMode;
@@ -153,15 +157,19 @@ public class TermKeyMap implements TermKeyMapRules {
         keyLabels.put(KEYCODE_APP_SCROLL_DOWN, "On scroll down (alt. buffer only)");
         keyLabels.put(KEYCODE_APP_SCROLL_LEFT, "On scroll left (alt. buffer only)");
         keyLabels.put(KEYCODE_APP_SCROLL_RIGHT, "On scroll right (alt. buffer only)");
+        keyLabels.put(KEYCODE_LINEFEED, "Line Feed");
     }
 
     @NonNull
     public static String keyCodeToString(final int code) {
-        String label = keyLabels.get(code);
+        final int kc = code & KEYCODES_SET_MASK;
+        String label = keyLabels.get(kc);
         if (label == null) {
-            label = keyLabelsP.matcher(KeyEvent.keyCodeToString(code)).replaceFirst("")
+            label = keyLabelsP.matcher(KeyEvent.keyCodeToString(kc)).replaceFirst("")
                     .replace('_', ' ');
         }
+        if ((code & KEYCODES_VT52) != 0)
+            label += " (VT52)";
         return label;
     }
 }

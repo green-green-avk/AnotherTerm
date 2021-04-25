@@ -277,6 +277,25 @@
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
+                        android:labelFor="@id/fav_term_compliance"
+                        android:text="@string/label_term_compliance" />
+
+                    <Spinner
+                        android:id="@+id/fav_term_compliance"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:entries="@array/labels_term_compliance" />
+
+                </TableRow>
+
+                <TableRow
+                    android:gravity="center_vertical"
+                    android:minHeight="@dimen/settings_row_minHeight">
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
                         android:labelFor="@id/fav_charset"
                         android:text="@string/label_charset" />
 

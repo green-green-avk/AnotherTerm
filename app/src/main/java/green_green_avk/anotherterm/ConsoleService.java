@@ -146,6 +146,10 @@ public final class ConsoleService extends Service {
         }
         final ConsoleInput ci = new ConsoleInput();
         final ConsoleOutput co = new ConsoleOutput();
+        ci.consoleOutput = co;
+        final String termComplianceStr = (String) cp.get("term_compliance");
+        ci.setComplianceLevel("vt52compat".equals(termComplianceStr) ?
+                0 : ConsoleInput.defaultComplianceLevel);
         final String charsetStr = (String) cp.get("charset");
         try {
             final Charset charset =
@@ -211,7 +215,6 @@ public final class ConsoleService extends Service {
                 tbe.getUi().showMessage(m);
             }
         });
-        ci.consoleOutput = co;
         ci.backendModule = be;
         co.backendModule = be;
 

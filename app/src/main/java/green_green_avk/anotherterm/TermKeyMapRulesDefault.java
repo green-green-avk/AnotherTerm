@@ -19,6 +19,8 @@ public final class TermKeyMapRulesDefault {
     private static final int NUMPAD = TermKeyMap.APP_MODE_NUMPAD;
     private static final int DECBKM = TermKeyMap.APP_MODE_DECBKM;
 
+    private static final int VT52 = TermKeyMap.KEYCODES_VT52;
+
     private static final class KeyMap {
         public final int appMode;
         @Nullable
@@ -102,6 +104,43 @@ public final class TermKeyMapRulesDefault {
         keyCodes.put(TermKeyMap.KEYCODE_APP_SCROLL_DOWN, new KeyMap(CURSOR, S("\u001B[B"), null, S("\u001BOB"), null));
         keyCodes.put(TermKeyMap.KEYCODE_APP_SCROLL_LEFT, new KeyMap(CURSOR, S("\u001B[D"), null, S("\u001BOD"), null));
         keyCodes.put(TermKeyMap.KEYCODE_APP_SCROLL_RIGHT, new KeyMap(CURSOR, S("\u001B[C"), null, S("\u001BOC"), null));
+
+        keyCodes.put(KeyEvent.KEYCODE_ESCAPE | VT52, new KeyMap(NONE, S("\u001B"), null, null, null));
+
+        keyCodes.put(KeyEvent.KEYCODE_DPAD_UP | VT52, new KeyMap(CURSOR, S("\u001BA"), null, null, null));
+        keyCodes.put(KeyEvent.KEYCODE_DPAD_DOWN | VT52, new KeyMap(CURSOR, S("\u001BB"), null, null, null));
+        keyCodes.put(KeyEvent.KEYCODE_DPAD_LEFT | VT52, new KeyMap(CURSOR, S("\u001BD"), null, null, null));
+        keyCodes.put(KeyEvent.KEYCODE_DPAD_RIGHT | VT52, new KeyMap(CURSOR, S("\u001BC"), null, null, null));
+
+        keyCodes.put(KeyEvent.KEYCODE_SPACE | VT52, new KeyMap(NONE, new String[]{" ", null, null, null, "\0"}, null, null, null));
+        keyCodes.put(KeyEvent.KEYCODE_TAB | VT52, new KeyMap(NONE, S("\t"), null, null, null));
+        keyCodes.put(KeyEvent.KEYCODE_ENTER | VT52, new KeyMap(NONE, S("\r"), null, null, null));
+        keyCodes.put(KeyEvent.KEYCODE_DEL | VT52, new KeyMap(DECBKM, S("\b"), null, null, null));
+
+        keyCodes.put(KeyEvent.KEYCODE_FORWARD_DEL | VT52, new KeyMap(NONE, S("\u007F"), null, null, null));
+
+        keyCodes.put(TermKeyMap.KEYCODE_LINEFEED | VT52, new KeyMap(NONE, S("\n"), null, null, null));
+
+        keyCodes.put(KeyEvent.KEYCODE_NUMPAD_0 | VT52, new KeyMap(NUMPAD, S("0"), null, S("\u001B?p"), null));
+        keyCodes.put(KeyEvent.KEYCODE_NUMPAD_1 | VT52, new KeyMap(NUMPAD, S("1"), null, S("\u001B?q"), null));
+        keyCodes.put(KeyEvent.KEYCODE_NUMPAD_2 | VT52, new KeyMap(NUMPAD, S("2"), null, S("\u001B?r"), null));
+        keyCodes.put(KeyEvent.KEYCODE_NUMPAD_3 | VT52, new KeyMap(NUMPAD, S("3"), null, S("\u001B?s"), null));
+        keyCodes.put(KeyEvent.KEYCODE_NUMPAD_4 | VT52, new KeyMap(NUMPAD, S("4"), null, S("\u001B?t"), null));
+        keyCodes.put(KeyEvent.KEYCODE_NUMPAD_5 | VT52, new KeyMap(NUMPAD, S("5"), null, S("\u001B?u"), null));
+        keyCodes.put(KeyEvent.KEYCODE_NUMPAD_6 | VT52, new KeyMap(NUMPAD, S("6"), null, S("\u001B?v"), null));
+        keyCodes.put(KeyEvent.KEYCODE_NUMPAD_7 | VT52, new KeyMap(NUMPAD, S("7"), null, S("\u001B?w"), null));
+        keyCodes.put(KeyEvent.KEYCODE_NUMPAD_8 | VT52, new KeyMap(NUMPAD, S("8"), null, S("\u001B?x"), null));
+        keyCodes.put(KeyEvent.KEYCODE_NUMPAD_9 | VT52, new KeyMap(NUMPAD, S("9"), null, S("\u001B?y"), null));
+        keyCodes.put(KeyEvent.KEYCODE_NUMPAD_DOT | VT52, new KeyMap(NUMPAD, S("."), null, S("\u001B?n"), null));
+        keyCodes.put(KeyEvent.KEYCODE_NUMPAD_ENTER | VT52, new KeyMap(NUMPAD, S("\r"), null, S("\u001B?M"), null));
+
+        keyCodes.put(KeyEvent.KEYCODE_F1 | VT52, new KeyMap(NONE, S("\u001BP"), null, null, null));
+        keyCodes.put(KeyEvent.KEYCODE_F2 | VT52, new KeyMap(NONE, S("\u001BQ"), null, null, null));
+        keyCodes.put(KeyEvent.KEYCODE_F3 | VT52, new KeyMap(NONE, S("\u001BR"), null, null, null));
+        keyCodes.put(TermKeyMap.KEYCODE_APP_SCROLL_UP | VT52, new KeyMap(CURSOR, S("\u001BA"), null, null, null));
+        keyCodes.put(TermKeyMap.KEYCODE_APP_SCROLL_DOWN | VT52, new KeyMap(CURSOR, S("\u001BB"), null, null, null));
+        keyCodes.put(TermKeyMap.KEYCODE_APP_SCROLL_LEFT | VT52, new KeyMap(CURSOR, S("\u001BD"), null, null, null));
+        keyCodes.put(TermKeyMap.KEYCODE_APP_SCROLL_RIGHT | VT52, new KeyMap(CURSOR, S("\u001BC"), null, null, null));
 
         final Set<Integer> _supportedKeys = new HashSet<>();
         for (int i = 0; i < keyCodes.size(); ++i) {

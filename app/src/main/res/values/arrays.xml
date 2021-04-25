@@ -41,4 +41,9 @@
         <item>default</item>
         <item>wide</item>
     </string-array>
+
+    <string-array name="labels_term_compliance">
+        <item>@string/label_term_compliance_ansi</item>
+        <item>@string/label_term_compliance_vt52compat</item>
+    </string-array>
 </resources>

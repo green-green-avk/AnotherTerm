@@ -2,6 +2,7 @@ package green_green_avk.anotherterm;
 
 import android.view.MotionEvent;
 
+import androidx.annotation.AnyRes;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
@@ -23,6 +24,7 @@ public final class ConsoleOutput {
     @NonNull
     private Charset charset = Charset.defaultCharset();
     private boolean _8BitMode = false;
+    private boolean _vt52 = false;
     @NonNull
     private TermKeyMapRules keyMap = TermKeyMapManager.defaultKeyMap;
     @Nullable
@@ -56,6 +58,14 @@ public final class ConsoleOutput {
         _8BitMode = v;
     }
 
+    public boolean getVt52() {
+        return _vt52;
+    }
+
+    public void setVt52(final boolean _vt52) {
+        this._vt52 = _vt52;
+    }
+
     @NonNull
     public TermKeyMapRules getKeyMap() {
         return keyMap;
@@ -67,22 +77,22 @@ public final class ConsoleOutput {
 
     @NonNull
     public String csi() {
-        return _8BitMode ? "\u009B" : "\u001B[";
+        return _8BitMode && !_vt52 ? "\u009B" : "\u001B[";
     }
 
     @NonNull
     public String st() {
-        return _8BitMode ? "\u009C" : "\u001B\\";
+        return _8BitMode && !_vt52 ? "\u009C" : "\u001B\\";
     }
 
     @NonNull
     public String osc() {
-        return _8BitMode ? "\u009D" : "\u001B]";
+        return _8BitMode && !_vt52 ? "\u009D" : "\u001B]";
     }
 
     @NonNull
     private String fixC1(@NonNull final String v) {
-        if (!_8BitMode)
+        if (_vt52 || !_8BitMode)
             return v;
         int p;
         p = v.indexOf('\u001B');
@@ -112,8 +122,14 @@ public final class ConsoleOutput {
         final int appMode = (appCursorKeys ? TermKeyMap.APP_MODE_CURSOR : 0)
                 | (appNumKeys ? TermKeyMap.APP_MODE_NUMPAD : 0)
                 | (appDECBKM ? TermKeyMap.APP_MODE_DECBKM : 0);
-        final String r = keyMap.get(code, modifiers, appMode);
+        final String r = keyMap.get(_vt52 ? code | TermKeyMap.KEYCODES_VT52 : code,
+                modifiers, appMode);
         return r != null ? fixC1(r) : null;
+    }
+
+    @AnyRes
+    public int getLayoutRes() {
+        return _vt52 ? R.array.vt52_keyboard : R.array.ansi_keyboard;
     }
 
     @Nullable
@@ -189,7 +205,8 @@ public final class ConsoleOutput {
     }
 
     public boolean isMouseSupported() {
-        return mouseTracking != MouseTracking.NONE && mouseTracking != MouseTracking.HIGHLIGHT;
+        return mouseTracking != MouseTracking.NONE && mouseTracking != MouseTracking.HIGHLIGHT &&
+                !_vt52;
     }
 
     private boolean mHasMouseFocus = false;
@@ -202,7 +219,7 @@ public final class ConsoleOutput {
         if (v == mHasMouseFocus)
             return;
         mHasMouseFocus = v;
-        if (mouseFocusInOut)
+        if (mouseFocusInOut && !_vt52)
             if (v)
                 feed(csi() + "I");
             else

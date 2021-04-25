@@ -22,8 +22,10 @@ import androidx.appcompat.app.AppCompatActivity;
 
 import java.io.Serializable;
 import java.nio.charset.Charset;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
@@ -39,6 +41,8 @@ import green_green_avk.anotherterm.utils.RawPreferenceUiWrapper;
 public final class FavoriteEditorActivity extends AppCompatActivity {
     private static final int INITIAL_TYPE_ID = 0;
 
+    private static final List<String> TERM_COMPLIANCE_KEYS = Arrays.asList("ansi", "vt52compat");
+
     private final RawPreferenceUiWrapper mPrefs = new RawPreferenceUiWrapper();
     private ViewGroup mContainer;
     private EditText mNameW;
@@ -48,6 +52,7 @@ public final class FavoriteEditorActivity extends AppCompatActivity {
     private CompoundButton mTerminateOD;
     private CompoundButton mWakeLockAOC;
     private CompoundButton mWakeLockROD;
+    private Spinner mTermCompliance;
     private Spinner mCharsetW;
     private Spinner mKeyMapW;
     private Spinner mTypeW;
@@ -253,6 +258,7 @@ public final class FavoriteEditorActivity extends AppCompatActivity {
         final String token = mTokenW.getText().toString();
         if (token.length() >= ControlService.FAV_TOKEN_LENGTH_MIN)
             ps.put(ControlService.FAV_TOKEN_KEY, token);
+        ps.put("term_compliance", TERM_COMPLIANCE_KEYS.get(mTermCompliance.getSelectedItemPosition()));
         ps.put("charset", C.charsetList.get(mCharsetW.getSelectedItemPosition()));
         ps.put("keymap", ((TermKeyMapManager.Meta) mKeyMapW.getSelectedItem()).name);
         ps.put("screen_cols", getSize(mScrColsW));
@@ -345,6 +351,12 @@ public final class FavoriteEditorActivity extends AppCompatActivity {
         mTerminateOD.setChecked(BooleanCaster.CAST(mPrefsSt.get("terminate.on_disconnect")));
         mWakeLockAOC.setChecked(BooleanCaster.CAST(mPrefsSt.get("wakelock.acquire_on_connect")));
         mWakeLockROD.setChecked(BooleanCaster.CAST(mPrefsSt.get("wakelock.release_on_disconnect")));
+        final Object termCompliance = mPrefsSt.get("term_compliance");
+        if (termCompliance != null) {
+            final int pos = TERM_COMPLIANCE_KEYS.indexOf(termCompliance.toString());
+            if (pos >= 0)
+                mTermCompliance.setSelection(pos);
+        }
         final Object charset = mPrefsSt.get("charset");
         if (charset != null) {
             final int pos = C.charsetList.indexOf(charset.toString());
@@ -484,6 +496,7 @@ public final class FavoriteEditorActivity extends AppCompatActivity {
         mWakeLockAOC = findViewById(R.id.fav_wakelock_acquire_on_connect);
         mWakeLockROD = findViewById(R.id.fav_wakelock_release_on_disconnect);
 
+        mTermCompliance = findViewById(R.id.fav_term_compliance);
         mCharsetW = findViewById(R.id.fav_charset);
         mKeyMapW = findViewById(R.id.fav_keymap);
         mTypeW = findViewById(R.id.fav_type);
@@ -491,6 +504,7 @@ public final class FavoriteEditorActivity extends AppCompatActivity {
         mTokenFG = findViewById(R.id.g_f_token);
         mTokenW = findViewById(R.id.fav_token);
 
+        mTermCompliance.setSaveEnabled(false);
         mCharsetW.setSaveEnabled(false);
         mKeyMapW.setSaveEnabled(false);
         mTypeW.setSaveEnabled(false);
@@ -524,6 +538,7 @@ public final class FavoriteEditorActivity extends AppCompatActivity {
         lNeedSave.adoptView(mWakeLockAOC);
         lNeedSave.adoptView(mWakeLockROD);
 
+        lNeedSaveDelayed.adoptView(mTermCompliance);
         lNeedSaveDelayed.adoptView(mCharsetW);
         lNeedSaveDelayed.adoptView(mKeyMapW);
 

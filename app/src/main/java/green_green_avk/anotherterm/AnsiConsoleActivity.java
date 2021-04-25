@@ -417,6 +417,10 @@ public final class AnsiConsoleActivity extends ConsoleActivity
             popupView.<CompoundButton>findViewById(R.id.wakelock).setChecked(be.isWakeLockHeld());
             popupView.<CompoundButton>findViewById(R.id.keep_screen_on)
                     .setChecked(mSession.uiState.keepScreenOn);
+            popupView.<TextView>findViewById(R.id.term_compliance)
+                    .setText(mSession.input.getComplianceLevel() == 0 ?
+                            R.string.label_term_compliance_vt52compat :
+                            R.string.label_term_compliance_ansi);
             popupView.<TextView>findViewById(R.id.charset)
                     .setText(mSession.output.getCharset().name());
             popupView.<TextView>findViewById(R.id.keymap)
@@ -565,6 +569,25 @@ public final class AnsiConsoleActivity extends ConsoleActivity
 
     public void onMenu(final View v) {
         showMenuPopup(v);
+    }
+
+    public void onMenuTermCompliance(final View view) {
+        if (mSession == null) return;
+        final int p = mSession.input.getComplianceLevel() == 0 ? 1 : 0;
+        final ArrayAdapter<String> a = new ArrayAdapter<>(this,
+                R.layout.dialogmenu_entry, new String[]{
+                getString(R.string.label_term_compliance_ansi),
+                getString(R.string.label_term_compliance_vt52compat)
+        });
+        new AlertDialog.Builder(this)
+                .setSingleChoiceItems(a, p, (dialog, which) -> {
+                    if (mSession == null) return;
+                    mSession.input.setComplianceLevel(which == 1 ?
+                            0 : ConsoleInput.defaultComplianceLevel);
+                    mSession.input.invalidateSink();
+                    refreshMenuPopup();
+                    dialog.dismiss();
+                }).setCancelable(true).show();
     }
 
     public void onMenuCharset(final View view) {

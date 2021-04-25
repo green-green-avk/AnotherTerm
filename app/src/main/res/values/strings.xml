@@ -313,4 +313,7 @@
     <string name="label_key_block">Block</string>
     <string name="label_key_bypass">Bypass</string>
     <string name="label_keep_terminal_activities_on_the_recents_screen">Keep terminal activities on the Recents screen</string>
+    <string name="label_term_compliance">Compliance</string>
+    <string name="label_term_compliance_ansi">ANSI</string>
+    <string name="label_term_compliance_vt52compat">VT52 Compat</string>
 </resources>

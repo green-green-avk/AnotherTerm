@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <array name="ansi_keyboard">
+        <item>@xml/ansi_keyboard_narrow</item>
+        <item>@xml/ansi_keyboard_wide</item>
+    </array>
+
+    <array name="vt52_keyboard">
+        <item>@xml/vt52_keyboard_narrow</item>
+        <item>@xml/vt52_keyboard_wide</item>
+    </array>
+</resources>

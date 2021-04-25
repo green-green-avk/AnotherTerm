@@ -5,6 +5,7 @@ import android.app.Activity;
 import android.content.Context;
 import android.content.res.Configuration;
 import android.content.res.Resources;
+import android.content.res.TypedArray;
 import android.graphics.Rect;
 import android.inputmethodservice.KeyboardView;
 import android.os.Build;
@@ -23,6 +24,7 @@ import android.view.inputmethod.InputMethodManager;
 import android.widget.PopupWindow;
 import android.widget.TextView;
 
+import androidx.annotation.AnyRes;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
@@ -50,6 +52,9 @@ public class ConsoleKeyboardView extends ExtKeyboardView implements
     @NonNull
     private HwKeyMap hwKeyMap = HwKeyMap.DEFAULT;
     private int hwDoubleKeyPressInterval = 500; // [ms]
+
+    @AnyRes
+    private int layoutRes = R.array.ansi_keyboard;
 
     public static class State {
         private boolean init = false;
@@ -119,19 +124,32 @@ public class ConsoleKeyboardView extends ExtKeyboardView implements
                 invalidateModifierKeys(KeyEvent.KEYCODE_SCROLL_LOCK);
             }
         }
+        if (consoleOutput != null) {
+            setLayoutRes(consoleOutput.getLayoutRes());
+        }
     }
 
     @Override
     public void onInvalidateSinkResize(final int cols, final int rows) {
     }
 
+    @SuppressLint("ResourceType")
     private void applyConfig(@NonNull final Configuration cfg) {
         final Resources res = getContext().getResources();
+        final int layoutNarrow;
+        final int layoutWide;
+        final TypedArray layouts = res.obtainTypedArray(layoutRes);
+        try {
+            layoutNarrow = layouts.getResourceId(0, 0);
+            layoutWide = layouts.getResourceId(1, 0);
+        } finally {
+            layouts.recycle();
+        }
         final float keyW = cfg.screenWidthDp / cfg.fontScale / 20;
         final int kbdRes =
                 keyW >= res.getDimension(R.dimen.kbd_key_size)
                         / res.getDisplayMetrics().scaledDensity
-                        ? R.xml.console_keyboard_wide : R.xml.console_keyboard;
+                        ? layoutWide : layoutNarrow;
         final ExtKeyboard.Configuration kc = new ExtKeyboard.Configuration();
         kc.keyHeight = (int) (keyHeightDp * res.getDisplayMetrics().density);
         setKeyboard(new ExtKeyboard(getContext(), kbdRes, kc));
@@ -165,6 +183,18 @@ public class ConsoleKeyboardView extends ExtKeyboardView implements
             this.keyHeightDp = v;
             if (getWindowToken() != null) // if attached
                 applyConfig(getResources().getConfiguration());
+        }
+    }
+
+    @AnyRes
+    public int getLayoutRes() {
+        return layoutRes;
+    }
+
+    public void setLayoutRes(@AnyRes final int v) {
+        if (v != 0 && layoutRes != v) {
+            layoutRes = v;
+            applyConfig(getResources().getConfiguration());
         }
     }
 

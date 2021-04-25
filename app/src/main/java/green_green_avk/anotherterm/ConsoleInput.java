@@ -38,6 +38,8 @@ import green_green_avk.anotherterm.utils.Unicode;
 public final class ConsoleInput implements BytesSink {
     private static final boolean LOG_UNKNOWN_ESC = false; // BuildConfig.DEBUG
 
+    public static final int defaultComplianceLevel = 2;
+
     public ConsoleOutput consoleOutput = null;
     public EventBasedBackendModuleWrapper backendModule = null;
     public ConsoleScreenBuffer currScrBuf;
@@ -53,16 +55,19 @@ public final class ConsoleInput implements BytesSink {
     public boolean cursorVisibility = true; // DECTECM
     public int defaultTabLength = 8;
     public final TreeSet<Integer> tabPositions = new TreeSet<>();
-    public final char[][] decGxCharsets = new char[][]{null, null, null, null};
+    public final DecTerminalCharsets.Table[] decGxCharsets =
+            new DecTerminalCharsets.Table[]{null, null, null, null};
     public int decGlCharset = 0;
+    public boolean vt52GraphMode = false;
 
     private final ConsoleScreenCharAttrs mSavedCurrAttrs = new ConsoleScreenCharAttrs();
-    private final char[][] mSavedDecGxCharsets = new char[][]{null, null, null, null};
+    private final DecTerminalCharsets.Table[] mSavedDecGxCharsets =
+            new DecTerminalCharsets.Table[]{null, null, null, null};
     private int mSavedDecGlCharset = 0;
 
     private String lastSymbol = null;
 
-    private int complianceLevel = 2;
+    private int complianceLevel = defaultComplianceLevel;
 
     public boolean numLed = false;
     public boolean capsLed = false;
@@ -84,6 +89,11 @@ public final class ConsoleInput implements BytesSink {
         altScrBuf.setOnScroll(h);
         currScrBuf = mainScrBuf;
         setCharset(Charset.defaultCharset());
+    }
+
+    private void sendBack(@NonNull final String v) {
+        if (consoleOutput != null)
+            consoleOutput.feed(v);
     }
 
     private void sendBackCsi(@NonNull final String v) {
@@ -109,6 +119,9 @@ public final class ConsoleInput implements BytesSink {
      */
     public void setComplianceLevel(final int level) {
         complianceLevel = level;
+        mInputTokenizer.vt52Mode = level == 0;
+        if (consoleOutput != null)
+            consoleOutput.setVt52(mInputTokenizer.vt52Mode);
         if (level > 1) {
             set8BitMode(true);
         } else {
@@ -336,7 +349,12 @@ public final class ConsoleInput implements BytesSink {
 
     private void putText(@NonNull final CharSequence v) {
         currScrBuf.setCurrentAttrs(mCurrAttrs);
-        final CharSequence text = DecTerminalCharsets.translate(v, decGxCharsets[decGlCharset]);
+        final DecTerminalCharsets.Table table;
+        if (mInputTokenizer.vt52Mode)
+            table = vt52GraphMode ? DecTerminalCharsets.vt52Graphics : null;
+        else
+            table = decGxCharsets[decGlCharset];
+        final CharSequence text = DecTerminalCharsets.translate(v, table);
         if (text.length() <= 0)
             return;
         final String ls = Unicode.getLastSymbol(text);
@@ -357,6 +375,122 @@ public final class ConsoleInput implements BytesSink {
                 mInputTokenizer.tokenize(mStrConv);
                 for (final InputTokenizer.Token t : mInputTokenizer) {
 //                    Log.v("CtrlSeq/Note", t.type + ": " + t.value.toString());
+                    if (mInputTokenizer.vt52Mode) {
+                        switch (t.type) {
+                            case ESC:
+                                switch (t.value.charAt(1)) {
+                                    case 'A':
+                                        currScrBuf.movePosY(-1);
+                                        break;
+                                    case 'B':
+                                        currScrBuf.movePosY(1);
+                                        break;
+                                    case 'C':
+                                        currScrBuf.movePosX(1);
+                                        break;
+                                    case 'D':
+                                        currScrBuf.movePosX(-1);
+                                        break;
+                                    case 'F':
+                                        vt52GraphMode = true;
+                                        break;
+                                    case 'G':
+                                        vt52GraphMode = false;
+                                        break;
+                                    case 'H':
+                                        currScrBuf.setPosY(0);
+                                        currScrBuf.setPosX(0);
+                                        break;
+                                    case 'I':
+                                        ri();
+                                        break;
+                                    case 'J':
+                                        currScrBuf.eraseBelow();
+                                        break;
+                                    case 'K':
+                                        currScrBuf.eraseLineRight();
+                                        break;
+                                    case 'L':
+                                        currScrBuf.setCurrentAttrs(mCurrAttrs);
+                                        currScrBuf.insertLine(1);
+                                        break;
+                                    case 'M':
+                                        currScrBuf.setCurrentAttrs(mCurrAttrs);
+                                        currScrBuf.deleteLine(1);
+                                        break;
+                                    case 'Y':
+                                        currScrBuf.setPosY(t.value.charAt(2) - 32);
+                                        currScrBuf.setPosX(t.value.charAt(3) - 32);
+                                        break;
+                                    case 'Z':
+                                        sendBack("\u001B/Z");
+                                        break;
+                                    case '=':
+                                        if (consoleOutput != null)
+                                            consoleOutput.appNumKeys = true;
+                                        break;
+                                    case '>':
+                                        if (consoleOutput != null)
+                                            consoleOutput.appNumKeys = false;
+                                        break;
+                                    case '<':
+                                        setComplianceLevel(defaultComplianceLevel);
+                                        break;
+                                    default:
+                                        if (LOG_UNKNOWN_ESC)
+                                            Log.w("CtrlSeq", "ESC: " +
+                                                    Compat.subSequence(t.value,
+                                                            1, t.value.remaining())
+                                                            .toString());
+                                }
+                                break;
+                            case CTL: {
+                                final char ctl = t.value.length() == 2 ?
+                                        (char) (t.value.charAt(1) + 0x40) : t.value.charAt(0);
+                                switch (ctl) {
+                                    case '\r':
+                                        cr();
+                                        break;
+                                    case '\n':
+                                    case '\u000B': // VT
+                                        lf();
+                                        break;
+                                    case '\t':
+                                        tab(1);
+                                        break;
+                                    case '\b':
+                                        bs();
+                                        break;
+                                    case '\u0007':
+                                        ++numBellEvents;
+                                        break;
+                                    case '\u0084': // IND
+                                        ind();
+                                        break;
+                                    case '\u0085': // NEL
+                                        ind();
+                                        cr();
+                                        break;
+                                    case '\u0088': // HTS
+                                        tabSet(currScrBuf.getPosX());
+                                        break;
+                                    case '\u008D': // RI (Reverse linefeed)
+                                        ri();
+                                        break;
+                                    default:
+                                        if (LOG_UNKNOWN_ESC)
+                                            Log.w("CtrlSeq", "CTL: " + (int) ctl);
+                                }
+                                break;
+                            }
+                            case TEXT:
+                                putText(t.value);
+                                break;
+                            default:
+                                Log.e("CtrlSeq", "Bad token type: " + t.type);
+                        }
+                        continue;
+                    }
                     switch (t.type) {
                         case OSC: {
                             final EscOsc osc = new EscOsc(t.value);
@@ -856,6 +990,10 @@ public final class ConsoleInput implements BytesSink {
                             for (int i = 0; i < csi.args.length; i++) {
                                 final int opt = csi.getIntArg(i, -1);
                                 if (opt < 0) break;
+                                if (opt == 2 && csi.type == 'l') {
+                                    setComplianceLevel(0); // VT52
+                                    return;
+                                }
                                 decPrivateMode.set(opt, csi.type == 'h');
                             }
                             return;
