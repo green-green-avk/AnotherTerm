@@ -5,8 +5,8 @@ import android.view.animation.Interpolator;
 import android.widget.Scroller;
 
 public class ScrollerEx extends Scroller {
-    private int mPrevX = 0;
-    private int mPrevY = 0;
+    protected int mPrevX = 0;
+    protected int mPrevY = 0;
 
     public ScrollerEx(final Context context) {
         super(context);
@@ -36,9 +36,28 @@ public class ScrollerEx extends Scroller {
         return getCurrY() - mPrevY;
     }
 
+    @Override
+    public void startScroll(final int startX, final int startY, final int dx, final int dy) {
+        super.startScroll(startX, startY, dx, dy);
+        super.computeScrollOffset();
+    }
+
+    @Override
+    public void startScroll(final int startX, final int startY, final int dx, final int dy,
+                            final int duration) {
+        super.startScroll(startX, startY, dx, dy, duration);
+        super.computeScrollOffset();
+    }
+
     public void fling(final int velocityX, final int velocityY) {
-        super.fling(0, 0, velocityX, velocityY,
+        fling(0, 0, velocityX, velocityY,
                 Integer.MIN_VALUE, Integer.MAX_VALUE, Integer.MIN_VALUE, Integer.MAX_VALUE);
+    }
+
+    @Override
+    public void fling(final int startX, final int startY, final int velocityX, final int velocityY,
+                      final int minX, final int maxX, final int minY, final int maxY) {
+        super.fling(startX, startY, velocityX, velocityY, minX, maxX, minY, maxY);
         super.computeScrollOffset();
     }
 }

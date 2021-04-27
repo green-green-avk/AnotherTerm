@@ -434,6 +434,14 @@ public class ConsoleScreenView extends ScrollableView
     }
 
     @Override
+    protected void onLayout(final boolean changed, final int left, final int top,
+                            final int right, final int bottom) {
+        super.onLayout(changed, left, top, right, bottom);
+        if (changed)
+            invalidateScroll();
+    }
+
+    @Override
     protected void onDetachedFromWindow() {
         selectionPopup.hide();
         mHandler.removeMessages(MSG_BLINK);
@@ -869,6 +877,7 @@ public class ConsoleScreenView extends ScrollableView
 
     @Override
     public void onInvalidateSinkResize(final int cols, final int rows) {
+        invalidateScroll();
     }
 
     @Override
@@ -1069,7 +1078,7 @@ public class ConsoleScreenView extends ScrollableView
         if (action == MotionEvent.ACTION_DOWN) {
             if (event.getToolType(0) != MotionEvent.TOOL_TYPE_FINGER)
                 mButtons = getButtons(event);
-            else onTerminalScrollBegin();
+            onTerminalScrollBegin();
         }
         final boolean ret = super.onTouchEvent(event);
         if (action == MotionEvent.ACTION_UP || action == MotionEvent.ACTION_CANCEL) {
@@ -1382,7 +1391,7 @@ public class ConsoleScreenView extends ScrollableView
                 scrollPtWithBuffer(selectionMarkerExpr, from, to, n);
             }
         }
-        if (mScroller.isFinished() && scrollFollowHistoryThreshold > 0F
+        if (scrollFollowHistoryThreshold > 0F
                 && scrollPosition.y < Math.min((float) -getRows() * scrollFollowHistoryThreshold,
                 getBottomScrollLimit() - 0.5F)) {
             scrollPtWithBuffer(scrollPosition, from, to, n);

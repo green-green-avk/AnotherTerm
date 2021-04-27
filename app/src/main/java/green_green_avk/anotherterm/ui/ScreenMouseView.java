@@ -78,7 +78,7 @@ public class ScreenMouseView extends ScrollableView {
         } finally {
             a.recycle();
         }
-        setScrollScale(-1, -1);
+        setScrollScale(1, 1);
         mGestureDetector.setOnDoubleTapListener(null); // avoid interference with scroll
 //        mGestureDetector.setContextClickListener(null);
         mGestureDetector.setIsLongpressEnabled(false);
@@ -150,12 +150,12 @@ public class ScreenMouseView extends ScrollableView {
     }
 
     @Override
-    public float getLeftScrollLimit() { // negative scale
+    public float getRightScrollLimit() {
         return getWidth();
     }
 
     @Override
-    public float getTopScrollLimit() { // negative scale
+    public float getBottomScrollLimit() {
         return getHeight();
     }
 
@@ -185,27 +185,32 @@ public class ScreenMouseView extends ScrollableView {
         }
     }
 
-    @Override
-    public boolean onScroll(final MotionEvent e1, final MotionEvent e2,
-                            final float distanceX, final float distanceY) {
-        final boolean r = super.onScroll(e1, e2, distanceX, distanceY);
+    protected void onPointerMove() {
         dispatchEventToSibling((int) scrollPosition.x, (int) scrollPosition.y,
                 mOverlayButtons != 0 ? MotionEvent.ACTION_MOVE : MotionEvent.ACTION_HOVER_MOVE,
                 mOverlayButtons, 0, 0);
+    }
+
+    @Override
+    public void computeScroll() {
+        super.computeScroll();
+        onPointerMove();
+    }
+
+    @Override
+    public boolean onScroll(final MotionEvent e1, final MotionEvent e2,
+                            final float distanceX, final float distanceY) {
+        final boolean r = super.onScroll(e1, e2, -distanceX, -distanceY);
+        onPointerMove();
         ViewCompat.postInvalidateOnAnimation(this);
         return r;
     }
 
-    /*
-        protected int getButtonForIndex(MotionEvent event, int i) {
-            final float d = event.getX(i) - event.getX();
-            if (d < 0) {
-                return MotionEvent.BUTTON_PRIMARY;
-            } else {
-                return MotionEvent.BUTTON_SECONDARY;
-            }
-        }
-    */
+    @Override
+    public boolean onFling(final MotionEvent e1, final MotionEvent e2,
+                           final float velocityX, final float velocityY) {
+        return super.onFling(e1, e2, -velocityX, -velocityY);
+    }
 
     private final int[] _overlayLoc = new int[2];
 
@@ -253,37 +258,6 @@ public class ScreenMouseView extends ScrollableView {
                 break;
             }
         }
-        /*
-        switch (action) {
-            case MotionEvent.ACTION_POINTER_DOWN:
-            case MotionEvent.ACTION_POINTER_UP: {
-                final int id = event.getActionIndex();
-                int buttons = 0;
-                for (int i = 1; i < event.getPointerCount(); ++i) {
-                    buttons |= getButtonForIndex(event, i);
-                }
-                int button = getButtonForIndex(event, id);
-                if (action == MotionEvent.ACTION_POINTER_UP) {
-                    buttons &= ~button;
-                    dispatchEventToSibling((int) scrollPosition.x, (int) scrollPosition.y,
-                            ACTION_BUTTON_RELEASE, buttons, button, 0);
-                } else {
-                    dispatchEventToSibling((int) scrollPosition.x, (int) scrollPosition.y,
-                            ACTION_BUTTON_PRESS, buttons, button, 0);
-                }
-                return true;
-            }
-            case MotionEvent.ACTION_MOVE: {
-                int buttons = 0;
-                for (int i = 1; i < event.getPointerCount(); ++i) {
-                    buttons |= getButtonForIndex(event, i);
-                }
-                dispatchEventToSibling((int) scrollPosition.x, (int) scrollPosition.y,
-                        MotionEvent.ACTION_HOVER_MOVE, buttons, 0, 0);
-                break;
-            }
-        }
-        */
         switch (action) {
             case MotionEvent.ACTION_MOVE:
             case MotionEvent.ACTION_DOWN:
