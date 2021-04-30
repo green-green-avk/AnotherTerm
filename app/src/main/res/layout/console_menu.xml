@@ -47,7 +47,7 @@
             android:background="@drawable/bg_console_menu_btn"
             android:contentDescription="@string/action_terminate"
             android:focusable="true"
-            android:onClick="onMenuTerminate"
+            android:onClick="onTerminate"
             app:srcCompat="@android:drawable/ic_lock_power_off"
             app:tint="@android:color/background_light" />
 

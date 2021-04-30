@@ -61,7 +61,6 @@ import green_green_avk.anotherterm.ui.FontProvider;
 import green_green_avk.anotherterm.ui.MouseButtonsWorkAround;
 import green_green_avk.anotherterm.ui.ScreenMouseView;
 import green_green_avk.anotherterm.ui.ScrollableView;
-import green_green_avk.anotherterm.ui.UiUtils;
 import green_green_avk.anotherterm.ui.VisibilityAnimator;
 import green_green_avk.anotherterm.utils.BooleanCaster;
 
@@ -742,19 +741,6 @@ public final class AnsiConsoleActivity extends ConsoleActivity
         mCsv.setAppHScrollEnabled(!mCsv.isAppHScrollEnabled());
         if (view instanceof Checkable)
             ((Checkable) view).setChecked(mCsv.isAppHScrollEnabled());
-    }
-
-    public void onMenuTerminate(final View view) {
-        if (view != null) {
-            UiUtils.confirm(this, getString(R.string.prompt_terminate_the_session),
-                    () -> onMenuTerminate(null));
-            return;
-        }
-        try {
-            ConsoleService.stopSession(mSessionKey);
-        } catch (final NoSuchElementException ignored) {
-        }
-        finish();
     }
 
     final MouseButtonsWorkAround mbwa = new MouseButtonsWorkAround(this);

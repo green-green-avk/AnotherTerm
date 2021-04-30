@@ -6,11 +6,16 @@ import android.content.Intent;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
+import android.view.View;
 import android.view.WindowManager;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
+
+import java.util.NoSuchElementException;
+
+import green_green_avk.anotherterm.ui.UiUtils;
 
 public abstract class ConsoleActivity extends AppCompatActivity {
     @NonNull
@@ -87,5 +92,18 @@ public abstract class ConsoleActivity extends AppCompatActivity {
             return;
         }
         mSessionKey = intent.getIntExtra(C.IFK_MSG_SESS_KEY, 0);
+    }
+
+    public void onTerminate(final View view) {
+        if (view != null) {
+            UiUtils.confirm(this, getString(R.string.prompt_terminate_the_session),
+                    () -> onTerminate(null));
+            return;
+        }
+        try {
+            ConsoleService.stopSession(mSessionKey);
+        } catch (final NoSuchElementException ignored) {
+        }
+        finish();
     }
 }
