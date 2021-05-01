@@ -4,6 +4,7 @@ import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.res.TypedArray;
 import android.graphics.Canvas;
+import android.graphics.Point;
 import android.graphics.Rect;
 import android.graphics.drawable.Drawable;
 import android.os.Build;
@@ -26,6 +27,8 @@ import androidx.annotation.RequiresApi;
 import androidx.appcompat.content.res.AppCompatResources;
 import androidx.core.view.ViewCompat;
 
+import java.util.Arrays;
+
 import green_green_avk.anotherterm.R;
 
 public class ScreenMouseView extends ScrollableView {
@@ -37,9 +40,15 @@ public class ScreenMouseView extends ScrollableView {
 
     protected boolean visibleCursor = true;
 
+    @Nullable
+    protected View[] bypassTo = null;
+
     protected PopupWindow overlay = null;
     protected ViewGroup overlayView = null;
     protected View overlayButtonsView = null;
+
+    // Just to make event splitting behave properly when setBypassTo() is in use.
+    protected final View[] overlayMarginViews = new View[4];
 
     public ScreenMouseView(final Context context, @Nullable final AttributeSet attrs) {
         super(context, attrs);
@@ -88,6 +97,7 @@ public class ScreenMouseView extends ScrollableView {
                 ViewGroup.LayoutParams.MATCH_PARENT,
                 ViewGroup.LayoutParams.MATCH_PARENT
         ));
+        overlayView.setMotionEventSplittingEnabled(true);
         overlayView.setOnTouchListener(overlayOnTouch);
         overlay = new PopupWindow(overlayView,
                 ViewGroup.LayoutParams.MATCH_PARENT,
@@ -97,20 +107,39 @@ public class ScreenMouseView extends ScrollableView {
     }
 
     @SuppressLint("ClickableViewAccessibility")
-    protected static final OnTouchListener overlayOnTouch = (v, event) -> true;
+    protected final OnTouchListener overlayOnTouch = (v, event) -> true;
 
     @SuppressLint("ClickableViewAccessibility")
-    protected final OnTouchListener buttonsOnTouch = this::onOverlayButton;
+    protected final OnTouchListener overlayButtonsOnTouch = this::onOverlayButton;
+
+    @SuppressLint("ClickableViewAccessibility")
+    protected final OnTouchListener overlayMarginOnTouch = this::onOverlay;
 
     protected void applyButtons() {
         if (overlayButtonsView != null) return;
+
+        overlayView.removeAllViewsInLayout();
+
+        if (bypassTo != null && bypassTo.length > 0)
+            for (int i = 0; i < 4; i++) {
+                final View v = new View(getContext());
+                v.setLayoutParams(new ViewGroup.LayoutParams(
+                        ViewGroup.LayoutParams.MATCH_PARENT,
+                        ViewGroup.LayoutParams.MATCH_PARENT
+                ));
+                overlayView.addView(v);
+                v.setOnTouchListener(overlayMarginOnTouch);
+                overlayMarginViews[i] = v;
+            }
+        else
+            Arrays.fill(overlayMarginViews, null);
+
         overlayButtonsView = LayoutInflater.from(getContext()).inflate(buttonsLayoutResId,
                 overlayView, false);
-        overlayView.removeAllViewsInLayout();
         overlayView.addView(overlayButtonsView);
         for (final View v : UiUtils.getIterable(overlayButtonsView)) {
             if (v.getTag() instanceof String) {
-                v.setOnTouchListener(buttonsOnTouch);
+                v.setOnTouchListener(overlayButtonsOnTouch);
             }
         }
     }
@@ -124,6 +153,19 @@ public class ScreenMouseView extends ScrollableView {
     public void setButtons(@LayoutRes final int resId) {
         if (resId == 0 || resId == buttonsLayoutResId) return;
         buttonsLayoutResId = resId;
+        overlayButtonsView = null;
+    }
+
+    @Nullable
+    public View[] getBypassTo() {
+        return bypassTo;
+    }
+
+    /**
+     * @param bypassTo - A list of views to bypass events under the mouse buttons overlay.
+     */
+    public void setBypassTo(@Nullable final View[] bypassTo) {
+        this.bypassTo = bypassTo;
         overlayButtonsView = null;
     }
 
@@ -220,8 +262,20 @@ public class ScreenMouseView extends ScrollableView {
         int height = overlayButtonsView.getLayoutParams().height;
         if (width <= 0) width = overlayButtonsView.getWidth();
         if (height <= 0) height = overlayButtonsView.getHeight();
-        overlayButtonsView.setX(event.getRawX() - _overlayLoc[0] - (float) width / 2);
-        overlayButtonsView.setY(event.getRawY() - _overlayLoc[1] - (float) height / 2);
+        final float x = event.getRawX() - _overlayLoc[0] - (float) width / 2;
+        final float y = event.getRawY() - _overlayLoc[1] - (float) height / 2;
+
+        overlayButtonsView.setX(x);
+        overlayButtonsView.setY(y);
+
+        if (overlayMarginViews[0] != null)
+            overlayMarginViews[0].setX(x - overlayMarginViews[0].getWidth());
+        if (overlayMarginViews[1] != null)
+            overlayMarginViews[1].setY(y - overlayMarginViews[1].getHeight());
+        if (overlayMarginViews[2] != null)
+            overlayMarginViews[2].setX(x + width);
+        if (overlayMarginViews[3] != null)
+            overlayMarginViews[3].setY(y + height);
     }
 
     @CheckResult
@@ -250,6 +304,10 @@ public class ScreenMouseView extends ScrollableView {
             case MotionEvent.ACTION_CANCEL:
             case MotionEvent.ACTION_UP: {
                 overlay.dismiss();
+                if (_bypassTarget != null) {
+                    dispatchBypassEventCancel(_bypassTarget);
+                    _bypassTarget = null;
+                }
                 break;
             }
             case MotionEvent.ACTION_MOVE: {
@@ -285,6 +343,63 @@ public class ScreenMouseView extends ScrollableView {
         if (isOwnEvent(event)) return false;
         if (isMouseEvent(event)) hideCursor();
         return false;
+    }
+
+    private final Rect _bypassVisible = new Rect();
+    private final Point _bypassOffset = new Point();
+    private final int[] _bypassRootLoc = new int[2];
+    private View _bypassTarget;
+
+    private static void dispatchBypassEventCancel(@NonNull final View view) {
+        final long ts = SystemClock.uptimeMillis();
+        final MotionEvent tEvent = MotionEvent.obtain(ts, ts,
+                MotionEvent.ACTION_CANCEL, 0, 0, 0);
+        try {
+            view.dispatchTouchEvent(tEvent);
+        } finally {
+            tEvent.recycle();
+        }
+    }
+
+    private boolean dispatchBypassEvent(@NonNull final View view,
+                                        @NonNull final MotionEvent event,
+                                        final boolean force) {
+        view.getRootView().getLocationOnScreen(_bypassRootLoc);
+        final float x = event.getRawX() - _bypassRootLoc[0];
+        final float y = event.getRawY() - _bypassRootLoc[1];
+        if (force || view.getGlobalVisibleRect(_bypassVisible, _bypassOffset)) {
+            if (force || _bypassVisible.contains((int) x, (int) y)) {
+                final MotionEvent tEvent = MotionEvent.obtain(event);
+                try {
+                    tEvent.setLocation(x - _bypassOffset.x, y - _bypassOffset.y);
+                    if (view.dispatchTouchEvent(tEvent))
+                        return true;
+                } finally {
+                    tEvent.recycle();
+                }
+            }
+        }
+        return false;
+    }
+
+    protected boolean onOverlay(@NonNull final View v, @NonNull final MotionEvent event) {
+        final int action = event.getAction();
+        if (action == MotionEvent.ACTION_DOWN) {
+            if (bypassTo != null)
+                for (final View view : bypassTo) {
+                    if (dispatchBypassEvent(view, event, false)) {
+                        _bypassTarget = view;
+                        return true;
+                    }
+                }
+            _bypassTarget = null;
+        } else if (_bypassTarget != null) {
+            dispatchBypassEvent(_bypassTarget, event, true);
+            if (action == MotionEvent.ACTION_UP || action == MotionEvent.ACTION_CANCEL) {
+                _bypassTarget = null;
+            }
+        }
+        return true;
     }
 
     protected int mOverlayButtons = 0;

@@ -82,6 +82,8 @@ public final class GraphicsConsoleActivity extends ConsoleActivity {
         wUpImDef = wUp.getDrawable();
         wTitle = findViewById(R.id.title);
 
+        mSmv.setBypassTo(new View[]{mCkv});
+
         final FontProvider fp = new ConsoleFontProvider();
         mCkv.setFont(fp); // Old Android devices have no glyphs for some special symbols
 
