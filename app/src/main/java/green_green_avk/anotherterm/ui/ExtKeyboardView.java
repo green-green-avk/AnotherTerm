@@ -265,7 +265,7 @@ public abstract class ExtKeyboardView extends View /*implements View.OnClickList
      */
     public void setKeyboard(final ExtKeyboard keyboard) {
         mHandler.removeMessages(MSG_REPEAT);
-        mTouchedKeys.clear();
+        cancelKeys();
         mKeyboard = keyboard;
         mDirtyRect.union(0, 0, getWidth(), getHeight());
         requestLayout();
@@ -388,6 +388,7 @@ public abstract class ExtKeyboardView extends View /*implements View.OnClickList
             return map.get(id);
         }
 
+        @NonNull
         public KeyTouchState put(final int id, @NonNull final ExtKeyboard.Key key,
                                  final float x, final float y) {
             KeyTouchState s = pool.acquire();
@@ -405,22 +406,25 @@ public abstract class ExtKeyboardView extends View /*implements View.OnClickList
             return s;
         }
 
-        public void remove(final int id) {
-            final KeyTouchState s = map.get(id);
+        protected void removeAt(final int pos) {
+            final KeyTouchState s = map.valueAt(pos);
             if (s != null) {
                 s.popup.hide();
-                map.remove(id);
+                map.removeAt(pos);
                 pool.release(s);
             }
         }
 
-        public void clear() {
+        public void remove(final int id) {
+            removeAt(map.indexOfKey(id));
+        }
+
+        public void filter(@NonNull final KeyTouchStateFilter filter) {
             for (int i = 0; i < map.size(); ++i) {
-                final KeyTouchState s = map.valueAt(i);
-                s.popup.hide();
-                pool.release(s);
+                if (filter.onElement(map.indexOfKey(i), map.valueAt(i))) {
+                    removeAt(i);
+                }
             }
-            map.clear();
         }
 
         public boolean isPressed(final ExtKeyboard.Key key) {
@@ -456,6 +460,26 @@ public abstract class ExtKeyboardView extends View /*implements View.OnClickList
         public Popup popup = null;
     }
 
+    protected interface KeyTouchStateFilter {
+        boolean onElement(int id, @NonNull KeyTouchState keyState);
+    }
+
+    protected final KeyTouchStateFilter cancelKeysFilter = (id, keyState) -> {
+        releaseKey(keyState);
+        return true;
+    };
+
+    protected void cancelKeys() {
+        mTouchedKeys.filter(cancelKeysFilter);
+    }
+
+    protected void releaseKey(@NonNull final KeyTouchState keyState) {
+        final int fcn = keyState.popup.getAltKeyFcn();
+        if (fcn >= 0) {
+            sendKeyUp(keyState.key, fcn);
+        }
+    }
+
     @Override
     public boolean onTouchEvent(final MotionEvent event) {
         if (mKeyboard == null) return super.onTouchEvent(event);
@@ -487,10 +511,7 @@ public abstract class ExtKeyboardView extends View /*implements View.OnClickList
                 if (keyState.isPressed && keyState.key != null && !mTouchedKeys.isPressed(keyState.key)) {
                     invalidateKey(keyState.key, false);
                 }
-                final int fcn = keyState.popup.getAltKeyFcn();
-                if (fcn >= 0) {
-                    sendKeyUp(keyState.key, fcn);
-                }
+                releaseKey(keyState);
                 return true;
             }
             case MotionEvent.ACTION_MOVE:
@@ -505,7 +526,7 @@ public abstract class ExtKeyboardView extends View /*implements View.OnClickList
                 }
                 return true;
             case MotionEvent.ACTION_CANCEL: {
-                mTouchedKeys.clear();
+                cancelKeys();
                 invalidateAllKeys();
                 return true;
             }
@@ -564,7 +585,7 @@ public abstract class ExtKeyboardView extends View /*implements View.OnClickList
                     w - getPaddingLeft() - getPaddingRight(),
                     h - getPaddingTop() - getPaddingBottom());
         }
-        mTouchedKeys.clear();
+        cancelKeys();
         if (mBuffer != null) {
             mBuffer.recycle();
             mBuffer = null;

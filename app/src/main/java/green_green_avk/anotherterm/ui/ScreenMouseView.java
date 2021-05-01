@@ -100,16 +100,7 @@ public class ScreenMouseView extends ScrollableView {
     protected static final OnTouchListener overlayOnTouch = (v, event) -> true;
 
     @SuppressLint("ClickableViewAccessibility")
-    protected final OnTouchListener buttonsOnTouch = (v, event) -> {
-        switch (event.getAction()) {
-            case MotionEvent.ACTION_DOWN:
-            case MotionEvent.ACTION_UP:
-            case MotionEvent.ACTION_MOVE:
-            case MotionEvent.ACTION_CANCEL:
-                return onOverlayButton(v, event);
-        }
-        return false;
-    };
+    protected final OnTouchListener buttonsOnTouch = this::onOverlayButton;
 
     protected void applyButtons() {
         if (overlayButtonsView != null) return;
@@ -341,14 +332,6 @@ public class ScreenMouseView extends ScrollableView {
             }
             return true;
         }
-        switch (event.getAction()) {
-            case MotionEvent.ACTION_DOWN:
-            case MotionEvent.ACTION_UP:
-            case MotionEvent.ACTION_CANCEL:
-                break;
-            default:
-                return true;
-        }
         final int button;
         switch (id) {
             case "left":
@@ -361,7 +344,7 @@ public class ScreenMouseView extends ScrollableView {
                 button = MotionEvent.BUTTON_TERTIARY;
                 break;
             default:
-                return true;
+                return false;
         }
         switch (event.getAction()) {
             case MotionEvent.ACTION_DOWN:
@@ -371,6 +354,8 @@ public class ScreenMouseView extends ScrollableView {
             case MotionEvent.ACTION_CANCEL:
                 mOverlayButtons &= ~button;
                 break;
+            default:
+                return true;
         }
         dispatchEventToSibling((int) scrollPosition.x, (int) scrollPosition.y,
                 event.getAction(), mOverlayButtons, button, 0);
