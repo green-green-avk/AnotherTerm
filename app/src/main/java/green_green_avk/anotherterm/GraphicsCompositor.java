@@ -104,13 +104,18 @@ public final class GraphicsCompositor {
     public final IConsoleOutput consoleOutput = new IConsoleOutput() {
         @Override
         public boolean getKeyAutorepeat() {
-            return true;
+            return false;
+        }
+
+        @Override
+        public boolean getStickyModifiersEnabled() {
+            return false;
         }
 
         @Override
         @AnyRes
         public int getLayoutRes() {
-            return 0;
+            return R.array.graphics_keyboard;
         }
 
         @Override
@@ -129,6 +134,7 @@ public final class GraphicsCompositor {
 
         @Override
         public void feed(final int code, final boolean pressed) {
+            if (code < 0) return;
             final Surface s = keyboardFocus;
             if (s == null) return;
             final SurfaceSource ss = s.source;

@@ -637,7 +637,8 @@ public abstract class ExtKeyboardView extends View /*implements View.OnClickList
         for (final ExtKeyboard.Key key : mKeyboard.getKeys()) {
             final int left = getPaddingLeft() + key.x;
             final int top = getPaddingTop() + key.y;
-            if (canvas.quickReject(left, top, left + key.width, top + key.height, Canvas.EdgeType.AA))
+            if (canvas.quickReject(left, top, left + key.width, top + key.height,
+                    Canvas.EdgeType.AA))
                 continue;
             onBufferDrawKey(key, mTouchedKeys.isPressed(key));
         }

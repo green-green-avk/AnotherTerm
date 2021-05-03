@@ -1,0 +1,263 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Keyboard xmlns:app="http://schemas.android.com/apk/res-auto"
+    app:horizontalGap="0dp"
+    app:keyHeight="@dimen/kbd_key_size"
+    app:keyWidth="4.3%p"
+    app:verticalGap="0dp">
+
+    <Row app:verticalGap="2dp">
+        <Key
+            app:code="111"
+            app:keyLabel="Esc" />
+        <Key
+            app:code="131"
+            app:horizontalGap="100%"
+            app:keyLabel="F1" />
+        <Key
+            app:code="132"
+            app:keyLabel="F2" />
+        <Key
+            app:code="133"
+            app:keyLabel="F3" />
+        <Key
+            app:code="134"
+            app:keyLabel="F4" />
+        <Key
+            app:code="135"
+            app:horizontalGap="50%"
+            app:keyLabel="F5" />
+        <Key
+            app:code="136"
+            app:keyLabel="F6" />
+        <Key
+            app:code="137"
+            app:keyLabel="F7" />
+        <Key
+            app:code="138"
+            app:keyLabel="F8" />
+        <Key
+            app:code="139"
+            app:horizontalGap="50%"
+            app:keyLabel="F9" />
+        <Key
+            app:code="140"
+            app:keyLabel="F10" />
+        <Key
+            app:code="141"
+            app:keyLabel="F11" />
+        <Key
+            app:code="142"
+            app:keyLabel="F12" />
+        <Key
+            app:code="120"
+            app:horizontalGap="50%"
+            app:keyLabel="SysRq" />
+        <Key
+            app:code="116"
+            app:keyLabel="Scr🔒" />
+        <Key
+            app:code="121"
+            app:keyLabel="Break" />
+    </Row>
+
+    <Row>
+        <Key app:keyLabel="`~" />
+        <Key app:keyLabel="1!" />
+        <Key app:keyLabel="2@" />
+        <Key app:keyLabel="3#" />
+        <Key app:keyLabel="4$" />
+        <Key app:keyLabel="5%" />
+        <Key app:keyLabel="6^" />
+        <Key app:keyLabel="7&amp;" />
+        <Key app:keyLabel="8*" />
+        <Key app:keyLabel="9(" />
+        <Key app:keyLabel="0)" />
+        <Key app:keyLabel="-_" />
+        <Key app:keyLabel="=+" />
+        <Key
+            app:code="67"
+            app:keyLabel="&#x232B;"
+            app:keyWidth="200%" /><!-- BS -->
+        <Key
+            app:code="124"
+            app:horizontalGap="50%"
+            app:keyLabel="Ins" />
+        <Key
+            app:code="122"
+            app:keyLabel="Home" />
+        <Key
+            app:code="92"
+            app:keyLabel="Pu" />
+        <Key
+            app:code="143"
+            app:horizontalGap="50%"
+            app:keyLabel="Num🔒" />
+        <Key
+            app:code="154"
+            app:keyLabel="ᴷᴾ/" />
+        <Key
+            app:code="155"
+            app:keyLabel="ᴷᴾ*" />
+        <Key
+            app:code="156"
+            app:keyLabel="ᴷᴾ-" />
+    </Row>
+
+    <Row>
+        <Key
+            app:code="61"
+            app:keyLabel="&#x21B9;"
+            app:keyWidth="150%" /><!-- Tab -->
+        <Key app:keyLabel="qQ" />
+        <Key app:keyLabel="wW" />
+        <Key app:keyLabel="eE" />
+        <Key app:keyLabel="rR" />
+        <Key app:keyLabel="tT" />
+        <Key app:keyLabel="yY" />
+        <Key app:keyLabel="uU" />
+        <Key app:keyLabel="iI" />
+        <Key app:keyLabel="oO" />
+        <Key app:keyLabel="pP" />
+        <Key app:keyLabel="[{" />
+        <Key app:keyLabel="]}" />
+        <Key
+            app:keyLabel="\\|"
+            app:keyWidth="150%" />
+        <Key
+            app:code="112"
+            app:horizontalGap="50%"
+            app:keyLabel="Del" />
+        <Key
+            app:code="123"
+            app:keyLabel="End" />
+        <Key
+            app:code="93"
+            app:keyLabel="Pd" />
+        <Key
+            app:code="151"
+            app:horizontalGap="50%"
+            app:keyLabel="ᴷᴾ7" />
+        <Key
+            app:code="152"
+            app:keyLabel="ᴷᴾ8" />
+        <Key
+            app:code="153"
+            app:keyLabel="ᴷᴾ9" />
+        <Key
+            app:code="157"
+            app:keyHeight="200%"
+            app:keyLabel="ᴷᴾ+" />
+    </Row>
+
+    <Row>
+        <Key
+            app:code="115"
+            app:keyLabel="Caps🔒"
+            app:keyWidth="200%" />
+        <Key app:keyLabel="aA" />
+        <Key app:keyLabel="sS" />
+        <Key app:keyLabel="dD" />
+        <Key app:keyLabel="fF" />
+        <Key app:keyLabel="gG" />
+        <Key app:keyLabel="hH" />
+        <Key app:keyLabel="jJ" />
+        <Key app:keyLabel="kK" />
+        <Key app:keyLabel="lL" />
+        <Key app:keyLabel=";:" />
+        <Key app:keyLabel="'&quot;" />
+        <Key
+            app:code="66"
+            app:keyLabel="&#x23CE;"
+            app:keyWidth="200%" /><!-- Enter -->
+        <Key
+            app:code="148"
+            app:horizontalGap="400%"
+            app:keyLabel="ᴷᴾ4" />
+        <Key
+            app:code="149"
+            app:keyLabel="ᴷᴾ5" />
+        <Key
+            app:code="150"
+            app:keyLabel="ᴷᴾ6" />
+    </Row>
+
+    <Row>
+        <Key
+            app:code="59"
+            app:keyLabel="&#x21E7;"
+            app:keyWidth="250%" /><!-- Shift -->
+        <Key app:keyLabel="zZ" />
+        <Key app:keyLabel="xX" />
+        <Key app:keyLabel="cC" />
+        <Key app:keyLabel="vV" />
+        <Key app:keyLabel="bB" />
+        <Key app:keyLabel="nN" />
+        <Key app:keyLabel="mM" />
+        <Key app:keyLabel=",&lt;" />
+        <Key app:keyLabel=".&gt;" />
+        <Key app:keyLabel="/?" />
+        <Key
+            app:code="60"
+            app:keyLabel="&#x21E7;"
+            app:keyWidth="250%" /><!-- Shift -->
+        <Key
+            app:code="19"
+            app:horizontalGap="150%"
+            app:keyLabel="&#x2191;" /><!-- Up -->
+        <Key
+            app:code="145"
+            app:horizontalGap="150%"
+            app:keyLabel="ᴷᴾ1" />
+        <Key
+            app:code="146"
+            app:keyLabel="ᴷᴾ2" />
+        <Key
+            app:code="147"
+            app:keyLabel="ᴷᴾ3" />
+        <Key
+            app:code="160"
+            app:keyHeight="200%"
+            app:keyLabel="ᴷᴾ&#x23CE;" /><!-- KP Enter -->
+    </Row>
+
+    <Row>
+        <Key
+            app:code="113"
+            app:keyLabel="Ctrl"
+            app:keyWidth="200%" />
+        <Key
+            app:code="57"
+            app:keyLabel="Alt"
+            app:keyWidth="200%" />
+        <Key
+            app:code="62"
+            app:keyLabel="&#x2423;"
+            app:keyWidth="700%" /><!-- Space -->
+        <Key
+            app:code="58"
+            app:keyLabel="Alt"
+            app:keyWidth="200%" />
+        <Key
+            app:code="114"
+            app:keyLabel="Ctrl"
+            app:keyWidth="200%" />
+        <Key
+            app:code="21"
+            app:horizontalGap="50%"
+            app:keyLabel="&#x2190;" /><!-- Left -->
+        <Key
+            app:code="20"
+            app:keyLabel="&#x2193;" /><!-- Down -->
+        <Key
+            app:code="22"
+            app:keyLabel="&#x2192;" /><!-- Right -->
+        <Key
+            app:code="144"
+            app:horizontalGap="50%"
+            app:keyLabel="ᴷᴾ0"
+            app:keyWidth="200%" />
+        <Key
+            app:code="158"
+            app:keyLabel="ᴷᴾ." />
+    </Row>
+</Keyboard>

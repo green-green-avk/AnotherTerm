@@ -9,4 +9,10 @@
         <item>@xml/vt52_keyboard_narrow</item>
         <item>@xml/vt52_keyboard_wide</item>
     </array>
+
+    <array name="graphics_keyboard">
+        <item>@xml/graphics_keyboard_narrow</item>
+        <item>@xml/graphics_keyboard_wide</item>
+        <item>@xml/graphics_keyboard_full</item>
+    </array>
 </resources>

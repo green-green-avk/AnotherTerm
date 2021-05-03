@@ -169,6 +169,7 @@ public class ConsoleKeyboardView extends ExtKeyboardView implements
 
     public void setConsoleOutputOnly(@NonNull final IConsoleOutput consoleOutput) {
         this.consoleOutput = consoleOutput;
+        onInvalidateSink(null);
     }
 
     public void unsetConsoleInput() {
@@ -589,30 +590,47 @@ public class ConsoleKeyboardView extends ExtKeyboardView implements
 
     @Override
     public void onPress(final int primaryCode) {
-        switch (primaryCode) {
-            case ExtKeyboard.KEYCODE_NONE:
-                return;
-            case KeyEvent.KEYCODE_SHIFT_LEFT:
-            case KeyEvent.KEYCODE_SHIFT_RIGHT:
-                setAltKeys(getAltKeys() ^ 1);
-                setLedsByCode(primaryCode, getAltKeys() != 0);
-                invalidateAllKeys();
-                wasKey = false;
-                break;
-            case KeyEvent.KEYCODE_CTRL_LEFT:
-            case KeyEvent.KEYCODE_CTRL_RIGHT:
-                ctrl = !ctrl;
-                setLedsByCode(primaryCode, ctrl);
-                invalidateModifierKeys(primaryCode);
-                wasKey = false;
-                break;
-            case KeyEvent.KEYCODE_ALT_LEFT:
-            case KeyEvent.KEYCODE_ALT_RIGHT:
-                alt = !alt;
-                setLedsByCode(primaryCode, alt);
-                invalidateModifierKeys(primaryCode);
-                wasKey = false;
-                break;
+        if (primaryCode == ExtKeyboard.KEYCODE_NONE)
+            return;
+        if (consoleOutput == null || consoleOutput.getStickyModifiersEnabled()) {
+            switch (primaryCode) {
+                case KeyEvent.KEYCODE_SHIFT_LEFT:
+                case KeyEvent.KEYCODE_SHIFT_RIGHT:
+                    setAltKeys(getAltKeys() ^ 1);
+                    setLedsByCode(primaryCode, getAltKeys() != 0);
+                    invalidateAllKeys();
+                    wasKey = false;
+                    break;
+                case KeyEvent.KEYCODE_CTRL_LEFT:
+                case KeyEvent.KEYCODE_CTRL_RIGHT:
+                    ctrl = !ctrl;
+                    setLedsByCode(primaryCode, ctrl);
+                    invalidateModifierKeys(primaryCode);
+                    wasKey = false;
+                    break;
+                case KeyEvent.KEYCODE_ALT_LEFT:
+                case KeyEvent.KEYCODE_ALT_RIGHT:
+                    alt = !alt;
+                    setLedsByCode(primaryCode, alt);
+                    invalidateModifierKeys(primaryCode);
+                    wasKey = false;
+                    break;
+            }
+        } else {
+            switch (primaryCode) {
+                case KeyEvent.KEYCODE_SHIFT_LEFT:
+                case KeyEvent.KEYCODE_SHIFT_RIGHT:
+                    setAltKeys(1);
+                    break;
+                case KeyEvent.KEYCODE_CTRL_LEFT:
+                case KeyEvent.KEYCODE_CTRL_RIGHT:
+                    ctrl = true;
+                    break;
+                case KeyEvent.KEYCODE_ALT_LEFT:
+                case KeyEvent.KEYCODE_ALT_RIGHT:
+                    alt = true;
+                    break;
+            }
         }
         if (consoleOutput != null)
             consoleOutput.feed(primaryCode, true);
@@ -625,42 +643,64 @@ public class ConsoleKeyboardView extends ExtKeyboardView implements
 
     @Override
     public void onKey(final int primaryCode, final int[] keyCodes) {
-        switch (primaryCode) {
-            case ExtKeyboard.KEYCODE_NONE:
-                return;
-            case KeyEvent.KEYCODE_SHIFT_LEFT:
-            case KeyEvent.KEYCODE_SHIFT_RIGHT:
-                if (wasKey) {
+        if (primaryCode == ExtKeyboard.KEYCODE_NONE)
+            return;
+        if (consoleOutput == null || consoleOutput.getStickyModifiersEnabled()) {
+            switch (primaryCode) {
+                case KeyEvent.KEYCODE_SHIFT_LEFT:
+                case KeyEvent.KEYCODE_SHIFT_RIGHT:
+                    if (wasKey) {
+                        setAltKeys(0);
+                        setLedsByCode(primaryCode, false);
+                        invalidateAllKeys();
+                    }
+                    break;
+                case KeyEvent.KEYCODE_CTRL_LEFT:
+                case KeyEvent.KEYCODE_CTRL_RIGHT:
+                    if (wasKey) {
+                        ctrl = false;
+                        setLedsByCode(primaryCode, false);
+                        invalidateModifierKeys(primaryCode);
+                    }
+                    break;
+                case KeyEvent.KEYCODE_ALT_LEFT:
+                case KeyEvent.KEYCODE_ALT_RIGHT:
+                    if (wasKey) {
+                        alt = false;
+                        setLedsByCode(primaryCode, false);
+                        invalidateModifierKeys(primaryCode);
+                    }
+                    break;
+                default:
+                    wasKey = true;
+                    if (consoleOutput == null) return;
+                    consoleOutput.feed(primaryCode, getAltKeys() != 0, alt, ctrl);
+            }
+        } else {
+            switch (primaryCode) {
+                case KeyEvent.KEYCODE_SHIFT_LEFT:
+                case KeyEvent.KEYCODE_SHIFT_RIGHT:
                     setAltKeys(0);
-                    setLedsByCode(primaryCode, false);
-                    invalidateAllKeys();
-                }
-                break;
-            case KeyEvent.KEYCODE_CTRL_LEFT:
-            case KeyEvent.KEYCODE_CTRL_RIGHT:
-                if (wasKey) {
+                    break;
+                case KeyEvent.KEYCODE_CTRL_LEFT:
+                case KeyEvent.KEYCODE_CTRL_RIGHT:
                     ctrl = false;
-                    setLedsByCode(primaryCode, false);
-                    invalidateModifierKeys(primaryCode);
-                }
-                break;
-            case KeyEvent.KEYCODE_ALT_LEFT:
-            case KeyEvent.KEYCODE_ALT_RIGHT:
-                if (wasKey) {
+                    break;
+                case KeyEvent.KEYCODE_ALT_LEFT:
+                case KeyEvent.KEYCODE_ALT_RIGHT:
                     alt = false;
-                    setLedsByCode(primaryCode, false);
-                    invalidateModifierKeys(primaryCode);
-                }
-                break;
-            default:
-                wasKey = true;
-                if (consoleOutput == null) return;
-                consoleOutput.feed(primaryCode, getAltKeys() != 0, alt, ctrl);
+                    break;
+                default:
+                    if (consoleOutput == null) return;
+                    consoleOutput.feed(primaryCode, getAltKeys() != 0, alt, ctrl);
+            }
         }
     }
 
     @Override
     public void onRelease(final int primaryCode) {
+        if (primaryCode == ExtKeyboard.KEYCODE_NONE)
+            return;
         if (consoleOutput != null)
             consoleOutput.feed(primaryCode, false);
     }

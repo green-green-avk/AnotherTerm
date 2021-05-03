@@ -7,6 +7,8 @@ import androidx.annotation.Nullable;
 public interface IConsoleOutput {
     boolean getKeyAutorepeat();
 
+    boolean getStickyModifiersEnabled();
+
     @AnyRes
     int getLayoutRes();
 
