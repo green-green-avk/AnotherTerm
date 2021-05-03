@@ -1,0 +1,11 @@
+<p><i>Another Term</i> is a local shell terminal emulator with libusb support and a command line tool to interact with the Android environment; enjoy any Linux distribution under PRoot right on your phone: compile, debug, flash and debug MCUs in case your programmer uses libusb (OpenOCD with a wide range of dongles, for example), …</p>
+<p><br><b>Features include:</b></p><ul>
+<li>Local pty, USB and Bluetooth serial (UART) ports, SSH and Telnet support in the same application;</li>
+<li>Adequate screen input methods as long as a terminal requires specific keyboard functions.</li>
+<li>Ability to set fixed screen columns and/or rows numbers.</li>
+<li>Shell tool to interact with the Android environment.</li>
+<li>Supported SSH features: zlib compression, port forwarding, password and public key authentication.</li>
+<li>Builtin screen keyboard and mouse.</li>
+<li>Hardware buttons mapping.</li>
+<li>Different charsets and customizable key mapping support.</li></ul>
+<p>For further details, please refer to the <a href='https://green-green-avk.github.io/AnotherTerm-docs/' target='_blank'>documentation</a>.</p>

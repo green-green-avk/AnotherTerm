@@ -1,0 +1,1 @@
+Local shell, USB and Bluetooth serial port dongles, SSH and Telnet client
