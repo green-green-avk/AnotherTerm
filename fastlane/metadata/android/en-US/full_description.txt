@@ -4,6 +4,7 @@
 <li>Adequate screen input methods as long as a terminal requires specific keyboard functions.</li>
 <li>Ability to set fixed screen columns and/or rows numbers.</li>
 <li>Shell tool to interact with the Android environment.</li>
+<li>Minimal Wayland composer (Xwayland support) <i>(experimental)</i>.</li>
 <li>Supported SSH features: zlib compression, port forwarding, password and public key authentication.</li>
 <li>Builtin screen keyboard and mouse.</li>
 <li>Hardware buttons mapping.</li>

@@ -33,6 +33,17 @@ Shell tool</a> to interact with the Android environment is also present.
 </li>
 <li><a href=\"https://green-green-avk.github.io/AnotherTerm-docs/local-shell-plugins.html#main_content\">Custom plugins</a>
 to access the Android environment and own API to create them as separate APKs.</li>
+<li>Minimal Wayland compositor in order to support Xwayland <i>(experimental)</i>.
+<ul>
+<li>Simply faster than VNC and similar solutions
+(except Xorg with shared memory extension maybe).</li>
+<li>Desktop size follows device screen.</li>
+<li>Proper screen mouse / keyboard.</li>
+<li>No Xwayland rootless mode support now: some lightweight WM like IceWM is recommended.</li>
+<li>Only <b>wl_shm</b> interface is supported at the moment.</li>
+<li>Possible future support of <b>zwp_linux_dmabuf_v1</b> interface / <b>libmesa</b>.</li>
+</ul>
+</li>
 </ul>
 </li>
 <li>Telnet (no encryption).</li>

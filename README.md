@@ -2,8 +2,8 @@
 
 Local PTY, USB and Bluetooth serial ports, SSH and Telnet terminal client for Android.
 
-* <https://play.google.com/store/apps/details?id=green_green_avk.anotherterm>
-* <https://green-green-avk.github.io/AnotherTerm-docs/>
+* Google Play: <https://play.google.com/store/apps/details?id=green_green_avk.anotherterm>
+* Wiki: <https://green-green-avk.github.io/AnotherTerm-docs/>
 
 
 ## Highlights
@@ -34,6 +34,14 @@ Local PTY, USB and Bluetooth serial ports, SSH and Telnet terminal client for An
 <https://green-green-avk.github.io/AnotherTerm-docs/installing-libusb-for-nonrooted-android.html#main_content>.
    - Custom plugins to access the Android environment and own API to create them as separate APKs —
 <https://green-green-avk.github.io/AnotherTerm-docs/local-shell-plugins.html#main_content>.
+   - Minimal Wayland compositor in order to support Xwayland *(experimental)*.
+      * Simply faster than VNC and similar solutions
+        (except Xorg with shared memory extension maybe).
+      * Desktop size follows device screen.
+      * Proper screen mouse / keyboard.
+      * No Xwayland rootless mode support now: some lightweight WM like IceWM is recommended.
+      * Only **wl_shm** interface is supported at the moment.
+      * Possible future support of **zwp_linux_dmabuf_v1** interface / **libmesa**.
 
 * Telnet (no encryption).
 
