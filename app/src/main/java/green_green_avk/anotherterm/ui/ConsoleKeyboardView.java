@@ -138,18 +138,22 @@ public class ConsoleKeyboardView extends ExtKeyboardView implements
         final Resources res = getContext().getResources();
         final int layoutNarrow;
         final int layoutWide;
+        final int layoutFull;
         final TypedArray layouts = res.obtainTypedArray(layoutRes);
         try {
             layoutNarrow = layouts.getResourceId(0, 0);
-            layoutWide = layouts.getResourceId(1, 0);
+            layoutWide = layouts.getResourceId(1, layoutNarrow);
+            layoutFull =
+                    layouts.length() > 2 ? layouts.getResourceId(2, layoutWide) : layoutWide;
         } finally {
             layouts.recycle();
         }
-        final float keyW = cfg.screenWidthDp / cfg.fontScale / 20;
+        final float kbdW = cfg.screenWidthDp / cfg.fontScale;
+        final float keyW =
+                res.getDimension(R.dimen.kbd_key_size) / res.getDisplayMetrics().scaledDensity;
+        final float kbdKeys = kbdW / keyW;
         final int kbdRes =
-                keyW >= res.getDimension(R.dimen.kbd_key_size)
-                        / res.getDisplayMetrics().scaledDensity
-                        ? layoutWide : layoutNarrow;
+                kbdKeys >= 20 ? (kbdKeys >= 23 ? layoutFull : layoutWide) : layoutNarrow;
         final ExtKeyboard.Configuration kc = new ExtKeyboard.Configuration();
         kc.keyHeight = (int) (keyHeightDp * res.getDisplayMetrics().density);
         setKeyboard(new ExtKeyboard(getContext(), kbdRes, kc));

@@ -184,10 +184,10 @@ public class ExtKeyboard {
                         parent.mDisplayHeight, parent.mDefaultHeight);
                 defaultHorizontalGap = getDimensionOrFraction(a,
                         R.styleable.ExtKeyboard_horizontalGap,
-                        parent.mDisplayWidth, parent.mDefaultHorizontalGap);
+                        parent.mDisplayWidth, parent.mDefaultHorizontalGap, parent.mDefaultWidth);
                 verticalGap = getDimensionOrFraction(a,
                         R.styleable.ExtKeyboard_verticalGap,
-                        parent.mDisplayHeight, parent.mDefaultVerticalGap);
+                        parent.mDisplayHeight, parent.mDefaultVerticalGap, parent.mDefaultHeight);
             } finally {
                 a.recycle();
             }
@@ -351,7 +351,7 @@ public class ExtKeyboard {
                         keyboard.mDisplayHeight, parent.defaultHeight);
                 gap = getDimensionOrFraction(a,
                         R.styleable.ExtKeyboard_horizontalGap,
-                        keyboard.mDisplayWidth, parent.defaultHorizontalGap);
+                        keyboard.mDisplayWidth, parent.defaultHorizontalGap, parent.defaultWidth);
             } finally {
                 a.recycle();
             }
@@ -819,25 +819,31 @@ public class ExtKeyboard {
                             mDisplayHeight, 50);
             mDefaultHorizontalGap = getDimensionOrFraction(a,
                     R.styleable.ExtKeyboard_horizontalGap,
-                    mDisplayWidth, 0);
+                    mDisplayWidth, 0, mDefaultWidth);
             mDefaultVerticalGap = getDimensionOrFraction(a,
                     R.styleable.ExtKeyboard_verticalGap,
-                    mDisplayHeight, 0);
+                    mDisplayHeight, 0, mDefaultHeight);
         } finally {
             a.recycle();
         }
     }
 
     private static int getDimensionOrFraction(@NonNull final TypedArray a,
-                                              final int index, final int base,
+                                              final int index, final int parentBase,
                                               final int defValue) {
+        return getDimensionOrFraction(a, index, parentBase, defValue, defValue);
+    }
+
+    private static int getDimensionOrFraction(@NonNull final TypedArray a,
+                                              final int index, final int parentBase,
+                                              final int defValue, final int base) {
         final TypedValue value = a.peekValue(index);
         if (value == null) return defValue;
         if (value.type == TypedValue.TYPE_DIMENSION) {
             return a.getDimensionPixelOffset(index, defValue);
         } else if (value.type == TypedValue.TYPE_FRACTION) {
             // Round it to avoid values like 47.9999 from getting truncated
-            return Math.round(a.getFraction(index, base, base, defValue));
+            return Math.round(a.getFraction(index, base, parentBase, defValue));
         }
         return defValue;
     }
