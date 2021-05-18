@@ -91,11 +91,12 @@ public final class ScratchpadActivity extends AppCompatActivity {
         @Override
         public void onBindViewHolder(@NonNull final RecyclerViewHolder holder,
                                      final int position) {
-            if (position >= list.size()) return;
+            if (position >= list.size())
+                return;
             final ScratchpadManager.Entry entry = list.get(position);
             holder.itemView.findViewById(R.id.delete).setOnClickListener(v -> {
                 final Context ctx = v.getContext();
-                UiUtils.confirm(ctx, ctx.getString(R.string.do_you_want_to_delete_this_entry),
+                UiUtils.confirm(ctx, ctx.getString(R.string.msg_do_you_want_to_delete_this_entry),
                         () -> sm.remove(entry.name));
             });
             holder.itemView.findViewById(R.id.edit).setOnClickListener(v -> {

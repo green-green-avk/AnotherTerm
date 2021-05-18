@@ -262,7 +262,7 @@
     <string name="title_scratchpad">Scratchpad</string>
     <string name="action_scratchpad">Scratchpad</string>
     <string name="msg_scratchpad_malfunction_s">Scratchpad malfunction: %s</string>
-    <string name="do_you_want_to_delete_this_entry">Do you want to delete this entry?</string>
+    <string name="msg_do_you_want_to_delete_this_entry">Do you want to delete this entry?</string>
     <string name="msg_saved_to_scratchpad">Saved to the scratchpad</string>
     <string name="msg_via_scratchpad">Via scratchpad</string>
     <string name="msg_nothing_to_save">Nothing to save</string>
