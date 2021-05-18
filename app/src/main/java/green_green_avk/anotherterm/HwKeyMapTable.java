@@ -14,7 +14,7 @@ public final class HwKeyMapTable extends HwKeyMap {
     private final SparseIntArray map = new SparseIntArray();
     private final SparseIntArray toggleModeMap = new SparseIntArray();
 
-    private int key(final int keycode, final int devId) {
+    private static int key(final int keycode, final int devId) {
         return (keycode & 0xFFFF) | (devId << 16);
     }
 

@@ -62,7 +62,7 @@ public final class ScratchpadManager {
     private final FileObserver observer;
     private final Handler mainHandler;
     private final Set<Runnable> listeners =
-            Collections.newSetFromMap(new WeakHashMap<Runnable, Boolean>());
+            Collections.newSetFromMap(new WeakHashMap<>());
 
     public ScratchpadManager(@NonNull final Context ctx, @NonNull final String dir) {
         this.ctx = ctx;
@@ -70,7 +70,8 @@ public final class ScratchpadManager {
         location = new File(ctx.getApplicationInfo().dataDir, dir);
         locationDesc = "$DATA_DIR/" + dir + "/";
         try {
-            if (location.exists() && !location.isDirectory()) location.delete();
+            if (location.exists() && !location.isDirectory())
+                location.delete();
             location.mkdirs();
         } catch (final SecurityException ignored) {
         }
@@ -80,9 +81,11 @@ public final class ScratchpadManager {
                         FileObserver.DELETE_SELF | FileObserver.MOVE_SELF) {
             @Override
             public void onEvent(final int event, @Nullable final String path) {
-                if ((event & FileObserver.ALL_EVENTS) == 0) return;
+                if ((event & FileObserver.ALL_EVENTS) == 0)
+                    return;
                 mainHandler.removeCallbacksAndMessages(null);
-                for (final Runnable r : listeners) mainHandler.post(r);
+                for (final Runnable r : listeners)
+                    mainHandler.post(r);
             }
         };
         observer.startWatching();
