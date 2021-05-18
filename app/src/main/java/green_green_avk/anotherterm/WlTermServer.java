@@ -471,8 +471,8 @@ public final class WlTermServer {
                 if (wlClient.wlSeatRes == null) return;
                 final WlPointerImpl wlPointer = wlSurface.wlClient.wlSeatRes.wlPointerRes;
                 if (wlPointer == null) return;
-                wlPointer.events.axis_discrete(WlTermServerMaps.getAxisId(axisId), (int) value);
-                wlPointer.events.axis(time, WlTermServerMaps.getAxisId(axisId), value * 10);
+                wlPointer.events.axis_discrete(WlTermServerMaps.getAxisId(axisId), -((int) value));
+                wlPointer.events.axis(time, WlTermServerMaps.getAxisId(axisId), -(value * 10));
                 wlPointer.events.axis_source(wl_pointer.Enums.Axis_source.wheel);
                 wlPointer.events.frame();
             });
