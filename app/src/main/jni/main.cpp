@@ -341,9 +341,18 @@ int main(const int argc, const char *const *const argv) {
         perror("Can't check termsh server");
         exit(1);
     }
-    const char *const uid_s = getenv("TERMSH_UID");
     int uid;
-    if (!uid_s || (uid = atoi(uid_s)) == 0) uid = getuid();
+    const char *const uid_s = getenv("TERMSH_UID");
+    if (!uid_s || uid_s[0] == '\0') uid = getuid();
+    else {
+        char *uid_e;
+        uid = (int) strtoul(uid_s, &uid_e, 0);
+        if (*uid_e != '\0') {
+            close(sock);
+            fprintf(stderr, "Bad TERMSH_UID value: `%s'\n", uid_s);
+            exit(1);
+        }
+    }
     if (cr.uid != uid) {
         close(sock);
         fprintf(stderr, "Spoofing detected!\n");
