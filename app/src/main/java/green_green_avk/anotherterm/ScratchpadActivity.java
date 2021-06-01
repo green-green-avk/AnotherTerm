@@ -61,10 +61,22 @@ public final class ScratchpadActivity extends AppCompatActivity {
             }
         };
 
+        @Nullable
+        private String currName = null;
+
         public RecyclerAdapter(@NonNull final ScratchpadManager sm) {
             this.sm = sm;
             this.sm.addListener(onUpdate);
             onUpdate.run();
+        }
+
+        private int getPosByName(@Nullable final String name) {
+            for (int i = 0; i < list.size(); i++) {
+                final ScratchpadManager.Entry entry = list.get(i);
+                if (entry.name.equals(name))
+                    return i;
+            }
+            return -1;
         }
 
         @NonNull
@@ -112,6 +124,7 @@ public final class ScratchpadActivity extends AppCompatActivity {
                         .addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION
                                 | Intent.FLAG_GRANT_WRITE_URI_PERMISSION);
                 startActivity(Intent.createChooser(i, getString(R.string.action_edit)));
+                currName = entry.name;
             });
             holder.itemView.findViewById(R.id.view).setOnClickListener(v -> {
                 final Uri uri;
@@ -181,13 +194,30 @@ public final class ScratchpadActivity extends AppCompatActivity {
         }
     }
 
+    RecyclerView wList = null;
+
+    @Override
+    public void onWindowFocusChanged(final boolean hasFocus) {
+        super.onWindowFocusChanged(hasFocus);
+        if (hasFocus && wList != null) {
+            final RecyclerAdapter a = (RecyclerAdapter) wList.getAdapter();
+            if (a != null && a.currName != null) {
+                a.onUpdate.run();
+                final int pos = a.getPosByName(a.currName);
+                if (pos >= 0)
+                    wList.smoothScrollToPosition(pos);
+                a.currName = null;
+            }
+        }
+    }
+
     @Override
     protected void onCreate(@Nullable final Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         final ScratchpadManager sm = ((App) getApplication()).scratchpadManager;
         setContentView(R.layout.scratchpad_activity);
         this.<TextView>findViewById(R.id.location).setText(sm.locationDesc);
-        final RecyclerView wList = findViewById(R.id.list);
+        wList = findViewById(R.id.list);
         wList.setAdapter(new RecyclerAdapter(sm));
         final Point sz = new Point();
         getWindowManager().getDefaultDisplay().getSize(sz);
