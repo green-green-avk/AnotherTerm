@@ -7,6 +7,9 @@ import android.content.ClipData;
 import android.content.ClipDescription;
 import android.content.ClipboardManager;
 import android.content.Context;
+import android.content.ContextWrapper;
+import android.content.res.Resources;
+import android.graphics.drawable.Drawable;
 import android.net.Uri;
 import android.os.Build;
 import android.text.Layout;
@@ -16,9 +19,11 @@ import android.view.ViewGroup;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import androidx.annotation.DrawableRes;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.UiThread;
+import androidx.appcompat.content.res.AppCompatResources;
 import androidx.core.app.ShareCompat;
 
 import java.io.IOException;
@@ -310,5 +315,30 @@ public final class UiUtils {
             return true;
         });
         v.setOnClickListener(UiUtils::showContextMenuOnBottom);
+    }
+
+    @NonNull
+    public static Drawable requireDrawable(@NonNull final Context ctx,
+                                           @DrawableRes final int res) {
+        if (res == Resources.ID_NULL)
+            throw new IllegalArgumentException("NULL resource ID passed");
+        final Drawable r = AppCompatResources.getDrawable(ctx, res);
+        if (r == null)
+            throw new IllegalArgumentException("No drawable with ID " + res
+                    + " in " + ctx.getPackageName());
+        return r;
+    }
+
+    @Nullable
+    public static Activity getActivity(@Nullable final View view) {
+        if (view == null)
+            return null;
+        Context a = view.getContext();
+        while (a != null && !(a instanceof Activity)) {
+            if (!(a instanceof ContextWrapper))
+                return null;
+            a = ((ContextWrapper) a).getBaseContext();
+        }
+        return (Activity) a;
     }
 }
