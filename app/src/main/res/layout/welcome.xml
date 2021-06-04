@@ -11,33 +11,9 @@
     <TextView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:paddingBottom="@dimen/abc_text_size_small_material"
         android:text="@string/welcome_title_tips"
         android:textAppearance="@style/TextAppearance.AppCompat.Title" />
-
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:gravity="center_vertical"
-        android:layoutDirection="ltr"
-        android:orientation="horizontal"
-        tools:ignore="UseCompoundDrawables">
-
-        <green_green_avk.anotherterm.ui.HtmlTextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            app:xmlText="@string/welcome_label_start" />
-
-        <ImageView
-            android:layout_width="wrap_content"
-            android:layout_height="@dimen/uiOptionSize"
-            android:adjustViewBounds="true"
-            android:background="@drawable/bg_grid_btn"
-            android:contentDescription="@string/action_add_fav"
-            android:focusable="true"
-            android:onClick="onNewFav"
-            app:srcCompat="@drawable/ic_menu_add" />
-
-    </LinearLayout>
 
     <green_green_avk.anotherterm.ui.HtmlTextView
         android:layout_width="match_parent"

@@ -1,14 +1,13 @@
 package green_green_avk.anotherterm.utils;
 
 import android.content.Context;
+import android.content.res.Resources;
 import android.graphics.Typeface;
 import android.text.Editable;
 import android.text.SpannableStringBuilder;
 import android.text.Spanned;
 import android.text.style.BackgroundColorSpan;
 import android.text.style.BulletSpan;
-import android.text.style.DynamicDrawableSpan;
-import android.text.style.ImageSpan;
 import android.text.style.LeadingMarginSpan;
 import android.text.style.RelativeSizeSpan;
 import android.text.style.StyleSpan;
@@ -28,6 +27,9 @@ import java.util.regex.Pattern;
 
 import green_green_avk.anotherterm.BuildConfig;
 import green_green_avk.anotherterm.R;
+import green_green_avk.anotherterm.ui.ButtonSpan;
+import green_green_avk.anotherterm.ui.FixedImageSpan;
+import green_green_avk.anotherterm.ui.InlineImageSpan;
 
 public final class XmlToSpanned {
     private static final Pattern webProtoP = Pattern.compile("^(?:https?|ftp)");
@@ -83,10 +85,10 @@ public final class XmlToSpanned {
                 final int start = output.getSpanStart(span);
                 if (pos > start) {
                     output.setSpan(span, start, pos, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
-                    if (span instanceof URLSpan && webProtoP.matcher(((URLSpan) span).getURL()).find()) {
+                    if (span instanceof URLSpan &&
+                            webProtoP.matcher(((URLSpan) span).getURL()).find()) {
                         output.append("\uD83C\uDF10");
-                        output.setSpan(new ImageSpan(ctx,
-                                        R.drawable.ic_mark_web, DynamicDrawableSpan.ALIGN_BASELINE),
+                        output.setSpan(new InlineImageSpan(ctx, R.drawable.ic_mark_web),
                                 output.length() - 2, output.length(),
                                 Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
                     }
@@ -119,17 +121,22 @@ public final class XmlToSpanned {
             else output.append(v, 1, v.length());
         }
 
+        @NonNull
+        private String fixInfoUri(@NonNull final String uri) {
+            if (uri.length() > 6 && uri.startsWith("info:/") && uri.charAt(6) != '/') {
+                return "info://" + BuildConfig.APPLICATION_ID + uri.substring(5);
+            }
+            return uri;
+        }
+
         private void beginTag() {
             switch (parser.getName().toLowerCase()) {
                 case "a": {
-                    String href = parser.getAttributeValue(null, "href");
-                    if (href == null) href = "";
-                    else {
-                        if (href.length() > 6 && href.startsWith("info:/") && href.charAt(6) != '/') {
-                            href = "info://" + BuildConfig.APPLICATION_ID + href.substring(5);
-                        }
-                    }
-                    startSpan(new URLSpan(href), output.length());
+                    final String href = parser.getAttributeValue(null, "href");
+                    if (href == null)
+                        startSpan(new URLSpan(""), output.length());
+                    else
+                        startSpan(new URLSpan(fixInfoUri(href)), output.length());
                     break;
                 }
                 case "b":
@@ -233,6 +240,35 @@ public final class XmlToSpanned {
                 case "clipboard":
                     startSpan(new ClipboardSpan(), output.length());
                     break;
+                case "img": {
+                    int res = 0;
+                    final String src = parser.getAttributeValue(null, "src");
+                    if (src != null) {
+                        if (src.charAt(0) == '@') {
+                            res = ctx.getResources().getIdentifier(src.substring(1),
+                                    "drawable", BuildConfig.APPLICATION_ID);
+                        }
+                    }
+                    if (res == Resources.ID_NULL)
+                        res = R.drawable.ic_mark_error;
+                    if (Boolean.parseBoolean(parser.getAttributeValue(
+                            null, "inline"))) {
+                        startSpan(new InlineImageSpan(ctx, res), output.length());
+                    } else {
+                        startSpan(new FixedImageSpan(ctx, res), output.length());
+                    }
+                    final String alt = parser.getAttributeValue(null, "alt");
+                    output.append(alt != null ? alt : "\u2612");
+                    break;
+                }
+                case "btn": {
+                    final String onClick =
+                            parser.getAttributeValue(null, "onclick");
+                    if (onClick == null)
+                        throw new Error("Bad <btn> tag");
+                    startSpan(new ButtonSpan(onClick), output.length());
+                    break;
+                }
             }
         }
 
@@ -240,8 +276,10 @@ public final class XmlToSpanned {
             switch (parser.getName().toLowerCase()) {
                 case "a":
                 case "b":
+                case "btn":
                 case "em":
                 case "i":
+                case "img":
                 case "kbd":
                     endSpan(output.length());
                     break;
@@ -288,8 +326,7 @@ public final class XmlToSpanned {
                             output.getSpanEnd(span)).toString();
                     span.setContent(content);
                     output.append('\u2398');
-                    output.setSpan(new ImageSpan(ctx,
-                                    R.drawable.ic_mark_copy, DynamicDrawableSpan.ALIGN_BASELINE),
+                    output.setSpan(new InlineImageSpan(ctx, R.drawable.ic_mark_copy),
                             output.length() - 1, output.length(),
                             Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
                     break;
