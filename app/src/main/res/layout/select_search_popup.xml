@@ -13,6 +13,7 @@
     <ImageButton
         android:id="@+id/b_scratchpad"
         style="@style/AppWidget.SelectSearchPopup.ImageButton"
+        android:contentDescription="@string/action_copy_to_scratchpad"
         app:srcCompat="@drawable/ic_save" />
 
     <View style="@style/AppWidget.SelectSearchPopup.Divider" />
@@ -20,11 +21,13 @@
     <ImageButton
         android:id="@+id/b_share"
         style="@style/AppWidget.SelectSearchPopup.ImageButton"
+        android:contentDescription="@string/action_share"
         app:srcCompat="?attr/actionModeShareDrawable" />
 
     <ImageButton
         android:id="@+id/b_web"
         style="@style/AppWidget.SelectSearchPopup.ImageButton"
+        android:contentDescription="@string/action_open_in_browser"
         app:srcCompat="@drawable/ic_globe" />
 
     <View style="@style/AppWidget.SelectSearchPopup.Divider" />
@@ -32,16 +35,19 @@
     <ImageButton
         android:id="@+id/b_select_mode"
         style="@style/AppWidget.SelectSearchPopup.ImageButton"
+        android:contentDescription="@string/action_select_mode"
         app:srcCompat="@drawable/ic_select_lines_rect_expr" />
 
     <ImageButton
         android:id="@+id/b_select_all"
         style="@style/AppWidget.SelectSearchPopup.ImageButton"
+        android:contentDescription="@string/action_select_all"
         app:srcCompat="?attr/actionModeSelectAllDrawable" />
 
     <ImageButton
         android:id="@+id/b_copy"
         style="@style/AppWidget.SelectSearchPopup.ImageButton"
+        android:contentDescription="@string/action_copy"
         app:srcCompat="?attr/actionModeCopyDrawable" />
 
     <View style="@style/AppWidget.SelectSearchPopup.Divider" />
@@ -49,6 +55,7 @@
     <ImageButton
         android:id="@+id/b_put"
         style="@style/AppWidget.SelectSearchPopup.ImageButton"
+        android:contentDescription="@string/action_paste_selected"
         app:srcCompat="@drawable/ic_paste_selected" />
 
     <View style="@style/AppWidget.SelectSearchPopup.Divider" />
@@ -56,6 +63,7 @@
     <ImageButton
         android:id="@+id/b_close"
         style="@style/AppWidget.SelectSearchPopup.ImageButton"
+        android:contentDescription="@string/action_close"
         app:srcCompat="@drawable/ic_close" />
 
 </LinearLayout>

@@ -316,4 +316,8 @@
     <string name="label_term_compliance">Compliance</string>
     <string name="label_term_compliance_ansi">ANSI</string>
     <string name="label_term_compliance_vt52compat">VT52 Compat</string>
+    <string name="action_paste_selected">Paste selected</string>
+    <string name="action_select_all">Select all</string>
+    <string name="action_open_in_browser">Open in browser</string>
+    <string name="action_copy_to_scratchpad">Copy to scratchpad</string>
 </resources>
