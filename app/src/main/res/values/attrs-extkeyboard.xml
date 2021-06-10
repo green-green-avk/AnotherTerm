@@ -35,6 +35,15 @@
     <declare-styleable name="ExtKeyboard_Key">
         <!-- The unicode value or comma-separated values that this key outputs. -->
         <attr name="code" format="integer" />
+        <!-- Modifiers to enforce. -->
+        <attr name="modifiers" format="flags">
+            <flag name="shiftUp" value="0x00010001" />
+            <flag name="altUp" value="0x00020002" />
+            <flag name="ctrlUp" value="0x00040004" />
+            <flag name="shiftDown" value="0x00010000" />
+            <flag name="altDown" value="0x00020000" />
+            <flag name="ctrlDown" value="0x00040000" />
+        </attr>
         <!-- The XML keyboard layout of any popup keyboard. -->
         <attr name="popupKeyboard" format="reference" />
         <!-- Key edge flags. -->

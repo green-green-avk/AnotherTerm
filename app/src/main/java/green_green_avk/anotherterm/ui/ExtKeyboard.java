@@ -53,7 +53,8 @@ import green_green_avk.anotherterm.R;
 
 /**
  * Loads an XML description of a keyboard and stores the attributes of the keys. A keyboard
- * consists of rows of keys. Unlike the {@link Keyboard} class from Android SDK, this version stores only
+ * consists of rows of keys.
+ * Unlike the {@link Keyboard} class from Android SDK, this version stores only
  * static UI description: no current user interaction state.
  */
 public class ExtKeyboard {
@@ -64,6 +65,7 @@ public class ExtKeyboard {
     private static final String TAG_KEYBOARD = "Keyboard";
     private static final String TAG_ROW = "Row";
     private static final String TAG_KEY = "Key";
+    private static final String TAG_ALT = "Alt";
 
     public static final int EDGE_LEFT = 0x01;
     public static final int EDGE_RIGHT = 0x02;
@@ -255,7 +257,7 @@ public class ExtKeyboard {
         /**
          * Whether this is a modifier key, such as Shift or Alt
          */
-        public boolean modifier;
+        public boolean isModifier;
         /**
          * The keyboard that this key belongs to
          */
@@ -364,12 +366,14 @@ public class ExtKeyboard {
                 type = a.getInt(R.styleable.ExtKeyboard_Key_type, KEY);
                 final int code = a.getInt(
                         R.styleable.ExtKeyboard_Key_code, KEYCODE_NONE);
+                final int modifiers = a.getInt(
+                        R.styleable.ExtKeyboard_Key_modifiers, 0);
                 popupResId = a.getResourceId(
                         R.styleable.ExtKeyboard_Key_popupKeyboard, 0);
-                modifier = a.getBoolean(
+                isModifier = a.getBoolean(
                         R.styleable.ExtKeyboard_Key_isModifier, false);
                 repeatable = a.getBoolean(
-                        R.styleable.ExtKeyboard_Key_isRepeatable, !modifier);
+                        R.styleable.ExtKeyboard_Key_isRepeatable, !isModifier);
                 sticky = a.getBoolean(
                         R.styleable.ExtKeyboard_Key_isSticky, false);
                 edgeFlags = a.getInt(R.styleable.ExtKeyboard_Key_keyEdgeFlags, parent.rowEdgeFlags);
@@ -377,7 +381,9 @@ public class ExtKeyboard {
                 final Drawable icon = a.getDrawable(
                         R.styleable.ExtKeyboard_Key_keyIcon);
                 if (icon != null) {
-                    icon.setBounds(0, 0, icon.getIntrinsicWidth(), icon.getIntrinsicHeight());
+                    icon.setBounds(0, 0,
+                            icon.getIntrinsicWidth(),
+                            icon.getIntrinsicHeight());
                 }
                 final CharSequence label = a.getText(R.styleable.ExtKeyboard_Key_keyLabel);
 
@@ -402,6 +408,8 @@ public class ExtKeyboard {
                 } else {
                     final KeyFcn fcn = new KeyFcn();
                     fcn.code = code;
+                    fcn.modifiers = modifiers & 0xFFFF;
+                    fcn.modifiersMask = modifiers >> 16;
                     fcn.label = label;
                     fcn.icon = icon;
                     fcn.text = text;
@@ -410,7 +418,41 @@ public class ExtKeyboard {
 
                 showBothLabels = a.getBoolean(R.styleable.ExtKeyboard_Key_showBothLabels,
                         functions.size() >= 2 &&
-                                functions.get(0).label.toString().compareToIgnoreCase(functions.get(1).label.toString()) != 0);
+                                functions.get(0).label.toString().compareToIgnoreCase(
+                                        functions.get(1).label.toString()) != 0);
+            } finally {
+                a.recycle();
+            }
+        }
+
+        public void addFunctionFromXml(@NonNull final Resources res,
+                                       @NonNull final XmlResourceParser parser) {
+            final TypedArray a = res.obtainAttributes(Xml.asAttributeSet(parser),
+                    R.styleable.ExtKeyboard_Key);
+            try {
+                final int code = a.getInt(
+                        R.styleable.ExtKeyboard_Key_code,
+                        functions.size() > 0 ? functions.get(0).code : KEYCODE_NONE);
+                final int modifiers = a.getInt(
+                        R.styleable.ExtKeyboard_Key_modifiers, 0);
+                final Drawable icon = a.getDrawable(
+                        R.styleable.ExtKeyboard_Key_keyIcon);
+                if (icon != null) {
+                    icon.setBounds(0, 0,
+                            icon.getIntrinsicWidth(),
+                            icon.getIntrinsicHeight());
+                }
+                final CharSequence label = a.getText(R.styleable.ExtKeyboard_Key_keyLabel);
+                final CharSequence text = a.getText(R.styleable.ExtKeyboard_Key_keyOutputText);
+
+                final KeyFcn fcn = new KeyFcn();
+                fcn.code = code;
+                fcn.modifiers = modifiers & 0xFFFF;
+                fcn.modifiersMask = modifiers >> 16;
+                fcn.label = label;
+                fcn.icon = icon;
+                fcn.text = text;
+                functions.add(fcn);
             } finally {
                 a.recycle();
             }
@@ -422,6 +464,14 @@ public class ExtKeyboard {
          * Key code (unicode or custom code) that this key will generate
          */
         public int code = KEYCODE_NONE;
+        /**
+         * Modifiers
+         */
+        public int modifiers = 0;
+        /**
+         * Modifiers mask
+         */
+        public int modifiersMask = 0;
         /**
          * Label to display
          */
@@ -711,8 +761,8 @@ public class ExtKeyboard {
         return keyMap.get(x, y);
     }
 
-    private void addKeyByCode(final Key key) {
-        if (!key.modifier && key.type != Key.LED) return;
+    private void addKeyByCode(@NonNull final Key key) {
+        if (!key.isModifier && key.type != Key.LED) return;
         for (final KeyFcn fcn : key.functions) {
             if (fcn.code == KEYCODE_NONE) continue;
             Set<Key> keys = mKeysByCode.get(fcn.code);
@@ -724,11 +774,13 @@ public class ExtKeyboard {
         }
     }
 
+    @NonNull
     protected Row createRowFromXml(@NonNull final Resources res,
                                    @NonNull final XmlResourceParser parser) {
         return new Row(res, this, parser);
     }
 
+    @NonNull
     protected Key createKeyFromXml(@NonNull final Resources res, @NonNull final Row parent,
                                    final int x, final int y,
                                    @NonNull final XmlResourceParser parser) {
@@ -737,6 +789,7 @@ public class ExtKeyboard {
 
     private void loadKeyboard(@NonNull final Context context,
                               @NonNull final XmlResourceParser parser) {
+        boolean inAlt = false;
         boolean inKey = false;
         boolean inRow = false;
         int x = 0;
@@ -761,17 +814,27 @@ public class ExtKeyboard {
                             inRow = false;
                         }
                     } else if (TAG_KEY.equals(tag)) {
-                        if (!inRow) throw new XmlPullParserException("A key not in a row");
+                        if (!inRow) throw new XmlPullParserException("A <Key> is not in a <Row>");
                         inKey = true;
                         key = createKeyFromXml(res, currentRow, x, y, parser);
+                    } else if (TAG_ALT.equals(tag)) {
+                        if (!inKey) throw new XmlPullParserException("An <Alt> is not in a <Key>");
+                        if (key.type == Key.LED)
+                            throw new XmlPullParserException("Alt functions of LED");
+                        inAlt = true;
+                        key.addFunctionFromXml(res, parser);
+                    } else if (TAG_KEYBOARD.equals(tag)) {
+                        parseKeyboardAttributes(res, parser);
+                    } else {
+                        throw new XmlPullParserException("Unexpected tag <" + tag + ">");
+                    }
+                } else if (event == XmlResourceParser.END_TAG) {
+                    if (inAlt) {
+                        inAlt = false;
+                    } else if (inKey) {
                         mKeys.add(key);
                         currentRow.mKeys.add(key);
                         addKeyByCode(key);
-                    } else if (TAG_KEYBOARD.equals(tag)) {
-                        parseKeyboardAttributes(res, parser);
-                    }
-                } else if (event == XmlResourceParser.END_TAG) {
-                    if (inKey) {
                         inKey = false;
                         x += key.gap + key.width;
                         if (x > mTotalWidth) {
@@ -782,7 +845,8 @@ public class ExtKeyboard {
                         y += currentRow.verticalGap;
                         y += currentRow.defaultHeight;
                     } else {
-                        // TODO: error or extend?
+                        throw new XmlPullParserException("Unexpected end tag <" +
+                                parser.getName() + ">");
                     }
                 }
             }

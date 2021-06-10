@@ -23,28 +23,68 @@
             app:keyLabel="F2" />
         <Key
             app:code="133"
-            app:keyLabel="F3" />
+            app:keyLabel="F3"
+            app:modifiers="shiftDown">
+            <Alt
+                app:keyLabel="F13"
+                app:modifiers="shiftUp" />
+        </Key>
         <Key
             app:code="134"
-            app:keyLabel="F4" />
+            app:keyLabel="F4"
+            app:modifiers="shiftDown">
+            <Alt
+                app:keyLabel="F14"
+                app:modifiers="shiftUp" />
+        </Key>
         <Key
             app:code="135"
-            app:keyLabel="F5" />
+            app:keyLabel="F5"
+            app:modifiers="shiftDown">
+            <Alt
+                app:keyLabel="F15"
+                app:modifiers="shiftUp" />
+        </Key>
         <Key
             app:code="136"
-            app:keyLabel="F6" />
+            app:keyLabel="F6"
+            app:modifiers="shiftDown">
+            <Alt
+                app:keyLabel="F16"
+                app:modifiers="shiftUp" />
+        </Key>
         <Key
             app:code="137"
-            app:keyLabel="F7" />
+            app:keyLabel="F7"
+            app:modifiers="shiftDown">
+            <Alt
+                app:keyLabel="F17"
+                app:modifiers="shiftUp" />
+        </Key>
         <Key
             app:code="138"
-            app:keyLabel="F8" />
+            app:keyLabel="F8"
+            app:modifiers="shiftDown">
+            <Alt
+                app:keyLabel="F18"
+                app:modifiers="shiftUp" />
+        </Key>
         <Key
             app:code="139"
-            app:keyLabel="F9" />
+            app:keyLabel="F9"
+            app:modifiers="shiftDown">
+            <Alt
+                app:keyLabel="F19"
+                app:modifiers="shiftUp" />
+        </Key>
         <Key
             app:code="140"
-            app:keyLabel="F10" />
+            app:keyLabel="F10"
+            app:modifiers="shiftDown">
+            <Alt
+                app:keyLabel="F20"
+                app:modifiers="shiftUp" />
+        </Key>
         <Key
             app:code="141"
             app:keyLabel="F11" />

@@ -29,7 +29,6 @@ import android.graphics.PointF;
 import android.graphics.Rect;
 import android.graphics.Typeface;
 import android.graphics.drawable.Drawable;
-import android.inputmethodservice.KeyboardView;
 import android.os.Build;
 import android.os.Message;
 import android.util.AttributeSet;
@@ -57,6 +56,45 @@ import green_green_avk.anotherterm.utils.WeakHandler;
  * It handles rendering of keys and detecting key presses and touch movements.
  */
 public abstract class ExtKeyboardView extends View /*implements View.OnClickListener*/ {
+    public static final int SHIFT = 1;
+    public static final int ALT = 2;
+    public static final int CTRL = 4;
+
+    public interface OnKeyboardActionListener {
+
+        /**
+         * Called when the user presses a key. This is sent before the {@link #onKey} is called.
+         * For keys that repeat, this is only called once.
+         *
+         * @param primaryCode the unicode of the key being pressed. If the touch is not on a valid
+         *                    key, the value will be zero.
+         */
+        void onPress(int primaryCode);
+
+        /**
+         * Called when the user releases a key. This is sent after the {@link #onKey} is called.
+         * For keys that repeat, this is only called once.
+         *
+         * @param primaryCode the code of the key that was released
+         */
+        void onRelease(int primaryCode);
+
+        /**
+         * Send a key press to the listener.
+         *
+         * @param primaryCode   this is the key that was pressed
+         * @param modifiers     modifiers values to enforce
+         * @param modifiersMask modifiers to enforce
+         */
+        void onKey(int primaryCode, int modifiers, int modifiersMask);
+
+        /**
+         * Sends a sequence of characters to the listener.
+         *
+         * @param text the sequence of characters to be displayed.
+         */
+        void onText(CharSequence text);
+    }
 
     /* To be overridden */
     public boolean getAutoRepeat() {
@@ -96,9 +134,9 @@ public abstract class ExtKeyboardView extends View /*implements View.OnClickList
     protected int mVerticalCorrection;
 
     /**
-     * Listener for {@link KeyboardView.OnKeyboardActionListener}.
+     * Listener for {@link OnKeyboardActionListener}.
      */
-    protected KeyboardView.OnKeyboardActionListener mKeyboardActionListener = null;
+    protected OnKeyboardActionListener mKeyboardActionListener = null;
 
     /**
      * The dirty region in the keyboard bitmap
@@ -281,16 +319,16 @@ public abstract class ExtKeyboardView extends View /*implements View.OnClickList
         return mKeyboard;
     }
 
-    public void setOnKeyboardActionListener(final KeyboardView.OnKeyboardActionListener listener) {
+    public void setOnKeyboardActionListener(final OnKeyboardActionListener listener) {
         mKeyboardActionListener = listener;
     }
 
     /**
-     * Returns the {@link KeyboardView.OnKeyboardActionListener} object.
+     * Returns the {@link OnKeyboardActionListener} object.
      *
      * @return the listener attached to this keyboard
      */
-    public KeyboardView.OnKeyboardActionListener getOnKeyboardActionListener() {
+    public OnKeyboardActionListener getOnKeyboardActionListener() {
         return mKeyboardActionListener;
     }
 
@@ -363,7 +401,7 @@ public abstract class ExtKeyboardView extends View /*implements View.OnClickList
         final ExtKeyboard.KeyFcn fcn = getKeyFcn(key, altKeysFcn);
         if (fcn != null) {
             if (fcn.code != ExtKeyboard.KEYCODE_NONE) {
-                mKeyboardActionListener.onKey(fcn.code, null);
+                mKeyboardActionListener.onKey(fcn.code, fcn.modifiers, fcn.modifiersMask);
                 mKeyboardActionListener.onRelease(fcn.code);
             }
             if (fcn.text != null)
