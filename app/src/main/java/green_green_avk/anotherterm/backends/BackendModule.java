@@ -161,7 +161,11 @@ public abstract class BackendModule {
             return m.invoke(this, args);
         } catch (final IllegalAccessException ignored) {
         } catch (final InvocationTargetException e) {
-            throw (RuntimeException) e.getCause();
+            final Throwable t = e.getCause();
+            if (t instanceof Error)
+                throw (Error) t;
+            if (t instanceof RuntimeException)
+                throw (RuntimeException) t;
         }
         return null;
     }
