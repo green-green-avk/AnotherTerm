@@ -7,7 +7,6 @@ import android.content.res.Configuration;
 import android.content.res.Resources;
 import android.content.res.TypedArray;
 import android.graphics.Rect;
-import android.inputmethodservice.KeyboardView;
 import android.os.Build;
 import android.text.InputType;
 import android.util.AttributeSet;
@@ -37,7 +36,7 @@ import green_green_avk.anotherterm.R;
 import green_green_avk.anotherterm.utils.KeyIntervalDetector;
 
 public class ConsoleKeyboardView extends ExtKeyboardView implements
-        KeyboardView.OnKeyboardActionListener, ConsoleInput.OnInvalidateSink {
+        ExtKeyboardView.OnKeyboardActionListener, ConsoleInput.OnInvalidateSink {
     protected ConsoleInput consoleInput = null;
     protected ConsoleOutput consoleOutput = null;
 
@@ -618,7 +617,7 @@ public class ConsoleKeyboardView extends ExtKeyboardView implements
 //    }
 
     @Override
-    public void onKey(final int primaryCode, final int[] keyCodes) {
+    public void onKey(final int primaryCode, final int modifiers, final int modifiersMask) {
         switch (primaryCode) {
             case ExtKeyboard.KEYCODE_NONE:
                 return;
@@ -649,7 +648,13 @@ public class ConsoleKeyboardView extends ExtKeyboardView implements
             default:
                 wasKey = true;
                 if (consoleOutput == null) return;
-                consoleOutput.feed(primaryCode, getAltKeys() != 0, alt, ctrl);
+                consoleOutput.feed(primaryCode,
+                        (modifiersMask & ExtKeyboardView.SHIFT) != 0 ?
+                                (modifiers & ExtKeyboardView.SHIFT) != 0 : (getAltKeys() != 0),
+                        (modifiersMask & ExtKeyboardView.ALT) != 0 ?
+                                (modifiers & ExtKeyboardView.ALT) != 0 : alt,
+                        (modifiersMask & ExtKeyboardView.CTRL) != 0 ?
+                                (modifiers & ExtKeyboardView.CTRL) != 0 : ctrl);
         }
     }
 
@@ -660,21 +665,5 @@ public class ConsoleKeyboardView extends ExtKeyboardView implements
     @Override
     public void onText(final CharSequence text) {
         consoleOutput.feed(text.toString());
-    }
-
-    @Override
-    public void swipeLeft() {
-    }
-
-    @Override
-    public void swipeRight() {
-    }
-
-    @Override
-    public void swipeUp() {
-    }
-
-    @Override
-    public void swipeDown() {
     }
 }
