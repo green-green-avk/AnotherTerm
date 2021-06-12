@@ -2,10 +2,7 @@ package green_green_avk.anotherterm.ui;
 
 import android.annotation.SuppressLint;
 import android.app.Activity;
-import android.app.SearchManager;
-import android.content.ActivityNotFoundException;
 import android.content.Context;
-import android.content.Intent;
 import android.content.res.TypedArray;
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
@@ -21,7 +18,6 @@ import android.graphics.Shader;
 import android.graphics.Typeface;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
-import android.net.Uri;
 import android.os.Build;
 import android.os.Message;
 import android.util.AttributeSet;
@@ -215,16 +211,7 @@ public class ConsoleScreenView extends ScrollableView
                                     Toast.LENGTH_SHORT).show();
                             return;
                         }
-                        try {
-                            getContext().startActivity(new Intent(Intent.ACTION_VIEW,
-                                    Uri.parse(s.replaceAll("\\s+", ""))));
-                        } catch (final ActivityNotFoundException e) {
-                            try {
-                                getContext().startActivity(new Intent(Intent.ACTION_WEB_SEARCH)
-                                        .putExtra(SearchManager.QUERY, s));
-                            } catch (final ActivityNotFoundException ignored) {
-                            }
-                        }
+                        UiUtils.tryWebSearch(getContext(), s);
                     });
             getContentView().findViewById(R.id.b_share)
                     .setOnClickListener(v ->
