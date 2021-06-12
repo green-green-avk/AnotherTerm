@@ -52,7 +52,7 @@ public abstract class ConsoleActivity extends AppCompatActivity {
     public static void showSession(@NonNull final Context ctx, final int key) {
         try {
             ctx.startActivity(getShowSessionIntent(ctx, key));
-        } catch (IllegalArgumentException ignored) {
+        } catch (final IllegalArgumentException ignored) {
         }
     }
 
@@ -60,7 +60,7 @@ public abstract class ConsoleActivity extends AppCompatActivity {
                                    final boolean inRecents) {
         try {
             ctx.startActivity(getShowSessionIntent(ctx, key, inRecents));
-        } catch (IllegalArgumentException ignored) {
+        } catch (final IllegalArgumentException ignored) {
         }
     }
 
