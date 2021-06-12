@@ -63,7 +63,7 @@
     <ImageButton
         android:id="@+id/b_close"
         style="@style/AppWidget.SelectSearchPopup.ImageButton"
-        android:contentDescription="@string/action_close"
-        app:srcCompat="@drawable/ic_close" />
+        android:contentDescription="@string/action_hide"
+        app:srcCompat="@drawable/ic_hide" />
 
 </LinearLayout>
