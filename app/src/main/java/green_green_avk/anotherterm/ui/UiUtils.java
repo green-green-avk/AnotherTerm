@@ -3,11 +3,14 @@ package green_green_avk.anotherterm.ui;
 import android.animation.LayoutTransition;
 import android.app.Activity;
 import android.app.AlertDialog;
+import android.app.SearchManager;
+import android.content.ActivityNotFoundException;
 import android.content.ClipData;
 import android.content.ClipDescription;
 import android.content.ClipboardManager;
 import android.content.Context;
 import android.content.ContextWrapper;
+import android.content.Intent;
 import android.content.res.Resources;
 import android.graphics.drawable.Drawable;
 import android.net.Uri;
@@ -221,6 +224,29 @@ public final class UiUtils {
                 return;
             }
             throw e;
+        }
+    }
+
+    public static void tryWebSearch(@NonNull final Context ctx, @NonNull final String v) {
+        try {
+            ctx.startActivity(new Intent(Intent.ACTION_VIEW,
+                    Uri.parse(v.replaceAll("\\s+", ""))));
+        } catch (final Throwable e) {
+            if (!(e instanceof ActivityNotFoundException
+                    || e instanceof AndroidException
+                    || e.getCause() instanceof AndroidException))
+                throw e;
+            try {
+                ctx.startActivity(new Intent(Intent.ACTION_WEB_SEARCH)
+                        .putExtra(SearchManager.QUERY, v));
+            } catch (final Throwable e2) {
+                if (!(e2 instanceof ActivityNotFoundException
+                        || e2 instanceof AndroidException
+                        || e2.getCause() instanceof AndroidException))
+                    throw e2;
+                Toast.makeText(ctx, R.string.msg_too_large_to_web_search,
+                        Toast.LENGTH_SHORT).show();
+            }
         }
     }
 
