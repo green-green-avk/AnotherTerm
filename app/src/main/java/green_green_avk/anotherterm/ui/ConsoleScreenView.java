@@ -190,10 +190,11 @@ public class ConsoleScreenView extends ScrollableView
             });
             getContentView().findViewById(R.id.b_select_all)
                     .setOnClickListener(v -> {
-                        selectAll();
-                        setSelectionModeIsExpr(false);
-                        setSelectionIsRect(true);
                         setSelectionMode(true);
+                        setSelectionModeIsExpr(false);
+                        selectAll();
+                        setSelectionIsRect(true);
+                        invalidateSelectionUi(false);
                     });
             getContentView().findViewById(R.id.b_copy)
                     .setOnClickListener(v -> UiUtils.toClipboard(getContext(), getSelectedText()));
@@ -575,6 +576,20 @@ public class ConsoleScreenView extends ScrollableView
         if (onStateChange != null) onStateChange.onSelectionModeChange(mode);
     }
 
+    public void invalidateSelectionUi(final boolean adjustPopup) {
+        if (selection != null) {
+            getCenterText(selection.first.x, selection.first.y, selectionMarkerFirst);
+            getCenterText(selection.last.x, selection.last.y, selectionMarkerLast);
+            if (adjustPopup && !inGesture) {
+                inGesture = true;
+                adjustSelectionPopup();
+                inGesture = false;
+                adjustSelectionPopup();
+            }
+            ViewCompat.postInvalidateOnAnimation(this);
+        }
+    }
+
     @CheckResult
     public boolean getSelectionIsRect() {
         return selection != null && selection.isRectangular;
@@ -791,7 +806,7 @@ public class ConsoleScreenView extends ScrollableView
     @CheckResult
     @Nullable
     public String getSelectedText() {
-        if (consoleInput == null) return null;
+        if (consoleInput == null || selection == null) return null;
         final ConsoleScreenSelection s = selection.getDirect();
         final StringBuilder sb = new StringBuilder();
         final ConsoleScreenBuffer.BufferTextRange v = new ConsoleScreenBuffer.BufferTextRange();
