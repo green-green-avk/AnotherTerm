@@ -2,9 +2,7 @@ package green_green_avk.anotherterm.ui;
 
 import android.content.Context;
 import android.util.AttributeSet;
-import android.view.ContextMenu;
 import android.view.LayoutInflater;
-import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
@@ -18,7 +16,6 @@ import com.jcraft.jsch.JSch;
 
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.Comparator;
 import java.util.List;
 
 import green_green_avk.anotherterm.R;
@@ -70,13 +67,9 @@ public class SshHostKeyRepositoryView extends RecyclerView {
 
         protected void refreshKeys() {
             keys = new ArrayList<>(repo.getHostKeySet());
-            Collections.sort(keys, new Comparator<SshHostKey>() {
-                @Override
-                public int compare(final SshHostKey o1, final SshHostKey o2) {
-                    return (o1.getHost() + o1.getType() + o1.getFingerPrint(jSch))
-                            .compareTo(o2.getHost() + o2.getType() + o2.getFingerPrint(jSch));
-                }
-            });
+            Collections.sort(keys, (o1, o2) ->
+                    (o1.getHost() + o1.getType() + o1.getFingerPrint(jSch))
+                            .compareTo(o2.getHost() + o2.getType() + o2.getFingerPrint(jSch)));
         }
 
         @Override
@@ -98,26 +91,20 @@ public class SshHostKeyRepositoryView extends RecyclerView {
             hostnameView.setText(key.getHost());
             typeView.setText(key.getType());
             fingerprintView.setText(key.getFingerPrint(jSch));
-            holder.itemView.findViewById(R.id.b_menu).setOnCreateContextMenuListener(new View.OnCreateContextMenuListener() {
-                @Override
-                public void onCreateContextMenu(final ContextMenu menu, final View v,
-                                                final ContextMenu.ContextMenuInfo menuInfo) {
-                    menu.add(0, R.string.action_delete, 0, R.string.action_delete)
-                            .setOnMenuItemClickListener(new MenuItem.OnMenuItemClickListener() {
-                                @Override
-                                public boolean onMenuItemClick(final MenuItem item) {
-                                    switch (item.getItemId()) {
-                                        case R.string.action_delete:
-                                            repo.remove(key);
-                                            refreshKeys();
-                                            notifyDataSetChanged();
-                                            return true;
-                                    }
-                                    return false;
-                                }
-                            });
-                }
-            });
+            holder.itemView.findViewById(R.id.b_menu)
+                    .setOnCreateContextMenuListener((menu, v, menuInfo) ->
+                            menu.add(0, R.string.action_delete,
+                                    0, R.string.action_delete)
+                                    .setOnMenuItemClickListener(item -> {
+                                        switch (item.getItemId()) {
+                                            case R.string.action_delete:
+                                                repo.remove(key);
+                                                refreshKeys();
+                                                notifyDataSetChanged();
+                                                return true;
+                                        }
+                                        return false;
+                                    }));
         }
 
         @Override

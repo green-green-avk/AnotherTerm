@@ -330,6 +330,8 @@ public final class AnsiConsoleActivity extends ConsoleActivity
                     final TextView mi = (TextView) LayoutInflater.from(this)
                             .inflate(R.layout.module_ui_button, moduleUiView, false);
                     mi.setText(m.getValue().titleRes());
+                    if (m.getValue().longTitleRes() != 0)
+                        mi.setContentDescription(getString(m.getValue().longTitleRes()));
                     mi.setOnClickListener(item -> {
                         be.callMethod(m.getKey());
                         if (menuPopupWindow != null) menuPopupWindow.dismiss();
@@ -372,6 +374,8 @@ public final class AnsiConsoleActivity extends ConsoleActivity
                         final TextView mi = (TextView) LayoutInflater.from(this)
                                 .inflate(R.layout.module_ui_button, moduleUiView, false);
                         mi.setText(m.getValue().titleRes());
+                        if (m.getValue().longTitleRes() != 0)
+                            mi.setContentDescription(getString(m.getValue().longTitleRes()));
                         mi.setOnClickListener(item -> {
                             final long bits = (long) be.callMethod(m.getKey(), 0L, 0L);
                             final boolean[] values = new boolean[a.values().length];

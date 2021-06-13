@@ -9,6 +9,7 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.Toast;
 
+import androidx.annotation.Keep;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
@@ -262,6 +263,7 @@ public final class SessionsActivity extends AppCompatActivity {
         return true;
     }
 
+    @Keep
     public void onNewFav(final View view) {
         showEditFavoriteDlg(null);
     }

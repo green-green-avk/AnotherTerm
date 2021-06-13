@@ -24,7 +24,7 @@ public final class HtmlUtils {
             } else if (c == '&') {
                 out.append("&amp;");
             } else if (c > 0x7E || c < ' ') {
-                out.append("&#" + ((int) c) + ";");
+                out.append("&#").append((int) c).append(";");
             } else if (c == ' ') {
                 while (i + 1 < end && text.charAt(i + 1) == ' ') {
                     out.append("&nbsp;");

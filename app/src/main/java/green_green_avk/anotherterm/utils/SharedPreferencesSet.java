@@ -68,18 +68,20 @@ public final class SharedPreferencesSet {
         keys.clear();
         final File dir = getDir();
         if (dir.exists() && dir.isDirectory()) {
-            for (final String i : dir.list()) {
-                final Matcher m = pat.matcher(i);
-                if (m.matches()) {
-                    try {
-                        keys.add(decKey(m.group(1)));
-                    } catch (final IllegalArgumentException e) {
-                        // Ignore improper entries.
-                        Log.w(this.getClass().getSimpleName(),
-                                "Malformed preferences file name", e);
+            final String[] names = dir.list();
+            if (names != null)
+                for (final String i : names) {
+                    final Matcher m = pat.matcher(i);
+                    if (m.matches()) {
+                        try {
+                            keys.add(decKey(m.group(1)));
+                        } catch (final IllegalArgumentException e) {
+                            // Ignore improper entries.
+                            Log.w(this.getClass().getSimpleName(),
+                                    "Malformed preferences file name", e);
+                        }
                     }
                 }
-            }
         }
     }
 
@@ -150,7 +152,9 @@ public final class SharedPreferencesSet {
         }
     }
 
-    // runnable is stored as a weak reference
+    /**
+     * @param runnable is stored as a weak reference
+     */
     @MainThread
     public void addOnChangeListener(@NonNull final Runnable runnable) {
         onChangeListeners.add(runnable);

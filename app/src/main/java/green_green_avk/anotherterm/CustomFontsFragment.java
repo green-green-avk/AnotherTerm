@@ -16,7 +16,6 @@ import android.widget.CompoundButton;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -31,7 +30,7 @@ import green_green_avk.anotherterm.utils.Misc;
 
 public final class CustomFontsFragment extends Fragment {
 
-    private static final class Adapter extends RecyclerView.Adapter {
+    private static final class Adapter extends RecyclerView.Adapter<Adapter.ViewHolder> {
 
         private final Typeface[] typefaces = new Typeface[4];
 
@@ -46,14 +45,14 @@ public final class CustomFontsFragment extends Fragment {
 
         @NonNull
         @Override
-        public RecyclerView.ViewHolder onCreateViewHolder(@NonNull final ViewGroup parent,
-                                                          final int viewType) {
+        public ViewHolder onCreateViewHolder(@NonNull final ViewGroup parent,
+                                             final int viewType) {
             return new ViewHolder(LayoutInflater.from(parent.getContext())
                     .inflate(R.layout.custom_fonts_entry, parent, false));
         }
 
         @Override
-        public void onBindViewHolder(@NonNull final RecyclerView.ViewHolder holder,
+        public void onBindViewHolder(@NonNull final ViewHolder holder,
                                      final int position) {
             final TextView wSample = holder.itemView.findViewById(R.id.sample);
             final View wSet = holder.itemView.findViewById(R.id.set);
@@ -72,68 +71,59 @@ public final class CustomFontsFragment extends Fragment {
             }
             wSet.setEnabled(canBeSet);
             wSet.setVisibility(canBeSet ? View.VISIBLE : View.INVISIBLE);
-            wSet.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(final View v) {
-                    final RequesterActivity.OnResult onResult = new RequesterActivity.OnResult() {
-                        @SuppressLint("StaticFieldLeak")
+            wSet.setOnClickListener(v -> {
+                @SuppressLint("StaticFieldLeak") final RequesterActivity.OnResult
+                        onResult = result -> {
+                    if (result == null) return;
+                    final Uri uri = result.getData();
+                    if (uri == null) return;
+                    FontsManager.prepareConsoleFontDir(true);
+                    final InputStream is;
+                    final OutputStream os;
+                    try {
+                        is = v.getContext().getContentResolver().openInputStream(uri);
+                        if (is == null) return;
+                        os = new FileOutputStream(FontsManager.getConsoleFontFiles()[position]);
+                    } catch (final FileNotFoundException e) {
+                        return;
+                    }
+                    new AsyncTask<Object, Object, Object>() {
                         @Override
-                        public void onResult(@Nullable final Intent result) {
-                            if (result == null) return;
-                            final Uri uri = result.getData();
-                            if (uri == null) return;
-                            FontsManager.prepareConsoleFontDir(true);
-                            final InputStream is;
-                            final OutputStream os;
+                        protected Object doInBackground(final Object... objects) {
                             try {
-                                is = v.getContext().getContentResolver().openInputStream(uri);
-                                if (is == null) return;
-                                os = new FileOutputStream(FontsManager.getConsoleFontFiles()[position]);
-                            } catch (final FileNotFoundException e) {
-                                return;
+                                Misc.copy(os, is);
+                            } catch (final IOException ignored) {
+                            } finally {
+                                try {
+                                    is.close();
+                                } catch (final IOException ignored) {
+                                }
+                                try {
+                                    os.close();
+                                } catch (final IOException ignored) {
+                                }
                             }
-                            new AsyncTask<Object, Object, Object>() {
-                                @Override
-                                protected Object doInBackground(final Object... objects) {
-                                    try {
-                                        Misc.copy(os, is);
-                                    } catch (final IOException ignored) {
-                                    } finally {
-                                        try {
-                                            is.close();
-                                        } catch (final IOException ignored) {
-                                        }
-                                        try {
-                                            os.close();
-                                        } catch (final IOException ignored) {
-                                        }
-                                    }
-                                    return null;
-                                }
-
-                                @Override
-                                protected void onPostExecute(final Object o) {
-                                    refresh(); // TODO: Correct this pattern - not good.
-                                }
-                            }.execute();
+                            return null;
                         }
-                    };
-                    final Intent i = new Intent(Intent.ACTION_GET_CONTENT)
-                            .addCategory(Intent.CATEGORY_OPENABLE).setType("*/*");
-                    RequesterActivity.request(
-                            v.getContext(), Intent.createChooser(i, "Pick a font"), onResult);
-                }
+
+                        @Override
+                        protected void onPostExecute(final Object o) {
+                            refresh(); // TODO: Correct this pattern - not good.
+                        }
+                    }.execute();
+                };
+                final Intent i = new Intent(Intent.ACTION_GET_CONTENT)
+                        .addCategory(Intent.CATEGORY_OPENABLE).setType("*/*");
+                RequesterActivity.request(
+                        v.getContext(), Intent.createChooser(i, "Pick a font"), onResult);
             });
             wUnset.setEnabled(canBeRemoved);
             wUnset.setVisibility(canBeRemoved ? View.VISIBLE : View.INVISIBLE);
-            wUnset.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(final View v) {
-                    if (position == 0)
-                        for (final File f : FontsManager.getConsoleFontFiles()) f.delete();
-                    else FontsManager.getConsoleFontFiles()[position].delete();
-                    refresh();
-                }
+            wUnset.setOnClickListener(v -> {
+                if (position == 0)
+                    for (final File f : FontsManager.getConsoleFontFiles()) f.delete();
+                else FontsManager.getConsoleFontFiles()[position].delete();
+                refresh();
             });
         }
 
@@ -162,13 +152,10 @@ public final class CustomFontsFragment extends Fragment {
                 container.getContext().getApplicationContext());
         wUse.setChecked(((App) getActivity().getApplication()).settings
                 .terminal_font_default_fromfiles);
-        wUse.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
-            @Override
-            public void onCheckedChanged(final CompoundButton buttonView, final boolean isChecked) {
-                final SharedPreferences.Editor spe = appSP.edit();
-                spe.putBoolean("terminal_font_default_fromfiles", isChecked);
-                spe.apply();
-            }
+        wUse.setOnCheckedChangeListener((buttonView, isChecked) -> {
+            final SharedPreferences.Editor spe = appSP.edit();
+            spe.putBoolean("terminal_font_default_fromfiles", isChecked);
+            spe.apply();
         });
         wLocation.setText(FontsManager.LOCATION_DESC);
         return v;

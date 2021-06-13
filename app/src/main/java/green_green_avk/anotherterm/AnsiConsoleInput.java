@@ -244,7 +244,7 @@ public final class AnsiConsoleInput implements BytesSink {
     }
 
     private int zao(final int v) {
-        return v < 1 ? 1 : v;
+        return Math.max(v, 1);
     }
 
     private void cr() {
@@ -828,27 +828,23 @@ public final class AnsiConsoleInput implements BytesSink {
                                         break;
                                     default:
                                         if ((a >= 30) && (a <= 37)) {
-                                            final int v = a - 30;
-                                            aa.fgColor = v;
+                                            aa.fgColor = a - 30;
                                             aa.fgColorIndexed = true;
                                             break;
                                         }
                                         if ((a >= 40) && (a <= 47)) {
-                                            final int v = a - 40;
                                             aa.bgColor = ConsoleScreenCharAttrs
-                                                    .getBasicColor(v);
+                                                    .getBasicColor(a - 40);
                                             break;
                                         }
                                         if ((a >= 90) && (a <= 97)) {
-                                            final int v = a - 90;
-                                            aa.fgColor = v | 8;
+                                            aa.fgColor = (a - 90) | 8;
                                             aa.fgColorIndexed = true;
                                             break;
                                         }
                                         if ((a >= 100) && (a <= 107)) {
-                                            final int v = a - 100;
                                             aa.bgColor = ConsoleScreenCharAttrs
-                                                    .getBasicColor(v | 8);
+                                                    .getBasicColor((a - 100) | 8);
                                             break;
                                         }
                                         if (LOG_UNKNOWN_ESC)

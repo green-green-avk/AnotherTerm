@@ -76,7 +76,7 @@ public final class XmlToAnsi implements Iterable<String> {
         }
 
         @NonNull
-        private OutputVec output = new OutputVec();
+        private final OutputVec output = new OutputVec();
 
         private int indent = 0;
         private boolean isInP = false;

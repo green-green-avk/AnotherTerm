@@ -41,8 +41,7 @@ final class BtImpl extends Impl {
     }
 
     private static final Set<BluetoothDevice> activeDevices =
-            Collections.synchronizedSet(Collections.newSetFromMap(
-                    new WeakHashMap<BluetoothDevice, Boolean>()));
+            Collections.synchronizedSet(Collections.newSetFromMap(new WeakHashMap<>()));
     private static final Object deviceLock = new Object();
     private final Object commonLock = new Object();
 

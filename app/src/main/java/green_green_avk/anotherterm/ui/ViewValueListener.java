@@ -32,26 +32,22 @@ public abstract class ViewValueListener {
                 }
             });
         } else if (view instanceof CompoundButton) {
-            ((CompoundButton) view).setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
-                @Override
-                public void onCheckedChanged(final CompoundButton buttonView,
-                                             final boolean isChecked) {
-                    onChanged(view, isChecked);
-                }
-            });
+            ((CompoundButton) view).setOnCheckedChangeListener((buttonView, isChecked) ->
+                    onChanged(view, isChecked));
         } else if (view instanceof AdapterView) {
-            ((AdapterView) view).setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
-                @Override
-                public void onItemSelected(final AdapterView<?> parent, final View view,
-                                           final int position, final long id) {
-                    onChanged(view, position);
-                }
+            ((AdapterView<?>) view).setOnItemSelectedListener(
+                    new AdapterView.OnItemSelectedListener() {
+                        @Override
+                        public void onItemSelected(final AdapterView<?> parent, final View view,
+                                                   final int position, final long id) {
+                            onChanged(view, position);
+                        }
 
-                @Override
-                public void onNothingSelected(final AdapterView<?> parent) {
-                    onChanged(view, null);
-                }
-            });
+                        @Override
+                        public void onNothingSelected(final AdapterView<?> parent) {
+                            onChanged(view, null);
+                        }
+                    });
         }
     }
 }

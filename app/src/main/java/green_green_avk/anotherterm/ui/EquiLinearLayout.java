@@ -6,7 +6,6 @@ import android.view.View;
 import android.widget.LinearLayout;
 
 import java.util.Arrays;
-import java.util.Comparator;
 
 public class EquiLinearLayout extends LinearLayout {
 
@@ -77,12 +76,8 @@ public class EquiLinearLayout extends LinearLayout {
         final int cc = getChildCount();
         final View[] ca = new View[cc];
         for (int i = 0; i < cc; ++i) ca[i] = getChildAt(i);
-        Arrays.sort(ca, new Comparator<View>() {
-            @Override
-            public int compare(final View o1, final View o2) {
-                return o1.getMeasuredHeight() - o2.getMeasuredHeight();
-            }
-        });
+        Arrays.sort(ca, (o1, o2) ->
+                Integer.compare(o1.getMeasuredHeight(), o2.getMeasuredHeight()));
         int s = Math.max(0, height - getPaddingTop() - getPaddingBottom());
         int n = cc;
         for (final View c : ca) {
@@ -143,12 +138,8 @@ public class EquiLinearLayout extends LinearLayout {
         final int cc = getChildCount();
         final View[] ca = new View[cc];
         for (int i = 0; i < cc; ++i) ca[i] = getChildAt(i);
-        Arrays.sort(ca, new Comparator<View>() {
-            @Override
-            public int compare(final View o1, final View o2) {
-                return o1.getMeasuredWidth() - o2.getMeasuredWidth();
-            }
-        });
+        Arrays.sort(ca, (o1, o2) ->
+                Integer.compare(o1.getMeasuredWidth(), o2.getMeasuredWidth()));
         int s = Math.max(0, width - getPaddingLeft() - getPaddingRight());
         int n = cc;
         for (final View c : ca) {

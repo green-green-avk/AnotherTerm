@@ -36,7 +36,8 @@ import green_green_avk.anothertermshellpluginutils.Protocol;
 
 public final class PluginsManagerFragment extends Fragment {
 
-    private static final class PluginsAdapter extends RecyclerView.Adapter {
+    private static final class PluginsAdapter
+            extends RecyclerView.Adapter<PluginsAdapter.ViewHolder> {
         @NonNull
         private List<PackageInfo> plugins;
         @Keep // Can be collected otherwise
@@ -58,10 +59,10 @@ public final class PluginsManagerFragment extends Fragment {
             plugins = PluginsManager.getPlugins();
         }
 
-        @NonNull
         @Override
-        public RecyclerView.ViewHolder onCreateViewHolder(@NonNull final ViewGroup parent,
-                                                          final int viewType) {
+        @NonNull
+        public ViewHolder onCreateViewHolder(@NonNull final ViewGroup parent,
+                                             final int viewType) {
             return new ViewHolder(
                     LayoutInflater.from(parent.getContext())
                             .inflate(R.layout.plugins_manager_entry, parent, false)
@@ -69,8 +70,7 @@ public final class PluginsManagerFragment extends Fragment {
         }
 
         @Override
-        public void onBindViewHolder(@NonNull final RecyclerView.ViewHolder holder,
-                                     final int position) {
+        public void onBindViewHolder(@NonNull final ViewHolder holder, final int position) {
             final PackageInfo pkg = plugins.get(position);
             final TextView wWarning = holder.itemView.findViewById(R.id.warning);
             final CompoundButton wEnabled = holder.itemView.findViewById(R.id.enabled);
@@ -84,73 +84,57 @@ public final class PluginsManagerFragment extends Fragment {
             wTitle.setText(pkg.applicationInfo.loadLabel(pm));
             wIcon.setImageDrawable(pkg.applicationInfo.loadIcon(pm));
             wPkgName.setText(pkg.packageName);
-            wPkgName.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(final View v) {
-                    final ClipboardManager clipboard =
-                            (ClipboardManager) v.getContext()
-                                    .getSystemService(Context.CLIPBOARD_SERVICE);
-                    if (clipboard == null) return;
-                    clipboard.setPrimaryClip(ClipData.newPlainText(
-                            null, pkg.packageName));
-                    Toast.makeText(v.getContext(), R.string.msg_copied_to_clipboard,
-                            Toast.LENGTH_SHORT).show();
-                }
+            wPkgName.setOnClickListener(v -> {
+                final ClipboardManager clipboard =
+                        (ClipboardManager) v.getContext()
+                                .getSystemService(Context.CLIPBOARD_SERVICE);
+                if (clipboard == null) return;
+                clipboard.setPrimaryClip(ClipData.newPlainText(
+                        null, pkg.packageName));
+                Toast.makeText(v.getContext(), R.string.msg_copied_to_clipboard,
+                        Toast.LENGTH_SHORT).show();
             });
             wEnabled.setChecked(PluginsManager.verify(pkg));
-            wEnabled.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
-                @Override
-                public void onCheckedChanged(final CompoundButton v, final boolean isChecked) {
-                    final Intent i = new Intent().setData(Uri.fromParts(
-                            "package", BuildConfig.APPLICATION_ID,
-                            isChecked ? null : "revoke"
+            wEnabled.setOnCheckedChangeListener((v, isChecked) -> {
+                final Intent i = new Intent().setData(Uri.fromParts(
+                        "package", BuildConfig.APPLICATION_ID,
+                        isChecked ? null : "revoke"
+                ));
+                try {
+                    v.getContext().startActivity(i.setClassName(pkg.packageName,
+                            "green_green_avk.anothertermshellpluginutils_perms.PermissionRequestActivity"
                     ));
+                } catch (final SecurityException | ActivityNotFoundException e) {
+                    // Old plugin
                     try {
-                        v.getContext().startActivity(i.setClassName(pkg.packageName,
-                                "green_green_avk.anothertermshellpluginutils_perms.PermissionRequestActivity"
+                        v.getContext().sendBroadcast(i.setClassName(pkg.packageName,
+                                "green_green_avk.anothertermshellpluginutils_perms.PermissionRequestReceiver"
                         ));
-                    } catch (final SecurityException | ActivityNotFoundException e) {
-                        // Old plugin
-                        try {
-                            v.getContext().sendBroadcast(i.setClassName(pkg.packageName,
-                                    "green_green_avk.anothertermshellpluginutils_perms.PermissionRequestReceiver"
-                            ));
-                        } catch (final SecurityException ignored) {
-                        }
+                    } catch (final SecurityException ignored) {
                     }
-                    if (isChecked) PluginsManager.grant(pkg);
-                    else PluginsManager.revoke(pkg);
                 }
+                if (isChecked) PluginsManager.grant(pkg);
+                else PluginsManager.revoke(pkg);
             });
             wEssential.setChecked(PluginsManager.getBooleanFeature(pkg.packageName,
                     PluginsManager.F_ESSENTIAL));
-            wEssential.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
-                @Override
-                public void onCheckedChanged(final CompoundButton v, final boolean isChecked) {
+            wEssential.setOnCheckedChangeListener((v, isChecked) ->
                     PluginsManager.setFeature(pkg.packageName, PluginsManager.F_ESSENTIAL,
-                            isChecked);
-                }
+                            isChecked));
+            wInfo.setOnClickListener(v -> {
+                final ComponentName cn = Plugin.getComponent(v.getContext(), pkg.packageName);
+                if (cn == null) return;
+                new InfoPageTask(v.getContext()).execute(cn);
             });
-            wInfo.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(final View v) {
-                    final ComponentName cn = Plugin.getComponent(v.getContext(), pkg.packageName);
-                    if (cn == null) return;
-                    new InfoPageTask(v.getContext()).execute(cn);
-                }
-            });
-            wAppInfo.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(final View v) {
-                    try {
-                        v.getContext().startActivity(
-                                new Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS)
-                                        .setData(Uri.fromParts(
-                                                "package", pkg.packageName, null
-                                        ))
-                        );
-                    } catch (final ActivityNotFoundException | SecurityException ignored) {
-                    }
+            wAppInfo.setOnClickListener(v -> {
+                try {
+                    v.getContext().startActivity(
+                            new Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS)
+                                    .setData(Uri.fromParts(
+                                            "package", pkg.packageName, null
+                                    ))
+                    );
+                } catch (final ActivityNotFoundException | SecurityException ignored) {
                 }
             });
             final boolean stalled = Plugin.isStalled(pkg.packageName);

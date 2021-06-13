@@ -89,29 +89,26 @@ public final class FontsManager {
         fo.startWatching();
     }
 
-    private static final Runnable refreshFromFs = new Runnable() {
-        @Override
-        public void run() {
-            try {
-                clearFontFileObservers();
-                if (!trackFontFiles) return;
-                addFontFileObserver(dataDir);
-                consoleFontDir.mkdirs();
-                if (!consoleFontDir.isDirectory()) {
-                    consoleTypefaces = defaultConsoleTypefaces;
-                    return;
-                }
-                addFontFileObserver(consoleFontDir);
-                for (final File f : consoleFontFiles)
-                    addFontFileObserver(f);
-                final Typeface[] tfs = loadFromFilesFb(consoleFontFiles);
-                if (tfs[0] == null) {
-                    consoleTypefaces = defaultConsoleTypefaces;
-                    return;
-                }
-                consoleTypefaces = tfs;
-            } catch (final SecurityException ignored) {
+    private static final Runnable refreshFromFs = () -> {
+        try {
+            clearFontFileObservers();
+            if (!trackFontFiles) return;
+            addFontFileObserver(dataDir);
+            consoleFontDir.mkdirs();
+            if (!consoleFontDir.isDirectory()) {
+                consoleTypefaces = defaultConsoleTypefaces;
+                return;
             }
+            addFontFileObserver(consoleFontDir);
+            for (final File f : consoleFontFiles)
+                addFontFileObserver(f);
+            final Typeface[] tfs = loadFromFilesFb(consoleFontFiles);
+            if (tfs[0] == null) {
+                consoleTypefaces = defaultConsoleTypefaces;
+                return;
+            }
+            consoleTypefaces = tfs;
+        } catch (final SecurityException ignored) {
         }
     };
 
@@ -255,7 +252,8 @@ public final class FontsManager {
         if (f.isDirectory() && !PtyProcess.isSymlink(f.getPath())) {
             f.setExecutable(true);
             f.setWritable(true);
-            for (final File e : f.listFiles()) delete(e);
+            final File[] ff = f.listFiles();
+            if (ff != null) for (final File fe : ff) delete(fe);
         }
         f.delete();
     }

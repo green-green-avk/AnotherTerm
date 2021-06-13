@@ -47,12 +47,7 @@ public final class BottomImePlaceholderView extends View {
 
     private final WeakHandler handler = new WeakHandler();
 
-    private final Runnable rLayout = new Runnable() {
-        @Override
-        public void run() {
-            requestLayout();
-        }
-    };
+    private final Runnable rLayout = this::requestLayout;
 
     private int oldH = -1;
 

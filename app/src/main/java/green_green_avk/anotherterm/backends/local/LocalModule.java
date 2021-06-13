@@ -220,8 +220,8 @@ public final class LocalModule extends BackendModule {
         output = stream;
     }
 
-    @NonNull
     @Override
+    @NonNull
     public OutputStream getOutputStream() {
         return input;
     }
@@ -335,8 +335,8 @@ public final class LocalModule extends BackendModule {
         }
     }
 
-    @NonNull
     @Override
+    @NonNull
     public String getConnDesc() {
         return "Local Terminal";
     }

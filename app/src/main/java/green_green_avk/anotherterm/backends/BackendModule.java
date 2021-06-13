@@ -31,7 +31,9 @@ import java.util.Set;
 public abstract class BackendModule {
 
     public static class Meta {
+        @NonNull
         protected final Set<String> schemes;
+        @NonNull
         public final Map<Method, ExportedUIMethod> methods;
 
         public Meta(@NonNull final Class<?> klass) {
@@ -49,6 +51,7 @@ public abstract class BackendModule {
             this.methods = initMethods(klass);
         }
 
+        @NonNull
         protected Map<Method, ExportedUIMethod> initMethods(@NonNull final Class<?> klass) {
             final Map<Method, ExportedUIMethod> map = new HashMap<>();
             for (final Method m : klass.getDeclaredMethods()) {
@@ -102,7 +105,6 @@ public abstract class BackendModule {
         }
 
         @NonNull
-
         public Map<String, ?> fromUri(@NonNull final Uri uri) {
             if (uri.isOpaque()) throw new ParametersUriParseException();
             final Map<String, String> params = new HashMap<>();
@@ -337,12 +339,7 @@ public abstract class BackendModule {
     private final Object mWakeLockLock = new Object();
     private volatile PowerManager.WakeLock mWakeLock = null;
     private final Handler mWakeLockHandler = new Handler(Looper.getMainLooper());
-    private final Runnable mWakeLockReleaser = new Runnable() {
-        @Override
-        public void run() {
-            releaseWakeLock();
-        }
-    };
+    private final Runnable mWakeLockReleaser = this::releaseWakeLock;
     private Runnable onWakeLockEvent = null;
     private Handler onWakeLockEventHandler = null;
     private final Object onWakeLockEventLock = new Object();

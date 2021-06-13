@@ -226,7 +226,7 @@ public class TelnetClient {
     }
 
     protected final Set<OnEventListener> onEventListeners =
-            Collections.newSetFromMap(new WeakHashMap<OnEventListener, Boolean>());
+            Collections.newSetFromMap(new WeakHashMap<>());
 
     public void addOnEventListener(@NonNull final OnEventListener l) {
         onEventListeners.add(l);
@@ -423,22 +423,19 @@ public class TelnetClient {
         inject(buffer.array(), buffer.arrayOffset() + buffer.position(), buffer.limit());
     }
 
-    protected final Runnable reader = new Runnable() {
-        @Override
-        public void run() {
-            while (true) {
-                try {
-                    final Markup mu = receive();
-                    if (mu == null) return;
-                    for (final Mark m : mu) {
-                        if (m.type == Mark.Type.DATA) {
-                            inject(m.buffer);
-                        }
+    protected final Runnable reader = () -> {
+        while (true) {
+            try {
+                final Markup mu = receive();
+                if (mu == null) return;
+                for (final Mark m : mu) {
+                    if (m.type == Mark.Type.DATA) {
+                        inject(m.buffer);
                     }
-                } catch (final TelnetClientException e) {
-                    if (mIsConnected) reportError(e);
-                    return;
                 }
+            } catch (final TelnetClientException e) {
+                if (mIsConnected) reportError(e);
+                return;
             }
         }
     };
