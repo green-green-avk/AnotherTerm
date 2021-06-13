@@ -461,8 +461,8 @@ public final class SshModule extends BackendModule {
         };
     }
 
-    @NonNull
     @Override
+    @NonNull
     public OutputStream getOutputStream() {
         return mOS_get;
     }
@@ -556,8 +556,8 @@ public final class SshModule extends BackendModule {
                 ((ChannelShell) channel).setPtySize(col, row, wp, hp);
     }
 
-    @NonNull
     @Override
+    @NonNull
     public String getConnDesc() {
         return String.format(Locale.getDefault(), "ssh://%s@%s:%d", username, hostname, port);
     }

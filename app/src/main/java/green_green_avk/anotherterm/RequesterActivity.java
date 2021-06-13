@@ -52,14 +52,11 @@ public final class RequesterActivity extends AppCompatActivity {
         }
 
         public void cancel() {
-            new Handler(Looper.getMainLooper()).post(new Runnable() {
-                @Override
-                public void run() {
-                    if (ctx != null) {
-                        returnResult(id, null);
-                        removeRequest(ctx, id);
-                        ctx = null;
-                    }
+            new Handler(Looper.getMainLooper()).post(() -> {
+                if (ctx != null) {
+                    returnResult(id, null);
+                    removeRequest(ctx, id);
+                    ctx = null;
                 }
             });
         }
@@ -123,34 +120,28 @@ public final class RequesterActivity extends AppCompatActivity {
     public static void showAsNotification(@NonNull final Context ctx, @NonNull final Intent intent,
                                           @NonNull final String title,
                                           @NonNull final String message,
-                                          @Nullable final String channelId,
+                                          @NonNull final String channelId,
                                           final int priority) {
         final int id = obtainId();
-        new Handler(Looper.getMainLooper()).post(new Runnable() {
-            @Override
-            public void run() {
-                final Notification n = new NotificationCompat.Builder(ctx, channelId)
-                        .setContentTitle(title)
-                        .setContentText(message)
-                        .setSmallIcon(R.drawable.ic_stat_serv)
-                        .setPriority(priority)
-                        .setContentIntent(makeOwnPendingIntent(ctx, intent))
-                        .build();
-                NotificationManagerCompat.from(ctx).notify(C.REQUEST_USER_TAG, id, n);
-            }
+        new Handler(Looper.getMainLooper()).post(() -> {
+            final Notification n = new NotificationCompat.Builder(ctx, channelId)
+                    .setContentTitle(title)
+                    .setContentText(message)
+                    .setSmallIcon(R.drawable.ic_stat_serv)
+                    .setPriority(priority)
+                    .setContentIntent(makeOwnPendingIntent(ctx, intent))
+                    .build();
+            NotificationManagerCompat.from(ctx).notify(C.REQUEST_USER_TAG, id, n);
         });
     }
 
     public static Request request(@NonNull final Context ctx, @NonNull final Intent intent,
                                   @Nullable final OnResult onResult) {
         final int id = obtainId();
-        new Handler(Looper.getMainLooper()).post(new Runnable() {
-            @Override
-            public void run() {
-                requests.append(id, new RequestData(id, onResult, true));
-                ctx.startActivity(makeOwnIntent(ctx, id, intent)
-                        .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK));
-            }
+        new Handler(Looper.getMainLooper()).post(() -> {
+            requests.append(id, new RequestData(id, onResult, true));
+            ctx.startActivity(makeOwnIntent(ctx, id, intent)
+                    .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK));
         });
         return new Request(ctx, id);
     }
@@ -162,14 +153,11 @@ public final class RequesterActivity extends AppCompatActivity {
                                   @Nullable final String channelId,
                                   final int priority) {
         final int id = obtainId();
-        new Handler(Looper.getMainLooper()).post(new Runnable() {
-            @Override
-            public void run() {
-                requests.append(id, new RequestData(id, onResult, false));
-                final Notification n = makeOwnNotification(ctx, channelId, priority,
-                        makeOwnIntent(ctx, id, intent), title, message);
-                NotificationManagerCompat.from(ctx).notify(C.REQUEST_USER_TAG, id, n);
-            }
+        new Handler(Looper.getMainLooper()).post(() -> {
+            requests.append(id, new RequestData(id, onResult, false));
+            final Notification n = makeOwnNotification(ctx, channelId, priority,
+                    makeOwnIntent(ctx, id, intent), title, message);
+            NotificationManagerCompat.from(ctx).notify(C.REQUEST_USER_TAG, id, n);
         });
         return new Request(ctx, id);
     }

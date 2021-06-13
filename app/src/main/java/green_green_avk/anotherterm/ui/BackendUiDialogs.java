@@ -40,7 +40,7 @@ public final class BackendUiDialogs implements BackendUiInteraction,
 
     private final Handler handler = new Handler(Looper.getMainLooper());
 
-    private final WeakBlockingSync<Activity> ctxRef = new WeakBlockingSync<>();
+    private final WeakBlockingSync<Activity> activityRef = new WeakBlockingSync<>();
 
     private final Set<Dialog> dialogs = Collections.newSetFromMap(
             new WeakHashMap<>());
@@ -57,7 +57,7 @@ public final class BackendUiDialogs implements BackendUiInteraction,
     }
 
     @UiThread
-    private boolean isShownPrompt() {
+    private boolean isShowingPrompt() {
         final Dialog d = promptDialog.get();
         return d != null && d.isShowing();
     }
@@ -84,13 +84,13 @@ public final class BackendUiDialogs implements BackendUiInteraction,
         dialogs.add(d);
     }
 
-    @UiThread
     @Override
+    @UiThread
     public void setActivity(@Nullable final Activity ctx) {
-        if (ctx == ctxRef.getNoBlock()) return;
+        if (ctx == activityRef.getNoBlock()) return;
         synchronized (msgQueueLock) {
             msgAdapterRef = new WeakReference<>(null);
-            ctxRef.set(ctx);
+            activityRef.set(ctx);
             if (ctx != null) {
                 final Runnable ps = promptState;
                 if (ps != null) ps.run();
@@ -109,8 +109,8 @@ public final class BackendUiDialogs implements BackendUiInteraction,
             synchronized (promptLock) {
                 final BlockingSync<String> result = new BlockingSync<>();
                 promptState = () -> {
-                    if (isShownPrompt()) return;
-                    final Activity ctx = ctxRef.getNoBlock();
+                    if (isShowingPrompt()) return;
+                    final Activity ctx = activityRef.getNoBlock();
                     if (ctx == null) return;
                     final EditText et = new EditText(ctx);
                     final DialogInterface.OnClickListener listener = (dialog, which) -> {
@@ -177,8 +177,8 @@ public final class BackendUiDialogs implements BackendUiInteraction,
             synchronized (promptLock) {
                 final BlockingSync<Boolean> result = new BlockingSync<>();
                 promptState = () -> {
-                    if (isShownPrompt()) return;
-                    final Activity ctx = ctxRef.getNoBlock();
+                    if (isShowingPrompt()) return;
+                    final Activity ctx = activityRef.getNoBlock();
                     if (ctx == null) return;
                     final DialogInterface.OnClickListener listener = (dialog, which) -> {
                         if (which == DialogInterface.BUTTON_POSITIVE) {
@@ -215,7 +215,7 @@ public final class BackendUiDialogs implements BackendUiInteraction,
     public void showMessage(@NonNull final String message) {
         handler.post(() -> {
             synchronized (msgQueueLock) {
-                final Activity ctx = ctxRef.getNoBlock();
+                final Activity ctx = activityRef.getNoBlock();
                 if (ctx == null) {
                     msgQueue.add(new LogMessage(message));
                     return;
@@ -230,7 +230,7 @@ public final class BackendUiDialogs implements BackendUiInteraction,
 
     @Override
     public void showToast(@NonNull final String message) {
-        final Activity ctx = ctxRef.getNoBlock();
+        final Activity ctx = activityRef.getNoBlock();
         if (ctx == null) return;
         ctx.runOnUiThread(() -> Toast.makeText(ctx, message, Toast.LENGTH_SHORT).show());
     }
@@ -243,7 +243,7 @@ public final class BackendUiDialogs implements BackendUiInteraction,
             synchronized (promptLock) {
                 final BlockingSync<Object> result = new BlockingSync<>();
                 promptState = () -> {
-                    final Activity ctx = ctxRef.getNoBlock();
+                    final Activity ctx = activityRef.getNoBlock();
                     if (ctx == null) return;
                     final DialogInterface.OnClickListener listener = (dialog, which) -> {
                         if (which == DialogInterface.BUTTON_POSITIVE) {
@@ -285,7 +285,7 @@ public final class BackendUiDialogs implements BackendUiInteraction,
 
     @Override
     public boolean promptPermissions(@NonNull final String[] perms) throws InterruptedException {
-        final Activity ctx = ctxRef.get();
+        final Activity ctx = activityRef.get();
         int[] result = Permissions.requestBlocking(ctx, perms);
         boolean r = true;
         for (int v : result) r = r && v == PackageManager.PERMISSION_GRANTED;
@@ -293,11 +293,11 @@ public final class BackendUiDialogs implements BackendUiInteraction,
     }
 
     public boolean hasUi() {
-        return ctxRef.getNoBlock() != null;
+        return activityRef.getNoBlock() != null;
     }
 
     public void waitForUi() throws InterruptedException {
-        ctxRef.get();
+        activityRef.get();
     }
 
     private final int sessionKey;

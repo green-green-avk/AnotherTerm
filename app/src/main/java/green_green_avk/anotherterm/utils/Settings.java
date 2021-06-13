@@ -5,6 +5,7 @@ import android.content.SharedPreferences;
 import android.content.res.Resources;
 
 import androidx.annotation.AnyRes;
+import androidx.annotation.Keep;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
@@ -29,23 +30,20 @@ public abstract class Settings {
     protected void onAfterChange(@NonNull final String key, @Nullable final Object value) {
     }
 
-    private SharedPreferences.OnSharedPreferenceChangeListener onChange =
-            new SharedPreferences.OnSharedPreferenceChangeListener() {
-                @Override
-                public void onSharedPreferenceChanged(final SharedPreferences sharedPreferences,
-                                                      final String key) {
-                    try {
-                        final Object value = get(key);
-                        onBeforeChange(key, value);
-                        set(key, sharedPreferences, value);
-                        onAfterChange(key, value);
-                    } catch (final NoSuchElementException ignored) {
-                    } catch (final IllegalArgumentException ignored) {
-                    }
+    @Keep
+    private final SharedPreferences.OnSharedPreferenceChangeListener onChange =
+            (sharedPreferences, key) -> {
+                try {
+                    final Object value = get(key);
+                    onBeforeChange(key, value);
+                    set(key, sharedPreferences, value);
+                    onAfterChange(key, value);
+                } catch (final NoSuchElementException ignored) {
+                } catch (final IllegalArgumentException ignored) {
                 }
             };
 
-    public void init(@NonNull final Context ctx, @NonNull final SharedPreferences sp) {
+    public final void init(@NonNull final Context ctx, @NonNull final SharedPreferences sp) {
         final SharedPreferences.Editor editor = sp.edit(); // for repair
         final Resources rr = ctx.getResources();
         final Field[] ff = getClass().getFields();
@@ -58,7 +56,7 @@ public abstract class Settings {
             } catch (final IllegalAccessException e) {
                 continue;
             }
-            final Class c = f.getType();
+            final Class<?> c = f.getType();
             if (c.equals(String.class)) {
                 if (a.defRes() != 0)
                     v = rr.getString(a.defRes());
@@ -93,7 +91,7 @@ public abstract class Settings {
         sp.registerOnSharedPreferenceChangeListener(onChange);
     }
 
-    public Object get(@NonNull final String k) {
+    public final Object get(@NonNull final String k) {
         final Field f;
         try {
             f = getClass().getField(k);
@@ -108,7 +106,7 @@ public abstract class Settings {
         }
     }
 
-    public void set(@NonNull final String k, @Nullable final Object v) {
+    public final void set(@NonNull final String k, @Nullable final Object v) {
         final Field f;
         try {
             f = getClass().getField(k);
@@ -123,8 +121,8 @@ public abstract class Settings {
         }
     }
 
-    public void set(@NonNull final String k, @NonNull final SharedPreferences sp,
-                    @Nullable final Object dv) {
+    public final void set(@NonNull final String k, @NonNull final SharedPreferences sp,
+                          @Nullable final Object dv) {
         final Field f;
         try {
             f = getClass().getField(k);
@@ -133,13 +131,15 @@ public abstract class Settings {
         }
         if (f.getAnnotation(Param.class) == null) throw new NoSuchElementException();
         final Object v;
-        final Class c = f.getType();
+        final Class<?> c = f.getType();
         try {
             if (c.equals(String.class)) {
                 v = sp.getString(k, (String) dv);
             } else if (c.equals(Integer.TYPE)) {
+                if (dv == null) throw new ClassCastException();
                 v = sp.getInt(k, (int) dv);
             } else if (c.equals(Boolean.TYPE)) {
+                if (dv == null) throw new ClassCastException();
                 v = sp.getBoolean(k, (boolean) dv);
             } else {
                 throw new UnsupportedOperationException();
@@ -154,7 +154,7 @@ public abstract class Settings {
         }
     }
 
-    public void fill(@NonNull final Map<String, ?> map) {
+    public final void fill(@NonNull final Map<String, ?> map) {
         final Field[] ff = getClass().getFields();
         for (final Field f : ff) {
             if (map.containsKey(f.getName()))

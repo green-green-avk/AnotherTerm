@@ -95,7 +95,7 @@ public final class PluginsManager {
     }
 
     private static final Set<OnChanged> onChanged =
-            Collections.newSetFromMap(new WeakHashMap<OnChanged, Boolean>());
+            Collections.newSetFromMap(new WeakHashMap<>());
 
     public static void registerOnChanged(@NonNull final OnChanged l) {
         onChanged.add(l);
@@ -110,7 +110,7 @@ public final class PluginsManager {
 
     public static boolean verify(@NonNull final PackageInfo pkg) {
         final Set<String> fps = trustedPluginsPrefs.getStringSet(pkg.packageName,
-                Collections.<String>emptySet());
+                Collections.emptySet());
         if (pkg.signatures == null || pkg.signatures.length <= 0
                 || pkg.signatures.length != fps.size()) return false;
         for (final Signature s : pkg.signatures)

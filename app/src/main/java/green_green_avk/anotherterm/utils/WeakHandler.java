@@ -59,7 +59,7 @@ public class WeakHandler {
         }
 
         @Override
-        public void dispatchMessage(final Message msg) {
+        public void dispatchMessage(@NonNull final Message msg) {
             final WeakHandler wh = that.get();
             if (wh == null) return;
             if (msg.obj instanceof ObjWrapper) {
@@ -82,7 +82,7 @@ public class WeakHandler {
         }
 
         @Override
-        public boolean sendMessageAtTime(final Message msg, final long uptimeMillis) {
+        public boolean sendMessageAtTime(@NonNull final Message msg, final long uptimeMillis) {
             final WeakHandler wh = that.get();
             if (wh == null) return false;
             // Just for Message.sendToTarget()
@@ -323,19 +323,15 @@ public class WeakHandler {
         return handlerWrapper.postAtFrontOfQueue(obtainRunnableWrapper(r));
     }
 
-    public void removeCallbacks(@Nullable Runnable r) {
-        if (r != null) {
-            r = getRunnableWrapper(r);
-            if (r == null) return;
-        }
+    public void removeCallbacks(@NonNull Runnable r) {
+        r = getRunnableWrapper(r);
+        if (r == null) return;
         handlerWrapper.removeCallbacks(r);
     }
 
-    public void removeCallbacks(@Nullable Runnable r, @Nullable Object token) {
-        if (r != null) {
-            r = getRunnableWrapper(r);
-            if (r == null) return;
-        }
+    public void removeCallbacks(@NonNull Runnable r, @Nullable Object token) {
+        r = getRunnableWrapper(r);
+        if (r == null) return;
         if (token != null) {
             token = getObjWrapper(token);
             if (token == null) return;

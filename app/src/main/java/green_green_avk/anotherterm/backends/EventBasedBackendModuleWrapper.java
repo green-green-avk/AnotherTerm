@@ -39,7 +39,7 @@ public final class EventBasedBackendModuleWrapper {
     @SuppressLint("HandlerLeak")
     private Handler handler = new Handler() {
         @Override
-        public void handleMessage(final Message msg) {
+        public void handleMessage(@NonNull final Message msg) {
             if (listener == null) return;
             switch (msg.what) {
                 case MSG_KILL_SERV:
@@ -183,7 +183,7 @@ public final class EventBasedBackendModuleWrapper {
         serviceThread.start();
         serviceHandler = new Handler(serviceThread.getLooper()) {
             @Override
-            public void handleMessage(final Message msg) {
+            public void handleMessage(@NonNull final Message msg) {
                 try {
                     switch (msg.what) {
                         case MSG_S_WRITE: {

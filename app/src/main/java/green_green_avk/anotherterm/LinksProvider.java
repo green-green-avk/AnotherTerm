@@ -8,7 +8,6 @@ import android.content.pm.ProviderInfo;
 import android.database.Cursor;
 import android.database.MatrixCursor;
 import android.net.Uri;
-import android.os.Bundle;
 import android.os.ParcelFileDescriptor;
 import android.provider.OpenableColumns;
 import android.text.TextUtils;
@@ -68,14 +67,14 @@ public final class LinksProvider extends ContentProvider {
         throw new UnsupportedOperationException("Not supported");
     }
 
-    @Nullable
     @Override
+    @Nullable
     public String getType(@NonNull final Uri uri) {
         return "text/html";
     }
 
-    @Nullable
     @Override
+    @Nullable
     public String[] getStreamTypes(@NonNull final Uri uri, @NonNull final String mimeTypeFilter) {
         return new String[]{"text/html"};
     }
@@ -114,21 +113,16 @@ public final class LinksProvider extends ContentProvider {
                 uri.toString(), TextUtils.htmlEncode(uri.toString())).getBytes(Misc.UTF8);
     }
 
-    private final PipeDataWriter<String> streamWriter = new PipeDataWriter<String>() {
-        @Override
-        public void writeDataToPipe(@NonNull final ParcelFileDescriptor output,
-                                    @NonNull final Uri uri, @NonNull final String mimeType,
-                                    @Nullable final Bundle opts, @Nullable final String args) {
-            final FileOutputStream os = new FileOutputStream(output.getFileDescriptor());
-            try {
-                os.write(buildContent(getTargetUri(uri), getDesc(uri))); // Warning: length!
-            } catch (final IOException ignored) {
-            }
+    private final PipeDataWriter<String> streamWriter = (output, uri, mimeType, opts, args) -> {
+        final FileOutputStream os = new FileOutputStream(output.getFileDescriptor());
+        try {
+            os.write(buildContent(getTargetUri(uri), getDesc(uri))); // Warning: length!
+        } catch (final IOException ignored) {
         }
     };
 
-    @Nullable
     @Override
+    @Nullable
     public ParcelFileDescriptor openFile(@NonNull final Uri uri, @NonNull final String mode)
             throws FileNotFoundException {
 //        Log.d("QUERY", String.format(Locale.ROOT, "[%s] %s", uri, mode));

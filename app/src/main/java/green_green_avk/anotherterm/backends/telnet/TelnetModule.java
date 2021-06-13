@@ -139,8 +139,8 @@ public final class TelnetModule extends BackendModule {
         tc.setOutputStream(stream);
     }
 
-    @NonNull
     @Override
+    @NonNull
     public OutputStream getOutputStream() {
         return mOS_get;
     }
@@ -204,11 +204,13 @@ public final class TelnetModule extends BackendModule {
         }
     }
 
-    @NonNull
     @Override
+    @NonNull
     public String getConnDesc() {
         if (StringUtils.isEmpty(username))
-            return String.format(Locale.getDefault(), "telnet://%s:%d", hostname, port);
-        return String.format(Locale.getDefault(), "telnet://%s@%s:%d", username, hostname, port);
+            return String.format(Locale.getDefault(), "telnet://%s:%d",
+                    hostname, port);
+        return String.format(Locale.getDefault(), "telnet://%s@%s:%d",
+                username, hostname, port);
     }
 }

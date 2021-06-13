@@ -45,12 +45,8 @@ public final class Permissions extends Requester {
             result.set(new int[0]);
             return;
         }
-        ((FragmentActivity) ctx).runOnUiThread(new Runnable() {
-            @Override
-            public void run() {
-                prepare(ctx, new UIFragment()).requestPermissions(result, perms);
-            }
-        });
+        ((FragmentActivity) ctx).runOnUiThread(() ->
+                prepare(ctx, new UIFragment()).requestPermissions(result, perms));
     }
 
     private static final Object requestBlockingLock = new Object();
