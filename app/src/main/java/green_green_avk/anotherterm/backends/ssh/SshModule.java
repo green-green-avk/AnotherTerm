@@ -29,6 +29,7 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
 import java.util.Vector;
+import java.util.concurrent.atomic.AtomicLong;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -36,6 +37,8 @@ import green_green_avk.anotherterm.R;
 import green_green_avk.anotherterm.backends.BackendException;
 import green_green_avk.anotherterm.backends.BackendInterruptedException;
 import green_green_avk.anotherterm.backends.BackendModule;
+import green_green_avk.anotherterm.backends.BackendUiInteraction;
+import green_green_avk.anotherterm.ui.BackendUiDialogs;
 import green_green_avk.anotherterm.utils.SshHostKeyRepository;
 
 public final class SshModule extends BackendModule {
@@ -130,26 +133,32 @@ public final class SshModule extends BackendModule {
         }
     };
 
-    private String hostname;
-    private int port = 22;
-    private String username;
-    private String kex = JSch.getConfig("kex");
-    private String cipher_s2c = JSch.getConfig("cipher.s2c");
-    private String cipher_c2s = JSch.getConfig("cipher.c2s");
-    private String mac_s2c = JSch.getConfig("mac.s2c");
-    private String mac_c2s = JSch.getConfig("mac.c2s");
-    private boolean preferKeyAuth = false;
-    private String terminalString = "xterm";
-    private String execute = "";
-    private int keepaliveInterval = 0;
-    private boolean preferCompression = false;
+    private static class SshSessionSt {
+        private String hostname = null;
+        private int port = 22;
+        private String username = null;
+        private String kex = JSch.getConfig("kex");
+        private String cipher_s2c = JSch.getConfig("cipher.s2c");
+        private String cipher_c2s = JSch.getConfig("cipher.c2s");
+        private String mac_s2c = JSch.getConfig("mac.s2c");
+        private String mac_c2s = JSch.getConfig("mac.c2s");
+        private boolean preferKeyAuth = false;
+        private int keepaliveInterval = 0;
+        private boolean preferCompression = false;
 
-    private boolean X11 = false;
-    private String X11Host = "127.0.0.1";
-    private int X11Port = 0;
+        @NonNull
+        private String X11Host = "127.0.0.1";
+        private int X11Port = 0;
 
-    private final Set<PortMapping> localPortMappings = new HashSet<>();
-    private final Set<PortMapping> remotePortMappings = new HashSet<>();
+        private final Set<PortMapping> localPortMappings = new HashSet<>();
+        private final Set<PortMapping> remotePortMappings = new HashSet<>();
+
+        private final JSch jsch = new JSch();
+        private volatile Session session = null;
+        private final Object lock = new Object();
+        private final AtomicLong refs = new AtomicLong(0);
+        private final BackendUiDialogs ui = new BackendUiDialogs();
+    }
 
     private static final class PortMapping {
         private int srcPort = 0;
@@ -194,42 +203,74 @@ public final class SshModule extends BackendModule {
         }
     }
 
+    @NonNull
+    private final SshSessionSt sshSessionSt;
+
+    @NonNull
+    private String terminalString = "xterm";
+    @NonNull
+    private String execute = "";
+    private boolean X11 = false;
+
+    public SshModule() {
+        sshSessionSt = new SshSessionSt();
+        initIdentityRepo(sshSessionSt);
+    }
+
+    private SshModule(@NonNull final SshModule that) {
+        sshSessionSt = that.sshSessionSt;
+        terminalString = that.terminalString;
+        execute = that.execute;
+        X11 = that.X11;
+    }
+
+    @Override
+    public void setUi(final BackendUiInteraction ui) {
+        super.setUi(ui);
+        if (ui instanceof BackendUiDialogs) {
+            ((BackendUiDialogs) ui).parent = sshSessionSt.ui;
+        }
+    }
+
     @Override
     public void setParameters(@NonNull final Map<String, ?> params) {
         final ParametersWrapper pp = new ParametersWrapper(params);
-        hostname = pp.getString("hostname", null);
-        if (hostname == null) throw new BackendException("`hostname' is not defined");
+        sshSessionSt.hostname = pp.getString("hostname", null);
+        if (sshSessionSt.hostname == null) throw new BackendException("`hostname' is not defined");
 
-        port = pp.getInt("port", port);
+        sshSessionSt.port = pp.getInt("port", sshSessionSt.port);
 
-        username = pp.getString("username", null);
-        if (username == null) throw new BackendException("`username' is not defined");
+        sshSessionSt.username = pp.getString("username", null);
+        if (sshSessionSt.username == null) throw new BackendException("`username' is not defined");
 
-        kex = pp.getString("jsch.cfg.kex", kex);
-        cipher_s2c = pp.getString("jsch.cfg.cipher.s2c", cipher_s2c);
-        cipher_c2s = pp.getString("jsch.cfg.cipher.c2s", cipher_c2s);
-        mac_s2c = pp.getString("jsch.cfg.mac.s2c", mac_s2c);
-        mac_c2s = pp.getString("jsch.cfg.mac.c2s", mac_c2s);
-        preferKeyAuth = pp.getBoolean("prefer_key_auth", preferKeyAuth);
+        sshSessionSt.kex = pp.getString("jsch.cfg.kex", sshSessionSt.kex);
+        sshSessionSt.cipher_s2c = pp.getString("jsch.cfg.cipher.s2c", sshSessionSt.cipher_s2c);
+        sshSessionSt.cipher_c2s = pp.getString("jsch.cfg.cipher.c2s", sshSessionSt.cipher_c2s);
+        sshSessionSt.mac_s2c = pp.getString("jsch.cfg.mac.s2c", sshSessionSt.mac_s2c);
+        sshSessionSt.mac_c2s = pp.getString("jsch.cfg.mac.c2s", sshSessionSt.mac_c2s);
+        sshSessionSt.preferKeyAuth = pp.getBoolean("prefer_key_auth",
+                sshSessionSt.preferKeyAuth);
 
         terminalString = pp.getString("terminal_string", terminalString);
 
         execute = pp.getString("execute", execute);
 
-        keepaliveInterval = pp.getInt("keepalive_interval", keepaliveInterval);
+        sshSessionSt.keepaliveInterval = pp.getInt("keepalive_interval",
+                sshSessionSt.keepaliveInterval);
 
-        preferCompression = pp.getBoolean("prefer_compression", preferCompression);
+        sshSessionSt.preferCompression = pp.getBoolean("prefer_compression",
+                sshSessionSt.preferCompression);
 
         X11 = pp.getBoolean("X11", X11);
-        X11Host = pp.getString("X11_host", X11Host);
-        X11Port = pp.getInt("X11_port", X11Port);
+        sshSessionSt.X11Host = pp.getString("X11_host", sshSessionSt.X11Host);
+        sshSessionSt.X11Port = pp.getInt("X11_port", sshSessionSt.X11Port);
 
-        parsePortMappings(localPortMappings, pp.getString("local_ports", ""));
-        parsePortMappings(remotePortMappings, pp.getString("remote_ports", ""));
+        parsePortMappings(sshSessionSt.localPortMappings,
+                pp.getString("local_ports", ""));
+        parsePortMappings(sshSessionSt.remotePortMappings,
+                pp.getString("remote_ports", ""));
     }
 
-    private final JSch jsch = new JSch();
-    private Session session = null;
     private Channel channel = null;
     private OutputStream mOS_set = null;
     private OutputStream mOS_get_orig = null;
@@ -378,7 +419,8 @@ public final class SshModule extends BackendModule {
         });
     }
 
-    {
+    private static void initIdentityRepo(@NonNull final SshSessionSt st) {
+        final JSch jsch = st.jsch;
         final IdentityRepository ir = jsch.getIdentityRepository();
         jsch.setIdentityRepository(new IdentityRepository() {
             private void prompt() {
@@ -386,11 +428,11 @@ public final class SshModule extends BackendModule {
                 try {
                     while (true) {
                         try {
-                            key = ui.promptContent("Server requests key identification",
+                            key = st.ui.promptContent("Server requests key identification",
                                     "*/*", CERT_FILE_SIZE_MAX);
                             break;
                         } catch (final IOException e) {
-                            ui.showToast("Unable to load the key: " + e.getLocalizedMessage());
+                            st.ui.showToast("Unable to load the key: " + e.getLocalizedMessage());
                         }
                     }
                 } catch (final InterruptedException e) {
@@ -478,70 +520,92 @@ public final class SshModule extends BackendModule {
 
     @Override
     public void connect() {
+        if (channel != null) return;
+        final Channel ch;
+        sshSessionSt.refs.getAndIncrement();
         try {
-            session = jsch.getSession(username, hostname, port);
-            session.setUserInfo(userInfo);
-            session.setHostKeyRepository(new SshHostKeyRepository(context));
-            session.setConfig("kex", kex);
-            session.setConfig("cipher.s2c", cipher_s2c);
-            session.setConfig("cipher.c2s", cipher_c2s);
-            session.setConfig("mac.s2c", mac_s2c);
-            session.setConfig("mac.c2s", mac_c2s);
-            final String cfgComp = preferCompression ? "zlib,none" : "none,zlib";
-            session.setConfig("compression.s2c", cfgComp);
-            session.setConfig("compression.c2s", cfgComp);
-            session.setConfig("StrictHostKeyChecking", "ask");
-            session.setConfig("PreferredAuthentications", preferKeyAuth
-                    ? "none,publickey,keyboard-interactive,password"
-                    : "none,keyboard-interactive,password,publickey");
-            session.setServerAliveInterval(keepaliveInterval);
-            session.setServerAliveCountMax(10);
-            if (X11) {
-                session.setX11Host(X11Host);
-                session.setX11Port(6000 + X11Port);
+            synchronized (sshSessionSt.lock) {
+                if (sshSessionSt.session == null) {
+                    final Session s = sshSessionSt.jsch.getSession(
+                            sshSessionSt.username, sshSessionSt.hostname, sshSessionSt.port);
+                    s.setUserInfo(userInfo);
+                    s.setHostKeyRepository(new SshHostKeyRepository(context));
+                    s.setConfig("kex", sshSessionSt.kex);
+                    s.setConfig("cipher.s2c", sshSessionSt.cipher_s2c);
+                    s.setConfig("cipher.c2s", sshSessionSt.cipher_c2s);
+                    s.setConfig("mac.s2c", sshSessionSt.mac_s2c);
+                    s.setConfig("mac.c2s", sshSessionSt.mac_c2s);
+                    final String cfgComp = sshSessionSt.preferCompression ?
+                            "zlib,none" : "none,zlib";
+                    s.setConfig("compression.s2c", cfgComp);
+                    s.setConfig("compression.c2s", cfgComp);
+                    s.setConfig("StrictHostKeyChecking", "ask");
+                    s.setConfig("PreferredAuthentications", sshSessionSt.preferKeyAuth
+                            ? "none,publickey,keyboard-interactive,password"
+                            : "none,keyboard-interactive,password,publickey");
+                    s.setServerAliveInterval(sshSessionSt.keepaliveInterval);
+                    s.setServerAliveCountMax(10);
+                    s.setX11Host(sshSessionSt.X11Host);
+                    s.setX11Port(6000 + sshSessionSt.X11Port);
+                    s.connect(5000);
+                    sshSessionSt.session = s;
+                    for (final PortMapping pm : sshSessionSt.localPortMappings)
+                        s.setPortForwardingL(pm.srcPort, pm.host, pm.dstPort);
+                    for (final PortMapping pm : sshSessionSt.remotePortMappings)
+                        s.setPortForwardingR(pm.srcPort, pm.host, pm.dstPort);
+                }
             }
-            session.connect(5000);
             if (execute.isEmpty()) {
-                channel = session.openChannel("shell");
-                ((ChannelShell) channel).setPty(true);
-                ((ChannelShell) channel).setPtyType(terminalString);
+                ch = sshSessionSt.session.openChannel("shell");
+                ((ChannelShell) ch).setPty(true);
+                ((ChannelShell) ch).setPtyType(terminalString);
             } else {
-                channel = session.openChannel("exec");
-                ((ChannelExec) channel).setPty(true);
-                ((ChannelExec) channel).setPtyType(terminalString);
-                ((ChannelExec) channel).setCommand(execute);
-                ((ChannelExec) channel).setErrStream(mOS_set);
+                ch = sshSessionSt.session.openChannel("exec");
+                ((ChannelExec) ch).setPty(true);
+                ((ChannelExec) ch).setPtyType(terminalString);
+                ((ChannelExec) ch).setCommand(execute);
+                ((ChannelExec) ch).setErrStream(mOS_set);
             }
-            channel.setXForwarding(X11);
-            channel.setOutputStream(mOS_set);
-            mOS_get_orig = channel.getOutputStream();
-            channel.connect(3000);
-            for (final PortMapping pm : localPortMappings)
-                session.setPortForwardingL(pm.srcPort, pm.host, pm.dstPort);
-            for (final PortMapping pm : remotePortMappings)
-                session.setPortForwardingR(pm.srcPort, pm.host, pm.dstPort);
+            ch.setXForwarding(X11);
+            ch.setOutputStream(mOS_set);
+            mOS_get_orig = ch.getOutputStream();
+            ch.connect(3000);
         } catch (final JSchException e) {
+            sshSessionSt.refs.decrementAndGet();
             disconnect();
             throw new BackendException(e.getLocalizedMessage());
         } catch (final SshHostKeyRepository.Exception e) {
+            sshSessionSt.refs.decrementAndGet();
             disconnect();
             throw new BackendException(e);
         } catch (final IOException e) {
+            sshSessionSt.refs.decrementAndGet();
             disconnect();
             throw new BackendException(e);
         } catch (final NoClassDefFoundError e) {
+            sshSessionSt.refs.decrementAndGet();
             disconnect();
             throw new BackendException(context.getString(R.string.msg_feature_class_not_found,
                     e.getLocalizedMessage()));
         }
+        channel = ch;
         if (isAcquireWakeLockOnConnect()) acquireWakeLock();
     }
 
     @Override
     public void disconnect() {
         try {
-            if (channel != null) channel.disconnect();
-            if (session != null) session.disconnect();
+            if (channel != null) {
+                channel.disconnect();
+                channel = null;
+                sshSessionSt.refs.decrementAndGet();
+            }
+            synchronized (sshSessionSt.lock) {
+                if (sshSessionSt.session != null && sshSessionSt.refs.get() <= 0) {
+                    sshSessionSt.session.disconnect();
+                    sshSessionSt.session = null;
+                }
+            }
         } finally {
             if (isReleaseWakeLockOnDisconnect()) releaseWakeLock();
         }
@@ -559,6 +623,18 @@ public final class SshModule extends BackendModule {
     @Override
     @NonNull
     public String getConnDesc() {
-        return String.format(Locale.getDefault(), "ssh://%s@%s:%d", username, hostname, port);
+        return String.format(Locale.getDefault(), "ssh://%s@%s:%d",
+                sshSessionSt.username, sshSessionSt.hostname, sshSessionSt.port);
+    }
+
+    @Keep
+    @ExportedUIMethod(titleRes = R.string.action_new_shell_in_this_ssh_session,
+            longTitleRes = R.string.desc_new_shell_in_this_ssh_session,
+            order = 1)
+    @Nullable
+    public SshModule startShellChannel() {
+        final SshModule be = new SshModule(this);
+        be.execute = "";
+        return be;
     }
 }

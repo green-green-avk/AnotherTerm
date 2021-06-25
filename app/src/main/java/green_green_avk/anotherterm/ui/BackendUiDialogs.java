@@ -35,8 +35,8 @@ import green_green_avk.anotherterm.utils.LogMessage;
 import green_green_avk.anotherterm.utils.WeakBlockingSync;
 
 // TODO: Split into UI and UI thread connector queue classes
-public final class BackendUiDialogs implements BackendUiInteraction,
-        BackendUiInteractionActivityCtx, BackendUiSessionBridge {
+public class BackendUiDialogs implements BackendUiInteraction,
+        BackendUiInteractionActivityCtx {
 
     private final Handler handler = new Handler(Looper.getMainLooper());
 
@@ -84,9 +84,14 @@ public final class BackendUiDialogs implements BackendUiInteraction,
         dialogs.add(d);
     }
 
+    // Super session levels...
+    public BackendUiInteractionActivityCtx parent = null;
+
     @Override
     @UiThread
     public void setActivity(@Nullable final Activity ctx) {
+        final BackendUiInteractionActivityCtx p = parent;
+        if (p != null) p.setActivity(ctx);
         if (ctx == activityRef.getNoBlock()) return;
         synchronized (msgQueueLock) {
             msgAdapterRef = new WeakReference<>(null);
@@ -298,16 +303,5 @@ public final class BackendUiDialogs implements BackendUiInteraction,
 
     public void waitForUi() throws InterruptedException {
         activityRef.get();
-    }
-
-    private final int sessionKey;
-
-    @Override
-    public int getSessionKey() {
-        return sessionKey;
-    }
-
-    public BackendUiDialogs(final int sessionKey) {
-        this.sessionKey = sessionKey;
     }
 }

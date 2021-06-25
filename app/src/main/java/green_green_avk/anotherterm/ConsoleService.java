@@ -33,7 +33,7 @@ import java.util.WeakHashMap;
 import green_green_avk.anotherterm.backends.BackendModule;
 import green_green_avk.anotherterm.backends.BackendsList;
 import green_green_avk.anotherterm.backends.EventBasedBackendModuleWrapper;
-import green_green_avk.anotherterm.ui.BackendUiDialogs;
+import green_green_avk.anotherterm.ui.BackendUiSessionDialogs;
 
 public final class ConsoleService extends Service {
 
@@ -132,9 +132,8 @@ public final class ConsoleService extends Service {
     }
 
     @UiThread
-    public static int startAnsiSession(@NonNull final Context ctx,
-                                       @NonNull final Map<String, ?> cp) {
-        final Context appCtx = ctx.getApplicationContext();
+    @NonNull
+    private static BackendModule createBackend(@NonNull final Map<String, ?> cp) {
         final Class<?> klass = getBackendByParams(cp).impl;
         final BackendModule tbe;
         try {
@@ -144,6 +143,28 @@ public final class ConsoleService extends Service {
         } catch (final InstantiationException e) {
             throw new Exception(EMSG_NI_CONNTYPE);
         }
+        return tbe;
+    }
+
+    @UiThread
+    public static int startAnsiSession(@NonNull final Context ctx,
+                                       @NonNull final Map<String, ?> cp) {
+        return startAnsiSession(ctx, cp, createBackend(cp), true);
+    }
+
+    @UiThread
+    public static int startAnsiSession(@NonNull final Context ctx,
+                                       @NonNull final Map<String, ?> cp,
+                                       @NonNull final BackendModule tbe) {
+        return startAnsiSession(ctx, cp, tbe, false);
+    }
+
+    @UiThread
+    private static int startAnsiSession(@NonNull final Context ctx,
+                                        @NonNull final Map<String, ?> cp,
+                                        @NonNull final BackendModule tbe,
+                                        final boolean setBeParams) {
+        final Context appCtx = ctx.getApplicationContext();
         final ConsoleInput ci = new ConsoleInput();
         final ConsoleOutput co = new ConsoleOutput();
         ci.consoleOutput = co;
@@ -167,8 +188,9 @@ public final class ConsoleService extends Service {
         tbe.setOnWakeLockEvent(() -> execOnSessionChange(key), new Handler());
         tbe.setAcquireWakeLockOnConnect(Boolean.TRUE.equals(cp.get("wakelock.acquire_on_connect")));
         tbe.setReleaseWakeLockOnDisconnect(Boolean.TRUE.equals(cp.get("wakelock.release_on_disconnect")));
-        tbe.setUi(new BackendUiDialogs(key));
-        tbe.setParameters(cp);
+        tbe.setUi(new BackendUiSessionDialogs(key));
+        if (setBeParams)
+            tbe.setParameters(cp);
 
         final AnsiSession.Properties pp = new AnsiSession.Properties();
         pp.terminateOnDisconnect = Boolean.TRUE.equals(cp.get("terminate.on_disconnect"));

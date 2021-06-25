@@ -1,0 +1,5 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="action_new_shell_in_this_ssh_session">+ Terminal Window</string>
+    <string name="desc_new_shell_in_this_ssh_session">Start a new shell channel in this SSH session</string>
+</resources>
