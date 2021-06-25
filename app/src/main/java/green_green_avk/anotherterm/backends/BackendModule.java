@@ -237,7 +237,7 @@ public abstract class BackendModule {
 
     public abstract void setParameters(@NonNull Map<String, ?> params);
 
-    protected BackendUiInteraction ui;
+    protected BackendUiInteraction ui = null;
 
     public abstract void setOutputStream(@NonNull OutputStream stream);
 

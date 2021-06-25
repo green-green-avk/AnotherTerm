@@ -52,6 +52,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.NoSuchElementException;
 
+import green_green_avk.anotherterm.backends.BackendException;
 import green_green_avk.anotherterm.backends.BackendModule;
 import green_green_avk.anotherterm.backends.BackendUiInteractionActivityCtx;
 import green_green_avk.anotherterm.backends.BackendsList;
@@ -307,6 +308,22 @@ public final class AnsiConsoleActivity extends ConsoleActivity
     @Nullable
     private PopupWindow menuPopupWindow = null;
 
+    private void processMenuPopupAction(@Nullable final Object arg) {
+        if (arg instanceof BackendModule && mSession != null) {
+            final BackendModule be = (BackendModule) arg;
+            final int key;
+            try {
+                key = ConsoleService.startAnsiSession(this, mSession.connectionParams, be);
+            } catch (final ConsoleService.Exception | BackendException e) {
+                Toast.makeText(this, e.getMessage(), Toast.LENGTH_LONG).show();
+                return;
+            }
+            finish();
+            ConsoleActivity.showSession(this, key);
+            return;
+        }
+    }
+
     @NonNull
     private PopupWindow createMenuPopup() {
         @SuppressLint("InflateParams") final View popupView =
@@ -326,14 +343,14 @@ public final class AnsiConsoleActivity extends ConsoleActivity
             for (final Map.Entry<Method, BackendModule.ExportedUIMethod> m : uiMethods) {
                 final Class<?>[] paramTypes = m.getKey().getParameterTypes();
                 final Class<?> retType = m.getKey().getReturnType();
-                if (paramTypes.length == 0 && retType == Void.TYPE) {
+                if (paramTypes.length == 0) {
                     final TextView mi = (TextView) LayoutInflater.from(this)
                             .inflate(R.layout.module_ui_button, moduleUiView, false);
                     mi.setText(m.getValue().titleRes());
                     if (m.getValue().longTitleRes() != 0)
                         mi.setContentDescription(getString(m.getValue().longTitleRes()));
                     mi.setOnClickListener(item -> {
-                        be.callMethod(m.getKey());
+                        processMenuPopupAction(be.callMethod(m.getKey()));
                         if (menuPopupWindow != null) menuPopupWindow.dismiss();
                     });
                     moduleUiView.addView(mi);

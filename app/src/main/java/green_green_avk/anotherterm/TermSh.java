@@ -76,7 +76,7 @@ import green_green_avk.anotherterm.backends.BackendUiInteraction;
 import green_green_avk.anotherterm.backends.BackendsList;
 import green_green_avk.anotherterm.backends.local.LocalModule;
 import green_green_avk.anotherterm.backends.uart.UartModule;
-import green_green_avk.anotherterm.ui.BackendUiDialogs;
+import green_green_avk.anotherterm.ui.BackendUiSessionDialogs;
 import green_green_avk.anotherterm.ui.BackendUiShell;
 import green_green_avk.anotherterm.ui.UiUtils;
 import green_green_avk.anotherterm.utils.BinaryGetOpts;
@@ -171,7 +171,7 @@ public final class TermSh {
             });
         }
 
-        private void waitForUiWithNotification(@NonNull final BackendUiDialogs gui)
+        private void waitForUiWithNotification(@NonNull final BackendUiSessionDialogs gui)
                 throws InterruptedException {
             if (!gui.hasUi()) {
                 final int key = gui.getSessionKey();
@@ -790,17 +790,18 @@ public final class TermSh {
             }
 
             @NonNull
-            private BackendUiDialogs getGui() {
+            private BackendUiSessionDialogs getGui() {
                 if (shellSessionData == null) throw new ShellUiException("No session state");
                 final BackendUiInteraction ui = shellSessionData.ui;
-                if (!(ui instanceof BackendUiDialogs)) throw new ShellUiException("Not assigned");
-                return (BackendUiDialogs) ui;
+                if (!(ui instanceof BackendUiSessionDialogs))
+                    throw new ShellUiException("Not assigned");
+                return (BackendUiSessionDialogs) ui;
             }
 
             @NonNull
-            private BackendUiDialogs waitForGuiWithNotification(@NonNull final UiBridge ui)
+            private BackendUiSessionDialogs waitForGuiWithNotification(@NonNull final UiBridge ui)
                     throws InterruptedException {
-                final BackendUiDialogs gui = getGui();
+                final BackendUiSessionDialogs gui = getGui();
                 try {
                     waitFor(() -> {
                         ui.waitForUiWithNotification(gui);
@@ -1843,7 +1844,7 @@ public final class TermSh {
                                 break;
                             }
                             final String prompt = Misc.fromUTF8(shellCmd.args[2]);
-                            final BackendUiDialogs gui = shellCmd.waitForGuiWithNotification(ui);
+                            final BackendUiSessionDialogs gui = shellCmd.waitForGuiWithNotification(ui);
                             shellCmd.setOnTerminate(() -> cancel(true));
                             try {
                                 if (gui.promptYesNo(
