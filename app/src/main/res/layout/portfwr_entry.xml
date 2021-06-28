@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="utf-8"?>
+<com.google.android.flexbox.FlexboxLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:padding="@dimen/text_separator"
+    app:alignItems="center"
+    app:flexDirection="row"
+    app:flexWrap="wrap"
+    tools:context=".backends.ssh.SshModulePortFwActivity">
+
+    <EditText
+        android:id="@+id/host"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:hint="127.0.0.1"
+        android:importantForAutofill="no"
+        android:inputType="text|textNoSuggestions"
+        tools:ignore="HardcodedText" />
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text=":"
+        tools:ignore="HardcodedText" />
+
+    <EditText
+        android:id="@+id/dst_port"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:hint="@string/label_b_port_b"
+        android:importantForAutofill="no"
+        android:inputType="number" />
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="&lt;="
+        tools:ignore="HardcodedText" />
+
+    <EditText
+        android:id="@+id/src_port"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:hint="@string/label_b_remote_port_b"
+        android:importantForAutofill="no"
+        android:inputType="number" />
+
+</com.google.android.flexbox.FlexboxLayout>

@@ -1,5 +1,6 @@
 package green_green_avk.anotherterm.backends.ssh;
 
+import android.content.Intent;
 import android.net.Uri;
 import android.util.Log;
 import android.util.SparseBooleanArray;
@@ -23,12 +24,14 @@ import org.apache.commons.text.StringEscapeUtils;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.net.URLEncoder;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
 import java.util.Vector;
+import java.util.WeakHashMap;
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -133,7 +136,20 @@ public final class SshModule extends BackendModule {
         }
     };
 
-    private static class SshSessionSt {
+    // For UI reference
+
+    private static final AtomicLong currSshSessionKey = new AtomicLong(0);
+
+    private static long obtainSshSessionKey() {
+        return currSshSessionKey.getAndIncrement();
+    }
+
+    static final Map<Long, SshSessionSt> sshSessionSts =
+            Collections.synchronizedMap(new WeakHashMap<>());
+
+    // ===
+
+    static class SshSessionSt {
         private String hostname = null;
         private int port = 22;
         private String username = null;
@@ -154,16 +170,18 @@ public final class SshModule extends BackendModule {
         private final Set<PortMapping> remotePortMappings = new HashSet<>();
 
         private final JSch jsch = new JSch();
-        private volatile Session session = null;
-        private final Object lock = new Object();
+        volatile Session session = null;
+        final Object lock = new Object();
         private final AtomicLong refs = new AtomicLong(0);
         private final BackendUiDialogs ui = new BackendUiDialogs();
+
+        private long key = -1; // For UI reference
     }
 
-    private static final class PortMapping {
-        private int srcPort = 0;
-        private int dstPort = 0;
-        private String host = "127.0.0.1";
+    static final class PortMapping {
+        int srcPort = 0;
+        int dstPort = 0;
+        String host = "127.0.0.1";
 
         @Override
         public boolean equals(@Nullable final Object obj) {
@@ -549,6 +567,8 @@ public final class SshModule extends BackendModule {
                     s.setX11Port(6000 + sshSessionSt.X11Port);
                     s.connect(5000);
                     sshSessionSt.session = s;
+                    sshSessionSt.key = obtainSshSessionKey();
+                    sshSessionSts.put(sshSessionSt.key, sshSessionSt);
                     for (final PortMapping pm : sshSessionSt.localPortMappings)
                         s.setPortForwardingL(pm.srcPort, pm.host, pm.dstPort);
                     for (final PortMapping pm : sshSessionSt.remotePortMappings)
@@ -604,6 +624,7 @@ public final class SshModule extends BackendModule {
                 if (sshSessionSt.session != null && sshSessionSt.refs.get() <= 0) {
                     sshSessionSt.session.disconnect();
                     sshSessionSt.session = null;
+                    sshSessionSts.remove(sshSessionSt.key);
                 }
             }
         } finally {
@@ -636,5 +657,18 @@ public final class SshModule extends BackendModule {
         final SshModule be = new SshModule(this);
         be.execute = "";
         return be;
+    }
+
+    @Keep
+    @ExportedUIMethod(titleRes = R.string.label_portFw,
+            longTitleRes = R.string.action_manage_portFw,
+            order = 2)
+    @Nullable
+    public Intent managePortForwarding() {
+        synchronized (sshSessionSt.lock) {
+            if (sshSessionSt.session == null) return null;
+            return new Intent(context, SshModulePortFwActivity.class)
+                    .putExtra(SshModulePortFwActivity.IFK_SSH_SESS_KEY, sshSessionSt.key);
+        }
     }
 }
