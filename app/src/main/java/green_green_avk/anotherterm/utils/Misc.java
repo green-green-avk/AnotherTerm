@@ -4,6 +4,7 @@ import android.content.Context;
 import android.content.ContextWrapper;
 import android.content.pm.PackageManager;
 import android.net.Uri;
+import android.os.AsyncTask;
 import android.os.Build;
 import android.util.SparseArray;
 import android.util.SparseBooleanArray;
@@ -20,6 +21,7 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.lang.ref.WeakReference;
 import java.nio.charset.Charset;
 import java.util.Arrays;
 import java.util.HashSet;
@@ -284,6 +286,29 @@ public final class Misc {
 
     public static void runOnThread(@NonNull final Runnable r) {
         new Thread(r).start();
+    }
+
+    public static void runAsync(@NonNull final Runnable r, @NonNull final Runnable onResult) {
+        new AsyncTask<Object, Object, Object>() {
+            @Override
+            protected Object doInBackground(Object... objects) {
+                r.run();
+                return null;
+            }
+
+            @Override
+            protected void onPostExecute(Object o) {
+                onResult.run();
+            }
+        }.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
+    }
+
+    public static void runAsyncWeak(@NonNull final Runnable r, @NonNull final Runnable onResult) {
+        final WeakReference<Runnable> onResultRef = new WeakReference<>(onResult);
+        runAsync(r, () -> {
+            final Runnable _onResult = onResultRef.get();
+            if (_onResult != null) _onResult.run();
+        });
     }
 
     @RequiresApi(23)

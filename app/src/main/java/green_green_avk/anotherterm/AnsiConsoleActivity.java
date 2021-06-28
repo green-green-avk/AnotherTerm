@@ -322,6 +322,10 @@ public final class AnsiConsoleActivity extends ConsoleActivity
             ConsoleActivity.showSession(this, key);
             return;
         }
+        if (arg instanceof Intent) {
+            startActivity((Intent) arg);
+            return;
+        }
     }
 
     @NonNull
