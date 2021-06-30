@@ -44,10 +44,15 @@ public final class ConsoleScreenBuffer {
             endXOff = 0;
         }
 
-        @NonNull
         @Override
+        @NonNull
         public String toString() {
             return new String(text, start, length);
+        }
+
+        @NonNull
+        public CharBuffer toBuffer() {
+            return CharBuffer.wrap(text, start, length);
         }
     }
 
@@ -519,8 +524,23 @@ public final class ConsoleScreenBuffer {
         return Unicode.stepBack(text, startInd, r & F_IND_MASK);
     }
 
+    public int getCharIndex(final int y, final int dx, int startInd,
+                            final boolean next) {
+        final char[] text = getChars(y);
+        if (text == null)
+            return startInd + dx;
+        return getCharIndex(text, dx, startInd, next);
+    }
+
     public static int getCharPos(@NonNull final char[] text, final int offset, final int length) {
         return Unicode.getScreenLength(text, offset, length);
+    }
+
+    public int getCharPos(final int y, final int offset, final int length) {
+        final char[] text = getChars(y);
+        if (text == null)
+            return length;
+        return getCharPos(text, offset, length);
     }
 
     public byte getGlyphWidth(final int x, final int y) {
@@ -547,6 +567,13 @@ public final class ConsoleScreenBuffer {
         output.endXOff = (byte) (end >> F_XOFF_SHIFT);
         output.length = (end & F_IND_MASK) - output.start;
         return len;
+    }
+
+    @Nullable
+    public char[] getChars(final int y) {
+        final Row row = getRow(y);
+        if (row == null) return null;
+        return row.text;
     }
 
     private int getAttrs(@NonNull final int[] attrs, final int i) {

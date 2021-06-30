@@ -2,6 +2,7 @@ package green_green_avk.anotherterm.ui;
 
 import android.annotation.SuppressLint;
 import android.app.Activity;
+import android.app.AlertDialog;
 import android.content.Context;
 import android.content.res.TypedArray;
 import android.graphics.Bitmap;
@@ -20,6 +21,7 @@ import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
 import android.os.Build;
 import android.os.Message;
+import android.text.InputType;
 import android.util.AttributeSet;
 import android.view.Gravity;
 import android.view.InputDevice;
@@ -28,9 +30,12 @@ import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.WindowManager;
+import android.widget.EditText;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.PopupWindow;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.CallSuper;
@@ -43,12 +48,15 @@ import androidx.appcompat.content.res.AppCompatResources;
 import androidx.core.math.MathUtils;
 import androidx.core.view.ViewCompat;
 
+import java.nio.CharBuffer;
+
 import green_green_avk.anotherterm.AnsiConsoleInput;
 import green_green_avk.anotherterm.AnsiConsoleOutput;
 import green_green_avk.anotherterm.ConsoleScreenBuffer;
 import green_green_avk.anotherterm.ConsoleScreenCharAttrs;
 import green_green_avk.anotherterm.R;
 import green_green_avk.anotherterm.utils.CharsAutoSelector;
+import green_green_avk.anotherterm.utils.CharsFinder;
 import green_green_avk.anotherterm.utils.WeakHandler;
 
 public class ConsoleScreenView extends ScrollableView
@@ -92,6 +100,7 @@ public class ConsoleScreenView extends ScrollableView
     protected static final int INTERVAL_BLINK = 500; // ms
     protected static final long SELECTION_MOVE_START_DELAY = 200; // ms
     protected static final int AUTOSELECT_LINES_MAX = 128;
+    protected static final int SEARCH_PATTERN_CELLS_MAX = 1024;
     protected AnsiConsoleInput consoleInput = null;
     public final ConsoleScreenCharAttrs charAttrs = new ConsoleScreenCharAttrs();
     protected final Paint fgPaint = new Paint();
@@ -145,11 +154,19 @@ public class ConsoleScreenView extends ScrollableView
     protected static final int[] rectSelectionModeState = new int[]{R.attr.state_select_rect};
     protected static final int[] exprSelectionModeState = new int[]{R.attr.state_select_expr};
 
+    protected static final int[] searchCaseSState = new int[0];
+    protected static final int[] searchCaseIState = new int[]{android.R.attr.state_checked};
+
     protected class SelectionPopup {
+        protected int keySize = 0; // px
         protected final int[] parentPos = new int[2];
         protected final PopupWindow window;
         protected final Point pos = new Point(0, 0);
-        protected final ImageView smv;
+        protected final ImageView wSelMode;
+        protected final TextView wSearch;
+        protected final ImageView wCase;
+
+        protected boolean searchCaseI = false;
 
         protected class WrapperView extends FrameLayout {
             protected WrapperView(@NonNull final Context context) {
@@ -171,20 +188,23 @@ public class ConsoleScreenView extends ScrollableView
             final ViewGroup d = new WrapperView(getContext());
             d.setLayoutParams(new ViewGroup.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT,
                     ViewGroup.LayoutParams.WRAP_CONTENT));
-            inflate(getContext(), R.layout.select_search_popup, d);
+            inflate(getContext(), R.layout.terminal_select_search_popup, d);
             window = new PopupWindow(d, WindowManager.LayoutParams.WRAP_CONTENT,
                     WindowManager.LayoutParams.WRAP_CONTENT, false);
             window.setSplitTouchEnabled(true);
             window.setAnimationStyle(android.R.style.Animation_Dialog);
-            smv = getContentView().findViewById(R.id.b_select_mode);
+            wSelMode = getContentView().findViewById(R.id.b_select_mode);
+            wSearch = getContentView().findViewById(R.id.f_search);
+            wCase = getContentView().findViewById(R.id.b_case);
             refresh();
             getContentView().findViewById(R.id.b_close)
                     .setOnClickListener(v -> setSelectionMode(false));
-            smv.setOnClickListener(v -> {
+            wSelMode.setOnClickListener(v -> {
                 if (getSelectionModeIsExpr()) setSelectionModeIsExpr(false);
                 else {
                     if (getSelectionIsRect()) setSelectionModeIsExpr(true);
                     setSelectionIsRect(!getSelectionIsRect());
+                    onSelectionChanged();
                 }
                 refresh();
             });
@@ -220,30 +240,149 @@ public class ConsoleScreenView extends ScrollableView
             getContentView().findViewById(R.id.b_scratchpad)
                     .setOnClickListener(v ->
                             UiUtils.toScratchpad(getContext(), getSelectedText()));
+            wSearch.setOnClickListener(v -> {
+                final EditText et = new EditText(getContext());
+                et.setInputType(InputType.TYPE_TEXT_FLAG_MULTI_LINE
+                        | InputType.TYPE_CLASS_TEXT
+                        | InputType.TYPE_TEXT_VARIATION_NORMAL);
+                et.setText(wSearch.getText());
+                new AlertDialog.Builder(getContext())
+                        .setView(et)
+                        .setPositiveButton(android.R.string.ok, (dialog, which) ->
+                                setSearch(et.getText()))
+                        .setNegativeButton(android.R.string.cancel, (dialog, which) -> {
+                        })
+                        .show();
+            });
+            final CharsFinder.BufferView bufferView = new CharsFinder.BufferView() {
+                private final CharBuffer emptyBuffer = CharBuffer.allocate(0);
+
+                @Override
+                @NonNull
+                public CharsFinder.LineView get(final int y) {
+                    if (consoleInput == null)
+                        throw new IndexOutOfBoundsException();
+                    final ConsoleScreenBuffer.BufferTextRange v =
+                            new ConsoleScreenBuffer.BufferTextRange();
+                    final int r = consoleInput.currScrBuf.getChars(0, y,
+                            consoleInput.currScrBuf.getWidth(), v);
+                    if (r < 0)
+                        return new CharsFinder.LineView(emptyBuffer, true);
+                    final CharBuffer line = v.toBuffer();
+                    int i;
+                    for (i = line.length() - 1; i >= 0 && line.charAt(i) == ' '; i--) ;
+                    line.limit(line.position() + i + 1);
+                    return new CharsFinder.LineView(line,
+                            consoleInput.currScrBuf.isLineWrapped(y));
+                }
+
+                @Override
+                public int getTop() {
+                    if (consoleInput == null)
+                        return 0;
+                    return -consoleInput.currScrBuf.getScrollableHeight();
+                }
+
+                @Override
+                public int getBottom() {
+                    if (consoleInput == null)
+                        return 0;
+                    return consoleInput.currScrBuf.getHeight();
+                }
+            };
+            getContentView().findViewById(R.id.b_case)
+                    .setOnClickListener(v -> {
+                        searchCaseI = !searchCaseI;
+                        ((ImageView) v).setImageState(
+                                searchCaseI ? searchCaseIState : searchCaseSState, true);
+                    });
+            getContentView().findViewById(R.id.b_search_up)
+                    .setOnClickListener(v -> {
+                        if (consoleInput == null || selection == null) return;
+                        final CharsFinder cf = new CharsFinder(bufferView,
+                                wSearch.getText().toString(), searchCaseI);
+                        final ConsoleScreenSelection s = selection.getDirect();
+                        final int i = consoleInput.currScrBuf
+                                .getCharIndex(s.first.y, s.first.x, 0, false);
+                        if (!(cf.setPos(i, s.first.y, false) && cf.searchUp())) {
+                            Toast.makeText(getContext(),
+                                    R.string.msg_search_top_reached,
+                                    Toast.LENGTH_SHORT).show();
+                            return;
+                        }
+                        selectSearchResult(cf);
+                    });
+            getContentView().findViewById(R.id.b_search_down)
+                    .setOnClickListener(v -> {
+                        if (consoleInput == null || selection == null) return;
+                        final CharsFinder cf = new CharsFinder(bufferView,
+                                wSearch.getText().toString(), searchCaseI);
+                        final ConsoleScreenSelection s = selection.getDirect();
+                        final int i = consoleInput.currScrBuf
+                                .getCharIndex(s.last.y, s.last.x, 0, false);
+                        if (!(cf.setPos(i, s.last.y, true) && cf.searchDown())) {
+                            Toast.makeText(getContext(),
+                                    R.string.msg_search_bottom_reached,
+                                    Toast.LENGTH_SHORT).show();
+                            return;
+                        }
+                        selectSearchResult(cf);
+                    });
+        }
+
+        protected void selectSearchResult(@NonNull final CharsFinder cf) {
+            final Point first = cf.getFirst();
+            selection.first.set(consoleInput.currScrBuf
+                    .getCharPos(first.y, 0, first.x), first.y);
+            final Point last = cf.getLast();
+            final int lastX = consoleInput.currScrBuf
+                    .getCharPos(last.y, 0, last.x);
+            // What if it is a zero-screen-length match?
+            selection.last.set(lastX > 0 ? lastX - 1 : 0, last.y);
+            setSelectionIsRect(false);
+            setSelectionModeIsExpr(false);
+            invalidateSelectionUi(true);
+            if (!isOnScreen(selection.first.x, selection.first.y))
+                doScrollTextCenterTo(selection.first.x, selection.first.y);
         }
 
         protected void calcPos() {
             getLocationInWindow(parentPos);
             final int sx = window.getContentView().getWidth();
             final int sy = window.getContentView().getHeight();
-            int x = (int) getBufferDrawPosXF((selection.first.x +
-                    selection.last.x + 1) / 2f) - sx / 2;
+            final ConsoleScreenSelection s = selection.getDirect();
+            int x = (int) getBufferDrawPosXF(
+                    (s.first.x + s.last.x + 1) / 2f) - sx / 2;
             x = MathUtils.clamp(x, 0, getWidth() - sx);
-            int y = (int) getBufferDrawPosYF(selection.getDirect().first.y) - sy;
-            if (y < 0) y = (int) getBufferDrawPosYF(selection.getDirect().last.y + 1);
-            if (y > getHeight() - sy)
+            int paddingT = 0;
+            int paddingB = 0;
+            int y = (int) getBufferDrawPosYF(s.first.y) - sy;
+            if (y < 0) {
+                y = (int) getBufferDrawPosYF(s.last.y + 1);
+                paddingT = keySize;
+            }
+            if (y > getHeight() - sy) {
                 y = (int) (getBufferDrawPosYF(
-                        (selection.first.y + selection.last.y + 1) / 2f)) - sy / 2;
-            y = MathUtils.clamp(y, 0, getHeight() - sy);
+                        (s.first.y + s.last.y + 1) / 2f)) - sy / 2;
+                paddingB = keySize;
+            }
+            y = MathUtils.clamp(y, paddingT, getHeight() - sy - paddingB);
             pos.x = parentPos[0] + x;
             pos.y = parentPos[1] + y;
         }
 
         protected void setSizeDp(final float v) {
+            keySize = (int) (getResources().getDisplayMetrics().density * v);
             final View cv = getContentView();
-            cv.getLayoutParams().height =
-                    (int) (getResources().getDisplayMetrics().density * v);
+            final int rows = (cv instanceof LinearLayout &&
+                    ((LinearLayout) cv).getOrientation() == LinearLayout.VERTICAL) ?
+                    Math.max(((ViewGroup) cv).getChildCount(), 1) : 1;
+            cv.getLayoutParams().height = keySize * rows;
             cv.requestLayout();
+        }
+
+        protected void setSearch(@Nullable final CharSequence v) {
+            wSearch.setText(v == null ? "" : v);
         }
 
         protected void refresh() {
@@ -251,7 +390,7 @@ public class ConsoleScreenView extends ScrollableView
             if (getSelectionModeIsExpr()) st = exprSelectionModeState;
             else if (getSelectionIsRect()) st = rectSelectionModeState;
             else st = linesSelectionModeState;
-            smv.setImageState(st, true);
+            wSelMode.setImageState(st, true);
         }
 
         protected View getContentView() {
@@ -804,6 +943,20 @@ public class ConsoleScreenView extends ScrollableView
     }
 
     @CheckResult
+    public int getSelectedCellsCount() {
+        if (consoleInput == null || selection == null) return 0;
+        final ConsoleScreenSelection s = selection.getDirect();
+        if (s.first.y == s.last.y) {
+            return s.last.x - s.first.x + 1;
+        } else if (selection.isRectangular) {
+            return (s.last.x - s.first.x + 1) * (s.last.y - s.first.y + 1);
+        } else {
+            return s.last.x - s.first.x + 1 +
+                    consoleInput.currScrBuf.getWidth() * (s.last.y - s.first.y);
+        }
+    }
+
+    @CheckResult
     @Nullable
     public String getSelectedText() {
         if (consoleInput == null || selection == null) return null;
@@ -849,6 +1002,11 @@ public class ConsoleScreenView extends ScrollableView
         final String result = sb.toString();
         if (result.isEmpty()) return null;
         return result;
+    }
+
+    protected void onSelectionChanged() {
+        if (getSelectedCellsCount() <= SEARCH_PATTERN_CELLS_MAX)
+            selectionPopup.setSearch(getSelectedText());
     }
 
     @CheckResult
@@ -1011,6 +1169,7 @@ public class ConsoleScreenView extends ScrollableView
                             doScrollTextCenterTo(selectionMarker.x, selectionMarker.y);
                         unsetCurrentSelectionMarker();
                         inGesture = false;
+                        onSelectionChanged();
                         adjustSelectionPopup();
                         onTerminalScrollEnd();
                         ViewCompat.postInvalidateOnAnimation(this);
@@ -1277,6 +1436,7 @@ public class ConsoleScreenView extends ScrollableView
             setSelectionModeIsExpr(true);
             getCenterText(x, y, selectionMarkerExpr);
             doAutoSelect();
+            onSelectionChanged();
             ViewCompat.postInvalidateOnAnimation(this);
         }
         return super.onSingleTapUp(e);
