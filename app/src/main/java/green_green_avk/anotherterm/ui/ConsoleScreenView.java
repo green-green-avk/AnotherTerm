@@ -562,8 +562,8 @@ public class ConsoleScreenView extends ScrollableView
         if (mode) {
             if (selection == null) {
                 selection = new ConsoleScreenSelection();
-                selection.first.x = selection.last.x = getCols() / 2;
-                selection.first.y = selection.last.y = getRows() / 2;
+                selection.first.x = selection.last.x = getCols() / 2 + Math.round(scrollPosition.x);
+                selection.first.y = selection.last.y = getRows() / 2 + Math.round(scrollPosition.y);
                 getCenterText(selection.first.x, selection.first.y, selectionMarkerExpr);
             }
             getCenterText(selection.first.x, selection.first.y, selectionMarkerFirst);
@@ -823,7 +823,8 @@ public class ConsoleScreenView extends ScrollableView
             r = consoleInput.currScrBuf.getChars(s.first.x, s.last.y, s.last.x - s.first.x + 1, v);
             if (r >= 0) sb.append(v.toString().replaceAll(" *$", ""));
         } else {
-            r = consoleInput.currScrBuf.getChars(s.first.x, s.first.y, getCols() - s.first.x, v);
+            r = consoleInput.currScrBuf.getChars(s.first.x, s.first.y,
+                    consoleInput.currScrBuf.getWidth() - s.first.x, v);
             if (consoleInput.currScrBuf.isLineWrapped(s.first.y)) {
                 if (r < 0) return null;
                 sb.append(v.toString());
@@ -832,7 +833,8 @@ public class ConsoleScreenView extends ScrollableView
                 sb.append('\n');
             }
             for (int y = s.first.y + 1; y <= s.last.y - 1; y++) {
-                r = consoleInput.currScrBuf.getChars(0, y, getCols(), v);
+                r = consoleInput.currScrBuf.getChars(0, y,
+                        consoleInput.currScrBuf.getWidth(), v);
                 if (consoleInput.currScrBuf.isLineWrapped(y)) {
                     if (r < 0) return null;
                     sb.append(v.toString());
