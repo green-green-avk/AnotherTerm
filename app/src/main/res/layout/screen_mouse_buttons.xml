@@ -30,7 +30,8 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_gravity="bottom|right"
-                    app:srcCompat="@drawable/ic_screen_mouse_button_lu"
+                    android:rotation="180"
+                    app:srcCompat="@drawable/ic_screen_mouse_button_rd"
                     tools:ignore="ContentDescription,RtlHardcoded" />
 
                 <ImageView
@@ -54,7 +55,8 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_gravity="top|right"
-                    app:srcCompat="@drawable/ic_screen_mouse_button_ld"
+                    android:rotation="90"
+                    app:srcCompat="@drawable/ic_screen_mouse_button_rd"
                     tools:ignore="ContentDescription,RtlHardcoded" />
 
                 <ImageView
@@ -104,7 +106,8 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_gravity="bottom|left"
-                app:srcCompat="@drawable/ic_screen_mouse_button_ru"
+                android:rotation="-90"
+                app:srcCompat="@drawable/ic_screen_mouse_button_rd"
                 tools:ignore="ContentDescription,RtlHardcoded" />
 
             <ImageView
