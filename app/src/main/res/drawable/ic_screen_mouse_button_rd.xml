@@ -8,7 +8,7 @@
     <path android:pathData="M0,0h24v24h-24z">
         <aapt:attr name="android:fillColor">
             <gradient
-                android:centerX="-0"
+                android:centerX="0"
                 android:centerY="0"
                 android:gradientRadius="24"
                 android:type="radial">
@@ -29,7 +29,7 @@
         android:strokeLineJoin="round">
         <aapt:attr name="android:strokeColor">
             <gradient
-                android:centerX="-0"
+                android:centerX="0"
                 android:centerY="0"
                 android:gradientRadius="24"
                 android:type="radial">
@@ -50,7 +50,7 @@
         android:strokeLineJoin="round">
         <aapt:attr name="android:strokeColor">
             <gradient
-                android:centerX="-0"
+                android:centerX="0"
                 android:centerY="0"
                 android:gradientRadius="24"
                 android:type="radial">
@@ -71,7 +71,7 @@
         android:strokeLineJoin="round">
         <aapt:attr name="android:strokeColor">
             <gradient
-                android:centerX="-0"
+                android:centerX="0"
                 android:centerY="0"
                 android:gradientRadius="24"
                 android:type="radial">
@@ -92,7 +92,7 @@
         android:strokeLineJoin="round">
         <aapt:attr name="android:strokeColor">
             <gradient
-                android:centerX="-0"
+                android:centerX="0"
                 android:centerY="0"
                 android:gradientRadius="24"
                 android:type="radial">
@@ -113,7 +113,7 @@
         android:strokeLineJoin="round">
         <aapt:attr name="android:strokeColor">
             <gradient
-                android:centerX="-0"
+                android:centerX="0"
                 android:centerY="0"
                 android:gradientRadius="24"
                 android:type="radial">
@@ -134,7 +134,7 @@
         android:strokeLineJoin="round">
         <aapt:attr name="android:strokeColor">
             <gradient
-                android:centerX="-0"
+                android:centerX="0"
                 android:centerY="0"
                 android:gradientRadius="24"
                 android:type="radial">

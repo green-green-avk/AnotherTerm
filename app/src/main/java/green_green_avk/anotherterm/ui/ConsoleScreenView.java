@@ -251,7 +251,7 @@ public class ConsoleScreenView extends ScrollableView
             if (getSelectionModeIsExpr()) st = exprSelectionModeState;
             else if (getSelectionIsRect()) st = rectSelectionModeState;
             else st = linesSelectionModeState;
-            smv.setImageState(st, false);
+            smv.setImageState(st, true);
         }
 
         protected View getContentView() {
@@ -464,7 +464,7 @@ public class ConsoleScreenView extends ScrollableView
     @CheckResult
     @NonNull
     public float[] getCharSize(final float fontSize) {
-        final float r[] = new float[2];
+        final float[] r = new float[2];
         final Paint p = new Paint();
         fontProvider.setPaint(p, Typeface.NORMAL);
         p.setTextSize(fontSize);

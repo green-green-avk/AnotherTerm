@@ -5,6 +5,9 @@ import androidx.annotation.NonNull;
 import java.nio.CharBuffer;
 
 public final class CharsAutoSelector {
+    private CharsAutoSelector() {
+    }
+
     private static final char F_ASCII = 0x100;
 
     private static final byte WORD = 15;
