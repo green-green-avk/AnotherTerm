@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="@dimen/kbd_key_size"
+    android:background="@drawable/bg_popup2"
+    android:divider="@drawable/ic_toolbar_div"
+    android:orientation="horizontal"
+    android:showDividers="middle">
+
+    <TextView
+        android:id="@+id/f_search"
+        android:layout_width="0dp"
+        android:layout_height="match_parent"
+        android:layout_weight="1"
+        android:background="@drawable/bg_frame2"
+        android:ellipsize="middle"
+        android:gravity="center_vertical"
+        android:hint="@string/hint_search___"
+        android:textColor="@color/colorAccenttissimo"
+        android:textColorHint="@color/colorAccenttissimoTr"
+        app:autoSizeMinTextSize="@dimen/text_size_min"
+        app:autoSizeTextType="uniform"
+        app:backgroundTint="@color/colorAccenttissimo" />
+
+    <ImageButton
+        android:id="@+id/b_case"
+        style="@style/AppWidget.SelectSearchPopup.ImageButton"
+        android:layout_weight="0"
+        android:contentDescription="@string/desc_case_sense"
+        app:srcCompat="@drawable/ic_case" />
+
+    <ImageButton
+        android:id="@+id/b_search_up"
+        style="@style/AppWidget.SelectSearchPopup.ImageButton"
+        android:layout_weight="0"
+        android:contentDescription="@string/action_search_up"
+        app:srcCompat="@drawable/ic_arrow_up" />
+
+    <ImageButton
+        android:id="@+id/b_search_down"
+        style="@style/AppWidget.SelectSearchPopup.ImageButton"
+        android:layout_weight="0"
+        android:rotation="180"
+        android:contentDescription="@string/action_search_down"
+        app:srcCompat="@drawable/ic_arrow_up" />
+
+</LinearLayout>

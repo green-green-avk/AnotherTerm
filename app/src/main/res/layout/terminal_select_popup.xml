@@ -8,8 +8,6 @@
     android:orientation="horizontal"
     android:showDividers="middle">
 
-    <!-- The buffer search field is about to be here soon -->
-
     <ImageButton
         android:id="@+id/b_scratchpad"
         style="@style/AppWidget.SelectSearchPopup.ImageButton"
