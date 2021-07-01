@@ -19,7 +19,7 @@
         android:hint="@string/hint_search___"
         android:textColor="@color/colorAccenttissimo"
         android:textColorHint="@color/colorAccenttissimoTr"
-        app:autoSizeMinTextSize="@dimen/text_size_min"
+        app:autoSizeMinTextSize="1sp"
         app:autoSizeTextType="uniform"
         app:backgroundTint="@color/colorAccenttissimo" />
 
@@ -41,8 +41,8 @@
         android:id="@+id/b_search_down"
         style="@style/AppWidget.SelectSearchPopup.ImageButton"
         android:layout_weight="0"
-        android:rotation="180"
         android:contentDescription="@string/action_search_down"
+        android:rotation="180"
         app:srcCompat="@drawable/ic_arrow_up" />
 
 </LinearLayout>

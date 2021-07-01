@@ -326,8 +326,9 @@
     <string name="action_copy_to_scratchpad">Copy to scratchpad</string>
     <string name="action_search_up">Search up</string>
     <string name="action_search_down">Search down</string>
+    <string name="desc_case_sense">Case sensitivity</string>
     <string name="hint_search___">Search…</string>
+    <string name="msg_search_pattern_is_empty">Pattern is empty</string>
     <string name="msg_search_top_reached">Top reached</string>
     <string name="msg_search_bottom_reached">Bottom reached</string>
-    <string name="desc_case_sense">Case sensitivity</string>
 </resources>

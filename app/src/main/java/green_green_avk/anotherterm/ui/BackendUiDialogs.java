@@ -18,6 +18,7 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.UiThread;
 import androidx.appcompat.app.AlertDialog;
+import androidx.appcompat.widget.AppCompatEditText;
 import androidx.recyclerview.widget.LinearLayoutManager;
 
 import java.io.IOException;
@@ -117,7 +118,7 @@ public class BackendUiDialogs implements BackendUiInteraction,
                     if (isShowingPrompt()) return;
                     final Activity ctx = activityRef.getNoBlock();
                     if (ctx == null) return;
-                    final EditText et = new EditText(ctx);
+                    final EditText et = new AppCompatEditText(ctx);
                     final DialogInterface.OnClickListener listener = (dialog, which) -> {
                         if (which == DialogInterface.BUTTON_POSITIVE) {
                             promptState = null;
