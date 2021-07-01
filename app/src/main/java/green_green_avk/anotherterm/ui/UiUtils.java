@@ -2,7 +2,6 @@ package green_green_avk.anotherterm.ui;
 
 import android.animation.LayoutTransition;
 import android.app.Activity;
-import android.app.AlertDialog;
 import android.app.SearchManager;
 import android.content.ActivityNotFoundException;
 import android.content.ClipData;
@@ -26,6 +25,7 @@ import androidx.annotation.DrawableRes;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.UiThread;
+import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.content.res.AppCompatResources;
 import androidx.core.app.ShareCompat;
 
