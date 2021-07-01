@@ -1,7 +1,6 @@
 package green_green_avk.anotherterm;
 
 import android.annotation.SuppressLint;
-import android.app.AlertDialog;
 import android.content.ClipData;
 import android.content.ClipboardManager;
 import android.content.Context;
@@ -37,6 +36,7 @@ import android.widget.Toast;
 import androidx.annotation.Keep;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.appcompat.app.AlertDialog;
 import androidx.core.content.res.ResourcesCompat;
 import androidx.core.math.MathUtils;
 import androidx.core.widget.TextViewCompat;

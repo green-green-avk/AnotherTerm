@@ -1,6 +1,5 @@
 package green_green_avk.anotherterm;
 
-import android.app.AlertDialog;
 import android.content.Context;
 import android.graphics.Typeface;
 import android.text.SpannableString;
@@ -13,6 +12,7 @@ import android.widget.PopupWindow;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.StringRes;
+import androidx.appcompat.app.AlertDialog;
 
 public final class TermKeyMapManagerUi {
     private TermKeyMapManagerUi() {

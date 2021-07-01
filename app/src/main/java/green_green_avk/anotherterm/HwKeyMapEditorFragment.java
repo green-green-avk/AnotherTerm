@@ -1,6 +1,5 @@
 package green_green_avk.anotherterm;
 
-import android.app.AlertDialog;
 import android.app.Fragment;
 import android.os.Bundle;
 import android.view.KeyEvent;
@@ -18,6 +17,7 @@ import android.widget.TextView;
 import androidx.annotation.DrawableRes;
 import androidx.annotation.NonNull;
 import androidx.annotation.StringRes;
+import androidx.appcompat.app.AlertDialog;
 
 import java.util.AbstractList;
 import java.util.Arrays;
