@@ -45,6 +45,7 @@ import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.content.res.AppCompatResources;
+import androidx.appcompat.widget.AppCompatEditText;
 import androidx.core.math.MathUtils;
 import androidx.core.view.ViewCompat;
 
@@ -193,11 +194,12 @@ public class ConsoleScreenView extends ScrollableView
                     WindowManager.LayoutParams.WRAP_CONTENT, false);
             window.setSplitTouchEnabled(true);
             window.setAnimationStyle(android.R.style.Animation_Dialog);
-            wSelMode = getContentView().findViewById(R.id.b_select_mode);
-            wSearch = getContentView().findViewById(R.id.f_search);
-            wCase = getContentView().findViewById(R.id.b_case);
+            final View cv = getContentView();
+            wSelMode = cv.findViewById(R.id.b_select_mode);
+            wSearch = cv.findViewById(R.id.f_search);
+            wCase = cv.findViewById(R.id.b_case);
             refresh();
-            getContentView().findViewById(R.id.b_close)
+            cv.findViewById(R.id.b_close)
                     .setOnClickListener(v -> setSelectionMode(false));
             wSelMode.setOnClickListener(v -> {
                 if (getSelectionModeIsExpr()) setSelectionModeIsExpr(false);
@@ -208,7 +210,7 @@ public class ConsoleScreenView extends ScrollableView
                 }
                 refresh();
             });
-            getContentView().findViewById(R.id.b_select_all)
+            cv.findViewById(R.id.b_select_all)
                     .setOnClickListener(v -> {
                         setSelectionMode(true);
                         setSelectionModeIsExpr(false);
@@ -216,15 +218,15 @@ public class ConsoleScreenView extends ScrollableView
                         setSelectionIsRect(true);
                         invalidateSelectionUi(false);
                     });
-            getContentView().findViewById(R.id.b_copy)
+            cv.findViewById(R.id.b_copy)
                     .setOnClickListener(v -> UiUtils.toClipboard(getContext(), getSelectedText()));
-            getContentView().findViewById(R.id.b_put)
+            cv.findViewById(R.id.b_put)
                     .setOnClickListener(v -> {
                         if (consoleInput == null || consoleInput.consoleOutput == null) return;
                         final String s = getSelectedText();
                         if (s != null) consoleInput.consoleOutput.paste(s);
                     });
-            getContentView().findViewById(R.id.b_web)
+            cv.findViewById(R.id.b_web)
                     .setOnClickListener(v -> {
                         final String s = getSelectedText();
                         if (s == null) {
@@ -234,14 +236,14 @@ public class ConsoleScreenView extends ScrollableView
                         }
                         UiUtils.tryWebSearch(getContext(), s);
                     });
-            getContentView().findViewById(R.id.b_share)
+            cv.findViewById(R.id.b_share)
                     .setOnClickListener(v ->
                             UiUtils.sharePlainText((Activity) getContext(), getSelectedText()));
-            getContentView().findViewById(R.id.b_scratchpad)
+            cv.findViewById(R.id.b_scratchpad)
                     .setOnClickListener(v ->
                             UiUtils.toScratchpad(getContext(), getSelectedText()));
             wSearch.setOnClickListener(v -> {
-                final EditText et = new EditText(getContext());
+                final EditText et = new AppCompatEditText(getContext());
                 et.setInputType(InputType.TYPE_TEXT_FLAG_MULTI_LINE
                         | InputType.TYPE_CLASS_TEXT
                         | InputType.TYPE_TEXT_VARIATION_NORMAL);
@@ -249,7 +251,7 @@ public class ConsoleScreenView extends ScrollableView
                 new AlertDialog.Builder(getContext())
                         .setView(et)
                         .setPositiveButton(android.R.string.ok, (dialog, which) ->
-                                setSearch(et.getText()))
+                                setSearchPattern(et.getText()))
                         .setNegativeButton(android.R.string.cancel, (dialog, which) -> {
                         })
                         .show();
@@ -290,17 +292,23 @@ public class ConsoleScreenView extends ScrollableView
                     return consoleInput.currScrBuf.getHeight();
                 }
             };
-            getContentView().findViewById(R.id.b_case)
+            cv.findViewById(R.id.b_case)
                     .setOnClickListener(v -> {
                         searchCaseI = !searchCaseI;
                         ((ImageView) v).setImageState(
                                 searchCaseI ? searchCaseIState : searchCaseSState, true);
                     });
-            getContentView().findViewById(R.id.b_search_up)
+            cv.findViewById(R.id.b_search_up)
                     .setOnClickListener(v -> {
                         if (consoleInput == null || selection == null) return;
-                        final CharsFinder cf = new CharsFinder(bufferView,
-                                wSearch.getText().toString(), searchCaseI);
+                        final String pattern = getSearchPattern();
+                        if (pattern.isEmpty()) {
+                            Toast.makeText(getContext(),
+                                    R.string.msg_search_pattern_is_empty,
+                                    Toast.LENGTH_SHORT).show();
+                            return;
+                        }
+                        final CharsFinder cf = new CharsFinder(bufferView, pattern, searchCaseI);
                         final ConsoleScreenSelection s = selection.getDirect();
                         final int i = consoleInput.currScrBuf
                                 .getCharIndex(s.first.y, s.first.x, 0, false);
@@ -312,11 +320,17 @@ public class ConsoleScreenView extends ScrollableView
                         }
                         selectSearchResult(cf);
                     });
-            getContentView().findViewById(R.id.b_search_down)
+            cv.findViewById(R.id.b_search_down)
                     .setOnClickListener(v -> {
                         if (consoleInput == null || selection == null) return;
-                        final CharsFinder cf = new CharsFinder(bufferView,
-                                wSearch.getText().toString(), searchCaseI);
+                        final String pattern = getSearchPattern();
+                        if (pattern.isEmpty()) {
+                            Toast.makeText(getContext(),
+                                    R.string.msg_search_pattern_is_empty,
+                                    Toast.LENGTH_SHORT).show();
+                            return;
+                        }
+                        final CharsFinder cf = new CharsFinder(bufferView, pattern, searchCaseI);
                         final ConsoleScreenSelection s = selection.getDirect();
                         final int i = consoleInput.currScrBuf
                                 .getCharIndex(s.last.y, s.last.x, 0, false);
@@ -381,7 +395,14 @@ public class ConsoleScreenView extends ScrollableView
             cv.requestLayout();
         }
 
-        protected void setSearch(@Nullable final CharSequence v) {
+        @CheckResult
+        @NonNull
+        protected String getSearchPattern() {
+            final CharSequence v = wSearch.getText();
+            return v != null ? v.toString() : "";
+        }
+
+        protected void setSearchPattern(@Nullable final CharSequence v) {
             wSearch.setText(v == null ? "" : v);
         }
 
@@ -393,6 +414,7 @@ public class ConsoleScreenView extends ScrollableView
             wSelMode.setImageState(st, true);
         }
 
+        @CheckResult
         protected View getContentView() {
             return ((ViewGroup) window.getContentView()).getChildAt(0);
         }
@@ -1006,7 +1028,9 @@ public class ConsoleScreenView extends ScrollableView
 
     protected void onSelectionChanged() {
         if (getSelectedCellsCount() <= SEARCH_PATTERN_CELLS_MAX)
-            selectionPopup.setSearch(getSelectedText());
+            selectionPopup.setSearchPattern(getSelectedText());
+        else
+            selectionPopup.setSearchPattern("");
     }
 
     @CheckResult
