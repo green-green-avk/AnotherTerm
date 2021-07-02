@@ -15,7 +15,7 @@
         android:layout_width="3dp"
         android:layout_height="3dp"
         android:layout_gravity="center_horizontal|top"
-        android:background="@drawable/bg_terminal_history_scroll" />
+        android:background="@drawable/bg_terminal_scroll_history" />
 
     <View
         android:id="@+id/mark"

@@ -12,13 +12,20 @@ import android.util.AttributeSet;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.appcompat.widget.AppCompatTextView;
 import androidx.core.text.HtmlCompat;
 
 import green_green_avk.anotherterm.R;
 import green_green_avk.anotherterm.utils.XmlToSpanned;
 import me.saket.bettermovementmethod.BetterLinkMovementMethod;
 
-public class HtmlTextView extends androidx.appcompat.widget.AppCompatTextView {
+/**
+ * It is better than WebView in two ways:
+ * 1) it is less resource-hungry;
+ * 2) current WebView component upgrades
+ * does not support Android versions less than 5.
+ */
+public class HtmlTextView extends AppCompatTextView {
     public boolean async = false;
 
     public HtmlTextView(final Context context) {

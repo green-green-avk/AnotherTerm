@@ -23,6 +23,7 @@ import androidx.annotation.Nullable;
 import androidx.annotation.StringRes;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.content.res.AppCompatResources;
+import androidx.appcompat.widget.AppCompatTextView;
 
 /**
  * Created by Pavel Sikun on 21.05.16.
@@ -79,7 +80,7 @@ final class CustomValueDialog {
         final Context dialogContext =
                 style != 0 ? new ContextThemeWrapper(context, style) : context;
 
-        final TextView warnWinView = new TextView(context);
+        final TextView warnWinView = new AppCompatTextView(context);
         warnWinView.setLayoutParams(new ViewGroup.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT,
                 ViewGroup.LayoutParams.WRAP_CONTENT));
         warnWinView.setBackgroundResource(R.drawable.msbp_warning_popup);

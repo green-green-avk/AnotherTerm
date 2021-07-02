@@ -67,7 +67,8 @@ Local PTY, USB and Bluetooth serial ports, SSH and Telnet terminal client for An
 The only part of this application that touches on cryptography is the SSH client used to
 communicate with remote systems. Currently this is provided by the JSch library.
 It does not directly implement any encryption,
-but instead relies on Java Cryptography Extension (JCE) and its providers that are a part of Android.
+but instead relies on Java Cryptography Extension (JCE)
+and its providers that are a part of Android.
 
 This application is self-classified under ECCN 5D992 with the encryption authorization
 type identifier MMKT.

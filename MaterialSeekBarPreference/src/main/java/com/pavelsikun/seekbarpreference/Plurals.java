@@ -43,7 +43,7 @@ final class Plurals {
             try {
                 isFmt = true; // tricky
                 return String.format(s, value);
-            } catch (IllegalFormatException e) {
+            } catch (final IllegalFormatException e) {
                 isFmt = false; // tricky
                 return s.replace("%%", "%");
             }
@@ -87,7 +87,7 @@ final class Plurals {
             try {
                 String.format(str, 0); // Should be better than regexp
                 isFmt = true;
-            } catch (IllegalFormatException e) {
+            } catch (final IllegalFormatException e) {
                 this.str = str.replace("%%", "%"); // Or be stricter?
                 isFmt = false;
             }
