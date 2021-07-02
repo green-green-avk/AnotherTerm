@@ -67,7 +67,7 @@ public final class SessionsAdapter extends RecyclerView.Adapter<SessionsAdapter.
         final int key = ConsoleService.sessionKeys.get(position);
         final Session session = ConsoleService.getSession(key);
         titleView.setText(session.getTitle());
-        ImageView thumbnailView = holder.itemView.findViewById(R.id.thumbnail);
+        final ImageView thumbnailView = holder.itemView.findViewById(R.id.thumbnail);
         if (session.thumbnail != null) {
             thumbnailView.setImageBitmap(session.thumbnail);
         } else {

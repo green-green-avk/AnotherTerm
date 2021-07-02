@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="welcome_title_tips">Tips</string>
-    <string name="welcome_desc"><![CDATA[
+    <string name="desc_welcome"><![CDATA[
+        <h1>Tips</h1>
         <ul>
         <li>Create some profile to start with &#x2014;
         <btn onclick=\"onNewFav\"><img inline=\"true\" src=\"@drawable/ic_menu_add\" /></btn></li>

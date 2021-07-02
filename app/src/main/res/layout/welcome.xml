@@ -1,23 +1,16 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:orientation="vertical"
-    android:padding="@dimen/text_padding"
+    android:requiresFadingEdge="vertical"
     tools:context=".SessionsActivity">
-
-    <TextView
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:paddingBottom="@dimen/abc_text_size_small_material"
-        android:text="@string/welcome_title_tips"
-        android:textAppearance="@style/TextAppearance.AppCompat.Title" />
 
     <green_green_avk.anotherterm.ui.HtmlTextView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        app:xmlText="@string/welcome_desc" />
+        android:padding="@dimen/text_padding"
+        app:xmlText="@string/desc_welcome" />
 
-</LinearLayout>
+</ScrollView>
