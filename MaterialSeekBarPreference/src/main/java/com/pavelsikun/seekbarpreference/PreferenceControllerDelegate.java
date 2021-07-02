@@ -206,7 +206,7 @@ final class PreferenceControllerDelegate implements SeekBar.OnSeekBarChangeListe
 
     @Override
     public void onClick(final View v) {
-        // TODO: separate atomic atomic interval
+        // TODO: separate atomic interval
         new CustomValueDialog(context, dialogStyle,
                 dialogTitle == null ?
                         context.getString(R.string.title_dialog, title, unit.get(context, 1))
@@ -234,7 +234,7 @@ final class PreferenceControllerDelegate implements SeekBar.OnSeekBarChangeListe
     }
 
     String getSummary() {
-        return summary.get(context, 1);
+        return summary.get(context, currentValue);
     }
 
     void setSummary(final String summary) {
@@ -340,7 +340,7 @@ final class PreferenceControllerDelegate implements SeekBar.OnSeekBarChangeListe
 
     @Nullable
     String getUnit() {
-        return unit.get(context, 1);
+        return unit.get(context, currentValue);
     }
 
     void setUnit(@Nullable final String str) {
