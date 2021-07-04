@@ -80,5 +80,5 @@ It's unlawful to provide this application to or use by the prohibited entities l
 and
 <https://www.bis.doc.gov/index.php/policy-guidance/lists-of-parties-of-concern>.
 
-The author is not responsible for any actions of any parties and their consequences
-related to the aforementioned regulation.
+The copyright holder and contributors are not responsible for any actions of any parties
+and their consequences related to the aforementioned regulation.
