@@ -30,17 +30,19 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_gravity="bottom|right"
+                    android:importantForAccessibility="no"
                     android:rotation="180"
                     app:srcCompat="@drawable/ic_screen_mouse_button_rd"
-                    tools:ignore="ContentDescription,RtlHardcoded" />
+                    tools:ignore="RtlHardcoded" />
 
                 <ImageView
                     android:layout_width="48dp"
                     android:layout_height="48dp"
                     android:layout_gravity="bottom|right"
                     android:layout_margin="48dp"
+                    android:importantForAccessibility="no"
                     app:srcCompat="@drawable/ic_mouse_button_right"
-                    tools:ignore="ContentDescription,RtlHardcoded" />
+                    tools:ignore="RtlHardcoded" />
 
             </FrameLayout>
 
@@ -55,17 +57,19 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_gravity="top|right"
+                    android:importantForAccessibility="no"
                     android:rotation="90"
                     app:srcCompat="@drawable/ic_screen_mouse_button_rd"
-                    tools:ignore="ContentDescription,RtlHardcoded" />
+                    tools:ignore="RtlHardcoded" />
 
                 <ImageView
                     android:layout_width="48dp"
                     android:layout_height="48dp"
                     android:layout_gravity="top|right"
                     android:layout_margin="48dp"
+                    android:importantForAccessibility="no"
                     app:srcCompat="@drawable/ic_mouse_button_left"
-                    tools:ignore="ContentDescription,RtlHardcoded" />
+                    tools:ignore="RtlHardcoded" />
 
             </FrameLayout>
 
@@ -106,17 +110,19 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_gravity="bottom|left"
+                android:importantForAccessibility="no"
                 android:rotation="-90"
                 app:srcCompat="@drawable/ic_screen_mouse_button_rd"
-                tools:ignore="ContentDescription,RtlHardcoded" />
+                tools:ignore="RtlHardcoded" />
 
             <ImageView
                 android:layout_width="48dp"
                 android:layout_height="48dp"
                 android:layout_gravity="bottom|left"
                 android:layout_margin="48dp"
+                android:importantForAccessibility="no"
                 app:srcCompat="@drawable/ic_mouse_button_middle"
-                tools:ignore="ContentDescription,RtlHardcoded" />
+                tools:ignore="RtlHardcoded" />
 
         </FrameLayout>
 
@@ -131,16 +137,18 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_gravity="top|left"
+                android:importantForAccessibility="no"
                 app:srcCompat="@drawable/ic_screen_mouse_button_rd"
-                tools:ignore="ContentDescription,RtlHardcoded" />
+                tools:ignore="RtlHardcoded" />
 
             <ImageView
                 android:layout_width="48dp"
                 android:layout_height="48dp"
                 android:layout_gravity="top|left"
                 android:layout_margin="48dp"
+                android:importantForAccessibility="no"
                 app:srcCompat="@drawable/ic_mouse_button_right"
-                tools:ignore="ContentDescription,RtlHardcoded" />
+                tools:ignore="RtlHardcoded" />
 
         </FrameLayout>
 

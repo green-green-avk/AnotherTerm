@@ -14,12 +14,12 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:background="@drawable/bg_screen1"
+        android:importantForAccessibility="no"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintVertical_bias="1"
-        tools:ignore="ContentDescription"
-        tools:srcCompat="@drawable/list_item_background" />
+        tools:srcCompat="@drawable/ic_thumbnail_empty" />
 
     <LinearLayout
         android:layout_width="wrap_content"

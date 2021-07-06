@@ -165,7 +165,7 @@
         <item name="android:alpha">0.75</item>
         <item name="android:background">@android:color/transparent</item>
         <item name="android:scaleType">fitCenter</item>
-        <item name="android:tint">@color/colorAccenttissimo</item>
+        <item name="tint">@color/colorAccenttissimo</item>
     </style>
 
     <style name="AppWidget.SelectSearchPopup.Divider" parent="">
