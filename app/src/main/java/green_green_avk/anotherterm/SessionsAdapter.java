@@ -71,7 +71,7 @@ public final class SessionsAdapter extends RecyclerView.Adapter<SessionsAdapter.
         if (session.thumbnail != null) {
             thumbnailView.setImageBitmap(session.thumbnail);
         } else {
-            thumbnailView.setImageResource(R.drawable.list_item_background);
+            thumbnailView.setImageResource(R.drawable.ic_thumbnail_empty);
         }
         final TextView descriptionView = holder.itemView.findViewById(R.id.description);
         final TextView stateView = holder.itemView.findViewById(R.id.state);

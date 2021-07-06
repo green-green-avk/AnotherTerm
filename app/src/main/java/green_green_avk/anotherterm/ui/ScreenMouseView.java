@@ -89,6 +89,10 @@ public class ScreenMouseView extends ScrollableView {
                 ViewGroup.LayoutParams.MATCH_PARENT
         ));
         overlayView.setOnTouchListener(overlayOnTouch);
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
+            overlayView.setImportantForAccessibility(
+                    View.IMPORTANT_FOR_ACCESSIBILITY_NO_HIDE_DESCENDANTS);
+        }
         overlay = new PopupWindow(overlayView,
                 ViewGroup.LayoutParams.MATCH_PARENT,
                 ViewGroup.LayoutParams.MATCH_PARENT);

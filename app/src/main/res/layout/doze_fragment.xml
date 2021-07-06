@@ -14,13 +14,12 @@
         android:layout_weight="1">
 
         <ImageView
-            android:id="@+id/imageView"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:alpha="0.1"
+            android:importantForAccessibility="no"
             android:scaleType="fitCenter"
-            app:srcCompat="@drawable/ic_battery_pict"
-            tools:ignore="ContentDescription" />
+            app:srcCompat="@drawable/ic_battery_pict" />
 
         <ScrollView
             android:layout_width="match_parent"
@@ -48,11 +47,11 @@
             android:id="@+id/icon"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:importantForAccessibility="no"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintLeft_toLeftOf="parent"
             app:layout_constraintTop_toTopOf="parent"
-            app:srcCompat="@drawable/ic_battery_pict"
-            tools:ignore="ContentDescription" />
+            app:srcCompat="@drawable/ic_battery_pict" />
 
         <TextView
             android:id="@+id/f_state"
@@ -62,7 +61,7 @@
             android:paddingRight="@dimen/text_separator"
             android:textSize="18sp"
             app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintLeft_toRightOf="@+id/icon"
+            app:layout_constraintLeft_toRightOf="@id/icon"
             app:layout_constraintTop_toTopOf="parent" />
 
         <Switch

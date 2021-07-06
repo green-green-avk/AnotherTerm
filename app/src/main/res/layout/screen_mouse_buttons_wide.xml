@@ -32,9 +32,10 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_gravity="bottom|right"
+                        android:importantForAccessibility="no"
                         android:rotation="180"
                         app:srcCompat="@drawable/ic_screen_mouse_button_rd"
-                        tools:ignore="ContentDescription,RtlHardcoded" />
+                        tools:ignore="RtlHardcoded" />
 
                 </FrameLayout>
 
@@ -48,9 +49,10 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_gravity="top|right"
+                        android:importantForAccessibility="no"
                         android:rotation="90"
                         app:srcCompat="@drawable/ic_screen_mouse_button_rd"
-                        tools:ignore="ContentDescription,RtlHardcoded" />
+                        tools:ignore="RtlHardcoded" />
 
                 </FrameLayout>
 
@@ -61,10 +63,11 @@
                 android:layout_width="match_parent"
                 android:layout_height="240dp"
                 android:layout_gravity="top"
+                android:importantForAccessibility="no"
                 android:scaleType="center"
                 android:tag="v_scroll"
                 app:srcCompat="@drawable/ic_screen_mouse_scroll"
-                tools:ignore="ContentDescription,RtlHardcoded" />
+                tools:ignore="RtlHardcoded" />
 
         </FrameLayout>
 
@@ -93,9 +96,10 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_gravity="bottom|left"
+                        android:importantForAccessibility="no"
                         android:rotation="-90"
                         app:srcCompat="@drawable/ic_screen_mouse_button_rd"
-                        tools:ignore="ContentDescription,RtlHardcoded" />
+                        tools:ignore="RtlHardcoded" />
 
                 </FrameLayout>
 
@@ -109,8 +113,9 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_gravity="top|left"
+                        android:importantForAccessibility="no"
                         app:srcCompat="@drawable/ic_screen_mouse_button_rd"
-                        tools:ignore="ContentDescription,RtlHardcoded" />
+                        tools:ignore="RtlHardcoded" />
 
                 </FrameLayout>
 
@@ -121,11 +126,12 @@
                 android:layout_width="match_parent"
                 android:layout_height="240dp"
                 android:layout_gravity="top"
+                android:importantForAccessibility="no"
                 android:scaleType="center"
                 android:scaleX="-1"
                 android:tag="v_scroll"
                 app:srcCompat="@drawable/ic_screen_mouse_scroll"
-                tools:ignore="ContentDescription,RtlHardcoded" />
+                tools:ignore="RtlHardcoded" />
 
         </FrameLayout>
 
@@ -142,59 +148,63 @@
             android:layout_width="0dp"
             android:layout_height="match_parent"
             android:layout_weight="1"
+            android:importantForAccessibility="no"
             android:scaleType="center"
             android:tag="right"
             app:srcCompat="@drawable/ic_mouse_button_right"
-            tools:ignore="ContentDescription,RtlHardcoded" />
+            tools:ignore="RtlHardcoded" />
 
         <ImageView
             android:layout_width="0dp"
             android:layout_height="200dp"
             android:layout_gravity="bottom"
             android:layout_weight="1"
+            android:importantForAccessibility="no"
             android:scaleType="center"
             android:tag="left"
             app:srcCompat="@drawable/ic_mouse_button_left"
-            tools:ignore="ContentDescription,RtlHardcoded" />
+            tools:ignore="RtlHardcoded" />
 
         <ImageView
             android:layout_width="0dp"
             android:layout_height="160dp"
             android:layout_gravity="bottom"
             android:layout_weight="1"
+            android:importantForAccessibility="no"
             android:scaleType="center"
             android:tag="middle"
-            app:srcCompat="@drawable/ic_mouse_button_middle"
-            tools:ignore="ContentDescription" />
+            app:srcCompat="@drawable/ic_mouse_button_middle" />
 
         <ImageView
             android:layout_width="0dp"
             android:layout_height="160dp"
             android:layout_gravity="bottom"
             android:layout_weight="1"
+            android:importantForAccessibility="no"
             android:scaleType="center"
             android:tag="middle"
-            app:srcCompat="@drawable/ic_mouse_button_middle"
-            tools:ignore="ContentDescription" />
+            app:srcCompat="@drawable/ic_mouse_button_middle" />
 
         <ImageView
             android:layout_width="0dp"
             android:layout_height="200dp"
             android:layout_gravity="bottom"
             android:layout_weight="1"
+            android:importantForAccessibility="no"
             android:scaleType="center"
             android:tag="left"
             app:srcCompat="@drawable/ic_mouse_button_left"
-            tools:ignore="ContentDescription,RtlHardcoded" />
+            tools:ignore="RtlHardcoded" />
 
         <ImageView
             android:layout_width="0dp"
             android:layout_height="match_parent"
             android:layout_weight="1"
+            android:importantForAccessibility="no"
             android:scaleType="center"
             android:tag="right"
             app:srcCompat="@drawable/ic_mouse_button_right"
-            tools:ignore="ContentDescription,RtlHardcoded" />
+            tools:ignore="RtlHardcoded" />
 
     </LinearLayout>
 

@@ -132,11 +132,12 @@
             android:layout_height="wrap_content"
             android:layout_gravity="right|top"
             android:alpha="1"
+            android:importantForAccessibility="no"
             android:visibility="invisible"
             app:srcCompat="@drawable/ic_bell_24"
             app:tint="@color/colorAccenttissimo"
             app:tintMode="multiply"
-            tools:ignore="ContentDescription,RtlHardcoded"
+            tools:ignore="RtlHardcoded"
             tools:visibility="visible" />
 
         <ImageView
@@ -146,13 +147,14 @@
             android:layout_gravity="bottom|right"
             android:adjustViewBounds="true"
             android:alpha="0.75"
+            android:importantForAccessibility="no"
             android:onClick="onScrollHome"
             android:rotation="90"
             android:visibility="invisible"
             app:srcCompat="@drawable/ic_selection_arrow"
             app:tint="@color/colorTextSelection"
             app:tintMode="multiply"
-            tools:ignore="ContentDescription,RtlHardcoded"
+            tools:ignore="RtlHardcoded"
             tools:visibility="visible" />
 
         <LinearLayout

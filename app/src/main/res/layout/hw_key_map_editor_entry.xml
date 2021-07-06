@@ -38,10 +38,10 @@
         android:layout_height="@dimen/uiOptionMaxTextSize"
         android:layout_gravity="center"
         android:adjustViewBounds="true"
+        android:importantForAccessibility="no"
         android:scaleType="centerInside"
         app:srcCompat="@drawable/ic_assoc"
-        app:tint="?android:attr/textColorTertiary"
-        tools:ignore="ContentDescription" />
+        app:tint="?android:attr/textColorTertiary" />
 
     <Spinner
         android:id="@+id/toKeycode"
