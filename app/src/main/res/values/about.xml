@@ -17,7 +17,14 @@
 <h1>Features</h1>
 <ul>
 <li>Minimum supported Android version is 4.0 Ice Cream Sandwich.</li>
-<li>Supported USB UART devices: Generic USB CDC, CP210X, FTDI, PL2303, CH34x, CP2130 SPI-USB.</li>
+<li>Supported USB UART devices:<ul>
+<li>Generic USB CDC,</li>
+<li>CP210X,</li>
+<li>FTDI,</li>
+<li>PL2303,</li>
+<li>CH34x,</li>
+<li>CP2130 SPI-USB.</li>
+</ul></li>
 <li>Bluetooth SPP UART devices are supported.</li>
 <li>Local Linux PTY is supported. Feel free to use
 <a href=\"https://green-green-avk.github.io/AnotherTerm-docs/installing-linux-under-proot.html#main_content\">
@@ -26,9 +33,9 @@ PRoot with some Linux environment</a>.</li>
 Shell tool</a> to interact with the Android environment is also present.
 <ul>
 <li>Content exchange between other applications and own files / pipes has been implemented.</li>
-<li>It also works in chrooted environments (PRoot at least).</li>
+<li>It also works in chrooted environments (<b>PRoot</b> at least).</li>
 <li>USB and Bluetooth serial port dongles access from the command line is also implemented.</li>
-<li>libusb support on nonrooted Android
+<li><b>libusb</b> support on nonrooted Android
 [<a href=\"https://green-green-avk.github.io/AnotherTerm-docs/installing-libusb-for-nonrooted-android.html#main_content\">how to install</a>].
 </li>
 <li><a href=\"https://green-green-avk.github.io/AnotherTerm-docs/local-shell-plugins.html#main_content\">Custom plugins</a>
@@ -47,7 +54,12 @@ to access the Android environment and own API to create them as separate APKs.</
 </ul>
 </li>
 <li>Telnet (no encryption).</li>
-<li>Supported SSH features: zlib compression, port forwarding, password and public key authentication.</li>
+<li>Supported SSH features:<ul>
+<li>zlib compression;</li>
+<li>password and public key authentication;</li>
+<li>port forwarding (can be modified on a running SSH session);</li>
+<li>starting extra shell channels on a running SSH session.</li>
+</ul></li>
 <li>No MoSH, sorry.</li>
 <li>Builtin screen keyboard and mouse.</li>
 <li>Hardware buttons mapping.</li>

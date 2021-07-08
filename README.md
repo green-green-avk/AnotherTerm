@@ -19,7 +19,13 @@ Local PTY, USB and Bluetooth serial ports, SSH and Telnet terminal client for An
 
 * Minimum supported Android version is 4.0 Ice Cream Sandwich.
 
-* Supported USB UART devices: Generic USB CDC, CP210X, FTDI, PL2303, CH34x, CP2130 SPI-USB.
+* Supported USB UART devices:
+   - Generic USB CDC,
+   - CP210X,
+   - FTDI,
+   - PL2303,
+   - CH34x,
+   - CP2130 SPI-USB.
 
 * Bluetooth SPP UART devices are supported.
 
@@ -28,7 +34,7 @@ Local PTY, USB and Bluetooth serial ports, SSH and Telnet terminal client for An
 
 * Shell tool to interact with the Android environment is also present.
    - Content exchange between other applications and own files / pipes has been implemented.
-   - It also works in chrooted environments (PRoot at least).
+   - It also works in chrooted environments (**PRoot** at least).
    - USB and Bluetooth serial port dongles access from the command line is also implemented.
    - **libusb** support on nonrooted Android —
 <https://green-green-avk.github.io/AnotherTerm-docs/installing-libusb-for-nonrooted-android.html#main_content>.
@@ -45,7 +51,11 @@ Local PTY, USB and Bluetooth serial ports, SSH and Telnet terminal client for An
 
 * Telnet (no encryption).
 
-* Supported SSH features: zlib compression, port forwarding, password and public key authentication.
+* Supported SSH features:
+   - zlib compression;
+   - password and public key authentication;
+   - port forwarding (can be modified on a running SSH session);
+   - starting extra shell channels on a running SSH session.
 
 * No MoSH, sorry.
 
