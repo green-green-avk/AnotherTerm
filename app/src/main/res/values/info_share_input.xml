@@ -14,7 +14,7 @@
         from all of its local shell sessions.
         However there is no way to enumerate them
         except cases of large texts sharing by value (see below)
-        when <code>termsh uri -l</code> can be used.</p>
+        when <code><a href=\"info:/termsh_man\">termsh uri -l</a></code> can be used.</p>
         <p><b>Note2:</b> Passed URIs must be opened not later than a couple of seconds
         since a sessions started: they will expire otherwise.
         There are no other related time limitations in Android.</p>
