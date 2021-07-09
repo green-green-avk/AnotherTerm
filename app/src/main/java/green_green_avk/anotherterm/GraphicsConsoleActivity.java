@@ -178,6 +178,20 @@ public final class GraphicsConsoleActivity extends ConsoleActivity {
         supportNavigateUpTo(pa);
     }
 
+    private boolean mouseMode = false;
+
+    public void onMouseMode(final View v) {
+        mouseMode = !mouseMode;
+        final ImageView iv = findViewById(R.id.action_mouse_mode);
+        if (mouseMode) {
+            iv.setImageState(new int[]{android.R.attr.state_checked}, true);
+            mSmv.setVisibility(View.VISIBLE);
+        } else {
+            iv.setImageState(new int[]{}, true);
+            mSmv.setVisibility(View.GONE);
+        }
+    }
+
     public void onSwitchIme(final View view) {
         final int mode;
         switch (mCkv.getMode()) {
