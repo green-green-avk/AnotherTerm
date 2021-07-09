@@ -283,11 +283,11 @@ public abstract class ExtKeyboardView extends View /*implements View.OnClickList
         this.mAutoRepeatInterval = repeatInterval;
     }
 
-    public boolean isHidden() {
+    protected boolean isHidden() {
         return mHidden;
     }
 
-    public void setHidden(final boolean hidden) {
+    protected void setHidden(final boolean hidden) {
         mHidden = hidden;
         requestLayout();
         invalidateAllKeys();
