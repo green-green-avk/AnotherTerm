@@ -2,6 +2,7 @@ package green_green_avk.anotherterm.ui;
 
 import android.app.Activity;
 import android.content.Context;
+import android.content.res.Configuration;
 import android.graphics.Rect;
 import android.os.Build;
 import android.util.AttributeSet;
@@ -63,20 +64,26 @@ public final class BottomImePlaceholderView extends View {
             if (needResize()) {
                 final View v = (View) getParent();
                 v.getWindowVisibleDisplayFrame(r);
-                h = v.getBottom() - r.bottom;
-                if (h < 0) h = 0;
+                h = Math.max(v.getBottom() - r.bottom, 0);
             } else h = 0;
-            if (hMode == MeasureSpec.AT_MOST) {
-                final int hMax = MeasureSpec.getSize(heightMeasureSpec);
-                if (h > hMax) h = hMax;
-            }
+            if (hMode == MeasureSpec.AT_MOST)
+                h = Math.min(h, MeasureSpec.getSize(heightMeasureSpec));
         }
-        // Lost re-rendering workaround when IME is shown after hidden navigation bar
+        // Lost re-rendering workaround when IME is shown after hiding navigation bar
         if (h != oldH) {
             handler.removeCallbacks(rLayout);
             handler.postDelayed(rLayout, 500);
             oldH = h;
         }
         setMeasuredDimension(getDefaultSize(getSuggestedMinimumWidth(), widthMeasureSpec), h);
+    }
+
+    // Not all Android framework versions have the same layout invalidation rules...
+    // At least, API 24 has specific behavior in case when IME is shown and
+    // an external keyboard are being plugged in.
+    @Override
+    protected void onConfigurationChanged(final Configuration newConfig) {
+        super.onConfigurationChanged(newConfig);
+        requestLayout();
     }
 }

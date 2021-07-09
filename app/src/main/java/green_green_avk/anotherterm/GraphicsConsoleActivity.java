@@ -87,7 +87,7 @@ public final class GraphicsConsoleActivity extends ConsoleActivity {
         final FontProvider fp = new ConsoleFontProvider();
         mCkv.setFont(fp); // Old Android devices have no glyphs for some special symbols
 
-        mCkv.useIme(((App) getApplication()).settings.terminal_key_default_ime);
+        mCkv.setMode(ConsoleKeyboardView.MODE_HW_ONLY);
 
         setSessionTitle(mSession.compositor.title);
 
@@ -179,7 +179,18 @@ public final class GraphicsConsoleActivity extends ConsoleActivity {
     }
 
     public void onSwitchIme(final View view) {
-        mCkv.useIme(!mCkv.isIme());
+        final int mode;
+        switch (mCkv.getMode()) {
+            case ConsoleKeyboardView.MODE_VISIBLE:
+                mode = ConsoleKeyboardView.MODE_IME;
+                break;
+            case ConsoleKeyboardView.MODE_IME:
+                mode = ConsoleKeyboardView.MODE_HW_ONLY;
+                break;
+            default:
+                mode = ConsoleKeyboardView.MODE_VISIBLE;
+        }
+        mCkv.setMode(mode);
     }
 
     final MouseButtonsWorkAround mbwa = new MouseButtonsWorkAround(this);

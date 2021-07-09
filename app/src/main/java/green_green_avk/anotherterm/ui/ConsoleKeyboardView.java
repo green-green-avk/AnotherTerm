@@ -15,6 +15,7 @@ import android.view.KeyCharacterMap;
 import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.View;
+import android.view.Window;
 import android.view.WindowManager;
 import android.view.inputmethod.BaseInputConnection;
 import android.view.inputmethod.EditorInfo;
@@ -47,6 +48,14 @@ public class ConsoleKeyboardView extends ExtKeyboardView implements
 
     protected boolean imeEnabled = false;
 
+    public static final int MODE_VISIBLE = 0;
+    public static final int MODE_IME = 1;
+    public static final int MODE_HW_ONLY = 2;
+    protected static final int MODE_UNKNOWN = -1;
+    protected int mode = MODE_VISIBLE;
+    protected int prevMode = mode;
+    protected int currMode = mode;
+
     protected int keyHeightDp = 0;
     @NonNull
     private HwKeyMap hwKeyMap = HwKeyMap.DEFAULT;
@@ -56,17 +65,15 @@ public class ConsoleKeyboardView extends ExtKeyboardView implements
     private int layoutRes = R.array.ansi_keyboard;
 
     public static class State {
-        private boolean init = false;
-        private boolean useIme = false;
+        private int mode = MODE_UNKNOWN;
 
         public void save(@NonNull final ConsoleKeyboardView v) {
-            useIme = v.isIme();
-            init = true;
+            mode = v.getMode();
         }
 
         public void apply(@NonNull final ConsoleKeyboardView v) {
-            if (!init) return;
-            v.useIme(useIme);
+            if (mode == MODE_UNKNOWN) return;
+            v.setMode(mode);
         }
     }
 
@@ -156,7 +163,7 @@ public class ConsoleKeyboardView extends ExtKeyboardView implements
         final ExtKeyboard.Configuration kc = new ExtKeyboard.Configuration();
         kc.keyHeight = (int) (keyHeightDp * res.getDisplayMetrics().density);
         setKeyboard(new ExtKeyboard(getContext(), kbdRes, kc));
-        useIme(isIme());
+        applyMode(cfg);
     }
 
     public void setConsoleInput(@NonNull final AnsiConsoleInput consoleInput) {
@@ -214,7 +221,7 @@ public class ConsoleKeyboardView extends ExtKeyboardView implements
     @Override
     public void onWindowFocusChanged(final boolean hasWindowFocus) {
         super.onWindowFocusChanged(hasWindowFocus);
-        if (hasWindowFocus) useIme(isIme());
+        if (hasWindowFocus) reapplyMode();
     }
 
     protected void _showIme() {
@@ -235,49 +242,71 @@ public class ConsoleKeyboardView extends ExtKeyboardView implements
         imeEnabled = false;
     }
 
-    protected final Runnable rShowSelf = () -> {
+    protected final Runnable rDelayed = () -> {
         final Context ctx = getContext();
-        if (ctx instanceof Activity)
-            ((Activity) ctx).getWindow().setSoftInputMode(
-                    WindowManager.LayoutParams.SOFT_INPUT_STATE_UNCHANGED |
-                            WindowManager.LayoutParams.SOFT_INPUT_ADJUST_NOTHING);
-        mHidden = false;
-        requestLayout();
-    };
-
-    protected final Runnable rHideSelf = () -> {
-        final Context ctx = getContext();
+        final int wmlp;
+        final boolean hidden;
+        switch (mode) {
+            case MODE_VISIBLE:
+                wmlp = WindowManager.LayoutParams.SOFT_INPUT_ADJUST_NOTHING;
+                hidden = false;
+                break;
+            case MODE_IME:
+                wmlp = WindowManager.LayoutParams.SOFT_INPUT_ADJUST_RESIZE;
+                hidden = true;
+                break;
+            default:
+                wmlp = WindowManager.LayoutParams.SOFT_INPUT_ADJUST_NOTHING;
+                hidden = true;
+        }
         if (ctx instanceof Activity) {
-            ((Activity) ctx).getWindow().setSoftInputMode(
-                    WindowManager.LayoutParams.SOFT_INPUT_STATE_UNCHANGED |
-                            WindowManager.LayoutParams.SOFT_INPUT_ADJUST_RESIZE);
+            final Window w = ((Activity) ctx).getWindow();
+            if (w != null)
+                w.setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_UNCHANGED | wmlp);
         }
-        mHidden = true;
+        mHidden = hidden;
         requestLayout();
     };
 
-    protected void showIme(final boolean v) {
-        mHandler.removeCallbacks(rShowSelf);
-        mHandler.removeCallbacks(rHideSelf);
-        if (v) {
-            rHideSelf.run();
-            _showIme();
-        } else {
-            mHandler.postDelayed(rShowSelf, 500);
-            _hideIme();
+    public int getMode() {
+        return mode;
+    }
+
+    public void setMode(final int mode) {
+        if (this.mode == mode) return;
+        prevMode = this.mode;
+        this.mode = mode;
+        applyMode(getResources().getConfiguration());
+    }
+
+    protected void reapplyMode() {
+        prevMode = currMode = MODE_UNKNOWN;
+        applyMode(getResources().getConfiguration());
+    }
+
+    protected void applyMode(@NonNull final Configuration cfg) {
+        // Hardware keyboard backspace key suppression bug workaround
+        if (cfg.hardKeyboardHidden != Configuration.HARDKEYBOARDHIDDEN_YES && mode == MODE_IME)
+            mode = MODE_HW_ONLY;
+        if (currMode == mode) return;
+        mHandler.removeCallbacks(rDelayed);
+        if (!ViewCompat.isAttachedToWindow(this)) return;
+        switch (prevMode) {
+            case MODE_VISIBLE:
+            case MODE_HW_ONLY:
+                rDelayed.run();
+                break;
+            default:
+                mHandler.postDelayed(rDelayed, 500);
         }
-    }
-
-    public boolean isIme() {
-        return isHidden();
-    }
-
-    public void useIme(final boolean v) {
-        if (getResources().getConfiguration().hardKeyboardHidden ==
-                Configuration.HARDKEYBOARDHIDDEN_YES && ViewCompat.isAttachedToWindow(this))
-            showIme(v); // Hardware keyboard backspace key suppression bug workaround
-        else
-            setHidden(v);
+        switch (mode) {
+            case MODE_IME:
+                _showIme();
+                break;
+            default:
+                _hideIme();
+        }
+        currMode = mode;
     }
 
     @NonNull

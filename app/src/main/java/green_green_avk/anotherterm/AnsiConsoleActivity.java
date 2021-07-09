@@ -223,7 +223,8 @@ public final class AnsiConsoleActivity extends ConsoleActivity
         mCsv.setFontSize(mSession.uiState.fontSizeDp *
                 getResources().getDisplayMetrics().density, false);
 
-        mCkv.useIme(((App) getApplication()).settings.terminal_key_default_ime);
+        mCkv.setMode(((App) getApplication()).settings.terminal_key_default_ime ?
+                ConsoleKeyboardView.MODE_IME : ConsoleKeyboardView.MODE_VISIBLE);
 
         setSessionTitle(mSession.input.currScrBuf.windowTitle);
 
@@ -574,7 +575,8 @@ public final class AnsiConsoleActivity extends ConsoleActivity
     }
 
     public void onSwitchIme(final View v) {
-        mCkv.useIme(!mCkv.isIme());
+        mCkv.setMode(mCkv.getMode() == ConsoleKeyboardView.MODE_VISIBLE ?
+                ConsoleKeyboardView.MODE_IME : ConsoleKeyboardView.MODE_VISIBLE);
     }
 
     public void onSelectMode(final View v) {
