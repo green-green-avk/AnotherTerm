@@ -98,10 +98,33 @@ public final class GlGraphicsCompositorView extends TextureView implements Graph
 
     @Override
     public boolean onTouchEvent(final MotionEvent event) {
-        if (!ScreenMouseView.isMouseEvent(event)) return true;
         if (compositor == null) return true;
         final GraphicsCompositor.Surface root = compositor.root;
         if (root == null) return true;
+        if (!ScreenMouseView.isMouseEvent(event)) {
+            final int action = event.getActionMasked();
+            switch (action) {
+                case MotionEvent.ACTION_DOWN:
+                case MotionEvent.ACTION_POINTER_DOWN:
+                case MotionEvent.ACTION_UP:
+                case MotionEvent.ACTION_POINTER_UP:
+                case MotionEvent.ACTION_CANCEL: {
+                    final int pt = event.getActionIndex();
+                    root.onTouchEvent(event.getEventTime(), event.getPointerId(pt),
+                            event.getX(pt), event.getY(pt), action);
+                    break;
+                }
+                case MotionEvent.ACTION_MOVE: {
+                    final int pts = event.getPointerCount();
+                    for (int pt = 0; pt < pts; pt++) {
+                        root.onTouchEvent(event.getEventTime(), event.getPointerId(pt),
+                                event.getX(pt), event.getY(pt), action);
+                    }
+                    break;
+                }
+            }
+            return true;
+        }
         final int action = event.getAction();
         switch (action) {
             case MotionEvent.ACTION_DOWN: {

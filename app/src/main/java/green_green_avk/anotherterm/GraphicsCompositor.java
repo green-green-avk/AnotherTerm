@@ -42,6 +42,8 @@ public final class GraphicsCompositor {
         void onKeyEvent(long time, int keyCode, boolean pressed);
 
         void onKeyEvent(boolean enter);
+
+        void onTouchEvent(long time, int ptId, float x, float y, int action);
     }
 
     public interface Source {
@@ -286,6 +288,14 @@ public final class GraphicsCompositor {
             final SurfaceSource ss = source;
             if (ss != null)
                 ss.onPointerAxisEvent(time, x, y, axisId, value);
+        }
+
+        public void onTouchEvent(final long time, final int ptId,
+                                 final float x, final float y,
+                                 final int action) {
+            final SurfaceSource ss = source;
+            if (ss != null)
+                ss.onTouchEvent(time, ptId, x, y, action);
         }
 
         private Surface(@NonNull final GraphicsCompositor compositor) {

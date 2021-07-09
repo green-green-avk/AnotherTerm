@@ -46,6 +46,7 @@ import green_green_avk.wayland.protocol.wayland.wl_shell;
 import green_green_avk.wayland.protocol.wayland.wl_shell_surface;
 import green_green_avk.wayland.protocol.wayland.wl_shm;
 import green_green_avk.wayland.protocol.wayland.wl_surface;
+import green_green_avk.wayland.protocol.wayland.wl_touch;
 import green_green_avk.wayland.protocol_core.WlInterface;
 import green_green_avk.wayland.protocol_core.WlMarshalling;
 import green_green_avk.wayland.server.WlBuffer;
@@ -506,6 +507,39 @@ public final class WlTermServer {
                     wlKeyboard.events.leave(wlDisplay.nextSerial(), wlSurface);
             });
         }
+
+        @Override
+        public void onTouchEvent(final long time, final int ptId,
+                                 final float x, final float y,
+                                 final int action) {
+            wlHandler.post(() -> {
+                final WlClientImpl wlClient = wlSurface.wlClient;
+                if (wlClient.wlSeatRes == null) return;
+                final WlTouchImpl wlTouch = wlSurface.wlClient.wlSeatRes.wlTouchRes;
+                if (wlTouch == null) return;
+                switch (action) {
+                    case MotionEvent.ACTION_DOWN:
+                    case MotionEvent.ACTION_POINTER_DOWN:
+                        wlTouch.events.down(wlDisplay.nextSerial(), time, wlSurface, ptId, x, y);
+                        wlTouch.events.frame();
+                        break;
+                    case MotionEvent.ACTION_UP:
+                    case MotionEvent.ACTION_POINTER_UP:
+                        wlTouch.events.motion(time, ptId, x, y);
+                        wlTouch.events.up(wlDisplay.nextSerial(), time, ptId);
+                        wlTouch.events.frame();
+                        break;
+                    case MotionEvent.ACTION_MOVE:
+                        wlTouch.events.motion(time, ptId, x, y);
+                        wlTouch.events.frame();
+                        break;
+                    case MotionEvent.ACTION_CANCEL:
+                        wlTouch.events.cancel();
+                        wlTouch.events.frame();
+                        break;
+                }
+            });
+        }
     }
 
     private interface WlSurfaceRole {
@@ -920,12 +954,32 @@ public final class WlTermServer {
         }
     }
 
+    private final class WlTouchImpl extends wl_touch {
+        @NonNull
+        private final WlSeatImpl wlSeat;
+
+        private WlTouchImpl(@NonNull final WlSeatImpl wlSeat) {
+            this.wlSeat = wlSeat;
+            callbacks = new RequestsImpl();
+        }
+
+        private final class RequestsImpl implements Requests {
+            @Override
+            public void release() {
+                wlSeat.wlTouchRes = null;
+                wlSeat.wlClient.removeResourceAndNotify(id);
+                WlTouchImpl.this.destroy();
+            }
+        }
+    }
+
     private final class WlSeatImpl extends wl_seat {
         @NonNull
         private final WlClientImpl wlClient;
         @Nullable
         private WlPointerImpl wlPointerRes = null;
         private WlKeyboardImpl wlKeyboardRes = null;
+        private WlTouchImpl wlTouchRes = null;
 
         private WlSeatImpl(@NonNull final WlClientImpl wlClient) {
             this.wlClient = wlClient;
@@ -950,7 +1004,8 @@ public final class WlTermServer {
 
             @Override
             public void get_touch(@NonNull final NewId id) {
-                // TODO
+                wlTouchRes = (WlTouchImpl) wlClient.addResource(WlResource.make(wlClient,
+                        new WlTouchImpl(WlSeatImpl.this), id.id));
             }
 
             @Override
@@ -979,8 +1034,9 @@ public final class WlTermServer {
                     WlResource.make(client, new WlSeatImpl((WlClientImpl) client), newId.id);
             ((WlClientImpl) client).wlSeatRes = (WlSeatImpl) res;
             res.events.name("Narya");
-            res.events.capabilities(wl_seat.Enums.Capability.pointer |
-                    wl_seat.Enums.Capability.keyboard);
+            res.events.capabilities(wl_seat.Enums.Capability.pointer
+                    | wl_seat.Enums.Capability.keyboard
+                    | wl_seat.Enums.Capability.touch);
             return res;
         }
     }
