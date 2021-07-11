@@ -21,6 +21,9 @@ import android.graphics.drawable.Drawable;
 import android.os.Build;
 import android.os.Message;
 import android.text.InputType;
+import android.text.Spannable;
+import android.text.SpannableString;
+import android.text.Spanned;
 import android.util.AttributeSet;
 import android.view.Gravity;
 import android.view.InputDevice;
@@ -185,6 +188,20 @@ public class ConsoleScreenView extends ScrollableView
             }
         }
 
+        private CharSequence searchHint = null;
+
+        @NonNull
+        private CharSequence getSearchHint() {
+            if (searchHint == null) {
+                final Spannable s = new SpannableString(getContext().getResources()
+                        .getText(R.string.hint_text_to_search___));
+                s.setSpan(new InlineImageSpan(getContext(), R.drawable.ic_mglass).useTextColor(),
+                        0, s.length(), Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
+                searchHint = s;
+            }
+            return searchHint;
+        }
+
         {
             final ViewGroup d = new WrapperView(getContext());
             d.setLayoutParams(new ViewGroup.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT,
@@ -198,6 +215,7 @@ public class ConsoleScreenView extends ScrollableView
             wSelMode = cv.findViewById(R.id.b_select_mode);
             wSearch = cv.findViewById(R.id.f_search);
             wCase = cv.findViewById(R.id.b_case);
+            wSearch.setHint(getSearchHint());
             refresh();
             cv.findViewById(R.id.b_close)
                     .setOnClickListener(v -> setSelectionMode(false));
@@ -216,6 +234,7 @@ public class ConsoleScreenView extends ScrollableView
                         setSelectionModeIsExpr(false);
                         selectAll();
                         setSelectionIsRect(true);
+                        onSelectionChanged();
                         invalidateSelectionUi(false);
                     });
             cv.findViewById(R.id.b_copy)
@@ -247,6 +266,7 @@ public class ConsoleScreenView extends ScrollableView
                 et.setInputType(InputType.TYPE_TEXT_FLAG_MULTI_LINE
                         | InputType.TYPE_CLASS_TEXT
                         | InputType.TYPE_TEXT_VARIATION_NORMAL);
+                et.setHint(getSearchHint());
                 et.setText(wSearch.getText());
                 new AlertDialog.Builder(getContext())
                         .setView(et)
@@ -304,7 +324,7 @@ public class ConsoleScreenView extends ScrollableView
                         final String pattern = getSearchPattern();
                         if (pattern.isEmpty()) {
                             Toast.makeText(getContext(),
-                                    R.string.msg_search_pattern_is_empty,
+                                    R.string.msg_search_field_is_empty,
                                     Toast.LENGTH_SHORT).show();
                             return;
                         }
@@ -326,7 +346,7 @@ public class ConsoleScreenView extends ScrollableView
                         final String pattern = getSearchPattern();
                         if (pattern.isEmpty()) {
                             Toast.makeText(getContext(),
-                                    R.string.msg_search_pattern_is_empty,
+                                    R.string.msg_search_field_is_empty,
                                     Toast.LENGTH_SHORT).show();
                             return;
                         }

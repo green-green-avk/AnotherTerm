@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tool="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="@dimen/kbd_key_size"
     android:background="@drawable/bg_popup2"
@@ -16,12 +17,12 @@
         android:background="@drawable/bg_frame2"
         android:ellipsize="middle"
         android:gravity="center_vertical"
-        android:hint="@string/hint_search___"
         android:textColor="@color/colorAccenttissimo"
         android:textColorHint="@color/colorAccenttissimoTr"
         app:autoSizeMinTextSize="1sp"
         app:autoSizeTextType="uniform"
-        app:backgroundTint="@color/colorAccenttissimo" />
+        app:backgroundTint="@color/colorAccenttissimo"
+        tool:hint="@string/hint_text_to_search___" />
 
     <ImageButton
         android:id="@+id/b_case"
