@@ -143,7 +143,7 @@
             android:launchMode="singleTop"
             android:parentActivityName=".SessionsActivity"
             android:theme="@style/AppConsoleTheme"
-            android:windowSoftInputMode="adjustResize">
+            android:windowSoftInputMode="adjustNothing">
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value=".SessionsActivity" />
