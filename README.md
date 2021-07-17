@@ -10,7 +10,7 @@ Local PTY, USB and Bluetooth serial ports, SSH and Telnet terminal client for An
 
 * Local PTY, USB and Bluetooth serial (UART) ports, SSH and Telnet support in the same application;
 
-* Adequate screen input methods as long as a terminal requires specific keyboard functions.
+* Adequate screen input methods as long as a terminal requires specific keyboard functions;
 
 * Ability to set fixed screen columns and/or rows numbers.
 
