@@ -2,15 +2,15 @@
 
 Local PTY, USB and Bluetooth serial ports, SSH and Telnet terminal client for Android.
 
-* <https://play.google.com/store/apps/details?id=green_green_avk.anotherterm>
-* <https://green-green-avk.github.io/AnotherTerm-docs/>
+* Google Play: <https://play.google.com/store/apps/details?id=green_green_avk.anotherterm>
+* Wiki: <https://green-green-avk.github.io/AnotherTerm-docs/>
 
 
 ## Highlights
 
 * Local PTY, USB and Bluetooth serial (UART) ports, SSH and Telnet support in the same application;
 
-* Adequate screen input methods as long as a terminal requires specific keyboard functions.
+* Adequate screen input methods as long as a terminal requires specific keyboard functions;
 
 * Ability to set fixed screen columns and/or rows numbers.
 
