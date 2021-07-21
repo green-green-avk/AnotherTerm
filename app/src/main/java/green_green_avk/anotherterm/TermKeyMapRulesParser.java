@@ -163,7 +163,7 @@ public final class TermKeyMapRulesParser {
 
     @NonNull
     public static TermKeyMapRules.Editable getNew() {
-        return new RulesFromSP(new HashMap<String, Object>());
+        return new RulesFromSP(new HashMap<>());
     }
 
     @NonNull
@@ -179,7 +179,7 @@ public final class TermKeyMapRulesParser {
 
     @NonNull
     public static TermKeyMapRules.Editable fromUri(@NonNull final Uri uri) {
-        final RulesFromSP rr = new RulesFromSP(new HashMap<String, Object>());
+        final RulesFromSP rr = new RulesFromSP(new HashMap<>());
         rr.fromUri(uri);
         return rr;
     }

@@ -1082,7 +1082,7 @@ public final class ConsoleInput implements BytesSink {
         return i;
     }
 
-    private class DecPrivateMode {
+    private final class DecPrivateMode {
         private final SparseBooleanArray current = new SparseBooleanArray();
         private final SparseBooleanArray saved = new SparseBooleanArray();
 

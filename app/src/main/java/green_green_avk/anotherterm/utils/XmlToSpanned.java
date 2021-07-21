@@ -1,7 +1,6 @@
 package green_green_avk.anotherterm.utils;
 
 import android.content.Context;
-import android.content.res.Resources;
 import android.graphics.Typeface;
 import android.text.Editable;
 import android.text.SpannableStringBuilder;
@@ -15,6 +14,7 @@ import android.text.style.TypefaceSpan;
 import android.text.style.URLSpan;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 
 import org.xmlpull.v1.XmlPullParser;
 import org.xmlpull.v1.XmlPullParserException;
@@ -54,7 +54,9 @@ public final class XmlToSpanned {
     }
 
     private final class Maker {
+        @NonNull
         private final XmlPullParser parser;
+        @NonNull
         private final Context ctx;
 
         private Maker(@NonNull final Context ctx) {
@@ -127,6 +129,15 @@ public final class XmlToSpanned {
                 return "info://" + BuildConfig.APPLICATION_ID + uri.substring(5);
             }
             return uri;
+        }
+
+        private int getResourceId(@Nullable final String name, @Nullable final String defaultType) {
+            if (name == null) return 0;
+            if (name.charAt(0) == '@') {
+                return ctx.getResources().getIdentifier(name.substring(1),
+                        defaultType, BuildConfig.APPLICATION_ID);
+            }
+            return 0;
         }
 
         private void beginTag() {
@@ -241,15 +252,9 @@ public final class XmlToSpanned {
                     startSpan(new ClipboardSpan(), output.length());
                     break;
                 case "img": {
-                    int res = 0;
-                    final String src = parser.getAttributeValue(null, "src");
-                    if (src != null) {
-                        if (src.charAt(0) == '@') {
-                            res = ctx.getResources().getIdentifier(src.substring(1),
-                                    "drawable", BuildConfig.APPLICATION_ID);
-                        }
-                    }
-                    if (res == Resources.ID_NULL)
+                    int res = getResourceId(parser.getAttributeValue(null, "src"),
+                            "drawable");
+                    if (res == 0)
                         res = R.drawable.ic_mark_error;
                     if (Boolean.parseBoolean(parser.getAttributeValue(
                             null, "inline"))) {
