@@ -33,13 +33,13 @@ import green_green_avk.wayland.protocol_core.WlInterface;
 
 /**
  * create desktop-style surfaces
- *
+ * <p>
  * This interface is implemented by servers that provide
  * desktop-style user interfaces.
- *
+ * <p>
  * It allows clients to associate a wl_shell_surface with
  * a basic surface.
- *
+ * <p>
  * Note! This protocol is deprecated and not intended for production use.
  * For desktop-style user interfaces, use xdg_shell.
  */

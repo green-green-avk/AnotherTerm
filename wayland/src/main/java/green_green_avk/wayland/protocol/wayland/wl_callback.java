@@ -31,7 +31,7 @@ import green_green_avk.wayland.protocol_core.WlInterface;
 
 /**
  * callback object
- *
+ * <p>
  * Clients can handle the 'done' event to get notified when
  * the related request is done.
  */

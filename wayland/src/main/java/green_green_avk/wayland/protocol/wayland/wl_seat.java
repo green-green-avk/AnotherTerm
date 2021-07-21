@@ -33,7 +33,7 @@ import green_green_avk.wayland.protocol_core.WlInterface;
 
 /**
  * group of input devices
- *
+ * <p>
  * A seat is a group of keyboards, pointer and touch devices. This
  * object is published as a global during start up, or when such a
  * device is hot plugged.  A seat typically has a pointer and
@@ -46,10 +46,10 @@ public class wl_seat extends WlInterface<wl_seat.Requests, wl_seat.Events> {
 
         /**
          * return pointer object
-         *
+         * <p>
          * The ID provided will be initialized to the wl_pointer interface
          * for this seat.
-         *
+         * <p>
          * This request only takes effect if the seat has the pointer
          * capability, or has had the pointer capability in the past.
          * It is a protocol violation to issue this request on a seat that has
@@ -62,10 +62,10 @@ public class wl_seat extends WlInterface<wl_seat.Requests, wl_seat.Events> {
 
         /**
          * return keyboard object
-         *
+         * <p>
          * The ID provided will be initialized to the wl_keyboard interface
          * for this seat.
-         *
+         * <p>
          * This request only takes effect if the seat has the keyboard
          * capability, or has had the keyboard capability in the past.
          * It is a protocol violation to issue this request on a seat that has
@@ -78,10 +78,10 @@ public class wl_seat extends WlInterface<wl_seat.Requests, wl_seat.Events> {
 
         /**
          * return touch object
-         *
+         * <p>
          * The ID provided will be initialized to the wl_touch interface
          * for this seat.
-         *
+         * <p>
          * This request only takes effect if the seat has the touch
          * capability, or has had the touch capability in the past.
          * It is a protocol violation to issue this request on a seat that has
@@ -94,7 +94,7 @@ public class wl_seat extends WlInterface<wl_seat.Requests, wl_seat.Events> {
 
         /**
          * release the seat object
-         *
+         * <p>
          * Using this request a client can tell the server that it is not going to
          * use the seat object anymore.
          */
@@ -108,21 +108,21 @@ public class wl_seat extends WlInterface<wl_seat.Requests, wl_seat.Events> {
 
         /**
          * seat capabilities changed
-         *
+         * <p>
          * This is emitted whenever a seat gains or loses the pointer,
          * keyboard or touch capabilities.  The argument is a capability
          * enum containing the complete set of capabilities this seat has.
-         *
+         * <p>
          * When the pointer capability is added, a client may create a
          * wl_pointer object using the wl_seat.get_pointer request. This object
          * will receive pointer events until the capability is removed in the
          * future.
-         *
+         * <p>
          * When the pointer capability is removed, a client should destroy the
          * wl_pointer objects associated with the seat where the capability was
          * removed, using the wl_pointer.release request. No further pointer
          * events will be received on these objects.
-         *
+         * <p>
          * In some compositors, if a seat regains the pointer capability and a
          * client has a previously obtained wl_pointer object of version 4 or
          * less, that object may start sending pointer events again. This
@@ -130,7 +130,7 @@ public class wl_seat extends WlInterface<wl_seat.Requests, wl_seat.Events> {
          * and must not be relied upon by the client. wl_pointer objects of
          * version 5 or later must not send events if created before the most
          * recent event notifying the client of an added pointer capability.
-         *
+         * <p>
          * The above behavior also applies to wl_keyboard and wl_touch with the
          * keyboard and touch capabilities, respectively.
          *
@@ -141,7 +141,7 @@ public class wl_seat extends WlInterface<wl_seat.Requests, wl_seat.Events> {
 
         /**
          * unique identifier for this seat
-         *
+         * <p>
          * In a multiseat configuration this can be used by the client to help
          * identify which physical devices the seat represents. Based on
          * the seat configuration used by the compositor.

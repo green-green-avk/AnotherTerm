@@ -34,10 +34,10 @@ import green_green_avk.wayland.protocol_core.WlInterface;
 
 /**
  * data transfer device
- *
+ * <p>
  * There is one wl_data_device per seat which can be obtained
  * from the global wl_data_device_manager singleton.
- *
+ * <p>
  * A wl_data_device provides access to inter-client data transfer
  * mechanisms such as copy-and-paste and drag-and-drop.
  */
@@ -48,20 +48,20 @@ public class wl_data_device extends WlInterface<wl_data_device.Requests, wl_data
 
         /**
          * start drag-and-drop operation
-         *
+         * <p>
          * This request asks the compositor to start a drag-and-drop
          * operation on behalf of the client.
-         *
+         * <p>
          * The source argument is the data source that provides the data
          * for the eventual data transfer. If source is NULL, enter, leave
          * and motion events are sent only to the client that initiated the
          * drag and the client is expected to handle the data passing
          * internally.
-         *
+         * <p>
          * The origin surface is the surface where the drag originates and
          * the client must have an active implicit grab that matches the
          * serial.
-         *
+         * <p>
          * The icon surface is an optional (can be NULL) surface that
          * provides an icon to be moved around with the cursor.  Initially,
          * the top-left corner of the icon surface is placed at the cursor
@@ -70,7 +70,7 @@ public class wl_data_device extends WlInterface<wl_data_device.Requests, wl_data
          * wl_surface.commit as usual. The icon surface is given the role of
          * a drag-and-drop icon. If the icon surface already has another role,
          * it raises a protocol error.
-         *
+         * <p>
          * The current and pending input regions of the icon wl_surface are
          * cleared, and wl_surface.set_input_region is ignored until the
          * wl_surface is no longer used as the icon surface. When the use
@@ -79,7 +79,7 @@ public class wl_data_device extends WlInterface<wl_data_device.Requests, wl_data
          *
          * @param source data source for the eventual transfer
          * @param origin surface where the drag originates
-         * @param icon drag-and-drop icon surface
+         * @param icon   drag-and-drop icon surface
          * @param serial serial number of the implicit grab on the origin
          */
         @IMethod(0)
@@ -87,10 +87,10 @@ public class wl_data_device extends WlInterface<wl_data_device.Requests, wl_data
 
         /**
          * copy data to the selection
-         *
+         * <p>
          * This request asks the compositor to set the selection
          * to the data from the source on behalf of the client.
-         *
+         * <p>
          * To unset the selection, set the source to NULL.
          *
          * @param source data source for the selection
@@ -101,7 +101,7 @@ public class wl_data_device extends WlInterface<wl_data_device.Requests, wl_data
 
         /**
          * destroy data device
-         *
+         * <p>
          * This request destroys the data device.
          */
         @IMethod(2)
@@ -114,7 +114,7 @@ public class wl_data_device extends WlInterface<wl_data_device.Requests, wl_data
 
         /**
          * introduce a new wl_data_offer
-         *
+         * <p>
          * The data_offer event introduces a new wl_data_offer object,
          * which will subsequently be used in either the
          * data_device.enter event (for drag-and-drop) or the
@@ -147,7 +147,7 @@ public class wl_data_device extends WlInterface<wl_data_device.Requests, wl_data
 
         /**
          * end drag-and-drop session
-         *
+         * <p>
          * This event is sent when the drag-and-drop pointer leaves the
          * surface and the session ends.  The client must destroy the
          * wl_data_offer introduced at enter time at this point.
@@ -157,31 +157,31 @@ public class wl_data_device extends WlInterface<wl_data_device.Requests, wl_data
 
         /**
          * drag-and-drop session motion
-         *
+         * <p>
          * This event is sent when the drag-and-drop pointer moves within
          * the currently focused surface. The new position of the pointer
          * is provided by the x and y arguments, in surface-local
          * coordinates.
          *
          * @param time timestamp with millisecond granularity
-         * @param x surface-local x coordinate
-         * @param y surface-local y coordinate
+         * @param x    surface-local x coordinate
+         * @param y    surface-local y coordinate
          */
         @IMethod(3)
         void motion(long time, float x, float y);
 
         /**
          * end drag-and-drop session successfully
-         *
+         * <p>
          * The event is sent when a drag-and-drop operation is ended
          * because the implicit grab is removed.
-         *
+         * <p>
          * The drag-and-drop destination is expected to honor the last action
          * received through wl_data_offer.action, if the resulting action is
          * "copy" or "move", the destination can still perform
          * wl_data_offer.receive requests, and is expected to end all
          * transfers with a wl_data_offer.finish request.
-         *
+         * <p>
          * If the resulting action is "ask", the action will not be considered
          * final. The drag-and-drop destination is expected to perform one last
          * wl_data_offer.set_actions request, or wl_data_offer.destroy in order
@@ -192,7 +192,7 @@ public class wl_data_device extends WlInterface<wl_data_device.Requests, wl_data
 
         /**
          * advertise new selection
-         *
+         * <p>
          * The selection event is sent out to notify the client of a new
          * wl_data_offer for the selection for this device.  The
          * data_device.data_offer and the data_offer.offer events are

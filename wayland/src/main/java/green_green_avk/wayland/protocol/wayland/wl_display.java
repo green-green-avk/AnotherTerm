@@ -33,7 +33,7 @@ import green_green_avk.wayland.protocol_core.WlInterface;
 
 /**
  * core global object
- *
+ * <p>
  * The core global object.  This is a special singleton object.  It
  * is used for internal Wayland protocol features.
  */
@@ -44,17 +44,17 @@ public class wl_display extends WlInterface<wl_display.Requests, wl_display.Even
 
         /**
          * asynchronous roundtrip
-         *
+         * <p>
          * The sync request asks the server to emit the 'done' event
          * on the returned wl_callback object.  Since requests are
          * handled in-order and events are delivered in-order, this can
          * be used as a barrier to ensure all previous requests and the
          * resulting events have been handled.
-         *
+         * <p>
          * The object returned by this request will be destroyed by the
          * compositor after the callback is fired and as such the client must not
          * attempt to use it after that point.
-         *
+         * <p>
          * The callback_data passed in the callback is the event serial.
          *
          * @param callback callback object for the sync request
@@ -64,11 +64,11 @@ public class wl_display extends WlInterface<wl_display.Requests, wl_display.Even
 
         /**
          * get global registry object
-         *
+         * <p>
          * This request creates a registry object that allows the client
          * to list and bind the global objects available from the
          * compositor.
-         *
+         * <p>
          * It should be noted that the server side resources consumed in
          * response to a get_registry request can only be released when the
          * client disconnects, not when the client side proxy is destroyed.
@@ -85,7 +85,7 @@ public class wl_display extends WlInterface<wl_display.Requests, wl_display.Even
 
         /**
          * fatal error event
-         *
+         * <p>
          * The error event is sent out when a fatal (non-recoverable)
          * error has occurred.  The object_id argument is the object
          * where the error occurred, most often in response to a request
@@ -95,15 +95,15 @@ public class wl_display extends WlInterface<wl_display.Requests, wl_display.Even
          * of the error, for (debugging) convenience.
          *
          * @param object_id object where the error occurred
-         * @param code error code
-         * @param message error description
+         * @param code      error code
+         * @param message   error description
          */
         @IMethod(0)
         void error(@NonNull WlInterface object_id, long code, @NonNull String message);
 
         /**
          * acknowledge object ID deletion
-         *
+         * <p>
          * This event is used internally by the object ID management
          * logic.  When a client deletes an object, the server will send
          * this event to acknowledge that it has seen the delete request.

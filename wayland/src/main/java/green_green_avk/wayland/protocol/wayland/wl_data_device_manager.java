@@ -33,13 +33,13 @@ import green_green_avk.wayland.protocol_core.WlInterface;
 
 /**
  * data transfer interface
- *
+ * <p>
  * The wl_data_device_manager is a singleton global object that
  * provides access to inter-client data transfer mechanisms such as
  * copy-and-paste and drag-and-drop.  These mechanisms are tied to
  * a wl_seat and this interface lets a client get a wl_data_device
  * corresponding to a wl_seat.
- *
+ * <p>
  * Depending on the version bound, the objects created from the bound
  * wl_data_device_manager object will have different requirements for
  * functioning properly. See wl_data_source.set_actions,
@@ -52,7 +52,7 @@ public class wl_data_device_manager extends WlInterface<wl_data_device_manager.R
 
         /**
          * create a new data source
-         *
+         * <p>
          * Create a new data source.
          *
          * @param id data source to create

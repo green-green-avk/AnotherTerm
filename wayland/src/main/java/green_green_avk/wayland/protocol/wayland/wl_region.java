@@ -31,9 +31,9 @@ import green_green_avk.wayland.protocol_core.WlInterface;
 
 /**
  * region interface
- *
+ * <p>
  * A region object describes an area.
- *
+ * <p>
  * Region objects are used to describe the opaque and input
  * regions of a surface.
  */
@@ -44,7 +44,7 @@ public class wl_region extends WlInterface<wl_region.Requests, wl_region.Events>
 
         /**
          * destroy region
-         *
+         * <p>
          * Destroy the region.  This will invalidate the object ID.
          */
         @IMethod(0)

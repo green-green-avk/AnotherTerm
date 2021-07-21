@@ -35,13 +35,13 @@ import green_green_avk.wayland.protocol_core.WlInterface;
 
 /**
  * shared memory support
- *
+ * <p>
  * A singleton global object that provides support for shared
  * memory.
- *
+ * <p>
  * Clients can create wl_shm_pool objects using the create_pool
  * request.
- *
+ * <p>
  * At connection setup time, the wl_shm object emits one or more
  * format events to inform clients about the valid pixel formats
  * that can be used for buffers.
@@ -72,7 +72,7 @@ public class wl_shm extends WlInterface<wl_shm.Requests, wl_shm.Events> {
 
         /**
          * pixel format description
-         *
+         * <p>
          * Informs the client about a valid pixel format that
          * can be used for buffers. Known formats include
          * argb8888 and xrgb8888.

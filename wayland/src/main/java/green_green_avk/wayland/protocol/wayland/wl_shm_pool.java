@@ -33,7 +33,7 @@ import green_green_avk.wayland.protocol_core.WlInterface;
 
 /**
  * a shared memory pool
- *
+ * <p>
  * The wl_shm_pool object encapsulates a piece of memory shared
  * between the compositor and client.  Through the wl_shm_pool
  * object, the client can allocate shared memory wl_buffer objects.
@@ -49,22 +49,22 @@ public class wl_shm_pool extends WlInterface<wl_shm_pool.Requests, wl_shm_pool.E
 
         /**
          * create a buffer from the pool
-         *
+         * <p>
          * Create a wl_buffer object from the pool.
-         *
+         * <p>
          * The buffer is created offset bytes into the pool and has
          * width and height as specified.  The stride argument specifies
          * the number of bytes from the beginning of one row to the beginning
          * of the next.  The format is the pixel format of the buffer and
          * must be one of those advertised through the wl_shm.format event.
-         *
+         * <p>
          * A buffer will keep a reference to the pool it was created from
          * so it is valid to destroy the pool immediately after creating
          * a buffer from it.
          *
-         * @param id buffer to create
+         * @param id     buffer to create
          * @param offset buffer byte offset within the pool
-         * @param width buffer width, in pixels
+         * @param width  buffer width, in pixels
          * @param height buffer height, in pixels
          * @param stride number of bytes from the beginning of one row to the beginning of the next row
          * @param format buffer pixel format
@@ -74,9 +74,9 @@ public class wl_shm_pool extends WlInterface<wl_shm_pool.Requests, wl_shm_pool.E
 
         /**
          * destroy the pool
-         *
+         * <p>
          * Destroy the shared memory pool.
-         *
+         * <p>
          * The mmapped memory will be released when all
          * buffers that have been created from this pool
          * are gone.
@@ -87,7 +87,7 @@ public class wl_shm_pool extends WlInterface<wl_shm_pool.Requests, wl_shm_pool.E
 
         /**
          * change the size of the pool mapping
-         *
+         * <p>
          * This request will cause the server to remap the backing memory
          * for the pool from the file descriptor passed when the pool was
          * created, but using the new size.  This request can only be

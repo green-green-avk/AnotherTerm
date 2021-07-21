@@ -33,7 +33,7 @@ import green_green_avk.wayland.protocol_core.WlInterface;
 
 /**
  * the compositor singleton
- *
+ * <p>
  * A compositor.  This object is a singleton global.  The
  * compositor is in charge of combining the contents of multiple
  * surfaces into one displayable output.
@@ -45,7 +45,7 @@ public class wl_compositor extends WlInterface<wl_compositor.Requests, wl_compos
 
         /**
          * create new surface
-         *
+         * <p>
          * Ask the compositor to create a new surface.
          *
          * @param id the new surface
@@ -55,7 +55,7 @@ public class wl_compositor extends WlInterface<wl_compositor.Requests, wl_compos
 
         /**
          * create new region
-         *
+         * <p>
          * Ask the compositor to create a new region.
          *
          * @param id the new region

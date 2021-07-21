@@ -31,7 +31,7 @@ import green_green_avk.wayland.protocol_core.WlInterface;
 
 /**
  * content for a wl_surface
- *
+ * <p>
  * A buffer provides the content for a wl_surface. Buffers are
  * created through factory interfaces such as wl_drm, wl_shm or
  * similar. It has a width and a height and can be attached to a
@@ -45,10 +45,10 @@ public class wl_buffer extends WlInterface<wl_buffer.Requests, wl_buffer.Events>
 
         /**
          * destroy a buffer
-         *
+         * <p>
          * Destroy a buffer. If and how you need to release the backing
          * storage is defined by the buffer factory interface.
-         *
+         * <p>
          * For possible side-effects to a surface, see wl_surface.attach.
          */
         @IMethod(0)
@@ -60,11 +60,11 @@ public class wl_buffer extends WlInterface<wl_buffer.Requests, wl_buffer.Events>
 
         /**
          * compositor releases buffer
-         *
+         * <p>
          * Sent when this wl_buffer is no longer used by the compositor.
          * The client is now free to reuse or destroy this buffer and its
          * backing storage.
-         *
+         * <p>
          * If a client receives a release event before the frame callback
          * requested in the same wl_surface.commit that attaches this
          * wl_buffer to a surface, then the client is immediately free to

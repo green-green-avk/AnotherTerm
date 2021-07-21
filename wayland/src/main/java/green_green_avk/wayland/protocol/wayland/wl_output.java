@@ -33,7 +33,7 @@ import green_green_avk.wayland.protocol_core.WlInterface;
 
 /**
  * compositor output region
- *
+ * <p>
  * An output describes part of the compositor geometry.  The
  * compositor works in the 'compositor coordinate system' and an
  * output corresponds to a rectangular area in that space that is
@@ -48,7 +48,7 @@ public class wl_output extends WlInterface<wl_output.Requests, wl_output.Events>
 
         /**
          * release the output object
-         *
+         * <p>
          * Using this request a client can tell the server that it is not going to
          * use the output object anymore.
          */
@@ -84,24 +84,24 @@ public class wl_output extends WlInterface<wl_output.Requests, wl_output.Events>
 
         /**
          * advertise available modes for the output
-         *
+         * <p>
          * The mode event describes an available mode for the output.
-         *
+         * <p>
          * The event is sent when binding to the output object and there
          * will always be one mode, the current mode.  The event is sent
          * again if an output changes mode, for the mode that is now
          * current.  In other words, the current mode is always the last
          * mode that was received with the current flag set.
-         *
+         * <p>
          * The size of a mode is given in physical hardware units of
          * the output device. This is not necessarily the same as
          * the output size in the global compositor space. For instance,
          * the output may be scaled, as described in wl_output.scale,
          * or transformed, as described in wl_output.transform.
          *
-         * @param flags bitfield of mode flags
-         * @param width width of the mode in hardware units
-         * @param height height of the mode in hardware units
+         * @param flags   bitfield of mode flags
+         * @param width   width of the mode in hardware units
+         * @param height  height of the mode in hardware units
          * @param refresh vertical refresh rate in mHz
          */
         @IMethod(1)
@@ -109,7 +109,7 @@ public class wl_output extends WlInterface<wl_output.Requests, wl_output.Events>
 
         /**
          * sent all information about output
-         *
+         * <p>
          * This event is sent after all other properties have been
          * sent after binding to the output object and after any
          * other property changes done after that. This allows
@@ -122,19 +122,19 @@ public class wl_output extends WlInterface<wl_output.Requests, wl_output.Events>
 
         /**
          * output scaling properties
-         *
+         * <p>
          * This event contains scaling geometry information
          * that is not in the geometry event. It may be sent after
          * binding the output object or if the output scale changes
          * later. If it is not sent, the client should assume a
          * scale of 1.
-         *
+         * <p>
          * A scale larger than 1 means that the compositor will
          * automatically scale surface buffers by this amount
          * when rendering. This is used for very high resolution
          * displays where applications rendering at the native
          * resolution would be too small to be legible.
-         *
+         * <p>
          * It is intended that scaling aware clients track the
          * current output of a surface, and if it is on a scaled
          * output it should use wl_surface.set_buffer_scale with

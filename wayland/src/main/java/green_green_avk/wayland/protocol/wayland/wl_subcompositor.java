@@ -33,21 +33,21 @@ import green_green_avk.wayland.protocol_core.WlInterface;
 
 /**
  * sub-surface compositing
- *
+ * <p>
  * The global interface exposing sub-surface compositing capabilities.
  * A wl_surface, that has sub-surfaces associated, is called the
  * parent surface. Sub-surfaces can be arbitrarily nested and create
  * a tree of sub-surfaces.
- *
+ * <p>
  * The root surface in a tree of sub-surfaces is the main
  * surface. The main surface cannot be a sub-surface, because
  * sub-surfaces must always have a parent.
- *
+ * <p>
  * A main surface with its sub-surfaces forms a (compound) window.
  * For window management purposes, this set of wl_surface objects is
  * to be considered as a single window, and it should also behave as
  * such.
- *
+ * <p>
  * The aim of sub-surfaces is to offload some of the compositing work
  * within a window from clients to the compositor. A prime example is
  * a video player with decorations and video in separate wl_surface
@@ -61,7 +61,7 @@ public class wl_subcompositor extends WlInterface<wl_subcompositor.Requests, wl_
 
         /**
          * unbind from the subcompositor interface
-         *
+         * <p>
          * Informs the server that the client will not be using this
          * protocol object anymore. This does not affect any other
          * objects, wl_subsurface objects included.
@@ -72,26 +72,26 @@ public class wl_subcompositor extends WlInterface<wl_subcompositor.Requests, wl_
 
         /**
          * give a surface the role sub-surface
-         *
+         * <p>
          * Create a sub-surface interface for the given surface, and
          * associate it with the given parent surface. This turns a
          * plain wl_surface into a sub-surface.
-         *
+         * <p>
          * The to-be sub-surface must not already have another role, and it
          * must not have an existing wl_subsurface object. Otherwise a protocol
          * error is raised.
-         *
+         * <p>
          * Adding sub-surfaces to a parent is a double-buffered operation on the
          * parent (see wl_surface.commit). The effect of adding a sub-surface
          * becomes visible on the next time the state of the parent surface is
          * applied.
-         *
+         * <p>
          * This request modifies the behaviour of wl_surface.commit request on
          * the sub-surface, see the documentation on wl_subsurface interface.
          *
-         * @param id the new sub-surface object ID
+         * @param id      the new sub-surface object ID
          * @param surface the surface to be turned into a sub-surface
-         * @param parent the parent surface
+         * @param parent  the parent surface
          */
         @IMethod(1)
         void get_subsurface(@Iface(wl_subsurface.class) @NonNull NewId id, @NonNull wl_surface surface, @NonNull wl_surface parent);

@@ -35,7 +35,7 @@ import green_green_avk.wayland.protocol_core.WlInterface;
 
 /**
  * keyboard input device
- *
+ * <p>
  * The wl_keyboard interface represents one or more keyboards
  * associated with a seat.
  */
@@ -70,27 +70,27 @@ public class wl_keyboard extends WlInterface<wl_keyboard.Requests, wl_keyboard.E
 
         /**
          * enter event
-         *
+         * <p>
          * Notification that this seat's keyboard focus is on a certain
          * surface.
          *
-         * @param serial serial number of the enter event
+         * @param serial  serial number of the enter event
          * @param surface surface gaining keyboard focus
-         * @param keys the currently pressed keys
+         * @param keys    the currently pressed keys
          */
         @IMethod(1)
         void enter(long serial, @NonNull wl_surface surface, @NonNull int[] keys);
 
         /**
          * leave event
-         *
+         * <p>
          * Notification that this seat's keyboard focus is no longer on
          * a certain surface.
-         *
+         * <p>
          * The leave notification is sent before the enter notification
          * for the new focus.
          *
-         * @param serial serial number of the leave event
+         * @param serial  serial number of the leave event
          * @param surface surface that lost keyboard focus
          */
         @IMethod(2)
@@ -98,51 +98,51 @@ public class wl_keyboard extends WlInterface<wl_keyboard.Requests, wl_keyboard.E
 
         /**
          * key event
-         *
+         * <p>
          * A key was pressed or released.
          * The time argument is a timestamp with millisecond
          * granularity, with an undefined base.
          *
          * @param serial serial number of the key event
-         * @param time timestamp with millisecond granularity
-         * @param key key that produced the event
-         * @param state physical state of the key
+         * @param time   timestamp with millisecond granularity
+         * @param key    key that produced the event
+         * @param state  physical state of the key
          */
         @IMethod(3)
         void key(long serial, long time, long key, long state);
 
         /**
          * modifier and group state
-         *
+         * <p>
          * Notifies clients that the modifier and/or group state has
          * changed, and it should update its local state.
          *
-         * @param serial serial number of the modifiers event
+         * @param serial         serial number of the modifiers event
          * @param mods_depressed depressed modifiers
-         * @param mods_latched latched modifiers
-         * @param mods_locked locked modifiers
-         * @param group keyboard layout
+         * @param mods_latched   latched modifiers
+         * @param mods_locked    locked modifiers
+         * @param group          keyboard layout
          */
         @IMethod(4)
         void modifiers(long serial, long mods_depressed, long mods_latched, long mods_locked, long group);
 
         /**
          * repeat rate and delay
-         *
+         * <p>
          * Informs the client about the keyboard's repeat rate and delay.
-         *
+         * <p>
          * This event is sent as soon as the wl_keyboard object has been created,
          * and is guaranteed to be received by the client before any key press
          * event.
-         *
+         * <p>
          * Negative values for either rate or delay are illegal. A rate of zero
          * will disable any repeating (regardless of the value of delay).
-         *
+         * <p>
          * This event can be sent later on as well with a new value if necessary,
          * so clients should continue listening for the event past the creation
          * of wl_keyboard.
          *
-         * @param rate the rate of repeating keys in characters per second
+         * @param rate  the rate of repeating keys in characters per second
          * @param delay delay in milliseconds since key down until repeating starts
          */
         @IMethod(5)
