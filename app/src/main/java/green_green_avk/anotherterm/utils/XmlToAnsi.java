@@ -1,5 +1,7 @@
 package green_green_avk.anotherterm.utils;
 
+import android.graphics.Color;
+
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
@@ -62,6 +64,13 @@ public final class XmlToAnsi implements Iterable<String> {
         }
     }
 
+    private static String makeCsiColor(final int color, final boolean bg) {
+        return "\u001B[" + (bg ? "4" : "3") + "8;2;"
+                + Color.red(color) + ";"
+                + Color.green(color) + ";"
+                + Color.blue(color) + "m";
+    }
+
     private final class XmlIterator implements Iterator<String> {
         @NonNull
         private final XmlPullParser parser;
@@ -70,6 +79,7 @@ public final class XmlToAnsi implements Iterable<String> {
             try {
                 parser = parserFactory.newPullParser();
                 parser.setInput(new StringReader(input));
+                parser.defineEntityReplacementText("nbsp", "\u00A0");
             } catch (final XmlPullParserException e) {
                 throw new RuntimeException(e);
             }
@@ -83,10 +93,29 @@ public final class XmlToAnsi implements Iterable<String> {
         private boolean isInPre = false;
         private final Stack<String> lts = new Stack<>();
 
-        @NonNull
-        private String makeLeftMargin(final int off) {
+        private void appendResetAttrs() {
+            output.append("\u001B[0m");
+        }
+
+        private void appendSetAttrs() {
+            aBold.appendIfSet();
+            aItalic.appendIfSet();
+            aUnderline.appendIfSet();
+            aFgColor.appendIfSet();
+            aBgColor.appendIfSet();
+        }
+
+        private void appendLn() {
+            appendResetAttrs();
+            output.append("\n");
+        }
+
+        private void appendLeftMargin(final int off) {
 //            return "\u001B[" + (indent * indentStep + off + 1) + "G"; // not `less -R' friendly
-            return StringUtils.repeat(' ', indent * indentStep + off);
+            final int l = indent * indentStep + off;
+            if (l > 0)
+                output.append(StringUtils.repeat(' ', l));
+            appendSetAttrs();
         }
 
         private int currCol = 0;
@@ -95,11 +124,14 @@ public final class XmlToAnsi implements Iterable<String> {
             if (false/*isInPre*/) output.append(v);
             else {
                 int ptr = 0;
-                if (currCol == 0 && v.charAt(0) == ' ') ptr++;
+                if (currCol == 0 && v.charAt(0) == ' ')
+                    ptr++;
                 final int w = width - indent * indentStep;
-                if (!isInP) output.append(makeLeftMargin(0));
+                if (!isInP)
+                    appendLeftMargin(0);
                 if (w <= currCol) {
-                    output.append("\n").append(makeLeftMargin(0));
+                    appendLn();
+                    appendLeftMargin(0);
                     currCol = 0;
                 }
                 while (ptr < v.length()) {
@@ -124,7 +156,8 @@ public final class XmlToAnsi implements Iterable<String> {
                                 ptr += p + 1;
                             }
                         }
-                        output.append("\n").append(makeLeftMargin(0));
+                        appendLn();
+                        appendLeftMargin(0);
                         currCol = 0;
                     }
                 }
@@ -132,45 +165,151 @@ public final class XmlToAnsi implements Iterable<String> {
             isInP = true;
         }
 
+        private void renderBr() {
+            appendLn();
+            appendLeftMargin(0);
+            currCol = 0;
+//            isInP = true;
+        }
+
         private void renderParagraphInterval() {
             if (!isInP) return;
-            output.append("\n\n");
+            appendLn();
+            output.append("\n");
             currCol = 0;
             isInP = false;
         }
 
-        private int isBold = 0;
+        private abstract class AnsiAttr {
+            abstract boolean isSet();
 
-        private void beginBold() {
-            if (isBold++ == 0) output.append("\u001B[1m");
+            abstract void append();
+
+            final void appendIfSet() {
+                if (isSet())
+                    append();
+            }
+
+            protected final void apply() {
+                if (isInP)
+                    append();
+            }
         }
 
-        private void endBold() {
-            if (--isBold == 0) output.append("\u001B[22m");
+        private abstract class AnsiAttrBit extends AnsiAttr {
+            protected int depth = 0;
+
+            @Override
+            boolean isSet() {
+                return depth > 0;
+            }
+
+            void begin() {
+                depth++;
+                apply();
+            }
+
+            void end() {
+                depth--;
+                apply();
+            }
         }
 
-        private int isItalic = 0;
+        private abstract class AnsiAttrColor extends AnsiAttr {
+            protected final Stack<Integer> stack = new Stack<>();
 
-        private void beginItalic() {
-            if (isItalic++ == 0) output.append("\u001B[3m");
+            @Override
+            boolean isSet() {
+                return !stack.empty();
+            }
+
+            void begin(final int color) {
+                stack.push(color);
+                apply();
+            }
+
+            void end() {
+                if (isSet())
+                    stack.pop();
+                apply();
+            }
         }
 
-        private void endItalic() {
-            if (--isItalic == 0) output.append("\u001B[23m");
-        }
+        private final AnsiAttrBit aBold = new AnsiAttrBit() {
+            @Override
+            void append() {
+                if (isSet()) output.append("\u001B[1m");
+                else output.append("\u001B[22m");
+            }
+        };
+
+        private final AnsiAttrBit aItalic = new AnsiAttrBit() {
+            @Override
+            void append() {
+                if (isSet()) output.append("\u001B[3m");
+                else output.append("\u001B[23m");
+            }
+        };
+
+        private final AnsiAttrBit aUnderline = new AnsiAttrBit() {
+            @Override
+            void append() {
+                if (isSet()) output.append("\u001B[4m");
+                else output.append("\u001B[24m");
+            }
+        };
+
+        private final AnsiAttrColor aFgColor = new AnsiAttrColor() {
+            @Override
+            void append() {
+                if (isSet()) output.append(makeCsiColor(stack.peek(), false));
+                else output.append("\u001B[39m");
+            }
+        };
+
+        private final AnsiAttrColor aBgColor = new AnsiAttrColor() {
+            @Override
+            void append() {
+                if (isSet()) output.append(makeCsiColor(stack.peek(), true));
+                else output.append("\u001B[49m");
+            }
+        };
+
+        @Nullable
+        private String href = null;
 
         private void beginTag() {
             switch (parser.getName().toLowerCase()) {
+                case "a":
+                    href = parser.getAttributeValue(null, "href");
+                    return;
+                case "footnote": {
+                    final String ref = parser.getAttributeValue(null, "ref");
+                    if (ref == null) return;
+                    aBold.begin();
+                    aFgColor.begin(Color.rgb(0x88, 0xCC, 0xFF));
+                    renderParagraphText(Unicode.toSuperscript(ref));
+                    aFgColor.end();
+                    aBold.end();
+                    return;
+                }
                 case "kbd":
-                    output.append("\u001B[4m");
+                    aBold.begin();
+                    aBgColor.begin(Color.rgb(0xFF, 0xFF, 0xFF));
+                    aFgColor.begin(Color.rgb(0, 0, 0));
+                    renderParagraphText("\u00A0");
+                    return;
                 case "clipboard":
                 case "code":
+                    aBgColor.begin(Color.rgb(0x30, 0x20, 0x10));
+                    aFgColor.begin(Color.rgb(0xFF, 0xCC, 0x88));
+                    return;
                 case "b":
-                    beginBold();
+                    aBold.begin();
                     return;
                 case "em":
                 case "i":
-                    beginItalic();
+                    aItalic.begin();
                     return;
                 case "h1":
                 case "h2":
@@ -179,7 +318,7 @@ public final class XmlToAnsi implements Iterable<String> {
                 case "h5":
                 case "h6":
                     renderParagraphInterval();
-                    beginBold();
+                    aBold.begin();
                     return;
                 case "ul":
                 case "ol": {
@@ -193,17 +332,18 @@ public final class XmlToAnsi implements Iterable<String> {
                     renderParagraphInterval();
                     switch (lts.empty() ? "" : lts.peek()) {
                         case "none":
-                            output.append(makeLeftMargin(0));
+                            appendLeftMargin(0);
                             break;
                         default:
-                            output.append(makeLeftMargin(-2)).append("* ");
+                            appendLeftMargin(-2);
+                            output.append("* ");
                     }
                     isInP = true;
                     return;
                 case "dt":
                     indent++;
                     renderParagraphInterval();
-                    beginBold();
+                    aBold.begin();
                     return;
                 case "dd":
                     indent++;
@@ -215,24 +355,45 @@ public final class XmlToAnsi implements Iterable<String> {
                     renderParagraphInterval();
                     return;
                 case "br":
-                    output.append("\n").append(makeLeftMargin(0));
-                    currCol = 0;
+                    renderBr();
                     return;
             }
         }
 
         private void endTag() {
             switch (parser.getName().toLowerCase()) {
+                case "a":
+                    if (href != null && !href.startsWith("info:")) {
+                        renderParagraphText(": ");
+                        renderBr();
+                        aBgColor.begin(Color.rgb(0x10, 0x20, 0x30));
+                        aFgColor.begin(Color.rgb(0x88, 0xCC, 0xFF));
+                        output.append("\u001B[?7s\u001B[?7h").append(href).append("\u001B[?7r");
+                        aFgColor.end();
+                        aBgColor.end();
+                        appendResetAttrs();
+                        output.append("\u001B[K");
+                        renderBr();
+                        href = null;
+                    }
+                    return;
                 case "kbd":
-                    output.append("\u001B[24m");
+                    renderParagraphText("\u00A0");
+                    aFgColor.end();
+                    aBgColor.end();
+                    aBold.end();
+                    return;
                 case "clipboard":
                 case "code":
+                    aFgColor.end();
+                    aBgColor.end();
+                    return;
                 case "b":
-                    endBold();
+                    aBold.end();
                     return;
                 case "em":
                 case "i":
-                    endItalic();
+                    aItalic.end();
                     return;
                 case "h1":
                 case "h2":
@@ -240,7 +401,7 @@ public final class XmlToAnsi implements Iterable<String> {
                 case "h4":
                 case "h5":
                 case "h6":
-                    endBold();
+                    aBold.end();
                     renderParagraphInterval();
                     return;
                 case "ul":
@@ -250,7 +411,7 @@ public final class XmlToAnsi implements Iterable<String> {
                     return;
                 case "dt":
                     indent--;
-                    endBold();
+                    aBold.end();
                     renderParagraphInterval();
                     return;
                 case "dd":

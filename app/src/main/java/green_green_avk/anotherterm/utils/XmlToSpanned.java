@@ -10,6 +10,7 @@ import android.text.style.BulletSpan;
 import android.text.style.LeadingMarginSpan;
 import android.text.style.RelativeSizeSpan;
 import android.text.style.StyleSpan;
+import android.text.style.SuperscriptSpan;
 import android.text.style.TypefaceSpan;
 import android.text.style.URLSpan;
 
@@ -63,6 +64,7 @@ public final class XmlToSpanned {
             try {
                 parser = parserFactory.newPullParser();
                 parser.setInput(new StringReader(input));
+                parser.defineEntityReplacementText("nbsp", "\u00A0");
             } catch (final XmlPullParserException e) {
                 throw new Error(e);
             }
@@ -148,6 +150,24 @@ public final class XmlToSpanned {
                         startSpan(new URLSpan(""), output.length());
                     else
                         startSpan(new URLSpan(fixInfoUri(href)), output.length());
+                    break;
+                }
+                case "footnote": {
+                    final String ref = parser.getAttributeValue(null, "ref");
+                    if (ref == null) break;
+                    output.append(ref);
+                    output.setSpan(new SuperscriptSpan(),
+                            output.length() - ref.length(),
+                            output.length(),
+                            Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
+                    output.setSpan(new RelativeSizeSpan(0.7f),
+                            output.length() - ref.length(),
+                            output.length(),
+                            Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
+                    output.setSpan(new StyleSpan(Typeface.BOLD),
+                            output.length() - ref.length(),
+                            output.length(),
+                            Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
                     break;
                 }
                 case "b":
