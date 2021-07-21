@@ -125,7 +125,7 @@
             android:background="@drawable/bg_grid_btn"
             android:contentDescription="@string/action_share"
             android:focusable="true"
-            app:srcCompat="@drawable/ic_share"
+            app:srcCompat="@drawable/ic_share_uri"
             app:tint="@color/colorPrimary" />
 
     </LinearLayout>
