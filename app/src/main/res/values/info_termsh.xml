@@ -12,7 +12,7 @@
 <li><code>-r|--raw</code> &#x2014; switch a tty
 to the raw mode as set by <code>cfmakeraw()</code> libc function
 for the time of command execution.
-(Beware, <kbd>Ctrl</kbd>-<kbd>C</kbd> etc. are not captured by a PTY in this mode.)</li>
+(Beware, <kbd>Ctrl</kbd>&#x2011;<kbd>C</kbd> etc. are not captured by a PTY in this mode.)</li>
 </ul>
 
 <h4>Commands</h4>
@@ -83,7 +83,7 @@ to send this intent to. <code>&lt;recipient&gt;</code> can be:
 <li>An activity class name of this application.</li>
 <li>An activity of another application in form:
 <code>&lt;package&gt;/&lt;activity_class&gt;</code><br/>
-(<code>&lt;activity_class&gt;</code> can begin with a <code>.</code> (dot)
+(<code>&lt;activity_class&gt;</code> can begin with a `<code>.</code>\' (dot)
 to use <code>&lt;package&gt;</code> as it\'s prefix:<br/>
 <code>foo.bar/.Act</code> => <code>foo.bar/foo.bar.Act</code>).
 </li></ul>
@@ -102,7 +102,7 @@ Send (<i><code>android.intent.action.SEND</code></i> or
 <i><code>android.intent.action.SEND_MULTIPLE</code></i>).
 <br/><code>&lt;file|URI&gt;</code> is treated as a file path if it does not match
 <code>/^(?:[a-z0-9+.-]+):\\/\\//i</code>.
-<br/><code>-</code> is used to represent the <i>stdin</i>.
+<br/>`<code>-</code>\' is used to represent the <i>stdin</i>.
 <br/>Command exits after a stream was sent or after interaction with user
 if a file or URI is specified.
 <ul type=\"none\">
@@ -118,7 +118,7 @@ treats absence of the size as zero size even in case of a stream.</li>
 <li><code>--text &lt;text&gt;</code> &#x2014;
 <i><code>android.intent.extra.TEXT</code></i>.</li>
 <li><code>--text-stdin</code> &#x2014;
-the same but from the <i>stdin</i>**.</li>
+the same but from the <i>stdin</i><footnote ref=\"2\" />.</li>
 <li><code>--html &lt;HTML&gt;</code> &#x2014;
 <i><code>android.intent.extra.HTML_TEXT</code></i>.
 <br/><i><code>android.intent.extra.TEXT</code></i> will be set to
@@ -126,7 +126,7 @@ the same but from the <i>stdin</i>**.</li>
 if no <code>--text &lt;text&gt;</code> or
 <code>--text-stdin</code> is specified.</li>
 <li><code>--html-stdin</code> &#x2014;
-the same but from the <i>stdin</i>**.</li>
+the same but from the <i>stdin</i><footnote ref=\"2\" />.</li>
 <li><code>--subject &lt;subject&gt;</code> &#x2014;
 <i><code>android.intent.extra.SUBJECT</code></i>.</li>
 <li><code>--email-to &lt;address[ address]...&gt;</code> &#x2014;
@@ -155,7 +155,7 @@ pick [&lt;options...&gt;] [--] [&lt;path&gt;]
 Show document picker dialog and put the selected content (or its URI) to:
 <ul>
 <li>file if <code>&lt;path&gt;</code> is a file;</li>
-<li>file with the name provided by the content provider (or deduced from the URI)*
+<li>file with the name provided by the content provider (or deduced from the URI)<footnote ref=\"1\" />
 if <code>&lt;path&gt;</code> is a directory;</li>
 <li><i>stdout</i> if nothing is specified.</li>
 </ul>
@@ -185,7 +185,7 @@ The source URI scheme could be <code>content</code>, <code>http</code> or <code>
 The destination URI scheme could be <code>content</code> only.
 If <code>&lt;from&gt;</code> or <code>&lt;to&gt;</code> is not specified,
 <i>stdin</i> or <i>stdout</i> will be used respectively.
-<code>&lt;to&gt;</code> can be a directory*.
+<code>&lt;to&gt;</code> can be a directory<footnote ref=\"1\" />.
 <ul type=\"none\">
 <li><code>-f|--force</code> &#x2014; permit destination overwriting.</li>
 <li><code>--insecure</code> &#x2014; connect via HTTPS even in case of invalid certificate.</li>
@@ -197,8 +197,8 @@ If <code>&lt;from&gt;</code> or <code>&lt;to&gt;</code> is not specified,
 cat [--insecure] [--progress] [&lt;URI&gt; ...]
 </code></p></dt>
 <dd>
-Concatenate specified URIs content to the <i>stdout</i>, <code>-</code> is used to represent
-the <i>stdin</i>.
+Concatenate specified URIs content to the <i>stdout</i>,
+`<code>-</code>\' is used to represent the <i>stdin</i>.
 The URIs scheme could be <code>content</code>, <code>http</code> or <code>https</code>.
 If no URIs are given, the <i>stdin</i> will be used.
 <ul type=\"none\">
@@ -235,7 +235,7 @@ in case of own failure.</p>
 name &lt;URI&gt;
 </code></p></dt>
 <dd>
-Get the name provided by content provider (or deduced from the URI)*.
+Get the name provided by content provider (or deduced from the URI)<footnote ref=\"1\" />.
 </dd><br/>
 
 <dt><p><code>
@@ -267,19 +267,19 @@ Connect to an USB serial dongle and use <i>stdin</i> / <i>stdout</i>.
 </ul>
 <h5>Possible values:</h5>
 <ul type=\"none\">
-<li>baudrate: a positive number or <code>0</code>*</li>
-<li>databits: <code>-</code>*, <code>8</code>, <code>7</code>, <code>6</code>, <code>5</code></li>
-<li>stopbits: <code>-</code>*, <code>1</code>, <code>1.5</code>, <code>2</code></li>
-<li>parity: <code>-</code>*, <code>none</code>, <code>even</code>, <code>odd</code>, <code>mark</code>, <code>space</code></li>
-<li>flowcontrol: <code>-</code>*, <code>off</code>, <code>xon_xoff</code>, <code>rts_cts</code>, <code>dsr_dtr</code></li>
+<li>baudrate: a positive number or <code>0</code><footnote ref=\"3\" /></li>
+<li>databits: <code>-</code><footnote ref=\"3\" />, <code>8</code>, <code>7</code>, <code>6</code>, <code>5</code></li>
+<li>stopbits: <code>-</code><footnote ref=\"3\" />, <code>1</code>, <code>1.5</code>, <code>2</code></li>
+<li>parity: <code>-</code><footnote ref=\"3\" />, <code>none</code>, <code>even</code>, <code>odd</code>, <code>mark</code>, <code>space</code></li>
+<li>flowcontrol: <code>-</code><footnote ref=\"3\" />, <code>off</code>, <code>xon_xoff</code>, <code>rts_cts</code>, <code>dsr_dtr</code></li>
 </ul>
-<p>* &#x2014; preserve current value</p>
+<p><footnote ref=\"3\" /> &#x2014; preserve current value</p>
 <p><b>Default:</b> <code>0/-/-/-/-</code></p>
 <p><b>Note:</b> Alas, UART port settings
 (<code>&lt;baudrate&gt;</code>, <code>&lt;databits&gt;</code>, <code>&lt;stopbits&gt;</code>,
 <code>&lt;parity&gt;</code>, <code>&lt;flowcontrol&gt;</code>)
 cannot be applied to Bluetooth dongles using the Android Bluetooth stack.<br/>
-See <a href=\"https://green-green-avk.github.io/AnotherTerm-docs/issues.html#bluetooth-uart-dongles-support\">details</a>.</p>
+<a href=\"https://green-green-avk.github.io/AnotherTerm-docs/issues.html#bluetooth-uart-dongles-support\"><b>Details</b></a></p>
 </dd><br/>
 
 <dt><p><code>
@@ -365,9 +365,9 @@ with one millisecond granularity.</p>
 
 <h4>Notes:</h4>
 <ul type=\"none\">
-<li>* &#x2014; If file name deduction fails, <code>unnamed</code> is used and
+<li><footnote ref=\"1\" /> &#x2014; If file name deduction fails, <code>unnamed</code> is used and
 exit code <code>2</code> is returned.</li>
-<li>** &#x2014; The scratchpad marshalling limit applies.</li>
+<li><footnote ref=\"2\" /> &#x2014; The scratchpad marshalling limit applies.</li>
 </ul>
 
 <h4>Environment variables:</h4>
@@ -378,7 +378,7 @@ It should be set by the user in case the emulated UID is different
 (chrooted environment, for example).</li>
 <li><clipboard>SHELL_SESSION_TOKEN</clipboard> &#x2014;
 a session permissions and terminal window token.
-Set by <b>Another&#xA0;Term</b> itself.</li>
+Set by <b>Another&nbsp;Term</b> itself.</li>
 </ul>
 ]]></string>
 </resources>
