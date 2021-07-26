@@ -11,7 +11,8 @@
         android:layout_width="match_parent"
         android:layout_height="0dp"
         android:layout_weight="1"
-        android:padding="@dimen/text_padding" />
+        android:padding="@dimen/text_padding"
+        android:requiresFadingEdge="vertical" />
 
     <LinearLayout
         style="?android:attr/buttonBarStyle"
