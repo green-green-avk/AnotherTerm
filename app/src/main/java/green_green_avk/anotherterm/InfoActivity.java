@@ -58,9 +58,9 @@ public final class InfoActivity extends AppCompatActivity {
                 (ViewGroup) getWindow().getDecorView().getRootView(),
                 (view, i, viewGroup) -> {
                     try {
-                        final HtmlTextView v = view.findViewById(R.id.desc);
                         final Uri uri = getIntent().getData();
                         if (uri == null) return;
+                        final HtmlTextView wText = view.findViewById(R.id.desc);
                         final String content;
                         final Source.Type type;
                         if ("info".equals(uri.getScheme())) {
@@ -68,13 +68,18 @@ public final class InfoActivity extends AppCompatActivity {
                             if (source == null) return;
                             content = getString(source.id);
                             type = source.type;
-                        } else if (ContentResolver.SCHEME_ANDROID_RESOURCE.equals(uri.getScheme())) {
+                        } else if (ContentResolver.SCHEME_ANDROID_RESOURCE.
+                                equals(uri.getScheme())) {
+                            final String refApp = uri.getAuthority();
+                            if (refApp == null) return;
+                            final String refRes = uri.getLastPathSegment();
+                            if (refRes == null) return;
                             try {
                                 content = InfoActivity.this.getPackageManager()
-                                        .getResourcesForApplication(uri.getAuthority())
-                                        .getString(Integer.parseInt(uri.getLastPathSegment()));
+                                        .getResourcesForApplication(refApp)
+                                        .getString(Integer.parseInt(refRes));
                             } catch (final NumberFormatException e) {
-                                v.setXmlText(getString(R.string.msg_error_getting_info_page_s,
+                                wText.setXmlText(getString(R.string.msg_error_getting_info_page_s,
                                         StringEscapeUtils.escapeXml10(e.getLocalizedMessage())),
                                         true);
                                 return;
@@ -93,16 +98,16 @@ public final class InfoActivity extends AppCompatActivity {
                         } else return;
                         switch (type) {
                             case XML:
-                                v.setHtmlText(getString(R.string.desc_rendering___));
-                                v.setXmlText(content, true);
+                                wText.setHtmlText(getString(R.string.desc_rendering___));
+                                wText.setXmlText(content, true);
                                 break;
                             case HTML:
-                                v.setHtmlText(getString(R.string.desc_rendering___));
-                                v.setHtmlText(content, true);
+                                wText.setHtmlText(getString(R.string.desc_rendering___));
+                                wText.setHtmlText(content, true);
                                 break;
                             default:
-                                v.setTypeface(Typeface.MONOSPACE);
-                                v.setText(content);
+                                wText.setTypeface(Typeface.MONOSPACE);
+                                wText.setText(content);
                         }
                     } finally {
                         setContentView(view);

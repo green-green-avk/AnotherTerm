@@ -78,7 +78,7 @@ public class HtmlTextView extends AppCompatTextView {
     }
 
     @NonNull
-    private Spanned fromHtml(@NonNull final String v) {
+    protected Spanned fromHtml(@NonNull final String v) {
         try {
             return HtmlCompat.fromHtml(v, HtmlCompat.FROM_HTML_MODE_LEGACY);
         } catch (final Throwable e) {
@@ -88,7 +88,7 @@ public class HtmlTextView extends AppCompatTextView {
     }
 
     @NonNull
-    private Spanned fromXml(@NonNull final String v) {
+    protected Spanned fromXml(@NonNull final String v) {
         try {
             return XmlToSpanned.fromXml(v, getContext());
         } catch (final Throwable e) {
