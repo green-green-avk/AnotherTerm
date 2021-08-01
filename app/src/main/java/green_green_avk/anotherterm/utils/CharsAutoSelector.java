@@ -14,10 +14,11 @@ public final class CharsAutoSelector {
     private static final byte FIELD = 14;
     private static final byte FIELD_EXT = 13;
     private static final byte PATH = 12;
+    private static final byte PATH_DELIMITER = 11;
     private static final byte SPACE = -1;
-    private static final byte FRAMES = -2;
+    private static final byte FRAME = -2;
 
-    private static final byte LAST_GROUP = FRAMES;
+    private static final byte LAST_GROUP = FRAME;
 
     private static final byte[] TABLE = new byte[0x200];
 
@@ -46,10 +47,22 @@ public final class CharsAutoSelector {
         TABLE[Character.FINAL_QUOTE_PUNCTUATION] = FIELD_EXT;
         TABLE[Character.MODIFIER_SYMBOL] = FIELD_EXT;
         TABLE['/' | F_ASCII] = PATH;
+        TABLE['<' | F_ASCII] = PATH_DELIMITER;
+        TABLE['>' | F_ASCII] = PATH_DELIMITER;
+        TABLE['(' | F_ASCII] = PATH_DELIMITER;
+        TABLE[')' | F_ASCII] = PATH_DELIMITER;
+        TABLE['[' | F_ASCII] = PATH_DELIMITER;
+        TABLE[']' | F_ASCII] = PATH_DELIMITER;
+        TABLE['{' | F_ASCII] = PATH_DELIMITER;
+        TABLE['}' | F_ASCII] = PATH_DELIMITER;
+        TABLE['"' | F_ASCII] = PATH_DELIMITER;
+        TABLE['\'' | F_ASCII] = PATH_DELIMITER;
+        TABLE['`' | F_ASCII] = PATH_DELIMITER;
+        TABLE[';' | F_ASCII] = PATH_DELIMITER;
         TABLE[Character.SPACE_SEPARATOR] = SPACE;
         TABLE[Character.PARAGRAPH_SEPARATOR] = SPACE;
         TABLE[Character.LINE_SEPARATOR] = SPACE;
-        TABLE[Character.OTHER_SYMBOL] = FRAMES;
+        TABLE[Character.OTHER_SYMBOL] = FRAME;
     }
 
     private static byte getCat(final char c) {
@@ -90,6 +103,7 @@ public final class CharsAutoSelector {
                     cb.arrayOffset() + cb.limit(), cb.arrayOffset() + ptr, catSym, ret);
             ret[0] -= cb.arrayOffset();
             ret[1] -= cb.arrayOffset();
-        } else throw new IllegalArgumentException("Not a CharBuffer with array");
+        } else
+            throw new IllegalArgumentException("Not a CharBuffer with array");
     }
 }
