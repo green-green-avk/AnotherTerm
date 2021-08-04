@@ -13,6 +13,7 @@ import android.view.MotionEvent;
 import androidx.annotation.AnyRes;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.annotation.UiThread;
 
 import java.nio.ByteBuffer;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -47,6 +48,7 @@ public final class GraphicsCompositor {
     }
 
     public interface Source {
+        @UiThread
         void onStop();
 
         void onResize(int width, int height);
@@ -350,6 +352,7 @@ public final class GraphicsCompositor {
         }
     }
 
+    @UiThread
     public void stop() {
         source.onStop();
     }

@@ -167,10 +167,11 @@ public final class WlTermServer {
                 final GraphicsCompositor compositor = new GraphicsCompositor();
                 compositor.source = new GraphicsCompositor.Source() {
                     @Override
+                    @UiThread
                     public void onStop() {
+                        isStopped = true;
                         wlHandler.post(() -> {
                             try {
-                                isStopped = true;
                                 PtyProcess.shutdown(socket.getFileDescriptor(),
                                         PtyProcess.SHUT_RDWR);
                                 socket.close(); // TODO: correct
