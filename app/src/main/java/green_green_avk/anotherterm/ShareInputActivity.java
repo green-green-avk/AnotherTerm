@@ -3,6 +3,7 @@ package green_green_avk.anotherterm;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
+import android.text.Spanned;
 import android.text.TextUtils;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -20,7 +21,6 @@ import androidx.recyclerview.widget.RecyclerView;
 import java.io.ByteArrayInputStream;
 import java.util.AbstractList;
 import java.util.ArrayList;
-import java.util.Iterator;
 
 import green_green_avk.anotherterm.backends.BackendException;
 import green_green_avk.anotherterm.utils.HtmlUtils;
@@ -67,32 +67,35 @@ public final class ShareInputActivity extends AppCompatActivity {
         putIfSet(ps, "$input.email_cc", intentReader.getEmailCc());
         putIfSet(ps, "$input.email_bcc", intentReader.getEmailBcc());
         putIfSet(ps, "$input.subject", intentReader.getSubject(), "text/plain");
-        final String text = intentReader.getHtmlText();
+        final Intent intent = getIntent();
+        final CharSequence text = intent.getCharSequenceExtra(Intent.EXTRA_TEXT);
         if (text != null) {
-            putIfSet(ps, "$input.html", text, "text/html");
-        } else { // ShareCompat can't... :(
-            final Intent intent = getIntent();
-            Iterable<String> htmlTexts =
-                    intent.getStringArrayListExtra(IntentCompat.EXTRA_HTML_TEXT);
-            if (htmlTexts == null) {
-                final ArrayList<CharSequence> texts =
-                        intent.getCharSequenceArrayListExtra(Intent.EXTRA_TEXT);
-                if (texts != null) {
-                    htmlTexts = () -> new Iterator<String>() {
-                        private final Iterator<CharSequence> it = texts.iterator();
-
-                        @Override
-                        public boolean hasNext() {
-                            return it.hasNext();
-                        }
-
-                        @Override
-                        public String next() {
-                            return HtmlUtils.toHtml(it.next());
-                        }
-                    };
+            if (text instanceof Spanned)
+                putIfSet(ps, "$input.spanned", HtmlUtils.toHtml(text), "text/html");
+            else
+                putIfSet(ps, "$input.text", text.toString(), "text/plain");
+        } else {
+            final ArrayList<CharSequence> texts =
+                    intent.getCharSequenceArrayListExtra(Intent.EXTRA_TEXT);
+            if (texts != null) {
+                int i = 1;
+                for (final CharSequence t : texts) {
+                    if (t instanceof Spanned)
+                        putIfSet(ps, "$input.spanned" + (i == 1 ? "" : i),
+                                HtmlUtils.toHtml(t), "text/html");
+                    else
+                        putIfSet(ps, "$input.text" + (i == 1 ? "" : i),
+                                t.toString(), "text/plain");
+                    i++;
                 }
             }
+        }
+        final String htmlText = getIntent().getStringExtra(IntentCompat.EXTRA_HTML_TEXT);
+        if (htmlText != null) {
+            putIfSet(ps, "$input.html", htmlText, "text/html");
+        } else {
+            final Iterable<String> htmlTexts =
+                    intent.getStringArrayListExtra(IntentCompat.EXTRA_HTML_TEXT);
             if (htmlTexts != null) {
                 int i = 1;
                 for (final String t : htmlTexts) {
