@@ -23,13 +23,16 @@
         <li><clipboard>INPUT_MIME</clipboard> &#x2014; <code>Intent.getType()</code>.</li>
         <h3>Sharing</h3>
         <ul>
-        <li><clipboard>INPUT_HTML</clipboard>[2|3|…][<clipboard>_URI</clipboard>] &#x2014;
-        <i><code>android.intent.extra.HTML_TEXT</code></i>
-        or <i><code>android.intent.extra.TEXT</code></i> if former is not defined.
-        <br/>Suffix <clipboard>_URI</clipboard> is used
+        <li><clipboard>INPUT_TEXT</clipboard>[2|3|…][<clipboard>_URI</clipboard>]* &#x2014;
+        <i><code>android.intent.extra.TEXT</code></i> if plain.</li>
+        <li><clipboard>INPUT_SPANNED</clipboard>[2|3|…][<clipboard>_URI</clipboard>]* &#x2014;
+        <i><code>android.intent.extra.TEXT</code></i> if formatted
+        (will be represented as HTML).</li>
+        <li><clipboard>INPUT_HTML</clipboard>[2|3|…][<clipboard>_URI</clipboard>]* &#x2014;
+        <i><code>android.intent.extra.HTML_TEXT</code></i>.</li>
+        <p><i><b>Note:</b> * &#x2014; Suffix <clipboard>_URI</clipboard> is used
         if input text is &gt;&#xA0;4096&#xA0;B and cached by Another&#xA0;Term under a content URI
-        (see <code><a href=\"info:/termsh_man\">termsh uri</a></code>).
-        <br/>Any text will be represented as an HTML and encoded appropriately if needed.</li>
+        (see <code><a href=\"info:/termsh_man\">termsh uri</a></code>).</i></p>
         <li><clipboard>INPUT_URIS</clipboard> &#x2014;
         a space separated list of <i><code>android.intent.extra.STREAM</code></i>.</li>
         <li><clipboard>INPUT_SUBJECT</clipboard> &#x2014;

@@ -1,4 +1,12 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="title_news">News</string>
+    <string name="news_IV_dev9"><![CDATA[
+    <h5>Changes in <kbd>MkIV-dev9</kbd></h5>
+    <p>Starting from this version,<br/>
+    <clipboard>INPUT_HTML</clipboard>[2|3|…][<clipboard>_URI</clipboard>]<br/>
+    environment variables semantics is changed,<br/> see
+    <a href=\"info:/share_input\">Content sharing, viewing and editing with Another&#xA0;Term</a>
+    for more info.</p>
+]]></string>
 </resources>

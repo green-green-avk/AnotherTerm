@@ -15,6 +15,7 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import java.util.Arrays;
 import java.util.Comparator;
+import java.util.Date;
 
 import green_green_avk.anotherterm.ui.HtmlTextView;
 
@@ -39,7 +40,10 @@ public final class NewsDialog {
     private static final Entry[] news;
 
     static {
-        news = new Entry[]{};
+        news = new Entry[]{
+                new Entry(R.string.news_IV_dev9,
+                        Date.UTC(121, 7, 5, 0, 0, 0))
+        };
     }
 
     public static int getUnseen(@NonNull final Context ctx) {
