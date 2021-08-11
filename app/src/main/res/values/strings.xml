@@ -52,10 +52,13 @@
 
     <string name="action_device_storage_access_permission">Device Storage Access Permission</string>
     <string name="desc_device_storage_access"><![CDATA[
-        <p>If you want to have access to the shared device storage locations from the local shell,
+        <p><b>This permission affects the local shell feature only.</b></p>
+        <p>If you want to have access to the public device storage locations from the local shell,
         you need to enable Android storage access permission for this application.</p>
-        <p><b>Warning: </b>As long as you can run ANY binary… Just warning.</p>
-        <br/>
+        <p><b>Warning:</b> As long as you can run ANY binary… Just a warning.</p>
+        <p><b>Warning:</b> The application\'s shared directory
+        is accessible even without this permission. (see the
+        <a href=\"info:/shell_env_man\"><code>SHARED_DATA_DIR</code> environment variable</a>)</p>
         <p><b>Note: </b>The application will likely be terminated with all of its running sessions
         in the moment this setting is switched from the <i>on</i> to <i>off</i> state.
         It is an Android behavior.</p>

@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="desc_warn_android10_public_storage"><![CDATA[
+<p><b>You have an Android&#xA0;10 or higher:</b><br/>
+this means, the legacy way to access your Public Storage directory is obsolete and
+may not work anymore even with this permission granted.</p>
+<p>Workarounds:<br/><ul>
+<li>You can use the <a href=\"info:/termsh_man\"><code>termsh</code> shell tool</a>
+to access it via the
+<a href=\"https://developer.android.com/guide/topics/providers/document-provider\">Storage Access Framework</a>.</li>
+<li>You still can access any files located in your application\'s shared directory
+(and no permissions are required to do it) (see the
+<a href=\"info:/shell_env_man\"><code>SHARED_DATA_DIR</code> environment variable</a>).</li>
+</ul></p>
+]]></string>
+</resources>

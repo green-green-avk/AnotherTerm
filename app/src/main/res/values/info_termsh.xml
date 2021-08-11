@@ -219,7 +219,9 @@ uri=\"$(\"$TERMSH\" pick -u)\"<br/>
 with-uris &lt;name&gt; &lt;arg0&gt; [&lt;args...&gt;] &lt;URIs&gt;
 </code></p></dt>
 <dd>
-It\'s supposed to be used with
+<p><b>Warning:</b>
+This command will probably not work with <b>Android versions&nbsp;&#x2265;&nbsp;10</b>.</p>
+This command is supposed to be used with
 <a href=\"info:/share_input\">content sharing, viewing and editing</a> feature.
 It runs a command with specified <code>&lt;URIs&gt;</code> represented by the <i>procfs fd</i> entries.
 The <code>&lt;URIs&gt;</code> is a single argument with the entries delimited by whitespaces.
