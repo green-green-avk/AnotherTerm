@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@drawable/bg_frame_warn"
+    android:requiresFadingEdge="vertical">
+
+    <green_green_avk.anotherterm.ui.HtmlTextView xmlns:app="http://schemas.android.com/apk/res-auto"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:textColor="@color/colorTextWarning"
+        android:textIsSelectable="true"
+        app:xmlText="@string/desc_warn_android10_public_storage" />
+
+</ScrollView>

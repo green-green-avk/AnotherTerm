@@ -44,7 +44,7 @@
         <ul>
         <li><clipboard>INPUT_URI</clipboard> &#x2014; content URI.</li>
         </ul>
-        <p><code><a href=\"info:/termsh_man\">termsh with-uris</a></code>
-        is supposed to be used with the <code>INPUT_URI</code>.</p>
+        <p><code><a href=\"info:/termsh_man\">termsh cat | copy | with-uris</a></code> etc.
+        <br/>are supposed to be used with the <code>INPUT_URI</code>.</p>
     ]]></string>
 </resources>

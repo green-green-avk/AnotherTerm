@@ -21,19 +21,31 @@
             android:scaleType="fitCenter"
             app:srcCompat="@drawable/ic_sdcard_pict" />
 
-        <ScrollView
+        <green_green_avk.anotherterm.ui.EquiLinearLayout
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:requiresFadingEdge="vertical">
+            android:orientation="vertical">
 
-            <green_green_avk.anotherterm.ui.HtmlTextView
+            <ScrollView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:textIsSelectable="true"
-                android:textSize="18sp"
-                app:xmlText="@string/desc_device_storage_access" />
+                android:requiresFadingEdge="vertical">
 
-        </ScrollView>
+                <green_green_avk.anotherterm.ui.HtmlTextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:textIsSelectable="true"
+                    android:textSize="18sp"
+                    app:xmlText="@string/desc_device_storage_access" />
+
+            </ScrollView>
+
+            <include
+                layout="@layout/device_storage_access_warn"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content" />
+
+        </green_green_avk.anotherterm.ui.EquiLinearLayout>
 
     </FrameLayout>
 
