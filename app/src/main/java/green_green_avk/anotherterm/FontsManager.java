@@ -149,7 +149,7 @@ public final class FontsManager {
         final AssetManager am = ctx.getApplicationContext().getAssets();
         final String[] tns = {"-Regular", "-Bold", "-Italic", "-BoldItalic"};
         for (int i = 0; i < 4; ++i) {
-            tfs[i] = Typeface.createFromAsset(am, "fonts/" + name + "/" + name + tns[i] + ext);
+            tfs[i] = Typeface.createFromAsset(am, "fonts/" + name + tns[i] + ext);
         }
     }
 
