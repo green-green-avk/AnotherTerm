@@ -3,14 +3,17 @@
     <string name="desc_shell_env_help" tools:ignore="TypographyDashes,TypographyEllipsis"><![CDATA[
         <p>Environment variables:
         <ul>
-        <li><clipboard>DATA_DIR</clipboard> &#x2014; default persistent data directory.</li>
+        <li><clipboard>DATA_DIR</clipboard> &#x2014; default persistent data directory.
+        <br/><b>It will be deleted when this application is uninstalled.</b></li>
         <li><clipboard>PROTECTED_DATA_DIR</clipboard> &#x2014; default device-protected persistent
-        data directory (set if available).</li>
+        data directory (set if available).
+        <br/><b>It will be deleted when this application is uninstalled.</b></li>
         <li><clipboard>SHARED_DATA_DIR</clipboard> &#x2014;
         directory on the primary shared/external storage device
         where the application can place persistent files it owns
         (set if available).
-        Any other application with the storage access permissions can also access this place.</li>
+        Any other application with the storage access permissions can also access this place.
+        <br/><b>It will be deleted when this application is uninstalled.</b></li>
         <li><clipboard>EXTERNAL_DATA_DIR</clipboard> &#x2014;
         an alias to <clipboard>SHARED_DATA_DIR</clipboard>.</li>
         <li><clipboard>PUBLIC_DATA_DIR</clipboard> &#x2014; the root of the \"sdcard\".
