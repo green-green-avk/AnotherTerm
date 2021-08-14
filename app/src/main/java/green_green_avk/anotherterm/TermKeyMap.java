@@ -130,7 +130,7 @@ public class TermKeyMap implements TermKeyMapRules {
 
     @Override
     public int getAppMode(final int code) {
-        if (code >= map.length) return APP_MODE_DEFAULT;
+        if (code >= map.length || code < 0) return APP_MODE_DEFAULT;
         final KeyMap km = map[code];
         if (km == null) return APP_MODE_DEFAULT;
         return km.appMode;
@@ -139,7 +139,7 @@ public class TermKeyMap implements TermKeyMapRules {
     @Nullable
     @Override
     public String get(final int code, final int modifiers, final int appMode) {
-        if (code >= map.length) return null;
+        if (code >= map.length || code < 0) return null;
         final KeyMap km = map[code];
         if (km == null) return null;
         else return (km.appMode & appMode) == 0

@@ -73,8 +73,13 @@ public final class TermKeyMapRulesParser {
             return getKeyHash(code, modifiers, (getAppMode(code) & appMode) != 0);
         }
 
+        private static boolean isKeyCodeValid(final int code) {
+            return code < 1024 && code >= 0;
+        }
+
         @Override
         public int getAppMode(final int code) {
+            if (!isKeyCodeValid(code)) return TermKeyMap.APP_MODE_DEFAULT;
             final Object am = fastMap.get(getKeyAmHash(code));
             if (am == null) return TermKeyMap.APP_MODE_DEFAULT;
             try {
@@ -87,6 +92,7 @@ public final class TermKeyMapRulesParser {
         @Nullable
         @Override
         public String get(final int code, final int modifiers, final int appMode) {
+            if (!isKeyCodeValid(code)) return null;
             try {
                 return (String) fastMap.get(getKeyHash(code, modifiers, appMode));
             } catch (final ClassCastException e) {
@@ -96,6 +102,7 @@ public final class TermKeyMapRulesParser {
 
         @Override
         public void setAppMode(final int code, final int appMode) {
+            if (!isKeyCodeValid(code)) return;
             final int hash = getKeyAmHash(code);
             fastMap.put(hash, appMode);
             map.put(Integer.toHexString(hash), appMode);
@@ -104,6 +111,7 @@ public final class TermKeyMapRulesParser {
         @Override
         public void set(final int code, final int modifiers, final int appMode,
                         @Nullable final String keyOutput) {
+            if (!isKeyCodeValid(code)) return;
             final int hash = getKeyHash(code, modifiers, appMode);
             final String strHash = Integer.toHexString(hash);
             if (keyOutput == null) {
