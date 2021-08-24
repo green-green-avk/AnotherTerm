@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="title_news">News</string>
-    <string name="news_IV_dev9"><![CDATA[
-    <h5>Changes in <kbd>MkIV-dev9</kbd></h5>
+    <string name="news_IIIv42"><![CDATA[
+    <h5>Changes in <kbd>MkIIIv42</kbd></h5>
     <p>Starting from this version,<br/>
     <clipboard>INPUT_HTML</clipboard>[2|3|…][<clipboard>_URI</clipboard>]<br/>
     environment variables semantics is changed,<br/> see

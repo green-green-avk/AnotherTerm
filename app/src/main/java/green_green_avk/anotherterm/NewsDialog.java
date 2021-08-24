@@ -41,7 +41,7 @@ public final class NewsDialog {
 
     static {
         news = new Entry[]{
-                new Entry(R.string.news_IV_dev9,
+                new Entry(R.string.news_IIIv42,
                         Date.UTC(121, 7, 5, 0, 0, 0))
         };
     }
