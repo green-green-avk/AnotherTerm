@@ -8,6 +8,7 @@
     <color name="colorAccenttissimoTr">#7fd8ff00</color>
     <color name="colorHintWarning">#7F0000</color>
     <color name="colorTextWarning">#7F0000</color>
+    <color name="colorBgWarning">#FFCCCC</color>
     <color name="colorDevIcon">#A0A0A0</color>
     <color name="colorGlow">#FFFFFF</color>
     <color name="colorGlass">#7FFFFFFF</color>

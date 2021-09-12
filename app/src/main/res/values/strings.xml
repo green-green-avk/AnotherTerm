@@ -334,4 +334,5 @@
     <string name="msg_search_field_is_empty">Search field is empty</string>
     <string name="msg_search_top_reached">Top reached</string>
     <string name="msg_search_bottom_reached">Bottom reached</string>
+    <string name="msg_setting_is_immutable_on_a_live_session">This setting cannot be changed on a live session</string>
 </resources>

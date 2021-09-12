@@ -6,6 +6,14 @@
     android:orientation="vertical"
     tools:context=".backends.ssh.SshModulePortFwActivity">
 
+    <TextView
+        android:id="@+id/x11HostPort"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:onClick="warnImmutableSetting"
+        android:padding="@dimen/text_padding"
+        tools:text="X11 on port ..." />
+
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/list"
         android:layout_width="match_parent"
