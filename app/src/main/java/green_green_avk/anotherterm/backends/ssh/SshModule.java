@@ -149,7 +149,7 @@ public final class SshModule extends BackendModule {
 
     // ===
 
-    static class SshSessionSt {
+    static final class SshSessionSt {
         private String hostname = null;
         private int port = 22;
         private String username = null;
@@ -162,9 +162,10 @@ public final class SshModule extends BackendModule {
         private int keepaliveInterval = 0;
         private boolean preferCompression = false;
 
+        boolean x11 = false;
         @NonNull
-        private String X11Host = "127.0.0.1";
-        private int X11Port = 0;
+        String x11Host = "127.0.0.1";
+        int x11Port = 0;
 
         private final Set<PortMapping> localPortMappings = new HashSet<>();
         private final Set<PortMapping> remotePortMappings = new HashSet<>();
@@ -228,7 +229,7 @@ public final class SshModule extends BackendModule {
     private String terminalString = "xterm";
     @NonNull
     private String execute = "";
-    private boolean X11 = false;
+    private boolean x11 = false; // per-channel usage
 
     public SshModule() {
         sshSessionSt = new SshSessionSt();
@@ -239,7 +240,7 @@ public final class SshModule extends BackendModule {
         sshSessionSt = that.sshSessionSt;
         terminalString = that.terminalString;
         execute = that.execute;
-        X11 = that.X11;
+        x11 = that.x11;
     }
 
     @Override
@@ -279,9 +280,10 @@ public final class SshModule extends BackendModule {
         sshSessionSt.preferCompression = pp.getBoolean("prefer_compression",
                 sshSessionSt.preferCompression);
 
-        X11 = pp.getBoolean("X11", X11);
-        sshSessionSt.X11Host = pp.getString("X11_host", sshSessionSt.X11Host);
-        sshSessionSt.X11Port = pp.getInt("X11_port", sshSessionSt.X11Port);
+        sshSessionSt.x11 = pp.getBoolean("X11", sshSessionSt.x11);
+        x11 = sshSessionSt.x11;
+        sshSessionSt.x11Host = pp.getString("X11_host", sshSessionSt.x11Host);
+        sshSessionSt.x11Port = pp.getInt("X11_port", sshSessionSt.x11Port);
 
         parsePortMappings(sshSessionSt.localPortMappings,
                 pp.getString("local_ports", ""));
@@ -563,8 +565,8 @@ public final class SshModule extends BackendModule {
                             : "none,keyboard-interactive,password,publickey");
                     s.setServerAliveInterval(sshSessionSt.keepaliveInterval);
                     s.setServerAliveCountMax(10);
-                    s.setX11Host(sshSessionSt.X11Host);
-                    s.setX11Port(6000 + sshSessionSt.X11Port);
+                    s.setX11Host(sshSessionSt.x11Host);
+                    s.setX11Port(6000 + sshSessionSt.x11Port);
                     s.connect(5000);
                     sshSessionSt.session = s;
                     sshSessionSt.key = obtainSshSessionKey();
@@ -586,7 +588,7 @@ public final class SshModule extends BackendModule {
                 ((ChannelExec) ch).setCommand(execute);
                 ((ChannelExec) ch).setErrStream(mOS_set);
             }
-            ch.setXForwarding(X11);
+            ch.setXForwarding(x11);
             ch.setOutputStream(mOS_set);
             mOS_get_orig = ch.getOutputStream();
             ch.connect(3000);

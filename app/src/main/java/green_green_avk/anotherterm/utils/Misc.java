@@ -6,11 +6,14 @@ import android.content.pm.PackageManager;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Build;
+import android.os.Handler;
+import android.os.Looper;
 import android.util.SparseArray;
 import android.util.SparseBooleanArray;
 import android.util.SparseIntArray;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
 import androidx.core.content.FileProvider;
 
@@ -270,26 +273,49 @@ public final class Misc {
         new Thread(r).start();
     }
 
-    public static void runAsync(@NonNull final Runnable r, @NonNull final Runnable onResult) {
+    public interface AsyncRunnable {
+        @Nullable
+        Object run();
+    }
+
+    public interface AsyncResult {
+        void onResult(@Nullable Object v);
+    }
+
+    public static final class AsyncError extends Error {
+        private AsyncError(final Throwable cause) {
+            super(cause);
+        }
+    }
+
+    public static void runAsync(@NonNull final AsyncRunnable r,
+                                @NonNull final AsyncResult onResult) {
         new AsyncTask<Object, Object, Object>() {
             @Override
-            protected Object doInBackground(Object... objects) {
-                r.run();
+            protected Object doInBackground(final Object... objects) {
+                try {
+                    return r.run();
+                } catch (final Throwable e) {
+                    new Handler(Looper.getMainLooper()).post(() -> {
+                        throw new AsyncError(e);
+                    });
+                }
                 return null;
             }
 
             @Override
-            protected void onPostExecute(Object o) {
-                onResult.run();
+            protected void onPostExecute(final Object o) {
+                onResult.onResult(o);
             }
         }.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
     }
 
-    public static void runAsyncWeak(@NonNull final Runnable r, @NonNull final Runnable onResult) {
-        final WeakReference<Runnable> onResultRef = new WeakReference<>(onResult);
-        runAsync(r, () -> {
-            final Runnable _onResult = onResultRef.get();
-            if (_onResult != null) _onResult.run();
+    public static void runAsyncWeak(@NonNull final AsyncRunnable r,
+                                    @NonNull final AsyncResult onResult) {
+        final WeakReference<AsyncResult> onResultRef = new WeakReference<>(onResult);
+        runAsync(r, v -> {
+            final AsyncResult _onResult = onResultRef.get();
+            if (_onResult != null) _onResult.onResult(v);
         });
     }
 
