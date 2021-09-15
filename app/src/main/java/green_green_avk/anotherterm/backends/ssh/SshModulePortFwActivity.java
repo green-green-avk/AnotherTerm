@@ -21,6 +21,8 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import green_green_avk.anotherterm.R;
 import green_green_avk.anotherterm.utils.Misc;
@@ -48,12 +50,21 @@ public final class SshModulePortFwActivity extends AppCompatActivity {
         }
     }
 
+    private static final Pattern portMappingP_jsch =
+            Pattern.compile("^([0-9]+):(.*):([0-9]+)$");
+
     private static void parsePortMapping(@NonNull final SshModule.PortMapping r,
                                          @NonNull final String v) {
-        final String[] ee = v.split(":", 3);
-        r.srcPort = Integer.parseInt(ee[0]);
-        r.host = ee[1];
-        r.dstPort = Integer.parseInt(ee[2]);
+        final Matcher m = portMappingP_jsch.matcher(v);
+        try {
+            if (!m.matches())
+                throw new NumberFormatException("Bad port forwarding entry: " + v);
+            r.srcPort = Integer.parseInt(m.group(1));
+            r.host = m.group(2);
+            r.dstPort = Integer.parseInt(m.group(3));
+        } catch (final NumberFormatException e) {
+            throw new Error("Malformed port forwarding info has been returned by jsch", e);
+        }
     }
 
     private static void makeReadonly(@NonNull final EditText view) {
