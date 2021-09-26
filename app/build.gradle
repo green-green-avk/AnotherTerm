@@ -1,8 +1,10 @@
-apply plugin: 'com.android.application'
-apply plugin: 'placeholder-resolver'
+plugins {
+    id 'com.android.application'
+    id 'placeholder-resolver'
+}
 
 android {
-    compileSdkVersion 29
+    compileSdkVersion 30
     buildToolsVersion '30.0.3'
     ndkVersion '21.4.7075529'
 
@@ -95,7 +97,6 @@ android {
 }
 
 dependencies {
-    implementation fileTree(include: ['*.jar'], dir: 'libs')
     implementation 'androidx.appcompat:appcompat:1.3.1'
     implementation 'androidx.constraintlayout:constraintlayout:2.1.0'
     implementation 'androidx.asynclayoutinflater:asynclayoutinflater:1.0.0'
@@ -110,13 +111,10 @@ dependencies {
     implementation 'com.jcraft:jsch:0.1.55'
     implementation project(':TelnetClient')
     implementation 'org.apache.commons:commons-collections4:4.4'
-    implementation 'com.github.green-green-avk:libusbmanager:1.4'
-    implementation 'com.github.green-green-avk:anothertermshellpluginutils:1.13'
+    implementation 'com.github.green-green-avk:libusbmanager:1.5'
+    implementation 'com.github.green-green-avk:anothertermshellpluginutils:1.15'
+    implementation 'com.github.green-green-avk:anothertermshellpluginutils-side-application:1.0'
     implementation project(path: ':bluetoothspp')
     implementation 'me.saket:better-link-movement-method:2.2.0'
     implementation project(path: ':wayland')
-}
-
-repositories {
-    mavenCentral()
 }

@@ -231,6 +231,18 @@
             </intent-filter>
         </activity>
 
+        <!-- Settings for Android 11 package visibility declaration for shell plugins -->
+        <!-- See com.github.green-green-avk:anothertermshellpluginutils-side-application -->
+        <activity-alias
+            android:name="green_green_avk.anothertermshellpluginutils_side_application.ShowInfoActivity"
+            android:targetActivity=".AboutActivity"
+            tools:node="merge"
+            tools:replace="android:targetActivity" />
+        <activity
+            android:name="green_green_avk.anothertermshellpluginutils_side_application.ShowInfoStubActivity"
+            tools:node="remove" />
+        <!-- ======= -->
+
     </application>
 
 </manifest>
