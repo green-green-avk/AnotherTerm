@@ -1,6 +1,9 @@
 package green_green_avk.anotherterm.ui.forms;
 
+import android.annotation.SuppressLint;
 import android.os.Build;
+import android.os.Handler;
+import android.os.Looper;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.view.LayoutInflater;
@@ -32,6 +35,7 @@ public abstract class EditTextValueBinder<RESULT>
         updateUi();
     }
 
+    @SuppressLint("InflateParams")
     private void updateUi() {
         if (ViewCompat.isAttachedToWindow(view) && warn != null) {
             if (popup == null) {
@@ -43,6 +47,7 @@ public abstract class EditTextValueBinder<RESULT>
                 popup = new PopupWindow(wHint,
                         ViewGroup.LayoutParams.WRAP_CONTENT,
                         ViewGroup.LayoutParams.WRAP_CONTENT);
+                popup.setAnimationStyle(android.R.style.Animation_Dialog);
             }
             ((TextView) popup.getContentView()).setText(warn);
             popup.showAsDropDown(view, 0, 0);
@@ -79,7 +84,7 @@ public abstract class EditTextValueBinder<RESULT>
             vto.addOnWindowAttachListener(new ViewTreeObserver.OnWindowAttachListener() {
                 @Override
                 public void onWindowAttached() {
-                    updateUi();
+                    new Handler(Looper.getMainLooper()).post(EditTextValueBinder.this::updateUi);
                 }
 
                 @Override
