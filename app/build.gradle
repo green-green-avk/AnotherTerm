@@ -16,7 +16,7 @@ android {
     defaultConfig {
         applicationId 'green_green_avk.anotherterm'
         minSdkVersion 14
-        targetSdkVersion 29
+        targetSdkVersion 30
         versionCode 103
         versionName "MkIIIv45-dev"
         vectorDrawables.useSupportLibrary = true
