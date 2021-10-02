@@ -31,6 +31,7 @@
 
         <activity
             android:name=".SessionsActivity"
+            android:exported="true"
             android:label="@string/app_name">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -47,6 +48,7 @@
         <activity
             android:name=".FavoriteEditorActivity"
             android:configChanges="orientation|screenSize|keyboardHidden|keyboard"
+            android:exported="true"
             android:label="@string/title_activity_favorite_editor"
             android:parentActivityName=".SessionsActivity"
             android:theme="@style/AppSettingsTheme"
@@ -92,6 +94,7 @@
         <activity
             android:name=".TermKeyMapEditorActivity"
             android:configChanges="keyboardHidden|keyboard"
+            android:exported="true"
             android:label="@string/title_activity_key_mapping_editor"
             android:parentActivityName=".TermKeyMapManagerActivity"
             android:theme="@style/AppSettingsTheme"
@@ -115,6 +118,7 @@
 
         <activity
             android:name=".ShareInputActivity"
+            android:exported="true"
             android:label="@string/action_share_with_new_session">
             <intent-filter>
                 <action android:name="android.intent.action.SEND" />
@@ -127,6 +131,7 @@
 
         <activity-alias
             android:name=".OpenInputActivity"
+            android:exported="true"
             android:label="@string/action_open_in_new_session"
             android:targetActivity=".ShareInputActivity">
             <intent-filter>
