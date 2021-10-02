@@ -9,4 +9,9 @@
     <a href=\"info:/share_input\">Content sharing, viewing and editing with Another&#xA0;Term</a>
     for more info.</p>
 ]]></string>
+    <string name="news_IV_dev12"><![CDATA[
+    <h5>Changes in <kbd>MkIV-dev12</kbd></h5>
+    <p>This app is targeting Android&#xA0;11 from now on.</p>
+    <p>Outdated plugin versions could stop working with it on Android&#xA0;11 and higher.</p>
+]]></string>
 </resources>
