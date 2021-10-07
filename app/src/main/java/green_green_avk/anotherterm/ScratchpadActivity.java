@@ -56,7 +56,7 @@ public final class ScratchpadActivity extends AppCompatActivity {
             public void run() {
                 list.clear();
                 list.addAll(sm.enumerate());
-                Collections.sort(list, (o1, o2) -> Long.compare(o1.timestamp, o2.timestamp));
+                Collections.sort(list, (o1, o2) -> Long.compare(o2.timestamp, o1.timestamp));
                 notifyDataSetChanged();
             }
         };
