@@ -52,6 +52,7 @@
         app:layout_constraintLeft_toLeftOf="parent"
         app:layout_constraintRight_toRightOf="parent"
         app:layout_constraintTop_toBottomOf="@id/list"
-        app:srcCompat="@android:drawable/ic_menu_add" />
+        app:srcCompat="@drawable/ic_bar_add"
+        app:tint="?attr/colorPrimary" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

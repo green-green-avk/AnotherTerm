@@ -78,7 +78,7 @@
             android:contentDescription="@string/action_terminate"
             android:onClick="onTerminate"
             android:scaleType="centerInside"
-            app:srcCompat="@android:drawable/ic_lock_power_off"
+            app:srcCompat="@drawable/ic_bar_poweroff"
             app:tint="@android:color/tertiary_text_dark" />
 
     </LinearLayout>

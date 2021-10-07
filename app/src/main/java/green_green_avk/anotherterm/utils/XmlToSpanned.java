@@ -275,10 +275,14 @@ public final class XmlToSpanned {
                     int res = getResourceId(parser.getAttributeValue(null, "src"),
                             "drawable");
                     if (res == 0)
-                        res = R.drawable.ic_mark_error;
+                        res = R.drawable.ic_mark_error_image;
                     if (Boolean.parseBoolean(parser.getAttributeValue(
                             null, "inline"))) {
-                        startSpan(new InlineImageSpan(ctx, res), output.length());
+                        final InlineImageSpan s = new InlineImageSpan(ctx, res);
+                        if (Boolean.parseBoolean(parser.getAttributeValue(
+                                null, "useTextColor")))
+                            s.useTextColor();
+                        startSpan(s, output.length());
                     } else {
                         startSpan(new FixedImageSpan(ctx, res), output.length());
                     }

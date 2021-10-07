@@ -2,11 +2,13 @@
 <resources>
     <string name="desc_scratchpad_help"><![CDATA[
         <h1>Scratchpad</h1>
-        <p>The <i>scratchpad</i> feature has been added mostly to deal with
-        the Android marshalling limitations
+        <p>The <i>scratchpad</i>
+        <img inline=\"true\" useTextColor=\"true\" src=\"@drawable/ic_bar_scratchpad\" />
+        feature has been added mostly to deal with the Android marshalling limitations
         and lack of the ability to track the content URI reference count.</p>
-        <p>Selected terminal buffer content can be copied to the <i>scratchpad</i> by tapping
-        the <img inline=\"true\" src=\"@drawable/ic_save\" alt=\"&#x1F4BE;\" /> button.</p>
+        <p>Selected terminal buffer content can be copied to the <i>scratchpad</i> by tapping the
+        <img inline=\"true\" useTextColor=\"true\" src=\"@drawable/ic_save\" alt=\"&#x1F4BE;\" />
+        button.</p>
         <p>If the size of content to be copied/shared exceeds the limitation
         specified in the <i>Settings</i> menu or its marshalling fails, it is also copied
         to the <i>scratchpad</i> and its content URI is used.</p>

@@ -23,7 +23,7 @@
             android:contentDescription="@string/action_help"
             android:focusable="true"
             android:onClick="onMenuHelp"
-            app:srcCompat="@drawable/ic_menu_help" />
+            app:srcCompat="@drawable/ic_bar_help" />
 
         <CheckBox
             android:id="@+id/wakelock"
@@ -48,7 +48,7 @@
             android:contentDescription="@string/action_terminate"
             android:focusable="true"
             android:onClick="onTerminate"
-            app:srcCompat="@android:drawable/ic_lock_power_off"
+            app:srcCompat="@drawable/ic_bar_poweroff"
             app:tint="@android:color/background_light" />
 
     </LinearLayout>
@@ -70,7 +70,7 @@
             android:contentDescription="@string/action_scratchpad"
             android:focusable="true"
             android:onClick="onMenuScratchpad"
-            app:srcCompat="@drawable/ic_menu_scratchpad" />
+            app:srcCompat="@drawable/ic_bar_scratchpad" />
 
         <CheckBox
             android:id="@+id/keep_screen_on"
