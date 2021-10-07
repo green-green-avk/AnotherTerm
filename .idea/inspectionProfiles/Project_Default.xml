@@ -11,5 +11,9 @@
       </option>
       <option name="IGNORE_FIELDS_USED_IN_MULTIPLE_METHODS" value="true" />
     </inspection_tool>
+    <inspection_tool class="ReplaceAssignmentWithOperatorAssignment" enabled="true" level="WARNING" enabled_by_default="true">
+      <option name="ignoreLazyOperators" value="false" />
+      <option name="ignoreObscureOperators" value="false" />
+    </inspection_tool>
   </profile>
 </component>
