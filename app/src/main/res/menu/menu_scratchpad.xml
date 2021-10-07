@@ -5,7 +5,7 @@
     tools:context=".ScratchpadActivity">
 
     <item
-        android:icon="@drawable/ic_menu_help"
+        android:icon="@drawable/ic_bar_help"
         android:onClick="onInfo"
         android:title="@string/action_help"
         app:showAsAction="always" />

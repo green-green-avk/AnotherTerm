@@ -4,7 +4,7 @@
         <h1>Tips</h1>
         <ul>
         <li>Create some profile to start with &#x2014;
-        <btn onclick=\"onNewFav\"><img inline=\"true\" src=\"@drawable/ic_menu_add\" /></btn></li>
+        <btn onclick=\"onNewFav\"><img inline=\"true\" useTextColor=\"true\" src=\"@drawable/ic_bar_add\" /></btn></li>
         <li>Long tap matters.</li>
         <li>Use sound volume buttons (if they are not mapped)
         to change the font size when in the terminal window.</li>
