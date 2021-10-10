@@ -14,9 +14,20 @@ import androidx.annotation.Keep;
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
+import java.util.ArrayList;
+import java.util.Collections;
+
 import green_green_avk.anotherterm.backends.EventBasedBackendModuleWrapper;
 
 public final class SessionsAdapter extends RecyclerView.Adapter<SessionsAdapter.ViewHolder> {
+    private final ArrayList<Integer> sessionKeys = new ArrayList<>();
+
+    private void rebuildList() {
+        sessionKeys.clear();
+        sessionKeys.addAll(ConsoleService.sessions.keySet());
+        Collections.sort(sessionKeys);
+    }
+
     private View.OnClickListener mOnClick = null;
     private View.OnCreateContextMenuListener mOnCreateContextMenuListener = null;
 
@@ -24,23 +35,25 @@ public final class SessionsAdapter extends RecyclerView.Adapter<SessionsAdapter.
     private final ConsoleService.Listener mDatasetListener = new ConsoleService.Listener() {
         @Override
         protected void onSessionsListChange() {
+            rebuildList();
             notifyDataSetChanged();
         }
 
         @Override
         protected void onSessionChange(final int key) {
             if (!ConsoleService.isSessionTerminated(key))
-                notifyItemChanged(ConsoleService.sessionKeys.indexOf(key));
+                notifyItemChanged(sessionKeys.indexOf(key));
         }
     };
 
     public SessionsAdapter() {
         super();
+        rebuildList();
         ConsoleService.addListener(mDatasetListener);
     }
 
     public int getKey(final int i) {
-        return ConsoleService.sessionKeys.get(i);
+        return sessionKeys.get(i);
     }
 
     public void setOnClickListener(final View.OnClickListener v) {
@@ -64,7 +77,7 @@ public final class SessionsAdapter extends RecyclerView.Adapter<SessionsAdapter.
         holder.itemView.setOnClickListener(mOnClick);
         holder.itemView.setOnCreateContextMenuListener(mOnCreateContextMenuListener);
         final TextView titleView = holder.itemView.findViewById(R.id.title);
-        final int key = ConsoleService.sessionKeys.get(position);
+        final int key = sessionKeys.get(position);
         final Session session = ConsoleService.getSession(key);
         titleView.setText(session.getTitle());
         final ImageView thumbnailView = holder.itemView.findViewById(R.id.thumbnail);
@@ -97,7 +110,7 @@ public final class SessionsAdapter extends RecyclerView.Adapter<SessionsAdapter.
 
     @Override
     public int getItemCount() {
-        return ConsoleService.sessionKeys.size();
+        return sessionKeys.size();
     }
 
     public static final class ViewHolder extends RecyclerView.ViewHolder {

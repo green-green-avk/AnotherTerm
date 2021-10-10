@@ -21,10 +21,8 @@ import androidx.core.app.TaskStackBuilder;
 
 import java.nio.ByteBuffer;
 import java.nio.charset.Charset;
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 import java.util.NoSuchElementException;
 import java.util.Set;
@@ -54,7 +52,6 @@ public final class ConsoleService extends Service {
     }
 
     public static final Map<Integer, Session> sessions = new HashMap<>();
-    public static final List<Integer> sessionKeys = new ArrayList<>(); // I doubt that org.apache.commons.collections4.list.TreeList is better here
 
     @Override
     public void onCreate() {
@@ -117,10 +114,15 @@ public final class ConsoleService extends Service {
         return null;
     }
 
+    public static final int INVALID_SESSION = -1;
+
     private static int currKey = 0;
 
     private static int obtainKey() {
-        return currKey++;
+        do {
+            currKey = (currKey + 1) & Integer.MAX_VALUE;
+        } while (sessions.containsKey(currKey));
+        return currKey;
     }
 
     @NonNull
@@ -246,7 +248,6 @@ public final class ConsoleService extends Service {
         ci.setWindowTitle(name != null ? name.toString() + " - #" + key : "#" + key);
 
         sessions.put(key, s);
-        sessionKeys.add(key);
 
         tryStart(appCtx);
         execOnSessionsListChange();
@@ -261,9 +262,8 @@ public final class ConsoleService extends Service {
         final Session s = getSession(key);
         if (s instanceof AnsiSession)
             ((AnsiSession) s).backend.stop();
-        sessionKeys.remove((Integer) key);
         sessions.remove(key);
-        if (sessionKeys.size() <= 0)
+        if (sessions.isEmpty())
             tryStop();
         execOnSessionChange(key);
         execOnSessionsListChange();
