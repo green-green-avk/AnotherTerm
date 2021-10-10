@@ -66,7 +66,7 @@ public abstract class ConsoleActivity extends AppCompatActivity {
         }
     }
 
-    protected int mSessionKey = -1;
+    protected int mSessionKey = ConsoleService.INVALID_SESSION;
 
     protected boolean getUseRecents() {
         return Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP &&
@@ -84,7 +84,7 @@ public abstract class ConsoleActivity extends AppCompatActivity {
     protected void onCreate(@Nullable final Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        if (ConsoleService.sessionKeys.size() <= 0) {
+        if (ConsoleService.sessions.isEmpty()) {
             finish();
             return;
         }

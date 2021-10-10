@@ -253,7 +253,7 @@ public final class AnsiConsoleActivity extends ConsoleActivity
     @Override
     protected void onResume() {
         super.onResume();
-        if (!ConsoleService.sessionKeys.contains(mSessionKey)) {
+        if (!ConsoleService.hasAnsiSession(mSessionKey)) {
             finish();
             return;
         }

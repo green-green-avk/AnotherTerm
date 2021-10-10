@@ -109,7 +109,7 @@ public final class GraphicsConsoleActivity extends ConsoleActivity {
     @Override
     protected void onResume() {
         super.onResume();
-        if (!ConsoleService.sessionKeys.contains(mSessionKey)) {
+        if (!ConsoleService.hasGraphicsSession(mSessionKey)) {
             finish();
             return;
         }

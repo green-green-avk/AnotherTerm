@@ -69,7 +69,7 @@ public final class WlTermServer {
     private final WlDisplay wlDisplay = new WlDisplay();
 
     private final class ClientTask extends AsyncTask<Object, Object, Object> {
-        private int sessionKey = -1;
+        private int sessionKey = ConsoleService.INVALID_SESSION;
         private boolean isStopped = false;
 
         @Override
