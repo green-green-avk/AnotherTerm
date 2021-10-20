@@ -33,6 +33,7 @@ import android.os.Build;
 import android.os.Message;
 import android.util.AttributeSet;
 import android.util.SparseArray;
+import android.util.TypedValue;
 import android.view.Gravity;
 import android.view.MotionEvent;
 import android.view.View;
@@ -116,7 +117,7 @@ public abstract class ExtKeyboardView extends View /*implements View.OnClickList
     protected int mAutoRepeatDelay;
     protected int mAutoRepeatInterval;
     protected int mPopupDelay;
-    protected int mPopupKeySize;
+    protected TypedValue mPopupKeySizeTyped = new TypedValue();
     protected ColorStateList mPopupKeyTextColor;
     protected int mPopupShadowColor;
     protected float mPopupShadowRadius;
@@ -175,7 +176,8 @@ public abstract class ExtKeyboardView extends View /*implements View.OnClickList
     public ExtKeyboardView(final Context context, @Nullable final AttributeSet attrs,
                            final int defStyleAttr) {
         super(context, attrs, defStyleAttr);
-        init(context, attrs, defStyleAttr, R.style.AppExtKeyboardViewStyle);
+        init(context, attrs,
+                defStyleAttr, R.style.AppExtKeyboardViewStyle);
     }
 
     @RequiresApi(Build.VERSION_CODES.LOLLIPOP)
@@ -209,7 +211,7 @@ public abstract class ExtKeyboardView extends View /*implements View.OnClickList
             mPopupDelay = a.getInteger(R.styleable.ExtKeyboardView_popupDelay, 100);
             mPopupKeyBackground = AppCompatResources.getDrawable(context,
                     a.getResourceId(R.styleable.ExtKeyboardView_popupKeyBackground, 0));
-            mPopupKeySize = a.getDimensionPixelSize(R.styleable.ExtKeyboardView_popupKeySize, 24);
+            a.getValue(R.styleable.ExtKeyboardView_popupKeySize, mPopupKeySizeTyped);
             mPopupKeyTextColor = a.getColorStateList(R.styleable.ExtKeyboardView_popupKeyTextColor);
             mPopupShadowColor = a.getColor(R.styleable.ExtKeyboardView_popupShadowColor, 0);
             mPopupShadowRadius = a.getFloat(R.styleable.ExtKeyboardView_popupShadowRadius, 0f);
@@ -772,9 +774,14 @@ public abstract class ExtKeyboardView extends View /*implements View.OnClickList
     }
 
     protected class Popup {
+        protected final int mPopupKeySize = (int) UiUtils.getDimensionOrFraction(
+                mPopupKeySizeTyped,
+                getResources().getDisplayMetrics(),
+                mKeyboard.getKeyWidth(), getWidth(),
+                mKeyboard.getKeyWidth());
         protected final View view = new View(getContext());
         protected final PopupWindow window = new PopupWindow(view,
-                mPopupKeySize * 3, mPopupKeySize * 3);
+                mPopupKeySize * 4, mPopupKeySize * 4);
         protected final WeakHandler mHandler = new WeakHandler();
         protected final int[] mWindowCoords = new int[2];
         protected KeyTouchState keyState = null;
@@ -801,6 +808,8 @@ public abstract class ExtKeyboardView extends View /*implements View.OnClickList
 
         protected class View extends android.view.View {
             protected final Paint mPaint = new Paint();
+            protected final float mBaseTextSize = mPopupKeySize * 0.8f;
+            protected final float mBaseTextSize2 = mBaseTextSize * 0.8f;
             protected float mFontHeight;
 
             public View(final Context context) {
@@ -811,8 +820,8 @@ public abstract class ExtKeyboardView extends View /*implements View.OnClickList
                 mPaint.setColor(mKeyTextColor);
                 mPaint.setTextAlign(Align.CENTER);
                 mPaint.setAlpha(255);
-                mPaint.setStyle(Paint.Style.STROKE);
-                mPaint.setTextSize(mPopupKeySize * 0.8f);
+                mPaint.setStyle(Paint.Style.FILL);
+                mPaint.setTextSize(mBaseTextSize);
                 fontProvider.setPaint(mPaint, Typeface.BOLD);
                 mFontHeight = mPaint.getFontSpacing();
             }
@@ -827,7 +836,8 @@ public abstract class ExtKeyboardView extends View /*implements View.OnClickList
                     mPopupBackground.draw(canvas);
                 }
                 canvas.translate(getWidth() / 2f, getHeight() / 2f);
-                mPaint.setShadowLayer(mPopupShadowRadius, 0, 0, mPopupShadowColor);
+                mPaint.setShadowLayer(mPopupShadowRadius, 0, 0,
+                        mPopupShadowColor);
                 for (int fcnI = 0; fcnI < keyState.key.functions.size(); ++fcnI) {
                     final PointF coords = _getAltKeyFcnCoords(fcnI);
                     final int[] state = ExtKeyboard.Key.getKeyState(fcnI == getAltKeyFcn(),
@@ -837,7 +847,8 @@ public abstract class ExtKeyboardView extends View /*implements View.OnClickList
                     canvas.save();
                     canvas.translate(-mFontHeight / 2, -mFontHeight / 2);
                     mPopupKeyBackground.mutate().setState(state);
-                    mPopupKeyBackground.setBounds(0, 0, (int) mFontHeight, (int) mFontHeight);
+                    mPopupKeyBackground.setBounds(0, 0,
+                            (int) mFontHeight, (int) mFontHeight);
                     canvas.clipRect(0, 0, mFontHeight, mFontHeight);
                     mPopupKeyBackground.draw(canvas);
                     canvas.restore();
@@ -846,7 +857,10 @@ public abstract class ExtKeyboardView extends View /*implements View.OnClickList
                         if (mPopupKeyTextColor != null)
                             mPaint.setColor(mPopupKeyTextColor.getColorForState(state,
                                     mPopupKeyTextColor.getDefaultColor()));
-                        canvas.drawText(keyFcn.label.toString(), 0, (mPaint.getTextSize() - mPaint.descent()) / 2, mPaint);
+                        mPaint.setTextSize(mBaseTextSize2 / keyFcn.label.length());
+                        canvas.drawText(keyFcn.label.toString(),
+                                0, (mPaint.getTextSize() - mPaint.descent()) / 2,
+                                mPaint);
                     }
                     canvas.restore();
                 }
@@ -899,7 +913,7 @@ public abstract class ExtKeyboardView extends View /*implements View.OnClickList
             if (keyState.key.functions.size() < 2)
                 return -1;
             final ExtKeyboard.KeyFcn fcn =
-                    keyState.key.functionsCircularPos[(int) (ptrA / ptrStep)];
+                    keyState.key.getCircularKeyFcn((int) (ptrA / ptrStep));
             if (fcn == null)
                 return -1;
             int i = fcn.id;
@@ -917,8 +931,8 @@ public abstract class ExtKeyboardView extends View /*implements View.OnClickList
                 _altKeyFcnCoords.x = 0;
                 _altKeyFcnCoords.y = 0;
             } else {
-                _altKeyFcnCoords.x = (float) -Math.cos(pos) * mPopupKeySize;
-                _altKeyFcnCoords.y = (float) -Math.sin(pos) * mPopupKeySize;
+                _altKeyFcnCoords.x = (float) -Math.cos(pos) * mPopupKeySize * 1.5f;
+                _altKeyFcnCoords.y = (float) -Math.sin(pos) * mPopupKeySize * 1.5f;
             }
             return _altKeyFcnCoords;
         }

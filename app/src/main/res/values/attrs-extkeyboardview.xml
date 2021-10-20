@@ -27,7 +27,8 @@
         <attr name="popupBackground" format="reference" />
         <attr name="popupDelay" format="integer" />
         <attr name="popupKeyBackground" format="reference" />
-        <attr name="popupKeySize" format="dimension" />
+        <!-- % of default keyboard key width or %p of keyboard width. -->
+        <attr name="popupKeySize" format="dimension|fraction" />
         <attr name="popupKeyTextColor" format="color" />
         <attr name="popupShadowColor" format="color" />
         <attr name="popupShadowRadius" format="float" />
@@ -43,7 +44,7 @@
         <item name="popupBackground">@android:color/transparent</item>
         <item name="popupDelay">100</item>
         <item name="popupKeyBackground">@color/colorPrimaryDark</item>
-        <item name="popupKeySize">48dp</item>
+        <item name="popupKeySize">100%</item>
         <item name="popupKeyTextColor">#FFFFFFFF</item>
         <item name="popupShadowColor">#000000</item>
         <item name="popupShadowRadius">16</item>
