@@ -105,6 +105,7 @@ public final class GraphicsCompositor {
     @NonNull
     public volatile CharSequence title = "\uD83D\uDDA5";
 
+    // TODO: The Wayland / X screen keyboard must be a pretty different beast. Split!
     public final IConsoleOutput consoleOutput = new IConsoleOutput() {
         @Override
         public boolean getKeyAutorepeat() {
@@ -133,7 +134,15 @@ public final class GraphicsCompositor {
         public void feed(final int code, final boolean shift,
                          final boolean alt, final boolean ctrl) {
             if (code >= 0) return;
+            if (ctrl)
+                feed(KeyEvent.KEYCODE_CTRL_LEFT, true);
+            if (alt)
+                feed(KeyEvent.KEYCODE_ALT_LEFT, true);
             feed(String.valueOf((char) -code));
+            if (alt)
+                feed(KeyEvent.KEYCODE_ALT_LEFT, false);
+            if (ctrl)
+                feed(KeyEvent.KEYCODE_CTRL_LEFT, false);
         }
 
         @Override
