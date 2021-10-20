@@ -3,4 +3,5 @@
     <size
         android:width="@dimen/text_separator"
         android:height="@dimen/text_separator" />
+    <solid android:color="#0000" /> <!-- API 15 workaround -->
 </shape>
