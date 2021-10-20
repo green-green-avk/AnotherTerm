@@ -13,6 +13,7 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.StringRes;
 import androidx.appcompat.app.AlertDialog;
+import androidx.core.content.res.ResourcesCompat;
 
 public final class TermKeyMapManagerUi {
     private TermKeyMapManagerUi() {
@@ -56,8 +57,8 @@ public final class TermKeyMapManagerUi {
         if (parent instanceof View) {
             final Context ctx = ((View) parent).getContext();
             final PopupWindow d = new PopupWindow(ctx);
-            d.setBackgroundDrawable(ctx.getResources().getDrawable(
-                    android.R.drawable.dialog_holo_light_frame));
+            d.setBackgroundDrawable(ResourcesCompat.getDrawable(ctx.getResources(),
+                    android.R.drawable.dialog_holo_light_frame, null));
             d.setFocusable(true);
             d.setAnimationStyle(android.R.style.Animation_Dialog);
             final ListView v = new ListView(ctx);
