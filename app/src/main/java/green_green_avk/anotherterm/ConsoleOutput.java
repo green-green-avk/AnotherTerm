@@ -142,9 +142,9 @@ public final class ConsoleOutput {
         if (code == ExtKeyboard.KEYCODE_NONE) return;
         if (code < 0) {
             char c = (char) -code;
-            if (c < 128) {
+            if (c < 0x80) {
                 if (ctrl) {
-                    if ((c & 0x40) != 0) {
+                    if (c >= 0x40) {
                         c &= 0x1F;
                     } else if (c == ' ') { // Mapped earlier; added just in case.
                         c = 0x00;

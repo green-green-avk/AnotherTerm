@@ -56,9 +56,9 @@ import green_green_avk.anotherterm.utils.WeakHandler;
  * It handles rendering of keys and detecting key presses and touch movements.
  */
 public abstract class ExtKeyboardView extends View /*implements View.OnClickListener*/ {
-    public static final int SHIFT = 1;
-    public static final int ALT = 2;
-    public static final int CTRL = 4;
+    public static final int SHIFT = ExtKeyboard.SHIFT;
+    public static final int ALT = ExtKeyboard.ALT;
+    public static final int CTRL = ExtKeyboard.CTRL;
 
     public interface OnKeyboardActionListener {
 
@@ -152,9 +152,9 @@ public abstract class ExtKeyboardView extends View /*implements View.OnClickList
     protected Canvas mCanvas;
 
     /**
-     * Selected shifted state
+     * Selected modifiers state
      */
-    protected int mAltKeysFcn = 0;
+    protected int mModifiers = 0;
 
     /**
      * LEDs control
@@ -238,7 +238,7 @@ public abstract class ExtKeyboardView extends View /*implements View.OnClickList
                         final KeyTouchState keyState = mTouchedKeys.getRepeatable();
                         if (keyState != null && keyState.isPressed && mAutoRepeatAllowed && getAutoRepeat()) {
                             sendEmptyMessageDelayed(MSG_REPEAT, mAutoRepeatInterval);
-                            sendKeyUp(keyState.key, mAltKeysFcn);
+                            sendKeyUp(keyState.key, mModifiers);
                         }
                         break;
                     }
@@ -332,13 +332,20 @@ public abstract class ExtKeyboardView extends View /*implements View.OnClickList
         return mKeyboardActionListener;
     }
 
-    public void setAltKeys(final int v) {
-        mAltKeysFcn = v;
+    public void setModifiers(final int v) {
+        this.mModifiers = v;
         mTouchedKeys.invalidate();
     }
 
-    public int getAltKeys() {
-        return mAltKeysFcn;
+    public int getModifiers() {
+        return mModifiers;
+    }
+
+    protected int getAltKeyFcnMod(@NonNull final ExtKeyboard.Key key) {
+        final ExtKeyboard.KeyFcn fcn = key.getModifierFunction(mModifiers);
+        if (fcn == null)
+            return 0;
+        return fcn.id;
     }
 
     public void setLedsByCode(final int code, final boolean on) {
@@ -383,25 +390,27 @@ public abstract class ExtKeyboardView extends View /*implements View.OnClickList
     }
 
     @Nullable
-    private static ExtKeyboard.KeyFcn getKeyFcn(@NonNull final ExtKeyboard.Key key, final int id) {
-        if (id < key.functions.size()) return key.functions.get(id);
-        else if (key.functions.size() == 1) return key.functions.get(0);
-        return null;
+    private static ExtKeyboard.KeyFcn getKeyFcn(@NonNull final ExtKeyboard.Key key,
+                                                final int modifiers) {
+        final ExtKeyboard.KeyFcn fcn = key.getModifierFunction(modifiers);
+        if (fcn == null) return key.getModifierFunction(0);
+        return fcn;
     }
 
-    protected void sendKeyDown(@NonNull final ExtKeyboard.Key key, final int altKeysFcn) {
+    protected void sendKeyDown(@NonNull final ExtKeyboard.Key key, final int modifiers) {
         if (mKeyboardActionListener == null) return;
-        final ExtKeyboard.KeyFcn fcn = getKeyFcn(key, altKeysFcn);
+        final ExtKeyboard.KeyFcn fcn = getKeyFcn(key, modifiers);
         if (fcn != null && fcn.code != ExtKeyboard.KEYCODE_NONE)
             mKeyboardActionListener.onPress(fcn.code);
     }
 
-    protected void sendKeyUp(@NonNull final ExtKeyboard.Key key, final int altKeysFcn) {
+    protected void sendKeyUp(@NonNull final ExtKeyboard.Key key, final int modifiers) {
         if (mKeyboardActionListener == null) return;
-        final ExtKeyboard.KeyFcn fcn = getKeyFcn(key, altKeysFcn);
+        final ExtKeyboard.KeyFcn fcn = getKeyFcn(key, modifiers);
         if (fcn != null) {
             if (fcn.code != ExtKeyboard.KEYCODE_NONE) {
-                mKeyboardActionListener.onKey(fcn.code, fcn.modifiers, fcn.modifiersMask);
+                mKeyboardActionListener.onKey(fcn.code,
+                        fcn.modifiers, fcn.modifiersMask);
                 mKeyboardActionListener.onRelease(fcn.code);
             }
             if (fcn.text != null)
@@ -512,9 +521,9 @@ public abstract class ExtKeyboardView extends View /*implements View.OnClickList
     }
 
     protected void releaseKey(@NonNull final KeyTouchState keyState) {
-        final int fcn = keyState.popup.getAltKeyFcn();
-        if (fcn >= 0) {
-            sendKeyUp(keyState.key, fcn);
+        final int fcnI = keyState.popup.getAltKeyFcn();
+        if (fcnI >= 0) {
+            sendKeyUp(keyState.key, keyState.key.functions.get(fcnI).modifiers);
         }
     }
 
@@ -536,7 +545,7 @@ public abstract class ExtKeyboardView extends View /*implements View.OnClickList
                     mHandler.sendEmptyMessageDelayed(MSG_REPEAT, mAutoRepeatDelay);
                 }
                 if (first)
-                    sendKeyDown(key, mAltKeysFcn);
+                    sendKeyDown(key, mModifiers);
                 invalidateKey(key, true);
                 return true;
             }
@@ -558,7 +567,8 @@ public abstract class ExtKeyboardView extends View /*implements View.OnClickList
                     if (keyState == null) return super.onTouchEvent(event);
                     keyState.popup.addPointer(event.getX(i), event.getY(i));
                     final boolean oip = keyState.isPressed;
-                    keyState.isPressed = mAltKeysFcn == keyState.popup.getAltKeyFcn();
+                    keyState.isPressed =
+                            getAltKeyFcnMod(keyState.key) == keyState.popup.getAltKeyFcn();
                     if (keyState.key != null && keyState.isPressed != oip)
                         invalidateKey(keyState.key, keyState.isPressed);
                 }
@@ -695,7 +705,7 @@ public abstract class ExtKeyboardView extends View /*implements View.OnClickList
         final int left = getPaddingLeft() + key.x;
         final int top = getPaddingTop() + key.y;
 
-        final ExtKeyboard.KeyFcn keyFcn = getKeyFcn(key, mAltKeysFcn);
+        final ExtKeyboard.KeyFcn keyFcn = getKeyFcn(key, mModifiers);
         final int[] drawableState = ExtKeyboard.Key.getKeyState(pressed,
                 keyFcn != null && leds.contains(keyFcn.code));
         background.setState(drawableState);
@@ -739,9 +749,9 @@ public abstract class ExtKeyboardView extends View /*implements View.OnClickList
                 canvas.drawText(keyFcn.label.toString(), labelX, labelY, paint);
                 paint.setTextSize(paint.getTextSize() / 2);
                 canvas.drawText(
-                        key.functions.get(1 - mAltKeysFcn).label.toString(),
+                        key.functions.get(SHIFT - (mModifiers & SHIFT)).label.toString(),
                         labelX + loX,
-                        labelY + ((mAltKeysFcn == 0) ? -loY : (loY / 2)),
+                        labelY + (((mModifiers & SHIFT) == 0) ? -loY : (loY / 2)),
                         paint
                 );
             } else canvas.drawText(keyFcn.label.toString(), labelX, labelY, paint);
@@ -771,7 +781,7 @@ public abstract class ExtKeyboardView extends View /*implements View.OnClickList
         protected float ptrA = Float.NaN;
         protected float ptrD = 0f;
         protected float ptrStep = 0f;
-        protected int keyFcn = mAltKeysFcn;
+        protected int keyFcn = 0;
 
         {
             window.setClippingEnabled(false);
@@ -783,9 +793,10 @@ public abstract class ExtKeyboardView extends View /*implements View.OnClickList
             this.keyState = keyState;
             this.ptrA = Float.NaN;
             this.ptrD = 0f;
-            this.keyFcn = mAltKeysFcn;
+            this.keyFcn = getAltKeyFcnMod(this.keyState.key);
             if (this.keyState.key != null)
-                this.ptrStep = (float) Math.PI / (this.keyState.key.functions.size() - 1);
+                this.ptrStep = (float) Math.PI * 2 /
+                        (this.keyState.key.functionsCircularPos.length);
         }
 
         protected class View extends android.view.View {
@@ -817,9 +828,9 @@ public abstract class ExtKeyboardView extends View /*implements View.OnClickList
                 }
                 canvas.translate(getWidth() / 2f, getHeight() / 2f);
                 mPaint.setShadowLayer(mPopupShadowRadius, 0, 0, mPopupShadowColor);
-                for (int fcn = 0; fcn < keyState.key.functions.size(); ++fcn) {
-                    final PointF coords = _getAltKeyFcnCoords(fcn);
-                    final int[] state = ExtKeyboard.Key.getKeyState(fcn == getAltKeyFcn(),
+                for (int fcnI = 0; fcnI < keyState.key.functions.size(); ++fcnI) {
+                    final PointF coords = _getAltKeyFcnCoords(fcnI);
+                    final int[] state = ExtKeyboard.Key.getKeyState(fcnI == getAltKeyFcn(),
                             false);
                     canvas.save();
                     canvas.translate(coords.x, coords.y);
@@ -830,7 +841,7 @@ public abstract class ExtKeyboardView extends View /*implements View.OnClickList
                     canvas.clipRect(0, 0, mFontHeight, mFontHeight);
                     mPopupKeyBackground.draw(canvas);
                     canvas.restore();
-                    final ExtKeyboard.KeyFcn keyFcn = keyState.key.functions.get(fcn);
+                    final ExtKeyboard.KeyFcn keyFcn = keyState.key.functions.get(fcnI);
                     if (keyFcn.label != null) {
                         if (mPopupKeyTextColor != null)
                             mPaint.setColor(mPopupKeyTextColor.getColorForState(state,
@@ -865,7 +876,7 @@ public abstract class ExtKeyboardView extends View /*implements View.OnClickList
             final float dx = x - keyState.coords.x;
             final float dy = y - keyState.coords.y;
             ptrD = dx * dx + dy * dy;
-            ptrA = (float) Math.atan2(-dy, dx);
+            ptrA = (float) (Math.PI + Math.atan2(dy, dx));
             final int oFcn = keyFcn;
             keyFcn = _getAltKeyFcn();
             if (keyFcn != oFcn) view.invalidate();
@@ -881,35 +892,33 @@ public abstract class ExtKeyboardView extends View /*implements View.OnClickList
         }
 
         protected int _getAltKeyFcn() {
-            if (ptrD < mPopupKeySize * mPopupKeySize) return mAltKeysFcn;
-            if (keyState.key == null || keyState.key.functions.size() < 2
-                    || ptrA < 0)
+            if (keyState.key == null)
+                return 0;
+            if (ptrD < mPopupKeySize * mPopupKeySize)
+                return getAltKeyFcnMod(keyState.key);
+            if (keyState.key.functions.size() < 2)
                 return -1;
-            int i = (int) (ptrA / ptrStep) + 1;
-            if (i == mAltKeysFcn) i = 0;
+            final ExtKeyboard.KeyFcn fcn =
+                    keyState.key.functionsCircularPos[(int) (ptrA / ptrStep)];
+            if (fcn == null)
+                return -1;
+            int i = fcn.id;
+            if (i == getAltKeyFcnMod(keyState.key)) i = 0;
             return i;
         }
 
         protected final PointF _altKeyFcnCoords = new PointF();
 
         protected PointF _getAltKeyFcnCoords(int i) {
-            if (i == 0) i = mAltKeysFcn;
-            else if (i == mAltKeysFcn) i = 0;
-            switch (i) {
-                case 0:
-                    _altKeyFcnCoords.x = 0;
-                    _altKeyFcnCoords.y = 0;
-                    break;
-                case 1:
-                    if (keyState.key == null || keyState.key.functions.size() == 2) {
-                        _altKeyFcnCoords.x = 0;
-                        _altKeyFcnCoords.y = -mPopupKeySize;
-                        break;
-                    }
-                default:
-                    final float a = ptrStep * ((i - 1) + 0.5f);
-                    _altKeyFcnCoords.x = (float) Math.cos(a) * mPopupKeySize;
-                    _altKeyFcnCoords.y = (float) -Math.sin(a) * mPopupKeySize;
+            if (i == 0) i = getAltKeyFcnMod(keyState.key);
+            else if (i == getAltKeyFcnMod(keyState.key)) i = 0;
+            float pos = keyState.key.functions.get(i).iconCircularPos;
+            if (Float.isNaN(pos)) {
+                _altKeyFcnCoords.x = 0;
+                _altKeyFcnCoords.y = 0;
+            } else {
+                _altKeyFcnCoords.x = (float) -Math.cos(pos) * mPopupKeySize;
+                _altKeyFcnCoords.y = (float) -Math.sin(pos) * mPopupKeySize;
             }
             return _altKeyFcnCoords;
         }

@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
+
     <declare-styleable name="ExtKeyboard">
         <!-- Default width of a key, in pixels or percentage of display width. -->
         <attr name="keyWidth" format="dimension|fraction" />
@@ -20,7 +21,7 @@
 
     <declare-styleable name="ExtKeyboard_Row">
         <!-- Row edge flags. -->
-        <attr name="rowEdgeFlags">
+        <attr name="rowEdgeFlags" format="flags">
             <!-- Row is anchored to the top of the keyboard. -->
             <flag name="top" value="4" />
             <!-- Row is anchored to the bottom of the keyboard. -->
@@ -37,17 +38,17 @@
         <attr name="code" format="integer" />
         <!-- Modifiers to enforce. -->
         <attr name="modifiers" format="flags">
-            <flag name="shiftUp" value="0x00010001" />
-            <flag name="altUp" value="0x00020002" />
-            <flag name="ctrlUp" value="0x00040004" />
-            <flag name="shiftDown" value="0x00010000" />
-            <flag name="altDown" value="0x00020000" />
-            <flag name="ctrlDown" value="0x00040000" />
+            <flag name="shiftOn" value="0x00010001" />
+            <flag name="altOn" value="0x00020002" />
+            <flag name="ctrlOn" value="0x00040004" />
+            <flag name="shiftOff" value="0x00010000" />
+            <flag name="altOff" value="0x00020000" />
+            <flag name="ctrlOff" value="0x00040000" />
         </attr>
         <!-- The XML keyboard layout of any popup keyboard. -->
         <attr name="popupKeyboard" format="reference" />
         <!-- Key edge flags. -->
-        <attr name="keyEdgeFlags">
+        <attr name="keyEdgeFlags" format="flags">
             <!-- Key is anchored to the left of the keyboard. -->
             <flag name="left" value="1" />
             <!-- Key is anchored to the right of the keyboard. -->
@@ -72,4 +73,18 @@
             <enum name="led" value="1" />
         </attr>
     </declare-styleable>
+
+    <declare-styleable name="ExtKeyboard_Alt">
+        <attr name="position" format="flags">
+            <flag name="left" value="0x01" />
+            <flag name="right" value="0x02" />
+            <flag name="top" value="0x04" />
+            <flag name="bottom" value="0x08" />
+            <flag name="narrow" value="0x10" />
+        </attr>
+        <!-- Circle fraction, CW, zero on the left. -->
+        <attr name="positionStart" format="fraction" />
+        <attr name="positionEnd" format="fraction" />
+    </declare-styleable>
+
 </resources>
