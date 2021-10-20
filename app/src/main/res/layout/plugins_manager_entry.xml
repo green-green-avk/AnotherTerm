@@ -106,9 +106,9 @@
                 android:background="@drawable/bg_grid_btn"
                 android:contentDescription="@string/action_app_info"
                 android:scaleType="fitCenter"
-                android:tint="@color/colorPrimary"
                 app:layout_flexShrink="0"
-                app:srcCompat="@drawable/ic_info" />
+                app:srcCompat="@drawable/ic_info"
+                app:tint="@color/colorPrimary" />
 
             <ImageButton
                 android:id="@+id/info"
@@ -117,9 +117,9 @@
                 android:background="@drawable/bg_grid_btn"
                 android:contentDescription="@string/action_info_page"
                 android:scaleType="fitCenter"
-                android:tint="@color/colorPrimary"
                 app:layout_flexShrink="0"
-                app:srcCompat="@drawable/ic_help" />
+                app:srcCompat="@drawable/ic_help"
+                app:tint="@color/colorPrimary" />
 
         </com.google.android.flexbox.FlexboxLayout>
 
