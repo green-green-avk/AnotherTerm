@@ -495,7 +495,6 @@ public class ExtKeyboard {
         }
 
         protected void putFunction(@NonNull final KeyFcn fcn) {
-            fcn.id = functions.size();
             functions.add(fcn);
             putModifierFunction(fcn.modifiers, fcn);
         }
@@ -527,6 +526,11 @@ public class ExtKeyboard {
 
         protected static boolean hasCtrl(final int code) {
             return code <= -0x40 && code > -0x80;
+        }
+
+        @NonNull
+        public KeyFcn getBaseFcn() {
+            return functions.get(0);
         }
 
         public void addFunctionFromXml(@NonNull final Resources res,
@@ -597,11 +601,6 @@ public class ExtKeyboard {
     }
 
     public static class KeyFcn {
-        /**
-         * List back-reference
-         * TODO: To be removed as long as key functions list representation; sooner - better
-         */
-        public int id = 0;
         /**
          * Key code (unicode or custom code) that this key will generate
          */
