@@ -205,7 +205,7 @@
         app:popupBackground="@drawable/bg_popup"
         app:popupDelay="100"
         app:popupKeyBackground="@drawable/bg_popup_key"
-        app:popupKeySize="48dp"
+        app:popupKeySize="100%"
         app:popupKeyTextColor="@color/screen_keyboard_popup_key"
         app:popupShadowColor="@color/colorShadow"
         app:popupShadowRadius="24"

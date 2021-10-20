@@ -16,6 +16,8 @@ import android.net.Uri;
 import android.os.Build;
 import android.text.Layout;
 import android.util.AndroidException;
+import android.util.DisplayMetrics;
+import android.util.TypedValue;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
@@ -366,5 +368,18 @@ public final class UiUtils {
             a = ((ContextWrapper) a).getBaseContext();
         }
         return (Activity) a;
+    }
+
+    public static float getDimensionOrFraction(@NonNull final TypedValue v,
+                                               @NonNull final DisplayMetrics metrics,
+                                               final float base, final float pbase,
+                                               final float def) {
+        switch (v.type) {
+            case TypedValue.TYPE_DIMENSION:
+                return v.getDimension(metrics);
+            case TypedValue.TYPE_FRACTION:
+                return v.getFraction(base, pbase);
+        }
+        return def;
     }
 }

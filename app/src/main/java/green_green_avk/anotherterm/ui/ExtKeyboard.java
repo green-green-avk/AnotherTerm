@@ -423,6 +423,7 @@ public class ExtKeyboard {
                             case 1:
                                 fcn.modifiers = SHIFT;
                                 fcn.modifiersMask = SHIFT;
+                                functions.get(0).modifiersMask = SHIFT;
                                 setCircularPos(fcn, 0, 7);
                                 break;
                             case 2:
@@ -450,6 +451,26 @@ public class ExtKeyboard {
                             fcn.modifiers = CTRL;
                             fcn.modifiersMask = CTRL;
                             fcn.label = "^" + fcnB.label;
+                            putFunction(fcn);
+                        }
+                        {
+                            fcnB = functions.get(0);
+                            final KeyFcn fcn = new KeyFcn();
+                            setCircularPos(fcn, -1, 0);
+                            fcn.code = fcnB.code;
+                            fcn.modifiers = ALT;
+                            fcn.modifiersMask = SHIFT | ALT;
+                            fcn.label = "\u2387" + fcnB.label;
+                            putFunction(fcn);
+                        }
+                        {
+                            fcnB = functions.get(1);
+                            final KeyFcn fcn = new KeyFcn();
+                            setCircularPos(fcn, 1, 2);
+                            fcn.code = fcnB.code;
+                            fcn.modifiers = SHIFT | ALT;
+                            fcn.modifiersMask = SHIFT | ALT;
+                            fcn.label = "\u2387" + fcnB.label;
                             putFunction(fcn);
                         }
                     }
@@ -487,11 +508,21 @@ public class ExtKeyboard {
             return modifierFunctions.get(modifiers);
         }
 
+        protected int getCircularIndex(final int a) {
+            int i = a % functionsCircularPos.length;
+            if (i < 0) i += functionsCircularPos.length;
+            return i;
+        }
+
+        @Nullable
+        protected KeyFcn getCircularKeyFcn(final int a) {
+            return functionsCircularPos[getCircularIndex(a)];
+        }
+
         protected void setCircularPos(@NonNull final KeyFcn fcn, final int a, final int b) {
             for (int i = a; i <= b; i++)
-                functionsCircularPos[i] = fcn;
-            fcn.iconCircularPos = (a + b + 1) *
-                    (float) Math.PI / functionsCircularPos.length;
+                functionsCircularPos[getCircularIndex(i)] = fcn;
+            fcn.iconCircularPos = (a + b + 1) * (float) Math.PI / functionsCircularPos.length;
         }
 
         protected static boolean hasCtrl(final int code) {
