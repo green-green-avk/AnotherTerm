@@ -624,8 +624,8 @@ public class ConsoleKeyboardView extends ExtKeyboardView implements
             switch (primaryCode) {
                 case KeyEvent.KEYCODE_SHIFT_LEFT:
                 case KeyEvent.KEYCODE_SHIFT_RIGHT:
-                    setAltKeys(getAltKeys() ^ 1);
-                    setLedsByCode(primaryCode, getAltKeys() != 0);
+                    setModifiers(getModifiers() ^ SHIFT);
+                    setLedsByCode(primaryCode, (getModifiers() & SHIFT) != 0);
                     invalidateAllKeys();
                     wasKey = false;
                     break;
@@ -648,7 +648,7 @@ public class ConsoleKeyboardView extends ExtKeyboardView implements
             switch (primaryCode) {
                 case KeyEvent.KEYCODE_SHIFT_LEFT:
                 case KeyEvent.KEYCODE_SHIFT_RIGHT:
-                    setAltKeys(1);
+                    setModifiers(getModifiers() | SHIFT);
                     break;
                 case KeyEvent.KEYCODE_CTRL_LEFT:
                 case KeyEvent.KEYCODE_CTRL_RIGHT:
@@ -678,7 +678,7 @@ public class ConsoleKeyboardView extends ExtKeyboardView implements
                 case KeyEvent.KEYCODE_SHIFT_LEFT:
                 case KeyEvent.KEYCODE_SHIFT_RIGHT:
                     if (wasKey) {
-                        setAltKeys(0);
+                        setModifiers(getModifiers() & ~SHIFT);
                         setLedsByCode(primaryCode, false);
                         invalidateAllKeys();
                     }
@@ -703,18 +703,19 @@ public class ConsoleKeyboardView extends ExtKeyboardView implements
                     wasKey = true;
                     if (consoleOutput == null) return;
                     consoleOutput.feed(primaryCode,
-                            (modifiersMask & ExtKeyboardView.SHIFT) != 0 ?
-                                    (modifiers & ExtKeyboardView.SHIFT) != 0 : (getAltKeys() != 0),
-                            (modifiersMask & ExtKeyboardView.ALT) != 0 ?
-                                    (modifiers & ExtKeyboardView.ALT) != 0 : alt,
-                            (modifiersMask & ExtKeyboardView.CTRL) != 0 ?
-                                    (modifiers & ExtKeyboardView.CTRL) != 0 : ctrl);
+                            (modifiersMask & SHIFT) != 0 ?
+                                    (modifiers & SHIFT) != 0 :
+                                    ((getModifiers() & SHIFT) != 0),
+                            (modifiersMask & ALT) != 0 ?
+                                    (modifiers & ALT) != 0 : alt,
+                            (modifiersMask & CTRL) != 0 ?
+                                    (modifiers & CTRL) != 0 : ctrl);
             }
         } else {
             switch (primaryCode) {
                 case KeyEvent.KEYCODE_SHIFT_LEFT:
                 case KeyEvent.KEYCODE_SHIFT_RIGHT:
-                    setAltKeys(0);
+                    setModifiers(getModifiers() & ~SHIFT);
                     break;
                 case KeyEvent.KEYCODE_CTRL_LEFT:
                 case KeyEvent.KEYCODE_CTRL_RIGHT:
@@ -727,12 +728,13 @@ public class ConsoleKeyboardView extends ExtKeyboardView implements
                 default:
                     if (consoleOutput == null) return;
                     consoleOutput.feed(primaryCode,
-                            (modifiersMask & ExtKeyboardView.SHIFT) != 0 ?
-                                    (modifiers & ExtKeyboardView.SHIFT) != 0 : (getAltKeys() != 0),
-                            (modifiersMask & ExtKeyboardView.ALT) != 0 ?
-                                    (modifiers & ExtKeyboardView.ALT) != 0 : alt,
-                            (modifiersMask & ExtKeyboardView.CTRL) != 0 ?
-                                    (modifiers & ExtKeyboardView.CTRL) != 0 : ctrl);
+                            (modifiersMask & SHIFT) != 0 ?
+                                    (modifiers & SHIFT) != 0 :
+                                    ((getModifiers() & SHIFT) != 0),
+                            (modifiersMask & ALT) != 0 ?
+                                    (modifiers & ALT) != 0 : alt,
+                            (modifiersMask & CTRL) != 0 ?
+                                    (modifiers & CTRL) != 0 : ctrl);
             }
         }
     }

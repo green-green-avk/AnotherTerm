@@ -35,6 +35,7 @@ import android.util.Log;
 import android.util.SparseArray;
 import android.util.TypedValue;
 import android.util.Xml;
+import android.view.InflateException;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -73,6 +74,10 @@ public class ExtKeyboard {
     public static final int EDGE_BOTTOM = 0x08;
 
     public static final int KEYCODE_NONE = 0;
+
+    public static final int SHIFT = 1;
+    public static final int ALT = 2;
+    public static final int CTRL = 4;
 
     /**
      * Keyboard label
@@ -215,9 +220,17 @@ public class ExtKeyboard {
         /**
          * All the key codes (unicode or custom code) and labels
          * that this key could generate, zero'th
-         * being the most important.
+         * being the most important...
          */
         public final List<KeyFcn> functions = new ArrayList<>();
+        /**
+         * ...modifier bindings...
+         */
+        public final SparseArray<KeyFcn> modifierFunctions = new SparseArray<>();
+        /**
+         * ...and their positions map [22.5 deg sectors, CW, zero on the left].
+         */
+        public final KeyFcn[] functionsCircularPos = new KeyFcn[16];
         /**
          * Type: can be KEY or LED now
          */
@@ -353,7 +366,8 @@ public class ExtKeyboard {
                         keyboard.mDisplayHeight, parent.defaultHeight);
                 gap = getDimensionOrFraction(a,
                         R.styleable.ExtKeyboard_horizontalGap,
-                        keyboard.mDisplayWidth, parent.defaultHorizontalGap, parent.defaultWidth);
+                        keyboard.mDisplayWidth, parent.defaultHorizontalGap,
+                        parent.defaultWidth);
             } finally {
                 a.recycle();
             }
@@ -376,7 +390,8 @@ public class ExtKeyboard {
                         R.styleable.ExtKeyboard_Key_isRepeatable, !isModifier);
                 sticky = a.getBoolean(
                         R.styleable.ExtKeyboard_Key_isSticky, false);
-                edgeFlags = a.getInt(R.styleable.ExtKeyboard_Key_keyEdgeFlags, parent.rowEdgeFlags);
+                edgeFlags = a.getInt(R.styleable.ExtKeyboard_Key_keyEdgeFlags,
+                        parent.rowEdgeFlags);
 
                 final Drawable icon = a.getDrawable(
                         R.styleable.ExtKeyboard_Key_keyIcon);
@@ -392,18 +407,51 @@ public class ExtKeyboard {
                     fcn.code = code;
                     fcn.label = label;
                     fcn.icon = icon;
-                    functions.add(fcn);
+                    putFunction(fcn);
                     return;
                 }
 
-                final CharSequence text = a.getText(R.styleable.ExtKeyboard_Key_keyOutputText);
+                final CharSequence text =
+                        a.getText(R.styleable.ExtKeyboard_Key_keyOutputText);
 
-                if (code == KEYCODE_NONE && label != null) {
+                if (code == KEYCODE_NONE && label != null && label.length() > 0) {
                     for (int i = 0; i < label.length(); ++i) {
                         final KeyFcn fcn = new KeyFcn();
+                        switch (i) {
+                            case 0:
+                                break;
+                            case 1:
+                                fcn.modifiers = SHIFT;
+                                fcn.modifiersMask = SHIFT;
+                                setCircularPos(fcn, 0, 7);
+                                break;
+                            case 2:
+                                setCircularPos(fcn, 6, 7);
+                                break;
+                            case 3:
+                                setCircularPos(fcn, 0, 1);
+                                break;
+                            default:
+                                throw new InflateException("Invalid keyboard layout: " +
+                                        "Simple key notation is too long");
+                        }
                         fcn.code = -label.charAt(i);
                         fcn.label = Character.toString(label.charAt(i));
-                        functions.add(fcn);
+                        putFunction(fcn);
+                    }
+                    if (functions.size() < 3) {
+                        KeyFcn fcnB = functions.get(0);
+                        if (!hasCtrl(fcnB.code))
+                            fcnB = functions.get(1);
+                        if (hasCtrl(fcnB.code)) {
+                            final KeyFcn fcn = new KeyFcn();
+                            setCircularPos(fcn, 7, 8);
+                            fcn.code = fcnB.code;
+                            fcn.modifiers = CTRL;
+                            fcn.modifiersMask = CTRL;
+                            fcn.label = "^" + fcnB.label;
+                            putFunction(fcn);
+                        }
                     }
                 } else {
                     final KeyFcn fcn = new KeyFcn();
@@ -413,7 +461,7 @@ public class ExtKeyboard {
                     fcn.label = label;
                     fcn.icon = icon;
                     fcn.text = text;
-                    functions.add(fcn);
+                    putFunction(fcn);
                 }
 
                 showBothLabels = a.getBoolean(R.styleable.ExtKeyboard_Key_showBothLabels,
@@ -425,9 +473,48 @@ public class ExtKeyboard {
             }
         }
 
+        protected void putFunction(@NonNull final KeyFcn fcn) {
+            fcn.id = functions.size();
+            functions.add(fcn);
+            putModifierFunction(fcn.modifiers, fcn);
+        }
+
+        protected void putModifierFunction(final int modifiers, @Nullable final KeyFcn fcn) {
+            modifierFunctions.put(modifiers, fcn);
+        }
+
+        protected KeyFcn getModifierFunction(final int modifiers) {
+            return modifierFunctions.get(modifiers);
+        }
+
+        protected void setCircularPos(@NonNull final KeyFcn fcn, final int a, final int b) {
+            for (int i = a; i <= b; i++)
+                functionsCircularPos[i] = fcn;
+            fcn.iconCircularPos = (a + b + 1) *
+                    (float) Math.PI / functionsCircularPos.length;
+        }
+
+        protected static boolean hasCtrl(final int code) {
+            return code <= -0x40 && code > -0x80;
+        }
+
         public void addFunctionFromXml(@NonNull final Resources res,
                                        @NonNull final XmlResourceParser parser) {
-            final TypedArray a = res.obtainAttributes(Xml.asAttributeSet(parser),
+            final float positionStart;
+            final float positionEnd;
+            TypedArray a = res.obtainAttributes(Xml.asAttributeSet(parser),
+                    R.styleable.ExtKeyboard_Alt);
+            try {
+                positionStart = a.getFraction(
+                        R.styleable.ExtKeyboard_Alt_positionStart,
+                        1, 1, 0f);
+                positionEnd = a.getFraction(
+                        R.styleable.ExtKeyboard_Alt_positionEnd,
+                        1, 1, positionStart);
+            } finally {
+                a.recycle();
+            }
+            a = res.obtainAttributes(Xml.asAttributeSet(parser),
                     R.styleable.ExtKeyboard_Key);
             try {
                 final int code = a.getInt(
@@ -446,13 +533,32 @@ public class ExtKeyboard {
                 final CharSequence text = a.getText(R.styleable.ExtKeyboard_Key_keyOutputText);
 
                 final KeyFcn fcn = new KeyFcn();
+                if (positionStart < positionEnd) {
+                    setCircularPos(fcn,
+                            Math.round(positionStart * functionsCircularPos.length),
+                            Math.round(positionEnd * functionsCircularPos.length) - 1);
+                } else {
+                    switch (functions.size()) {
+                        case 0:
+                            break;
+                        case 1:
+                            setCircularPos(fcn, 0, 7);
+                            break;
+                        case 2:
+                            setCircularPos(fcn, 6, 8);
+                            break;
+                        default:
+                            throw new InflateException("Invalid keyboard layout: " +
+                                    "Undefined alt key function position");
+                    }
+                }
                 fcn.code = code;
                 fcn.modifiers = modifiers & 0xFFFF;
                 fcn.modifiersMask = modifiers >> 16;
                 fcn.label = label;
                 fcn.icon = icon;
                 fcn.text = text;
-                functions.add(fcn);
+                putFunction(fcn);
             } finally {
                 a.recycle();
             }
@@ -460,6 +566,11 @@ public class ExtKeyboard {
     }
 
     public static class KeyFcn {
+        /**
+         * List back-reference
+         * TODO: To be removed as long as key functions list representation; sooner - better
+         */
+        public int id = 0;
         /**
          * Key code (unicode or custom code) that this key will generate
          */
@@ -484,6 +595,10 @@ public class ExtKeyboard {
          * Text to output when pressed. This can be multiple characters, like ".com"
          */
         public CharSequence text = null;
+        /**
+         * Icon pos [rad, CW, zero on the left].
+         */
+        public float iconCircularPos = Float.NaN;
     }
 
     public static class Configuration {
@@ -601,7 +716,7 @@ public class ExtKeyboard {
             final KeyFcn fcn = new KeyFcn();
             fcn.label = String.valueOf(c);
             fcn.code = -c;
-            key.functions.add(fcn);
+            key.putFunction(fcn);
             column++;
             x += key.width + key.gap;
             mKeys.add(key);
@@ -820,7 +935,7 @@ public class ExtKeyboard {
                     } else if (TAG_ALT.equals(tag)) {
                         if (!inKey) throw new XmlPullParserException("An <Alt> is not in a <Key>");
                         if (key.type == Key.LED)
-                            throw new XmlPullParserException("Alt functions of LED");
+                            throw new InflateException("Alt functions of LED");
                         inAlt = true;
                         key.addFunctionFromXml(res, parser);
                     } else if (TAG_KEYBOARD.equals(tag)) {
