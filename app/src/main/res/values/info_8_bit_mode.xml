@@ -6,13 +6,13 @@
         <a href=\"https://en.wikipedia.org/wiki/C0_and_C1_control_codes#C1_control_codes_for_general_use\">Wikipedia</a>
         and
         <a href=\"https://invisible-island.net/xterm/ctlseqs/ctlseqs.html#h2-C1-_8-Bit_-Control-Characters\">invisible-island.net/xterm</a></p>
-        <p>Processing pipeline is organized this way:<br/>
+        <p>The processing pipeline is organized this way:<br/>
         <b>=&gt;
         <kbd>charset conversion</kbd>
         =&gt;
         <kbd>input parser</kbd>
         =&gt;
-        <img inline=\"true\" src=\"@drawable/ic_computer_black_48\" alt=\"&#x1F4BB;\" />
+        <img inline=\"true\" useTextColor=\"true\" src=\"@drawable/ic_computer_black_48\" alt=\"&#x1F4BB;\" />
         =&gt;
         <kbd>output generator</kbd>
         =&gt;

@@ -113,7 +113,7 @@ public final class ConsoleInput implements BytesSink {
     }
 
     /**
-     * @param level - 0 - VT52
+     * @param level 0 - VT52
      *              1 - VT100
      *              2 - VT200
      */
