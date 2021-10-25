@@ -1062,10 +1062,11 @@ public final class ConsoleInput implements BytesSink {
                             Misc.bitsAs(c, 4, l)
                     );
                 } else if (c < 232) {
+                    final int _c = c - 16;
                     color = Color.rgb(
-                            (c / 36) * 51,
-                            ((c / 6) % 6) * 51,
-                            (c % 6) * 51
+                            (_c / 36) * 51,
+                            ((_c / 6) % 6) * 51,
+                            (_c % 6) * 51
                     );
                 } else {
                     final int l = 8 + 10 * (c - 232);
