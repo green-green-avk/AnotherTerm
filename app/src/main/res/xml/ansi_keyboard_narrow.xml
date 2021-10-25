@@ -188,7 +188,13 @@
         <Key
             app:code="66"
             app:keyLabel="&#x23CE;"
-            app:keyWidth="11%p" /><!-- Enter -->
+            app:keyWidth="11%p"><!-- Enter -->
+            <Alt
+                app:keyLabel="&#x2387;&#x23CE;"
+                app:modifiers="altOn"
+                app:positionEnd="6.25%"
+                app:positionStart="-6.25%" />
+        </Key>
     </Row>
 
     <Row>
