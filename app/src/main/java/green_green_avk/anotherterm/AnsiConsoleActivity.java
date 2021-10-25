@@ -343,7 +343,8 @@ public final class AnsiConsoleActivity extends ConsoleActivity
             final BackendModule be = mSession.backend.wrapped;
             final List<Map.Entry<Method, BackendModule.ExportedUIMethod>> uiMethods =
                     new LinkedList<>(BackendsList.get(be.getClass()).meta.methods.entrySet());
-            Collections.sort(uiMethods, (o1, o2) -> o1.getValue().order() - o2.getValue().order());
+            Collections.sort(uiMethods,
+                    (o1, o2) -> Integer.compare(o1.getValue().order(), o2.getValue().order()));
             final ViewGroup moduleUiView = popupView.findViewById(R.id.module_ui);
             for (final Map.Entry<Method, BackendModule.ExportedUIMethod> m : uiMethods) {
                 final Class<?>[] paramTypes = m.getKey().getParameterTypes();
@@ -630,7 +631,7 @@ public final class AnsiConsoleActivity extends ConsoleActivity
                         final Charset charset = Charset.forName(charsetStr);
                         mSession.input.setCharset(charset);
                         mSession.output.setCharset(charset);
-                    } catch (IllegalArgumentException e) {
+                    } catch (final IllegalArgumentException e) {
                         Log.e("Charset", charsetStr, e);
                     }
                     refreshMenuPopup();
