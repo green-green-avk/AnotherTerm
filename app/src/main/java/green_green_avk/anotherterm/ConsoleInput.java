@@ -207,10 +207,22 @@ public final class ConsoleInput implements BytesSink {
         currScrBuf.setCurrentAttrs(mCurrAttrs);
     }
 
-    public void resize(int w, int h) {
+    public int getMaxBufferHeight() {
+        return mainScrBuf.getMaxBufferHeight();
+    }
+
+    public void setMaxBufferHeight(final int bh) {
+        mainScrBuf.setMaxBufferHeight(bh);
+    }
+
+    public void resize(final int w, final int h) {
+        resize(w, h, getMaxBufferHeight());
+    }
+
+    public void resize(int w, int h, final int bh) {
         final int ow = mainScrBuf.getWidth();
         final int oh = mainScrBuf.getHeight();
-        mainScrBuf.resize(w, h);
+        mainScrBuf.resize(w, h, bh);
         w = mainScrBuf.getWidth();
         h = mainScrBuf.getHeight();
         altScrBuf.resize(w, h, h);
@@ -1247,5 +1259,10 @@ public final class ConsoleInput implements BytesSink {
     { // Some specific values
         decPrivateMode.set(7, true); // Wrap
         decPrivateMode.save(7);
+    }
+
+    public void optimize() {
+        mainScrBuf.optimize();
+        altScrBuf.optimize();
     }
 }
