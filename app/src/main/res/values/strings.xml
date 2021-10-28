@@ -142,6 +142,7 @@
     </string>
     <string name="label_cols">Cols</string>
     <string name="label_rows">Rows</string>
+    <string name="label_buffer_rows">Max buffer rows</string>
     <string name="label_font_size">Font size</string>
     <string name="label_font_size_auto">Scale to fit</string>
     <string name="hint_font_size_auto">Scale font to fit</string>

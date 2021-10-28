@@ -370,4 +370,14 @@ public final class ConsoleService extends Service {
     public static void removeListener(@NonNull final Listener listener) {
         listeners.remove(listener);
     }
+
+    @Override
+    public void onTrimMemory(final int level) {
+        if (level >= TRIM_MEMORY_RUNNING_LOW && level < TRIM_MEMORY_UI_HIDDEN
+                || level >= TRIM_MEMORY_MODERATE)
+            for (final Session session : sessions.values())
+                if (session instanceof AnsiSession)
+                    ((AnsiSession) session).input.optimize();
+        super.onTrimMemory(level);
+    }
 }

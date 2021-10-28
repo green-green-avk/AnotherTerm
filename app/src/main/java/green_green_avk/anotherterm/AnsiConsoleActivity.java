@@ -656,6 +656,7 @@ public final class AnsiConsoleActivity extends ConsoleActivity
         final EditText wHeight = v.findViewById(R.id.height);
         final EditText wFontSize = v.findViewById(R.id.fontSize);
         final RadioGroup wOrientation = v.findViewById(R.id.orientation);
+        final EditText wBufferHeight = v.findViewById(R.id.bufferHeight);
         if (mCsv.resizeBufferXOnUi)
             wWidth.setHint(getString(R.string.hint_int_value_p_auto_p,
                     mSession.input.currScrBuf.getWidth()));
@@ -690,6 +691,7 @@ public final class AnsiConsoleActivity extends ConsoleActivity
             default:
                 wOrientation.check(R.id.orientation_default);
         }
+        wBufferHeight.setText(String.valueOf(mSession.input.getMaxBufferHeight()));
         new AlertDialog.Builder(this)
                 .setView(v)
                 .setTitle(R.string.dialog_title_terminal_screen)
@@ -697,6 +699,7 @@ public final class AnsiConsoleActivity extends ConsoleActivity
                     if (mSession != null) {
                         int width;
                         int height;
+                        int bufferHeight;
                         try {
                             width = Integer.parseInt(wWidth.getText().toString());
                         } catch (final IllegalArgumentException e) {
@@ -707,9 +710,14 @@ public final class AnsiConsoleActivity extends ConsoleActivity
                         } catch (final IllegalArgumentException e) {
                             height = 0;
                         }
+                        try {
+                            bufferHeight = Integer.parseInt(wBufferHeight.getText().toString());
+                        } catch (final IllegalArgumentException e) {
+                            bufferHeight = mSession.input.getMaxBufferHeight();
+                        }
                         final String fontSizeStr = wFontSize.getText().toString();
                         if (fontSizeStr.trim().isEmpty()) {
-                            mCsv.setScreenSize(width, height);
+                            mCsv.setScreenSize(width, height, bufferHeight);
                             autoFitTerminal = !mCsv.resizeBufferXOnUi || !mCsv.resizeBufferYOnUi;
                             if (autoFitTerminal) fitFontSize();
                         } else {
@@ -720,7 +728,7 @@ public final class AnsiConsoleActivity extends ConsoleActivity
                                 mCsv.setFontSize(clampFontSize(fontSize *
                                                 getResources().getDisplayMetrics().scaledDensity),
                                         false);
-                                mCsv.setScreenSize(width, height);
+                                mCsv.setScreenSize(width, height, bufferHeight);
                             } catch (final ParseException ignored) {
                             }
                         }

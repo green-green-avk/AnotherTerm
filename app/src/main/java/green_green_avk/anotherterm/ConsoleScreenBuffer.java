@@ -5,6 +5,7 @@ import android.graphics.Point;
 import android.graphics.Rect;
 import android.util.Log;
 
+import androidx.annotation.IntRange;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.core.math.MathUtils;
@@ -146,6 +147,16 @@ public final class ConsoleScreenBuffer {
                 for (final Row row : mRows.subList(lines, size()))
                     row.clear(DEF_CHAR_ATTRS);
                 mPoolSize = mRows.size() - lines;
+            }
+        }
+
+        public void optimize() {
+            if (mPoolSize > 0) {
+                // ??? mRows.subList(size(), mRows.size()).clear();
+                // Seems more efficient:
+                for (int i = mPoolSize; i > 0; i--)
+                    mRows.remove(mRows.size() - 1);
+                mPoolSize = 0;
             }
         }
 
@@ -405,16 +416,29 @@ public final class ConsoleScreenBuffer {
         return MathUtils.clamp(r, 0, mHeight - 1);
     }
 
-    public ConsoleScreenBuffer(final int w, final int h, final int bh) {
+    public ConsoleScreenBuffer(
+            @IntRange(from = 1, to = MAX_ROW_LEN) final int w,
+            @IntRange(from = 1, to = MAX_BUF_HEIGHT) final int h,
+            @IntRange(from = 1, to = MAX_BUF_HEIGHT) final int bh
+    ) {
         this(w, h, bh, DEF_CHAR_ATTRS);
     }
 
-    public ConsoleScreenBuffer(final int w, final int h, final int bh,
-                               @NonNull final ConsoleScreenCharAttrs da) {
+    public ConsoleScreenBuffer(
+            @IntRange(from = 1, to = MAX_ROW_LEN) final int w,
+            @IntRange(from = 1, to = MAX_BUF_HEIGHT) final int h,
+            @IntRange(from = 1, to = MAX_BUF_HEIGHT) final int bh,
+            @NonNull final ConsoleScreenCharAttrs da
+    ) {
         this(w, h, bh, encodeAttrs(da));
     }
 
-    public ConsoleScreenBuffer(final int w, final int h, final int bh, final int da) {
+    public ConsoleScreenBuffer(
+            @IntRange(from = 1, to = MAX_ROW_LEN) final int w,
+            @IntRange(from = 1, to = MAX_BUF_HEIGHT) final int h,
+            @IntRange(from = 1, to = MAX_BUF_HEIGHT) final int bh,
+            final int da
+    ) {
         if (w < 1 || w > MAX_ROW_LEN || h < 1 || h > bh || bh > MAX_BUF_HEIGHT)
             throw new IllegalArgumentException();
         mWidth = w;
@@ -436,6 +460,10 @@ public final class ConsoleScreenBuffer {
 
     public int getMaxBufferHeight() {
         return mBufHeight;
+    }
+
+    public void setMaxBufferHeight(final int bh) {
+        resize(mWidth, mHeight, bh);
     }
 
     public int getBufferHeight() {
@@ -463,8 +491,28 @@ public final class ConsoleScreenBuffer {
         resize(w, h, mBufHeight);
     }
 
-    public void resize(final int w, final int h, final int bh) {
-        if (w < 1 || w > MAX_ROW_LEN || h < 1 || h > bh || bh > MAX_BUF_HEIGHT) return;
+    public void resize(int w, int h, int bh) {
+        w = MathUtils.clamp(w, 1, MAX_ROW_LEN);
+        h = MathUtils.clamp(h, 1, MAX_BUF_HEIGHT);
+        bh = MathUtils.clamp(bh, h, MAX_BUF_HEIGHT);
+        _resize(w, h, bh);
+    }
+
+    public void resizeStrict(final int w, final int h) {
+        resizeStrict(w, h, mBufHeight);
+    }
+
+    public void resizeStrict(final int w, final int h, final int bh) {
+        if (w < 1 || w > MAX_ROW_LEN || h < 1 || h > bh || bh > MAX_BUF_HEIGHT)
+            throw new IllegalArgumentException();
+        _resize(w, h, bh);
+    }
+
+    private void _resize(final int w, final int h) {
+        _resize(w, h, mBufHeight);
+    }
+
+    private void _resize(final int w, final int h, final int bh) {
         int dh = h - mHeight;
         final int dc = h - 1 - mPos.y;
         if (dc < 0) dh -= dc;
@@ -1102,5 +1150,9 @@ public final class ConsoleScreenBuffer {
         endPos.x = x;
         endPos.y = y;
         return lenX;
+    }
+
+    public void optimize() {
+        mBuffer.optimize();
     }
 }
