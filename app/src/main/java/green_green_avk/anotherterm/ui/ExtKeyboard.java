@@ -989,9 +989,6 @@ public class ExtKeyboard {
                         inRow = false;
                         y += currentRow.verticalGap;
                         y += currentRow.defaultHeight;
-                    } else {
-                        throw new XmlPullParserException("Unexpected end tag <" +
-                                parser.getName() + ">");
                     }
                 }
             }
