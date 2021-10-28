@@ -28,6 +28,9 @@ public abstract class ScrollableView extends GestureView {
 
     public OnScroll onScroll = null;
 
+    protected final PointF toScrollPosition = new PointF();
+    protected boolean isToScrollPosition = false;
+
     public ScrollableView(final Context context) {
         super(context);
         mScroller = new ScrollerEx(getContext());
@@ -107,6 +110,11 @@ public abstract class ScrollableView extends GestureView {
             scrollPosition.y += toFloatY(mScroller.getDistanceY());
             invalidateScroll();
             ViewCompat.postInvalidateOnAnimation(this);
+        } else if (isToScrollPosition && !toScrollPosition.equals(scrollPosition)) {
+            isToScrollPosition = false;
+            scrollPosition.set(toScrollPosition);
+            invalidateScroll();
+            ViewCompat.postInvalidateOnAnimation(this);
         }
     }
 
@@ -162,6 +170,8 @@ public abstract class ScrollableView extends GestureView {
     public void doScrollTo(float x, float y) {
         x = MathUtils.clamp(x, getLeftScrollLimit(), getRightScrollLimit());
         y = MathUtils.clamp(y, getTopScrollLimit(), getBottomScrollLimit());
+        toScrollPosition.set(x, y);
+        isToScrollPosition = true;
         _doScrollBy(x - scrollPosition.x, y - scrollPosition.y);
     }
 }
