@@ -253,6 +253,12 @@ public final class AnsiConsoleActivity extends ConsoleActivity
     }
 
     @Override
+    protected void onStart() {
+        super.onStart();
+        mCsv.unfreezeBlinking();
+    }
+
+    @Override
     protected void onResume() {
         super.onResume();
         if (!ConsoleService.hasAnsiSession(mSessionKey)) {
@@ -296,6 +302,12 @@ public final class AnsiConsoleActivity extends ConsoleActivity
         mSession.uiState.screenOrientation = screenOrientation;
         mSession.thumbnail = mCsv.makeThumbnail(256, 128);
         super.onPause();
+    }
+
+    @Override
+    protected void onStop() {
+        mCsv.freezeBlinking();
+        super.onStop();
     }
 
     @Override
