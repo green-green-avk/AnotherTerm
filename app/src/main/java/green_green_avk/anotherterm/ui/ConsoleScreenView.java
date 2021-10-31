@@ -148,7 +148,6 @@ public class ConsoleScreenView extends ScrollableView
 
     public OnStateChange onStateChange = null;
 
-    private WeakHandler mHandler = null;
     private boolean mBlinkState = true;
     protected boolean hasVisibleBlinking = false;
     protected boolean isChanging = false;
@@ -583,26 +582,35 @@ public class ConsoleScreenView extends ScrollableView
         consoleInput.resize(cols, rows, bufferRows);
     }
 
+    private final WeakHandler mHandler = new WeakHandler() {
+        @Override
+        public void handleMessage(@NonNull final Message msg) {
+            switch (msg.what) {
+                case MSG_BLINK:
+                    mBlinkState = !mBlinkState;
+                    if (consoleInput != null)
+                        invalidateContent(hasVisibleBlinking ? null : getBufferDrawRect(
+                                consoleInput.currScrBuf.getAbsPosX(),
+                                consoleInput.currScrBuf.getAbsPosY()
+                        ));
+                    sendEmptyMessageDelayed(MSG_BLINK, INTERVAL_BLINK);
+                    break;
+            }
+        }
+    };
+
+    public void unfreezeBlinking() {
+        if (!mHandler.hasMessages(MSG_BLINK))
+            mHandler.sendEmptyMessage(MSG_BLINK);
+    }
+
+    public void freezeBlinking() {
+        mHandler.removeMessages(MSG_BLINK);
+    }
+
     @Override
     protected void onAttachedToWindow() {
         super.onAttachedToWindow();
-        mHandler = new WeakHandler() {
-            @Override
-            public void handleMessage(@NonNull final Message msg) {
-                switch (msg.what) {
-                    case MSG_BLINK:
-                        mBlinkState = !mBlinkState;
-                        if (consoleInput != null)
-                            invalidateContent(hasVisibleBlinking ? null : getBufferDrawRect(
-                                    consoleInput.currScrBuf.getAbsPosX(),
-                                    consoleInput.currScrBuf.getAbsPosY()
-                            ));
-                        sendEmptyMessageDelayed(MSG_BLINK, INTERVAL_BLINK);
-                        break;
-                }
-            }
-        };
-        mHandler.sendEmptyMessage(MSG_BLINK);
         adjustSelectionPopup();
     }
 
@@ -617,8 +625,7 @@ public class ConsoleScreenView extends ScrollableView
     @Override
     protected void onDetachedFromWindow() {
         selectionPopup.hide();
-        mHandler.removeMessages(MSG_BLINK);
-        mHandler = null;
+        freezeBlinking();
         super.onDetachedFromWindow();
     }
 
