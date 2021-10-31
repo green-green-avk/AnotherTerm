@@ -6,6 +6,7 @@ import android.content.ClipboardManager;
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.ActivityInfo;
+import android.graphics.Point;
 import android.graphics.Rect;
 import android.graphics.drawable.Drawable;
 import android.net.Uri;
@@ -56,6 +57,7 @@ import green_green_avk.anotherterm.backends.BackendException;
 import green_green_avk.anotherterm.backends.BackendModule;
 import green_green_avk.anotherterm.backends.BackendUiInteractionActivityCtx;
 import green_green_avk.anotherterm.backends.BackendsList;
+import green_green_avk.anotherterm.ui.ChoreographerCompat;
 import green_green_avk.anotherterm.ui.ConsoleKeyboardView;
 import green_green_avk.anotherterm.ui.ConsoleScreenView;
 import green_green_avk.anotherterm.ui.FontProvider;
@@ -477,8 +479,12 @@ public final class AnsiConsoleActivity extends ConsoleActivity
         refreshMenuPopup();
     }
 
-    @Override
-    public void onInvalidateSink(@Nullable final Rect rect) {
+    private final ChoreographerCompat choreographer = ChoreographerCompat.getInstance();
+
+    private boolean invalidating = false;
+
+    private void doInvalidateSink() {
+        invalidating = false;
         if (mSession != null) {
             if (mSession.input.currScrBuf.windowTitle != null)
                 setSessionTitle(mSession.input.currScrBuf.windowTitle);
@@ -495,13 +501,33 @@ public final class AnsiConsoleActivity extends ConsoleActivity
     }
 
     @Override
-    public void onInvalidateSinkResize(final int cols, final int rows) {
+    public void onInvalidateSink(@Nullable final Rect rect) {
+        if (!invalidating) {
+            invalidating = true;
+            choreographer.post(this::doInvalidateSink);
+        }
+    }
+
+    private final Point invalidatingSize = new Point();
+
+    private void doInvalidateSinkResize() {
+        final int cols = invalidatingSize.x;
+        final int rows = invalidatingSize.y;
+        invalidatingSize.set(0, 0);
         if (autoFitTerminal) fitFontSize();
         final Toast t = Toast.makeText(this,
                 getString(R.string.label_dims_i2, cols, rows),
                 Toast.LENGTH_SHORT);
         t.setGravity(Gravity.CENTER, 0, 0);
         t.show();
+    }
+
+    @Override
+    public void onInvalidateSinkResize(final int cols, final int rows) {
+        final boolean doPost = invalidatingSize.x <= 0 || invalidatingSize.y <= 0;
+        invalidatingSize.set(cols, rows);
+        if (doPost)
+            choreographer.post(this::doInvalidateSinkResize);
     }
 
     public void setSessionTitle(@Nullable final CharSequence title) {

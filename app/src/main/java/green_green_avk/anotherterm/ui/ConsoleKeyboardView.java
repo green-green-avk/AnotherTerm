@@ -111,8 +111,10 @@ public class ConsoleKeyboardView extends ExtKeyboardView implements
     private boolean capsLed = false;
     private boolean scrollLed = false;
 
-    @Override
-    public void onInvalidateSink(@Nullable final Rect rect) {
+    protected boolean invalidating = false;
+
+    protected void doInvalidateSink() {
+        invalidating = false;
         if (consoleInput != null) {
             if (consoleInput.numLed != numLed) {
                 numLed = consoleInput.numLed;
@@ -132,6 +134,14 @@ public class ConsoleKeyboardView extends ExtKeyboardView implements
         }
         if (consoleOutput != null) {
             setLayoutRes(consoleOutput.getLayoutRes());
+        }
+    }
+
+    @Override
+    public void onInvalidateSink(@Nullable final Rect rect) {
+        if (!invalidating) {
+            invalidating = true;
+            ViewCompat.postOnAnimation(this, this::doInvalidateSink);
         }
     }
 
