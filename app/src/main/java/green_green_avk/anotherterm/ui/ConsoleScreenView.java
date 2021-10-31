@@ -596,7 +596,7 @@ public class ConsoleScreenView extends ScrollableView
                     case MSG_BLINK:
                         mBlinkState = !mBlinkState;
                         if (consoleInput != null)
-                            invalidate(getBufferDrawRect(
+                            invalidateContent(getBufferDrawRect(
                                     consoleInput.currScrBuf.getAbsPosX(),
                                     consoleInput.currScrBuf.getAbsPosY()
                             ));
@@ -1075,22 +1075,59 @@ public class ConsoleScreenView extends ScrollableView
         return r;
     }
 
+    public void invalidateContent(@Nullable final Rect rect) {
+        onInvalidateSink(rect);
+    }
+
     protected boolean wasAltBuf = false;
+
+    protected boolean invalidatingAll = false;
+    protected final Rect invalidatingRegion = new Rect();
+
+    protected void doInvalidateSink() {
+        try {
+            if (consoleInput != null) {
+                if (!wasAltBuf && consoleInput.isAltBuf())
+                    invalidateScroll();
+                wasAltBuf = consoleInput.isAltBuf();
+            }
+            if (invalidatingAll)
+                invalidate();
+            else
+                invalidate(invalidatingRegion);
+        } finally {
+            invalidatingAll = false;
+            invalidatingRegion.setEmpty();
+        }
+    }
 
     @Override
     public void onInvalidateSink(@Nullable final Rect rect) {
-        if (consoleInput != null) {
-            if (!wasAltBuf && consoleInput.isAltBuf())
-                invalidateScroll();
-            wasAltBuf = consoleInput.isAltBuf();
+        final boolean doPost = !invalidatingAll && invalidatingRegion.isEmpty();
+        if (rect == null)
+            invalidatingAll = true;
+        else if (!invalidatingAll)
+            invalidatingRegion.union(rect);
+        if (doPost)
+            ViewCompat.postOnAnimation(this, this::doInvalidateSink);
+    }
+
+    protected final Point invalidatingSize = new Point();
+
+    protected void doInvalidateSinkResize() {
+        try {
+            invalidateScroll();
+        } finally {
+            invalidatingSize.set(0, 0);
         }
-        if (rect == null) ViewCompat.postInvalidateOnAnimation(this);
-        else invalidate(rect);
     }
 
     @Override
     public void onInvalidateSinkResize(final int cols, final int rows) {
-        invalidateScroll();
+        final boolean doPost = invalidatingSize.x <= 0 || invalidatingSize.y <= 0;
+        invalidatingSize.set(cols, rows);
+        if (doPost)
+            ViewCompat.postOnAnimation(this, this::doInvalidateSinkResize);
     }
 
     @Override
