@@ -64,19 +64,18 @@ public class WeakHandler {
             if (wh == null) return;
             if (msg.obj instanceof ObjWrapper) {
                 final Object o = ((ObjWrapper) msg.obj).obj.get();
-                if (o == null) throw new Exception("Abnormal state");
+                if (o == null) return;
                 msg.obj = o;
             }
             final Runnable rw = msg.getCallback();
             if (rw instanceof RunnableWrapper) {
                 final Runnable r = ((RunnableWrapper) rw).runnable.get();
-                if (r == null) throw new Exception("Abnormal state");
+                if (r == null) return;
                 final Message m = Message.obtain(this, r);
                 copy(m, msg);
                 wh.dispatchMessage(m);
                 m.recycle();
                 return;
-
             }
             wh.dispatchMessage(msg);
         }
