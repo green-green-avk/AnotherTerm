@@ -116,7 +116,6 @@ public class ConsoleScreenView extends ScrollableView
     protected Drawable selectionMarkerPad = null;
     protected Drawable selectionMarkerOOB = null;
     protected Drawable selectionWrappedLineMarker = null;
-    protected Drawable attrMarkupBlinking = null;
     protected Drawable paddingMarkup = null;
 
     protected int terminalScrollOffset = 0; // px
@@ -149,8 +148,9 @@ public class ConsoleScreenView extends ScrollableView
 
     public OnStateChange onStateChange = null;
 
-    private boolean mBlinkState = true;
     private WeakHandler mHandler = null;
+    private boolean mBlinkState = true;
+    protected boolean hasVisibleBlinking = false;
     protected boolean isChanging = false;
 
     protected static final int[] noneSelectionModeState = new int[0];
@@ -505,8 +505,6 @@ public class ConsoleScreenView extends ScrollableView
             terminalScrollVerticalLayout =
                     a.getResourceId(R.styleable.ConsoleScreenView_terminalVerticalScrollbarLayout,
                             terminalScrollVerticalLayout);
-            attrMarkupBlinking = AppCompatResources.getDrawable(context,
-                    a.getResourceId(R.styleable.ConsoleScreenView_attrMarkupBlinking, 0));
             attrMarkupAlpha = (int) (a.getFloat(R.styleable.ConsoleScreenView_attrMarkupAlpha,
                     0.5f) * 255);
             paddingMarkup = AppCompatResources.getDrawable(context,
@@ -517,7 +515,6 @@ public class ConsoleScreenView extends ScrollableView
             a.recycle();
         }
 
-        attrMarkupBlinking.setAlpha(attrMarkupAlpha);
         paddingMarkup.setAlpha(paddingMarkupAlpha);
 
         cursorPaint.setColor(cursorColor);
@@ -596,7 +593,7 @@ public class ConsoleScreenView extends ScrollableView
                     case MSG_BLINK:
                         mBlinkState = !mBlinkState;
                         if (consoleInput != null)
-                            invalidateContent(getBufferDrawRect(
+                            invalidateContent(hasVisibleBlinking ? null : getBufferDrawRect(
                                     consoleInput.currScrBuf.getAbsPosX(),
                                     consoleInput.currScrBuf.getAbsPosY()
                             ));
@@ -1945,6 +1942,7 @@ public class ConsoleScreenView extends ScrollableView
     protected void drawContent(@NonNull final Canvas canvas) {
         if (consoleInput != null) {
 //            canvas.drawColor(charAttrs.bgColor);
+            boolean _hasVisibleBlinking = false;
             final float vDivBuf = getBufferDrawPosYF(0) - 1;
             final float vDivBottom = getBufferDrawPosYF(consoleInput.currScrBuf.getHeight()) - 1;
             final float hDiv = getBufferDrawPosXF(consoleInput.currScrBuf.getWidth()) - 1;
@@ -1965,8 +1963,6 @@ public class ConsoleScreenView extends ScrollableView
                                 charAttrs);
                         applyCharAttrs();
                         canvas.drawRect(strFragLeft, strTop, getWidth(), strBottom, bgPaint);
-                        if (charAttrs.blinking) drawDrawable(canvas, attrMarkupBlinking,
-                                (int) strFragLeft, (int) strTop, getWidth(), (int) strBottom);
                         break;
                     }
                     ConsoleScreenBuffer.decodeAttrs(_draw_run.attrs, charAttrs);
@@ -1976,8 +1972,6 @@ public class ConsoleScreenView extends ScrollableView
                         // background is only for non-zero length glyphs
                         // see https://en.wikipedia.org/wiki/Combining_character
                         canvas.drawRect(strFragLeft, strTop, strFragRight, strBottom, bgPaint);
-                        if (charAttrs.blinking) drawDrawable(canvas, attrMarkupBlinking,
-                                (int) strFragLeft, (int) strTop, (int) strFragRight, (int) strBottom);
                     }
                     if (!charAttrs.invisible && charAttrs.fgColor != charAttrs.bgColor &&
                             _draw_run.length > 0 && !isAllSpaces(_draw_run)) {
@@ -1988,13 +1982,17 @@ public class ConsoleScreenView extends ScrollableView
                                             fgPaint.measureText(_draw_run.text,
                                                     _draw_run.start, _draw_run.length)
                             );
-                        canvas.drawText(_draw_run.text, _draw_run.start, _draw_run.length,
-                                strFragLeft, strTop - fgPaint.ascent(), fgPaint);
+                        _hasVisibleBlinking |= charAttrs.blinking;
+                        if (!charAttrs.blinking || mBlinkState)
+                            canvas.drawText(_draw_run.text,
+                                    _draw_run.start, _draw_run.length,
+                                    strFragLeft, strTop - fgPaint.ascent(), fgPaint);
                     }
                     i += sr;
                 }
                 _draw_run.reinit();
             }
+            hasVisibleBlinking = _hasVisibleBlinking;
             if (paddingMarkup != null) {
                 if (vDivBottom < getHeight())
                     drawDrawable(canvas, paddingMarkup, 0, (int) vDivBottom,
