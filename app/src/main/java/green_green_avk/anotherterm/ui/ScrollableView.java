@@ -28,8 +28,11 @@ public abstract class ScrollableView extends GestureView {
 
     public OnScroll onScroll = null;
 
-    protected final PointF toScrollPosition = new PointF();
-    protected boolean isToScrollPosition = false;
+    public interface OnScrollEnd {
+        void onScrollEnd(@NonNull ScrollableView scrollableView);
+    }
+
+    protected OnScrollEnd mOnScrollEnd = null;
 
     public ScrollableView(final Context context) {
         super(context);
@@ -55,7 +58,7 @@ public abstract class ScrollableView extends GestureView {
     }
 
     public void setScrollScale(final float x, final float y) {
-        mScroller.forceFinished(true);
+        forceFinish();
         scrollScale.x = x;
         scrollScale.y = y;
     }
@@ -110,11 +113,12 @@ public abstract class ScrollableView extends GestureView {
             scrollPosition.y += toFloatY(mScroller.getDistanceY());
             invalidateScroll();
             ViewCompat.postInvalidateOnAnimation(this);
-        } else if (isToScrollPosition && !toScrollPosition.equals(scrollPosition)) {
-            isToScrollPosition = false;
-            scrollPosition.set(toScrollPosition);
-            invalidateScroll();
-            ViewCompat.postInvalidateOnAnimation(this);
+        } else if (mOnScrollEnd != null) {
+            try {
+                mOnScrollEnd.onScrollEnd(this);
+            } finally {
+                mOnScrollEnd = null;
+            }
         }
     }
 
@@ -126,9 +130,14 @@ public abstract class ScrollableView extends GestureView {
         execOnScroll();
     }
 
+    public void forceFinish() {
+        mScroller.forceFinished(true);
+        mOnScrollEnd = null;
+    }
+
     @Override
     public boolean onDown(final MotionEvent e) {
-        mScroller.forceFinished(true);
+        forceFinish();
         return true;
     }
 
@@ -146,7 +155,7 @@ public abstract class ScrollableView extends GestureView {
     @Override
     public boolean onFling(final MotionEvent e1, final MotionEvent e2,
                            final float velocityX, final float velocityY) {
-        mScroller.forceFinished(true);
+        forceFinish();
         if (scrollDisabled) return true;
         mScroller.fling(0, 0,
                 -(int) velocityX, -(int) velocityY,
@@ -160,18 +169,29 @@ public abstract class ScrollableView extends GestureView {
     }
 
     // In own units
-    protected void _doScrollBy(final float x, final float y) {
-        mScroller.forceFinished(true);
+    protected void _doScrollBy(final float x, final float y,
+                               @Nullable final OnScrollEnd onScrollEnd) {
+        forceFinish();
+        mOnScrollEnd = onScrollEnd;
         mScroller.startScroll(0, 0, toIntX(x), toIntY(y));
         ViewCompat.postInvalidateOnAnimation(this);
     }
 
     // In own units
-    public void doScrollTo(float x, float y) {
+    public void doScrollTo(float x, float y,
+                           @Nullable final OnScrollEnd onScrollEnd) {
         x = MathUtils.clamp(x, getLeftScrollLimit(), getRightScrollLimit());
         y = MathUtils.clamp(y, getTopScrollLimit(), getBottomScrollLimit());
-        toScrollPosition.set(x, y);
-        isToScrollPosition = true;
-        _doScrollBy(x - scrollPosition.x, y - scrollPosition.y);
+        _doScrollBy(x - scrollPosition.x, y - scrollPosition.y, onScrollEnd);
+    }
+
+    // In own units
+    public void doScrollToImmediate(float x, float y) {
+        forceFinish();
+        x = MathUtils.clamp(x, getLeftScrollLimit(), getRightScrollLimit());
+        y = MathUtils.clamp(y, getTopScrollLimit(), getBottomScrollLimit());
+        scrollPosition.set(x, y);
+        invalidateScroll();
+        ViewCompat.postInvalidateOnAnimation(this);
     }
 }
