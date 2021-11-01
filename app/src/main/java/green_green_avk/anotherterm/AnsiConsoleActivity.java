@@ -875,6 +875,7 @@ public final class AnsiConsoleActivity extends ConsoleActivity
     }
 
     public void onScrollHome(final View v) {
-        mCsv.doScrollTo(0F, 0F);
+        mCsv.doScrollTo(0F, 0F, scrollableView ->
+                scrollableView.doScrollToImmediate(0F, 0F));
     }
 }

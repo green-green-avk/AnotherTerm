@@ -375,8 +375,8 @@ public class ConsoleScreenView extends ScrollableView
             setSelectionIsRect(false);
             setSelectionModeIsExpr(false);
             invalidateSelectionUi(true);
-            if (!isOnScreen(selection.first.x, selection.first.y))
-                doScrollTextCenterTo(selection.first.x, selection.first.y);
+            if (!isOnScreen(selectionMarkerFirst.x, selectionMarkerFirst.y))
+                doScrollTextCenterTo(selectionMarkerFirst);
         }
 
         protected void calcPos() {
@@ -945,7 +945,15 @@ public class ConsoleScreenView extends ScrollableView
     }
 
     public void doScrollTextCenterTo(final float x, final float y) {
-        doScrollTo(x - (float) getCols() / 2, y - (float) getRows() / 2);
+        doScrollToImmediate(x - (float) getCols() / 2, y - (float) getRows() / 2);
+    }
+
+    public void doScrollTextCenterTo(@NonNull final PointF marker) {
+        doScrollTo(marker.x - (float) getCols() / 2,
+                marker.y - (float) getRows() / 2,
+                scrollableView ->
+                        doScrollToImmediate(marker.x - (float) getCols() / 2,
+                                marker.y - (float) getRows() / 2));
     }
 
     @Override
@@ -1258,7 +1266,7 @@ public class ConsoleScreenView extends ScrollableView
                 case MotionEvent.ACTION_UP:
                     if (selectionMarker != null) {
                         if (!isOnScreen(selectionMarker.x, selectionMarker.y))
-                            doScrollTextCenterTo(selectionMarker.x, selectionMarker.y);
+                            doScrollTextCenterTo(selectionMarker);
                         unsetCurrentSelectionMarker();
                         inGesture = false;
                         onSelectionChanged();
