@@ -1,6 +1,5 @@
 package green_green_avk.anotherterm.backends;
 
-import android.annotation.SuppressLint;
 import android.os.Handler;
 import android.os.HandlerThread;
 import android.os.Looper;
@@ -8,6 +7,7 @@ import android.os.Message;
 import android.util.Log;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 
 import java.io.IOException;
 import java.io.OutputStream;
@@ -29,6 +29,7 @@ public final class EventBasedBackendModuleWrapper {
 
     @NonNull
     public final BackendModule wrapped;
+    private volatile boolean isStopped = false;
     private volatile boolean isStopping = false;
     private volatile boolean isConnected = false;
     private volatile boolean isConnecting = false;
@@ -36,8 +37,7 @@ public final class EventBasedBackendModuleWrapper {
 
     private final Object readLock = new Object();
 
-    @SuppressLint("HandlerLeak")
-    private Handler handler = new Handler() {
+    private final Handler handler = new Handler(Looper.myLooper()) {
         @Override
         public void handleMessage(@NonNull final Message msg) {
             if (listener == null) return;
@@ -85,12 +85,24 @@ public final class EventBasedBackendModuleWrapper {
         }
     };
     private final HandlerThread serviceThread = new HandlerThread("Backend service");
-    private Handler serviceHandler;
+    private final Handler serviceHandler;
     private final Object scrLock = new Object();
     private int scrC;
     private int scrR;
     private int scrW;
     private int scrH;
+
+    private boolean sendEvent(final int what) {
+        return !isStopped && handler.sendEmptyMessage(what);
+    }
+
+    private boolean sendEvent(final int what, final long delayMillis) {
+        return !isStopped && handler.sendEmptyMessageDelayed(what, delayMillis);
+    }
+
+    private boolean sendEvent(final int what, @Nullable final Object obj) {
+        return !isStopped && handler.sendMessage(handler.obtainMessage(what, obj));
+    }
 
     public interface Listener {
         void onConnecting();
@@ -110,7 +122,107 @@ public final class EventBasedBackendModuleWrapper {
                                           @NonNull final Listener listener) {
         wrapped = module;
         this.listener = listener;
-        init();
+        wrapped.setOnMessageListener(new BackendModule.OnMessageListener() {
+            @Override
+            public void onMessage(@NonNull final Object msg) {
+                if (msg instanceof Throwable)
+                    sendEvent(MSG_ERROR, msg);
+                else if (msg instanceof BackendModule.DisconnectStateMessage)
+                    sendEvent(MSG_DISCONNECTED, msg);
+            }
+        });
+        wrapped.setOutputStream(new OutputStream() {
+            @Override
+            public void close() throws IOException {
+                sendEvent(MSG_DISCONNECTED);
+                super.close();
+            }
+
+            private void _write(@NonNull final ByteBuffer b) {
+                synchronized (readLock) {
+                    sendEvent(MSG_READ, b);
+                    try {
+                        readLock.wait();
+                    } catch (final InterruptedException ignored) {
+                    }
+                }
+            }
+
+            @Override
+            public void write(final int b) {
+                _write(ByteBuffer.wrap(new byte[]{(byte) b}));
+            }
+
+            @Override
+            public void write(@NonNull final byte[] b, final int off, final int len) {
+                _write(ByteBuffer.wrap(b, off, len));
+            }
+
+            @Override
+            public void write(@NonNull final byte[] b) {
+                _write(ByteBuffer.wrap(b));
+            }
+        });
+        serviceThread.setDaemon(true);
+        serviceThread.start();
+        serviceHandler = new Handler(serviceThread.getLooper()) {
+            @Override
+            public void handleMessage(@NonNull final Message msg) {
+                try {
+                    switch (msg.what) {
+                        case MSG_S_WRITE: {
+                            final OutputStream os = wrapped.getOutputStream();
+                            try {
+                                os.write((byte[]) msg.obj);
+                                os.flush();
+                            } catch (final BackendException | IOException e) {
+                                sendEvent(MSG_ERROR, e);
+                            }
+                            break;
+                        }
+                        case MSG_S_CONNECT:
+                            try {
+                                sendEvent(MSG_CONNECTING);
+                                wrapped.connect();
+                                sendEvent(MSG_CONNECTED);
+                            } catch (final BackendException e) {
+                                sendEvent(MSG_ERROR, e);
+                            }
+                            break;
+                        case MSG_S_DISCONNECT:
+                            try {
+                                wrapped.disconnect();
+                                sendEvent(MSG_DISCONNECTED);
+                            } catch (final BackendException e) {
+                                sendEvent(MSG_ERROR, e);
+                            }
+                            break;
+                        case MSG_S_RESIZE: {
+                            final int _scrC, _scrR, _scrW, _scrH;
+                            synchronized (scrLock) {
+                                _scrC = scrC;
+                                _scrR = scrR;
+                                _scrW = scrW;
+                                _scrH = scrH;
+                            }
+                            try {
+                                wrapped.resize(_scrC, _scrR, _scrW, _scrH);
+                            } catch (final BackendException e) {
+                                sendEvent(MSG_ERROR, e);
+                            }
+                            break;
+                        }
+                    }
+                } catch (final BackendInterruptedException e) {
+                    if (isStopped) return; // Good
+                    // Your hamster seems broken...
+                    sendEvent(MSG_ERROR, e);
+                    sendEvent(MSG_DISCONNECTED);
+                    isStopped = true;
+                    Looper.myLooper().quit(); // Bailing out
+                }
+            }
+        };
     }
 
     public boolean isConnected() {
@@ -127,118 +239,6 @@ public final class EventBasedBackendModuleWrapper {
 
     public void disconnect() {
         serviceHandler.sendEmptyMessage(MSG_S_DISCONNECT);
-    }
-
-    private void init() {
-        wrapped.setOnMessageListener(new BackendModule.OnMessageListener() {
-            @Override
-            public void onMessage(@NonNull final Object msg) {
-                if (msg instanceof Throwable)
-                    handler.obtainMessage(MSG_ERROR, msg).sendToTarget();
-                else if (msg instanceof BackendModule.DisconnectStateMessage)
-                    handler.obtainMessage(MSG_DISCONNECTED, msg).sendToTarget();
-            }
-        });
-        wrapped.setOutputStream(new OutputStream() {
-            @Override
-            public void close() throws IOException {
-                handler.obtainMessage(MSG_DISCONNECTED).sendToTarget();
-                super.close();
-            }
-
-            @Override
-            public void write(final int b) {
-                synchronized (readLock) {
-                    handler.obtainMessage(MSG_READ, ByteBuffer.wrap(new byte[]{(byte) b})).sendToTarget();
-                    try {
-                        readLock.wait();
-                    } catch (final InterruptedException ignored) {
-                    }
-                }
-            }
-
-            @Override
-            public void write(@NonNull final byte[] b, final int off, final int len) {
-                synchronized (readLock) {
-                    handler.obtainMessage(MSG_READ, ByteBuffer.wrap(b, off, len)).sendToTarget();
-                    try {
-                        readLock.wait();
-                    } catch (final InterruptedException ignored) {
-                    }
-                }
-            }
-
-            @Override
-            public void write(@NonNull final byte[] b) {
-                synchronized (readLock) {
-                    handler.obtainMessage(MSG_READ, ByteBuffer.wrap(b)).sendToTarget();
-                    try {
-                        readLock.wait();
-                    } catch (final InterruptedException ignored) {
-                    }
-                }
-            }
-        });
-        serviceThread.setDaemon(true);
-        serviceThread.start();
-        serviceHandler = new Handler(serviceThread.getLooper()) {
-            @Override
-            public void handleMessage(@NonNull final Message msg) {
-                try {
-                    switch (msg.what) {
-                        case MSG_S_WRITE: {
-                            final OutputStream os = wrapped.getOutputStream();
-                            try {
-                                os.write((byte[]) msg.obj);
-                                os.flush();
-                            } catch (final BackendException | IOException e) {
-                                handler.obtainMessage(MSG_ERROR, e).sendToTarget();
-                            }
-                            break;
-                        }
-                        case MSG_S_CONNECT:
-                            try {
-                                handler.sendEmptyMessage(MSG_CONNECTING);
-                                wrapped.connect();
-                                handler.sendEmptyMessage(MSG_CONNECTED);
-                            } catch (final BackendException e) {
-                                handler.obtainMessage(MSG_ERROR, e).sendToTarget();
-                            }
-                            break;
-                        case MSG_S_DISCONNECT:
-                            try {
-                                wrapped.disconnect();
-                                handler.sendEmptyMessage(MSG_DISCONNECTED);
-                            } catch (final BackendException e) {
-                                handler.obtainMessage(MSG_ERROR, e).sendToTarget();
-                            }
-                            break;
-                        case MSG_S_RESIZE: {
-                            final int _scrC, _scrR, _scrW, _scrH;
-                            synchronized (scrLock) {
-                                _scrC = scrC;
-                                _scrR = scrR;
-                                _scrW = scrW;
-                                _scrH = scrH;
-                            }
-                            try {
-                                wrapped.resize(_scrC, _scrR, _scrW, _scrH);
-                            } catch (final BackendException e) {
-                                handler.obtainMessage(MSG_ERROR, e).sendToTarget();
-                            }
-                            break;
-                        }
-                    }
-                } catch (final BackendInterruptedException e) {
-                    if (isStopping) return; // Good
-                    // Your hamster seems broken...
-                    handler.obtainMessage(MSG_ERROR, e).sendToTarget();
-                    handler.sendEmptyMessage(MSG_DISCONNECTED);
-                    isStopping = true;
-                    Looper.myLooper().quit(); // Bailing out
-                }
-            }
-        };
     }
 
     @Override
@@ -264,15 +264,17 @@ public final class EventBasedBackendModuleWrapper {
     }
 
     public void stop() {
-        disconnect();
-        handler.sendEmptyMessageDelayed(MSG_STOP, 1000); // Graceful
-        handler.sendEmptyMessageDelayed(MSG_KILL_SERV, 3000);
+        if (!isStopping) {
+            disconnect();
+            handler.sendEmptyMessageDelayed(MSG_STOP, 1000); // Graceful
+            handler.sendEmptyMessageDelayed(MSG_KILL_SERV, 3000);
+            isStopping = true;
+        }
     }
 
     public void destroy() {
         serviceThread.quit();
-        isStopping = true;
+        isStopped = true;
         serviceThread.interrupt();
-        handler = new Handler();
     }
 }
