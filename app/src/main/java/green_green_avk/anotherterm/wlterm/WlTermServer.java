@@ -1,4 +1,4 @@
-package green_green_avk.anotherterm;
+package green_green_avk.anotherterm.wlterm;
 
 import android.content.Context;
 import android.graphics.Matrix;
@@ -20,6 +20,11 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.UiThread;
 
+import org.apache.commons.collections4.map.AbstractReferenceMap;
+import org.apache.commons.collections4.map.ReferenceMap;
+
+import java.io.DataInputStream;
+import java.io.DataOutputStream;
 import java.io.EOFException;
 import java.io.FileDescriptor;
 import java.io.IOException;
@@ -28,15 +33,22 @@ import java.io.InterruptedIOException;
 import java.io.OutputStream;
 import java.nio.ByteBuffer;
 import java.util.Collections;
+import java.util.Locale;
+import java.util.Map;
 import java.util.Queue;
 import java.util.concurrent.ConcurrentLinkedQueue;
+import java.util.concurrent.Semaphore;
 
+import green_green_avk.anotherterm.BuildConfig;
+import green_green_avk.anotherterm.ConsoleService;
+import green_green_avk.anotherterm.GraphicsCompositor;
 import green_green_avk.ptyprocess.PtyProcess;
 import green_green_avk.wayland.os.WlEventHandler;
 import green_green_avk.wayland.os.WlMmap;
 import green_green_avk.wayland.os.WlSocket;
 import green_green_avk.wayland.protocol.wayland.wl_buffer;
 import green_green_avk.wayland.protocol.wayland.wl_compositor;
+import green_green_avk.wayland.protocol.wayland.wl_display;
 import green_green_avk.wayland.protocol.wayland.wl_keyboard;
 import green_green_avk.wayland.protocol.wayland.wl_output;
 import green_green_avk.wayland.protocol.wayland.wl_pointer;
@@ -59,6 +71,23 @@ import green_green_avk.wayland.server.WlShm;
 public final class WlTermServer {
     private static final String TAG = "WlTermServer";
 
+    private interface IORunnable {
+        void run() throws IOException;
+    }
+
+    /**
+     * Embedded custom protocol representation.
+     */
+    private static final class WlOwnCustomProtocolException extends WlOwnCustomException {
+        @NonNull
+        private final IORunnable handler;
+
+        private WlOwnCustomProtocolException(@NonNull final IORunnable handler) {
+            super();
+            this.handler = handler;
+        }
+    }
+
     @NonNull
     private final Context ctx;
     private final Handler uiHandler = new Handler(Looper.getMainLooper());
@@ -68,9 +97,49 @@ public final class WlTermServer {
     private final Handler wlHandler;
     private final WlDisplay wlDisplay = new WlDisplay();
 
-    private final class ClientTask extends AsyncTask<Object, Object, Object> {
+    private static final class ConnectionState {
         private int sessionKey = ConsoleService.INVALID_SESSION;
-        private boolean isStopped = false;
+        private boolean isRunning = false;
+    }
+
+    private interface WlSocketImpl extends WlSocket {
+        void shutdownAndClose();
+    }
+
+    private final class ClientTask extends AsyncTask<Object, Object, Object> {
+        private final ConnectionState state = new ConnectionState();
+
+        private void initNewSession(@NonNull final WlClientImpl wlClient) {
+            wlClient.removeResource(WlClientImpl.TWEAK_ID); // Be ninja
+            final GraphicsCompositor compositor = new GraphicsCompositor();
+            compositor.source = new GraphicsCompositor.Source() {
+                @Override
+                @UiThread
+                public void onStop() {
+                    state.isRunning = false;
+                    wlHandler.post(() -> {
+                        ((WlSocketImpl) wlClient.socket).shutdownAndClose();
+                        wlClient.wlOwnHelper.remove();
+                    });
+                }
+
+                @Override
+                public void onResize(final int width, final int height) {
+                    wlHandler.post(() -> {
+                        if (wlClient.wlOutputRes != null)
+                            wlClient.wlOutputRes.onResize(width, height);
+                    });
+                }
+            };
+            wlClient.compositor = compositor;
+            uiHandler.post(() -> {
+                state.sessionKey = ConsoleService.startGraphicsSession(ctx, compositor);
+                state.isRunning = true;
+                // TODO: show UI?
+            });
+        }
+
+        volatile IORunnable customHandler = null;
 
         @Override
         @Nullable
@@ -87,7 +156,7 @@ public final class WlTermServer {
                 }
                 return null;
             }
-            final WlSocket wlSocket = new WlSocket() {
+            final WlSocket wlSocket = new WlSocketImpl() {
                 @Override
                 @NonNull
                 public InputStream getInputStream() throws IOException {
@@ -148,6 +217,16 @@ public final class WlTermServer {
                     else
                         socket.setFileDescriptorsForSend(fds);
                 }
+
+                @Override
+                public void shutdownAndClose() {
+                    try {
+                        PtyProcess.shutdown(socket.getFileDescriptor(),
+                                PtyProcess.SHUT_RDWR);
+                        socket.close(); // TODO: correct
+                    } catch (final IOException ignored) {
+                    }
+                }
             };
             final InputStream is;
             final WlClientImpl wlClient;
@@ -161,64 +240,52 @@ public final class WlTermServer {
                 }
                 return null;
             }
-            wlClient = new WlClientImpl(wlDisplay, wlSocket, null);
-            wlHandler.post(() -> {
-                wlClient.init();
-                final GraphicsCompositor compositor = new GraphicsCompositor();
-                compositor.source = new GraphicsCompositor.Source() {
-                    @Override
-                    @UiThread
-                    public void onStop() {
-                        isStopped = true;
-                        wlHandler.post(() -> {
-                            try {
-                                PtyProcess.shutdown(socket.getFileDescriptor(),
-                                        PtyProcess.SHUT_RDWR);
-                                socket.close(); // TODO: correct
-                            } catch (final IOException ignored) {
-                            }
-                        });
-                    }
-
-                    @Override
-                    public void onResize(final int width, final int height) {
-                        wlHandler.post(() -> {
-                            if (wlClient.wlOutputRes != null)
-                                wlClient.wlOutputRes.onResize(width, height);
-                        });
-                    }
-                };
-                wlClient.compositor = compositor;
-                uiHandler.post(() -> {
-                    sessionKey = ConsoleService.startGraphicsSession(ctx, compositor);
-                    // TODO: show UI?
-                });
-            });
+            wlClient = new WlClientImpl(wlDisplay, state,
+                    wlSocket, null);
+            wlHandler.post(wlClient::init);
             try {
                 final Queue<FileDescriptor> fdsQueue = new ConcurrentLinkedQueue<>();
+                final Semaphore lock = new Semaphore(1, true);
                 while (true) {
+                    lock.acquire();
+                    final IORunnable ch = customHandler;
+                    if (ch != null)
+                        ch.run();
                     final ByteBuffer msg = WlMarshalling.readRPC(is);
                     final FileDescriptor[] fds = wlSocket.getAncillaryFileDescriptors();
                     if (fds != null)
                         Collections.addAll(fdsQueue, fds);
-                    wlHandler.post(() -> {
+                    final boolean r = wlHandler.post(() -> {
                         try {
                             final WlMarshalling.Call call =
-                                    WlMarshalling.unmakeRPC(wlClient.resources, msg, fdsQueue);
-//                            Log.i(TAG, "call: " + call.object.id + "[" + call.object.getClass().getSimpleName() + "]" + "." + call.method.getName());
+                                    WlMarshalling.unmakeRPC(wlClient.resources,
+                                            msg, fdsQueue);
+                            if (wlClient.compositor == null && call.object instanceof wl_display)
+                                initNewSession(wlClient); // Actual session start
+                            // Log.i(TAG, "call: " + call.object.id +
+                            // "[" + call.object.getClass().getSimpleName() + "]" +
+                            // "." + call.method.getName());
                             try {
                                 call.call();
+                            } catch (final WlOwnCustomProtocolException e) {
+                                customHandler = e.handler;
                             } catch (final Exception e) {
-                                Log.w(TAG, e.getMessage() != null ? e.getMessage() : "???");
+                                Log.w(TAG, e.getMessage() != null ? e.getMessage()
+                                        : "???");
                                 wlClient.returnError(call.object, e);
                             }
                         } catch (final WlMarshalling.ParseException e) {
-                            Log.w(TAG, e.getMessage() != null ? e.getMessage() : "???");
+                            Log.w(TAG, e.getMessage() != null ? e.getMessage()
+                                    : "???");
                             wlClient.returnError(e);
+                        } finally {
+                            lock.release();
                         }
                     });
+                    if (!r)
+                        throw new EOFException();
                 }
-            } catch (final EOFException | InterruptedIOException e) {
+            } catch (final EOFException | InterruptedIOException | InterruptedException e) {
                 Log.i(TAG, "EOF/INT");
             } catch (final IOException e) {
                 Log.w(TAG, e.getMessage() != null ? e.getMessage() : "-");
@@ -228,8 +295,8 @@ public final class WlTermServer {
                 wlHandler.post(() -> wlClient.returnError(e));
             } finally {
                 uiHandler.post(() -> {
-                    if (!isStopped) {
-                        ConsoleService.stopSession(sessionKey);
+                    if (state.isRunning) {
+                        ConsoleService.stopSession(state.sessionKey);
                     }
                 });
                 wlHandler.post(wlClient::destroy);
@@ -296,14 +363,206 @@ public final class WlTermServer {
         }
     };
 
-    private static final class WlClientImpl extends WlClient {
+    private final class WlClientImpl extends WlClient {
+        public static final int TWEAK_ID = 2; // Tweak
+
+        @NonNull
+        private final ConnectionState connectionState;
+
         private GraphicsCompositor compositor = null;
         private WlOutputImpl wlOutputRes = null;
         private WlSeatImpl wlSeatRes = null;
 
-        private WlClientImpl(@NonNull final WlDisplay display, @NonNull final WlSocket socket,
+        private WlOwnHelperImpl wlOwnHelper = null;
+
+        private WlClientImpl(@NonNull final WlDisplay display,
+                             @NonNull final ConnectionState connectionState,
+                             @NonNull final WlSocket socket,
                              @Nullable final WlEventHandler sendHandler) {
             super(display, socket, sendHandler);
+            this.connectionState = connectionState;
+        }
+
+        @Override
+        public void init() {
+            super.init();
+            wlOwnHelper = new WlOwnHelperImpl(this);
+            addResource(WlResource.make(this, wlOwnHelper, TWEAK_ID));
+        }
+    }
+
+    private final Map<Long, WlOwnHelperImpl> ownHelpers = new ReferenceMap<>(
+            AbstractReferenceMap.ReferenceStrength.HARD,
+            AbstractReferenceMap.ReferenceStrength.WEAK);
+
+    private final class WlOwnHelperImpl extends wl_own_helper {
+        @NonNull
+        private final WlClientImpl wlClient;
+        private long uuid = 0;
+        private boolean hasUuid = false;
+        private DataInputStream _dis = null;
+        private DataOutputStream _dos = null;
+
+        private WlOwnHelperImpl(@NonNull final WlClientImpl wlClient) {
+            this.wlClient = wlClient;
+            callbacks = new RequestsImpl();
+        }
+
+        @NonNull
+        private DataInputStream dis() throws IOException {
+            if (_dis == null)
+                _dis = new DataInputStream(wlClient.socket.getInputStream());
+            return _dis;
+        }
+
+        @NonNull
+        private DataOutputStream dos() throws IOException {
+            if (_dos == null)
+                _dos = new DataOutputStream(wlClient.socket.getOutputStream());
+            return _dos;
+        }
+
+        private static final String TAG = WlTermServer.TAG + " helper";
+
+        private static final int TAG_ERROR = 0;
+        private static final int TAG_CLIPBOARD_INLINE = 1;
+        private static final int TAG_CLIPBOARD_FD = 2;
+        private static final int TAG_CLIPBOARD_REQ = 3;
+        private static final int TAG_IM = 0x11;
+
+        private int readTag() throws IOException {
+            return dis().readInt();
+        }
+
+        private void writeTag(final int tag) throws IOException {
+            dos().writeInt(tag);
+        }
+
+        @NonNull
+        private byte[] readBytes() throws IOException {
+            final int l = dis().readInt();
+            final byte[] b = new byte[l];
+            dis().readFully(b);
+            return b;
+        }
+
+        private void writeBytes(@NonNull final byte[] bytes) throws IOException {
+            dos().writeInt(bytes.length);
+            dos().write(bytes);
+        }
+
+        @NonNull
+        private String readString() throws IOException {
+            return new String(readBytes(), "UTF8");
+        }
+
+        private void writeString(@NonNull final String str) throws IOException {
+            writeBytes(str.getBytes("UTF8"));
+        }
+
+        private void remove() {
+            if (hasUuid) {
+                for (final Map.Entry<Long, WlOwnHelperImpl> helper : ownHelpers.entrySet())
+                    if (helper.getKey() == uuid)
+                        ((WlSocketImpl) helper.getValue().wlClient.socket).shutdownAndClose();
+                ownHelpers.remove(uuid);
+                hasUuid = false;
+            }
+        }
+
+        @NonNull
+        private GraphicsCompositor getCompositor() {
+            final GraphicsCompositor c = wlClient.compositor;
+            if (c == null)
+                throw new IllegalStateException("Client without compositor");
+            return c;
+        }
+
+        private final class RequestsImpl implements Requests {
+            @Override
+            public void mark(final long uuid) {
+                remove();
+                WlOwnHelperImpl.this.uuid = uuid;
+                ownHelpers.put(uuid, WlOwnHelperImpl.this);
+                WlOwnHelperImpl.this.hasUuid = true;
+            }
+
+            @Override
+            public void connect(final long uuid, final long protocol) throws WlOwnCustomException {
+                if (protocol != Enums.Protocol.simple)
+                    throw new RuntimeException(String.format(Locale.ROOT,
+                            "Bad helper protocol: %d", protocol));
+                final WlOwnHelperImpl wlParentHelper = ownHelpers.get(uuid);
+                if (wlParentHelper == null)
+                    throw new RuntimeException("Bad UUID");
+                throw new WlOwnCustomProtocolException(new IORunnable() {
+                    private GraphicsCompositor.ClipboardContentCb cbCb = null;
+
+                    @Override
+                    public void run() throws IOException {
+                        try {
+                            uiHandler.post(() -> wlParentHelper.getCompositor().auxSource =
+                                    new GraphicsCompositor.AuxSource() {
+                                        @Override
+                                        public void clipboardContent(@NonNull final String mime,
+                                                                     @NonNull final byte[] data) {
+                                            wlHandler.post(() -> {
+                                                try {
+                                                    writeTag(TAG_CLIPBOARD_INLINE);
+                                                    writeString(mime);
+                                                    writeBytes(data);
+                                                } catch (final IOException e) {
+                                                    Log.w(TAG,
+                                                            e.getMessage() != null
+                                                                    ? e.getMessage()
+                                                                    : "???");
+                                                }
+                                            });
+                                        }
+
+                                        @Override
+                                        public void clipboardContentRequest(@NonNull final String mime,
+                                                                            @NonNull final GraphicsCompositor.ClipboardContentCb cb) {
+                                            wlHandler.post(() -> {
+                                                cbCb = cb;
+                                                try {
+                                                    writeTag(TAG_CLIPBOARD_REQ);
+                                                    writeString(mime);
+                                                } catch (final IOException e) {
+                                                    Log.w(TAG,
+                                                            e.getMessage() != null
+                                                                    ? e.getMessage()
+                                                                    : "???");
+                                                }
+                                            });
+                                        }
+                                    });
+                            while (true) {
+                                final int tag = readTag();
+                                switch (tag) {
+                                    case TAG_CLIPBOARD_INLINE:
+                                        final String mime = readString();
+                                        final byte[] data = readBytes();
+                                        wlHandler.post(() -> {
+                                            final GraphicsCompositor.ClipboardContentCb cb = cbCb;
+                                            if (cb != null) {
+                                                cbCb = null;
+                                                cb.clipboardContent(mime, data);
+                                            }
+                                        });
+                                        break;
+                                    default:
+                                        throw new IOException("Bad tag");
+                                }
+                            }
+                        } finally {
+                            uiHandler.post(() ->
+                                    wlParentHelper.getCompositor().auxSource =
+                                            GraphicsCompositor.emptyAuxSource);
+                        }
+                    }
+                });
+            }
         }
     }
 

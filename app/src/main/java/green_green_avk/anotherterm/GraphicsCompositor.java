@@ -60,8 +60,23 @@ public final class GraphicsCompositor {
         void destroySurface(@NonNull Surface surface);
     }
 
+    public interface ClipboardContentCb {
+        void clipboardContent(@NonNull String mime, @NonNull byte[] data);
+    }
+
+    public interface AuxSource {
+        void clipboardContent(@NonNull String mime, @NonNull byte[] data);
+
+        void clipboardContentRequest(@NonNull String mime, @NonNull ClipboardContentCb cb);
+    }
+
+    public static final AuxSource emptyAuxSource = null;
+
     public Source source = null;
     private volatile Sink sink = null;
+
+    @Nullable
+    public AuxSource auxSource = emptyAuxSource;
 
     public void setSink(@Nullable final Sink sink) {
         this.sink = sink;
@@ -359,6 +374,21 @@ public final class GraphicsCompositor {
             if (focus != null)
                 focus.source.onKeyEvent(true);
         }
+    }
+
+    public boolean hasClipboard() {
+        return auxSource != null;
+    }
+
+    public void postClipboardContent(@NonNull final String mime, @NonNull final byte[] data) {
+        if (auxSource != null)
+            auxSource.clipboardContent(mime, data);
+    }
+
+    public void requestClipboardContent(@NonNull final String mime,
+                                        @NonNull final ClipboardContentCb cb) {
+        if (auxSource != null)
+            auxSource.clipboardContentRequest(mime, cb);
     }
 
     @UiThread

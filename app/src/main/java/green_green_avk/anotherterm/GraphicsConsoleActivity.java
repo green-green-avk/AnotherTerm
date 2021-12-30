@@ -17,6 +17,10 @@ import android.widget.TextView;
 import androidx.annotation.Keep;
 import androidx.annotation.Nullable;
 
+import org.apache.http.entity.ContentType;
+
+import java.nio.charset.Charset;
+import java.nio.charset.UnsupportedCharsetException;
 import java.util.NoSuchElementException;
 
 import green_green_avk.anotherterm.ui.ConsoleKeyboardView;
@@ -24,6 +28,8 @@ import green_green_avk.anotherterm.ui.FontProvider;
 import green_green_avk.anotherterm.ui.GraphicsCompositorView;
 import green_green_avk.anotherterm.ui.MouseButtonsWorkAround;
 import green_green_avk.anotherterm.ui.ScreenMouseView;
+import green_green_avk.anotherterm.ui.UiUtils;
+import green_green_avk.anotherterm.utils.Misc;
 
 public final class GraphicsConsoleActivity extends ConsoleActivity {
     private GraphicsSession mSession = null;
@@ -205,6 +211,32 @@ public final class GraphicsConsoleActivity extends ConsoleActivity {
                 mode = ConsoleKeyboardView.MODE_VISIBLE;
         }
         mCkv.setMode(mode);
+    }
+
+    public void onFromXClipboard(final View view) {
+        mSession.compositor.requestClipboardContent("", (mime, data) -> runOnUiThread(() -> {
+            final ContentType ct;
+            try {
+                ct = ContentType.parse(mime);
+            } catch (final UnsupportedCharsetException e) {
+                return;
+            }
+            if ("text/plain".equals(ct.getMimeType())) {
+                final String text;
+                try {
+                    final Charset cs = ct.getCharset();
+                    text = new String(data, cs != null ? cs : Misc.UTF8);
+                } catch (final UnsupportedCharsetException e) {
+                    return;
+                }
+                UiUtils.toClipboard(GraphicsConsoleActivity.this, text);
+            }
+        }));
+    }
+
+    public void onToXClipboard(final View view) {
+        mSession.compositor.postClipboardContent("text/plain; charset=utf8",
+                Misc.toUTF8(UiUtils.textFromClipboard(this).toString()));
     }
 
     final MouseButtonsWorkAround mbwa = new MouseButtonsWorkAround(this);

@@ -71,6 +71,32 @@
             app:tintMode="src_atop" />
 
         <ImageView
+            android:id="@+id/action_from_x_clipboard"
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:adjustViewBounds="true"
+            android:background="@drawable/bg_grid_black_btn"
+            android:contentDescription="@string/action_switch_screen_keyboard"
+            android:onClick="onFromXClipboard"
+            android:scaleType="centerInside"
+            app:srcCompat="@drawable/ic_paste_x2a_white"
+            app:tint="@color/console_toolbar_icon"
+            app:tintMode="src_atop" />
+
+        <ImageView
+            android:id="@+id/action_to_x_clipboard"
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:adjustViewBounds="true"
+            android:background="@drawable/bg_grid_black_btn"
+            android:contentDescription="@string/action_switch_screen_keyboard"
+            android:onClick="onToXClipboard"
+            android:scaleType="centerInside"
+            app:srcCompat="@drawable/ic_paste_a2x_white"
+            app:tint="@color/console_toolbar_icon"
+            app:tintMode="src_atop" />
+
+        <ImageView
             android:layout_width="wrap_content"
             android:layout_height="match_parent"
             android:adjustViewBounds="true"

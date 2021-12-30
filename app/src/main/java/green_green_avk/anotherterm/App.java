@@ -7,6 +7,7 @@ import androidx.annotation.Keep;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
+import green_green_avk.anotherterm.wlterm.WlTermServer;
 import green_green_avk.libusbmanager.LibUsbManager;
 
 public final class App extends Application {

@@ -112,7 +112,7 @@ public final class UiUtils {
     }
 
     @NonNull
-    public static Uri uriFromClipboard(@NonNull final Context ctx) {
+    private static ClipData.Item firstItemFromClipboard(@NonNull final Context ctx) {
         final ClipboardManager clipboard = (ClipboardManager) ctx.getSystemService(Context.CLIPBOARD_SERVICE);
         if (clipboard == null) throw new IllegalStateException("Can't get ClipboardManager");
         if (!clipboard.hasPrimaryClip()) throw new IllegalStateException("Clipboard is empty");
@@ -121,9 +121,21 @@ public final class UiUtils {
             throw new IllegalStateException("Clipboard is empty");
         final ClipData.Item clipItem = clipData.getItemAt(0);
         if (clipItem == null) throw new IllegalStateException("Clipboard is empty");
+        return clipItem;
+    }
+
+    @NonNull
+    public static Uri uriFromClipboard(@NonNull final Context ctx) {
+        final ClipData.Item clipItem = firstItemFromClipboard(ctx);
         Uri uri = clipItem.getUri();
         if (uri == null) uri = Uri.parse(clipItem.coerceToText(ctx).toString());
         return uri;
+    }
+
+    @NonNull
+    public static CharSequence textFromClipboard(@NonNull final Context ctx) {
+        final ClipData.Item clipItem = firstItemFromClipboard(ctx);
+        return clipItem.coerceToText(ctx).toString();
     }
 
     public static void uriToClipboard(@NonNull final Context ctx, @NonNull final Uri uri,

@@ -24,6 +24,7 @@ import green_green_avk.wayland.protocol_core.WlMarshalling;
 
 public class WlClient {
     private static final int RESOURCES_MAX = 1024 * 1024;
+    public static final int DISPLAY_ID = 1;
     @NonNull
     public final WlDisplay display;
     @NonNull
@@ -92,7 +93,7 @@ public class WlClient {
         this.socket = socket;
         this.sendHandler = sendHandler;
         wlDisplayRes = new wl_display();
-        addResource(WlResource.make(this, wlDisplayRes, 1, new wl_display.Requests() {
+        addResource(WlResource.make(this, wlDisplayRes, DISPLAY_ID, new wl_display.Requests() {
             @Override
             public void sync(@NonNull final WlInterface.NewId callback) {
                 returnCallback(callback);

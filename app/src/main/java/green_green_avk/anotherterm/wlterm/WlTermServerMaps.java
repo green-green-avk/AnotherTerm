@@ -1,4 +1,4 @@
-package green_green_avk.anotherterm;
+package green_green_avk.anotherterm.wlterm;
 
 import android.view.MotionEvent;
 
