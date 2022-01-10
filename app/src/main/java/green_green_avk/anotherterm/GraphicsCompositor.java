@@ -81,6 +81,7 @@ public final class GraphicsCompositor {
     public void setSink(@Nullable final Sink sink) {
         this.sink = sink;
         synchronized (treeLock) {
+            final Surface root = this.root;
             if (root != null) {
                 if (sink != null)
                     root.source.onEnter();
@@ -367,9 +368,10 @@ public final class GraphicsCompositor {
 
     public void onKeyboardFocusChange(@Nullable final Surface focus) {
         synchronized (treeLock) {
-            if (keyboardFocus == focus) return;
-            if (keyboardFocus != null)
-                keyboardFocus.source.onKeyEvent(false);
+            final Surface oldFocus = keyboardFocus;
+            if (oldFocus == focus) return;
+            if (oldFocus != null)
+                oldFocus.source.onKeyEvent(false);
             keyboardFocus = focus;
             if (focus != null)
                 focus.source.onKeyEvent(true);
