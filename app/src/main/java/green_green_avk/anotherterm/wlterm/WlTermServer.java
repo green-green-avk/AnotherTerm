@@ -501,7 +501,7 @@ public final class WlTermServer {
                     @Override
                     public void run() throws IOException {
                         try {
-                            uiHandler.post(() -> wlParentHelper.getCompositor().auxSource =
+                            uiHandler.post(() -> wlParentHelper.getCompositor().setAuxSource(
                                     new GraphicsCompositor.AuxSource() {
                                         @Override
                                         public void clipboardContent(@NonNull final String mime,
@@ -536,7 +536,7 @@ public final class WlTermServer {
                                                 }
                                             });
                                         }
-                                    });
+                                    }));
                             while (true) {
                                 final int tag = readTag();
                                 switch (tag) {
@@ -557,8 +557,7 @@ public final class WlTermServer {
                             }
                         } finally {
                             uiHandler.post(() ->
-                                    wlParentHelper.getCompositor().auxSource =
-                                            GraphicsCompositor.emptyAuxSource);
+                                    wlParentHelper.getCompositor().setAuxSource(null));
                         }
                     }
                 });

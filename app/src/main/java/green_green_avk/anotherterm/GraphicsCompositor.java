@@ -70,13 +70,10 @@ public final class GraphicsCompositor {
         void clipboardContentRequest(@NonNull String mime, @NonNull ClipboardContentCb cb);
     }
 
-    public static final AuxSource emptyAuxSource = null;
-
     public Source source = null;
     private volatile Sink sink = null;
 
-    @Nullable
-    public AuxSource auxSource = emptyAuxSource;
+    private AuxSource auxSource = null;
 
     public void setSink(@Nullable final Sink sink) {
         this.sink = sink;
@@ -378,8 +375,26 @@ public final class GraphicsCompositor {
         }
     }
 
-    public boolean hasClipboard() {
+    public interface OnClipboardSupportState {
+        void onClipboardSupportState(boolean v);
+    }
+
+    private OnClipboardSupportState onClipboardSupportState = null;
+
+    public void setAuxSource(@Nullable final AuxSource v) {
+        auxSource = v;
+        if (onClipboardSupportState != null)
+            onClipboardSupportState.onClipboardSupportState(auxSource != null);
+    }
+
+    public boolean hasClipboardSupport() {
         return auxSource != null;
+    }
+
+    public void setOnClipboardSupportState(@Nullable final OnClipboardSupportState v) {
+        onClipboardSupportState = v;
+        if (v != null)
+            v.onClipboardSupportState(hasClipboardSupport());
     }
 
     public void postClipboardContent(@NonNull final String mime, @NonNull final byte[] data) {

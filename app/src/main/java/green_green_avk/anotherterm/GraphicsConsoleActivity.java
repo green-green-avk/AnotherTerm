@@ -58,6 +58,12 @@ public final class GraphicsConsoleActivity extends ConsoleActivity {
         }
     };
 
+    private void onClipboardSupportState(final boolean v) {
+        final int visibility = v ? View.VISIBLE : View.GONE;
+        findViewById(R.id.action_from_x_clipboard).setVisibility(visibility);
+        findViewById(R.id.action_to_x_clipboard).setVisibility(visibility);
+    }
+
     @Override
     protected void onCreate(@Nullable final Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -99,6 +105,7 @@ public final class GraphicsConsoleActivity extends ConsoleActivity {
 
         mGcv.setCompositor(mSession.compositor);
         mCkv.setConsoleOutputOnly(mSession.compositor.consoleOutput);
+        mSession.compositor.setOnClipboardSupportState(this::onClipboardSupportState);
 
 //        mSession.uiState.csv.apply(mCsv);
         mSession.uiState.ckv.apply(mCkv);
@@ -156,6 +163,7 @@ public final class GraphicsConsoleActivity extends ConsoleActivity {
 //        if (menuPopupWindow != null) menuPopupWindow.dismiss();
         ConsoleService.removeListener(sessionsListener);
 //        if (mSession != null) mSession.input.removeOnInvalidateSink(this);
+        if (mSession != null) mSession.compositor.setOnClipboardSupportState(null);
         if (mCkv != null) mCkv.unsetConsoleInput();
         if (mGcv != null) mGcv.unsetCompositor();
         super.onDestroy();
