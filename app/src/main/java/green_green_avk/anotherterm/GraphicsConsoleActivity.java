@@ -230,13 +230,8 @@ public final class GraphicsConsoleActivity extends ConsoleActivity {
                 return;
             }
             if ("text/plain".equals(ct.getMimeType())) {
-                final String text;
-                try {
-                    final Charset cs = ct.getCharset();
-                    text = new String(data, cs != null ? cs : Misc.UTF8);
-                } catch (final UnsupportedCharsetException e) {
-                    return;
-                }
+                final Charset cs = ct.getCharset();
+                final String text = new String(data, cs != null ? cs : Misc.UTF8);
                 UiUtils.toClipboard(GraphicsConsoleActivity.this, text);
             }
         }));
