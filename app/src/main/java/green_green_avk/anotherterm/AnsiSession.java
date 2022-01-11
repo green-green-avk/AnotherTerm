@@ -7,14 +7,14 @@ import androidx.annotation.NonNull;
 import java.util.Map;
 
 import green_green_avk.anotherterm.backends.EventBasedBackendModuleWrapper;
-import green_green_avk.anotherterm.ui.ConsoleKeyboardView;
+import green_green_avk.anotherterm.ui.AnsiConsoleKeyboardView;
 import green_green_avk.anotherterm.ui.ConsoleScreenView;
 
 public final class AnsiSession extends Session {
 
     public static final class UiState {
         public final ConsoleScreenView.State csv = new ConsoleScreenView.State();
-        public final ConsoleKeyboardView.State ckv = new ConsoleKeyboardView.State();
+        public final AnsiConsoleKeyboardView.State ckv = new AnsiConsoleKeyboardView.State();
         public float fontSizeDp = 0F; // Invariant for resolution switching
         public int screenOrientation = ActivityInfo.SCREEN_ORIENTATION_UNSPECIFIED;
         public boolean keepScreenOn = false;

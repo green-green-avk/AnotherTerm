@@ -189,7 +189,7 @@
 
     </FrameLayout>
 
-    <green_green_avk.anotherterm.ui.ConsoleKeyboardView
+    <green_green_avk.anotherterm.ui.AnsiConsoleKeyboardView
         android:id="@+id/keyboard"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"

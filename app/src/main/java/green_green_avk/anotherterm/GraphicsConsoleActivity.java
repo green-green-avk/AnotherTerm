@@ -23,9 +23,9 @@ import java.nio.charset.Charset;
 import java.nio.charset.UnsupportedCharsetException;
 import java.util.NoSuchElementException;
 
-import green_green_avk.anotherterm.ui.ConsoleKeyboardView;
 import green_green_avk.anotherterm.ui.FontProvider;
 import green_green_avk.anotherterm.ui.GraphicsCompositorView;
+import green_green_avk.anotherterm.ui.GraphicsConsoleKeyboardView;
 import green_green_avk.anotherterm.ui.MouseButtonsWorkAround;
 import green_green_avk.anotherterm.ui.ScreenMouseView;
 import green_green_avk.anotherterm.ui.UiUtils;
@@ -35,7 +35,7 @@ public final class GraphicsConsoleActivity extends ConsoleActivity {
     private GraphicsSession mSession = null;
 
     private GraphicsCompositorView mGcv = null;
-    private ConsoleKeyboardView mCkv = null;
+    private GraphicsConsoleKeyboardView mCkv = null;
     private ScreenMouseView mSmv = null;
     private View mBell = null;
     private Animation mBellAnim = null;
@@ -99,7 +99,7 @@ public final class GraphicsConsoleActivity extends ConsoleActivity {
         final FontProvider fp = new ConsoleFontProvider();
         mCkv.setFont(fp); // Old Android devices have no glyphs for some special symbols
 
-        mCkv.setMode(ConsoleKeyboardView.MODE_HW_ONLY);
+        mCkv.setMode(GraphicsConsoleKeyboardView.MODE_HW_ONLY);
 
         setSessionTitle(mSession.compositor.title);
 
@@ -209,14 +209,14 @@ public final class GraphicsConsoleActivity extends ConsoleActivity {
     public void onSwitchIme(final View view) {
         final int mode;
         switch (mCkv.getMode()) {
-            case ConsoleKeyboardView.MODE_VISIBLE:
-                mode = ConsoleKeyboardView.MODE_IME;
+            case GraphicsConsoleKeyboardView.MODE_VISIBLE:
+                mode = GraphicsConsoleKeyboardView.MODE_IME;
                 break;
-            case ConsoleKeyboardView.MODE_IME:
-                mode = ConsoleKeyboardView.MODE_HW_ONLY;
+            case GraphicsConsoleKeyboardView.MODE_IME:
+                mode = GraphicsConsoleKeyboardView.MODE_HW_ONLY;
                 break;
             default:
-                mode = ConsoleKeyboardView.MODE_VISIBLE;
+                mode = GraphicsConsoleKeyboardView.MODE_VISIBLE;
         }
         mCkv.setMode(mode);
     }

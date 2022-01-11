@@ -57,8 +57,8 @@ import green_green_avk.anotherterm.backends.BackendException;
 import green_green_avk.anotherterm.backends.BackendModule;
 import green_green_avk.anotherterm.backends.BackendUiInteractionActivityCtx;
 import green_green_avk.anotherterm.backends.BackendsList;
+import green_green_avk.anotherterm.ui.AnsiConsoleKeyboardView;
 import green_green_avk.anotherterm.ui.ChoreographerCompat;
-import green_green_avk.anotherterm.ui.ConsoleKeyboardView;
 import green_green_avk.anotherterm.ui.ConsoleScreenView;
 import green_green_avk.anotherterm.ui.FontProvider;
 import green_green_avk.anotherterm.ui.MouseButtonsWorkAround;
@@ -75,7 +75,7 @@ public final class AnsiConsoleActivity extends ConsoleActivity
     private int screenOrientation = ActivityInfo.SCREEN_ORIENTATION_UNSPECIFIED;
     private boolean autoFitTerminal = false;
     private ConsoleScreenView mCsv = null;
-    private ConsoleKeyboardView mCkv = null;
+    private AnsiConsoleKeyboardView mCkv = null;
     private ScreenMouseView mSmv = null;
     private View mBell = null;
     private Animation mBellAnim = null;
@@ -226,7 +226,7 @@ public final class AnsiConsoleActivity extends ConsoleActivity
                 getResources().getDisplayMetrics().density, false);
 
         mCkv.setMode(((App) getApplication()).settings.terminal_key_default_ime ?
-                ConsoleKeyboardView.MODE_IME : ConsoleKeyboardView.MODE_VISIBLE);
+                AnsiConsoleKeyboardView.MODE_IME : AnsiConsoleKeyboardView.MODE_VISIBLE);
 
         setSessionTitle(mSession.input.currScrBuf.windowTitle);
 
@@ -614,8 +614,8 @@ public final class AnsiConsoleActivity extends ConsoleActivity
     }
 
     public void onSwitchIme(final View v) {
-        mCkv.setMode(mCkv.getMode() == ConsoleKeyboardView.MODE_VISIBLE ?
-                ConsoleKeyboardView.MODE_IME : ConsoleKeyboardView.MODE_VISIBLE);
+        mCkv.setMode(mCkv.getMode() == AnsiConsoleKeyboardView.MODE_VISIBLE ?
+                AnsiConsoleKeyboardView.MODE_IME : AnsiConsoleKeyboardView.MODE_VISIBLE);
     }
 
     public void onSelectMode(final View v) {

@@ -2,13 +2,13 @@ package green_green_avk.anotherterm;
 
 import androidx.annotation.NonNull;
 
-import green_green_avk.anotherterm.ui.ConsoleKeyboardView;
+import green_green_avk.anotherterm.ui.GraphicsConsoleKeyboardView;
 
 public final class GraphicsSession extends Session {
 
     public static final class UiState {
         //        public final ConsoleScreenView.State csv = new ConsoleScreenView.State();
-        public final ConsoleKeyboardView.State ckv = new ConsoleKeyboardView.State();
+        public final GraphicsConsoleKeyboardView.State ckv = new GraphicsConsoleKeyboardView.State();
 //        public int screenOrientation = ActivityInfo.SCREEN_ORIENTATION_UNSPECIFIED;
 //        public boolean keepScreenOn = false;
     }
@@ -16,7 +16,7 @@ public final class GraphicsSession extends Session {
     @NonNull
     public final GraphicsCompositor compositor;
 
-    public final AnsiSession.UiState uiState = new AnsiSession.UiState();
+    public final GraphicsSession.UiState uiState = new GraphicsSession.UiState();
 
     public GraphicsSession(@NonNull final GraphicsCompositor compositor) {
         this.compositor = compositor;
