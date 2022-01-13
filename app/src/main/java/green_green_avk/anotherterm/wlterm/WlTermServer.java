@@ -428,7 +428,7 @@ public final class WlTermServer {
         private static final int TAG_CLIPBOARD_INLINE = 1;
         private static final int TAG_CLIPBOARD_FD = 2;
         private static final int TAG_CLIPBOARD_REQ = 3;
-        private static final int TAG_IM = 0x11;
+        private static final int TAG_IM_PUT_STRING = 0x11;
 
         private int readTag() throws IOException {
             return dis().readInt();
@@ -528,6 +528,21 @@ public final class WlTermServer {
                                                 try {
                                                     writeTag(TAG_CLIPBOARD_REQ);
                                                     writeString(mime);
+                                                } catch (final IOException e) {
+                                                    Log.w(TAG,
+                                                            e.getMessage() != null
+                                                                    ? e.getMessage()
+                                                                    : "???");
+                                                }
+                                            });
+                                        }
+
+                                        @Override
+                                        public void imPutString(@NonNull final String str) {
+                                            wlHandler.post(() -> {
+                                                try {
+                                                    writeTag(TAG_IM_PUT_STRING);
+                                                    writeString(str);
                                                 } catch (final IOException e) {
                                                     Log.w(TAG,
                                                             e.getMessage() != null

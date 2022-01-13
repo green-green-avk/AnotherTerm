@@ -68,6 +68,8 @@ public final class GraphicsCompositor {
         void clipboardContent(@NonNull String mime, @NonNull byte[] data);
 
         void clipboardContentRequest(@NonNull String mime, @NonNull ClipboardContentCb cb);
+
+        void imPutString(@NonNull String str);
     }
 
     public Source source = null;
@@ -170,6 +172,10 @@ public final class GraphicsCompositor {
 
         @Override
         public void feed(@NonNull final String v) {
+            if (hasImSupport()) {
+                putImString(v);
+                return;
+            }
             final Surface s = keyboardFocus;
             if (s == null) return;
             final SurfaceSource ss = s.source;
@@ -391,6 +397,10 @@ public final class GraphicsCompositor {
         return auxSource != null;
     }
 
+    public boolean hasImSupport() {
+        return auxSource != null;
+    }
+
     public void setOnClipboardSupportState(@Nullable final OnClipboardSupportState v) {
         onClipboardSupportState = v;
         if (v != null)
@@ -406,6 +416,11 @@ public final class GraphicsCompositor {
                                         @NonNull final ClipboardContentCb cb) {
         if (auxSource != null)
             auxSource.clipboardContentRequest(mime, cb);
+    }
+
+    public void putImString(@NonNull final String str) {
+        if (auxSource != null)
+            auxSource.imPutString(str);
     }
 
     @UiThread
