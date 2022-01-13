@@ -60,7 +60,7 @@ import green_green_avk.anotherterm.R;
  */
 public class ExtKeyboard {
 
-    static final String TAG = "Keyboard";
+    private static final String TAG = "Keyboard";
 
     // Keyboard XML Tags
     private static final String TAG_KEYBOARD = "Keyboard";
@@ -79,9 +79,9 @@ public class ExtKeyboard {
     public static final int ALT = 2;
     public static final int CTRL = 4;
 
-    /**
-     * Keyboard label
-     */
+//    /**
+//     * Keyboard label
+//     */
 //    private CharSequence mLabel;
 
     /**
@@ -218,9 +218,9 @@ public class ExtKeyboard {
         public static final int LED = 1;
 
         /**
-         * All the key codes (unicode or custom code) and labels
-         * that this key could generate, zero'th
-         * being the most important...
+         * All the key codes (unicode or custom code)
+         * that this key could generate and their labels,
+         * zeroth being the most important...
          */
         public final List<KeyFcn> functions = new ArrayList<>();
         /**
@@ -287,42 +287,16 @@ public class ExtKeyboard {
 
         public boolean showBothLabels = false;
 
-        private final static int[] KEY_STATE_NORMAL_ON = {
-                android.R.attr.state_checkable,
-                android.R.attr.state_checked
-        };
-
-        private final static int[] KEY_STATE_PRESSED_ON = {
-                android.R.attr.state_pressed,
-                android.R.attr.state_checkable,
-                android.R.attr.state_checked
-        };
-
-        private final static int[] KEY_STATE_NORMAL_OFF = {
-                android.R.attr.state_checkable
-        };
-
-        private final static int[] KEY_STATE_PRESSED_OFF = {
-                android.R.attr.state_pressed,
-                android.R.attr.state_checkable
-        };
-
-        private final static int[] KEY_STATE_NORMAL = {
-        };
-
-        private final static int[] KEY_STATE_PRESSED = {
-                android.R.attr.state_pressed
-        };
-
-        private final static int[][] KEY_STATES = {
+        private final static int[][] KEY_DRAW_STATES = {
                 {},
                 {android.R.attr.state_pressed},
                 {android.R.attr.state_checked},
                 {android.R.attr.state_checked, android.R.attr.state_pressed}
         };
 
-        public static int[] getKeyState(final boolean pressed, final boolean on) {
-            return KEY_STATES[(pressed ? 1 : 0) | (on ? 2 : 0)];
+        @NonNull
+        public static int[] getKeyDrawState(final boolean pressed, final boolean on) {
+            return KEY_DRAW_STATES[(pressed ? 1 : 0) | (on ? 2 : 0)];
         }
 
         /**
@@ -677,8 +651,8 @@ public class ExtKeyboard {
 
         mDefaultHorizontalGap = 0;
         mDefaultWidth = mDisplayWidth / 10;
-        mDefaultVerticalGap = 0;
         mDefaultHeight = mDefaultWidth;
+        mDefaultVerticalGap = 0;
         mConfiguration = configuration == null ? new Configuration() : configuration;
         loadKeyboard(context, context.getResources().getXml(xmlLayoutResId));
         keyMap.refresh(context);
@@ -779,7 +753,7 @@ public class ExtKeyboard {
                 int x = 0;
                 float scaleFactor = (float) (newWidth - totalGap) / totalWidth;
                 for (int keyIndex = 0; keyIndex < numKeys; ++keyIndex) {
-                    Key key = row.mKeys.get(keyIndex);
+                    final Key key = row.mKeys.get(keyIndex);
                     key.width *= scaleFactor;
                     key.x = x;
                     x += key.width + key.gap;

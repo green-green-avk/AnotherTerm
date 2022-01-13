@@ -72,7 +72,8 @@ public class ConsoleKeyboardView extends ExtKeyboardView implements
         }
 
         public void apply(@NonNull final ConsoleKeyboardView v) {
-            if (mode == MODE_UNKNOWN) return;
+            if (mode == MODE_UNKNOWN)
+                return;
             v.setMode(mode);
         }
     }
@@ -159,17 +160,17 @@ public class ConsoleKeyboardView extends ExtKeyboardView implements
         try {
             layoutNarrow = layouts.getResourceId(0, 0);
             layoutWide = layouts.getResourceId(1, layoutNarrow);
-            layoutFull =
-                    layouts.length() > 2 ? layouts.getResourceId(2, layoutWide) : layoutWide;
+            layoutFull = layouts.length() > 2
+                    ? layouts.getResourceId(2, layoutWide) : layoutWide;
         } finally {
             layouts.recycle();
         }
         final float kbdW = cfg.screenWidthDp / cfg.fontScale;
-        final float keyW =
-                res.getDimension(R.dimen.kbd_key_size) / res.getDisplayMetrics().scaledDensity;
+        final float keyW = res.getDimension(R.dimen.kbd_key_size)
+                / res.getDisplayMetrics().scaledDensity;
         final float kbdKeys = kbdW / keyW;
-        final int kbdRes =
-                kbdKeys >= 20 ? (kbdKeys >= 23 ? layoutFull : layoutWide) : layoutNarrow;
+        final int kbdRes = kbdKeys >= 20
+                ? (kbdKeys >= 23 ? layoutFull : layoutWide) : layoutNarrow;
         final ExtKeyboard.Configuration kc = new ExtKeyboard.Configuration();
         kc.keyHeight = (int) (keyHeightDp * res.getDisplayMetrics().density);
         setKeyboard(new ExtKeyboard(getContext(), kbdRes, kc));
@@ -219,7 +220,8 @@ public class ConsoleKeyboardView extends ExtKeyboardView implements
     }
 
     public void clipboardPaste(@Nullable final String v) {
-        if (consoleOutput == null || v == null) return;
+        if (consoleOutput == null || v == null)
+            return;
         consoleOutput.paste(v);
     }
 
@@ -232,7 +234,8 @@ public class ConsoleKeyboardView extends ExtKeyboardView implements
     protected void _showIme() {
         final InputMethodManager imm = (InputMethodManager) getContext()
                 .getSystemService(Context.INPUT_METHOD_SERVICE);
-        if (imm == null) return;
+        if (imm == null)
+            return;
         imeEnabled = true;
         requestFocus();
         imm.restartInput(this);
@@ -242,7 +245,8 @@ public class ConsoleKeyboardView extends ExtKeyboardView implements
     protected void _hideIme() {
         final InputMethodManager imm = (InputMethodManager) getContext()
                 .getSystemService(Context.INPUT_METHOD_SERVICE);
-        if (imm == null) return;
+        if (imm == null)
+            return;
         if (imm.isActive(this)) imm.hideSoftInputFromWindow(getWindowToken(), 0);
         imeEnabled = false;
     }
@@ -278,7 +282,8 @@ public class ConsoleKeyboardView extends ExtKeyboardView implements
     }
 
     public void setMode(final int mode) {
-        if (this.mode == mode) return;
+        if (this.mode == mode)
+            return;
         prevMode = this.mode;
         this.mode = mode;
         applyMode(getResources().getConfiguration());
@@ -293,9 +298,11 @@ public class ConsoleKeyboardView extends ExtKeyboardView implements
         // Hardware keyboard backspace key suppression bug workaround
         if (cfg.hardKeyboardHidden != Configuration.HARDKEYBOARDHIDDEN_YES && mode == MODE_IME)
             mode = MODE_HW_ONLY;
-        if (currMode == mode) return;
+        if (currMode == mode)
+            return;
         mHandler.removeCallbacks(rDelayed);
-        if (!ViewCompat.isAttachedToWindow(this)) return;
+        if (!ViewCompat.isAttachedToWindow(this))
+            return;
         switch (prevMode) {
             case MODE_VISIBLE:
             case MODE_HW_ONLY:
@@ -376,12 +383,20 @@ public class ConsoleKeyboardView extends ExtKeyboardView implements
     private final SparseArray<int[]> metaStateFilterCache = new SparseArray<>();
     private static final int[] metaStateFilterDefault = new int[]{META_ALL_MASK, META_DEF_MASK};
 
+    /**
+     * Returns key modifier filters according to current hardware key mapping.
+     *
+     * @param event key event
+     * @return modifiers to be used: <code>{</code>just as modifiers<code>, </code>for codepoint(s) generation<code>}</code>
+     */
     private int[] getMetaStateFilter(@NonNull final KeyEvent event) {
         final int devType = hwKeyMap.getDevType(event);
-        if (devType < 0) return metaStateFilterDefault;
+        if (devType < 0)
+            return metaStateFilterDefault;
         final int[] r = metaStateFilterDefault.clone();
         final int idx = metaStateFilterCache.indexOfKey(devType);
-        if (idx >= 0) return metaStateFilterCache.valueAt(idx);
+        if (idx >= 0)
+            return metaStateFilterCache.valueAt(idx);
         for (final int k : modifierKeys) {
             final int t = hwKeyMap.get(k, devType);
             if (t == HwKeyMap.KEYCODE_ACTION_DEFAULT) continue;
@@ -440,7 +455,8 @@ public class ConsoleKeyboardView extends ExtKeyboardView implements
 
     private void invalidateHwMetaIndication() {
         final int stickyMetaState = metaStateToggle & ~metaState;
-        if (stickyMetaState == prevStickyMetaState) return;
+        if (stickyMetaState == prevStickyMetaState)
+            return;
         final StringBuilder text = new StringBuilder();
         if ((stickyMetaState & KeyEvent.META_ALT_MASK) != 0) {
             text.append("[");
@@ -470,7 +486,8 @@ public class ConsoleKeyboardView extends ExtKeyboardView implements
     private int accent = 0;
 
     private boolean send(@NonNull final KeyEvent event) {
-        if (consoleOutput == null) return false;
+        if (consoleOutput == null)
+            return false;
         final int[] filter = getMetaStateFilter(event);
         final int eventMetaState =
                 KeyEvent.normalizeMetaState((event.getMetaState() & filter[0]) | metaState
@@ -488,13 +505,15 @@ public class ConsoleKeyboardView extends ExtKeyboardView implements
         }
         final int c = event.getKeyCharacterMap().get(code,
                 KeyEvent.normalizeMetaState(event.getMetaState() & filter[1]));
-        if (c == 0) return false;
+        if (c == 0)
+            return false;
         if ((c & KeyCharacterMap.COMBINING_ACCENT) == 0) {
             final int fullChar;
             if (accent != 0) {
                 fullChar = KeyCharacterMap.getDeadChar(accent, c);
                 accent = 0;
-                if (fullChar == 0) return true;
+                if (fullChar == 0)
+                    return true;
             } else fullChar = c;
             consoleOutput.feed(-fullChar, shift, alt, ctrl);
             metaStateOnKey();
@@ -529,7 +548,8 @@ public class ConsoleKeyboardView extends ExtKeyboardView implements
 
     @Override
     public InputConnection onCreateInputConnection(final EditorInfo outAttrs) {
-        if (!imeEnabled) return null;
+        if (!imeEnabled)
+            return null;
         outAttrs.actionLabel = null;
         outAttrs.inputType = InputType.TYPE_NULL;
         outAttrs.imeOptions = EditorInfo.IME_ACTION_NONE | EditorInfo.IME_FLAG_NO_FULLSCREEN |
@@ -543,7 +563,8 @@ public class ConsoleKeyboardView extends ExtKeyboardView implements
     @Override
     public boolean onKeyDown(final int keyCode, final KeyEvent event) {
         final int mk = hwKeyMap.get(event);
-        if (isBypassKey(event, mk < 0)) return super.onKeyDown(keyCode, event);
+        if (isBypassKey(event, mk < 0))
+            return super.onKeyDown(keyCode, event);
         final int ms = getMetaStateByKeycode(mk);
         if (ms != 0) {
             final int toggleMode = hwKeyMap.getToggleMode(event);
@@ -604,7 +625,8 @@ public class ConsoleKeyboardView extends ExtKeyboardView implements
     @Override
     public boolean onKeyUp(final int keyCode, final KeyEvent event) {
         final int mk = hwKeyMap.get(event);
-        if (isBypassKey(event, mk < 0)) return super.onKeyUp(keyCode, event);
+        if (isBypassKey(event, mk < 0))
+            return super.onKeyUp(keyCode, event);
         metaState &= ~getMetaStateByKeycode(mk);
         invalidateHwMetaIndication();
         return true;
@@ -686,7 +708,8 @@ public class ConsoleKeyboardView extends ExtKeyboardView implements
                 break;
             default:
                 wasKey = true;
-                if (consoleOutput == null) return;
+                if (consoleOutput == null)
+                    return;
                 consoleOutput.feed(primaryCode,
                         (modifiersMask & SHIFT) != 0 ?
                                 (modifiers & SHIFT) != 0 :
