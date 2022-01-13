@@ -60,7 +60,7 @@ import green_green_avk.anotherterm.R;
  */
 public class ExtKeyboard {
 
-    static final String TAG = "Keyboard";
+    private static final String TAG = "Keyboard";
 
     // Keyboard XML Tags
     private static final String TAG_KEYBOARD = "Keyboard";
@@ -286,33 +286,6 @@ public class ExtKeyboard {
         public boolean repeatable;
 
         public boolean showBothLabels = false;
-
-        private final static int[] KEY_STATE_NORMAL_ON = {
-                android.R.attr.state_checkable,
-                android.R.attr.state_checked
-        };
-
-        private final static int[] KEY_STATE_PRESSED_ON = {
-                android.R.attr.state_pressed,
-                android.R.attr.state_checkable,
-                android.R.attr.state_checked
-        };
-
-        private final static int[] KEY_STATE_NORMAL_OFF = {
-                android.R.attr.state_checkable
-        };
-
-        private final static int[] KEY_STATE_PRESSED_OFF = {
-                android.R.attr.state_pressed,
-                android.R.attr.state_checkable
-        };
-
-        private final static int[] KEY_STATE_NORMAL = {
-        };
-
-        private final static int[] KEY_STATE_PRESSED = {
-                android.R.attr.state_pressed
-        };
 
         private final static int[][] KEY_STATES = {
                 {},
