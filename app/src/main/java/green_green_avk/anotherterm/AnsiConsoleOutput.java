@@ -133,11 +133,6 @@ public final class AnsiConsoleOutput implements IConsoleOutput {
     }
 
     @Override
-    public boolean getStickyModifiersEnabled() {
-        return true;
-    }
-
-    @Override
     @AnyRes
     public int getLayoutRes() {
         return _vt52 ? R.array.vt52_keyboard : R.array.ansi_keyboard;

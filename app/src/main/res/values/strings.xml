@@ -338,4 +338,5 @@
     <string name="msg_setting_is_immutable_on_a_live_session">This setting cannot be changed on a live session</string>
     <string name="action_from_x_clipboard">Copy from X clipboard</string>
     <string name="action_to_x_clipboard">Copy to X clipboard</string>
+    <string name="action_switch_screen_keyboard_text_mode">Switch screen keyboard text mode</string>
 </resources>

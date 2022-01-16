@@ -45,6 +45,7 @@ public final class GraphicsConsoleActivity extends ConsoleActivity {
     private ImageView wUp = null;
     private Drawable wUpImDef = null;
     private TextView wTitle = null;
+    private ImageView wImeTextMode = null;
 
     @Keep
     private final ConsoleService.Listener sessionsListener = new ConsoleService.Listener() {
@@ -93,6 +94,7 @@ public final class GraphicsConsoleActivity extends ConsoleActivity {
         wUp = findViewById(R.id.action_nav_up);
         wUpImDef = wUp.getDrawable();
         wTitle = findViewById(R.id.title);
+        wImeTextMode = findViewById(R.id.action_ime_text_mode);
 
         mSmv.setBypassTo(new View[]{mCkv});
 
@@ -100,6 +102,7 @@ public final class GraphicsConsoleActivity extends ConsoleActivity {
         mCkv.setFont(fp); // Old Android devices have no glyphs for some special symbols
 
         mCkv.setMode(GraphicsConsoleKeyboardView.MODE_HW_ONLY);
+        mCkv.setAnsiMode(false);
 
         setSessionTitle(mSession.compositor.title);
 
@@ -109,6 +112,7 @@ public final class GraphicsConsoleActivity extends ConsoleActivity {
 
 //        mSession.uiState.csv.apply(mCsv);
         mSession.uiState.ckv.apply(mCkv);
+        updateImeTextModeUi();
 
         ConsoleService.addListener(sessionsListener);
     }
@@ -219,6 +223,17 @@ public final class GraphicsConsoleActivity extends ConsoleActivity {
                 mode = GraphicsConsoleKeyboardView.MODE_VISIBLE;
         }
         mCkv.setMode(mode);
+    }
+
+    private void updateImeTextModeUi() {
+        wImeTextMode.setImageState(mCkv.isAnsiMode() ?
+                        new int[]{android.R.attr.state_checked} : new int[]{},
+                true);
+    }
+
+    public void onSwitchImeTextMode(final View view) {
+        mCkv.setAnsiMode(!mCkv.isAnsiMode());
+        updateImeTextModeUi();
     }
 
     public void onFromXClipboard(final View view) {

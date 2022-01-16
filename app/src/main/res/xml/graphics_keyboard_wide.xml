@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <Keyboard xmlns:app="http://schemas.android.com/apk/res-auto"
+    app:convertToCodes="true"
     app:horizontalGap="0dp"
     app:keyHeight="@dimen/kbd_key_size"
     app:keyWidth="5%p"

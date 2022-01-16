@@ -36,6 +36,8 @@ import android.util.SparseArray;
 import android.util.TypedValue;
 import android.util.Xml;
 import android.view.InflateException;
+import android.view.KeyCharacterMap;
+import android.view.KeyEvent;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -79,6 +81,24 @@ public class ExtKeyboard {
     public static final int ALT = 2;
     public static final int CTRL = 4;
 
+    private static final int[] ascii2Codes = new int[128];
+
+    static {
+        final KeyCharacterMap kcm = KeyCharacterMap.load(KeyCharacterMap.VIRTUAL_KEYBOARD);
+        for (int i = KeyEvent.KEYCODE_0; i <= KeyEvent.KEYCODE_9; i++) {
+            ascii2Codes[kcm.get(i, 0)] = i;
+            ascii2Codes[kcm.get(i, KeyEvent.META_SHIFT_ON)] = i;
+        }
+        for (int i = KeyEvent.KEYCODE_A; i <= KeyEvent.KEYCODE_Z; i++) {
+            ascii2Codes[kcm.get(i, 0)] = i;
+            ascii2Codes[kcm.get(i, KeyEvent.META_SHIFT_ON)] = i;
+        }
+    }
+
+    public static int getKeyCodeByAscii(final char c) {
+        return ascii2Codes[c];
+    }
+
     /**
      * Keyboard label
      */
@@ -103,6 +123,11 @@ public class ExtKeyboard {
      * Default gap between rows
      */
     private int mDefaultVerticalGap;
+
+    /**
+     * Default convert to codes
+     */
+    private boolean mDefaultConvertToCodes;
 
     /**
      * Total height of the keyboard, including the padding and keys
@@ -157,6 +182,10 @@ public class ExtKeyboard {
          * Vertical gap following this row.
          */
         public int verticalGap;
+        /**
+         * Default convert to codes
+         */
+        private boolean defaultConvertToCodes;
 
         final ArrayList<Key> mKeys = new ArrayList<>();
 
@@ -195,6 +224,8 @@ public class ExtKeyboard {
                 verticalGap = getDimensionOrFraction(a,
                         R.styleable.ExtKeyboard_verticalGap,
                         parent.mDisplayHeight, parent.mDefaultVerticalGap, parent.mDefaultHeight);
+                defaultConvertToCodes = a.getBoolean(R.styleable.ExtKeyboard_convertToCodes,
+                        parent.mDefaultConvertToCodes);
             } finally {
                 a.recycle();
             }
@@ -284,7 +315,10 @@ public class ExtKeyboard {
          * Whether this key repeats itself when held down
          */
         public boolean repeatable;
-
+        /**
+         * Default convert to codes
+         */
+        private boolean convertToCodes;
         public boolean showBothLabels = false;
 
         private final static int[][] KEY_STATES = {
@@ -307,6 +341,7 @@ public class ExtKeyboard {
             width = parent.defaultWidth;
             gap = parent.defaultHorizontalGap;
             edgeFlags = parent.rowEdgeFlags;
+            convertToCodes = parent.defaultConvertToCodes;
         }
 
         /**
@@ -341,6 +376,8 @@ public class ExtKeyboard {
                         R.styleable.ExtKeyboard_horizontalGap,
                         keyboard.mDisplayWidth, parent.defaultHorizontalGap,
                         parent.defaultWidth);
+                convertToCodes = a.getBoolean(R.styleable.ExtKeyboard_convertToCodes,
+                        parent.defaultConvertToCodes);
             } finally {
                 a.recycle();
             }
@@ -447,6 +484,9 @@ public class ExtKeyboard {
                             putFunction(fcn);
                         }
                     }
+                    if (convertToCodes) for (final KeyFcn fcn : functions)
+                        if (fcn.code < 0)
+                            fcn.code = getKeyCodeByAscii((char) -fcn.code);
                 } else {
                     final KeyFcn fcn = new KeyFcn();
                     fcn.code = code;
@@ -650,8 +690,9 @@ public class ExtKeyboard {
 
         mDefaultHorizontalGap = 0;
         mDefaultWidth = mDisplayWidth / 10;
-        mDefaultVerticalGap = 0;
         mDefaultHeight = mDefaultWidth;
+        mDefaultVerticalGap = 0;
+        mDefaultConvertToCodes = false;
         mConfiguration = configuration == null ? new Configuration() : configuration;
         loadKeyboard(context, context.getResources().getXml(xmlLayoutResId));
         keyMap.refresh(context);
@@ -703,6 +744,7 @@ public class ExtKeyboard {
         row.defaultWidth = mDefaultWidth;
         row.defaultHorizontalGap = mDefaultHorizontalGap;
         row.verticalGap = mDefaultVerticalGap;
+        row.defaultConvertToCodes = mDefaultConvertToCodes;
         row.rowEdgeFlags = EDGE_TOP | EDGE_BOTTOM;
         final int maxColumns = columns == -1 ? Integer.MAX_VALUE : columns;
         for (int i = 0; i < characters.length(); i++) {
@@ -1002,6 +1044,8 @@ public class ExtKeyboard {
             mDefaultVerticalGap = getDimensionOrFraction(a,
                     R.styleable.ExtKeyboard_verticalGap,
                     mDisplayHeight, 0, mDefaultHeight);
+            mDefaultConvertToCodes =
+                    a.getBoolean(R.styleable.ExtKeyboard_convertToCodes, false);
         } finally {
             a.recycle();
         }

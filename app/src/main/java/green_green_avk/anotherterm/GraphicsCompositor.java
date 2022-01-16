@@ -128,11 +128,6 @@ public final class GraphicsCompositor {
         }
 
         @Override
-        public boolean getStickyModifiersEnabled() {
-            return false;
-        }
-
-        @Override
         @AnyRes
         public int getLayoutRes() {
             return R.array.graphics_keyboard;
@@ -148,12 +143,21 @@ public final class GraphicsCompositor {
         @Override
         public void feed(final int code, final boolean shift,
                          final boolean alt, final boolean ctrl) {
-            if (code >= 0) return;
+            if (code == 0) return;
             if (ctrl)
                 feed(KeyEvent.KEYCODE_CTRL_LEFT, true);
             if (alt)
                 feed(KeyEvent.KEYCODE_ALT_LEFT, true);
-            feed(String.valueOf((char) -code));
+            if (code < 0)
+                feed(String.valueOf((char) -code));
+            else {
+                if (shift)
+                    feed(KeyEvent.KEYCODE_SHIFT_LEFT, true);
+                feed(code, true);
+                feed(code, false);
+                if (shift)
+                    feed(KeyEvent.KEYCODE_SHIFT_LEFT, false);
+            }
             if (alt)
                 feed(KeyEvent.KEYCODE_ALT_LEFT, false);
             if (ctrl)

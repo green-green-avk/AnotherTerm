@@ -55,6 +55,7 @@ public class GraphicsConsoleKeyboardView extends ExtKeyboardView implements
     protected int mode = MODE_VISIBLE;
     protected int prevMode = mode;
     protected int currMode = mode;
+    protected boolean ansiMode = false; // For teh text input!1
 
     protected int keyHeightDp = 0;
     @NonNull
@@ -62,17 +63,20 @@ public class GraphicsConsoleKeyboardView extends ExtKeyboardView implements
     private int hwDoubleKeyPressInterval = 500; // [ms]
 
     @AnyRes
-    private int layoutRes = R.array.ansi_keyboard;
+    private int layoutRes = R.array.graphics_keyboard;
 
     public static class State {
         private int mode = MODE_UNKNOWN;
+        private boolean ansiNode = false;
 
         public void save(@NonNull final GraphicsConsoleKeyboardView v) {
             mode = v.getMode();
+            ansiNode = v.ansiMode;
         }
 
         public void apply(@NonNull final GraphicsConsoleKeyboardView v) {
             if (mode == MODE_UNKNOWN) return;
+            v.ansiMode = ansiNode;
             v.setMode(mode);
         }
     }
@@ -289,6 +293,17 @@ public class GraphicsConsoleKeyboardView extends ExtKeyboardView implements
         applyMode(getResources().getConfiguration());
     }
 
+    public boolean isAnsiMode() {
+        return ansiMode;
+    }
+
+    public void setAnsiMode(final boolean v) {
+        if (ansiMode != v) {
+            ansiMode = v;
+            //reapplyMode();
+        }
+    }
+
     protected void reapplyMode() {
         prevMode = currMode = MODE_UNKNOWN;
         applyMode(getResources().getConfiguration());
@@ -493,7 +508,10 @@ public class GraphicsConsoleKeyboardView extends ExtKeyboardView implements
         }
         final int c = event.getKeyCharacterMap().get(code,
                 KeyEvent.normalizeMetaState(event.getMetaState() & filter[1]));
-        if (c == 0) return false;
+        if (c == 0) {
+            consoleOutput.feed(c, shift, alt, ctrl);
+            return true;
+        }
         if ((c & KeyCharacterMap.COMBINING_ACCENT) == 0) {
             final int fullChar;
             if (accent != 0) {
@@ -547,6 +565,11 @@ public class GraphicsConsoleKeyboardView extends ExtKeyboardView implements
 
     @Override
     public boolean onKeyDown(final int keyCode, final KeyEvent event) {
+        if (!isAnsiMode()) {
+            if (consoleOutput != null)
+                consoleOutput.feed(keyCode, true);
+            return true;
+        }
         final int mk = hwKeyMap.get(event);
         if (isBypassKey(event, mk < 0)) return super.onKeyDown(keyCode, event);
         final int ms = getMetaStateByKeycode(mk);
@@ -608,6 +631,11 @@ public class GraphicsConsoleKeyboardView extends ExtKeyboardView implements
 
     @Override
     public boolean onKeyUp(final int keyCode, final KeyEvent event) {
+        if (!isAnsiMode()) {
+            if (consoleOutput != null)
+                consoleOutput.feed(keyCode, false);
+            return true;
+        }
         final int mk = hwKeyMap.get(event);
         if (isBypassKey(event, mk < 0)) return super.onKeyUp(keyCode, event);
         metaState &= ~getMetaStateByKeycode(mk);
@@ -630,7 +658,7 @@ public class GraphicsConsoleKeyboardView extends ExtKeyboardView implements
     public void onPress(final int primaryCode) {
         if (primaryCode == ExtKeyboard.KEYCODE_NONE)
             return;
-        if (consoleOutput == null || consoleOutput.getStickyModifiersEnabled()) {
+        if (isAnsiMode()) {
             switch (primaryCode) {
                 case KeyEvent.KEYCODE_SHIFT_LEFT:
                 case KeyEvent.KEYCODE_SHIFT_RIGHT:
@@ -669,9 +697,9 @@ public class GraphicsConsoleKeyboardView extends ExtKeyboardView implements
                     alt = true;
                     break;
             }
+            if (consoleOutput != null)
+                consoleOutput.feed(primaryCode, true);
         }
-        if (consoleOutput != null)
-            consoleOutput.feed(primaryCode, true);
     }
 
 //    @Override
@@ -683,7 +711,7 @@ public class GraphicsConsoleKeyboardView extends ExtKeyboardView implements
     public void onKey(final int primaryCode, final int modifiers, final int modifiersMask) {
         if (primaryCode == ExtKeyboard.KEYCODE_NONE)
             return;
-        if (consoleOutput == null || consoleOutput.getStickyModifiersEnabled()) {
+        if (isAnsiMode()) {
             switch (primaryCode) {
                 case KeyEvent.KEYCODE_SHIFT_LEFT:
                 case KeyEvent.KEYCODE_SHIFT_RIGHT:
@@ -721,7 +749,14 @@ public class GraphicsConsoleKeyboardView extends ExtKeyboardView implements
                             (modifiersMask & CTRL) != 0 ?
                                     (modifiers & CTRL) != 0 : ctrl);
             }
-        } else {
+        }
+    }
+
+    @Override
+    public void onRelease(final int primaryCode) {
+        if (primaryCode == ExtKeyboard.KEYCODE_NONE)
+            return;
+        if (!isAnsiMode()) {
             switch (primaryCode) {
                 case KeyEvent.KEYCODE_SHIFT_LEFT:
                 case KeyEvent.KEYCODE_SHIFT_RIGHT:
@@ -735,26 +770,10 @@ public class GraphicsConsoleKeyboardView extends ExtKeyboardView implements
                 case KeyEvent.KEYCODE_ALT_RIGHT:
                     alt = false;
                     break;
-                default:
-                    if (consoleOutput == null) return;
-                    consoleOutput.feed(primaryCode,
-                            (modifiersMask & SHIFT) != 0 ?
-                                    (modifiers & SHIFT) != 0 :
-                                    ((getModifiers() & SHIFT) != 0),
-                            (modifiersMask & ALT) != 0 ?
-                                    (modifiers & ALT) != 0 : alt,
-                            (modifiersMask & CTRL) != 0 ?
-                                    (modifiers & CTRL) != 0 : ctrl);
             }
+            if (consoleOutput != null)
+                consoleOutput.feed(primaryCode, false);
         }
-    }
-
-    @Override
-    public void onRelease(final int primaryCode) {
-        if (primaryCode == ExtKeyboard.KEYCODE_NONE)
-            return;
-        if (consoleOutput != null)
-            consoleOutput.feed(primaryCode, false);
     }
 
     @Override

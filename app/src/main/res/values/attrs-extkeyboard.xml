@@ -17,6 +17,7 @@
         <!-- Layout info for key sizing purposes, giving rows/column counts of the base grid -->
         <attr name="layoutRows" format="integer" />
         <attr name="layoutColumns" format="integer" />
+        <attr name="convertToCodes" format="boolean" />
     </declare-styleable>
 
     <declare-styleable name="ExtKeyboard_Row">
