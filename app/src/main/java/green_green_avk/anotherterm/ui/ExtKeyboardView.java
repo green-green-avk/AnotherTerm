@@ -471,7 +471,7 @@ public abstract class ExtKeyboardView extends View /*implements View.OnClickList
 
         public void filter(@NonNull final KeyTouchStateFilter filter) {
             for (int i = 0; i < map.size(); ++i) {
-                if (filter.onElement(map.indexOfKey(i), map.valueAt(i))) {
+                if (filter.onElement(map.keyAt(i), map.valueAt(i))) {
                     removeAt(i);
                 }
             }
