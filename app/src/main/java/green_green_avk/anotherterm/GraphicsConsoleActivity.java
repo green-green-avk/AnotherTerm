@@ -102,7 +102,7 @@ public final class GraphicsConsoleActivity extends ConsoleActivity {
         mCkv.setFont(fp); // Old Android devices have no glyphs for some special symbols
 
         mCkv.setMode(GraphicsConsoleKeyboardView.MODE_HW_ONLY);
-        mCkv.setAnsiMode(false);
+        mCkv.setTextMode(false);
 
         setSessionTitle(mSession.compositor.title);
 
@@ -226,13 +226,13 @@ public final class GraphicsConsoleActivity extends ConsoleActivity {
     }
 
     private void updateImeTextModeUi() {
-        wImeTextMode.setImageState(mCkv.isAnsiMode() ?
+        wImeTextMode.setImageState(mCkv.isTextMode() ?
                         new int[]{android.R.attr.state_checked} : new int[]{},
                 true);
     }
 
     public void onSwitchImeTextMode(final View view) {
-        mCkv.setAnsiMode(!mCkv.isAnsiMode());
+        mCkv.setTextMode(!mCkv.isTextMode());
         updateImeTextModeUi();
     }
 

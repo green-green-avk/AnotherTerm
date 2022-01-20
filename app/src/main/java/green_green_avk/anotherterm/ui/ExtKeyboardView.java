@@ -240,7 +240,7 @@ public abstract class ExtKeyboardView extends View /*implements View.OnClickList
                         final KeyTouchState keyState = mTouchedKeys.getRepeatable();
                         if (keyState != null && keyState.isPressed && mAutoRepeatAllowed && getAutoRepeat()) {
                             sendEmptyMessageDelayed(MSG_REPEAT, mAutoRepeatInterval);
-                            sendKeyUp(keyState.key, mModifiers);
+                            sendKeyKey(keyState, mModifiers);
                         }
                         break;
                     }
@@ -400,24 +400,33 @@ public abstract class ExtKeyboardView extends View /*implements View.OnClickList
         return fcn;
     }
 
-    protected void sendKeyDown(@NonNull final ExtKeyboard.Key key, final int modifiers) {
+    protected void sendKeyDown(@NonNull final KeyTouchState keyState, final int modifiers) {
         if (mKeyboardActionListener == null) return;
-        final ExtKeyboard.KeyFcn fcn = getKeyFcn(key, modifiers);
-        if (fcn != null && fcn.code != ExtKeyboard.KEYCODE_NONE)
+        final ExtKeyboard.KeyFcn fcn = getKeyFcn(keyState.key, modifiers);
+        if (fcn != null && fcn.code != ExtKeyboard.KEYCODE_NONE) {
+            keyState.toRelease = fcn.code;
             mKeyboardActionListener.onPress(fcn.code);
+        }
     }
 
-    protected void sendKeyUp(@NonNull final ExtKeyboard.Key key, final int modifiers) {
+    protected void sendKeyKey(@NonNull final KeyTouchState keyState, final int modifiers) {
         if (mKeyboardActionListener == null) return;
-        final ExtKeyboard.KeyFcn fcn = getKeyFcn(key, modifiers);
+        final ExtKeyboard.KeyFcn fcn = getKeyFcn(keyState.key, modifiers);
         if (fcn != null) {
             if (fcn.code != ExtKeyboard.KEYCODE_NONE) {
                 mKeyboardActionListener.onKey(fcn.code,
                         fcn.modifiers, fcn.modifiersMask);
-                mKeyboardActionListener.onRelease(fcn.code);
             }
             if (fcn.text != null)
                 mKeyboardActionListener.onText(fcn.text);
+        }
+    }
+
+    protected void sendKeyUp(@NonNull final KeyTouchState keyState) {
+        if (mKeyboardActionListener == null) return;
+        if (keyState.toRelease != ExtKeyboard.KEYCODE_NONE) {
+            mKeyboardActionListener.onRelease(keyState.toRelease);
+            keyState.toRelease = ExtKeyboard.KEYCODE_NONE;
         }
     }
 
@@ -506,8 +515,9 @@ public abstract class ExtKeyboardView extends View /*implements View.OnClickList
     protected static final class KeyTouchState {
         public ExtKeyboard.Key key = null;
         public final PointF coords = new PointF();
-        public boolean isPressed = true;
+        public boolean isPressed = true; // for rendering
         public Popup popup = null;
+        public int toRelease = ExtKeyboard.KEYCODE_NONE; // for press/release events
     }
 
     protected interface KeyTouchStateFilter {
@@ -526,8 +536,9 @@ public abstract class ExtKeyboardView extends View /*implements View.OnClickList
     protected void releaseKey(@NonNull final KeyTouchState keyState) {
         final ExtKeyboard.KeyFcn fcn = keyState.popup.getAltKeyFcn();
         if (fcn != null) {
-            sendKeyUp(keyState.key, fcn.modifiers);
+            sendKeyKey(keyState, fcn.modifiers);
         }
+        sendKeyUp(keyState);
     }
 
     @Override
@@ -541,14 +552,15 @@ public abstract class ExtKeyboardView extends View /*implements View.OnClickList
                 if (key == null || key.type != ExtKeyboard.Key.KEY)
                     return super.onTouchEvent(event);
                 final boolean first = !mTouchedKeys.isPressed(key);
-                mTouchedKeys.put(event.getPointerId(index),
-                        key, event.getX(index), event.getY(index));
+                final KeyTouchState keyState =
+                        mTouchedKeys.put(event.getPointerId(index), key,
+                                event.getX(index), event.getY(index));
                 if (mTouchedKeys.getRepeatable() != null) {
                     mHandler.removeMessages(MSG_REPEAT);
                     mHandler.sendEmptyMessageDelayed(MSG_REPEAT, mAutoRepeatDelay);
                 }
                 if (first)
-                    sendKeyDown(key, mModifiers);
+                    sendKeyDown(keyState, mModifiers);
                 invalidateKey(key, true);
                 return true;
             }

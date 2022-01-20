@@ -6,7 +6,6 @@ import android.content.Context;
 import android.content.res.Configuration;
 import android.content.res.Resources;
 import android.content.res.TypedArray;
-import android.graphics.Rect;
 import android.os.Build;
 import android.text.InputType;
 import android.util.AttributeSet;
@@ -30,15 +29,15 @@ import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
 import androidx.core.view.ViewCompat;
 
-import green_green_avk.anotherterm.AnsiConsoleInput;
+import green_green_avk.anotherterm.GraphicsConsoleLedsInput;
 import green_green_avk.anotherterm.HwKeyMapManager;
 import green_green_avk.anotherterm.IConsoleOutput;
 import green_green_avk.anotherterm.R;
 import green_green_avk.anotherterm.utils.KeyIntervalDetector;
 
 public class GraphicsConsoleKeyboardView extends ExtKeyboardView implements
-        ExtKeyboardView.OnKeyboardActionListener, AnsiConsoleInput.OnInvalidateSink {
-    protected AnsiConsoleInput consoleInput = null;
+        ExtKeyboardView.OnKeyboardActionListener, GraphicsConsoleLedsInput.OnInvalidateSink {
+    protected GraphicsConsoleLedsInput consoleInput = null;
     protected IConsoleOutput consoleOutput = null;
 
     protected boolean ctrl = false;
@@ -55,7 +54,7 @@ public class GraphicsConsoleKeyboardView extends ExtKeyboardView implements
     protected int mode = MODE_VISIBLE;
     protected int prevMode = mode;
     protected int currMode = mode;
-    protected boolean ansiMode = false; // For teh text input!1
+    protected boolean textMode = false; // For teh text input!1
 
     protected int keyHeightDp = 0;
     @NonNull
@@ -67,16 +66,16 @@ public class GraphicsConsoleKeyboardView extends ExtKeyboardView implements
 
     public static class State {
         private int mode = MODE_UNKNOWN;
-        private boolean ansiNode = false;
+        private boolean textMode = false;
 
         public void save(@NonNull final GraphicsConsoleKeyboardView v) {
             mode = v.getMode();
-            ansiNode = v.ansiMode;
+            textMode = v.textMode;
         }
 
         public void apply(@NonNull final GraphicsConsoleKeyboardView v) {
             if (mode == MODE_UNKNOWN) return;
-            v.ansiMode = ansiNode;
+            v.textMode = textMode;
             v.setMode(mode);
         }
     }
@@ -142,15 +141,11 @@ public class GraphicsConsoleKeyboardView extends ExtKeyboardView implements
     }
 
     @Override
-    public void onInvalidateSink(@Nullable final Rect rect) {
+    public void onInvalidateSink() {
         if (!invalidating) {
             invalidating = true;
             ViewCompat.postOnAnimation(this, this::doInvalidateSink);
         }
-    }
-
-    @Override
-    public void onInvalidateSinkResize(final int cols, final int rows) {
     }
 
     @SuppressLint("ResourceType")
@@ -180,20 +175,21 @@ public class GraphicsConsoleKeyboardView extends ExtKeyboardView implements
         applyMode(cfg);
     }
 
-    public void setConsoleInput(@NonNull final AnsiConsoleInput consoleInput) {
+    public void setConsoleInput(@NonNull final GraphicsConsoleLedsInput consoleInput) {
         this.consoleInput = consoleInput;
         this.consoleOutput = this.consoleInput.consoleOutput;
         this.consoleInput.addOnInvalidateSink(this);
-        onInvalidateSink(null);
+        onInvalidateSink();
     }
 
     public void setConsoleOutputOnly(@NonNull final IConsoleOutput consoleOutput) {
         this.consoleOutput = consoleOutput;
-        onInvalidateSink(null);
+        onInvalidateSink();
     }
 
     public void unsetConsoleInput() {
-        if (consoleInput != null) consoleInput.removeOnInvalidateSink(this);
+        if (consoleInput != null)
+            consoleInput.removeOnInvalidateSink(this);
         consoleOutput = null;
         consoleInput = null;
     }
@@ -293,13 +289,13 @@ public class GraphicsConsoleKeyboardView extends ExtKeyboardView implements
         applyMode(getResources().getConfiguration());
     }
 
-    public boolean isAnsiMode() {
-        return ansiMode;
+    public boolean isTextMode() {
+        return textMode;
     }
 
-    public void setAnsiMode(final boolean v) {
-        if (ansiMode != v) {
-            ansiMode = v;
+    public void setTextMode(final boolean v) {
+        if (textMode != v) {
+            textMode = v;
             //reapplyMode();
         }
     }
@@ -565,7 +561,7 @@ public class GraphicsConsoleKeyboardView extends ExtKeyboardView implements
 
     @Override
     public boolean onKeyDown(final int keyCode, final KeyEvent event) {
-        if (!isAnsiMode()) {
+        if (!isTextMode()) {
             if (consoleOutput != null)
                 consoleOutput.feed(keyCode, true);
             return true;
@@ -631,7 +627,7 @@ public class GraphicsConsoleKeyboardView extends ExtKeyboardView implements
 
     @Override
     public boolean onKeyUp(final int keyCode, final KeyEvent event) {
-        if (!isAnsiMode()) {
+        if (!isTextMode()) {
             if (consoleOutput != null)
                 consoleOutput.feed(keyCode, false);
             return true;
@@ -658,7 +654,7 @@ public class GraphicsConsoleKeyboardView extends ExtKeyboardView implements
     public void onPress(final int primaryCode) {
         if (primaryCode == ExtKeyboard.KEYCODE_NONE)
             return;
-        if (isAnsiMode()) {
+        if (isTextMode()) {
             switch (primaryCode) {
                 case KeyEvent.KEYCODE_SHIFT_LEFT:
                 case KeyEvent.KEYCODE_SHIFT_RIGHT:
@@ -711,7 +707,7 @@ public class GraphicsConsoleKeyboardView extends ExtKeyboardView implements
     public void onKey(final int primaryCode, final int modifiers, final int modifiersMask) {
         if (primaryCode == ExtKeyboard.KEYCODE_NONE)
             return;
-        if (isAnsiMode()) {
+        if (isTextMode()) {
             switch (primaryCode) {
                 case KeyEvent.KEYCODE_SHIFT_LEFT:
                 case KeyEvent.KEYCODE_SHIFT_RIGHT:
@@ -756,7 +752,7 @@ public class GraphicsConsoleKeyboardView extends ExtKeyboardView implements
     public void onRelease(final int primaryCode) {
         if (primaryCode == ExtKeyboard.KEYCODE_NONE)
             return;
-        if (!isAnsiMode()) {
+        if (!isTextMode()) {
             switch (primaryCode) {
                 case KeyEvent.KEYCODE_SHIFT_LEFT:
                 case KeyEvent.KEYCODE_SHIFT_RIGHT:
