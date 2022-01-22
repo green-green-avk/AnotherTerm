@@ -99,9 +99,9 @@ public class ExtKeyboard {
         return ascii2Codes[c];
     }
 
-    /**
-     * Keyboard label
-     */
+//    /**
+//     * Keyboard label
+//     */
 //    private CharSequence mLabel;
 
     /**
@@ -249,9 +249,9 @@ public class ExtKeyboard {
         public static final int LED = 1;
 
         /**
-         * All the key codes (unicode or custom code) and labels
-         * that this key could generate, zero'th
-         * being the most important...
+         * All the key codes (unicode or custom code)
+         * that this key could generate and their labels,
+         * zeroth being the most important...
          */
         public final List<KeyFcn> functions = new ArrayList<>();
         /**
@@ -794,7 +794,7 @@ public class ExtKeyboard {
                 int x = 0;
                 float scaleFactor = (float) (newWidth - totalGap) / totalWidth;
                 for (int keyIndex = 0; keyIndex < numKeys; ++keyIndex) {
-                    Key key = row.mKeys.get(keyIndex);
+                    final Key key = row.mKeys.get(keyIndex);
                     key.width *= scaleFactor;
                     key.x = x;
                     x += key.width + key.gap;

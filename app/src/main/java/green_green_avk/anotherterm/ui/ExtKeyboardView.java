@@ -765,7 +765,7 @@ public abstract class ExtKeyboardView extends View /*implements View.OnClickList
                 canvas.drawText(keyFcn.label.toString(), labelX, labelY, paint);
                 paint.setTextSize(paint.getTextSize() / 2);
                 canvas.drawText(
-                        key.functions.get(SHIFT - (mModifiers & SHIFT)).label.toString(),
+                        key.functions.get(SHIFT ^ (mModifiers & SHIFT)).label.toString(),
                         labelX + loX,
                         labelY + (((mModifiers & SHIFT) == 0) ? -loY : (loY / 2)),
                         paint
