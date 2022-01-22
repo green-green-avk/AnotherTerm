@@ -28,6 +28,10 @@
     *;
 }
 
+-keep class green_green_avk.anotherterm.wlterm.protocol.** {
+    *;
+}
+
 #-dontshrink
 #-dontoptimize
 #-dontobfuscate

@@ -54,7 +54,16 @@ public class GraphicsConsoleKeyboardView extends ExtKeyboardView implements
     protected int mode = MODE_VISIBLE;
     protected int prevMode = mode;
     protected int currMode = mode;
-    protected boolean textMode = false; // For teh text input!1
+    protected boolean textMode; // ANSI-keyboard like input
+
+    protected void initTextMode(final boolean v) {
+        textMode = v;
+        setPopupFunctions(v ? null : popupFunctionsSuppress);
+    }
+
+    {
+        initTextMode(false);
+    }
 
     protected int keyHeightDp = 0;
     @NonNull
@@ -75,7 +84,7 @@ public class GraphicsConsoleKeyboardView extends ExtKeyboardView implements
 
         public void apply(@NonNull final GraphicsConsoleKeyboardView v) {
             if (mode == MODE_UNKNOWN) return;
-            v.textMode = textMode;
+            v.initTextMode(textMode);
             v.setMode(mode);
         }
     }
@@ -295,7 +304,7 @@ public class GraphicsConsoleKeyboardView extends ExtKeyboardView implements
 
     public void setTextMode(final boolean v) {
         if (textMode != v) {
-            textMode = v;
+            initTextMode(v);
             //reapplyMode();
         }
     }

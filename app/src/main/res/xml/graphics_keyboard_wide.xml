@@ -13,40 +13,160 @@
         <Key
             app:code="131"
             app:horizontalGap="1%p"
-            app:keyLabel="F1" />
+            app:keyLabel="F1"
+            app:modifiers="shiftOff">
+            <Alt
+                app:keyLabel="&#x21EB;F1"
+                app:modifiers="shiftOn" />
+            <Alt
+                app:keyLabel="&#x2387;F1"
+                app:modifiers="altOn"
+                app:positionEnd="6.25%"
+                app:positionStart="-6.25%" />
+        </Key>
         <Key
             app:code="132"
-            app:keyLabel="F2" />
+            app:keyLabel="F2"
+            app:modifiers="shiftOff">
+            <Alt
+                app:keyLabel="&#x21EB;F2"
+                app:modifiers="shiftOn" />
+            <Alt
+                app:keyLabel="&#x2387;F2"
+                app:modifiers="altOn"
+                app:positionEnd="6.25%"
+                app:positionStart="-6.25%" />
+        </Key>
         <Key
             app:code="133"
-            app:keyLabel="F3" />
+            app:keyLabel="F3"
+            app:modifiers="shiftOff">
+            <Alt
+                app:keyLabel="&#x21EB;F3"
+                app:modifiers="shiftOn" />
+            <Alt
+                app:keyLabel="&#x2387;F3"
+                app:modifiers="altOn"
+                app:positionEnd="6.25%"
+                app:positionStart="-6.25%" />
+        </Key>
         <Key
             app:code="134"
-            app:keyLabel="F4" />
+            app:keyLabel="F4"
+            app:modifiers="shiftOff">
+            <Alt
+                app:keyLabel="&#x21EB;F4"
+                app:modifiers="shiftOn" />
+            <Alt
+                app:keyLabel="&#x2387;F4"
+                app:modifiers="altOn"
+                app:positionEnd="6.25%"
+                app:positionStart="-6.25%" />
+        </Key>
         <Key
             app:code="135"
-            app:keyLabel="F5" />
+            app:keyLabel="F5"
+            app:modifiers="shiftOff">
+            <Alt
+                app:keyLabel="&#x21EB;F5"
+                app:modifiers="shiftOn" />
+            <Alt
+                app:keyLabel="&#x2387;F5"
+                app:modifiers="altOn"
+                app:positionEnd="6.25%"
+                app:positionStart="-6.25%" />
+        </Key>
         <Key
             app:code="136"
-            app:keyLabel="F6" />
+            app:keyLabel="F6"
+            app:modifiers="shiftOff">
+            <Alt
+                app:keyLabel="&#x21EB;F6"
+                app:modifiers="shiftOn" />
+            <Alt
+                app:keyLabel="&#x2387;F6"
+                app:modifiers="altOn"
+                app:positionEnd="6.25%"
+                app:positionStart="-6.25%" />
+        </Key>
         <Key
             app:code="137"
-            app:keyLabel="F7" />
+            app:keyLabel="F7"
+            app:modifiers="shiftOff">
+            <Alt
+                app:keyLabel="&#x21EB;F7"
+                app:modifiers="shiftOn" />
+            <Alt
+                app:keyLabel="&#x2387;F7"
+                app:modifiers="altOn"
+                app:positionEnd="6.25%"
+                app:positionStart="-6.25%" />
+        </Key>
         <Key
             app:code="138"
-            app:keyLabel="F8" />
+            app:keyLabel="F8"
+            app:modifiers="shiftOff">
+            <Alt
+                app:keyLabel="&#x21EB;F8"
+                app:modifiers="shiftOn" />
+            <Alt
+                app:keyLabel="&#x2387;F8"
+                app:modifiers="altOn"
+                app:positionEnd="6.25%"
+                app:positionStart="-6.25%" />
+        </Key>
         <Key
             app:code="139"
-            app:keyLabel="F9" />
+            app:keyLabel="F9"
+            app:modifiers="shiftOff">
+            <Alt
+                app:keyLabel="&#x21EB;F9"
+                app:modifiers="shiftOn" />
+            <Alt
+                app:keyLabel="&#x2387;F9"
+                app:modifiers="altOn"
+                app:positionEnd="6.25%"
+                app:positionStart="-6.25%" />
+        </Key>
         <Key
             app:code="140"
-            app:keyLabel="F10" />
+            app:keyLabel="F10"
+            app:modifiers="shiftOff">
+            <Alt
+                app:keyLabel="&#x21EB;F10"
+                app:modifiers="shiftOn" />
+            <Alt
+                app:keyLabel="&#x2387;F10"
+                app:modifiers="altOn"
+                app:positionEnd="6.25%"
+                app:positionStart="-6.25%" />
+        </Key>
         <Key
             app:code="141"
-            app:keyLabel="F11" />
+            app:keyLabel="F11"
+            app:modifiers="shiftOff">
+            <Alt
+                app:keyLabel="&#x21EB;F11"
+                app:modifiers="shiftOn" />
+            <Alt
+                app:keyLabel="&#x2387;F11"
+                app:modifiers="altOn"
+                app:positionEnd="6.25%"
+                app:positionStart="-6.25%" />
+        </Key>
         <Key
             app:code="142"
-            app:keyLabel="F12" />
+            app:keyLabel="F12"
+            app:modifiers="shiftOff">
+            <Alt
+                app:keyLabel="&#x21EB;F12"
+                app:modifiers="shiftOn" />
+            <Alt
+                app:keyLabel="&#x2387;F12"
+                app:modifiers="altOn"
+                app:positionEnd="6.25%"
+                app:positionStart="-6.25%" />
+        </Key>
         <Key
             app:code="124"
             app:horizontalGap="2%p"
@@ -107,7 +227,12 @@
         <Key
             app:code="61"
             app:keyLabel="&#x21B9;"
-            app:keyWidth="7.5%p" /><!-- Tab -->
+            app:keyWidth="7.5%p"
+            app:modifiers="shiftOff"><!-- Tab -->
+            <Alt
+                app:keyLabel="&#x21EB;&#x21B9;"
+                app:modifiers="shiftOn" />
+        </Key>
         <Key app:keyLabel="qQ" />
         <Key app:keyLabel="wW" />
         <Key app:keyLabel="eE" />
@@ -158,7 +283,13 @@
         <Key
             app:code="66"
             app:keyLabel="&#x23CE;"
-            app:keyWidth="10%p" /><!-- Enter -->
+            app:keyWidth="10%p"><!-- Enter -->
+            <Alt
+                app:keyLabel="&#x2387;&#x23CE;"
+                app:modifiers="altOn"
+                app:positionEnd="6.25%"
+                app:positionStart="-6.25%" />
+        </Key>
         <Key
             app:code="145"
             app:horizontalGap="2%p"
@@ -178,6 +309,7 @@
     <Row>
         <Key
             app:code="59"
+            app:isModifier="true"
             app:keyLabel="&#x21E7;"
             app:keyWidth="12.5%p" /><!-- Shift -->
         <Key app:keyLabel="zZ" />
@@ -192,6 +324,7 @@
         <Key app:keyLabel="/?" />
         <Key
             app:code="60"
+            app:isModifier="true"
             app:keyLabel="&#x21E7;"
             app:keyWidth="12.5%p" /><!-- Shift -->
         <Key
@@ -219,22 +352,37 @@
             app:keyLabel="Break" />
         <Key
             app:code="113"
+            app:isModifier="true"
             app:keyLabel="Ctrl"
             app:keyWidth="10%p" />
         <Key
             app:code="57"
+            app:isModifier="true"
             app:keyLabel="Alt"
             app:keyWidth="10%p" />
         <Key
             app:code="62"
             app:keyLabel="&#x2423;"
-            app:keyWidth="15%p" /><!-- Space -->
+            app:keyWidth="15%p"><!-- Space -->
+            <Alt
+                app:keyLabel="^&#x2423;"
+                app:modifiers="ctrlOn"
+                app:positionEnd="56.25%"
+                app:positionStart="43.75%" />
+            <Alt
+                app:keyLabel="&#x2387;&#x2423;"
+                app:modifiers="altOn"
+                app:positionEnd="6.25%"
+                app:positionStart="-6.25%" />
+        </Key>
         <Key
             app:code="58"
+            app:isModifier="true"
             app:keyLabel="Alt"
             app:keyWidth="10%p" />
         <Key
             app:code="114"
+            app:isModifier="true"
             app:keyLabel="Ctrl"
             app:keyWidth="10%p" />
         <Key

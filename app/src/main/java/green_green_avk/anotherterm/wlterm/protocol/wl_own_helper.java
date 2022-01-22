@@ -1,5 +1,6 @@
-package green_green_avk.anotherterm.wlterm;
+package green_green_avk.anotherterm.wlterm.protocol;
 
+import green_green_avk.anotherterm.wlterm.WlOwnCustomException;
 import green_green_avk.wayland.protocol_core.WlInterface;
 
 /**

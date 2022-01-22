@@ -124,7 +124,7 @@ public final class GraphicsCompositor {
     public final IConsoleOutput consoleOutput = new IConsoleOutput() {
         @Override
         public boolean getKeyAutorepeat() {
-            return false;
+            return true; // Text input mode only
         }
 
         @Override

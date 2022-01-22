@@ -36,7 +36,6 @@ import android.util.SparseArray;
 import android.util.TypedValue;
 import android.util.Xml;
 import android.view.InflateException;
-import android.view.KeyCharacterMap;
 import android.view.KeyEvent;
 
 import androidx.annotation.NonNull;
@@ -81,22 +80,156 @@ public class ExtKeyboard {
     public static final int ALT = 2;
     public static final int CTRL = 4;
 
-    private static final int[] ascii2Codes = new int[128];
+    private static final int[] ascii2KeyCode = {
+            KEYCODE_NONE,
+            KEYCODE_NONE,
+            KEYCODE_NONE,
+            KEYCODE_NONE,
+            KEYCODE_NONE,
+            KEYCODE_NONE,
+            KEYCODE_NONE,
+            KEYCODE_NONE,
 
-    static {
-        final KeyCharacterMap kcm = KeyCharacterMap.load(KeyCharacterMap.VIRTUAL_KEYBOARD);
-        for (int i = KeyEvent.KEYCODE_0; i <= KeyEvent.KEYCODE_9; i++) {
-            ascii2Codes[kcm.get(i, 0)] = i;
-            ascii2Codes[kcm.get(i, KeyEvent.META_SHIFT_ON)] = i;
-        }
-        for (int i = KeyEvent.KEYCODE_A; i <= KeyEvent.KEYCODE_Z; i++) {
-            ascii2Codes[kcm.get(i, 0)] = i;
-            ascii2Codes[kcm.get(i, KeyEvent.META_SHIFT_ON)] = i;
-        }
-    }
+            KEYCODE_NONE,
+            KeyEvent.KEYCODE_TAB,
+            KEYCODE_NONE,
+            KEYCODE_NONE,
+            KEYCODE_NONE,
+            KEYCODE_NONE,
+            KEYCODE_NONE,
+            KEYCODE_NONE,
+
+            KEYCODE_NONE,
+            KEYCODE_NONE,
+            KEYCODE_NONE,
+            KEYCODE_NONE,
+            KEYCODE_NONE,
+            KEYCODE_NONE,
+            KEYCODE_NONE,
+            KEYCODE_NONE,
+
+            KEYCODE_NONE,
+            KEYCODE_NONE,
+            KEYCODE_NONE,
+            KEYCODE_NONE,
+            KEYCODE_NONE,
+            KEYCODE_NONE,
+            KEYCODE_NONE,
+            KEYCODE_NONE,
+
+            KeyEvent.KEYCODE_SPACE,
+            KeyEvent.KEYCODE_1,
+            KeyEvent.KEYCODE_APOSTROPHE,
+            KeyEvent.KEYCODE_3,
+            KeyEvent.KEYCODE_4,
+            KeyEvent.KEYCODE_5,
+            KeyEvent.KEYCODE_7,
+            KeyEvent.KEYCODE_APOSTROPHE,
+
+            KeyEvent.KEYCODE_9,
+            KeyEvent.KEYCODE_0,
+            KeyEvent.KEYCODE_8,
+            KeyEvent.KEYCODE_EQUALS,
+            KeyEvent.KEYCODE_COMMA,
+            KeyEvent.KEYCODE_MINUS,
+            KeyEvent.KEYCODE_PERIOD,
+            KeyEvent.KEYCODE_SLASH,
+
+            KeyEvent.KEYCODE_0,
+            KeyEvent.KEYCODE_1,
+            KeyEvent.KEYCODE_2,
+            KeyEvent.KEYCODE_3,
+            KeyEvent.KEYCODE_4,
+            KeyEvent.KEYCODE_5,
+            KeyEvent.KEYCODE_6,
+            KeyEvent.KEYCODE_7,
+
+            KeyEvent.KEYCODE_8,
+            KeyEvent.KEYCODE_9,
+            KeyEvent.KEYCODE_SEMICOLON,
+            KeyEvent.KEYCODE_SEMICOLON,
+            KeyEvent.KEYCODE_COMMA,
+            KeyEvent.KEYCODE_EQUALS,
+            KeyEvent.KEYCODE_PERIOD,
+            KeyEvent.KEYCODE_SLASH,
+
+            KeyEvent.KEYCODE_2,
+            KeyEvent.KEYCODE_A,
+            KeyEvent.KEYCODE_B,
+            KeyEvent.KEYCODE_C,
+            KeyEvent.KEYCODE_D,
+            KeyEvent.KEYCODE_E,
+            KeyEvent.KEYCODE_F,
+            KeyEvent.KEYCODE_G,
+
+            KeyEvent.KEYCODE_H,
+            KeyEvent.KEYCODE_I,
+            KeyEvent.KEYCODE_J,
+            KeyEvent.KEYCODE_K,
+            KeyEvent.KEYCODE_L,
+            KeyEvent.KEYCODE_M,
+            KeyEvent.KEYCODE_N,
+            KeyEvent.KEYCODE_O,
+
+            KeyEvent.KEYCODE_P,
+            KeyEvent.KEYCODE_Q,
+            KeyEvent.KEYCODE_R,
+            KeyEvent.KEYCODE_S,
+            KeyEvent.KEYCODE_T,
+            KeyEvent.KEYCODE_U,
+            KeyEvent.KEYCODE_V,
+            KeyEvent.KEYCODE_W,
+
+            KeyEvent.KEYCODE_X,
+            KeyEvent.KEYCODE_Y,
+            KeyEvent.KEYCODE_Z,
+            KeyEvent.KEYCODE_LEFT_BRACKET,
+            KeyEvent.KEYCODE_BACKSLASH,
+            KeyEvent.KEYCODE_RIGHT_BRACKET,
+            KeyEvent.KEYCODE_6,
+            KeyEvent.KEYCODE_MINUS,
+
+            KeyEvent.KEYCODE_GRAVE,
+            KeyEvent.KEYCODE_A,
+            KeyEvent.KEYCODE_B,
+            KeyEvent.KEYCODE_C,
+            KeyEvent.KEYCODE_D,
+            KeyEvent.KEYCODE_E,
+            KeyEvent.KEYCODE_F,
+            KeyEvent.KEYCODE_G,
+
+            KeyEvent.KEYCODE_H,
+            KeyEvent.KEYCODE_I,
+            KeyEvent.KEYCODE_J,
+            KeyEvent.KEYCODE_K,
+            KeyEvent.KEYCODE_L,
+            KeyEvent.KEYCODE_M,
+            KeyEvent.KEYCODE_N,
+            KeyEvent.KEYCODE_O,
+
+            KeyEvent.KEYCODE_P,
+            KeyEvent.KEYCODE_Q,
+            KeyEvent.KEYCODE_R,
+            KeyEvent.KEYCODE_S,
+            KeyEvent.KEYCODE_T,
+            KeyEvent.KEYCODE_U,
+            KeyEvent.KEYCODE_V,
+            KeyEvent.KEYCODE_W,
+
+            KeyEvent.KEYCODE_X,
+            KeyEvent.KEYCODE_Y,
+            KeyEvent.KEYCODE_Z,
+            KeyEvent.KEYCODE_LEFT_BRACKET,
+            KeyEvent.KEYCODE_BACKSLASH,
+            KeyEvent.KEYCODE_RIGHT_BRACKET,
+            KeyEvent.KEYCODE_GRAVE,
+            KEYCODE_NONE
+    };
 
     public static int getKeyCodeByAscii(final char c) {
-        return ascii2Codes[c];
+        if (c >= ascii2KeyCode.length)
+            return KEYCODE_NONE;
+        return ascii2KeyCode[c];
     }
 
 //    /**
