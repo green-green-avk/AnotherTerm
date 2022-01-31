@@ -50,6 +50,10 @@ android {
     buildTypes {
         debug {
             applicationIdSuffix ".debug"
+            minifyEnabled true
+            shrinkResources true
+            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro',
+                    'proguard-rules-debug.pro'
             externalNativeBuild {
                 cmake {
                     arguments "-DAPP_ID_TYPE=\\\"${applicationIdSuffix}\\\""
