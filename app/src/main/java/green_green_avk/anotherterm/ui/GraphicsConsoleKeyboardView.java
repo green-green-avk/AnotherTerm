@@ -409,6 +409,12 @@ public class GraphicsConsoleKeyboardView extends ExtKeyboardView implements
     private final SparseArray<int[]> metaStateFilterCache = new SparseArray<>();
     private static final int[] metaStateFilterDefault = new int[]{META_ALL_MASK, META_DEF_MASK};
 
+    /**
+     * Returns key modifier filters according to current hardware key mapping.
+     *
+     * @param event key event
+     * @return modifiers to be used: <code>{</code>just as modifiers<code>, </code>for codepoint(s) generation<code>}</code>
+     */
     private int[] getMetaStateFilter(@NonNull final KeyEvent event) {
         final int devType = hwKeyMap.getDevType(event);
         if (devType < 0)

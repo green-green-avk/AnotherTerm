@@ -555,7 +555,8 @@ public abstract class ExtKeyboardView extends View /*implements View.OnClickList
 
     @Override
     public boolean onTouchEvent(final MotionEvent event) {
-        if (mKeyboard == null) return super.onTouchEvent(event);
+        if (mKeyboard == null)
+            return super.onTouchEvent(event);
         switch (event.getActionMasked()) {
             case MotionEvent.ACTION_POINTER_DOWN:
             case MotionEvent.ACTION_DOWN: {
@@ -580,7 +581,8 @@ public abstract class ExtKeyboardView extends View /*implements View.OnClickList
             case MotionEvent.ACTION_UP: {
                 final int index = event.getActionIndex();
                 final KeyTouchState keyState = mTouchedKeys.get(event.getPointerId(index));
-                if (keyState == null) return super.onTouchEvent(event);
+                if (keyState == null)
+                    return super.onTouchEvent(event);
                 mTouchedKeys.remove(event.getPointerId(index));
                 if (keyState.isPressed && keyState.key != null && !mTouchedKeys.isPressed(keyState.key)) {
                     invalidateKey(keyState.key, false);
@@ -591,7 +593,8 @@ public abstract class ExtKeyboardView extends View /*implements View.OnClickList
             case MotionEvent.ACTION_MOVE:
                 for (int i = 0; i < event.getPointerCount(); ++i) {
                     final KeyTouchState keyState = mTouchedKeys.get(event.getPointerId(i));
-                    if (keyState == null) return super.onTouchEvent(event);
+                    if (keyState == null)
+                        return super.onTouchEvent(event);
                     keyState.popup.addPointer(event.getX(i), event.getY(i));
                     final boolean oip = keyState.isPressed;
                     keyState.isPressed =
@@ -610,17 +613,20 @@ public abstract class ExtKeyboardView extends View /*implements View.OnClickList
     }
 
     public int getDesiredWidth() {
-        return getPaddingLeft() + getPaddingRight() + ((mKeyboard == null) ? 0 : mKeyboard.getMinWidth());
+        return getPaddingLeft() + getPaddingRight() +
+                ((mKeyboard == null) ? 0 : mKeyboard.getMinWidth());
     }
 
     public int getDesiredHeight() {
-        return getPaddingTop() + getPaddingBottom() + ((mKeyboard == null) ? 0 : mKeyboard.getHeight());
+        return getPaddingTop() + getPaddingBottom() +
+                ((mKeyboard == null) ? 0 : mKeyboard.getHeight());
     }
 
     protected static int getDefaultSize(int desiredSize, final int measureSpec, final int layoutSize) {
         final int specMode = MeasureSpec.getMode(measureSpec);
         final int specSize = MeasureSpec.getSize(measureSpec);
-        if (layoutSize >= 0) desiredSize = layoutSize;
+        if (layoutSize >= 0)
+            desiredSize = layoutSize;
         switch (specMode) {
             case MeasureSpec.EXACTLY:
                 return specSize;
@@ -734,9 +740,9 @@ public abstract class ExtKeyboardView extends View /*implements View.OnClickList
         final int top = getPaddingTop() + key.y;
 
         final ExtKeyboard.KeyFcn keyFcn = getKeyFcn(key, mModifiers);
-        final int[] drawableState = ExtKeyboard.Key.getKeyState(pressed,
+        final int[] drawState = ExtKeyboard.Key.getKeyDrawState(pressed,
                 keyFcn != null && leds.contains(keyFcn.code));
-        background.setState(drawableState);
+        background.setState(drawState);
 
         final Rect bounds = background.getBounds();
         if (key.width != bounds.right ||
@@ -869,13 +875,13 @@ public abstract class ExtKeyboardView extends View /*implements View.OnClickList
                         mPopupShadowColor);
                 for (final ExtKeyboard.KeyFcn keyFcn : keyState.key.functions) {
                     final PointF coords = _getAltKeyFcnCoords(keyFcn);
-                    final int[] state = ExtKeyboard.Key.getKeyState(
+                    final int[] drawState = ExtKeyboard.Key.getKeyDrawState(
                             keyFcn == getAltKeyFcn(), false);
                     canvas.save();
                     canvas.translate(coords.x, coords.y);
                     canvas.save();
                     canvas.translate(-mFontHeight / 2, -mFontHeight / 2);
-                    mPopupKeyBackground.mutate().setState(state);
+                    mPopupKeyBackground.mutate().setState(drawState);
                     mPopupKeyBackground.setBounds(0, 0,
                             (int) mFontHeight, (int) mFontHeight);
                     canvas.clipRect(0, 0, mFontHeight, mFontHeight);
@@ -883,7 +889,7 @@ public abstract class ExtKeyboardView extends View /*implements View.OnClickList
                     canvas.restore();
                     if (keyFcn.label != null) {
                         if (mPopupKeyTextColor != null)
-                            mPaint.setColor(mPopupKeyTextColor.getColorForState(state,
+                            mPaint.setColor(mPopupKeyTextColor.getColorForState(drawState,
                                     mPopupKeyTextColor.getDefaultColor()));
                         mPaint.setTextSize(mBaseTextSize2 / keyFcn.label.length());
                         canvas.drawText(keyFcn.label.toString(),
@@ -921,7 +927,8 @@ public abstract class ExtKeyboardView extends View /*implements View.OnClickList
             ptrA = (float) (Math.PI + Math.atan2(dy, dx));
             final ExtKeyboard.KeyFcn oFcn = keyFcn;
             keyFcn = _getAltKeyFcn();
-            if (keyFcn != oFcn) view.invalidate();
+            if (keyFcn != oFcn)
+                view.invalidate();
         }
 
         @Nullable
@@ -952,8 +959,10 @@ public abstract class ExtKeyboardView extends View /*implements View.OnClickList
         protected final PointF _altKeyFcnCoords = new PointF();
 
         protected PointF _getAltKeyFcnCoords(@NonNull ExtKeyboard.KeyFcn fcn) {
-            if (fcn == keyState.key.getBaseFcn()) fcn = getModifiersAltKeyFcn(keyState.key);
-            else if (fcn == getModifiersAltKeyFcn(keyState.key)) fcn = keyState.key.getBaseFcn();
+            if (fcn == keyState.key.getBaseFcn())
+                fcn = getModifiersAltKeyFcn(keyState.key);
+            else if (fcn == getModifiersAltKeyFcn(keyState.key))
+                fcn = keyState.key.getBaseFcn();
             float pos = fcn.iconCircularPos;
             if (Float.isNaN(pos)) {
                 _altKeyFcnCoords.x = 0;

@@ -454,15 +454,16 @@ public class ExtKeyboard {
         private boolean convertToCodes;
         public boolean showBothLabels = false;
 
-        private final static int[][] KEY_STATES = {
+        private final static int[][] KEY_DRAW_STATES = {
                 {},
                 {android.R.attr.state_pressed},
                 {android.R.attr.state_checked},
                 {android.R.attr.state_checked, android.R.attr.state_pressed}
         };
 
-        public static int[] getKeyState(final boolean pressed, final boolean on) {
-            return KEY_STATES[(pressed ? 1 : 0) | (on ? 2 : 0)];
+        @NonNull
+        public static int[] getKeyDrawState(final boolean pressed, final boolean on) {
+            return KEY_DRAW_STATES[(pressed ? 1 : 0) | (on ? 2 : 0)];
         }
 
         /**
