@@ -85,7 +85,8 @@ public abstract class WlInterface<RT extends WlInterface.Requests,
         try {
             return (Class<Requests>) getDeclarations(v, "Requests");
         } catch (final ClassCastException e) {
-            throw new IllegalArgumentException("Bad class", e);
+            throw new IllegalArgumentException("Wayland protocol class " + v.getSimpleName()
+                    + " has bad Requests subclass", e);
         }
     }
 
@@ -94,7 +95,8 @@ public abstract class WlInterface<RT extends WlInterface.Requests,
         try {
             return (Class<Events>) getDeclarations(v, "Events");
         } catch (final ClassCastException e) {
-            throw new IllegalArgumentException("Bad class", e);
+            throw new IllegalArgumentException("Wayland protocol class " + v.getSimpleName()
+                    + " has bad Events subclass", e);
         }
     }
 
@@ -133,7 +135,8 @@ public abstract class WlInterface<RT extends WlInterface.Requests,
             return v.getDeclaredField(name).get(null);
         } catch (final NoSuchFieldException | NullPointerException | SecurityException
                 | IllegalAccessException | ExceptionInInitializerError e) {
-            throw new IllegalArgumentException("Bad class", e);
+            throw new IllegalArgumentException("Wayland protocol class " + v.getSimpleName()
+                    + " has no or bad " + name + " field", e);
         }
     }
 
@@ -146,9 +149,11 @@ public abstract class WlInterface<RT extends WlInterface.Requests,
                     return (Class<Callbacks>) c;
             }
         } catch (final SecurityException | ClassCastException e) {
-            throw new IllegalArgumentException("Bad class", e);
+            throw new IllegalArgumentException("Wayland protocol class " + v.getSimpleName()
+                    + " has bad " + name + " subclass", e);
         }
-        throw new IllegalArgumentException("Bad class");
+        throw new IllegalArgumentException("Wayland protocol class " + v.getSimpleName()
+                + " has no " + name + " subclass");
     }
 
     @NonNull
@@ -173,7 +178,8 @@ public abstract class WlInterface<RT extends WlInterface.Requests,
                 return (Class<? extends WlInterface>) c;
             c = s;
         }
-        throw new IllegalArgumentException();
+        throw new IllegalArgumentException(
+                "Unable to find base Wayland interface for " + v.getName());
     }
 
     // Implementation
