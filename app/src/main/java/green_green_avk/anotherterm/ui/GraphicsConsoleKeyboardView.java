@@ -525,10 +525,14 @@ public class GraphicsConsoleKeyboardView extends ExtKeyboardView implements
             metaStateOnKey();
             return true;
         }
+        if (alt || ctrl) {
+            consoleOutput.feed(code, shift, alt, ctrl);
+            return true;
+        }
         final int c = event.getKeyCharacterMap().get(code,
                 KeyEvent.normalizeMetaState(event.getMetaState() & filter[1]));
         if (c == 0) {
-            consoleOutput.feed(c, shift, alt, ctrl);
+            consoleOutput.feed(code, shift, alt, ctrl);
             return true;
         }
         if ((c & KeyCharacterMap.COMBINING_ACCENT) == 0) {
