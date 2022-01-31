@@ -30,15 +30,15 @@ import androidx.annotation.RequiresApi;
 import androidx.core.view.ViewCompat;
 
 import green_green_avk.anotherterm.GraphicsConsoleLedsInput;
+import green_green_avk.anotherterm.GraphicsConsoleOutput;
 import green_green_avk.anotherterm.HwKeyMapManager;
-import green_green_avk.anotherterm.IConsoleOutput;
 import green_green_avk.anotherterm.R;
 import green_green_avk.anotherterm.utils.KeyIntervalDetector;
 
 public class GraphicsConsoleKeyboardView extends ExtKeyboardView implements
         ExtKeyboardView.OnKeyboardActionListener, GraphicsConsoleLedsInput.OnInvalidateSink {
     protected GraphicsConsoleLedsInput consoleInput = null;
-    protected IConsoleOutput consoleOutput = null;
+    protected GraphicsConsoleOutput consoleOutput = null;
 
     protected boolean ctrl = false;
     protected boolean alt = false;
@@ -58,7 +58,7 @@ public class GraphicsConsoleKeyboardView extends ExtKeyboardView implements
 
     protected void initTextMode(final boolean v) {
         textMode = v;
-        setPopupFunctions(v ? null : popupFunctionsSuppress);
+        setPopupDisabled(!v);
     }
 
     {
@@ -192,7 +192,7 @@ public class GraphicsConsoleKeyboardView extends ExtKeyboardView implements
         onInvalidateSink();
     }
 
-    public void setConsoleOutputOnly(@NonNull final IConsoleOutput consoleOutput) {
+    public void setConsoleOutputOnly(@NonNull final GraphicsConsoleOutput consoleOutput) {
         this.consoleOutput = consoleOutput;
         onInvalidateSink();
     }
@@ -519,12 +519,6 @@ public class GraphicsConsoleKeyboardView extends ExtKeyboardView implements
         int code = hwKeyMap.get(event);
         if (code < 0)
             code = event.getKeyCode();
-        final String r = consoleOutput.getKeySeq(code, shift, alt, ctrl);
-        if (r != null) {
-            consoleOutput.feed(r);
-            metaStateOnKey();
-            return true;
-        }
         if (alt || ctrl) {
             consoleOutput.feed(code, shift, alt, ctrl);
             return true;

@@ -44,7 +44,6 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
 import androidx.appcompat.content.res.AppCompatResources;
-import androidx.arch.core.util.Function;
 import androidx.core.util.Pools;
 
 import java.util.HashSet;
@@ -123,9 +122,7 @@ public abstract class ExtKeyboardView extends View /*implements View.OnClickList
     protected int mPopupShadowColor;
     protected float mPopupShadowRadius;
 
-    public static final Function<ExtKeyboard.Key, ExtKeyboard.Key> popupFunctionsSuppress =
-            key -> null;
-    protected Function<ExtKeyboard.Key, ExtKeyboard.Key> popupFunctions = null;
+    private boolean popupDisabled = false;
 
     protected int mLabelTextSize;
     protected int mKeyTextSize;
@@ -366,9 +363,9 @@ public abstract class ExtKeyboardView extends View /*implements View.OnClickList
      *
      * @param v <code>null</code> - don't override; function returning <code>null</code> - suppress
      */
-    public void setPopupFunctions(@Nullable final Function<ExtKeyboard.Key, ExtKeyboard.Key> v) {
+    public void setPopupDisabled(final boolean v) {
         cancelKeys();
-        popupFunctions = v;
+        popupDisabled = v;
     }
 
     /**
@@ -858,9 +855,9 @@ public abstract class ExtKeyboardView extends View /*implements View.OnClickList
             @Override
             protected void onDraw(final Canvas canvas) {
                 super.onDraw(canvas);
-                if (keyState.key == null || keyState.key.functions.size() < 2)
+                if (popupDisabled)
                     return;
-                if (popupFunctions != null)
+                if (keyState.key == null || keyState.key.functions.size() < 2)
                     return;
                 canvas.save();
                 if (mPopupBackground != null) {
@@ -941,7 +938,9 @@ public abstract class ExtKeyboardView extends View /*implements View.OnClickList
         protected ExtKeyboard.KeyFcn _getAltKeyFcn() {
             if (ptrD < mPopupKeySize * mPopupKeySize)
                 return getModifiersAltKeyFcn(keyState.key);
-            final ExtKeyboard.KeyFcn fcn = popupFunctions != null ? null :
+            if (popupDisabled)
+                return null;
+            final ExtKeyboard.KeyFcn fcn =
                     keyState.key.getCircularKeyFcn((int) (ptrA / ptrStep));
             if (fcn == null)
                 return null;

@@ -2,19 +2,15 @@ package green_green_avk.anotherterm;
 
 import androidx.annotation.AnyRes;
 import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
 
-public interface IConsoleOutput {
+public interface GraphicsConsoleOutput {
     boolean getKeyAutorepeat();
 
     @AnyRes
     int getLayoutRes();
 
-    @Nullable
-    String getKeySeq(int code, boolean shift, boolean alt, boolean ctrl);
-
     /**
-     * On key. (for ANSI)
+     * On key. (for IM)
      */
     void feed(int code, boolean shift, boolean alt, boolean ctrl);
 

@@ -121,7 +121,7 @@ public final class GraphicsCompositor {
     public volatile CharSequence title = "\uD83D\uDDA5";
 
     // TODO: The Wayland / X screen keyboard must be a pretty different beast. Split!
-    public final IConsoleOutput consoleOutput = new IConsoleOutput() {
+    public final GraphicsConsoleOutput consoleOutput = new GraphicsConsoleOutput() {
         @Override
         public boolean getKeyAutorepeat() {
             return true; // Text input mode only
@@ -131,13 +131,6 @@ public final class GraphicsCompositor {
         @AnyRes
         public int getLayoutRes() {
             return R.array.graphics_keyboard;
-        }
-
-        @Override
-        @Nullable
-        public String getKeySeq(final int code, final boolean shift,
-                                final boolean alt, final boolean ctrl) {
-            return null;
         }
 
         @Override

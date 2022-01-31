@@ -6,7 +6,7 @@ import androidx.annotation.NonNull;
  * Stub yet...
  */
 public final class GraphicsConsoleLedsInput {
-    public IConsoleOutput consoleOutput = null;
+    public GraphicsConsoleOutput consoleOutput = null;
 
     public boolean numLed = false;
     public boolean capsLed = false;
