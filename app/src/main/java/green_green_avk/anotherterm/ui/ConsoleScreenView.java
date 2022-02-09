@@ -232,7 +232,7 @@ public class ConsoleScreenView extends ScrollableView
                         setSelectionMode(true);
                         setSelectionModeIsExpr(false);
                         selectAll();
-                        setSelectionIsRect(true);
+                        setSelectionIsRect(false);
                         onSelectionChanged();
                         invalidateSelectionUi(false);
                     });
