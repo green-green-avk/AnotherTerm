@@ -1795,6 +1795,7 @@ public class ConsoleScreenView extends ScrollableView
 
     @Override
     protected void onDraw(final Canvas canvas) {
+        super.onDraw(canvas);
         drawContent(canvas);
         if (consoleInput != null) {
             drawSelection(canvas);
@@ -1803,7 +1804,6 @@ public class ConsoleScreenView extends ScrollableView
                     consoleInput.currScrBuf.getAbsPosY()),
                     cursorPaint);
         }
-        super.onDraw(canvas);
     }
 
     protected final float getSelectionMarkerDistance(@NonNull final MotionEvent event,
