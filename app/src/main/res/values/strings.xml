@@ -181,8 +181,8 @@
     <string name="label_font">Font</string>
     <string name="label_selection">Selection</string>
     <string name="label_screen_keyboard">Screen Keyboard</string>
-    <string name="label_default_font_size">Default Size</string>
-    <string name="label_selection_pad_size">Pad Size</string>
+    <string name="label_default_font_size">Default size</string>
+    <string name="label_selection_pad_size">Anchor size</string>
     <string name="label_kbd_key_height">Key height</string>
     <string name="label_kbd_autorepeat">Autorepeat</string>
     <string name="label_kbd_autorepeat_start_delay">Autorepeat start delay</string>
@@ -320,7 +320,7 @@
     <string name="label_dev_external">External</string>
     <string name="label_key_block">Block</string>
     <string name="label_key_bypass">Bypass</string>
-    <string name="label_keep_terminal_activities_on_the_recents_screen">Keep terminal activities on the Recents screen</string>
+    <string name="label_keep_terminal_activities_on_the_recents_screen">Keep terminal activities on the <b>Recents screen</b></string>
     <string name="label_term_compliance">Compliance</string>
     <string name="label_term_compliance_ansi">ANSI</string>
     <string name="label_term_compliance_vt52compat">VT52 Compat</string>
