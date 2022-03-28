@@ -372,15 +372,18 @@ exit code <code>2</code> is returned.</li>
 <li><footnote ref=\"2\" /> &#x2014; The scratchpad marshalling limit applies.</li>
 </ul>
 
-<h4>Environment variables:</h4>
+<h4>Related environment variables:</h4>
 <ul type=\"none\">
 <li><clipboard>TERMSH_UID</clipboard> &#x2014;
-a real UID for this application to use for spoofing detection.
-It should be set by the user in case the emulated UID is different
+a real UID of this application to use for spoofing detection.
+It must be set by the user in order to use <code>termsh</code>
+if the emulated UID is different
 (chrooted environment, for example).</li>
 <li><clipboard>SHELL_SESSION_TOKEN</clipboard> &#x2014;
-a session permissions and terminal window token.
-Set by <b>Another&nbsp;Term</b> itself.</li>
+a current session token.
+Set by <b>Another&nbsp;Term</b> itself.
+Required to access current session properties
+and its connected terminal window.</li>
 </ul>
 ]]></string>
 </resources>

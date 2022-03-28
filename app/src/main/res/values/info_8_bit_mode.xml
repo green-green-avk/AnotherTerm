@@ -1,12 +1,12 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="desc_8_bit_c1_mode_help"><![CDATA[
-        <h1>8-bit C1 control codes support note</h1>
+        <h1>8‑bit C1 control codes support note</h1>
         <p>See what it is on
         <a href=\"https://en.wikipedia.org/wiki/C0_and_C1_control_codes#C1_control_codes_for_general_use\">Wikipedia</a>
         and
         <a href=\"https://invisible-island.net/xterm/ctlseqs/ctlseqs.html#h2-C1-_8-Bit_-Control-Characters\">invisible-island.net/xterm</a></p>
-        <p>The processing pipeline is organized this way:<br/>
+        <p>The processing pipeline of this application is organized in the way:<br/>
         <b>=&gt;
         <kbd>charset conversion</kbd>
         =&gt;
@@ -18,10 +18,10 @@
         =&gt;
         <kbd>charset conversion</kbd>
         =&gt;</b></p>
-        <p>8-bit control codes are processed during stream parsing / generating
+        <p>8‑bit control codes are processed during stream parsing / generating
         and thus are dependent on the current charset encoding.</p>
         <p>For example:<br/>
-        <b>CSI</b> (<code>9B</code>) becomes <code>C29B</code> in <b>UTF8</b>.
+        <b>CSI</b> (<code>9B</code>) becomes <code>C29B</code> in <b>UTF‑8</b>.
         </p>
     ]]></string>
 </resources>
