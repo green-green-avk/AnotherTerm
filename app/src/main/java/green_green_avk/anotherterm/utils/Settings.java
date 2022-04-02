@@ -110,7 +110,7 @@ public abstract class Settings {
         final Field f;
         try {
             f = getClass().getField(k);
-        } catch (NoSuchFieldException e) {
+        } catch (final NoSuchFieldException e) {
             throw new NoSuchElementException();
         }
         if (f.getAnnotation(Param.class) == null) throw new NoSuchElementException();

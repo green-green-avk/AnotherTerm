@@ -9,6 +9,7 @@ import android.view.KeyEvent;
 import android.view.MotionEvent;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 
 // Mouse right & middle buttons tribute...
 // Google and phone manufacturers are wise... It would be too simple otherwise.
@@ -16,15 +17,17 @@ import androidx.annotation.NonNull;
 
 // To be used with an Activity ancestor
 public final class MouseButtonsWorkAround {
+    @NonNull
     private final Activity ctx;
     private int mButtons = 0;
     private int mToolType = MotionEvent.TOOL_TYPE_UNKNOWN;
     private int mInjectedButtons = 0;
     private final PointF mXY = new PointF();
+    @Nullable
     private MotionEvent fixedEvent = null;
     public boolean result = false;
 
-    public MouseButtonsWorkAround(final Activity ctx) {
+    public MouseButtonsWorkAround(@NonNull final Activity ctx) {
         this.ctx = ctx;
     }
 

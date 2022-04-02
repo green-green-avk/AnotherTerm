@@ -281,9 +281,11 @@ public final class FavoriteEditorActivity extends AppCompatActivity {
     private void addOptionsByTypeId(final int id) {
         mTokenG.setVisibility(BackendsList.get(id).exportable ? View.VISIBLE : View.GONE);
         final int layout = BackendsList.get(id).settingsLayout;
-        if (layout == 0) return;
+        if (layout == 0)
+            return;
         mCurrMSL = getLayoutInflater()
-                .inflate(BackendsList.get(id).settingsLayout, mContainer, false);
+                .inflate(BackendsList.get(id).settingsLayout,
+                        mContainer, false);
         mCurrMSL.setSaveFromParentEnabled(false);
         mContainer.addView(mCurrMSL);
         mPrefs.addBranch(mCurrMSL);
@@ -543,14 +545,16 @@ public final class FavoriteEditorActivity extends AppCompatActivity {
         lNeedSaveDelayed.adoptView(mKeyMapW);
 
         final ArrayAdapter aType = new ArrayAdapter<>(this,
-                android.R.layout.simple_spinner_item, BackendsList.getTitles(this));
+                android.R.layout.simple_spinner_item,
+                BackendsList.getTitles(this));
         aType.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
         mTypeW.setAdapter(aType);
         mTypeW.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             @Override
             public void onItemSelected(final AdapterView<?> parent, final View view,
                                        final int position, final long id) {
-                if (mInSetPreferences) mInSetPreferences = false;
+                if (mInSetPreferences)
+                    mInSetPreferences = false;
                 else {
                     final Map<String, Object> pm = mPrefs.getPreferences();
                     dissolveErrors(pm);

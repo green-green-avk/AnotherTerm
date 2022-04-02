@@ -11,7 +11,7 @@ import android.provider.Settings;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.Switch;
+import android.widget.CompoundButton;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -42,7 +42,7 @@ public final class DeviceStorageAccessFragment extends Fragment {
                 notGranted.size() == 0
                         ? R.string.state_enabled
                         : R.string.state_disabled);
-        final Switch bSwitch = getView().findViewById(R.id.b_switch);
+        final CompoundButton bSwitch = getView().findViewById(R.id.b_switch);
         bSwitch.setOnCheckedChangeListener(null);
         bSwitch.setChecked(notGranted.size() == 0);
         bSwitch.setOnCheckedChangeListener(
@@ -62,7 +62,7 @@ public final class DeviceStorageAccessFragment extends Fragment {
             } catch (final ActivityNotFoundException | SecurityException e) {
                 Toast.makeText(activity, R.string.msg_unable_to_open_app_settings,
                         Toast.LENGTH_LONG).show();
-                getView().<Switch>findViewById(R.id.b_switch).setChecked(true);
+                getView().<CompoundButton>findViewById(R.id.b_switch).setChecked(true);
             }
         } else {
             requestPermissions(notGranted.toArray(new String[0]), 0);

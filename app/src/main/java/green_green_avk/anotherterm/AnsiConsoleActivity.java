@@ -94,18 +94,20 @@ public final class AnsiConsoleActivity extends ConsoleActivity
     private final ConsoleService.Listener sessionsListener = new ConsoleService.Listener() {
         @Override
         protected void onSessionChange(final int key) {
-            if (key != mSessionKey) return;
+            if (key != mSessionKey)
+                return;
             if (ConsoleService.isSessionTerminated(mSessionKey)) {
                 finish();
                 return;
             }
             invalidateWakeLock();
-            invalidateLoadingState();
+            invalidateConnectingState();
         }
     };
 
     private void invalidateWakeLock() {
-        if (mSession == null) return;
+        if (mSession == null)
+            return;
         final boolean v = mSession.backend.wrapped.isWakeLockHeld();
         mCkv.setLedsByCode(C.KEYCODE_LED_WAKE_LOCK, v);
         mCkv.invalidateModifierKeys(C.KEYCODE_LED_WAKE_LOCK);
@@ -115,14 +117,17 @@ public final class AnsiConsoleActivity extends ConsoleActivity
         }
     }
 
-    private void invalidateLoadingState() {
-        if (mSession == null) return;
+    private void invalidateConnectingState() {
+        if (mSession == null)
+            return;
         wConnecting.setVisibility(mSession.backend.isConnecting() ? View.VISIBLE : View.GONE);
     }
 
     private static int asSize(final Object o) {
-        if (o instanceof Integer) return (int) o;
-        if (o instanceof Long) return (int) (long) o;
+        if (o instanceof Integer)
+            return (int) o;
+        if (o instanceof Long)
+            return (int) (long) o;
         return 0;
     }
 
@@ -145,7 +150,8 @@ public final class AnsiConsoleActivity extends ConsoleActivity
     private boolean inFitFontSize = false;
 
     private void fitFontSize() {
-        if (inFitFontSize) return;
+        if (inFitFontSize)
+            return;
         inFitFontSize = true;
         try {
             final int width = mCsv.getWidth();
@@ -209,9 +215,11 @@ public final class AnsiConsoleActivity extends ConsoleActivity
         wConnecting = findViewById(R.id.connecting);
 
         final boolean isNew = mSession.uiState.fontSizeDp == 0F;
-        if (isNew) autoFitTerminal =
-                BooleanCaster.CAST(mSession.connectionParams.get("font_size_auto"));
-        else autoFitTerminal = mSession.uiState.fontSizeDp < 0F;
+        if (isNew)
+            autoFitTerminal =
+                    BooleanCaster.CAST(mSession.connectionParams.get("font_size_auto"));
+        else
+            autoFitTerminal = mSession.uiState.fontSizeDp < 0F;
 
         final FontProvider fp = new ConsoleFontProvider();
         mCsv.setFont(fp);
@@ -219,9 +227,10 @@ public final class AnsiConsoleActivity extends ConsoleActivity
 
         final DisplayMetrics dm = getResources().getDisplayMetrics();
 
-        if (isNew && !autoFitTerminal) mSession.uiState.fontSizeDp =
-                ((App) getApplication()).settings.terminal_font_default_size_sp *
-                        (dm.scaledDensity / dm.density);
+        if (isNew && !autoFitTerminal)
+            mSession.uiState.fontSizeDp =
+                    ((App) getApplication()).settings.terminal_font_default_size_sp *
+                            (dm.scaledDensity / dm.density);
         mCsv.setFontSize(mSession.uiState.fontSizeDp *
                 getResources().getDisplayMetrics().density, false);
 
@@ -236,14 +245,15 @@ public final class AnsiConsoleActivity extends ConsoleActivity
         mCsv.onScroll = this;
         mCsv.onStateChange = this;
 
-        if (isNew) mCsv.setScreenSize(asSize(mSession.connectionParams.get("screen_cols")),
-                asSize(mSession.connectionParams.get("screen_rows")));
+        if (isNew)
+            mCsv.setScreenSize(asSize(mSession.connectionParams.get("screen_cols")),
+                    asSize(mSession.connectionParams.get("screen_rows")));
         mSession.uiState.csv.apply(mCsv);
         mSession.uiState.ckv.apply(mCkv);
 
         ConsoleService.addListener(sessionsListener);
         invalidateWakeLock();
-        invalidateLoadingState();
+        invalidateConnectingState();
     }
 
     @Override
@@ -312,11 +322,15 @@ public final class AnsiConsoleActivity extends ConsoleActivity
 
     @Override
     protected void onDestroy() {
-        if (menuPopupWindow != null) menuPopupWindow.dismiss();
+        if (menuPopupWindow != null)
+            menuPopupWindow.dismiss();
         ConsoleService.removeListener(sessionsListener);
-        if (mSession != null) mSession.input.removeOnInvalidateSink(this);
-        if (mCkv != null) mCkv.unsetConsoleInput();
-        if (mCsv != null) mCsv.unsetConsoleInput();
+        if (mSession != null)
+            mSession.input.removeOnInvalidateSink(this);
+        if (mCkv != null)
+            mCkv.unsetConsoleInput();
+        if (mCsv != null)
+            mCsv.unsetConsoleInput();
         super.onDestroy();
     }
 
@@ -378,7 +392,8 @@ public final class AnsiConsoleActivity extends ConsoleActivity
                     final Annotation[] aa = m.getKey().getParameterAnnotations()[0];
                     for (final Annotation a : aa) {
                         if (a instanceof BackendModule.ExportedUIMethodEnum) {
-                            if (paramTypes[0] != Integer.TYPE) break;
+                            if (paramTypes[0] != Integer.TYPE)
+                                break;
                             final ViewGroup sm = (ViewGroup) LayoutInflater.from(this)
                                     .inflate(R.layout.module_ui_group, moduleUiView, false);
                             sm.<TextView>findViewById(R.id.title)
@@ -395,7 +410,8 @@ public final class AnsiConsoleActivity extends ConsoleActivity
                                 mi.setText(ae.titleRes()[ai]);
                                 mi.setOnClickListener(item -> {
                                     be.callMethod(m.getKey(), value);
-                                    if (menuPopupWindow != null) menuPopupWindow.dismiss();
+                                    if (menuPopupWindow != null)
+                                        menuPopupWindow.dismiss();
                                 });
                                 smg.addView(mi);
                             }
@@ -449,7 +465,8 @@ public final class AnsiConsoleActivity extends ConsoleActivity
     }
 
     private void refreshMenuPopup() {
-        if (menuPopupWindow == null || !menuPopupWindow.isShowing()) return;
+        if (menuPopupWindow == null || !menuPopupWindow.isShowing())
+            return;
         final View popupView = menuPopupWindow.getContentView();
         popupView.<CompoundButton>findViewById(R.id.horizontal_app_scrolling)
                 .setChecked(mCsv.isAppHScrollEnabled());
@@ -470,12 +487,14 @@ public final class AnsiConsoleActivity extends ConsoleActivity
             if (mCsv.resizeBufferXOnUi)
                 w = getString(R.string.hint_int_value_p_auto_p,
                         mSession.input.currScrBuf.getWidth());
-            else w = String.valueOf(mSession.input.currScrBuf.getWidth());
+            else
+                w = String.valueOf(mSession.input.currScrBuf.getWidth());
             final String h;
             if (mCsv.resizeBufferYOnUi)
                 h = getString(R.string.hint_int_value_p_auto_p,
                         mSession.input.currScrBuf.getHeight());
-            else h = String.valueOf(mSession.input.currScrBuf.getHeight());
+            else
+                h = String.valueOf(mSession.input.currScrBuf.getHeight());
             popupView.<TextView>findViewById(R.id.screen_size)
                     .setText(getString(R.string.label_dims_s2, w, h));
             popupView.<CompoundButton>findViewById(R.id.terminate_on_disconnect)
@@ -486,7 +505,8 @@ public final class AnsiConsoleActivity extends ConsoleActivity
     }
 
     private void showMenuPopup(@NonNull final View view) {
-        if (menuPopupWindow == null) menuPopupWindow = createMenuPopup();
+        if (menuPopupWindow == null)
+            menuPopupWindow = createMenuPopup();
         menuPopupWindow.showAsDropDown(view);
         refreshMenuPopup();
     }
@@ -502,7 +522,8 @@ public final class AnsiConsoleActivity extends ConsoleActivity
                 setSessionTitle(mSession.input.currScrBuf.windowTitle);
             final boolean ms = mSession.output.isMouseSupported();
             if (ms != (wMouseMode.getVisibility() == View.VISIBLE)) {
-                if (!ms) turnOffMouseMode();
+                if (!ms)
+                    turnOffMouseMode();
                 wMouseMode.setVisibility(ms ? View.VISIBLE : View.GONE);
             }
             if (mSession.input.getBell() != 0) {
@@ -526,7 +547,8 @@ public final class AnsiConsoleActivity extends ConsoleActivity
         final int cols = invalidatingSize.x;
         final int rows = invalidatingSize.y;
         invalidatingSize.set(0, 0);
-        if (autoFitTerminal) fitFontSize();
+        if (autoFitTerminal)
+            fitFontSize();
         final Toast t = Toast.makeText(this,
                 getString(R.string.label_dims_i2, cols, rows),
                 Toast.LENGTH_SHORT);
@@ -551,7 +573,8 @@ public final class AnsiConsoleActivity extends ConsoleActivity
     protected void onTitleChanged(final CharSequence title, final int color) {
         super.onTitleChanged(title, color);
         wTitle.setText(title);
-        if (color != 0) wTitle.setTextColor(color);
+        if (color != 0)
+            wTitle.setTextColor(color);
     }
 
     @Override
@@ -570,16 +593,19 @@ public final class AnsiConsoleActivity extends ConsoleActivity
 
     @Override
     public void onSelectionModeChange(final boolean mode) {
-        if (mode) turnOffMouseMode();
+        if (mode)
+            turnOffMouseMode();
     }
 
     @Override
     public void onFontSizeChange(final float fontSize) {
         final int v = Math.min(Math.round(fontSize), wTitle.getHeight());
         try {
-            TextViewCompat.setAutoSizeTextTypeUniformWithConfiguration(wTitle, v,
+            TextViewCompat.setAutoSizeTextTypeUniformWithConfiguration(wTitle,
+                    v,
                     TextViewCompat.getAutoSizeMaxTextSize(wTitle),
-                    TextViewCompat.getAutoSizeStepGranularity(wTitle), TypedValue.COMPLEX_UNIT_PX);
+                    TextViewCompat.getAutoSizeStepGranularity(wTitle),
+                    TypedValue.COMPLEX_UNIT_PX);
         } catch (final IllegalArgumentException ignored) {
         }
     }
@@ -593,7 +619,8 @@ public final class AnsiConsoleActivity extends ConsoleActivity
 
     public void onNavUp(final View v) {
         final Intent pa = getSupportParentActivityIntent();
-        if (pa == null) return;
+        if (pa == null)
+            return;
         if (getUseRecents()) {
             startActivity(pa.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP
                     | Intent.FLAG_ACTIVITY_NEW_TASK));
@@ -624,12 +651,16 @@ public final class AnsiConsoleActivity extends ConsoleActivity
 
     public void onPaste(final View v) {
         final ClipboardManager clipboard = (ClipboardManager) getSystemService(Context.CLIPBOARD_SERVICE);
-        if (clipboard == null) return;
-        if (!clipboard.hasPrimaryClip()) return;
+        if (clipboard == null)
+            return;
+        if (!clipboard.hasPrimaryClip())
+            return;
         final ClipData clipData = clipboard.getPrimaryClip();
-        if (clipData == null || clipData.getItemCount() < 1) return;
+        if (clipData == null || clipData.getItemCount() < 1)
+            return;
         final ClipData.Item clipItem = clipData.getItemAt(0);
-        if (clipItem == null) return;
+        if (clipItem == null)
+            return;
         mCkv.clipboardPaste(clipItem.coerceToText(this).toString());
     }
 
@@ -638,7 +669,8 @@ public final class AnsiConsoleActivity extends ConsoleActivity
     }
 
     public void onMenuTermCompliance(final View view) {
-        if (mSession == null) return;
+        if (mSession == null)
+            return;
         final int p = mSession.input.getComplianceLevel() == 0 ? 1 : 0;
         final ArrayAdapter<String> a = new ArrayAdapter<>(this,
                 R.layout.dialogmenu_entry, new String[]{
@@ -647,7 +679,8 @@ public final class AnsiConsoleActivity extends ConsoleActivity
         });
         new AlertDialog.Builder(this)
                 .setSingleChoiceItems(a, p, (dialog, which) -> {
-                    if (mSession == null) return;
+                    if (mSession == null)
+                        return;
                     mSession.input.setComplianceLevel(which == 1 ?
                             0 : AnsiConsoleInput.defaultComplianceLevel);
                     mSession.input.invalidateSink();
@@ -657,13 +690,15 @@ public final class AnsiConsoleActivity extends ConsoleActivity
     }
 
     public void onMenuCharset(final View view) {
-        if (mSession == null) return;
+        if (mSession == null)
+            return;
         final int p = C.charsetList.indexOf(mSession.output.getCharset().name());
         final ArrayAdapter<String> a = new ArrayAdapter<>(this,
                 R.layout.dialogmenu_entry, C.charsetList);
         new AlertDialog.Builder(this)
                 .setSingleChoiceItems(a, p, (dialog, which) -> {
-                    if (mSession == null) return;
+                    if (mSession == null)
+                        return;
                     final String charsetStr = a.getItem(which);
                     try {
                         final Charset charset = Charset.forName(charsetStr);
@@ -678,16 +713,19 @@ public final class AnsiConsoleActivity extends ConsoleActivity
     }
 
     public void onMenuKeymap(final View view) {
-        if (mSession == null) return;
+        if (mSession == null)
+            return;
         TermKeyMapManagerUi.showList(this, (isBuiltIn, name, rules, title) -> {
-            if (mSession == null) return;
+            if (mSession == null)
+                return;
             mSession.output.setKeyMap(rules);
             refreshMenuPopup();
         }, mSession.output.getKeyMap());
     }
 
     public void onMenuScreenSize(final View view) {
-        if (mSession == null) return;
+        if (mSession == null)
+            return;
         final ViewGroup v = (ViewGroup)
                 getLayoutInflater().inflate(R.layout.buffer_size_dialog, null);
         final EditText wWidth = v.findViewById(R.id.width);
@@ -757,7 +795,8 @@ public final class AnsiConsoleActivity extends ConsoleActivity
                         if (fontSizeStr.trim().isEmpty()) {
                             mCsv.setScreenSize(width, height, bufferHeight);
                             autoFitTerminal = !mCsv.resizeBufferXOnUi || !mCsv.resizeBufferYOnUi;
-                            if (autoFitTerminal) fitFontSize();
+                            if (autoFitTerminal)
+                                fitFontSize();
                         } else {
                             try {
                                 final float fontSize = NumberFormat.getNumberInstance()
@@ -795,14 +834,16 @@ public final class AnsiConsoleActivity extends ConsoleActivity
     }
 
     public void onMenuTerminateOnDisconnect(final View view) {
-        if (mSession == null) return;
+        if (mSession == null)
+            return;
         mSession.properties.terminateOnDisconnect = !mSession.properties.terminateOnDisconnect;
         if (view instanceof Checkable)
             ((Checkable) view).setChecked(mSession.properties.terminateOnDisconnect);
     }
 
     public void onMenuWakeLockReleaseOnDisconnect(final View view) {
-        if (mSession == null) return;
+        if (mSession == null)
+            return;
         final BackendModule be = mSession.backend.wrapped;
         final boolean v = !be.isReleaseWakeLockOnDisconnect();
         be.setReleaseWakeLockOnDisconnect(v);
@@ -820,14 +861,17 @@ public final class AnsiConsoleActivity extends ConsoleActivity
     }
 
     public void onMenuToggleWakeLock(final View view) {
-        if (mSession == null) return;
+        if (mSession == null)
+            return;
         if (mSession.backend.wrapped.isWakeLockHeld())
             mSession.backend.wrapped.releaseWakeLock();
-        else mSession.backend.wrapped.acquireWakeLock();
+        else
+            mSession.backend.wrapped.acquireWakeLock();
     }
 
     public void onMenuToggleKeepScreenOn(final View view) {
-        if (mSession == null) return;
+        if (mSession == null)
+            return;
         mSession.uiState.keepScreenOn = !mSession.uiState.keepScreenOn;
         applyKeepScreenOn();
         if (view instanceof Checkable)

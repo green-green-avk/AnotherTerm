@@ -211,6 +211,7 @@
             android:importantForAutofill="no"
             android:inputType="text|textMultiLine|textNoSuggestions"
             android:tag="local_ports" />
+
     </LinearLayout>
 
     <LinearLayout

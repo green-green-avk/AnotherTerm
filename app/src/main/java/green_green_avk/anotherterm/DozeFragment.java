@@ -12,7 +12,7 @@ import android.provider.Settings;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.Switch;
+import android.widget.CompoundButton;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -37,7 +37,7 @@ public final class DozeFragment extends Fragment {
                 isOpt
                         ? R.string.optimized
                         : R.string.not_optimized);
-        final Switch bSwitch = getView().findViewById(R.id.b_switch);
+        final CompoundButton bSwitch = getView().findViewById(R.id.b_switch);
         bSwitch.setOnCheckedChangeListener(null);
         bSwitch.setChecked(isOpt);
         bSwitch.setOnCheckedChangeListener(

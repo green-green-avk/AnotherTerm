@@ -51,13 +51,16 @@ public final class NewsDialog {
     public static int getUnseen(@NonNull final Context ctx) {
         final SharedPreferences ps = PreferenceManager.getDefaultSharedPreferences(ctx);
         final long ts = ps.getLong("news_seen", 0);
-        int idx = Arrays.binarySearch(news, new Entry(0, ts), Entry.timeOrder);
-        if (idx < 0) idx = -idx - 1;
+        int idx = Arrays.binarySearch(news, new Entry(0, ts),
+                Entry.timeOrder);
+        if (idx < 0)
+            idx = -idx - 1;
         return news.length - idx;
     }
 
     public static void setSeen(@NonNull final Context ctx) {
-        if (news.length <= 0) return;
+        if (news.length <= 0)
+            return;
         final SharedPreferences ps = PreferenceManager.getDefaultSharedPreferences(ctx);
         final SharedPreferences.Editor e = ps.edit();
         e.putLong("news_seen", news[news.length - 1].timestamp + 1);
@@ -102,11 +105,13 @@ public final class NewsDialog {
         list.setLayoutManager(new LinearLayoutManager(ctx));
         list.setAdapter(new Adapter(num));
         new AlertDialog.Builder(ctx).setView(v).setCancelable(false)
-                .setPositiveButton(android.R.string.ok, (dialog, which) -> setSeen(ctx)).show();
+                .setPositiveButton(android.R.string.ok,
+                        (dialog, which) -> setSeen(ctx)).show();
     }
 
     public static void showUnseen(@NonNull final Context ctx) {
         final int unseen = getUnseen(ctx);
-        if (unseen > 0) show(ctx, unseen);
+        if (unseen > 0)
+            show(ctx, unseen);
     }
 }
