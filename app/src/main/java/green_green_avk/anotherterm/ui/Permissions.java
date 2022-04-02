@@ -25,9 +25,11 @@ public final class Permissions extends Requester {
         }
 
         @Override
-        public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions,
-                                               @NonNull int[] grantResults) {
-            if (requestCode != REQUEST_CODE) return;
+        public void onRequestPermissionsResult(final int requestCode,
+                                               @NonNull final String[] permissions,
+                                               @NonNull final int[] grantResults) {
+            if (requestCode != REQUEST_CODE)
+                return;
             recycle();
             result.set(grantResults);
         }
@@ -46,7 +48,8 @@ public final class Permissions extends Requester {
             return;
         }
         ((FragmentActivity) ctx).runOnUiThread(() ->
-                prepare(ctx, new UIFragment()).requestPermissions(result, perms));
+                prepare(ctx,
+                        new UIFragment()).requestPermissions(result, perms));
     }
 
     private static final Object requestBlockingLock = new Object();
@@ -54,7 +57,8 @@ public final class Permissions extends Requester {
     @NonNull
     public static int[] requestBlocking(@NonNull final Context ctx, @NonNull final String[] perms)
             throws InterruptedException {
-        if (perms.length == 0) return EMPTY;
+        if (perms.length == 0)
+            return EMPTY;
         synchronized (requestBlockingLock) {
             final BlockingSync<int[]> r = new BlockingSync<>();
             request(r, ctx, perms);

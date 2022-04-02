@@ -40,7 +40,7 @@ public final class EscCsi {
         if (args.length <= n) return def;
         try {
             return Integer.parseInt(args[n]);
-        } catch (NumberFormatException e) {
+        } catch (final NumberFormatException e) {
             return def;
         }
     }

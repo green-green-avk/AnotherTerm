@@ -547,7 +547,7 @@ public class TelnetClient {
                         return buf.position();
                 }
             }
-        } catch (BufferUnderflowException e) {
+        } catch (final BufferUnderflowException e) {
             return -1;
         }
     }
@@ -608,7 +608,7 @@ public class TelnetClient {
         public void run() {
             try {
                 sendRaw(keepAliveMessage);
-            } catch (TelnetClientException e) {
+            } catch (final TelnetClientException e) {
                 reportError(e);
             }
         }

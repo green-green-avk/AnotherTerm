@@ -41,7 +41,7 @@ public final class RawPreferenceUiWrapper implements PreferenceUiWrapper {
             views.put(pName, root);
             if (root instanceof EditText) {
                 final ColorStateList color = ((EditText) root).getTextColors();
-                ((EditText) root).setTextColor(color.withAlpha(0xA0)); // TODO: UI mess
+                ((EditText) root).setTextColor(color.withAlpha(0xA0)); // TODO: fix UI mess
                 ((EditText) root).addTextChangedListener(new TextWatcher() {
                     @Override
                     public void beforeTextChanged(final CharSequence s, final int start,
@@ -64,44 +64,43 @@ public final class RawPreferenceUiWrapper implements PreferenceUiWrapper {
                 });
             } else if (root instanceof AdapterView) {
                 delayedInitNum++;
-                ((AdapterView) root).setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
-                    @Override
-                    public void onItemSelected(final AdapterView<?> parent, final View view,
-                                               final int position, final long id) {
-                        if (!isFrozen) {
-//                            changedFields.add(pName);
-                            callOnChanged(pName);
-                            completeDelayedInit();
-                        }
-                    }
+                ((AdapterView<?>) root).setOnItemSelectedListener(
+                        new AdapterView.OnItemSelectedListener() {
+                            @Override
+                            public void onItemSelected(final AdapterView<?> parent,
+                                                       final View view,
+                                                       final int position, final long id) {
+                                if (!isFrozen) {
+                                    // changedFields.add(pName);
+                                    callOnChanged(pName);
+                                    completeDelayedInit();
+                                }
+                            }
 
-                    @Override
-                    public void onNothingSelected(AdapterView<?> parent) {
-                        if (!isFrozen) {
-//                            changedFields.add(pName);
-                            callOnChanged(pName);
-                            completeDelayedInit();
-                        }
-                    }
-                });
-                changedFields.add(pName); // TODO: Not now.
+                            @Override
+                            public void onNothingSelected(final AdapterView<?> parent) {
+                                if (!isFrozen) {
+                                    // changedFields.add(pName);
+                                    callOnChanged(pName);
+                                    completeDelayedInit();
+                                }
+                            }
+                        });
+                changedFields.add(pName); // TODO: Not now
             } else if (root instanceof CompoundButton) {
-                ((CompoundButton) root).setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
-                    @Override
-                    public void onCheckedChanged(final CompoundButton buttonView,
-                                                 final boolean isChecked) {
-                        if (!isFrozen) {
-//                            changedFields.add(pName);
-                            callOnChanged(pName);
-                        }
+                ((CompoundButton) root).setOnCheckedChangeListener((buttonView, isChecked) -> {
+                    if (!isFrozen) {
+                        // changedFields.add(pName);
+                        callOnChanged(pName);
                     }
                 });
-                changedFields.add(pName); // TODO: Not now.
+                changedFields.add(pName); // TODO: Not now
             } else {
                 changedFields.add(pName);
             }
             if (chs.length > 1)
-                listsOpts.put(pName, Arrays.asList(Arrays.copyOfRange(chs, 1, chs.length)));
+                listsOpts.put(pName, Arrays.asList(Arrays.copyOfRange(
+                        chs, 1, chs.length)));
         }
         if (root instanceof ViewGroup) {
             for (int i = 0; i < ((ViewGroup) root).getChildCount(); ++i) {
@@ -144,9 +143,9 @@ public final class RawPreferenceUiWrapper implements PreferenceUiWrapper {
     }
 
     private static int findInAdapter(@NonNull final Adapter a, final Object v) {
-        for (int i = 0; i < a.getCount(); ++i) {
-            if (a.getItem(i) == v) return i;
-        }
+        for (int i = 0; i < a.getCount(); ++i)
+            if (a.getItem(i) == v)
+                return i;
         return -1;
     }
 
@@ -155,7 +154,8 @@ public final class RawPreferenceUiWrapper implements PreferenceUiWrapper {
 
     private long getLongEmptyValue(final String key) throws ResultException {
         final List<?> opts = listsOpts.get(key);
-        if (opts == null || opts.size() < 1) throw noEmptyValue;
+        if (opts == null || opts.size() < 1)
+            throw noEmptyValue;
         final Object opt = opts.get(0);
         try {
             return Long.parseLong(opt.toString());
@@ -165,15 +165,17 @@ public final class RawPreferenceUiWrapper implements PreferenceUiWrapper {
     }
 
     private static long getLongValue(final Object value) {
-        if (value == null) throw new NumberFormatException("The value is `null'");
-        if (value instanceof Integer) return (int) value;
-        if (value instanceof Long) return (long) value;
+        if (value == null)
+            throw new NumberFormatException("The value is `null'");
+        if (value instanceof Integer)
+            return (int) value;
+        if (value instanceof Long)
+            return (long) value;
         return Long.parseLong(value.toString());
     }
 
     @Override
     public Object get(final String key) {
-        if (!views.containsKey(key)) return null;
         final View view = views.get(key);
         if (view instanceof EditText) {
             final String t = ((EditText) view).getText().toString();
@@ -203,8 +205,9 @@ public final class RawPreferenceUiWrapper implements PreferenceUiWrapper {
             }
         } else if (view instanceof AdapterView) {
             final List<?> values = listsOpts.get(key);
-            if (values == null) return ((AdapterView) view).getSelectedItemPosition();
-            return values.get(((AdapterView) view).getSelectedItemPosition());
+            if (values == null)
+                return ((AdapterView<?>) view).getSelectedItemPosition();
+            return values.get(((AdapterView<?>) view).getSelectedItemPosition());
         } else if (view instanceof CompoundButton) {
             return ((CompoundButton) view).isChecked();
         }
@@ -213,33 +216,31 @@ public final class RawPreferenceUiWrapper implements PreferenceUiWrapper {
 
     @Override
     public void set(final String key, final Object value) {
-        if (!views.containsKey(key)) return;
         final View view = views.get(key);
         if (view instanceof AdapterView) {
             final List<?> values = listsOpts.get(key);
             if (values == null) {
                 if (value instanceof Integer && (int) value >= 0)
-                    ((AdapterView) view).setSelection((int) value);
-                else ((AdapterView) view).setSelection(0);
-            } else ((AdapterView) view).setSelection(values.indexOf(value));
-            return;
-        }
-        if (view instanceof CompoundButton) {
+                    ((AdapterView<?>) view).setSelection((int) value);
+                else
+                    ((AdapterView<?>) view).setSelection(0);
+            } else
+                ((AdapterView<?>) view).setSelection(values.indexOf(value));
+        } else if (view instanceof CompoundButton) {
             try {
                 ((CompoundButton) view).setChecked(BooleanCaster.CAST(value));
             } catch (final ClassCastException e) {
                 Log.e("Preference UI", "Type cast", e);
             }
-            return;
-        }
-        if (view instanceof TextView) {
+        } else if (view instanceof TextView) {
             String v = null;
             if (view instanceof EditText) {
                 final int it = ((EditText) view).getInputType();
                 if ((it & InputType.TYPE_MASK_CLASS) == InputType.TYPE_CLASS_NUMBER) {
                     if ((it & InputType.TYPE_NUMBER_FLAG_DECIMAL) == 0) {
                         try {
-                            if (getLongValue(value) == getLongEmptyValue(key)) v = "";
+                            if (getLongValue(value) == getLongEmptyValue(key))
+                                v = "";
                         } catch (final NumberFormatException | ResultException ignored) {
                         }
                     }
@@ -248,7 +249,6 @@ public final class RawPreferenceUiWrapper implements PreferenceUiWrapper {
             if (v == null)
                 v = value.toString();
             ((TextView) view).setText(v);
-            return;
         }
     }
 
@@ -256,17 +256,15 @@ public final class RawPreferenceUiWrapper implements PreferenceUiWrapper {
     @NonNull
     public Map<String, Object> getPreferences() {
         final Map<String, Object> r = new HashMap<>();
-        for (final String k : views.keySet()) {
+        for (final String k : views.keySet())
             r.put(k, get(k));
-        }
         return r;
     }
 
     @Override
     public void setPreferences(@NonNull final Map<String, ?> pp) {
-        for (final Map.Entry<String, ?> ent : pp.entrySet()) {
+        for (final Map.Entry<String, ?> ent : pp.entrySet())
             set(ent.getKey(), ent.getValue());
-        }
     }
 
     @Override
@@ -288,11 +286,13 @@ public final class RawPreferenceUiWrapper implements PreferenceUiWrapper {
     private Callbacks callbacks = null;
 
     private void callOnInitialized() {
-        if (callbacks != null) callbacks.onInitialized();
+        if (callbacks != null)
+            callbacks.onInitialized();
     }
 
     private void callOnChanged(final String key) {
-        if (callbacks != null) callbacks.onChanged(key);
+        if (callbacks != null)
+            callbacks.onChanged(key);
     }
 
     @Override
