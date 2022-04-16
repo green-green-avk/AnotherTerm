@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="title_news">News</string>
+    <string name="title_whats_new">What\'s new</string>
     <string name="news_IIIv42"><![CDATA[
     <h5>Changes in <kbd>MkIIIv42</kbd></h5>
     <p>Starting from this version,<br/>

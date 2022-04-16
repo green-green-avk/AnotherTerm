@@ -19,8 +19,8 @@ import java.util.Date;
 
 import green_green_avk.anotherterm.ui.HtmlTextView;
 
-public final class NewsDialog {
-    private NewsDialog() {
+public final class WhatsNewDialog {
+    private WhatsNewDialog() {
     }
 
     private static final class Entry {
@@ -48,9 +48,22 @@ public final class NewsDialog {
         };
     }
 
+    private static void setVersion(@NonNull final SharedPreferences.Editor ed) {
+        ed.putInt("news_seen_v", BuildConfig.VERSION_CODE_MAIN);
+    }
+
+    private static void setVersion(@NonNull final SharedPreferences ps) {
+        final SharedPreferences.Editor ed = ps.edit();
+        setVersion(ed);
+        ed.apply();
+    }
+
     public static int getUnseen(@NonNull final Context ctx) {
         final SharedPreferences ps = PreferenceManager.getDefaultSharedPreferences(ctx);
         final long ts = ps.getLong("news_seen", 0);
+        final int ver = ps.getInt("news_seen_v", 0);
+        if (ver == 0)
+            setVersion(ps);
         int idx = Arrays.binarySearch(news, new Entry(0, ts),
                 Entry.timeOrder);
         if (idx < 0)
@@ -62,9 +75,10 @@ public final class NewsDialog {
         if (news.length <= 0)
             return;
         final SharedPreferences ps = PreferenceManager.getDefaultSharedPreferences(ctx);
-        final SharedPreferences.Editor e = ps.edit();
-        e.putLong("news_seen", news[news.length - 1].timestamp + 1);
-        e.apply();
+        final SharedPreferences.Editor ed = ps.edit();
+        ed.putLong("news_seen", news[news.length - 1].timestamp + 1);
+        setVersion(ed);
+        ed.apply();
     }
 
     private static final class Adapter extends RecyclerView.Adapter<ViewHolder> {
@@ -78,7 +92,7 @@ public final class NewsDialog {
         @Override
         public ViewHolder onCreateViewHolder(@NonNull final ViewGroup parent, final int viewType) {
             return new ViewHolder(LayoutInflater.from(parent.getContext())
-                    .inflate(R.layout.news_entry, parent, false));
+                    .inflate(R.layout.whats_new_entry, parent, false));
         }
 
         @Override
@@ -100,7 +114,7 @@ public final class NewsDialog {
     }
 
     public static void show(@NonNull final Context ctx, final int num) {
-        final View v = LayoutInflater.from(ctx).inflate(R.layout.news_dialog, null);
+        final View v = LayoutInflater.from(ctx).inflate(R.layout.whats_new_dialog, null);
         final RecyclerView list = v.findViewById(R.id.list);
         list.setLayoutManager(new LinearLayoutManager(ctx));
         list.setAdapter(new Adapter(num));

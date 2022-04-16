@@ -198,7 +198,7 @@ public final class SessionsActivity extends AppCompatActivity {
         prepareFavoritesList();
         prepareSessionsList();
         observer.onChanged();
-        NewsDialog.showUnseen(this);
+        WhatsNewDialog.showUnseen(this);
     }
 
     @Override
