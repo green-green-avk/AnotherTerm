@@ -3,6 +3,10 @@ plugins {
     id 'placeholder-resolver'
 }
 
+ext {
+    versionCodeMain = 109
+}
+
 android {
     compileSdkVersion 31
     buildToolsVersion '30.0.3'
@@ -17,11 +21,13 @@ android {
         applicationId 'green_green_avk.anotherterm'
         minSdkVersion 14
         targetSdkVersion 30
-        versionCode 109
+        versionCode versionCodeMain
         versionName "MkIV-dev18-dev"
         vectorDrawables.useSupportLibrary = true
 
         resConfigs 'en'
+
+        buildConfigField "int", "VERSION_CODE_MAIN", "$versionCodeMain"
 
         def SHELL_SESSION_TOKEN_VAR = "SHELL_SESSION_TOKEN"
         buildConfigField "String", "SHELL_SESSION_TOKEN_VAR", "\"$SHELL_SESSION_TOKEN_VAR\""

@@ -290,7 +290,7 @@ public final class TermKeyMapEditorActivity extends AppCompatActivity {
             });
         }
 
-        NewsDialog.showUnseen(this);
+        WhatsNewDialog.showUnseen(this);
     }
 
     @NonNull

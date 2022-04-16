@@ -9,7 +9,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginBottom="@dimen/text_margin"
-        android:text="@string/title_news"
+        android:text="@string/title_whats_new"
         android:textAppearance="?android:textAppearanceLarge" />
 
     <androidx.recyclerview.widget.RecyclerView
