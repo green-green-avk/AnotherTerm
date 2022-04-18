@@ -29,11 +29,18 @@ import green_green_avk.ptyprocess.PtyProcess;
 public final class LocalModule extends BackendModule {
 
     @Keep
-    public static final Meta meta = new Meta(LocalModule.class, "local-terminal");
+    public static final Meta meta =
+            new Meta(LocalModule.class, "local-terminal") {
+                @Override
+                public int getDisconnectionReasonTypes() {
+                    return DisconnectionReason.PROCESS_EXIT;
+                }
+            };
 
     private final Object connectionLock = new Object();
 
     private volatile PtyProcess proc = null;
+    private volatile Integer exitStatus = null;
     private final OutputStream input = new OutputStream() {
         @Override
         public void write(final int b) throws IOException {
@@ -271,6 +278,7 @@ public final class LocalModule extends BackendModule {
         synchronized (connectionLock) {
             final PtyProcess p = PtyProcess.system(execute, env);
             proc = p;
+            exitStatus = null;
             readerThread = new Thread(new ProcOutputR(p.getInputStream()));
             readerThread.setDaemon(true);
             readerThread.start();
@@ -284,6 +292,7 @@ public final class LocalModule extends BackendModule {
                     }
                     break;
                 }
+                exitStatus = status;
                 disconnect();
                 reportState(new DisconnectStateMessage("Process exited with status " + status));
             });
@@ -339,6 +348,13 @@ public final class LocalModule extends BackendModule {
     @NonNull
     public String getConnDesc() {
         return "Local Terminal";
+    }
+
+    @Override
+    @Nullable
+    public DisconnectionReason getDisconnectionReason() {
+        final Integer es = exitStatus;
+        return es != null ? new ProcessExitDisconnectionReason(es) : null;
     }
 
     /**

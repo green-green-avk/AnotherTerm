@@ -30,6 +30,19 @@ import java.util.Set;
 
 public abstract class BackendModule {
 
+    public static abstract class DisconnectionReason {
+        public static final int NONE = 0;
+        public static final int PROCESS_EXIT = 1;
+    }
+
+    public static final class ProcessExitDisconnectionReason extends DisconnectionReason {
+        public final int status;
+
+        public ProcessExitDisconnectionReason(final int status) {
+            this.status = status;
+        }
+    }
+
     public static class Meta {
         @NonNull
         protected final Set<String> schemes;
@@ -70,6 +83,13 @@ public abstract class BackendModule {
         @Nullable
         public Map<String, String> checkParameters(@NonNull final Map<String, ?> params) {
             return null;
+        }
+
+        /**
+         * @return disconnection reason types bits
+         */
+        public int getDisconnectionReasonTypes() {
+            return DisconnectionReason.NONE;
         }
 
         public static final int ADAPTER_READY = 0;
@@ -299,6 +319,14 @@ public abstract class BackendModule {
 
     @NonNull
     public abstract String getConnDesc();
+
+    /**
+     * @return disconnection reason (process exit status for PTY etc) (<code>null</code> if unknown)
+     */
+    @Nullable
+    public DisconnectionReason getDisconnectionReason() {
+        return null;
+    }
 
     public static final class WakeLockRef {
         @NonNull
