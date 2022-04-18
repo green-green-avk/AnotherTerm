@@ -152,12 +152,12 @@
     <string name="hint_int_value_p_auto_p">%d (auto)</string>
     <string name="label_screen">Screen</string>
     <string name="action_help">Help</string>
-    <string name="label_key_exchange">Key exchange</string>
     <string name="title_encryption_preferences">Encryption preferences</string>
-    <string name="label_server_to_client_transport_encryption">Server-to-client transport encryption</string>
-    <string name="label_client_to_server_transport_encryption">Client-to-server transport encryption</string>
-    <string name="label_server_to_client_transport_message_authentication_code">Server-to-client transport message authentication code</string>
-    <string name="label_client_to_server_transport_message_authentication_code">Client-to-server transport message authentication code</string>
+    <string name="label_key_exchange">Key exchange <i>(kex)</i></string>
+    <string name="label_server_to_client_transport_encryption">Server-to-client transport encryption <i>(cipher.s2c)</i></string>
+    <string name="label_client_to_server_transport_encryption">Client-to-server transport encryption <i>(cipher.c2s)</i></string>
+    <string name="label_server_to_client_transport_message_authentication_code">Server-to-client transport message authentication code <i>(mac.s2c)</i></string>
+    <string name="label_client_to_server_transport_message_authentication_code">Client-to-server transport message authentication code <i>(mac.c2s)</i></string>
     <string name="label_prefer_compression">Prefer compression</string>
     <string name="note_rely_on_jsch_documentation"><![CDATA[
         <p>Please, rely on
@@ -339,4 +339,5 @@
     <string name="action_from_x_clipboard">Copy from X clipboard</string>
     <string name="action_to_x_clipboard">Copy to X clipboard</string>
     <string name="action_switch_screen_keyboard_text_mode">Switch screen keyboard text mode</string>
+    <string name="label_reset_to_default">Reset to default</string>
 </resources>
