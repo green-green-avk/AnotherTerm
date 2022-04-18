@@ -11,6 +11,7 @@ import android.widget.Adapter;
 import android.widget.AdapterView;
 import android.widget.CompoundButton;
 import android.widget.EditText;
+import android.widget.ImageButton;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
@@ -27,8 +28,9 @@ import green_green_avk.anotherterm.R;
 
 public final class RawPreferenceUiWrapper implements PreferenceUiWrapper {
     private final Map<String, View> views = new HashMap<>();
-    private final Map<String, List<?>> listsOpts = new HashMap<>();
+    private final Map<String, List<?>> fieldOpts = new HashMap<>();
     private final Set<String> changedFields = new HashSet<>();
+    private final Map<String, Object> defaults = new HashMap<>();
     private boolean isFrozen = false;
     private int delayedInitNum = 0;
     private boolean delayedInitDone = true;
@@ -38,8 +40,8 @@ public final class RawPreferenceUiWrapper implements PreferenceUiWrapper {
         if (tag instanceof String) {
             final String[] chs = ((String) tag).split("/");
             final String pName = chs[0].intern();
-            views.put(pName, root);
             if (root instanceof EditText) {
+                views.put(pName, root);
                 final ColorStateList color = ((EditText) root).getTextColors();
                 ((EditText) root).setTextColor(color.withAlpha(0xA0)); // TODO: fix UI mess
                 ((EditText) root).addTextChangedListener(new TextWatcher() {
@@ -63,6 +65,7 @@ public final class RawPreferenceUiWrapper implements PreferenceUiWrapper {
                     }
                 });
             } else if (root instanceof AdapterView) {
+                views.put(pName, root);
                 delayedInitNum++;
                 ((AdapterView<?>) root).setOnItemSelectedListener(
                         new AdapterView.OnItemSelectedListener() {
@@ -88,6 +91,7 @@ public final class RawPreferenceUiWrapper implements PreferenceUiWrapper {
                         });
                 changedFields.add(pName); // TODO: Not now
             } else if (root instanceof CompoundButton) {
+                views.put(pName, root);
                 ((CompoundButton) root).setOnCheckedChangeListener((buttonView, isChecked) -> {
                     if (!isFrozen) {
                         // changedFields.add(pName);
@@ -95,14 +99,15 @@ public final class RawPreferenceUiWrapper implements PreferenceUiWrapper {
                     }
                 });
                 changedFields.add(pName); // TODO: Not now
-            } else {
-                changedFields.add(pName);
+            } else if (root instanceof ImageButton) {
+                root.setOnClickListener(v -> {
+                    set(pName, defaults.get(pName));
+                });
             }
             if (chs.length > 1)
-                listsOpts.put(pName, Arrays.asList(Arrays.copyOfRange(
+                fieldOpts.put(pName, Arrays.asList(Arrays.copyOfRange(
                         chs, 1, chs.length)));
-        }
-        if (root instanceof ViewGroup) {
+        } else if (root instanceof ViewGroup) {
             for (int i = 0; i < ((ViewGroup) root).getChildCount(); ++i) {
                 final View v = ((ViewGroup) root).getChildAt(i);
                 setupViews(v);
@@ -122,6 +127,9 @@ public final class RawPreferenceUiWrapper implements PreferenceUiWrapper {
 
     public void clear() {
         views.clear();
+        fieldOpts.clear();
+        changedFields.clear();
+        defaults.clear();
         delayedInitNum = 0;
     }
 
@@ -139,7 +147,7 @@ public final class RawPreferenceUiWrapper implements PreferenceUiWrapper {
     }
 
     public void setListValues(final String key, final List<?> values) {
-        listsOpts.put(key, values);
+        fieldOpts.put(key, values);
     }
 
     private static int findInAdapter(@NonNull final Adapter a, final Object v) {
@@ -153,7 +161,7 @@ public final class RawPreferenceUiWrapper implements PreferenceUiWrapper {
             new ResultException();
 
     private long getLongEmptyValue(final String key) throws ResultException {
-        final List<?> opts = listsOpts.get(key);
+        final List<?> opts = fieldOpts.get(key);
         if (opts == null || opts.size() < 1)
             throw noEmptyValue;
         final Object opt = opts.get(0);
@@ -204,7 +212,7 @@ public final class RawPreferenceUiWrapper implements PreferenceUiWrapper {
                 return t;
             }
         } else if (view instanceof AdapterView) {
-            final List<?> values = listsOpts.get(key);
+            final List<?> values = fieldOpts.get(key);
             if (values == null)
                 return ((AdapterView<?>) view).getSelectedItemPosition();
             return values.get(((AdapterView<?>) view).getSelectedItemPosition());
@@ -218,7 +226,7 @@ public final class RawPreferenceUiWrapper implements PreferenceUiWrapper {
     public void set(final String key, final Object value) {
         final View view = views.get(key);
         if (view instanceof AdapterView) {
-            final List<?> values = listsOpts.get(key);
+            final List<?> values = fieldOpts.get(key);
             if (values == null) {
                 if (value instanceof Integer && (int) value >= 0)
                     ((AdapterView<?>) view).setSelection((int) value);
@@ -271,6 +279,7 @@ public final class RawPreferenceUiWrapper implements PreferenceUiWrapper {
     public void setDefaultPreferences(@NonNull final Map<String, ?> pp) {
         freeze(true);
         try {
+            defaults.putAll(pp);
             setPreferences(pp);
         } finally {
             freeze(false);

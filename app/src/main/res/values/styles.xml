@@ -114,6 +114,12 @@
         <item name="tint">?attr/colorPrimary</item>
     </style>
 
+    <style name="AppWidget.Editor.ImageButton.Inline">
+        <item name="android:layout_height">match_parent</item>
+        <item name="android:layout_width">wrap_content</item>
+        <item name="android:adjustViewBounds">true</item>
+    </style>
+
     <style name="AppWidget.Editor.ImageButton.Horizontal">
         <item name="android:layout_height">@dimen/uiOptionSize</item>
         <item name="android:layout_width">wrap_content</item>

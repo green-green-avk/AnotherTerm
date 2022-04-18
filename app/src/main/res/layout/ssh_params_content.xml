@@ -264,11 +264,26 @@
         android:textStyle="italic"
         app:xmlText="@string/note_rely_on_jsch_documentation" />
 
-    <TextView
-        android:layout_width="wrap_content"
+    <LinearLayout
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:labelFor="@id/f_kex"
-        android:text="@string/label_key_exchange" />
+        android:gravity="center_vertical"
+        android:orientation="horizontal">
+
+        <TextView
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:labelFor="@id/f_kex"
+            android:text="@string/label_key_exchange" />
+
+        <ImageButton
+            style="@style/AppWidget.Editor.ImageButton.Inline"
+            android:contentDescription="@string/label_reset_to_default"
+            android:tag="jsch.cfg.kex"
+            app:srcCompat="@drawable/ic_reset" />
+
+    </LinearLayout>
 
     <EditText
         android:id="@+id/f_kex"
@@ -278,11 +293,26 @@
         android:inputType="text|textMultiLine|textNoSuggestions"
         android:tag="jsch.cfg.kex" />
 
-    <TextView
-        android:layout_width="wrap_content"
+    <LinearLayout
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:labelFor="@id/f_cipher_s2c"
-        android:text="@string/label_server_to_client_transport_encryption" />
+        android:gravity="center_vertical"
+        android:orientation="horizontal">
+
+        <TextView
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:labelFor="@id/f_cipher_s2c"
+            android:text="@string/label_server_to_client_transport_encryption" />
+
+        <ImageButton
+            style="@style/AppWidget.Editor.ImageButton.Inline"
+            android:contentDescription="@string/label_reset_to_default"
+            android:tag="jsch.cfg.cipher.s2c"
+            app:srcCompat="@drawable/ic_reset" />
+
+    </LinearLayout>
 
     <EditText
         android:id="@+id/f_cipher_s2c"
@@ -292,11 +322,26 @@
         android:inputType="text|textMultiLine|textNoSuggestions"
         android:tag="jsch.cfg.cipher.s2c" />
 
-    <TextView
-        android:layout_width="wrap_content"
+    <LinearLayout
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:labelFor="@id/f_cipher_c2s"
-        android:text="@string/label_client_to_server_transport_encryption" />
+        android:gravity="center_vertical"
+        android:orientation="horizontal">
+
+        <TextView
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:labelFor="@id/f_cipher_c2s"
+            android:text="@string/label_client_to_server_transport_encryption" />
+
+        <ImageButton
+            style="@style/AppWidget.Editor.ImageButton.Inline"
+            android:contentDescription="@string/label_reset_to_default"
+            android:tag="jsch.cfg.cipher.c2s"
+            app:srcCompat="@drawable/ic_reset" />
+
+    </LinearLayout>
 
     <EditText
         android:id="@+id/f_cipher_c2s"
@@ -306,11 +351,26 @@
         android:inputType="text|textMultiLine|textNoSuggestions"
         android:tag="jsch.cfg.cipher.c2s" />
 
-    <TextView
-        android:layout_width="wrap_content"
+    <LinearLayout
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:labelFor="@id/f_mac_s2c"
-        android:text="@string/label_server_to_client_transport_message_authentication_code" />
+        android:gravity="center_vertical"
+        android:orientation="horizontal">
+
+        <TextView
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:labelFor="@id/f_mac_s2c"
+            android:text="@string/label_server_to_client_transport_message_authentication_code" />
+
+        <ImageButton
+            style="@style/AppWidget.Editor.ImageButton.Inline"
+            android:contentDescription="@string/label_reset_to_default"
+            android:tag="jsch.cfg.mac.s2c"
+            app:srcCompat="@drawable/ic_reset" />
+
+    </LinearLayout>
 
     <EditText
         android:id="@+id/f_mac_s2c"
@@ -320,11 +380,26 @@
         android:inputType="text|textMultiLine|textNoSuggestions"
         android:tag="jsch.cfg.mac.s2c" />
 
-    <TextView
-        android:layout_width="wrap_content"
+    <LinearLayout
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:labelFor="@id/f_mac_c2s"
-        android:text="@string/label_client_to_server_transport_message_authentication_code" />
+        android:gravity="center_vertical"
+        android:orientation="horizontal">
+
+        <TextView
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:labelFor="@id/f_mac_c2s"
+            android:text="@string/label_client_to_server_transport_message_authentication_code" />
+
+        <ImageButton
+            style="@style/AppWidget.Editor.ImageButton.Inline"
+            android:contentDescription="@string/label_reset_to_default"
+            android:tag="jsch.cfg.mac.c2s"
+            app:srcCompat="@drawable/ic_reset" />
+
+    </LinearLayout>
 
     <EditText
         android:id="@+id/f_mac_c2s"
