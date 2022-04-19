@@ -32,6 +32,7 @@ import green_green_avk.anotherterm.backends.BackendModule;
 import green_green_avk.anotherterm.backends.BackendsList;
 import green_green_avk.anotherterm.backends.EventBasedBackendModuleWrapper;
 import green_green_avk.anotherterm.ui.BackendUiSessionDialogs;
+import green_green_avk.anotherterm.utils.BooleanCaster;
 
 public final class ConsoleService extends Service {
 
@@ -44,6 +45,15 @@ public final class ConsoleService extends Service {
     private static final String EMSG_NI_CONNTYPE = "This Connection type is not implemented yet";
     private static final int ID_FG = 1;
     private static final String NOTIFICATION_CHANNEL_ID = ConsoleService.class.getName();
+
+    private static AnsiSession.Properties.Condition parseCondition(@Nullable final Object v) {
+        if (C.COND_STR_PROCESS_EXIT_STATUS_0.equals(v))
+            return AnsiSession.Properties.PROCESS_EXIT_STATUS_0;
+        else
+            return BooleanCaster.CAST(v)
+                    ? AnsiSession.Properties.ALWAYS
+                    : AnsiSession.Properties.NEVER;
+    }
 
     private static ConsoleService instance = null;
 
@@ -195,7 +205,13 @@ public final class ConsoleService extends Service {
             tbe.setParameters(cp);
 
         final AnsiSession.Properties pp = new AnsiSession.Properties();
-        pp.terminateOnDisconnect = Boolean.TRUE.equals(cp.get("terminate.on_disconnect"));
+        pp.terminateOnDisconnect = parseCondition(cp.get("terminate.on_disconnect"));
+        if (pp.terminateOnDisconnect == AnsiSession.Properties.NEVER) {
+            pp.terminateOnDisconnect = AnsiSession.Properties.ALWAYS;
+            pp.terminateOnDisconnectEnabled = false;
+        } else {
+            pp.terminateOnDisconnectEnabled = true;
+        }
 
         final EventBasedBackendModuleWrapper be = new EventBasedBackendModuleWrapper(
                 tbe, new EventBasedBackendModuleWrapper.Listener() {
@@ -215,10 +231,11 @@ public final class ConsoleService extends Service {
             public void onDisconnected() {
                 tbe.getUi().showMessage(appCtx.getString(R.string.msg_disconnected));
                 execOnSessionChange(key);
-                if (pp.terminateOnDisconnect) try {
-                    stopSession(key);
-                } catch (final NoSuchElementException ignored) {
-                }
+                if (pp.terminateOnDisconnectEnabled && pp.terminateOnDisconnect.check(tbe))
+                    try {
+                        stopSession(key);
+                    } catch (final NoSuchElementException ignored) {
+                    }
             }
 
             @Override

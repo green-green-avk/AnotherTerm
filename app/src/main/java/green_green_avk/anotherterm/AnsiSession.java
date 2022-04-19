@@ -6,6 +6,7 @@ import androidx.annotation.NonNull;
 
 import java.util.Map;
 
+import green_green_avk.anotherterm.backends.BackendModule;
 import green_green_avk.anotherterm.backends.EventBasedBackendModuleWrapper;
 import green_green_avk.anotherterm.ui.AnsiConsoleKeyboardView;
 import green_green_avk.anotherterm.ui.ConsoleScreenView;
@@ -21,7 +22,21 @@ public final class AnsiSession extends Session {
     }
 
     public static final class Properties {
-        public boolean terminateOnDisconnect = false;
+        public interface Condition {
+            boolean check(@NonNull BackendModule be);
+        }
+
+        public static final Condition NEVER = be -> false;
+        public static final Condition ALWAYS = be -> true;
+        public static final Condition PROCESS_EXIT_STATUS_0 = be -> {
+            final BackendModule.DisconnectionReason dr = be.getDisconnectionReason();
+            return dr instanceof BackendModule.ProcessExitDisconnectionReason
+                    && ((BackendModule.ProcessExitDisconnectionReason) dr).status == 0;
+        };
+
+        @NonNull
+        public Condition terminateOnDisconnect = ALWAYS;
+        public boolean terminateOnDisconnectEnabled = false;
     }
 
     @NonNull
