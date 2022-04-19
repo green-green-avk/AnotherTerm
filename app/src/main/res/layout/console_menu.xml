@@ -262,12 +262,13 @@
                             android:layout_height="wrap_content"
                             android:text="@string/action_terminate" />
 
-                        <FrameLayout
+                        <LinearLayout
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:layout_marginStart="@dimen/text_separator"
                             android:layout_marginLeft="@dimen/text_separator"
-                            android:background="@drawable/bg_curl_bracket_m">
+                            android:background="@drawable/bg_curl_bracket_m"
+                            android:orientation="vertical">
 
                             <CheckBox
                                 android:id="@+id/terminate_on_disconnect"
@@ -276,7 +277,18 @@
                                 android:onClick="onMenuTerminateOnDisconnect"
                                 android:text="@string/label_on_disconnect" />
 
-                        </FrameLayout>
+                            <CheckBox
+                                android:id="@+id/terminate_on_disconnect_if_pes_0"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:layout_marginStart="@dimen/uiOptionIndent"
+                                android:layout_marginLeft="@dimen/uiOptionIndent"
+                                android:hint="@string/hint___if_pe_0"
+                                android:text="@string/label___if_pe_0"
+                                android:visibility="gone"
+                                tools:visibility="visible" />
+
+                        </LinearLayout>
 
                     </TableRow>
 

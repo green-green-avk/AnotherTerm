@@ -369,8 +369,24 @@ public final class AnsiConsoleActivity extends ConsoleActivity
 
         if (mSession != null) {
             final BackendModule be = mSession.backend.wrapped;
+            final BackendModule.Meta beMeta = BackendsList.get(be.getClass()).meta;
+            final CompoundButton terminate_on_disconnect_if_pes_0 =
+                    popupView.findViewById(R.id.terminate_on_disconnect_if_pes_0);
+            terminate_on_disconnect_if_pes_0
+                    .setOnCheckedChangeListener((buttonView, isChecked) -> {
+                        if (mSession == null)
+                            return;
+                        mSession.properties.terminateOnDisconnect = isChecked
+                                ? AnsiSession.Properties.PROCESS_EXIT_STATUS_0
+                                : AnsiSession.Properties.ALWAYS;
+                    });
+            terminate_on_disconnect_if_pes_0
+                    .setVisibility((beMeta.getDisconnectionReasonTypes() &
+                            BackendModule.DisconnectionReason.PROCESS_EXIT) ==
+                            BackendModule.DisconnectionReason.PROCESS_EXIT ?
+                            View.VISIBLE : View.GONE);
             final List<Map.Entry<Method, BackendModule.ExportedUIMethod>> uiMethods =
-                    new LinkedList<>(BackendsList.get(be.getClass()).meta.methods.entrySet());
+                    new LinkedList<>(beMeta.methods.entrySet());
             Collections.sort(uiMethods,
                     (o1, o2) -> Integer.compare(o1.getValue().order(), o2.getValue().order()));
             final ViewGroup moduleUiView = popupView.findViewById(R.id.module_ui);
@@ -464,6 +480,12 @@ public final class AnsiConsoleActivity extends ConsoleActivity
         return window;
     }
 
+    private void refreshMenuPopupOnDisconnectCond(@NonNull final View popupView) {
+        popupView.<CompoundButton>findViewById(R.id.terminate_on_disconnect_if_pes_0)
+                .setChecked(mSession.properties.terminateOnDisconnect
+                        == AnsiSession.Properties.PROCESS_EXIT_STATUS_0);
+    }
+
     private void refreshMenuPopup() {
         if (menuPopupWindow == null || !menuPopupWindow.isShowing())
             return;
@@ -498,7 +520,8 @@ public final class AnsiConsoleActivity extends ConsoleActivity
             popupView.<TextView>findViewById(R.id.screen_size)
                     .setText(getString(R.string.label_dims_s2, w, h));
             popupView.<CompoundButton>findViewById(R.id.terminate_on_disconnect)
-                    .setChecked(mSession.properties.terminateOnDisconnect);
+                    .setChecked(mSession.properties.terminateOnDisconnectEnabled);
+            refreshMenuPopupOnDisconnectCond(popupView);
             popupView.<CompoundButton>findViewById(R.id.wakelock_release_on_disconnect)
                     .setChecked(be.isReleaseWakeLockOnDisconnect());
         }
@@ -836,9 +859,10 @@ public final class AnsiConsoleActivity extends ConsoleActivity
     public void onMenuTerminateOnDisconnect(final View view) {
         if (mSession == null)
             return;
-        mSession.properties.terminateOnDisconnect = !mSession.properties.terminateOnDisconnect;
+        mSession.properties.terminateOnDisconnectEnabled =
+                !mSession.properties.terminateOnDisconnectEnabled;
         if (view instanceof Checkable)
-            ((Checkable) view).setChecked(mSession.properties.terminateOnDisconnect);
+            ((Checkable) view).setChecked(mSession.properties.terminateOnDisconnectEnabled);
     }
 
     public void onMenuWakeLockReleaseOnDisconnect(final View view) {

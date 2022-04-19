@@ -50,6 +50,7 @@ public final class FavoriteEditorActivity extends AppCompatActivity {
     private EditText mScrRowsW;
     private CompoundButton mFontSizeAutoW;
     private CompoundButton mTerminateOD;
+    private CompoundButton mTerminateODIfPES0;
     private CompoundButton mWakeLockAOC;
     private CompoundButton mWakeLockROD;
     private Spinner mTermCompliance;
@@ -265,7 +266,9 @@ public final class FavoriteEditorActivity extends AppCompatActivity {
         ps.put("screen_rows", getSize(mScrRowsW));
         ps.put("font_size_auto", mFontSizeAutoW.isChecked() &&
                 mFontSizeAutoW.getVisibility() == View.VISIBLE);
-        ps.put("terminate.on_disconnect", mTerminateOD.isChecked());
+        ps.put("terminate.on_disconnect", mTerminateODIfPES0.isChecked()
+                ? C.COND_STR_PROCESS_EXIT_STATUS_0
+                : Boolean.valueOf(mTerminateOD.isChecked()));
         ps.put("wakelock.acquire_on_connect", mWakeLockAOC.isChecked());
         ps.put("wakelock.release_on_disconnect", mWakeLockROD.isChecked());
         ps.putAll(mPrefs.getPreferences());
@@ -280,6 +283,10 @@ public final class FavoriteEditorActivity extends AppCompatActivity {
 
     private void addOptionsByTypeId(final int id) {
         mTokenG.setVisibility(BackendsList.get(id).exportable ? View.VISIBLE : View.GONE);
+        mTerminateODIfPES0.setVisibility((BackendsList.get(id).meta.getDisconnectionReasonTypes()
+                & BackendModule.DisconnectionReason.PROCESS_EXIT)
+                == BackendModule.DisconnectionReason.PROCESS_EXIT
+                ? View.VISIBLE : View.GONE);
         final int layout = BackendsList.get(id).settingsLayout;
         if (layout == 0)
             return;
@@ -302,6 +309,7 @@ public final class FavoriteEditorActivity extends AppCompatActivity {
             mCurrMSL = null;
         }
         mTokenG.setVisibility(View.GONE);
+        mTerminateODIfPES0.setVisibility(View.GONE);
     }
 
     private static void setText(@NonNull final EditText et, final Object v) {
@@ -350,7 +358,14 @@ public final class FavoriteEditorActivity extends AppCompatActivity {
         setSizeText(mScrColsW, mPrefsSt.get("screen_cols"));
         setSizeText(mScrRowsW, mPrefsSt.get("screen_rows"));
         mFontSizeAutoW.setChecked(BooleanCaster.CAST(mPrefsSt.get("font_size_auto")));
-        mTerminateOD.setChecked(BooleanCaster.CAST(mPrefsSt.get("terminate.on_disconnect")));
+        final Object terminateOD = mPrefsSt.get("terminate.on_disconnect");
+        if (C.COND_STR_PROCESS_EXIT_STATUS_0.equals(terminateOD)) {
+            mTerminateOD.setChecked(true);
+            mTerminateODIfPES0.setChecked(true);
+        } else {
+            mTerminateOD.setChecked(BooleanCaster.CAST(terminateOD));
+            mTerminateODIfPES0.setChecked(false);
+        }
         mWakeLockAOC.setChecked(BooleanCaster.CAST(mPrefsSt.get("wakelock.acquire_on_connect")));
         mWakeLockROD.setChecked(BooleanCaster.CAST(mPrefsSt.get("wakelock.release_on_disconnect")));
         final Object termCompliance = mPrefsSt.get("term_compliance");
@@ -420,8 +435,11 @@ public final class FavoriteEditorActivity extends AppCompatActivity {
     private final ViewValueListener lNeedSave = new ViewValueListener() {
         @Override
         protected void onChanged(@NonNull final View view, @Nullable final Object value) {
-            if (!isInInit)
+            if (!isInInit) {
                 setNeedSave(true);
+                if (view == mTerminateODIfPES0 && Boolean.TRUE.equals(value))
+                    mTerminateOD.setChecked(true);
+            }
         }
     };
     private final ViewValueListener lNeedSaveDelayed = new ViewValueListener() {
@@ -495,6 +513,7 @@ public final class FavoriteEditorActivity extends AppCompatActivity {
         mScrRowsW = findViewById(R.id.fav_scr_rows);
         mFontSizeAutoW = findViewById(R.id.fav_font_size_auto);
         mTerminateOD = findViewById(R.id.fav_terminate_on_disconnect);
+        mTerminateODIfPES0 = findViewById(R.id.fav_terminate_on_disconnect_if_pes_0);
         mWakeLockAOC = findViewById(R.id.fav_wakelock_acquire_on_connect);
         mWakeLockROD = findViewById(R.id.fav_wakelock_release_on_disconnect);
 
@@ -537,6 +556,7 @@ public final class FavoriteEditorActivity extends AppCompatActivity {
         lNeedSave.adoptView(mFontSizeAutoW);
 
         lNeedSave.adoptView(mTerminateOD);
+        lNeedSave.adoptView(mTerminateODIfPES0);
         lNeedSave.adoptView(mWakeLockAOC);
         lNeedSave.adoptView(mWakeLockROD);
 
