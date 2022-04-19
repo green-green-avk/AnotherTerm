@@ -177,6 +177,7 @@
     <string name="label_save_as_">Save as:</string>
     <string name="label_key_">Key:</string>
     <string name="action_share">Share</string>
+    <string name="action_share_by_uri">Share by URI (as a file)</string>
     <string name="action_save">Save</string>
     <string name="label_font">Font</string>
     <string name="label_selection">Selection</string>
