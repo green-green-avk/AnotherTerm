@@ -13,15 +13,10 @@
         android:background="@drawable/bg_console_menu"
         android:orientation="horizontal">
 
-        <ImageView
+        <ImageButton
             android:id="@+id/help"
-            android:layout_width="wrap_content"
-            android:layout_height="match_parent"
-            android:layout_weight="1"
-            android:adjustViewBounds="true"
-            android:background="@drawable/bg_console_menu_btn"
+            style="@style/AppWidget.ConsoleMenu.ImageButton.Horizontal"
             android:contentDescription="@string/action_help"
-            android:focusable="true"
             android:onClick="onMenuHelp"
             app:srcCompat="@drawable/ic_bar_help" />
 
@@ -38,18 +33,12 @@
             android:textColor="?android:attr/colorBackground"
             app:buttonTint="@android:color/background_light" />
 
-        <ImageView
+        <ImageButton
             android:id="@+id/terminate"
-            android:layout_width="wrap_content"
-            android:layout_height="match_parent"
-            android:layout_weight="1"
-            android:adjustViewBounds="true"
-            android:background="@drawable/bg_console_menu_btn"
+            style="@style/AppWidget.ConsoleMenu.ImageButton.Horizontal"
             android:contentDescription="@string/action_terminate"
-            android:focusable="true"
             android:onClick="onTerminate"
-            app:srcCompat="@drawable/ic_bar_poweroff"
-            app:tint="@android:color/background_light" />
+            app:srcCompat="@drawable/ic_bar_poweroff" />
 
     </LinearLayout>
 
@@ -60,15 +49,10 @@
         android:background="@drawable/bg_console_menu"
         android:orientation="horizontal">
 
-        <ImageView
+        <ImageButton
             android:id="@+id/scratchpad"
-            android:layout_width="wrap_content"
-            android:layout_height="match_parent"
-            android:layout_weight="1"
-            android:adjustViewBounds="true"
-            android:background="@drawable/bg_console_menu_btn"
+            style="@style/AppWidget.ConsoleMenu.ImageButton.Horizontal"
             android:contentDescription="@string/action_scratchpad"
-            android:focusable="true"
             android:onClick="onMenuScratchpad"
             app:srcCompat="@drawable/ic_bar_scratchpad" />
 

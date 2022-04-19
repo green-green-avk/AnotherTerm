@@ -140,6 +140,19 @@
         <item name="android:layout_weight">1</item>
     </style>
 
+    <style name="AppWidget.ConsoleMenu.ImageButton" parent="Widget.AppCompat.ImageButton">
+        <item name="android:scaleType">fitCenter</item>
+        <item name="android:background">@drawable/bg_console_menu_btn</item>
+        <item name="tint">@android:color/background_light</item>
+    </style>
+
+    <style name="AppWidget.ConsoleMenu.ImageButton.Horizontal">
+        <item name="android:layout_height">match_parent</item>
+        <item name="android:layout_width">wrap_content</item>
+        <item name="android:layout_weight">1</item>
+        <item name="android:adjustViewBounds">true</item>
+    </style>
+
     <style name="AppPreferenceTheme">
         <item name="layout">@layout/preference_base</item>
         <item name="android:textAppearanceLarge">@style/AppTextAppearance.Preference.Title</item>

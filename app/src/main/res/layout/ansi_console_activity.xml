@@ -15,7 +15,7 @@
         android:gravity="center_vertical"
         android:orientation="horizontal">
 
-        <ImageView
+        <ImageButton
             android:id="@+id/action_nav_up"
             android:layout_width="wrap_content"
             android:layout_height="match_parent"
@@ -43,7 +43,7 @@
             app:autoSizeTextType="uniform"
             tools:text="Title" />
 
-        <ImageView
+        <ImageButton
             android:id="@+id/action_mouse_mode"
             android:layout_width="wrap_content"
             android:layout_height="match_parent"
@@ -58,7 +58,7 @@
             app:tintMode="src_atop"
             tools:visibility="visible" />
 
-        <ImageView
+        <ImageButton
             android:id="@+id/action_ime"
             android:layout_width="wrap_content"
             android:layout_height="match_parent"
@@ -71,7 +71,7 @@
             app:tint="@color/console_toolbar_icon"
             app:tintMode="src_atop" />
 
-        <ImageView
+        <ImageButton
             android:id="@+id/action_select_mode"
             android:layout_width="wrap_content"
             android:layout_height="match_parent"
@@ -84,7 +84,7 @@
             app:tint="@color/console_toolbar_icon"
             app:tintMode="src_atop" />
 
-        <ImageView
+        <ImageButton
             android:id="@+id/action_paste"
             android:layout_width="wrap_content"
             android:layout_height="match_parent"
@@ -97,7 +97,7 @@
             app:tint="@color/console_toolbar_icon"
             app:tintMode="src_atop" />
 
-        <ImageView
+        <ImageButton
             android:layout_width="wrap_content"
             android:layout_height="match_parent"
             android:adjustViewBounds="true"
