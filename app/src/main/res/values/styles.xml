@@ -126,6 +126,12 @@
         <item name="android:adjustViewBounds">true</item>
     </style>
 
+    <style name="AppWidget.Editor.ImageButton.Vertical">
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:layout_width">@dimen/uiOptionSize</item>
+        <item name="android:adjustViewBounds">true</item>
+    </style>
+
     <style name="AppWidget.EditorToolbar.ImageButton" parent="AppWidget.Editor.ImageButton" />
 
     <style name="AppWidget.EditorToolbar.ImageButton.Horizontal">

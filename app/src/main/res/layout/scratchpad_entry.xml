@@ -69,64 +69,39 @@
     </LinearLayout>
 
     <LinearLayout
-        android:layout_width="@dimen/uiOptionSize"
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:orientation="vertical">
 
-        <ImageView
+        <ImageButton
             android:id="@+id/delete"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:adjustViewBounds="true"
-            android:background="@drawable/bg_grid_btn"
+            style="@style/AppWidget.Editor.ImageButton.Vertical"
             android:contentDescription="@string/action_delete"
-            android:focusable="true"
-            app:srcCompat="@drawable/ic_delete"
-            app:tint="@color/colorPrimary" />
+            app:srcCompat="@drawable/ic_delete" />
 
-        <ImageView
+        <ImageButton
             android:id="@+id/edit"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:adjustViewBounds="true"
-            android:background="@drawable/bg_grid_btn"
+            style="@style/AppWidget.Editor.ImageButton.Vertical"
             android:contentDescription="@string/action_edit"
-            android:focusable="true"
-            app:srcCompat="@drawable/ic_edit"
-            app:tint="@color/colorPrimary" />
+            app:srcCompat="@drawable/ic_edit" />
 
-        <ImageView
+        <ImageButton
             android:id="@+id/view"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:adjustViewBounds="true"
-            android:background="@drawable/bg_grid_btn"
+            style="@style/AppWidget.Editor.ImageButton.Vertical"
             android:contentDescription="@string/action_view"
-            android:focusable="true"
-            app:srcCompat="@drawable/ic_view"
-            app:tint="@color/colorPrimary" />
+            app:srcCompat="@drawable/ic_view" />
 
-        <ImageView
+        <ImageButton
             android:id="@+id/copy"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:adjustViewBounds="true"
-            android:background="@drawable/bg_grid_btn"
+            style="@style/AppWidget.Editor.ImageButton.Vertical"
             android:contentDescription="@string/action_copy"
-            android:focusable="true"
-            app:srcCompat="@drawable/ic_copy_48"
-            app:tint="@color/colorPrimary" />
+            app:srcCompat="@drawable/ic_copy_48" />
 
-        <ImageView
+        <ImageButton
             android:id="@+id/share"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:adjustViewBounds="true"
-            android:background="@drawable/bg_grid_btn"
-            android:contentDescription="@string/action_share"
-            android:focusable="true"
-            app:srcCompat="@drawable/ic_share_uri"
-            app:tint="@color/colorPrimary" />
+            style="@style/AppWidget.Editor.ImageButton.Vertical"
+            android:contentDescription="@string/action_share_by_uri"
+            app:srcCompat="@drawable/ic_share_uri" />
 
     </LinearLayout>
 
