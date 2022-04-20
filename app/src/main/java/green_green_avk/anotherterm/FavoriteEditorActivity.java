@@ -37,6 +37,7 @@ import green_green_avk.anotherterm.utils.BooleanCaster;
 import green_green_avk.anotherterm.utils.PreferenceStorage;
 import green_green_avk.anotherterm.utils.PreferenceUiWrapper;
 import green_green_avk.anotherterm.utils.RawPreferenceUiWrapper;
+import green_green_avk.anotherterm.whatsnew.WhatsNewDialog;
 
 public final class FavoriteEditorActivity extends AppCompatActivity {
     private static final int INITIAL_TYPE_ID = 0;

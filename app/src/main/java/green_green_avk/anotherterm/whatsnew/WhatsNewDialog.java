@@ -1,4 +1,4 @@
-package green_green_avk.anotherterm;
+package green_green_avk.anotherterm.whatsnew;
 
 import android.content.Context;
 import android.content.SharedPreferences;
@@ -15,37 +15,27 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import java.util.Arrays;
 import java.util.Comparator;
-import java.util.Date;
 
+import green_green_avk.anotherterm.BuildConfig;
+import green_green_avk.anotherterm.R;
 import green_green_avk.anotherterm.ui.HtmlTextView;
 
 public final class WhatsNewDialog {
     private WhatsNewDialog() {
     }
 
-    private static final class Entry {
+    static final class Entry {
         @StringRes
         private final int pageId;
         private final long timestamp;
 
-        private Entry(@StringRes final int pageId, final long timestamp) {
+        Entry(@StringRes final int pageId, final long timestamp) {
             this.pageId = pageId;
             this.timestamp = timestamp;
         }
 
         private static final Comparator<Entry> timeOrder =
                 (o1, o2) -> Long.compare(o1.timestamp, o2.timestamp);
-    }
-
-    private static final Entry[] news;
-
-    static {
-        news = new Entry[]{
-                new Entry(R.string.news_IIIv42,
-                        Date.UTC(121, 7, 5, 0, 0, 0)),
-                new Entry(R.string.news_IIIv45,
-                        Date.UTC(121, 9, 7, 0, 0, 0))
-        };
     }
 
     private static void setVersion(@NonNull final SharedPreferences.Editor ed) {
@@ -64,19 +54,19 @@ public final class WhatsNewDialog {
         final int ver = ps.getInt("news_seen_v", 0);
         if (ver == 0)
             setVersion(ps);
-        int idx = Arrays.binarySearch(news, new Entry(0, ts),
+        int idx = Arrays.binarySearch(Info.news, new Entry(0, ts),
                 Entry.timeOrder);
         if (idx < 0)
             idx = -idx - 1;
-        return news.length - idx;
+        return Info.news.length - idx;
     }
 
     public static void setSeen(@NonNull final Context ctx) {
-        if (news.length <= 0)
+        if (Info.news.length <= 0)
             return;
         final SharedPreferences ps = PreferenceManager.getDefaultSharedPreferences(ctx);
         final SharedPreferences.Editor ed = ps.edit();
-        ed.putLong("news_seen", news[news.length - 1].timestamp + 1);
+        ed.putLong("news_seen", Info.news[Info.news.length - 1].timestamp + 1);
         setVersion(ed);
         ed.apply();
     }
@@ -98,7 +88,7 @@ public final class WhatsNewDialog {
         @Override
         public void onBindViewHolder(@NonNull final ViewHolder holder, final int position) {
             final HtmlTextView v = (HtmlTextView) holder.itemView;
-            v.setXmlText(v.getContext().getString(news[news.length - position - 1].pageId));
+            v.setXmlText(v.getContext().getString(Info.news[Info.news.length - position - 1].pageId));
         }
 
         @Override

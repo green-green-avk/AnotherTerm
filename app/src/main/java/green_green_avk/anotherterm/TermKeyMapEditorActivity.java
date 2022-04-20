@@ -29,6 +29,7 @@ import java.util.HashSet;
 import green_green_avk.anotherterm.ui.UiUtils;
 import green_green_avk.anotherterm.utils.Escape;
 import green_green_avk.anotherterm.utils.Unescape;
+import green_green_avk.anotherterm.whatsnew.WhatsNewDialog;
 
 public final class TermKeyMapEditorActivity extends AppCompatActivity {
     private static final String KEYMAP_KEY = "E_KEYMAP";

@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="news_IV_dev18"><![CDATA[
+<h5>Changes in <kbd>MkIV-dev18</kbd></h5>
+<p>This (<kbd>redist</kbd>) flavor has
+<a href=\"https://developer.android.com/training/data-storage/use-cases#opt-out-in-production-app\"><code>android:requestLegacyExternalStorage="true"</code></a>
+declaration added from now on.</p>
+<p>See
+<a href=\"https://github.com/green-green-avk/AnotherTerm/issues/19\">issue&#xA0;#19</a></p>
+]]></string>
+</resources>

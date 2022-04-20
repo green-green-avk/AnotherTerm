@@ -25,6 +25,7 @@ import green_green_avk.anotherterm.backends.BackendModule;
 import green_green_avk.anotherterm.backends.BackendsList;
 import green_green_avk.anotherterm.ui.UiUtils;
 import green_green_avk.anotherterm.utils.PreferenceStorage;
+import green_green_avk.anotherterm.whatsnew.WhatsNewDialog;
 
 public final class SessionsActivity extends AppCompatActivity {
 

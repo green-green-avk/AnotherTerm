@@ -26,6 +26,7 @@ import green_green_avk.anotherterm.backends.BackendException;
 import green_green_avk.anotherterm.utils.HtmlUtils;
 import green_green_avk.anotherterm.utils.Misc;
 import green_green_avk.anotherterm.utils.PreferenceStorage;
+import green_green_avk.anotherterm.whatsnew.WhatsNewDialog;
 
 public final class ShareInputActivity extends AppCompatActivity {
 

@@ -1,4 +1,4 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="title_whats_new">What\'s new</string>
+    <string name="desc_warn_android10_public_storage" />
 </resources>
