@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="news_IV_dev18"><![CDATA[
-<h5>Changes in <kbd>MkIV-dev18</kbd></h5>
+    <string name="news_IIIv51"><![CDATA[
+<h5>Changes in <kbd>MkIIIv51</kbd></h5>
 <p>This (<kbd>redist</kbd>) flavor has
 <a href=\"https://developer.android.com/training/data-storage/use-cases#opt-out-in-production-app\"><code>android:requestLegacyExternalStorage="true"</code></a>
 declaration added from now on.</p>

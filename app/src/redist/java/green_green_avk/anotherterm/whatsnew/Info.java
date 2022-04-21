@@ -12,8 +12,8 @@ final class Info {
 
     static {
         news = new WhatsNewDialog.Entry[]{
-                new WhatsNewDialog.Entry(R.string.news_IV_dev18,
-                        Date.UTC(122, 3, 20, 0, 0, 0))
+                new WhatsNewDialog.Entry(R.string.news_IIIv51,
+                        Date.UTC(122, 3, 20, 0, 0, 1))
         };
     }
 }
