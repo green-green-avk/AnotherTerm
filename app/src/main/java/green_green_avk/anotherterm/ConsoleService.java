@@ -198,8 +198,8 @@ public final class ConsoleService extends Service {
         final int key = obtainKey();
         tbe.setContext(ctx);
         tbe.setOnWakeLockEvent(() -> execOnSessionChange(key), new Handler());
-        tbe.setAcquireWakeLockOnConnect(Boolean.TRUE.equals(cp.get("wakelock.acquire_on_connect")));
-        tbe.setReleaseWakeLockOnDisconnect(Boolean.TRUE.equals(cp.get("wakelock.release_on_disconnect")));
+        tbe.setAcquireWakeLockOnConnect(BooleanCaster.CAST(cp.get("wakelock.acquire_on_connect")));
+        tbe.setReleaseWakeLockOnDisconnect(BooleanCaster.CAST(cp.get("wakelock.release_on_disconnect")));
         tbe.setUi(new BackendUiSessionDialogs(key));
         if (setBeParams)
             tbe.setParameters(cp);
