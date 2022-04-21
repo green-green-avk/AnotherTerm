@@ -4,7 +4,7 @@ plugins {
 }
 
 ext {
-    versionCodeMain = 110
+    versionCodeMain = 111
 }
 
 android {
@@ -22,7 +22,7 @@ android {
         minSdkVersion 14
         targetSdkVersion 30
         versionCode versionCodeMain
-        versionName "MkIIIv52-dev"
+        versionName "MkIIIv52"
         vectorDrawables.useSupportLibrary = true
 
         resConfigs 'en'
