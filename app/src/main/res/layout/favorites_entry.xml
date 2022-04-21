@@ -9,14 +9,31 @@
     android:background="@drawable/list_item_btn_background"
     android:orientation="horizontal">
 
-    <ImageView
-        android:id="@+id/icon"
+    <FrameLayout
         android:layout_width="wrap_content"
-        android:layout_height="match_parent"
-        android:importantForAccessibility="no"
-        android:scaleType="fitCenter"
-        app:srcCompat="@drawable/ic_help"
-        app:tint="@color/colorDevIcon" />
+        android:layout_height="match_parent">
+
+        <ImageView
+            android:id="@+id/icon"
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:importantForAccessibility="no"
+            android:scaleType="fitCenter"
+            app:srcCompat="@drawable/ic_help"
+            app:tint="@color/colorDevIcon" />
+
+        <ImageView
+            android:id="@+id/mark"
+            android:layout_width="12sp"
+            android:layout_height="12sp"
+            android:layout_gravity="bottom|end"
+            android:scaleType="fitCenter"
+            android:visibility="invisible"
+            app:srcCompat="@drawable/ic_mark_shared"
+            app:tint="@color/colorPrimary"
+            tools:visibility="visible" />
+
+    </FrameLayout>
 
     <Space
         android:layout_width="@dimen/text_separator"

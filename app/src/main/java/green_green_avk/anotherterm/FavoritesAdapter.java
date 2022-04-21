@@ -88,6 +88,10 @@ public final class FavoritesAdapter extends RecyclerView.Adapter<FavoritesAdapte
         final BackendsList.Item blit = BackendsList.get(bli);
         final ImageView iconView = holder.itemView.findViewById(R.id.icon);
         iconView.setImageResource(blit.icon);
+        final ImageView markView = holder.itemView.findViewById(R.id.mark);
+        markView.setVisibility(!mShareableOnly &&
+                blit.exportable && BooleanCaster.CAST(ps.get("shareable"))
+                ? View.VISIBLE : View.INVISIBLE);
     }
 
     @Override
