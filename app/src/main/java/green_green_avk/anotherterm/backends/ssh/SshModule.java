@@ -140,6 +140,11 @@ public final class SshModule extends BackendModule {
             }
             return b.build();
         }
+
+        @Override
+        public int getDisconnectionReasonTypes() {
+            return DisconnectionReason.PROCESS_EXIT;
+        }
     };
 
     // For UI reference
@@ -303,7 +308,65 @@ public final class SshModule extends BackendModule {
                 pp.getString("remote_ports", ""));
     }
 
-    private Channel channel = null;
+    private volatile Channel channel = null;
+    private volatile Integer channelExitStatus = null;
+
+    private static String ifHas(final String o, final String v) {
+        return o == null || o.isEmpty() ? "" : v;
+    }
+
+    private static final String[] connectionOpenFailureReasons = new String[]{
+            "SSH_OPEN_ADMINISTRATIVELY_PROHIBITED",
+            "SSH_OPEN_CONNECT_FAILED",
+            "SSH_OPEN_UNKNOWN_CHANNEL_TYPE",
+            "SSH_OPEN_RESOURCE_SHORTAGE"
+    };
+
+    private static String getConnectionOpenFailureReasonStr(final int v) {
+        try {
+            return connectionOpenFailureReasons[v - 1];
+        } catch (final ArrayIndexOutOfBoundsException e) {
+            return "<unknown>";
+        }
+    }
+
+    private final Runnable mOnDisconnect = () -> {
+        final Channel ch = channel;
+        if (ch == null)
+            return;
+        final Channel.ExitStatus status = ch.getExitStatus();
+        if (status instanceof Channel.ProcessExitStatus) {
+            channelExitStatus = ((Channel.ProcessExitStatus) status).value;
+            reportState(new DisconnectStateMessage("Remote process exited with status " +
+                    ((Channel.ProcessExitStatus) status).value));
+        } else if (status instanceof Channel.ProcessSignalExitStatus) {
+            final Channel.ProcessSignalExitStatus st =
+                    (Channel.ProcessSignalExitStatus) status;
+            reportState(new DisconnectStateMessage("Remote process exited with signal " +
+                    st.signalName + (st.coreDumped ? " <core dumped>" : "") +
+                    ifHas(st.errorMessage, "\n" + st.errorMessage +
+                            ifHas(st.languageTag, " [" + st.languageTag + "]"))));
+        } else if (status == Channel.CLOSED_EXIT_STATUS) {
+            reportState(new DisconnectStateMessage(
+                    "SSH channel closed without any exit status"));
+        } else if (status instanceof Channel.ConnectionOpenFailureExitStatus) {
+            final Channel.ConnectionOpenFailureExitStatus st =
+                    (Channel.ConnectionOpenFailureExitStatus) status;
+            reportState(new DisconnectStateMessage("SSH channel open failed with status " +
+                    st.reason + ": " + getConnectionOpenFailureReasonStr(st.reason) +
+                    ifHas(st.description, "\n" + st.description +
+                            ifHas(st.languageTag, " [" + st.languageTag + "]"))));
+        } else if (status == Channel.EOF_EXIT_STATUS) {
+            reportState(new DisconnectStateMessage(
+                    "SSH channel terminated due to a protocol error after a remote EOF received"));
+        } else {
+            reportState(new DisconnectStateMessage(
+                    "SSH channel terminated due to a protocol error"));
+        }
+        if (isReleaseWakeLockOnDisconnect())
+            releaseWakeLock();
+    };
+
     private OutputStream mOS_set = null;
     private OutputStream mOS_get_orig = null;
 
@@ -512,29 +575,7 @@ public final class SshModule extends BackendModule {
 
     @Override
     public void setOutputStream(@NonNull final OutputStream stream) {
-        mOS_set = new OutputStream() {
-            public void write(final int b) throws IOException {
-                stream.write(b);
-            }
-
-            public void write(final byte[] b) throws IOException {
-                stream.write(b);
-            }
-
-            public void write(final byte[] b, final int off, final int len) throws IOException {
-                stream.write(b, off, len);
-            }
-
-            public void flush() throws IOException {
-                stream.flush();
-            }
-
-            public void close() throws IOException {
-                stream.close();
-                if (isReleaseWakeLockOnDisconnect())
-                    releaseWakeLock();
-            }
-        };
+        mOS_set = stream;
     }
 
     @Override
@@ -543,19 +584,29 @@ public final class SshModule extends BackendModule {
         return mOS_get;
     }
 
+    private OnMessageListener onMessageListener = null;
+
     @Override
-    public void setOnMessageListener(@Nullable final OnMessageListener l) { // TODO: use it!
+    public void setOnMessageListener(@Nullable final OnMessageListener l) {
+        onMessageListener = l;
+    }
+
+    private void reportState(@NonNull final StateMessage m) {
+        if (onMessageListener != null)
+            onMessageListener.onMessage(m);
     }
 
     @Override
     public boolean isConnected() {
-        return (channel != null) && channel.isConnected();
+        final Channel ch = channel;
+        return (ch != null) && ch.isConnected();
     }
 
     @Override
     public void connect() {
         if (channel != null)
             return;
+        channelExitStatus = null;
         final Channel ch;
         sshSessionSt.refs.getAndIncrement();
         try {
@@ -604,6 +655,7 @@ public final class SshModule extends BackendModule {
                 ((ChannelExec) ch).setErrStream(mOS_set);
             }
             ch.setXForwarding(x11);
+            ch.setOnDisconnect(mOnDisconnect);
             ch.setOutputStream(mOS_set);
             mOS_get_orig = ch.getOutputStream();
             ch.connect(3000);
@@ -633,8 +685,9 @@ public final class SshModule extends BackendModule {
     @Override
     public void disconnect() {
         try {
-            if (channel != null) {
-                channel.disconnect();
+            final Channel ch = channel;
+            if (ch != null) {
+                ch.disconnect();
                 channel = null;
                 sshSessionSt.refs.decrementAndGet();
             }
@@ -653,11 +706,11 @@ public final class SshModule extends BackendModule {
 
     @Override
     public void resize(final int col, final int row, final int wp, final int hp) {
-        if (channel != null)
-            if (channel instanceof ChannelExec)
-                ((ChannelExec) channel).setPtySize(col, row, wp, hp);
-            else
-                ((ChannelShell) channel).setPtySize(col, row, wp, hp);
+        final Channel ch = channel;
+        if (ch instanceof ChannelExec)
+            ((ChannelExec) channel).setPtySize(col, row, wp, hp);
+        else if (ch instanceof ChannelShell)
+            ((ChannelShell) channel).setPtySize(col, row, wp, hp);
     }
 
     @Override
@@ -665,6 +718,13 @@ public final class SshModule extends BackendModule {
     public String getConnDesc() {
         return String.format(Locale.getDefault(), "ssh://%s@%s:%d",
                 sshSessionSt.username, sshSessionSt.hostname, sshSessionSt.port);
+    }
+
+    @Override
+    @Nullable
+    public DisconnectionReason getDisconnectionReason() {
+        final Integer es = channelExitStatus;
+        return es != null ? new ProcessExitDisconnectionReason(es) : null;
     }
 
     @Keep

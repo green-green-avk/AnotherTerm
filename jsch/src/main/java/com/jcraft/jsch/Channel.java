@@ -107,6 +107,7 @@ public abstract class Channel implements Runnable {
     volatile long rwsize = 0;         // remote initial window size
     volatile int rmpsize = 0;        // remote maximum packet size
 
+    Runnable onDisconnect = null;
     IO io = null;
     Thread thread = null;
 
@@ -117,7 +118,77 @@ public abstract class Channel implements Runnable {
     volatile boolean connected = false;
     volatile boolean open_confirmation = false;
 
-    volatile int exitstatus = -1;
+    public static abstract class ExitStatus {
+    }
+
+    public static final class NoExitStatus extends ExitStatus {
+        NoExitStatus() {
+        }
+    }
+
+    /**
+     * Channel is closed due to <code>SSH_MSG_CHANNEL_CLOSE</code> without any exit status.
+     */
+    public static final NoExitStatus CLOSED_EXIT_STATUS = new NoExitStatus();
+
+    /**
+     * Channel is terminated but <code>SSH_MSG_CHANNEL_EOF</code> has already been received.
+     */
+    public static final NoExitStatus EOF_EXIT_STATUS = new NoExitStatus();
+
+    /**
+     * Channel closed due to process exit.
+     */
+    public static final class ProcessExitStatus extends ExitStatus {
+        public final int value;
+
+        ProcessExitStatus(final int value) {
+            this.value = value;
+        }
+    }
+
+    /**
+     * Channel is closed due to process termination by a signal.
+     */
+    public static final class ProcessSignalExitStatus extends ExitStatus {
+        public final String signalName;
+        public final boolean coreDumped;
+        public final String errorMessage;
+        public final String languageTag;
+
+        ProcessSignalExitStatus(final String signalName, final boolean coreDumped,
+                                final String errorMessage, final String languageTag) {
+            this.signalName = signalName;
+            this.coreDumped = coreDumped;
+            this.errorMessage = errorMessage;
+            this.languageTag = languageTag;
+        }
+    }
+
+    /**
+     * Channel is closed due to <code>SSH_MSG_CHANNEL_OPEN_FAILURE</code>.
+     * <p>
+     * See <a href="https://www.rfc-editor.org/rfc/rfc4254.html">RFC4254</a>.
+     */
+    public static final class ConnectionOpenFailureExitStatus extends ExitStatus {
+        public static final int SSH_OPEN_ADMINISTRATIVELY_PROHIBITED = 1;
+        public static final int SSH_OPEN_CONNECT_FAILED = 2;
+        public static final int SSH_OPEN_UNKNOWN_CHANNEL_TYPE = 3;
+        public static final int SSH_OPEN_RESOURCE_SHORTAGE = 4;
+
+        public final int reason;
+        public final String description;
+        public final String languageTag;
+
+        ConnectionOpenFailureExitStatus(final int reason,
+                                        final String description, final String languageTag) {
+            this.reason = reason;
+            this.description = description;
+            this.languageTag = languageTag;
+        }
+    }
+
+    volatile ExitStatus exitStatus = null;
 
     volatile int reply = 0;
     volatile int connectTimeout = 0;
@@ -178,6 +249,19 @@ public abstract class Channel implements Runnable {
         setRecipient(buf.getInt());
         setRemoteWindowSize(buf.getUInt());
         setRemotePacketSize(buf.getInt());
+    }
+
+    /**
+     * @param v to be executed on actual disconnect event
+     *          when {@link #getExitStatus()} result is ready.
+     *          The execution thread is the same as for
+     *          {@link #setOutputStream(OutputStream out)}
+     *          and
+     *          {@link ChannelExec#setErrStream(OutputStream out)}
+     *          argument methods.
+     */
+    public void setOnDisconnect(final Runnable v) {
+        onDisconnect = v;
     }
 
     public void setInputStream(InputStream in) {
@@ -630,6 +714,13 @@ public abstract class Channel implements Runnable {
                 //e.printStackTrace();
             }
             // io=null;
+            try {
+                if (onDisconnect != null) {
+                    onDisconnect.run();
+                }
+            } catch (final Exception e) {
+                //e.printStackTrace();
+            }
         } finally {
             Channel.del(this);
         }
@@ -708,12 +799,12 @@ public abstract class Channel implements Runnable {
         }
     }
 
-    void setExitStatus(int status) {
-        exitstatus = status;
+    void setExitStatus(final ExitStatus status) {
+        exitStatus = status;
     }
 
-    public int getExitStatus() {
-        return exitstatus;
+    public ExitStatus getExitStatus() {
+        return exitStatus;
     }
 
     void setSession(Session session) {
