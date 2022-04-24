@@ -36,6 +36,9 @@ public abstract class BackendModule {
     }
 
     public static final class ProcessExitDisconnectionReason extends DisconnectionReason {
+        // Full 32-bit exit value:
+        // https://unix.stackexchange.com/questions/418784/what-is-the-min-and-max-values-of-exit-codes-in-linux
+        // https://www.austingroupbugs.net/view.php?id=594
         public final int status;
 
         public ProcessExitDisconnectionReason(final int status) {

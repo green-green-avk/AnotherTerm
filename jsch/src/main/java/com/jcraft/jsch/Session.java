@@ -1518,6 +1518,10 @@ public class Session implements Runnable {
                         i = buf.getInt();
                         channel = Channel.getChannel(i, this);
                         if (channel != null) {
+                            final Channel.ExitStatus st = channel.getExitStatus();
+                            if (st == null || st instanceof Channel.NoExitStatus) {
+                                channel.setExitStatus(Channel.EOF_EXIT_STATUS);
+                            }
                             //channel.eof_remote=true;
                             //channel.eof();
                             channel.eof_remote();
@@ -1535,6 +1539,10 @@ public class Session implements Runnable {
                         i = buf.getInt();
                         channel = Channel.getChannel(i, this);
                         if (channel != null) {
+                            final Channel.ExitStatus st = channel.getExitStatus();
+                            if (st == null || st instanceof Channel.NoExitStatus) {
+                                channel.setExitStatus(Channel.CLOSED_EXIT_STATUS);
+                            }
 //	      channel.close();
                             channel.disconnect();
                         }
@@ -1565,10 +1573,14 @@ public class Session implements Runnable {
                         i = buf.getInt();
                         channel = Channel.getChannel(i, this);
                         if (channel != null) {
-                            int reason_code = buf.getInt();
-                            //foo=buf.getString();  // additional textual information
-                            //foo=buf.getString();  // language tag
-                            channel.setExitStatus(reason_code);
+                            final int reasonCode = buf.getInt();
+                            final byte[] description = buf.getString();
+                            final byte[] languageTag = buf.getString();
+                            channel.setExitStatus(new Channel.ConnectionOpenFailureExitStatus(
+                                    reasonCode,
+                                    Util.byte2str(description),
+                                    Util.byte2str(languageTag)
+                            ));
                             channel.close = true;
                             channel.eof_remote = true;
                             channel.setRecipient(0);
@@ -1584,8 +1596,25 @@ public class Session implements Runnable {
                         if (channel != null) {
                             byte reply_type = (byte) SSH_MSG_CHANNEL_FAILURE;
                             if ((Util.byte2str(foo)).equals("exit-status")) {
-                                i = buf.getInt();             // exit-status
-                                channel.setExitStatus(i);
+                                final int exitStatus = buf.getInt();
+                                if (!(channel.getExitStatus() instanceof
+                                        Channel.ProcessSignalExitStatus)) {
+                                    channel.setExitStatus(new Channel.ProcessExitStatus(
+                                            exitStatus
+                                    ));
+                                }
+                                reply_type = (byte) SSH_MSG_CHANNEL_SUCCESS;
+                            } else if ((Util.byte2str(foo)).equals("exit-signal")) {
+                                final byte[] signalName = buf.getString();
+                                final boolean coreDumped = buf.getByte() != 0;
+                                final byte[] errorMessage = buf.getString();
+                                final byte[] languageTag = buf.getString();
+                                channel.setExitStatus(new Channel.ProcessSignalExitStatus(
+                                        Util.byte2str(signalName),
+                                        coreDumped,
+                                        Util.byte2str(errorMessage),
+                                        Util.byte2str(languageTag)
+                                ));
                                 reply_type = (byte) SSH_MSG_CHANNEL_SUCCESS;
                             }
                             if (reply) {

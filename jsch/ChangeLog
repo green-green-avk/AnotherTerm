@@ -1,6 +1,14 @@
 ChangeLog of JSch
 ====================================================================
-Last modified: Thu Nov 22 01:06:27 UTC 2018
+Last modified: Thu, 28 Apr 2022 21:56:45 +0000
+
+
+Changes since version 0.1.55:
+- feature: Channel::setOnDisconnect(Runnable handler)
+           in order to catch the true disconnect event
+           when Channel::getExitStatus() result is ready.
+- feature: Channel::getExitStatus() now returns distinct exit status
+           for each significant cause.
 
 
 Changes since version 0.1.54:
