@@ -401,7 +401,8 @@ public final class AnsiConsoleActivity extends ConsoleActivity
                         mi.setContentDescription(getString(m.getValue().longTitleRes()));
                     mi.setOnClickListener(item -> {
                         processMenuPopupAction(be.callMethod(m.getKey()));
-                        if (menuPopupWindow != null) menuPopupWindow.dismiss();
+                        if (menuPopupWindow != null)
+                            menuPopupWindow.dismiss();
                     });
                     moduleUiView.addView(mi);
                 } else if (paramTypes.length == 1 && retType == Void.TYPE) {
