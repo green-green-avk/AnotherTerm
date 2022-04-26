@@ -118,7 +118,7 @@ dependencies {
     implementation project(':MaterialSeekBarPreference')
     implementation project(':PtyProcess')
     implementation 'com.github.felHR85:UsbSerial:6.1.0'
-    implementation 'com.jcraft:jsch:0.1.55'
+    implementation project(path: ':jsch')
     implementation project(':TelnetClient')
     implementation 'org.apache.commons:commons-collections4:4.4'
     implementation 'com.github.green-green-avk:libusbmanager:1.5'
