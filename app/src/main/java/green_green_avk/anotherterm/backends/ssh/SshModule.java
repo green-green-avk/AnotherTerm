@@ -3,7 +3,6 @@ package green_green_avk.anotherterm.backends.ssh;
 import android.content.Intent;
 import android.net.Uri;
 import android.util.Log;
-import android.util.SparseBooleanArray;
 
 import androidx.annotation.Keep;
 import androidx.annotation.NonNull;
@@ -36,6 +35,7 @@ import java.util.concurrent.atomic.AtomicLong;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import green_green_avk.anotherterm.BuildConfig;
 import green_green_avk.anotherterm.R;
 import green_green_avk.anotherterm.backends.BackendException;
 import green_green_avk.anotherterm.backends.BackendInterruptedException;
@@ -436,24 +436,18 @@ public final class SshModule extends BackendModule {
     // TODO: Nothing can be done with logging without per-instance implementation...
     // TODO: Need introduce appropriate JSch changes before.
     static {
-        JSch.setLogger(new Logger() {
-            private final SparseBooleanArray enabled = new SparseBooleanArray();
+        if (BuildConfig.DEBUG)
+            JSch.setLogger(new Logger() {
+                @Override
+                public boolean isEnabled(final int level) {
+                    return level >= ERROR;
+                }
 
-            {
-                enabled.put(FATAL, true);
-                enabled.put(ERROR, true);
-            }
-
-            @Override
-            public boolean isEnabled(final int level) {
-                return enabled.get(level, false);
-            }
-
-            @Override
-            public void log(final int level, final String message) {
-                Log.e("JSch Error", message);
-            }
-        });
+                @Override
+                public void log(final int level, final String message) {
+                    Log.e("JSch Error", message);
+                }
+            });
     }
 
     private static void initIdentityRepo(@NonNull final SshSessionSt st) {
