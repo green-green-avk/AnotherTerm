@@ -273,6 +273,15 @@ public final class Misc {
         };
     }
 
+    public static Integer[] box(final int[] v) {
+        if (v == null)
+            return null;
+        final Integer[] r = new Integer[v.length];
+        for (int i = 0; i < v.length; i++)
+            r[i] = v[i];
+        return r;
+    }
+
     public static <T extends Comparable<T>> T clamp(@NonNull final T v, final T min, final T max) {
         if (v.compareTo(min) < 0) return min;
         if (v.compareTo(max) > 0) return max;

@@ -57,6 +57,7 @@ import green_green_avk.anotherterm.backends.BackendException;
 import green_green_avk.anotherterm.backends.BackendModule;
 import green_green_avk.anotherterm.backends.BackendUiInteractionActivityCtx;
 import green_green_avk.anotherterm.backends.BackendsList;
+import green_green_avk.anotherterm.backends.EventBasedBackendModuleWrapper;
 import green_green_avk.anotherterm.ui.AnsiConsoleKeyboardView;
 import green_green_avk.anotherterm.ui.ChoreographerCompat;
 import green_green_avk.anotherterm.ui.ConsoleScreenView;
@@ -66,6 +67,7 @@ import green_green_avk.anotherterm.ui.ScreenMouseView;
 import green_green_avk.anotherterm.ui.ScrollableView;
 import green_green_avk.anotherterm.ui.VisibilityAnimator;
 import green_green_avk.anotherterm.utils.BooleanCaster;
+import green_green_avk.anotherterm.utils.Misc;
 
 public final class AnsiConsoleActivity extends ConsoleActivity
         implements AnsiConsoleInput.OnInvalidateSink, ScrollableView.OnScroll,
@@ -368,8 +370,8 @@ public final class AnsiConsoleActivity extends ConsoleActivity
 // --------------
 
         if (mSession != null) {
-            final BackendModule be = mSession.backend.wrapped;
-            final BackendModule.Meta beMeta = BackendsList.get(be.getClass()).meta;
+            final EventBasedBackendModuleWrapper wbe = mSession.backend;
+            final BackendModule.Meta beMeta = BackendsList.get(wbe.wrapped.getClass()).meta;
             final CompoundButton terminate_on_disconnect_if_pes_0 =
                     popupView.findViewById(R.id.terminate_on_disconnect_if_pes_0);
             terminate_on_disconnect_if_pes_0
@@ -400,7 +402,7 @@ public final class AnsiConsoleActivity extends ConsoleActivity
                     if (m.getValue().longTitleRes() != 0)
                         mi.setContentDescription(getString(m.getValue().longTitleRes()));
                     mi.setOnClickListener(item -> {
-                        processMenuPopupAction(be.callMethod(m.getKey()));
+                        processMenuPopupAction(wbe.callWrappedMethod(m.getKey()));
                         if (menuPopupWindow != null)
                             menuPopupWindow.dismiss();
                     });
@@ -408,9 +410,19 @@ public final class AnsiConsoleActivity extends ConsoleActivity
                 } else if (paramTypes.length == 1 && retType == Void.TYPE) {
                     final Annotation[] aa = m.getKey().getParameterAnnotations()[0];
                     for (final Annotation a : aa) {
-                        if (a instanceof BackendModule.ExportedUIMethodEnum) {
-                            if (paramTypes[0] != Integer.TYPE)
-                                break;
+                        if (a instanceof BackendModule.ExportedUIMethodIntEnum
+                                && paramTypes[0] == Integer.TYPE
+                                || a instanceof BackendModule.ExportedUIMethodStrEnum
+                                && paramTypes[0] == String.class) {
+                            final int[] titles;
+                            final Object[] values;
+                            if (a instanceof BackendModule.ExportedUIMethodIntEnum) {
+                                titles = ((BackendModule.ExportedUIMethodIntEnum) a).titleRes();
+                                values = Misc.box(((BackendModule.ExportedUIMethodIntEnum) a).values());
+                            } else {
+                                titles = ((BackendModule.ExportedUIMethodStrEnum) a).titleRes();
+                                values = ((BackendModule.ExportedUIMethodStrEnum) a).values();
+                            }
                             final ViewGroup sm = (ViewGroup) LayoutInflater.from(this)
                                     .inflate(R.layout.module_ui_group, moduleUiView, false);
                             sm.<TextView>findViewById(R.id.title)
@@ -418,15 +430,16 @@ public final class AnsiConsoleActivity extends ConsoleActivity
                                             m.getValue().longTitleRes() :
                                             m.getValue().titleRes());
                             final ViewGroup smg = sm.findViewById(R.id.content);
-                            final BackendModule.ExportedUIMethodEnum ae =
-                                    (BackendModule.ExportedUIMethodEnum) a;
-                            for (int ai = 0; ai < ae.values().length; ai++) {
-                                final int value = ae.values()[ai];
+                            for (int i = 0; i < values.length; i++) {
+                                final Object value = values[i];
                                 final TextView mi = (TextView) LayoutInflater.from(this)
                                         .inflate(R.layout.module_ui_button, smg, false);
-                                mi.setText(ae.titleRes()[ai]);
+                                if (titles.length > i)
+                                    mi.setText(titles[i]);
+                                else
+                                    mi.setText(value.toString());
                                 mi.setOnClickListener(item -> {
-                                    be.callMethod(m.getKey(), value);
+                                    wbe.callWrappedMethod(m.getKey(), value);
                                     if (menuPopupWindow != null)
                                         menuPopupWindow.dismiss();
                                 });
@@ -447,7 +460,8 @@ public final class AnsiConsoleActivity extends ConsoleActivity
                         if (m.getValue().longTitleRes() != 0)
                             mi.setContentDescription(getString(m.getValue().longTitleRes()));
                         mi.setOnClickListener(item -> {
-                            final long bits = (long) be.callMethod(m.getKey(), 0L, 0L);
+                            final long bits =
+                                    (long) wbe.callWrappedMethod(m.getKey(), 0L, 0L);
                             final boolean[] values = new boolean[a.values().length];
                             final String[] titles = new String[a.values().length];
                             for (int ai = 0; ai < a.values().length; ai++) {
@@ -457,10 +471,11 @@ public final class AnsiConsoleActivity extends ConsoleActivity
                             new AlertDialog.Builder(AnsiConsoleActivity.this)
                                     .setTitle(m.getValue().titleRes())
                                     .setMultiChoiceItems(titles, values,
-                                            (dialog, which, isChecked) -> be.callMethod(m.getKey(),
-                                                    isChecked ?
-                                                            a.values()[which] : 0L,
-                                                    a.values()[which]))
+                                            (dialog, which, isChecked) ->
+                                                    wbe.callWrappedMethod(m.getKey(),
+                                                            isChecked ?
+                                                                    a.values()[which] : 0L,
+                                                            a.values()[which]))
                                     .setCancelable(true)
                                     .show();
                         });
