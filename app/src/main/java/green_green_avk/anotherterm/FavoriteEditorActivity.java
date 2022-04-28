@@ -438,6 +438,8 @@ public final class FavoriteEditorActivity extends AppCompatActivity {
         protected void onChanged(@NonNull final View view, @Nullable final Object value) {
             if (!isInInit) {
                 setNeedSave(true);
+                if (view == mTerminateOD && Boolean.FALSE.equals(value))
+                    mTerminateODIfPES0.setChecked(false);
                 if (view == mTerminateODIfPES0 && Boolean.TRUE.equals(value))
                     mTerminateOD.setChecked(true);
             }
