@@ -399,8 +399,12 @@ public final class AnsiConsoleActivity extends ConsoleActivity
                     final TextView mi = (TextView) LayoutInflater.from(this)
                             .inflate(R.layout.module_ui_button, moduleUiView, false);
                     mi.setText(m.getValue().titleRes());
-                    if (m.getValue().longTitleRes() != 0)
-                        mi.setContentDescription(getString(m.getValue().longTitleRes()));
+                    if (m.getValue().longTitleRes() != 0) {
+                        final String desc = getString(m.getValue().longTitleRes());
+                        mi.setContentDescription(desc);
+                        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O)
+                            mi.setTooltipText(desc);
+                    }
                     mi.setOnClickListener(item -> {
                         processMenuPopupAction(wbe.callWrappedMethod(m.getKey()));
                         if (menuPopupWindow != null)
@@ -457,8 +461,12 @@ public final class AnsiConsoleActivity extends ConsoleActivity
                         final TextView mi = (TextView) LayoutInflater.from(this)
                                 .inflate(R.layout.module_ui_button, moduleUiView, false);
                         mi.setText(m.getValue().titleRes());
-                        if (m.getValue().longTitleRes() != 0)
-                            mi.setContentDescription(getString(m.getValue().longTitleRes()));
+                        if (m.getValue().longTitleRes() != 0) {
+                            final String desc = getString(m.getValue().longTitleRes());
+                            mi.setContentDescription(desc);
+                            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O)
+                                mi.setTooltipText(desc);
+                        }
                         mi.setOnClickListener(item -> {
                             final long bits =
                                     (long) wbe.callWrappedMethod(m.getKey(), 0L, 0L);
