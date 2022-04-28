@@ -9,8 +9,11 @@ import android.util.Log;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
+import org.apache.commons.lang3.NotImplementedException;
+
 import java.io.IOException;
 import java.io.OutputStream;
+import java.lang.reflect.Method;
 import java.nio.ByteBuffer;
 
 public final class EventBasedBackendModuleWrapper {
@@ -21,11 +24,13 @@ public final class EventBasedBackendModuleWrapper {
     private static final int MSG_DISCONNECTED = 5;
     private static final int MSG_STOP = 6;
     private static final int MSG_CONNECTING = 7;
+    private static final int MSG_MESSAGE = 8;
 
     private static final int MSG_S_WRITE = 2;
     private static final int MSG_S_CONNECT = 3;
     private static final int MSG_S_DISCONNECT = 4;
     private static final int MSG_S_RESIZE = 5;
+    private static final int MSG_S_METHOD = 0x10;
 
     @NonNull
     public final BackendModule wrapped;
@@ -81,6 +86,9 @@ public final class EventBasedBackendModuleWrapper {
                         listener.onDisconnected();
                     }
                     break;
+                case MSG_MESSAGE:
+                    listener.onMessage(msg.obj.toString());
+                    break;
             }
         }
     };
@@ -127,6 +135,8 @@ public final class EventBasedBackendModuleWrapper {
             public void onMessage(@NonNull final Object msg) {
                 if (msg instanceof Throwable)
                     sendEvent(MSG_ERROR, msg);
+                else if (msg instanceof String)
+                    sendEvent(MSG_MESSAGE, msg);
                 else if (msg instanceof BackendModule.DisconnectStateMessage)
                     sendEvent(MSG_DISCONNECTED, msg);
             }
@@ -212,6 +222,13 @@ public final class EventBasedBackendModuleWrapper {
                             }
                             break;
                         }
+                        case MSG_S_METHOD: {
+                            try {
+                                ((Runnable) msg.obj).run();
+                            } catch (final BackendException e) {
+                                sendEvent(MSG_MESSAGE, e.getMessage());
+                            }
+                        }
                     }
                 } catch (final BackendInterruptedException e) {
                     if (isStopped) return; // Good
@@ -276,5 +293,31 @@ public final class EventBasedBackendModuleWrapper {
         serviceThread.quit();
         isStopped = true;
         serviceThread.interrupt();
+    }
+
+    public Object callWrappedMethod(@NonNull final Method m, final Object... args) {
+        final BackendModule.ExportedUIMethodOnThread ta =
+                m.getAnnotation(BackendModule.ExportedUIMethodOnThread.class);
+        if (ta != null) {
+            if (m.getReturnType() != Void.TYPE)
+                throw new NotImplementedException("We can't return values from a thread yet");
+            if (ta.thread() != BackendModule.ExportedUIMethodOnThread.Thread.WRITE)
+                throw new NotImplementedException("Unsupported thread type");
+            final Message msg = serviceHandler.obtainMessage(MSG_S_METHOD,
+                    (Runnable) () -> {
+                        try {
+                            wrapped.callMethod(m, args);
+                        } catch (final BackendException e) {
+                            throw e;
+                        } catch (final Exception ignored) {
+                        }
+                    });
+            if (ta.before())
+                serviceHandler.sendMessageAtFrontOfQueue(msg);
+            else
+                msg.sendToTarget();
+            return null;
+        } else
+            return wrapped.callMethod(m, args);
     }
 }

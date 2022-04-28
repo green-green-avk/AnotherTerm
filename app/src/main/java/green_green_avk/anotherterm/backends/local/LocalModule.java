@@ -365,7 +365,7 @@ public final class LocalModule extends BackendModule {
     @Keep
     @ExportedUIMethod(titleRes = R.string.action_send_signal,
             longTitleRes = R.string.action_send_signal_to_fg_pg, order = 1)
-    public void sendSignal(@ExportedUIMethodEnum(values = {
+    public void sendSignal(@ExportedUIMethodIntEnum(values = {
             PtyProcess.SIGHUP, PtyProcess.SIGINT, PtyProcess.SIGQUIT, PtyProcess.SIGABRT,
             PtyProcess.SIGKILL, PtyProcess.SIGALRM, PtyProcess.SIGTERM
     }, titleRes = {

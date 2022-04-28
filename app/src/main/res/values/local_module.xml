@@ -27,7 +27,6 @@
         Show in &#x00AB;share with&#x00BB; / &#x00AB;open in&#x00BB; chooser dialog
     </string>
 
-    <string name="action_send_signal">Send a Signal</string>
     <string name="action_send_signal_to_fg_pg">Send a signal to the foreground process group</string>
     <string name="label_sighup" translatable="false">SIGHUP</string>
     <string name="label_sigint" translatable="false">SIGINT</string>

@@ -142,6 +142,16 @@ public abstract class BackendModule {
 
     @Retention(RetentionPolicy.RUNTIME)
     @Target(ElementType.METHOD)
+    public @interface ExportedUIMethodOnThread {
+        enum Thread {WRITE}
+
+        Thread thread() default Thread.WRITE;
+
+        boolean before() default false;
+    }
+
+    @Retention(RetentionPolicy.RUNTIME)
+    @Target(ElementType.METHOD)
     public @interface ExportedUIMethod {
         @StringRes int titleRes() default 0;
 
@@ -152,8 +162,16 @@ public abstract class BackendModule {
 
     @Retention(RetentionPolicy.RUNTIME)
     @Target({ElementType.PARAMETER, ElementType.METHOD})
-    public @interface ExportedUIMethodEnum {
+    public @interface ExportedUIMethodIntEnum {
         int[] values() default {};
+
+        @StringRes int[] titleRes() default {};
+    }
+
+    @Retention(RetentionPolicy.RUNTIME)
+    @Target({ElementType.PARAMETER, ElementType.METHOD})
+    public @interface ExportedUIMethodStrEnum {
+        String[] values() default {};
 
         @StringRes int[] titleRes() default {};
     }

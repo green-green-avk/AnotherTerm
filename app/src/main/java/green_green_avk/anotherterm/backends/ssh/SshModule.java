@@ -751,4 +751,28 @@ public final class SshModule extends BackendModule {
                     .putExtra(SshModulePortFwActivity.IFK_SSH_SESS_KEY, sshSessionSt.key);
         }
     }
+
+    /**
+     * SSH "signal" <code>SSH_MSG_CHANNEL_REQUEST</code>.
+     * https://www.rfc-editor.org/rfc/rfc4254.html#section-6.9
+     */
+    @Keep
+    @ExportedUIMethodOnThread(before = true)
+    @ExportedUIMethod(titleRes = R.string.action_send_signal,
+            longTitleRes = R.string.action_send_signal_to_remote_process, order = 3)
+    public void sendSignal(@ExportedUIMethodStrEnum(values = {
+            "ABRT", "ALRM", "FPE", "HUP", "ILL", "INT", "KILL", "PIPE",
+            "QUIT", "SEGV", "TERM", "USR1", "USR2"
+    }) final String signal) {
+        final Channel ch = channel;
+        if (ch != null) {
+            try {
+                ch.sendSignal(signal);
+            } catch (final JSchException e) {
+                throw new BackendException("SSH: " + e.getMessage(), e);
+            } catch (final Exception e) {
+                throw new BackendException(e);
+            }
+        }
+    }
 }
