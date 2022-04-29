@@ -3,7 +3,8 @@
     <string name="action_new_shell_in_this_ssh_session">+ Terminal Window</string>
     <string name="desc_new_shell_in_this_ssh_session">Start a new shell channel in this SSH session</string>
     <string name="label_portFw">Port Forwarding</string>
-    <string name="action_manage_portFw">Manage port forwarding</string>
+    <string name="action_manage_portFw_in_this_ssh_session">@string/label_portFw</string>
+    <string name="desc_manage_portFw_in_this_ssh_session">Manage port forwarding in this SSH session</string>
     <string name="title_sshPortFw">SSH Port Forwarding</string>
     <string name="action_addPortFwL">+ Local</string>
     <string name="action_addPortFwR">+ Remote</string>

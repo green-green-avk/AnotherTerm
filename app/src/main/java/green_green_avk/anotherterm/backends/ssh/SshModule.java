@@ -679,8 +679,8 @@ public final class SshModule extends BackendModule {
     }
 
     @Keep
-    @ExportedUIMethod(titleRes = R.string.label_portFw,
-            longTitleRes = R.string.action_manage_portFw,
+    @ExportedUIMethod(titleRes = R.string.action_manage_portFw_in_this_ssh_session,
+            longTitleRes = R.string.desc_manage_portFw_in_this_ssh_session,
             order = 2)
     @Nullable
     public Intent managePortForwarding() {
