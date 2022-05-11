@@ -11,6 +11,7 @@ android {
 
         consumerProguardFiles 'consumer-rules.pro'
     }
+    namespace 'green_green_avk.bluetoothspp'
 }
 
 dependencies {

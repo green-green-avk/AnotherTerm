@@ -17,6 +17,7 @@ android {
             path file('src/main/jni/CMakeLists.txt')
         }
     }
+    namespace 'green_green_avk.ptyprocess'
 }
 
 dependencies {

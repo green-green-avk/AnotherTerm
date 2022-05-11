@@ -104,6 +104,7 @@ android {
             externalNativeBuild.cmake.arguments "-DAPP_ID_SDK=\\\"${applicationIdSuffix}\\\""
         }
     }
+    namespace 'green_green_avk.anotherterm'
 }
 
 dependencies {
