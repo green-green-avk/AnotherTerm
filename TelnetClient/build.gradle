@@ -9,6 +9,7 @@ android {
         minSdkVersion 14
         targetSdkVersion 30
     }
+    namespace 'green_green_avk.telnetclient'
 }
 
 dependencies {
