@@ -1,16 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="news_IV_dev18"><![CDATA[
-<h5>Changes in <kbd>MkIV-dev18</kbd></h5>
-<p>This (<kbd>redist</kbd>) flavor has
-<a href=\"https://developer.android.com/training/data-storage/use-cases#opt-out-in-production-app\"><code>android:requestLegacyExternalStorage="true"</code></a>
-declaration added from now on.</p>
-<p>See
-<a href=\"https://github.com/green-green-avk/AnotherTerm/issues/19\">issue&#xA0;#19</a></p>
-]]></string>
     <string name="news_IV_dev20" formatted="false"><![CDATA[
 <h5>Changes in <kbd>MkIV-dev20</kbd></h5>
-<p>This (<kbd>redist</kbd>) flavor has
+<p>This (<kbd>oldgood</kbd>) flavor has
 <p><code>android.permission.CAMERA</code>
 must be granted in order to connect to any <code>USB_CLASS_VIDEO</code> device since Android&#xA0;9:
 <a href=\"https://developer.android.com/reference/android/hardware/usb/UsbManager.html#requestPermission(android.hardware.usb.UsbDevice,%20android.app.PendingIntent)\">https://developer.android.com/reference/android/hardware/usb/UsbManager.html#requestPermission(android.hardware.usb.UsbDevice,%20android.app.PendingIntent)</a>…</p>

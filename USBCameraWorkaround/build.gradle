@@ -1,0 +1,17 @@
+plugins {
+    id 'com.android.library'
+}
+
+android {
+    namespace 'green_green_avk.usbcameraworkaround'
+
+    compileSdk 32
+
+    defaultConfig {
+        minSdk 14
+        targetSdk 32
+    }
+}
+
+dependencies {
+}

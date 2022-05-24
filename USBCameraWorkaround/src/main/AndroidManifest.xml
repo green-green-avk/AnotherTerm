@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android">
+    <!-- ===
+    The camera permission is required for USB (USB_CLASS_VIDEO) cameras since Android 9:
+    https://developer.android.com/reference/android/hardware/usb/UsbManager.html#requestPermission(android.hardware.usb.UsbDevice,%20android.app.PendingIntent)
+    Also consider this bug of Android 10:
+    https://issuetracker.google.com/issues/145082934
+    -->
+    <uses-permission-sdk-23 android:name="android.permission.CAMERA" />
+    <uses-feature
+        android:name="android.hardware.camera"
+        android:required="false" />
+    <!-- === -->
+</manifest>

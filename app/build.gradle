@@ -109,6 +109,17 @@ android {
             externalNativeBuild.cmake.arguments "-DAPP_ID_SDK=\\\"${applicationIdSuffix}\\\""
         }
     }
+
+    sourceSets {
+        redist {
+            java.srcDirs += ['src/sideload-extras/java']
+            res.srcDirs += ['src/sideload-extras/res']
+        }
+        oldgood {
+            java.srcDirs += ['src/sideload-extras/java']
+            res.srcDirs += ['src/sideload-extras/res']
+        }
+    }
 }
 
 dependencies {
@@ -137,4 +148,10 @@ dependencies {
 
     implementation 'com.github.green-green-avk:anothertermshellpluginutils:1.15'
     implementation 'com.github.green-green-avk:anothertermshellpluginutils-side-application:1.0'
+
+    // Per-flavor
+    redistImplementation project(path: ':UserCertificatesEnabler')
+    oldgoodImplementation project(path: ':UserCertificatesEnabler')
+    redistImplementation project(path: ':USBCameraWorkaround')
+    oldgoodImplementation project(path: ':USBCameraWorkaround')
 }
