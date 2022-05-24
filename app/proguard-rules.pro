@@ -20,10 +20,6 @@
 # hide the original source file name.
 #-renamesourcefileattribute SourceFile
 
--keep class com.jcraft.** {
-    *;
-}
-
 -keep class com.felhr.** {
     *;
 }

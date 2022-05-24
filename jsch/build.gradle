@@ -8,6 +8,8 @@ android {
     defaultConfig {
         minSdkVersion 14
         targetSdkVersion 30
+
+        consumerProguardFiles 'consumer-rules.pro'
     }
     namespace 'com.jcraft.jsch'
 }
