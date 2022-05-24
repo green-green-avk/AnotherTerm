@@ -8,9 +8,32 @@ import android.os.Bundle;
 import androidx.annotation.NonNull;
 import androidx.preference.PreferenceFragment;
 
+import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 public final class SettingsActivity extends AppCompatPreferenceActivity {
+    private final List<Header> headers = new ArrayList<>();
+    private final Set<String> fragments = new HashSet<>();
+
+    private void ensureHeaders() {
+        if (headers.isEmpty()) {
+            loadHeaders(headers);
+            fragments.clear();
+            for (final Header header : headers)
+                fragments.add(header.fragment);
+        }
+    }
+
+    private void loadHeaders(@NonNull final List<Header> target) {
+        // Native configuration dependent resource fetching does not work for xml:
+        // xml-v23 subfolder is pretty useless...
+        if (Build.VERSION.SDK_INT >= 23)
+            loadHeadersFromResource(R.xml.pref_headers_v23, target);
+        else
+            loadHeadersFromResource(R.xml.pref_headers, target);
+    }
 
     private static boolean isXLargeTablet(@NonNull final Context context) {
         return (context.getResources().getConfiguration().screenLayout
@@ -26,23 +49,14 @@ public final class SettingsActivity extends AppCompatPreferenceActivity {
 
     @Override
     public void onBuildHeaders(final List<Header> target) {
-        // Native configuration dependent resource fetching does not work for xml:
-        // xml-v23 subfolder is pretty useless...
-        if (Build.VERSION.SDK_INT >= 23)
-            loadHeadersFromResource(R.xml.pref_headers_v23, target);
-        else
-            loadHeadersFromResource(R.xml.pref_headers, target);
+        ensureHeaders();
+        target.addAll(headers);
     }
 
     @Override
     protected boolean isValidFragment(final String fragmentName) {
-        return PreferenceFragment.class.getName().equals(fragmentName)
-                || TerminalPreferenceFragment.class.getName().equals(fragmentName)
-                || HwKeyMapEditorFragment.class.getName().equals(fragmentName)
-                || CustomFontsFragment.class.getName().equals(fragmentName)
-                || DozeFragment.class.getName().equals(fragmentName)
-                || DeviceStorageAccessFragment.class.getName().equals(fragmentName)
-                || PluginsManagerFragment.class.getName().equals(fragmentName);
+        ensureHeaders();
+        return fragments.contains(fragmentName);
     }
 
     public static final class TerminalPreferenceFragment extends PreferenceFragment {
