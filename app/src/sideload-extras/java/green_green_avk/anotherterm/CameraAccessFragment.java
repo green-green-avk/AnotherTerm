@@ -7,10 +7,9 @@ import androidx.annotation.NonNull;
 import androidx.annotation.RequiresApi;
 
 @RequiresApi(api = Build.VERSION_CODES.M)
-public final class DeviceStorageAccessFragment extends PermissionsAccessFragment {
+public final class CameraAccessFragment extends PermissionsAccessFragment {
     private static final String[] PERMS =
-            new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE,
-                    Manifest.permission.READ_EXTERNAL_STORAGE};
+            new String[]{Manifest.permission.CAMERA};
 
     @NonNull
     @Override
@@ -20,6 +19,6 @@ public final class DeviceStorageAccessFragment extends PermissionsAccessFragment
 
     @Override
     public int getLayout() {
-        return R.layout.device_storage_access_fragment;
+        return R.layout.camera_access_fragment;
     }
 }

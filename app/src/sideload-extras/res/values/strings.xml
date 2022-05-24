@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<resources>
+    <string name="action_camera_permission">Camera Permission</string>
+    <string name="desc_android9_usb_cam_perm" formatted="false"><![CDATA[
+        <p><b>This permission affects the libusb helper local shell feature
+        on Androids&#xA0;9+ only.</b></p>
+        <p><code>android.permission.CAMERA</code>
+        must be granted in order to connect to any <code>USB_CLASS_VIDEO</code> device since Android&#xA0;9:
+        <a href=\"https://developer.android.com/reference/android/hardware/usb/UsbManager.html#requestPermission(android.hardware.usb.UsbDevice,%20android.app.PendingIntent)\">https://developer.android.com/reference/android/hardware/usb/UsbManager.html#requestPermission(android.hardware.usb.UsbDevice,%20android.app.PendingIntent)</a></p>
+        <p>Also consider this Android&#xA0;10 bug:
+        <a href=\"https://issuetracker.google.com/issues/145082934\">https://issuetracker.google.com/issues/145082934</a></p>
+    ]]></string>
+    <string name="desc_warn_android9_usb_cam_perm"><![CDATA[
+        <p><i><b>Note:</b> The Android on this device is earlier than 9;
+        so this permission will never be required…<br/>
+        However, the Android application manifest has very limited means to specify permissions
+        on per-API level basis: this is why this note is here.</i></p>
+    ]]></string>
+</resources>
