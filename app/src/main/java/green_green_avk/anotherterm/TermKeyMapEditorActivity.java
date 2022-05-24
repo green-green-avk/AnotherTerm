@@ -14,6 +14,7 @@ import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.BaseAdapter;
 import android.widget.EditText;
+import android.widget.ListAdapter;
 import android.widget.ListView;
 import android.widget.Spinner;
 import android.widget.TextView;
@@ -243,7 +244,7 @@ public final class TermKeyMapEditorActivity extends AppCompatActivity {
         }
         updateRedefinedKeyCodes();
         setName(name);
-        final AdapterView keyView = findViewById(R.id.f_key);
+        final AdapterView<ListAdapter> keyView = findViewById(R.id.f_key);
         keysAdapter = new KeysAdapter(this);
         keyView.setAdapter(keysAdapter);
 
@@ -276,7 +277,8 @@ public final class TermKeyMapEditorActivity extends AppCompatActivity {
                 refreshKeysView();
             });
         } else {
-            if (currentKeyCode >= 0) keyView.setSelection(keysAdapter.getPos(currentKeyCode));
+            if (currentKeyCode >= 0)
+                keyView.setSelection(keysAdapter.getPos(currentKeyCode));
             keyView.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
                 @Override
                 public void onItemSelected(final AdapterView<?> parent, final View view,

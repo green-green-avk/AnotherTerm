@@ -119,7 +119,7 @@ public final class TermKeyMapManager {
     private static final SharedPreferencesSet maps = new SharedPreferencesSet();
 
     private static final Set<Runnable> onChangeListeners =
-            Collections.newSetFromMap(new WeakHashMap<Runnable, Boolean>());
+            Collections.newSetFromMap(new WeakHashMap<>());
 
     private static void execOnChangeListeners() {
         for (final Runnable r : onChangeListeners) {
@@ -136,6 +136,7 @@ public final class TermKeyMapManager {
     public static Set<Meta> enumerate() {
         return new AbstractSet<Meta>() {
             @Override
+            @NonNull
             public Iterator<Meta> iterator() {
                 return new Iterator<Meta>() {
                     int i = 0;
@@ -171,6 +172,7 @@ public final class TermKeyMapManager {
     public static Set<Meta> enumerateCustom() {
         return new AbstractSet<Meta>() {
             @Override
+            @NonNull
             public Iterator<Meta> iterator() {
                 return new Iterator<Meta>() {
                     final Iterator<String> i = maps.enumerate().iterator();

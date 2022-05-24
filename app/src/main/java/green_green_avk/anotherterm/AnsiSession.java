@@ -68,7 +68,8 @@ public final class AnsiSession extends Session {
     @NonNull
     public CharSequence getTitle() {
         String r = input.currScrBuf.windowTitle;
-        if (r == null) r = connectionParams.get("name").toString();
+        if (r == null)
+            r = connectionParams.get("name").toString();
         return r;
     }
 }

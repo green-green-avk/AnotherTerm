@@ -159,7 +159,7 @@ m_execve(JNIEnv *const env, const jobject jthis,
 #ifdef DEBUG
             if (sh != SIG_DFL)
                 __android_log_print(ANDROID_LOG_DEBUG, CLASS_NAME,
-                                    "Signal %u was %016X", sig, (long) sh);
+                                    "Signal %u was 0x%016lX", sig, (unsigned long) sh);
 #endif
             sig++;
         }

@@ -262,7 +262,7 @@ public final class ConsoleService extends Service {
         final AnsiSession s = new AnsiSession(cp, ci, co, be, pp);
 
         final Object name = cp.get("name");
-        ci.setWindowTitle(name != null ? name.toString() + " - #" + key : "#" + key);
+        ci.setWindowTitle(name != null ? name + " - #" + key : "#" + key);
 
         sessions.put(key, s);
 

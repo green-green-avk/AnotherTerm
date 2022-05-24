@@ -185,7 +185,8 @@ public class ConsoleKeyboardView extends ExtKeyboardView implements
     }
 
     public void unsetConsoleInput() {
-        if (consoleInput != null) consoleInput.removeOnInvalidateSink(this);
+        if (consoleInput != null)
+            consoleInput.removeOnInvalidateSink(this);
         consoleOutput = null;
         consoleInput = null;
     }
@@ -228,7 +229,8 @@ public class ConsoleKeyboardView extends ExtKeyboardView implements
     @Override
     public void onWindowFocusChanged(final boolean hasWindowFocus) {
         super.onWindowFocusChanged(hasWindowFocus);
-        if (hasWindowFocus) reapplyMode();
+        if (hasWindowFocus)
+            reapplyMode();
     }
 
     protected void _showIme() {
@@ -247,7 +249,8 @@ public class ConsoleKeyboardView extends ExtKeyboardView implements
                 .getSystemService(Context.INPUT_METHOD_SERVICE);
         if (imm == null)
             return;
-        if (imm.isActive(this)) imm.hideSoftInputFromWindow(getWindowToken(), 0);
+        if (imm.isActive(this))
+            imm.hideSoftInputFromWindow(getWindowToken(), 0);
         imeEnabled = false;
     }
 
@@ -399,7 +402,8 @@ public class ConsoleKeyboardView extends ExtKeyboardView implements
             return metaStateFilterCache.valueAt(idx);
         for (final int k : modifierKeys) {
             final int t = hwKeyMap.get(k, devType);
-            if (t == HwKeyMap.KEYCODE_ACTION_DEFAULT) continue;
+            if (t == HwKeyMap.KEYCODE_ACTION_DEFAULT)
+                continue;
             final int m = getMetaStateByKeycode(k);
             if (t == HwKeyMap.KEYCODE_ACTION_BYPASS) {
                 r[0] &= ~m;
@@ -466,7 +470,8 @@ public class ConsoleKeyboardView extends ExtKeyboardView implements
                 text.append("¹");
         }
         if ((stickyMetaState & KeyEvent.META_CTRL_MASK) != 0) {
-            if (text.length() > 0) text.append("+");
+            if (text.length() > 0)
+                text.append("+");
             text.append("[");
             text.append(getContext().getString(R.string.label_mod_control));
             text.append("]\uD83D\uDD12");
@@ -496,7 +501,8 @@ public class ConsoleKeyboardView extends ExtKeyboardView implements
         final boolean alt = (eventMetaState & KeyEvent.META_ALT_MASK) != 0;
         final boolean ctrl = (eventMetaState & KeyEvent.META_CTRL_MASK) != 0;
         int code = hwKeyMap.get(event);
-        if (code < 0) code = event.getKeyCode();
+        if (code < 0)
+            code = event.getKeyCode();
         final String r = consoleOutput.getKeySeq(code, shift, alt, ctrl);
         if (r != null) {
             consoleOutput.feed(r);
@@ -604,7 +610,8 @@ public class ConsoleKeyboardView extends ExtKeyboardView implements
         if (event.getKeyCode() == KeyEvent.KEYCODE_UNKNOWN) {
             if (consoleOutput != null) {
                 final String cc = event.getCharacters();
-                if (cc != null) consoleOutput.feed(cc);
+                if (cc != null)
+                    consoleOutput.feed(cc);
             }
             return true;
         }

@@ -110,7 +110,7 @@ public final class LinksProvider extends ContentProvider {
     private byte[] buildContent(@NonNull final Uri uri, @NonNull final String desc) {
         return String.format(Locale.getDefault(), contentFmt,
                 TextUtils.htmlEncode(getArg("name", uri, "-")), TextUtils.htmlEncode(desc),
-                uri.toString(), TextUtils.htmlEncode(uri.toString())).getBytes(Misc.UTF8);
+                uri, TextUtils.htmlEncode(uri.toString())).getBytes(Misc.UTF8);
     }
 
     private final PipeDataWriter<String> streamWriter = (output, uri, mimeType, opts, args) -> {

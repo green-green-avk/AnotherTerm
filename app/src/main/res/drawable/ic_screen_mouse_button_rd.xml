@@ -22,7 +22,6 @@
         </aapt:attr>
     </path>
     <path
-        android:fillColor="#00000000"
         android:pathData="m16,0a16,16 0,0 1,-16 16"
         android:strokeWidth=".2"
         android:strokeLineCap="round"
@@ -43,7 +42,6 @@
         </aapt:attr>
     </path>
     <path
-        android:fillColor="#00000000"
         android:pathData="m12,0a12,12 0,0 1,-12 12"
         android:strokeWidth=".2"
         android:strokeLineCap="round"
@@ -64,7 +62,6 @@
         </aapt:attr>
     </path>
     <path
-        android:fillColor="#00000000"
         android:pathData="m8,0a8,8 0,0 1,-8 8"
         android:strokeWidth=".2"
         android:strokeLineCap="round"
@@ -85,7 +82,6 @@
         </aapt:attr>
     </path>
     <path
-        android:fillColor="#00000000"
         android:pathData="m4,0a4,4 0,0 1,-4 4"
         android:strokeWidth=".2"
         android:strokeLineCap="round"
@@ -106,7 +102,6 @@
         </aapt:attr>
     </path>
     <path
-        android:fillColor="#00000000"
         android:pathData="m0,0 l24,24"
         android:strokeWidth=".2"
         android:strokeLineCap="round"
@@ -127,7 +122,6 @@
         </aapt:attr>
     </path>
     <path
-        android:fillColor="#00000000"
         android:pathData="m0,24v-24h24"
         android:strokeWidth=".2"
         android:strokeLineCap="round"

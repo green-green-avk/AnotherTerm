@@ -19,12 +19,12 @@ public final class ControlService extends Service {
      * Start session request.
      */
     public static final String ACTION_START_SESSION =
-            C.JAVA_PKG_NAME + ".intent.action.START_SESSION";
+            BuildConfig.NAMESPACE + ".intent.action.START_SESSION";
     /**
      * Unique favorite token to avoid spoofing.
      */
     public static final String EXTRA_FAV_TOKEN =
-            C.JAVA_PKG_NAME + ".intent.extra.FAV_TOKEN";
+            BuildConfig.NAMESPACE + ".intent.extra.FAV_TOKEN";
     public static final String EXTRA_FAV_TOKEN_INPUT_NAME = getEnvName(EXTRA_FAV_TOKEN);
     public static final String FAV_TOKEN_KEY = "!token";
     public static final int FAV_TOKEN_LENGTH_MIN = 32;

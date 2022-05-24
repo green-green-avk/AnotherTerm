@@ -1,2 +1,6 @@
-include ':app', ':MaterialSeekBarPreference', ':TelnetClient', ':PtyProcess', ':bluetoothspp'
+include ':app'
+include ':MaterialSeekBarPreference'
+include ':PtyProcess'
+include ':bluetoothspp'
+include ':TelnetClient'
 include ':jsch'

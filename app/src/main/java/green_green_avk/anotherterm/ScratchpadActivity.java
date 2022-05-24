@@ -190,7 +190,7 @@ public final class ScratchpadActivity extends AppCompatActivity {
 
         @Override
         public int getItemViewType(final int position) {
-            return list.size() > 0 ? 0 : 1;
+            return position >= list.size() ? 1 : 0;
         }
     }
 

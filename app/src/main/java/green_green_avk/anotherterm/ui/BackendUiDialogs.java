@@ -292,9 +292,9 @@ public class BackendUiDialogs implements BackendUiInteraction,
     @Override
     public boolean promptPermissions(@NonNull final String[] perms) throws InterruptedException {
         final Activity ctx = activityRef.get();
-        int[] result = Permissions.requestBlocking(ctx, perms);
+        final int[] result = Permissions.requestBlocking(ctx, perms);
         boolean r = true;
-        for (int v : result) r = r && v == PackageManager.PERMISSION_GRANTED;
+        for (final int v : result) r &= v == PackageManager.PERMISSION_GRANTED;
         return r;
     }
 
