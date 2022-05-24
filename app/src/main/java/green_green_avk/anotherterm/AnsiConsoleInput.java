@@ -452,8 +452,7 @@ public final class AnsiConsoleInput implements BytesSink {
                                         if (LOG_UNKNOWN_ESC)
                                             Log.w("CtrlSeq", "ESC: " +
                                                     Compat.subSequence(t.value,
-                                                            1, t.value.remaining())
-                                                            .toString());
+                                                            1, t.value.remaining()));
                                 }
                                 break;
                             case CTL: {
@@ -595,8 +594,7 @@ public final class AnsiConsoleInput implements BytesSink {
                                     if (LOG_UNKNOWN_ESC)
                                         Log.w("CtrlSeq", "ESC: " +
                                                 Compat.subSequence(t.value,
-                                                        1, t.value.remaining())
-                                                        .toString());
+                                                        1, t.value.remaining()));
                             }
                             break;
                         case CTL: {

@@ -103,6 +103,7 @@
                                 android:layout_height="wrap_content"
                                 android:layout_weight="1"
                                 android:background="@drawable/bg_frame2_btn"
+                                android:gravity="center_vertical"
                                 android:lines="1"
                                 android:onClick="copyToken"
                                 android:textColor="@color/colorPrimaryDark"
@@ -379,14 +380,14 @@
             style="@style/AppWidget.EditorToolbar.ImageButton.Horizontal"
             android:contentDescription="@android:string/copy"
             android:onClick="copy"
-            app:srcCompat="@drawable/ic_copy_48" />
+            app:srcCompat="@drawable/ic_copy" />
 
         <ImageButton
             android:id="@+id/b_paste"
             style="@style/AppWidget.EditorToolbar.ImageButton.Horizontal"
             android:contentDescription="@android:string/paste"
             android:onClick="paste"
-            app:srcCompat="@drawable/ic_paste_48" />
+            app:srcCompat="@drawable/ic_paste" />
 
         <ImageButton
             android:id="@+id/b_remove"

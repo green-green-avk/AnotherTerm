@@ -8,4 +8,5 @@
     <drawable name="ic_menu_scratchpad">@android:drawable/ic_menu_agenda</drawable>
     <drawable name="ic_thumbnail_empty">@android:drawable/ic_menu_help</drawable>
     <drawable name="ic_keys_unknown">@drawable/ic_menu_help</drawable>
+    <drawable name="ic_paste">@drawable/ic_paste_black</drawable>
 </resources>

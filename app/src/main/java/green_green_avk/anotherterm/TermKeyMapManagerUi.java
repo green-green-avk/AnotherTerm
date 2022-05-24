@@ -66,13 +66,9 @@ public final class TermKeyMapManagerUi {
                     .setIncludeBuiltIns(true)
                     .setItemLayoutRes(R.layout.term_key_map_manager_dialog_entry)
                     .setDropDownItemLayoutRes(R.layout.term_key_map_manager_dialog_entry)
-                    .setOnSelectListener(new TermKeyMapAdapter.OnSelectListener() {
-                        @Override
-                        public void onSelect(final boolean isBuiltIn, final String name,
-                                             final TermKeyMapRules rules, final String title) {
-                            onSelectListener.onSelect(isBuiltIn, name, rules, title);
-                            d.dismiss();
-                        }
+                    .setOnSelectListener((isBuiltIn, name1, rules, title) -> {
+                        onSelectListener.onSelect(isBuiltIn, name1, rules, title);
+                        d.dismiss();
                     })
                     .setMarked(name)
                     .setEditorEnabled(true);
@@ -90,13 +86,9 @@ public final class TermKeyMapManagerUi {
                     .setIncludeBuiltIns(true)
                     .setItemLayoutRes(R.layout.term_key_map_manager_dialog_entry)
                     .setDropDownItemLayoutRes(R.layout.term_key_map_manager_dialog_entry)
-                    .setOnSelectListener(new TermKeyMapAdapter.OnSelectListener() {
-                        @Override
-                        public void onSelect(final boolean isBuiltIn, final String name,
-                                             final TermKeyMapRules rules, final String title) {
-                            onSelectListener.onSelect(isBuiltIn, name, rules, title);
-                            d.dismiss();
-                        }
+                    .setOnSelectListener((isBuiltIn, name12, rules, title) -> {
+                        onSelectListener.onSelect(isBuiltIn, name12, rules, title);
+                        d.dismiss();
                     })
                     .setMarked(name)
                     .setEditorEnabled(true);

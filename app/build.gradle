@@ -8,6 +8,8 @@ ext {
 }
 
 android {
+    namespace 'green_green_avk.anotherterm'
+
     compileSdkVersion 31
     buildToolsVersion '30.0.3'
     ndkVersion '21.4.7075529'
@@ -18,19 +20,22 @@ android {
     }
 
     defaultConfig {
-        applicationId 'green_green_avk.anotherterm'
+        applicationId namespace
         minSdkVersion 14
         targetSdkVersion 30
         versionCode versionCodeMain
-        versionName "MkIV-dev20-dev"
+        versionName 'MkIV-dev20-dev'
         vectorDrawables.useSupportLibrary = true
 
         resConfigs 'en'
 
-        buildConfigField "int", "VERSION_CODE_MAIN", "$versionCodeMain"
+        manifestPlaceholders += [namespace: namespace]
 
-        def SHELL_SESSION_TOKEN_VAR = "SHELL_SESSION_TOKEN"
-        buildConfigField "String", "SHELL_SESSION_TOKEN_VAR", "\"$SHELL_SESSION_TOKEN_VAR\""
+        buildConfigField 'String', 'NAMESPACE', "\"$namespace\""
+        buildConfigField 'int', 'VERSION_CODE_MAIN', "$versionCodeMain"
+
+        def SHELL_SESSION_TOKEN_VAR = 'SHELL_SESSION_TOKEN'
+        buildConfigField 'String', 'SHELL_SESSION_TOKEN_VAR', "\"$SHELL_SESSION_TOKEN_VAR\""
 
         externalNativeBuild {
             cmake {
@@ -47,15 +52,15 @@ android {
     }
 
     applicationVariants.all { variant ->
-        variant.resValue "string", "versionName", variant.versionName
-        variant.resValue "string", "applicationId", variant.applicationId
-        variant.buildConfigField "int", "TARGET_SDK_VERSION",
+        variant.resValue 'string', 'versionName', variant.versionName
+        variant.resValue 'string', 'applicationId', variant.applicationId
+        variant.buildConfigField 'int', 'TARGET_SDK_VERSION',
                 "${variant.mergedFlavor.targetSdkVersion.apiLevel}"
     }
 
     buildTypes {
         debug {
-            applicationIdSuffix ".debug"
+            applicationIdSuffix '.debug'
             minifyEnabled true
             shrinkResources true
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro',
@@ -73,60 +78,63 @@ android {
             ndk.debugSymbolLevel 'FULL'
             externalNativeBuild {
                 cmake {
-                    arguments "-DAPP_ID_TYPE=\\\"\\\""
+                    arguments '-DAPP_ID_TYPE=\\"\\"'
                 }
             }
         }
     }
 
-    flavorDimensions "compat"
+    flavorDimensions 'compat'
 
     productFlavors {
         googleplay {
             // Purely for Google Play publishing
             // (to comply with possible future app-bundle requirement)
-            dimension "compat"
-            externalNativeBuild.cmake.arguments "-DAPP_ID_SDK=\\\"\\\""
+            dimension 'compat'
+            externalNativeBuild.cmake.arguments '-DAPP_ID_SDK=\\"\\"'
         }
         redist {
             // Redistributable downgradable all-in-one apk
-            dimension "compat"
+            dimension 'compat'
             versionCode 90 // Fixed to enable downgradability
-            applicationIdSuffix ".redist"
+            applicationIdSuffix '.redist'
             externalNativeBuild.cmake.arguments "-DAPP_ID_SDK=\\\"${applicationIdSuffix}\\\""
         }
         oldgood {
             // Redistributable downgradable all-in-one apk with target API 28
-            dimension "compat"
+            dimension 'compat'
             versionCode 90 // Fixed to enable downgradability
-            applicationIdSuffix ".oldgood"
+            applicationIdSuffix '.oldgood'
             targetSdkVersion 28
             externalNativeBuild.cmake.arguments "-DAPP_ID_SDK=\\\"${applicationIdSuffix}\\\""
         }
     }
-    namespace 'green_green_avk.anotherterm'
 }
 
 dependencies {
     implementation 'androidx.appcompat:appcompat:1.4.1'
-    implementation 'androidx.constraintlayout:constraintlayout:2.1.4'
-    implementation 'androidx.asynclayoutinflater:asynclayoutinflater:1.0.0'
     implementation 'androidx.vectordrawable:vectordrawable:1.1.0'
+    implementation 'me.saket:better-link-movement-method:2.2.0'
+    implementation 'androidx.preference:preference:1.2.0'
+    implementation 'androidx.asynclayoutinflater:asynclayoutinflater:1.0.0'
+    implementation 'androidx.constraintlayout:constraintlayout:2.1.4'
+    implementation 'com.google.android.flexbox:flexbox:3.0.0'
+    implementation project(path: ':MaterialSeekBarPreference')
+
     implementation 'commons-io:commons-io:2.11.0'
     implementation 'org.apache.commons:commons-text:1.9'
-    implementation 'com.google.android.flexbox:flexbox:3.0.0'
-    implementation 'androidx.preference:preference:1.2.0'
-    implementation project(':MaterialSeekBarPreference')
-    implementation project(':PtyProcess')
-    implementation 'com.github.felHR85:UsbSerial:6.1.0'
-    implementation project(path: ':jsch')
-    implementation project(':TelnetClient')
     implementation 'org.apache.commons:commons-collections4:4.4'
+    implementation 'org.apache.httpcomponents:httpcore:4.4.15'
+
+    implementation project(path: ':PtyProcess')
+    implementation 'com.github.felHR85:UsbSerial:6.1.0'
+    implementation project(path: ':bluetoothspp')
+    implementation project(path: ':jsch')
+    implementation project(path: ':TelnetClient')
+    implementation project(path: ':wayland')
+
     implementation 'com.github.green-green-avk:libusbmanager:1.5'
+
     implementation 'com.github.green-green-avk:anothertermshellpluginutils:1.15'
     implementation 'com.github.green-green-avk:anothertermshellpluginutils-side-application:1.0'
-    implementation project(path: ':bluetoothspp')
-    implementation 'me.saket:better-link-movement-method:2.2.0'
-    implementation project(path: ':wayland')
-    implementation 'org.apache.httpcomponents:httpcore:4.4.15'
 }

@@ -54,7 +54,7 @@
             android:windowSoftInputMode="adjustResize">
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
-                android:value="green_green_avk.anotherterm.SessionsActivity" />
+                android:value="${namespace}.SessionsActivity" />
             <intent-filter>
                 <action android:name="android.intent.action.VIEW" />
 
@@ -74,7 +74,7 @@
             android:parentActivityName=".SessionsActivity">
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
-                android:value="green_green_avk.anotherterm.SessionsActivity" />
+                android:value="${namespace}.SessionsActivity" />
         </activity>
 
         <activity
@@ -87,7 +87,7 @@
             android:parentActivityName=".SessionsActivity">
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
-                android:value="green_green_avk.anotherterm.SessionsActivity" />
+                android:value="${namespace}.SessionsActivity" />
         </activity>
 
         <activity
@@ -100,7 +100,7 @@
             android:windowSoftInputMode="adjustResize">
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
-                android:value="green_green_avk.anotherterm.TermKeyMapManagerActivity" />
+                android:value="${namespace}.TermKeyMapManagerActivity" />
             <intent-filter>
                 <action android:name="android.intent.action.VIEW" />
 
@@ -152,7 +152,7 @@
             android:windowSoftInputMode="adjustNothing">
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
-                android:value="green_green_avk.anotherterm.SessionsActivity" />
+                android:value="${namespace}.SessionsActivity" />
         </activity>
 
         <activity
@@ -165,7 +165,7 @@
             android:windowSoftInputMode="adjustNothing">
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
-                android:value="green_green_avk.anotherterm.SessionsActivity" />
+                android:value="${namespace}.SessionsActivity" />
         </activity>
 
         <service
@@ -217,7 +217,7 @@
             android:parentActivityName=".SessionsActivity">
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
-                android:value="green_green_avk.anotherterm.SessionsActivity" />
+                android:value="${namespace}.SessionsActivity" />
         </activity>
 
         <activity

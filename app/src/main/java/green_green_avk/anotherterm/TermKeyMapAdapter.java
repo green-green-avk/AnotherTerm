@@ -2,9 +2,7 @@ package green_green_avk.anotherterm;
 
 import android.content.Context;
 import android.graphics.Typeface;
-import android.view.ContextMenu;
 import android.view.LayoutInflater;
-import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
@@ -39,16 +37,9 @@ public final class TermKeyMapAdapter extends BaseAdapter {
 
     private TermKeyMapManager.Meta zeroEntry = null;
 
-    private final Runnable onDataChanged = new Runnable() {
-        @Override
-        public void run() {
-            updateSortIndex();
-        }
-    };
-
     public TermKeyMapAdapter(@NonNull final Context context) {
         this.context = context.getApplicationContext();
-        TermKeyMapManager.addOnChangeListener(onDataChanged);
+        TermKeyMapManager.addOnChangeListener(this::updateSortIndex);
         updateSortIndex();
     }
 
@@ -187,13 +178,10 @@ public final class TermKeyMapAdapter extends BaseAdapter {
 
     private void setupView(final int position, @NonNull final View view) {
         if (mOnSelectListener != null)
-            view.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(final View v) {
-                    final TermKeyMapManager.Meta meta = getMeta(position);
-                    mOnSelectListener.onSelect(meta.isBuiltIn, meta.name, meta.getKeyMap(),
-                            meta.getTitle(v.getContext()));
-                }
+            view.setOnClickListener(v -> {
+                final TermKeyMapManager.Meta meta = getMeta(position);
+                mOnSelectListener.onSelect(meta.isBuiltIn, meta.name, meta.getKeyMap(),
+                        meta.getTitle(v.getContext()));
             });
         else if (mOnClick != null)
             view.setOnClickListener(mOnClick);
@@ -224,32 +212,21 @@ public final class TermKeyMapAdapter extends BaseAdapter {
             if (mEditorEnabled) {
                 ((ImageView) editView).setImageState(
                         meta.isBuiltIn ? state_new : state_empty, true);
-                editView.setOnClickListener(new View.OnClickListener() {
-                    @Override
-                    public void onClick(final View v) {
-                        TermKeyMapEditorActivity.start(v.getContext(), getMeta(position).name);
-                    }
-                });
+                editView.setOnClickListener(v ->
+                        TermKeyMapEditorActivity.start(v.getContext(),
+                                getMeta(position).name));
                 editView.setVisibility(View.VISIBLE);
                 view.setNextFocusRightId(R.id.edit);
                 view.setNextFocusLeftId(R.id.edit);
                 if (mOnCreateContextMenuListener == null)
                     view.setOnCreateContextMenuListener(meta.isBuiltIn ? null :
-                            new View.OnCreateContextMenuListener() {
-                                @Override
-                                public void onCreateContextMenu(final ContextMenu menu, final View v,
-                                                                final ContextMenu.ContextMenuInfo menuInfo) {
+                            (menu, v, menuInfo) ->
                                     menu.add(R.string.action_delete).setOnMenuItemClickListener(
-                                            new MenuItem.OnMenuItemClickListener() {
-                                                @Override
-                                                public boolean onMenuItemClick(final MenuItem item) {
-                                                    TermKeyMapManager.remove(getMeta(position).name);
-                                                    return true;
-                                                }
+                                            item -> {
+                                                TermKeyMapManager.remove(getMeta(position).name);
+                                                return true;
                                             }
-                                    );
-                                }
-                            }
+                                    )
                     );
             } else {
                 if (mOnCreateContextMenuListener == null)

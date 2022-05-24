@@ -216,7 +216,7 @@
     <string name="msg_not_a_valid_font">Not a valid font</string>
     <string name="label_path_location_">Location for local shell access:</string>
     <string name="msg_unsaved_changes_confirmation">There are unsaved changes. Continue?</string>
-    <string name="title_suffix_has_unsaved_changes" formatted="true"><b>*</b></string>
+    <string name="title_suffix_has_unsaved_changes"><b>*</b></string>
     <string name="msg_permission_confirmation">%2$s\n`%1$s\' permission requested by the script. Confirm?</string>
     <string name="label_screen_mouse">Screen Mouse</string>
     <string name="label_screen_mouse_buttons_layout">Buttons layout</string>

@@ -242,7 +242,8 @@ public class GraphicsConsoleKeyboardView extends ExtKeyboardView implements
     @Override
     public void onWindowFocusChanged(final boolean hasWindowFocus) {
         super.onWindowFocusChanged(hasWindowFocus);
-        if (hasWindowFocus) reapplyMode();
+        if (hasWindowFocus)
+            reapplyMode();
     }
 
     protected void _showIme() {
@@ -493,7 +494,8 @@ public class GraphicsConsoleKeyboardView extends ExtKeyboardView implements
                 text.append("¹");
         }
         if ((stickyMetaState & KeyEvent.META_CTRL_MASK) != 0) {
-            if (text.length() > 0) text.append("+");
+            if (text.length() > 0)
+                text.append("+");
             text.append("[");
             text.append(getContext().getString(R.string.label_mod_control));
             text.append("]\uD83D\uDD12");
@@ -637,7 +639,8 @@ public class GraphicsConsoleKeyboardView extends ExtKeyboardView implements
         if (event.getKeyCode() == KeyEvent.KEYCODE_UNKNOWN) {
             if (consoleOutput != null) {
                 final String cc = event.getCharacters();
-                if (cc != null) consoleOutput.feed(cc);
+                if (cc != null)
+                    consoleOutput.feed(cc);
             }
             return true;
         }

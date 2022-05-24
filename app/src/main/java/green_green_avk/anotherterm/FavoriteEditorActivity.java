@@ -567,7 +567,7 @@ public final class FavoriteEditorActivity extends AppCompatActivity {
         lNeedSaveDelayed.adoptView(mCharsetW);
         lNeedSaveDelayed.adoptView(mKeyMapW);
 
-        final ArrayAdapter aType = new ArrayAdapter<>(this,
+        final ArrayAdapter<String> aType = new ArrayAdapter<>(this,
                 android.R.layout.simple_spinner_item,
                 BackendsList.getTitles(this));
         aType.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
@@ -600,7 +600,7 @@ public final class FavoriteEditorActivity extends AppCompatActivity {
         });
         mTypeW.setSelection(INITIAL_TYPE_ID);
 
-        final ArrayAdapter aCharset = new ArrayAdapter<>(this,
+        final ArrayAdapter<String> aCharset = new ArrayAdapter<>(this,
                 android.R.layout.simple_spinner_item, C.charsetList);
         aCharset.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
         mCharsetW.setAdapter(aCharset);

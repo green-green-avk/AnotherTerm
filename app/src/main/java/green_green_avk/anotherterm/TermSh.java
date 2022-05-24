@@ -203,7 +203,7 @@ public final class TermSh {
     }
 
     private static final class UiServer implements Runnable {
-        private static final Pattern URI_PATTERN = Pattern.compile("^(?:[a-zA-Z0-9+.-]+)://");
+        private static final Pattern URI_PATTERN = Pattern.compile("^[a-zA-Z0-9+.-]+://");
         private static final BinaryGetOpts.Options URI_WEB_OPTS =
                 new BinaryGetOpts.Options(new BinaryGetOpts.Option[]{
                         new BinaryGetOpts.Option("insecure", new String[]{"--insecure"},
@@ -666,7 +666,8 @@ public final class TermSh {
                 final DataInputStream dis = new DataInputStream(is);
                 for (int i = 0; i < argc; ++i) {
                     final int l = dis.readInt();
-                    if (l < 0 || l > ARGLEN_MAX) throw new ParseException("Arguments parse error");
+                    if (l < 0 || l > ARGLEN_MAX)
+                        throw new ParseException("Arguments parse error");
                     args[i] = new byte[l];
                     dis.readFully(args[i]);
                 }
@@ -778,7 +779,8 @@ public final class TermSh {
             }
 
             private void requireSessionState() {
-                if (shellSessionData == null) throw new ShellSecurityException("No session state");
+                if (shellSessionData == null)
+                    throw new ShellSecurityException("No session state");
             }
 
             private void requirePerms(final long perms) {
@@ -791,7 +793,8 @@ public final class TermSh {
 
             @NonNull
             private BackendUiSessionDialogs getGui() {
-                if (shellSessionData == null) throw new ShellUiException("No session state");
+                if (shellSessionData == null)
+                    throw new ShellUiException("No session state");
                 final BackendUiInteraction ui = shellSessionData.ui;
                 if (!(ui instanceof BackendUiSessionDialogs))
                     throw new ShellUiException("Not assigned");
@@ -851,11 +854,12 @@ public final class TermSh {
         private static IOException fixURLConnectionException(@NonNull final IOException e,
                                                              @NonNull final Uri uri) {
             // fix for bad Android error reporting ;)
-            if (e instanceof UnknownServiceException) return e;
+            if (e instanceof UnknownServiceException)
+                return e;
             final String msg = e.getMessage();
             if (msg == null)
-                return new IOException("Error getting content from " + uri.toString());
-            if (msg.substring(0, 4).toLowerCase().equals("http"))
+                return new IOException("Error getting content from " + uri);
+            if (msg.substring(0, 4).equalsIgnoreCase("http"))
                 return new IOException("Error getting content from " + e.getMessage());
             return e;
         }
@@ -865,7 +869,8 @@ public final class TermSh {
                 throws IOException {
             final InputStream is;
             final String scheme = uri.getScheme();
-            if (scheme == null) throw new MalformedURLException("Malformed URL: " + uri.toString());
+            if (scheme == null)
+                throw new MalformedURLException("Malformed URL: " + uri);
             switch (scheme) {
                 case "http":
                 case "https": {
@@ -886,7 +891,7 @@ public final class TermSh {
                     is = ui.ctx.getContentResolver().openInputStream(uri);
                     if (is == null) {
                         // Asset
-                        throw new FileNotFoundException(uri.toString() + " does not exist");
+                        throw new FileNotFoundException(uri + " does not exist");
                     }
             }
             return is;
@@ -897,7 +902,7 @@ public final class TermSh {
             final OutputStream os = ui.ctx.getContentResolver().openOutputStream(uri);
             if (os == null) {
                 // Asset
-                throw new FileNotFoundException(uri.toString() + " does not exist");
+                throw new FileNotFoundException(uri + " does not exist");
             }
             return os;
         }
@@ -931,7 +936,10 @@ public final class TermSh {
             if (c == null) return deduceName(uri);
             try {
                 c.moveToFirst();
-                return c.getString(c.getColumnIndex(OpenableColumns.DISPLAY_NAME));
+                final int ci = c.getColumnIndex(OpenableColumns.DISPLAY_NAME);
+                if (ci < 0)
+                    return deduceName(uri);
+                return c.getString(ci);
             } catch (final Throwable e) {
                 return deduceName(uri);
             } finally {
@@ -941,7 +949,8 @@ public final class TermSh {
 
         private long getSize(@NonNull final Uri uri, final boolean insecure) throws IOException {
             final String scheme = uri.getScheme();
-            if (scheme == null) throw new MalformedURLException("Malformed URL: " + uri.toString());
+            if (scheme == null)
+                throw new MalformedURLException("Malformed URL: " + uri);
             switch (scheme) {
                 case "http":
                 case "https": {
@@ -962,10 +971,14 @@ public final class TermSh {
             final Cursor c = ui.ctx.getContentResolver().query(uri,
                     new String[]{OpenableColumns.SIZE},
                     null, null, null);
-            if (c == null) return -1;
+            if (c == null)
+                return -1;
             try {
                 c.moveToFirst();
-                return c.getLong(c.getColumnIndex(OpenableColumns.SIZE));
+                final int ci = c.getColumnIndex(OpenableColumns.SIZE);
+                if (ci < 0)
+                    return -1;
+                return c.getLong(ci);
             } catch (final Throwable e) {
                 return -1;
             } finally {
@@ -976,7 +989,8 @@ public final class TermSh {
         @Nullable
         private String getMime(@NonNull final Uri uri, final boolean insecure) throws IOException {
             final String scheme = uri.getScheme();
-            if (scheme == null) throw new MalformedURLException("Malformed URL: " + uri.toString());
+            if (scheme == null)
+                throw new MalformedURLException("Malformed URL: " + uri);
             switch (scheme) {
                 case "http":
                 case "https": {
@@ -1214,7 +1228,7 @@ public final class TermSh {
                                                 (String) opts.get("name"),
                                                 (Integer) opts.get("size"),
                                                 msg -> result.set(null));
-                                        shellCmd.stdOut.write(Misc.toUTF8(uri.toString() + "\n"));
+                                        shellCmd.stdOut.write(Misc.toUTF8(uri + "\n"));
                                         if (opts.containsKey("wait")) {
                                             shellCmd.waitFor(result, () -> {
                                                 try {
@@ -1232,7 +1246,7 @@ public final class TermSh {
                                         final File file = shellCmd.getOriginalFile(filename);
                                         checkFile(file);
                                         final Uri uri = Misc.getFileUri(ui.ctx, file);
-                                        shellCmd.stdOut.write(Misc.toUTF8(uri.toString() + "\n"));
+                                        shellCmd.stdOut.write(Misc.toUTF8(uri + "\n"));
                                         break;
                                     }
                                     default:
@@ -1744,7 +1758,7 @@ public final class TermSh {
                                 params = shellCmd.args.length - ap.position > 0
                                         ? UartModule.meta.fromUri(Uri.parse(
                                         "uart:/" + Misc.fromUTF8(shellCmd.args[ap.position])))
-                                        : new HashMap<String, Object>();
+                                        : new HashMap<>();
                             } catch (final BackendModule.ParametersUriParseException e) {
                                 throw new ArgsException(e.getMessage());
                             }

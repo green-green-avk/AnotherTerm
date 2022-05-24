@@ -296,6 +296,12 @@ public abstract class BackendModule {
         public StateMessage(@NonNull final String message) {
             this.message = message;
         }
+
+        @Override
+        @NonNull
+        public String toString() {
+            return this.getClass().getSimpleName() + ": " + message;
+        }
     }
 
     public static final class DisconnectStateMessage extends StateMessage {
