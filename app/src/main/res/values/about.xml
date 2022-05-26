@@ -84,8 +84,9 @@ to access the Android environment and own API to create them as separate APKs.</
     <li>The author of the
     <a href=\"https://github.com/saket/Better-Link-Movement-Method\">BetterLinkMovementMethod</a>
     (<a href=\"https://github.com/saket/Better-Link-Movement-Method/blob/master/LICENSE.md\">license</a>);</li>
-    <li><a href=\"https://github.com/LikeTheSalad/android-string-reference\">Android String XML Reference</a>
-    (<a href=\"https://github.com/LikeTheSalad/android-string-reference/blob/master/LICENSE.txt\">license</a>);</li>
+    <li>The author of the
+    <a href=\"https://github.com/LikeTheSalad/android-stem\">Android Stem</a>
+    (<a href=\"https://github.com/LikeTheSalad/android-stem/blob/master/LICENSE.txt\">license</a>);</li>
     <li><a href=\"https://github.com/dcendents/android-maven-gradle-plugin\">Android Maven Gradle Plugin</a>
     (<a href=\"https://github.com/dcendents/android-maven-gradle-plugin/blob/develop/LICENSE\">license</a>);</li>
     <li><a href=\"https://commons.apache.org/\">Apache Commons</a>

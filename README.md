@@ -72,7 +72,7 @@ Local PTY, USB and Bluetooth serial ports, SSH and Telnet terminal client for An
 * Console font: <https://www.fontsquirrel.com/fonts/dejavu-sans-mono>
 * MaterialSeekBarPreference: <https://github.com/MrBIMC/MaterialSeekBarPreference>
 * BetterLinkMovementMethod: <https://github.com/saket/Better-Link-Movement-Method>
-* Android String XML Reference: <https://github.com/LikeTheSalad/android-string-reference>
+* Android Stem: <https://github.com/LikeTheSalad/android-stem>
 * Android Maven Gradle Plugin: <https://github.com/dcendents/android-maven-gradle-plugin>
 * Apache Commons: <https://commons.apache.org/>
 * The Android Open Source Project (Official Google Android API and support libraries):
