@@ -107,7 +107,8 @@ public final class ConsoleService extends Service {
 //                .setContentText("Console is running")
                 .setSmallIcon(R.drawable.ic_stat_serv)
                 .setPriority(NotificationCompat.PRIORITY_LOW)
-                .setContentIntent(tsb.getPendingIntent(0, PendingIntent.FLAG_UPDATE_CURRENT))
+                .setContentIntent(tsb.getPendingIntent(0,
+                        PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_IMMUTABLE))
                 .build();
         startForeground(ID_FG, n);
     }
