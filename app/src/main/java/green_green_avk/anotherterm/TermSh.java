@@ -149,7 +149,8 @@ public final class TermSh {
                         .setContentIntent(PendingIntent.getActivity(ctx, 0,
                                 ConsoleActivity.getShowSessionIntent(ctx, key),
                                 PendingIntent.FLAG_ONE_SHOT
-                                        | PendingIntent.FLAG_UPDATE_CURRENT))
+                                        | PendingIntent.FLAG_UPDATE_CURRENT
+                                        | PendingIntent.FLAG_IMMUTABLE))
                         .build();
                 NotificationManagerCompat.from(ctx).notify(C.TERMSH_UI_TAG, key, n);
             });
