@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="template_desc_fav_token_help"><![CDATA[
+    <string name="desc_fav_token_help"><![CDATA[
         <h1>Start a session by an intent</h1>
         <p>Android has no means to determine the intent source
         (the Android own permission model is not flexible enough to pair arbitrary applications)
