@@ -1772,12 +1772,18 @@ public final class TermSh {
                             be.setOnMessageListener(new BackendModule.OnMessageListener() {
                                 @Override
                                 public void onMessage(@NonNull final Object msg) {
-                                    if (msg instanceof Throwable) {
-                                        try {
+                                    try {
+                                        if (msg instanceof Throwable) {
                                             shellCmd.stdErr.write(Misc.toUTF8(((Throwable) msg)
                                                     .getMessage() + "\n"));
-                                        } catch (final IOException ignored) {
+                                        } else if (msg instanceof String) {
+                                            shellCmd.stdErr.write(Misc.toUTF8(msg + "\n"));
+                                        } else if (msg instanceof BackendModule.StateMessage) {
+                                            shellCmd.stdErr.write(Misc.toUTF8(
+                                                    ((BackendModule.StateMessage) msg)
+                                                            .message + "\n"));
                                         }
+                                    } catch (final IOException ignored) {
                                     }
                                 }
                             });
