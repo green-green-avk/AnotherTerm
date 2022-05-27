@@ -1,10 +1,14 @@
 package green_green_avk.ptyprocess;
 
+import static java.lang.annotation.RetentionPolicy.SOURCE;
+
 import android.os.Build;
 import android.os.ParcelFileDescriptor;
 import android.system.ErrnoException;
 import android.system.Os;
 
+import androidx.annotation.IntDef;
+import androidx.annotation.IntRange;
 import androidx.annotation.Keep;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -14,6 +18,7 @@ import java.io.FileDescriptor;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.lang.annotation.Retention;
 import java.nio.ByteBuffer;
 import java.util.Map;
 
@@ -306,8 +311,18 @@ public final class PtyProcess extends Process {
     @Keep
     public native void destroy();
 
+    @IntDef(flag = true, value = {WNOHANG})
+    @Retention(SOURCE)
+    public @interface WaitForExitOptions {
+    }
+
     @Keep
-    public native int waitForExit(int options);
+    public native int waitForExit(@WaitForExitOptions int options);
+
+    @Keep
+    public boolean waitForPtyEof(@IntRange(from = -1) int millis) throws IOException {
+        return pollForEof(getPtm(), millis);
+    }
 
     @Keep
     public native void sendSignalToForeground(int signal);
@@ -338,8 +353,10 @@ public final class PtyProcess extends Process {
         @Override
         public int read(@NonNull final byte[] b, final int off, final int len)
                 throws IOException {
-            if (b == null) throw new NullPointerException();
-            if (off < 0 || len < 0 || off + len > b.length) throw new IndexOutOfBoundsException();
+            if (b == null)
+                throw new NullPointerException();
+            if (off < 0 || len < 0 || off + len > b.length)
+                throw new IndexOutOfBoundsException();
             return readBuf(b, off, len);
         }
     };
@@ -353,8 +370,10 @@ public final class PtyProcess extends Process {
         @Override
         public void write(@NonNull final byte[] b, final int off, final int len)
                 throws IOException {
-            if (b == null) throw new NullPointerException();
-            if (off < 0 || len < 0 || off + len > b.length) throw new IndexOutOfBoundsException();
+            if (b == null)
+                throw new NullPointerException();
+            if (off < 0 || len < 0 || off + len > b.length)
+                throw new IndexOutOfBoundsException();
             writeBuf(b, off, len);
         }
     };
@@ -364,6 +383,8 @@ public final class PtyProcess extends Process {
     // So, let eat bees.
     public static final class InterruptableFileInputStream
             extends ParcelFileDescriptor.AutoCloseInputStream {
+        private final Object readLock = new Object();
+        private final Object closeLock = new Object();
         private volatile boolean closed = false;
         private final ParcelFileDescriptor[] pipe = ParcelFileDescriptor.createPipe();
         @NonNull
@@ -388,12 +409,20 @@ public final class PtyProcess extends Process {
 
         @Override
         public void close() throws IOException {
-            closed = true;
-            super.close();
-            interruptQuiet();
+            synchronized (closeLock) {
+                if (closed)
+                    return;
+                interruptQuiet();
+                synchronized (readLock) {
+                    closed = true;
+                    super.close();
+                }
+            }
         }
 
         private boolean check() throws IOException {
+            if (closed)
+                return true;
             try {
                 return pollForRead(pfd.getFd(), pipe[0].getFd());
             } catch (final IllegalStateException e) {
@@ -403,34 +432,28 @@ public final class PtyProcess extends Process {
 
         @Override
         public int read() throws IOException {
-            try {
-                if (check()) return -1;
+            synchronized (readLock) {
+                if (check())
+                    return -1;
                 return super.read();
-            } catch (final IOException e) {
-                if (!closed) throw e;
-                return -1;
             }
         }
 
         @Override
         public int read(final byte[] b) throws IOException {
-            if (check()) return -1;
-            try {
+            synchronized (readLock) {
+                if (check())
+                    return -1;
                 return super.read(b);
-            } catch (final IOException e) {
-                if (!closed) throw e;
-                return -1;
             }
         }
 
         @Override
         public int read(final byte[] b, final int off, final int len) throws IOException {
-            if (check()) return -1;
-            try {
+            synchronized (readLock) {
+                if (check())
+                    return -1;
                 return super.read(b, off, len);
-            } catch (final IOException e) {
-                if (!closed) throw e;
-                return -1;
             }
         }
     }
@@ -467,6 +490,14 @@ public final class PtyProcess extends Process {
     }
 
     // Actual before API 21 only
+    @Keep
+    public static native boolean pollForEof(int fd, @IntRange(from = -1) int millis)
+            throws IOException;
+
+    public static boolean pollForEof(int fd) throws IOException {
+        return pollForEof(fd, -1);
+    }
+
     @Keep
     public static native boolean pollForRead(int fd, int intFd) throws IOException;
 

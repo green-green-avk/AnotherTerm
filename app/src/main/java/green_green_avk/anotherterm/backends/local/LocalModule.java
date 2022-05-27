@@ -2,6 +2,7 @@ package green_green_avk.anotherterm.backends.local;
 
 import android.os.Build;
 import android.os.Environment;
+import android.os.ParcelFileDescriptor;
 import android.text.TextUtils;
 
 import androidx.annotation.Keep;
@@ -11,7 +12,6 @@ import androidx.annotation.StringRes;
 
 import java.io.File;
 import java.io.IOException;
-import java.io.InputStream;
 import java.io.OutputStream;
 import java.security.SecureRandom;
 import java.util.HashMap;
@@ -21,6 +21,7 @@ import java.util.concurrent.ConcurrentHashMap;
 
 import green_green_avk.anotherterm.BuildConfig;
 import green_green_avk.anotherterm.R;
+import green_green_avk.anotherterm.backends.BackendException;
 import green_green_avk.anotherterm.backends.BackendModule;
 import green_green_avk.anotherterm.backends.BackendUiInteraction;
 import green_green_avk.anotherterm.utils.Misc;
@@ -79,23 +80,39 @@ public final class LocalModule extends BackendModule {
     };
     private OutputStream output = null;
     private OnMessageListener onMessageListener = null;
-    private volatile Thread readerThread = null;
+    private volatile ReaderThread readerThread = null;
+
+    private void reportMessage(@NonNull final String m) {
+        if (onMessageListener != null)
+            onMessageListener.onMessage(m);
+    }
 
     private void reportState(@NonNull final StateMessage m) {
-        if (onMessageListener != null) onMessageListener.onMessage(m);
+        if (onMessageListener != null)
+            onMessageListener.onMessage(m);
     }
 
     private void reportError(@NonNull final Throwable e) {
-        if (onMessageListener != null) onMessageListener.onMessage(e);
+        if (onMessageListener != null)
+            onMessageListener.onMessage(e);
     }
 
-    private final class ProcOutputR implements Runnable {
+    private final class ReaderThread extends Thread {
         private final byte[] buf = new byte[8192];
         @NonNull
-        private final InputStream stream;
+        private final PtyProcess.InterruptableFileInputStream stream;
 
-        ProcOutputR(@NonNull final InputStream stream) {
-            this.stream = stream;
+        ReaderThread(@NonNull final PtyProcess p) throws IOException {
+            super();
+            stream = new PtyProcess.InterruptableFileInputStream(
+                    ParcelFileDescriptor.fromFd(p.getPtm()));
+        }
+
+        public void close() {
+            try {
+                stream.close();
+            } catch (final IOException ignored) {
+            }
         }
 
         @Override
@@ -103,7 +120,8 @@ public final class LocalModule extends BackendModule {
             while (true) {
                 try {
                     final int len = stream.read(buf);
-                    if (len < 0) return;
+                    if (len < 0)
+                        return;
                     output.write(buf, 0, len);
                 } catch (final IOException e) {
                     reportError(e);
@@ -200,6 +218,9 @@ public final class LocalModule extends BackendModule {
     private String terminalString = "xterm";
     private String execute = "";
 
+    // If the process died but some other process still keeps the pipe open...
+    private static final int PIPE_TIMEOUT = 3000; // [ms]
+
     private static final String ENV_INPUT_PREFIX = "$input.";
     private final Map<String, String> envInput = new HashMap<>();
 
@@ -277,9 +298,13 @@ public final class LocalModule extends BackendModule {
         // ==========
         synchronized (connectionLock) {
             final PtyProcess p = PtyProcess.system(execute, env);
+            try {
+                readerThread = new ReaderThread(p);
+            } catch (final IOException e) {
+                throw new BackendException(e);
+            }
             proc = p;
             exitStatus = null;
-            readerThread = new Thread(new ProcOutputR(p.getInputStream()));
             readerThread.setDaemon(true);
             readerThread.start();
             final Thread keeper = new Thread(() -> {
@@ -287,37 +312,63 @@ public final class LocalModule extends BackendModule {
                 while (true) {
                     try {
                         status = p.waitFor();
-                    } catch (final InterruptedException ignored) {
+                    } catch (final InterruptedException e) {
                         continue;
                     }
                     break;
                 }
                 exitStatus = status;
-                disconnect();
-                reportState(new DisconnectStateMessage("Process exited with status " + status));
+                reportMessage(context.getString(
+                        R.string.msg_process_exited_with_status_d,
+                        status));
+                boolean hasEof;
+                try {
+                    hasEof = p.waitForPtyEof(PIPE_TIMEOUT);
+                } catch (final IOException e) {
+                    hasEof = true;
+                    if (BuildConfig.DEBUG)
+                        reportMessage(e.toString());
+                }
+                if (!hasEof) {
+                    reportMessage(context.getString(R.string.msg_pty_timeout_reached));
+                }
+                disconnect(hasEof);
+                reportState(new DisconnectStateMessage(context.getString(
+                        R.string.msg_pty_connection_closed)));
             });
             keeper.setDaemon(true);
             keeper.start();
         }
-        if (isAcquireWakeLockOnConnect()) acquireWakeLock();
+        if (isAcquireWakeLockOnConnect())
+            acquireWakeLock();
     }
 
     @Override
     public void disconnect() {
+        disconnect(false);
+    }
+
+    public void disconnect(final boolean soft) {
         try {
             synchronized (connectionLock) {
                 final Process p = proc;
-                if (p == null) return;
+                if (p == null)
+                    return;
                 proc = null;
                 p.destroy();
+                if (!soft)
+                    readerThread.close();
                 try {
                     readerThread.join();
                 } catch (final InterruptedException ignored) {
                 }
+                if (soft)
+                    readerThread.close();
                 readerThread = null;
             }
         } finally {
-            if (isReleaseWakeLockOnDisconnect()) releaseWakeLock();
+            if (isReleaseWakeLockOnDisconnect())
+                releaseWakeLock();
         }
     }
 

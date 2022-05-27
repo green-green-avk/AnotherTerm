@@ -1,3 +1,5 @@
+#pragma clang diagnostic push
+#pragma ide diagnostic ignored "misc-misplaced-const"
 //
 // Created by alex on 12/23/18.
 //
@@ -304,6 +306,34 @@ static void JNICALL m_writeBuf(JNIEnv *const env, const jobject jthis,
     }
 }
 
+static jboolean JNICALL m_pollForEof(JNIEnv *const env, const jobject jthis,
+                                     const jint fd, const jint millis) {
+    if (env->ExceptionCheck() == JNI_TRUE) return JNI_TRUE;
+    if (fd < 0) return JNI_TRUE;
+    struct pollfd pfds[] = {
+            {fd, 0, 0}
+    };
+    const int r = poll(pfds, 1, millis);
+#ifdef DEBUG
+    __android_log_print(ANDROID_LOG_DEBUG, CLASS_NAME,
+                        "pollForEof(): 0x%04hX", pfds[0].revents);
+#endif
+    if (r < 0) {
+        switch (errno) {
+            case EINTR:
+                env->ThrowNew(g_IntIOEC, strError("pollForEof"));
+                break;
+            case ENOMEM:
+                env->ThrowNew(g_OOMEC, strError("pollForEof"));
+                break;
+            default:
+                env->ThrowNew(g_IOEC, strError("pollForEof"));
+        }
+        return JNI_TRUE;
+    }
+    return r == 0 ? JNI_FALSE : JNI_TRUE;
+}
+
 static jboolean JNICALL m_pollForRead(JNIEnv *const env, const jobject jthis,
                                       const jint fd, const jint intFd) {
     struct pollfd pfds[] = {
@@ -498,6 +528,7 @@ static const JNINativeMethod methodTable[] = {
         {"readBuf",                "([BII)I",                   (void *) m_readBuf},
         {"writeByte",              "(I)V",                      (void *) m_writeByte},
         {"writeBuf",               "([BII)V",                   (void *) m_writeBuf},
+        {"pollForEof",             "(II)Z",                     (void *) m_pollForEof},
         {"pollForRead",            "(II)Z",                     (void *) m_pollForRead},
         {"shutdown",               "(II)V",                     (void *) m_shutdown},
         {"isatty",                 "(I)Z",                      (void *) m_isatty},
@@ -559,3 +590,5 @@ JNIEXPORT void JNI_OnUnload(JavaVM *const vm, void *const reserved) {
     env->DeleteGlobalRef(g_runtimeEC);
     env->DeleteGlobalRef(g_OOMEC);
 }
+
+#pragma clang diagnostic pop

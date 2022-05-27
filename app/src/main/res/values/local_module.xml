@@ -35,4 +35,11 @@
     <string name="label_sigkill" translatable="false">SIGKILL</string>
     <string name="label_sigalrm" translatable="false">SIGALRM</string>
     <string name="label_sigterm" translatable="false">SIGTERM</string>
+
+    <string name="msg_pty_connection_closed">PTY connection closed</string>
+    <string name="msg_process_exited_with_status_d">Process exited with status %d</string>
+    <string name="msg_pty_timeout_reached">
+        The PTY is still open by some peer after the foreground process group has exited…
+        Timeout reached
+    </string>
 </resources>
