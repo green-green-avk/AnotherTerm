@@ -5,10 +5,14 @@ import android.util.AttributeSet;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageButton;
 import android.widget.TextView;
 
+import androidx.annotation.DrawableRes;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.annotation.StringRes;
+import androidx.appcompat.widget.LinearLayoutCompat;
 import androidx.recyclerview.widget.RecyclerView;
 
 import java.util.ArrayList;
@@ -16,10 +20,13 @@ import java.util.ArrayList;
 import green_green_avk.anotherterm.R;
 import green_green_avk.anotherterm.utils.LogMessage;
 
-public class MessageLogView extends RecyclerView {
+public class MessageLogView extends LinearLayoutCompat {
+    protected final RecyclerView list;
+    protected final ViewGroup footer;
 
     public MessageLogView(final Context context) {
         super(context);
+        setOrientation(LinearLayoutCompat.VERTICAL);
     }
 
     public MessageLogView(final Context context, @Nullable final AttributeSet attrs) {
@@ -29,6 +36,60 @@ public class MessageLogView extends RecyclerView {
     public MessageLogView(final Context context, @Nullable final AttributeSet attrs,
                           final int defStyle) {
         super(context, attrs, defStyle);
+    }
+
+    {
+        list = new RecyclerView(getContext());
+        list.setLayoutParams(new LayoutParams(
+                LayoutParams.MATCH_PARENT,
+                LayoutParams.WRAP_CONTENT,
+                1f
+        ));
+        addView(list);
+        footer = (ViewGroup) LayoutInflater.from(getContext())
+                .inflate(R.layout.message_log_buttons, this, false);
+        footer.findViewById(R.id.copy).setOnClickListener(view -> {
+            final String r;
+            final Adapter a = getAdapter();
+            if (a != null && !a.msgs.isEmpty()) {
+                final StringBuilder sb = new StringBuilder();
+                for (final LogMessage msg : a.msgs) {
+                    sb.append(msg.timestamp).append(": ").append(msg.msg).append('\n');
+                }
+                r = sb.toString();
+            } else
+                r = null;
+            UiUtils.toClipboard(getContext(), r);
+        });
+        addView(footer);
+    }
+
+    public void addButton(@DrawableRes final int icon, @StringRes final int desc,
+                          @Nullable final View.OnClickListener listener) {
+        final ImageButton button = (ImageButton) LayoutInflater.from(getContext())
+                .inflate(R.layout.message_log_button, this, false);
+        button.setImageResource(icon);
+        button.setContentDescription(getContext().getString(desc));
+        button.setOnClickListener(listener);
+        footer.addView(button);
+    }
+
+    public void setAdapter(@Nullable final Adapter adapter) {
+        list.setAdapter(adapter);
+    }
+
+    @Nullable
+    public Adapter getAdapter() {
+        return (Adapter) list.getAdapter();
+    }
+
+    public void setLayoutManager(@Nullable final RecyclerView.LayoutManager layout) {
+        list.setLayoutManager(layout);
+    }
+
+    @Nullable
+    public RecyclerView.LayoutManager getLayoutManager() {
+        return list.getLayoutManager();
     }
 
     protected static class ViewHolder extends RecyclerView.ViewHolder {
@@ -50,7 +111,7 @@ public class MessageLogView extends RecyclerView {
         @NonNull
         public ViewHolder onCreateViewHolder(@NonNull final ViewGroup parent, final int viewType) {
             final View v = LayoutInflater.from(parent.getContext())
-                    .inflate(R.layout.log_message_entry, parent, false);
+                    .inflate(R.layout.message_log_entry, parent, false);
             return new MessageLogView.ViewHolder(v);
         }
 

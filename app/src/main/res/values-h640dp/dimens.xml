@@ -1,4 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <dimen name="uiOptionSize">40sp</dimen>
+    <dimen name="smallUiOptionSize">32sp</dimen>
 </resources>

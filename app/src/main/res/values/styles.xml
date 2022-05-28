@@ -153,6 +153,15 @@
         <item name="android:adjustViewBounds">true</item>
     </style>
 
+    <style name="AppWidget.ConsoleDialog.ImageButton" parent="Widget.AppCompat.ImageButton">
+        <item name="android:scaleType">fitCenter</item>
+        <item name="android:background">@drawable/bg_grid_btn</item>
+        <item name="tint">?attr/colorPrimary</item>
+        <item name="android:layout_height">@dimen/smallUiOptionSize</item>
+        <item name="android:layout_width">wrap_content</item>
+        <item name="android:layout_weight">1</item>
+    </style>
+
     <style name="AppPreferenceTheme">
         <item name="layout">@layout/preference_base</item>
         <item name="android:textAppearanceLarge">@style/AppTextAppearance.Preference.Title</item>
