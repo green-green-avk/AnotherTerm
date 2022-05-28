@@ -82,6 +82,8 @@ public class BackendUiDialogs implements BackendUiInteraction,
                     msgAdapterRef = new WeakReference<>(null);
                 })
                 .show();
+        v.addButton(R.drawable.ic_check_black, R.string.action_close,
+                view -> d.cancel());
         dialogs.add(d);
     }
 
