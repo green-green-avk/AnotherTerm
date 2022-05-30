@@ -169,6 +169,9 @@
         <item name="android:textAppearanceLargeInverse">
             @style/AppTextAppearance.Preference.Title.Category
         </item>
+        <item name="android:textAppearanceSmallInverse">
+            @style/AppTextAppearance.Preference.Summary.Category
+        </item>
         <item name="preferenceCategoryStyle">@style/AppPreferenceStyleCategory</item>
     </style>
 
@@ -187,8 +190,12 @@
     </style>
 
     <style name="AppTextAppearance.Preference.Title.Category">
-        <item name="android:textColor">@color/colorAccent</item>
+        <item name="android:textColor">?attr/colorBackgroundFloating</item>
         <item name="android:textStyle">bold</item>
+    </style>
+
+    <style name="AppTextAppearance.Preference.Summary.Category">
+        <item name="android:textColor">?attr/colorBackgroundFloating</item>
     </style>
 
     <style name="AppWidget.SelectSearchPopup.ImageButton" parent="Widget.AppCompat.ImageButton">

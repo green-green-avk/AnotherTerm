@@ -4,12 +4,12 @@
 
     <CheckBoxPreference
         android:defaultValue="@bool/terminal_use_recents"
-        android:icon="@drawable/ic_recents_black"
+        android:icon="@drawable/ic_recents"
         android:key="terminal_use_recents"
         android:title="@string/label_keep_terminal_activities_on_the_recents_screen" />
 
     <PreferenceCategory
-        android:icon="@drawable/ic_font_black_48"
+        android:icon="@drawable/ic_font"
         android:title="@string/label_font">
 
         <com.pavelsikun.seekbarpreference.SeekBarPreferenceCompat
@@ -17,7 +17,7 @@
             android:key="terminal_font_default_size_sp"
             android:title="@string/label_default_font_size"
             app:msbp_dialogEnabled="true"
-            app:msbp_dialogIcon="@drawable/ic_font_black_48"
+            app:msbp_dialogIcon="@drawable/ic_font"
             app:msbp_interval="1"
             app:msbp_maxValue="@integer/terminal_font_size_max_sp"
             app:msbp_measurementUnit="@string/unit_sp"
@@ -26,7 +26,7 @@
     </PreferenceCategory>
 
     <PreferenceCategory
-        android:icon="@drawable/ic_select_all_black_48"
+        android:icon="@drawable/ic_select_all"
         android:title="@string/label_selection">
 
         <com.pavelsikun.seekbarpreference.SeekBarPreferenceCompat
@@ -34,7 +34,7 @@
             android:key="terminal_selection_pad_size_dp"
             android:title="@string/label_selection_pad_size"
             app:msbp_dialogEnabled="true"
-            app:msbp_dialogIcon="@drawable/ic_select_all_black_48"
+            app:msbp_dialogIcon="@drawable/ic_select_all"
             app:msbp_interval="8"
             app:msbp_maxValue="512"
             app:msbp_measurementUnit="@string/unit_dp"
@@ -43,7 +43,7 @@
     </PreferenceCategory>
 
     <PreferenceCategory
-        android:icon="@drawable/ic_keyboard_black_48"
+        android:icon="@drawable/ic_keyboard_black"
         android:title="@string/label_screen_keyboard">
 
         <com.pavelsikun.seekbarpreference.SeekBarPreferenceCompat
@@ -51,7 +51,7 @@
             android:key="terminal_key_height_dp"
             android:title="@string/label_kbd_key_height"
             app:msbp_dialogEnabled="true"
-            app:msbp_dialogIcon="@drawable/ic_keyboard_black_48"
+            app:msbp_dialogIcon="@drawable/ic_keyboard_black"
             app:msbp_interval="1"
             app:msbp_maxValue="64"
             app:msbp_measurementUnit="@string/unit_dp"
@@ -69,7 +69,7 @@
             android:key="terminal_key_repeat_delay"
             android:title="@string/label_kbd_autorepeat_start_delay"
             app:msbp_dialogEnabled="true"
-            app:msbp_dialogIcon="@drawable/ic_keyboard_black_48"
+            app:msbp_dialogIcon="@drawable/ic_keyboard_black"
             app:msbp_interval="50"
             app:msbp_maxValue="2000"
             app:msbp_measurementUnit="@string/unit_ms"
@@ -80,7 +80,7 @@
             android:key="terminal_key_repeat_interval"
             android:title="@string/label_kbd_autorepeat_interval"
             app:msbp_dialogEnabled="true"
-            app:msbp_dialogIcon="@drawable/ic_keyboard_black_48"
+            app:msbp_dialogIcon="@drawable/ic_keyboard_black"
             app:msbp_interval="50"
             app:msbp_maxValue="1000"
             app:msbp_measurementUnit="@string/unit_ms"
@@ -96,7 +96,7 @@
     </PreferenceCategory>
 
     <PreferenceCategory
-        android:icon="@drawable/ic_mouse_black"
+        android:icon="@drawable/ic_mouse"
         android:title="@string/label_screen_mouse">
 
         <ListPreference
@@ -129,7 +129,7 @@
     </PreferenceCategory>
 
     <PreferenceCategory
-        android:icon="@drawable/ic_paste_black"
+        android:icon="@drawable/ic_paste"
         android:title="@string/title_scratchpad">
 
         <com.pavelsikun.seekbarpreference.SeekBarPreferenceCompat
@@ -138,7 +138,7 @@
             android:summary="@string/summary_if_data_size_is_gte"
             android:title="@string/label_use_for_copy_share"
             app:msbp_dialogEnabled="true"
-            app:msbp_dialogIcon="@drawable/ic_paste_black"
+            app:msbp_dialogIcon="@drawable/ic_paste"
             app:msbp_interval="128"
             app:msbp_maxValue="@integer/scratchpad_use_threshold_max"
             app:msbp_measurementUnit="@string/unit_kib"

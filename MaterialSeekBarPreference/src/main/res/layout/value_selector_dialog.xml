@@ -20,7 +20,7 @@
             android:layout_width="48dp"
             android:layout_height="48dp"
             android:layout_gravity="center"
-            android:importantForAccessibility="no"
+            android:contentDescription="@null"
             android:scaleType="centerInside"
             app:tint="?attr/colorBackgroundFloating" />
 
