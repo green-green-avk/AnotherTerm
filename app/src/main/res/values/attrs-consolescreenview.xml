@@ -26,7 +26,7 @@
         <item name="terminalScrollOffset">-9dp</item>
         <item name="terminalHorizontalScrollbarLayout">@layout/terminal_h_scrollbar</item>
         <item name="terminalVerticalScrollbarLayout">@layout/terminal_v_scrollbar</item>
-        <item name="paddingMarkup">@drawable/bg_padding1_tiles</item>
+        <item name="paddingMarkup">@drawable/bg_padding1</item>
         <item name="paddingMarkupAlpha">0.2</item>
         <item name="attrMarkupAlpha">0.7</item>
     </style>

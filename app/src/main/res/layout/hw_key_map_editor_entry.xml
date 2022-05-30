@@ -38,7 +38,7 @@
         android:layout_height="@dimen/uiOptionMaxTextSize"
         android:layout_gravity="center"
         android:adjustViewBounds="true"
-        android:importantForAccessibility="no"
+        android:contentDescription="@null"
         android:scaleType="centerInside"
         app:srcCompat="@drawable/ic_assoc"
         app:tint="?android:attr/textColorTertiary" />

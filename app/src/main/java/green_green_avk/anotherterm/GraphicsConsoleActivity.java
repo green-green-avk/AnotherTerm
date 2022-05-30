@@ -145,7 +145,7 @@ public final class GraphicsConsoleActivity extends ConsoleActivity {
                 R.layout.screen_mouse_buttons_wide : R.layout.screen_mouse_buttons);
 //        ((BackendUiInteractionActivityCtx) mSession.backend.wrapped.getUi()).setActivity(this);
         if (getUseRecents())
-            wUp.setImageResource(R.drawable.ic_recents_black);
+            wUp.setImageResource(R.drawable.ic_recents);
         else
             wUp.setImageDrawable(wUpImDef);
 //        mSession.output.setMouseFocus(true);

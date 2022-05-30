@@ -17,7 +17,7 @@
             android:id="@+id/icon"
             android:layout_width="wrap_content"
             android:layout_height="match_parent"
-            android:importantForAccessibility="no"
+            android:contentDescription="@null"
             android:scaleType="fitCenter"
             app:srcCompat="@drawable/ic_help"
             app:tint="@color/colorDevIcon" />

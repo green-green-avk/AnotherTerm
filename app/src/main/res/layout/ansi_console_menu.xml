@@ -97,7 +97,7 @@
     <FrameLayout
         android:layout_width="wrap_content"
         android:layout_height="4dp"
-        android:background="@drawable/bg_padding1_tiles" />
+        android:background="@drawable/bg_padding1" />
 
     <ScrollView
         android:layout_width="wrap_content"
@@ -138,7 +138,7 @@
                         android:layout_width="wrap_content"
                         android:layout_height="match_parent"
                         android:adjustViewBounds="true"
-                        app:srcCompat="@drawable/ic_terminal_black_48"
+                        app:srcCompat="@drawable/ic_terminal"
                         app:tint="@color/colorPrimaryDark" />
 
                     <TextView
@@ -164,7 +164,7 @@
                         android:layout_width="wrap_content"
                         android:layout_height="match_parent"
                         android:adjustViewBounds="true"
-                        app:srcCompat="@drawable/ic_font_black_48"
+                        app:srcCompat="@drawable/ic_font"
                         app:tint="@color/colorPrimaryDark" />
 
                     <TextView
@@ -190,7 +190,7 @@
                         android:layout_width="wrap_content"
                         android:layout_height="match_parent"
                         android:adjustViewBounds="true"
-                        app:srcCompat="@drawable/ic_keyboard_black_48"
+                        app:srcCompat="@drawable/ic_keyboard_black"
                         app:tint="@color/colorPrimaryDark" />
 
                     <TextView
@@ -216,7 +216,7 @@
                         android:layout_width="wrap_content"
                         android:layout_height="match_parent"
                         android:adjustViewBounds="true"
-                        app:srcCompat="@drawable/ic_computer_black_48"
+                        app:srcCompat="@drawable/ic_computer"
                         app:tint="@color/colorPrimaryDark" />
 
                     <TextView

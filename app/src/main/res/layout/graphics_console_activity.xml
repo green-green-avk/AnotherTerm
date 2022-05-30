@@ -53,7 +53,7 @@
             android:contentDescription="@string/action_mouse_mode"
             android:onClick="onMouseMode"
             android:scaleType="centerInside"
-            app:srcCompat="@drawable/ic_mouse_white"
+            app:srcCompat="@drawable/ic_mouse"
             app:tint="@color/console_toolbar_icon"
             app:tintMode="src_atop" />
 
@@ -145,7 +145,7 @@
             android:layout_height="wrap_content"
             android:layout_gravity="right|top"
             android:alpha="1"
-            android:importantForAccessibility="no"
+            android:contentDescription="@null"
             android:visibility="invisible"
             app:srcCompat="@drawable/ic_bell_24"
             app:tint="@color/colorAccenttissimo"
