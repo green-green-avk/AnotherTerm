@@ -1,6 +1,5 @@
 package green_green_avk.anotherterm.ui;
 
-import android.annotation.SuppressLint;
 import android.content.Context;
 import android.os.Bundle;
 
@@ -18,8 +17,7 @@ public abstract class Requester {
         return (int) UUID.randomUUID().getLeastSignificantBits() & 0xFFFF;
     }
 
-    @SuppressLint("ValidFragment")
-    protected static class UiFragment extends Fragment {
+    protected static abstract class UiFragment extends Fragment {
         private static final String TAG = "UiFragment";
 
         @Override

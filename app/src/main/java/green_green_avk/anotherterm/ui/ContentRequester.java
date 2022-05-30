@@ -9,7 +9,6 @@ import android.os.AsyncTask;
 import androidx.annotation.NonNull;
 import androidx.fragment.app.FragmentActivity;
 
-import java.io.IOException;
 import java.io.InputStream;
 
 import green_green_avk.anotherterm.utils.BlockingSync;
@@ -72,14 +71,13 @@ public final class ContentRequester extends Requester {
                             final byte[] buf;
                             try {
                                 buf = Misc.toArray(is, sizeLimit);
-                            } catch (final IOException | OutOfMemoryError e) {
-                                // TODO: OutOfMemoryError - 2b|~2b?
+                            } catch (final Throwable e) {
                                 result.set(e);
                                 return null;
                             } finally {
                                 try {
                                     is.close();
-                                } catch (final IOException ignored) {
+                                } catch (final Throwable ignored) {
                                 }
                             }
                             result.set(buf);
@@ -89,24 +87,30 @@ public final class ContentRequester extends Requester {
             task.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR, (Object[]) null);
         }
 
-        public void requestContent(@NonNull final BlockingSync<Object> result, final Type type,
-                                   final long sizeLimit,
-                                   @NonNull final String message, @NonNull final String mimeType) {
+        private void requestContent(@NonNull final BlockingSync<Object> result,
+                                    final Type type,
+                                    final long sizeLimit,
+                                    @NonNull final String message,
+                                    @NonNull final String mimeType) {
             this.result = result;
             this.type = type;
             this.sizeLimit = sizeLimit;
             final Intent i = new Intent(Intent.ACTION_GET_CONTENT)
                     .addCategory(Intent.CATEGORY_OPENABLE).setType(mimeType);
-            startActivityForResult(Intent.createChooser(i, message), requestCode);
+            startActivityForResult(Intent.createChooser(i, message),
+                    requestCode);
         }
     }
 
-    public static void request(@NonNull final BlockingSync<Object> result, final Type type,
+    public static void request(@NonNull final BlockingSync<Object> result,
+                               final Type type,
                                final long sizeLimit,
-                               @NonNull final Context ctx, @NonNull final String message,
+                               @NonNull final Context ctx,
+                               @NonNull final String message,
                                @NonNull final String mimeType) {
         ((FragmentActivity) ctx).runOnUiThread(() ->
-                prepare(ctx, new UIFragment()).requestContent(result, type, sizeLimit,
+                prepare(ctx, new UIFragment()).requestContent(result,
+                        type, sizeLimit,
                         message, mimeType));
     }
 }
