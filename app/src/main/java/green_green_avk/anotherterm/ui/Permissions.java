@@ -16,7 +16,7 @@ public final class Permissions extends Requester {
     public static final class UIFragment extends Requester.UiFragment {
         private static final int REQUEST_CODE = generateRequestCode();
 
-        public BlockingSync<int[]> result = null;
+        private BlockingSync<int[]> result = null;
 
         @Override
         public void onDestroy() {
@@ -34,8 +34,8 @@ public final class Permissions extends Requester {
             result.set(grantResults);
         }
 
-        public void requestPermissions(@NonNull final BlockingSync<int[]> result,
-                                       @NonNull final String[] perms) {
+        private void requestPermissions(@NonNull final BlockingSync<int[]> result,
+                                        @NonNull final String[] perms) {
             this.result = result;
             requestPermissions(perms, REQUEST_CODE);
         }
