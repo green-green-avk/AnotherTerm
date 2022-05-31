@@ -29,28 +29,28 @@ public final class BackendUiShell implements BackendUiInteraction, BackendUiInte
 
     @Override
     @Nullable
-    public String promptPassword(@NonNull final String message) throws InterruptedException {
+    public String promptPassword(@NonNull final CharSequence message) throws InterruptedException {
         return null;
     }
 
     @Override
-    public boolean promptYesNo(@NonNull final String message) throws InterruptedException {
+    public boolean promptYesNo(@NonNull final CharSequence message) throws InterruptedException {
         return false;
     }
 
     @Override
-    public void showMessage(@NonNull final String message) {
+    public void showMessage(@NonNull final CharSequence message) {
         put(stdErr, message + "\n");
     }
 
     @Override
-    public void showToast(@NonNull final String message) {
+    public void showToast(@NonNull final CharSequence message) {
         put(stdErr, message + "\n");
     }
 
     @Override
     @Nullable
-    public byte[] promptContent(@NonNull final String message, @NonNull final String mimeType,
+    public byte[] promptContent(@NonNull final CharSequence message, @NonNull final String mimeType,
                                 final long sizeLimit) throws InterruptedException, IOException {
         return new byte[0];
     }
