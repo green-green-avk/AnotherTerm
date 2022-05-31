@@ -25,6 +25,7 @@ import java.util.Map;
 import java.util.Set;
 
 import green_green_avk.anotherterm.R;
+import green_green_avk.anotherterm.ui.ParameterView;
 
 public final class RawPreferenceUiWrapper implements PreferenceUiWrapper {
     private final Map<String, View> views = new HashMap<>();
@@ -40,7 +41,15 @@ public final class RawPreferenceUiWrapper implements PreferenceUiWrapper {
         if (tag instanceof String) {
             final String[] chs = ((String) tag).split("/");
             final String pName = chs[0].intern();
-            if (root instanceof EditText) {
+            if (root instanceof ParameterView) {
+                views.put(pName, root);
+                ((ParameterView<?>) root).setOnValueChanged(v -> {
+                    if (!isFrozen) {
+                        changedFields.add(pName);
+                        callOnChanged(pName);
+                    }
+                });
+            } else if (root instanceof EditText) {
                 views.put(pName, root);
                 final ColorStateList color = ((EditText) root).getTextColors();
                 ((EditText) root).setTextColor(color.withAlpha(0xA0)); // TODO: fix UI mess
@@ -185,7 +194,9 @@ public final class RawPreferenceUiWrapper implements PreferenceUiWrapper {
     @Override
     public Object get(final String key) {
         final View view = views.get(key);
-        if (view instanceof EditText) {
+        if (view instanceof ParameterView) {
+            return ((ParameterView<?>) view).getValue();
+        } else if (view instanceof EditText) {
             final String t = ((EditText) view).getText().toString();
             final int it = ((EditText) view).getInputType();
             if ((it & InputType.TYPE_MASK_CLASS) == InputType.TYPE_CLASS_NUMBER) {
@@ -225,7 +236,9 @@ public final class RawPreferenceUiWrapper implements PreferenceUiWrapper {
     @Override
     public void set(final String key, final Object value) {
         final View view = views.get(key);
-        if (view instanceof AdapterView) {
+        if (view instanceof ParameterView) {
+            ((ParameterView<?>) view).setValueFrom(value);
+        } else if (view instanceof AdapterView) {
             final List<?> values = fieldOpts.get(key);
             if (values == null) {
                 if (value instanceof Integer && (int) value >= 0)

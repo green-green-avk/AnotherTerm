@@ -1,7 +1,9 @@
 package green_green_avk.anotherterm.backends.ssh;
 
+import android.content.Context;
 import android.content.Intent;
 import android.net.Uri;
+import android.text.Html;
 import android.util.Log;
 
 import androidx.annotation.Keep;
@@ -11,6 +13,7 @@ import androidx.annotation.Nullable;
 import com.jcraft.jsch.Channel;
 import com.jcraft.jsch.ChannelExec;
 import com.jcraft.jsch.ChannelShell;
+import com.jcraft.jsch.Identity;
 import com.jcraft.jsch.IdentityRepository;
 import com.jcraft.jsch.JSch;
 import com.jcraft.jsch.JSchException;
@@ -20,6 +23,7 @@ import com.jcraft.jsch.UserInfo;
 
 import org.apache.commons.text.StringEscapeUtils;
 
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.net.URLEncoder;
@@ -42,6 +46,8 @@ import green_green_avk.anotherterm.backends.BackendInterruptedException;
 import green_green_avk.anotherterm.backends.BackendModule;
 import green_green_avk.anotherterm.backends.BackendUiInteraction;
 import green_green_avk.anotherterm.ui.BackendUiDialogs;
+import green_green_avk.anotherterm.ui.ContentRequester;
+import green_green_avk.anotherterm.utils.BlockingSync;
 import green_green_avk.anotherterm.utils.SshHostKeyRepository;
 
 public final class SshModule extends BackendModule {
@@ -170,6 +176,7 @@ public final class SshModule extends BackendModule {
         private String mac_s2c = JSch.getConfig("mac.s2c");
         private String mac_c2s = JSch.getConfig("mac.c2s");
         private boolean preferKeyAuth = false;
+        private Uri authKeyUri = null;
         private int keepaliveInterval = 0;
         private boolean preferCompression = false;
 
@@ -182,6 +189,7 @@ public final class SshModule extends BackendModule {
         private final Set<PortMapping> remotePortMappings = new HashSet<>();
 
         private final JSch jsch = new JSch();
+        private Context context = null;
         volatile Session session = null;
         final Object lock = new Object();
         private final AtomicLong refs = new AtomicLong(0);
@@ -259,6 +267,12 @@ public final class SshModule extends BackendModule {
     }
 
     @Override
+    public void setContext(@NonNull final Context context) {
+        super.setContext(context);
+        sshSessionSt.context = context.getApplicationContext();
+    }
+
+    @Override
     public void setUi(final BackendUiInteraction ui) {
         super.setUi(ui);
         if (ui instanceof BackendUiDialogs) {
@@ -286,6 +300,9 @@ public final class SshModule extends BackendModule {
         sshSessionSt.mac_c2s = pp.getString("jsch.cfg.mac.c2s", sshSessionSt.mac_c2s);
         sshSessionSt.preferKeyAuth = pp.getBoolean("prefer_key_auth",
                 sshSessionSt.preferKeyAuth);
+        final String authKeyUriStr = pp.getString("auth_key_uri", null);
+        if (authKeyUriStr != null)
+            sshSessionSt.authKeyUri = Uri.parse(authKeyUriStr);
 
         terminalString = pp.getString("terminal_string", terminalString);
 
@@ -503,12 +520,16 @@ public final class SshModule extends BackendModule {
             JSch.setLogger(new Logger() {
                 @Override
                 public boolean isEnabled(final int level) {
-                    return level >= ERROR;
+                    return level >= WARN;
                 }
 
                 @Override
                 public void log(final int level, final String message) {
-                    Log.e("JSch Error", message);
+                    if (level >= ERROR) {
+                        Log.e("JSch", message);
+                    } else {
+                        Log.w("JSch", message);
+                    }
                 }
             });
     }
@@ -518,23 +539,63 @@ public final class SshModule extends BackendModule {
         final IdentityRepository ir = jsch.getIdentityRepository();
         jsch.setIdentityRepository(new IdentityRepository() {
             private void prompt() {
-                byte[] key;
+                byte[] key = null;
+                final Uri uri = st.authKeyUri;
+                String reason = null;
                 try {
+                    if (uri != null) {
+                        final BlockingSync<Object> result = new BlockingSync<>();
+                        ContentRequester.requestPersistent(result,
+                                ContentRequester.Type.BYTES,
+                                CERT_FILE_SIZE_MAX,
+                                st.context,
+                                uri);
+                        final Object r = result.get();
+                        if (r instanceof Throwable) {
+                            final String details = r instanceof SecurityException ?
+                                    st.context.getString(
+                                            R.string.msg_desc_permission_revoked) :
+                                    r instanceof FileNotFoundException ?
+                                            st.context.getString(
+                                                    R.string.msg_desc_file_not_found) :
+                                            ((Throwable) r).getLocalizedMessage();
+                            reason = st.context.getString(
+                                    R.string.msg_unable_to_load_associated_key__s,
+                                    details);
+                        } else if (r instanceof byte[]) {
+                            key = (byte[]) r;
+                        }
+                    }
                     while (true) {
+                        if (key != null) {
+                            if (ir.add(key)) {
+                                return;
+                            } else {
+                                reason = st.context.getString(
+                                        R.string.msg_desc_malformed);
+                            }
+                        }
                         try {
-                            key = st.ui.promptContent("Server requests key identification",
+                            final String message = reason != null ?
+                                    st.context.getString(
+                                            R.string.msg_server_requests_key_identification_s,
+                                            reason) :
+                                    st.context.getString(
+                                            R.string.msg_server_requests_key_identification);
+                            key = st.ui.promptContent(Html.fromHtml(message),
                                     "*/*", CERT_FILE_SIZE_MAX);
-                            break;
+                            if (key == null) {
+                                return;
+                            }
                         } catch (final IOException e) {
-                            st.ui.showToast("Unable to load the key: " + e.getLocalizedMessage());
+                            reason = st.context.getString(
+                                    R.string.msg_unable_to_load_associated_key__s,
+                                    e.getLocalizedMessage());
                         }
                     }
                 } catch (final InterruptedException e) {
                     throw new BackendInterruptedException(e);
                 }
-                if (key == null)
-                    return;
-                ir.add(key);
             }
 
             @Override
@@ -548,8 +609,8 @@ public final class SshModule extends BackendModule {
             }
 
             @Override
-            public Vector getIdentities() {
-                final Vector ii = ir.getIdentities();
+            public Vector<Identity> getIdentities() {
+                final Vector<Identity> ii = ir.getIdentities();
                 if (ii.size() > 0)
                     return ii;
                 prompt();

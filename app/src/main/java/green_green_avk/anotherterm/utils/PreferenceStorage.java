@@ -1,6 +1,7 @@
 package green_green_avk.anotherterm.utils;
 
 import android.content.SharedPreferences;
+import android.net.Uri;
 
 import androidx.annotation.CheckResult;
 import androidx.annotation.NonNull;
@@ -77,6 +78,8 @@ public final class PreferenceStorage {
                 dst.putString(k, (String) v);
             } else if (v instanceof Set) {
                 dst.putStringSet(k, (Set<String>) v);
+            } else if (v instanceof Uri) {
+                dst.putString(k, v.toString());
             }
         }
     }

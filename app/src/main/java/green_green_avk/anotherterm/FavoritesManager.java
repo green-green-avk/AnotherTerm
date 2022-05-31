@@ -17,12 +17,15 @@ public final class FavoritesManager {
     }
 
     @SuppressLint("StaticFieldLeak")
+    private static Context ctx = null;
+    @SuppressLint("StaticFieldLeak")
     private static final SharedPreferencesSet prefs = new SharedPreferencesSet();
 
     private static final Set<Runnable> onChangeListeners =
             Collections.newSetFromMap(new WeakHashMap<>());
 
     private static void execOnChangeListeners() {
+        PermanentContentUrisManager.freeUnused(ctx);
         for (final Runnable r : onChangeListeners) {
             r.run();
         }
@@ -30,6 +33,7 @@ public final class FavoritesManager {
 
     public static void init(@NonNull final Context context) {
         final Context ac = context.getApplicationContext();
+        ctx = ac;
         prefs.init(ac, ac.getPackageName() + "_fav_");
     }
 
