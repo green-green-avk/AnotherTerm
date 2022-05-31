@@ -51,6 +51,12 @@ public class BackendUiDialogs implements BackendUiInteraction,
     private WeakReference<Dialog> promptDialog = new WeakReference<>(null);
 
     @UiThread
+    private boolean isShowingPrompt() {
+        final Dialog d = promptDialog.get();
+        return d != null && d.isShowing();
+    }
+
+    @UiThread
     private void showPrompt(@NonNull final Dialog d) {
         d.show();
         promptDialog = new WeakReference<>(d);
@@ -58,9 +64,9 @@ public class BackendUiDialogs implements BackendUiInteraction,
     }
 
     @UiThread
-    private boolean isShowingPrompt() {
+    private void expirePrompt() {
         final Dialog d = promptDialog.get();
-        return d != null && d.isShowing();
+        if (d != null) d.dismiss();
     }
 
     private final Object msgQueueLock = new Object();
@@ -101,7 +107,8 @@ public class BackendUiDialogs implements BackendUiInteraction,
             activityRef.set(ctx);
             if (ctx != null) {
                 final Runnable ps = promptState;
-                if (ps != null) ps.run();
+                if (ps != null)
+                    ps.run();
                 if (!msgQueue.isEmpty()) showQueuedMessages(ctx);
             } else {
                 for (final Dialog d : dialogs) d.dismiss();
@@ -113,8 +120,8 @@ public class BackendUiDialogs implements BackendUiInteraction,
     @Override
     @Nullable
     public String promptPassword(@NonNull final String message) throws InterruptedException {
-        try {
-            synchronized (promptLock) {
+        synchronized (promptLock) {
+            try {
                 final BlockingSync<String> result = new BlockingSync<>();
                 promptState = () -> {
                     if (isShowingPrompt()) return;
@@ -173,16 +180,17 @@ public class BackendUiDialogs implements BackendUiInteraction,
                 };
                 handler.post(promptState);
                 return result.get();
+            } finally {
+                promptState = null;
+                handler.post(this::expirePrompt);
             }
-        } finally {
-            promptState = null;
         }
     }
 
     @Override
     public boolean promptYesNo(@NonNull final String message) throws InterruptedException {
-        try {
-            synchronized (promptLock) {
+        synchronized (promptLock) {
+            try {
                 final BlockingSync<Boolean> result = new BlockingSync<>();
                 promptState = () -> {
                     if (isShowingPrompt()) return;
@@ -213,9 +221,10 @@ public class BackendUiDialogs implements BackendUiInteraction,
                 };
                 handler.post(promptState);
                 return result.get();
+            } finally {
+                promptState = null;
+                handler.post(this::expirePrompt);
             }
-        } finally {
-            promptState = null;
         }
     }
 
@@ -247,10 +256,11 @@ public class BackendUiDialogs implements BackendUiInteraction,
     @Nullable
     public byte[] promptContent(@NonNull final String message, @NonNull final String mimeType,
                                 final long sizeLimit) throws InterruptedException, IOException {
-        try {
-            synchronized (promptLock) {
+        synchronized (promptLock) {
+            try {
                 final BlockingSync<Object> result = new BlockingSync<>();
                 promptState = () -> {
+                    if (isShowingPrompt()) return;
                     final Activity ctx = activityRef.getNoBlock();
                     if (ctx == null) return;
                     final DialogInterface.OnClickListener listener = (dialog, which) -> {
@@ -273,8 +283,8 @@ public class BackendUiDialogs implements BackendUiInteraction,
                             .setMessage(message)
                             .setNegativeButton(android.R.string.cancel, listener)
                             .setPositiveButton(R.string.choose, listener)
-                            .show();
-                    dialogs.add(d);
+                            .create();
+                    showPrompt(d);
                 };
                 handler.post(promptState);
                 final Object r = result.get();
@@ -285,9 +295,10 @@ public class BackendUiDialogs implements BackendUiInteraction,
                 if (r instanceof Throwable)
                     throw new IOException(((Throwable) r).getLocalizedMessage());
                 return null;
+            } finally {
+                promptState = null;
+                handler.post(this::expirePrompt);
             }
-        } finally {
-            promptState = null;
         }
     }
 
