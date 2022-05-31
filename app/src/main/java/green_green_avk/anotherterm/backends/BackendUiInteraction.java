@@ -7,16 +7,16 @@ import java.io.IOException;
 
 public interface BackendUiInteraction {
     @Nullable
-    String promptPassword(@NonNull String message) throws InterruptedException;
+    String promptPassword(@NonNull CharSequence message) throws InterruptedException;
 
-    boolean promptYesNo(@NonNull String message) throws InterruptedException;
+    boolean promptYesNo(@NonNull CharSequence message) throws InterruptedException;
 
-    void showMessage(@NonNull String message);
+    void showMessage(@NonNull CharSequence message);
 
-    void showToast(@NonNull String message);
+    void showToast(@NonNull CharSequence message);
 
     @Nullable
-    byte[] promptContent(@NonNull String message, @NonNull String mimeType, long sizeLimit)
+    byte[] promptContent(@NonNull CharSequence message, @NonNull String mimeType, long sizeLimit)
             throws InterruptedException, IOException;
 
     boolean promptPermissions(@NonNull String[] perms) throws InterruptedException;

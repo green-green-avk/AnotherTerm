@@ -90,7 +90,7 @@ public final class ContentRequester extends Requester {
         private void requestContent(@NonNull final BlockingSync<Object> result,
                                     final Type type,
                                     final long sizeLimit,
-                                    @NonNull final String message,
+                                    @NonNull final CharSequence message,
                                     @NonNull final String mimeType) {
             this.result = result;
             this.type = type;
@@ -106,7 +106,7 @@ public final class ContentRequester extends Requester {
                                final Type type,
                                final long sizeLimit,
                                @NonNull final Context ctx,
-                               @NonNull final String message,
+                               @NonNull final CharSequence message,
                                @NonNull final String mimeType) {
         ((FragmentActivity) ctx).runOnUiThread(() ->
                 prepare(ctx, new UIFragment()).requestContent(result,

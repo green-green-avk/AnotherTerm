@@ -119,7 +119,7 @@ public class BackendUiDialogs implements BackendUiInteraction,
 
     @Override
     @Nullable
-    public String promptPassword(@NonNull final String message) throws InterruptedException {
+    public String promptPassword(@NonNull final CharSequence message) throws InterruptedException {
         synchronized (promptLock) {
             try {
                 final BlockingSync<String> result = new BlockingSync<>();
@@ -188,7 +188,7 @@ public class BackendUiDialogs implements BackendUiInteraction,
     }
 
     @Override
-    public boolean promptYesNo(@NonNull final String message) throws InterruptedException {
+    public boolean promptYesNo(@NonNull final CharSequence message) throws InterruptedException {
         synchronized (promptLock) {
             try {
                 final BlockingSync<Boolean> result = new BlockingSync<>();
@@ -229,7 +229,7 @@ public class BackendUiDialogs implements BackendUiInteraction,
     }
 
     @Override
-    public void showMessage(@NonNull final String message) {
+    public void showMessage(@NonNull final CharSequence message) {
         handler.post(() -> {
             synchronized (msgQueueLock) {
                 final Activity ctx = activityRef.getNoBlock();
@@ -246,7 +246,7 @@ public class BackendUiDialogs implements BackendUiInteraction,
     }
 
     @Override
-    public void showToast(@NonNull final String message) {
+    public void showToast(@NonNull final CharSequence message) {
         final Activity ctx = activityRef.getNoBlock();
         if (ctx == null) return;
         ctx.runOnUiThread(() -> Toast.makeText(ctx, message, Toast.LENGTH_SHORT).show());
@@ -254,7 +254,7 @@ public class BackendUiDialogs implements BackendUiInteraction,
 
     @Override
     @Nullable
-    public byte[] promptContent(@NonNull final String message, @NonNull final String mimeType,
+    public byte[] promptContent(@NonNull final CharSequence message, @NonNull final String mimeType,
                                 final long sizeLimit) throws InterruptedException, IOException {
         synchronized (promptLock) {
             try {

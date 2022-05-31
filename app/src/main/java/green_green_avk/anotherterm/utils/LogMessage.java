@@ -5,11 +5,11 @@ import androidx.annotation.NonNull;
 import java.util.Date;
 
 public class LogMessage {
-    public final String msg;
+    public final CharSequence msg;
     @NonNull
     public final Date timestamp;
 
-    public LogMessage(final String msg) {
+    public LogMessage(final CharSequence msg) {
         this.msg = msg;
         timestamp = new Date();
     }
