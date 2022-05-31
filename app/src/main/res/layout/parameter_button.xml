@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ImageButton xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    style="@style/AppWidget.Editor.ImageButton.Horizontal"
+    android:layout_height="@dimen/smallUiOptionSize"
+    android:layout_gravity="center_vertical"
+    android:contentDescription="@null"
+    tools:srcCompat="@drawable/ic_help" />

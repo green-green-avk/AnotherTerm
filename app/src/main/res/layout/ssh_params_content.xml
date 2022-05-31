@@ -256,13 +256,32 @@
         android:tag="prefer_key_auth"
         android:text="@string/label_prefer_public_key_authentication" />
 
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:labelFor="@id/f_auth_key_uri"
+        android:text="@string/label_client_private_key_" />
+
+    <green_green_avk.anotherterm.ui.FilePickerView
+        android:id="@+id/f_auth_key_uri"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:tag="auth_key_uri" />
+
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:layout_marginTop="@dimen/text_separator"
+        android:layout_marginBottom="@dimen/text_separator"
+        android:background="?android:attr/listDivider" />
+
     <green_green_avk.anotherterm.ui.HtmlTextView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginLeft="@dimen/text_margin"
         android:layout_marginRight="@dimen/text_margin"
         android:textStyle="italic"
-        app:xmlText="@string/note_rely_on_jsch_documentation" />
+        app:xmlText="@string/note_rely_on_jsch_documentation_regarding_the_settings_below" />
 
     <LinearLayout
         android:layout_width="match_parent"

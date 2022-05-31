@@ -14,6 +14,9 @@
     <string name="action_view">View</string>
     <string name="action_copy">Copy</string>
     <string name="action_paste">Paste</string>
+    <string name="action_unset">Unset</string>
+    <string name="action_set">Set</string>
+    <string name="value_not_set"><i>Not set</i></string>
     <string name="action_charset">Character Set</string>
     <string name="action_settings">Settings</string>
     <string name="action_ssh_keys_settings">SSH Keys Settings</string>
@@ -100,6 +103,18 @@
     <string name="label_port_forwarding_remote_">Remote:</string>
     <string name="choose">Choose</string>
     <string name="label_prefer_public_key_authentication">Prefer Public Key Authentication</string>
+    <string name="label_client_private_key_">Client private key (PEM):</string>
+    <string name="msg_server_requests_key_identification">Server requests key identification</string>
+    <string name="msg_server_requests_key_identification_s"><![CDATA[
+        <p>Server requests key identification:</p>
+        <p>%s</p>
+        <p>Please, choose one manually:</p>]]>
+    </string>
+    <string name="msg_unable_to_load_associated_key__s"><![CDATA[Unable to load associated key:
+    <br/>%s]]></string>
+    <string name="msg_desc_permission_revoked">It looks like the access permission has been revoked.</string>
+    <string name="msg_desc_file_not_found">File not found.</string>
+    <string name="msg_desc_malformed">It looks malformed.</string>
     <string name="msg_clipboard_does_not_contain_applicable_settings">Clipboard does not contain applicable settings</string>
     <string name="title_activity_key_mappings">Key Mappings</string>
     <string name="action_add">Add</string>
@@ -159,10 +174,10 @@
     <string name="label_server_to_client_transport_message_authentication_code">Server-to-client transport message authentication code <i>(mac.s2c)</i></string>
     <string name="label_client_to_server_transport_message_authentication_code">Client-to-server transport message authentication code <i>(mac.c2s)</i></string>
     <string name="label_prefer_compression">Prefer compression</string>
-    <string name="note_rely_on_jsch_documentation"><![CDATA[
+    <string name="note_rely_on_jsch_documentation_regarding_the_settings_below"><![CDATA[
         <p>Please, rely on
         <a href=\"https://epaul.github.io/jsch-documentation/javadoc/com/jcraft/jsch/JSch.html#setConfig-java.lang.String-java.lang.String-\">JSch documentation</a>
-        here.</p>
+        regarding the settings below.</p>
     ]]></string>
     <string name="name_stream_default">Stream</string>
     <string name="msg_pick_application">Pick application</string>
