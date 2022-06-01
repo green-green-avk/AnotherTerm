@@ -63,14 +63,20 @@ public final class PluginsManagerFragment extends Fragment {
         @NonNull
         public ViewHolder onCreateViewHolder(@NonNull final ViewGroup parent,
                                              final int viewType) {
-            return new ViewHolder(
-                    LayoutInflater.from(parent.getContext())
-                            .inflate(R.layout.plugins_manager_entry, parent, false)
-            );
+            if (viewType == 0)
+                return new ViewHolder(
+                        LayoutInflater.from(parent.getContext())
+                                .inflate(R.layout.plugins_manager_entry,
+                                        parent, false));
+            return new ViewHolder(LayoutInflater.from(parent.getContext())
+                    .inflate(R.layout.empty, parent, false));
+
         }
 
         @Override
         public void onBindViewHolder(@NonNull final ViewHolder holder, final int position) {
+            if (position >= plugins.size())
+                return;
             final PackageInfo pkg = plugins.get(position);
             final TextView wWarning = holder.itemView.findViewById(R.id.warning);
             final CompoundButton wEnabled = holder.itemView.findViewById(R.id.enabled);
@@ -196,7 +202,12 @@ public final class PluginsManagerFragment extends Fragment {
 
         @Override
         public int getItemCount() {
-            return plugins.size();
+            return Math.max(plugins.size(), 1);
+        }
+
+        @Override
+        public int getItemViewType(final int position) {
+            return position >= plugins.size() ? 1 : 0;
         }
 
         private static final class ViewHolder extends RecyclerView.ViewHolder {
