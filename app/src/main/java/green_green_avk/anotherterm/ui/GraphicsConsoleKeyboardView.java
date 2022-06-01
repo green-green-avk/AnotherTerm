@@ -243,7 +243,7 @@ public class GraphicsConsoleKeyboardView extends ExtKeyboardView implements
     public void onWindowFocusChanged(final boolean hasWindowFocus) {
         super.onWindowFocusChanged(hasWindowFocus);
         if (hasWindowFocus)
-            reapplyMode();
+            mHandler.post(this::reapplyMode);
     }
 
     protected void _showIme() {
