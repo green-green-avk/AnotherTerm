@@ -18,6 +18,8 @@ import java.util.WeakHashMap;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import green_green_avk.anotherterm.BuildConfig;
+
 // Only one instance per set must exist
 public final class SharedPreferencesSet {
     private Context ctx = null;
@@ -77,8 +79,9 @@ public final class SharedPreferencesSet {
                             keys.add(decKey(m.group(1)));
                         } catch (final IllegalArgumentException e) {
                             // Ignore improper entries.
-                            Log.w(this.getClass().getSimpleName(),
-                                    "Malformed preferences file name", e);
+                            if (BuildConfig.DEBUG)
+                                Log.w(this.getClass().getSimpleName(),
+                                        "Malformed preferences file name", e);
                         }
                     }
                 }
