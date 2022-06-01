@@ -263,21 +263,24 @@ public final class WlTermServer {
                                             msg, fdsQueue);
                             if (wlClient.compositor == null && call.object instanceof wl_display)
                                 initNewSession(wlClient); // Actual session start
-                            // Log.i(TAG, "call: " + call.object.id +
-                            // "[" + call.object.getClass().getSimpleName() + "]" +
-                            // "." + call.method.getName());
+//                            if (BuildConfig.DEBUG)
+//                                Log.i(TAG, "call: " + call.object.id +
+//                                        "[" + call.object.getClass().getSimpleName() + "]" +
+//                                        "." + call.method.getName());
                             try {
                                 call.call();
                             } catch (final WlOwnCustomProtocolException e) {
                                 customHandler = e.handler;
                             } catch (final Exception e) {
-                                Log.w(TAG, e.getMessage() != null ? e.getMessage()
-                                        : "???");
+                                if (BuildConfig.DEBUG)
+                                    Log.w(TAG, e.getMessage() != null ? e.getMessage()
+                                            : "???");
                                 wlClient.returnError(call.object, e);
                             }
                         } catch (final WlMarshalling.ParseException e) {
-                            Log.w(TAG, e.getMessage() != null ? e.getMessage()
-                                    : "???");
+                            if (BuildConfig.DEBUG)
+                                Log.w(TAG, e.getMessage() != null ? e.getMessage()
+                                        : "???");
                             wlClient.returnError(e);
                         } finally {
                             lock.release();
@@ -287,12 +290,15 @@ public final class WlTermServer {
                         throw new EOFException();
                 }
             } catch (final EOFException | InterruptedIOException | InterruptedException e) {
-                Log.i(TAG, "EOF/INT");
+                if (BuildConfig.DEBUG)
+                    Log.i(TAG, "EOF/INT");
             } catch (final IOException e) {
-                Log.w(TAG, e.getMessage() != null ? e.getMessage() : "-");
+                if (BuildConfig.DEBUG)
+                    Log.w(TAG, e.getMessage() != null ? e.getMessage() : "-");
                 wlHandler.post(() -> wlClient.returnError(e));
             } catch (final WlMarshalling.ParseException e) {
-                Log.w(TAG, e.getMessage() != null ? e.getMessage() : "-");
+                if (BuildConfig.DEBUG)
+                    Log.w(TAG, e.getMessage() != null ? e.getMessage() : "-");
                 wlHandler.post(() -> wlClient.returnError(e));
             } finally {
                 uiHandler.post(() -> {
@@ -513,10 +519,11 @@ public final class WlTermServer {
                                                     writeString(mime);
                                                     writeBytes(data);
                                                 } catch (final IOException e) {
-                                                    Log.w(TAG,
-                                                            e.getMessage() != null
-                                                                    ? e.getMessage()
-                                                                    : "???");
+                                                    if (BuildConfig.DEBUG)
+                                                        Log.w(TAG,
+                                                                e.getMessage() != null
+                                                                        ? e.getMessage()
+                                                                        : "???");
                                                 }
                                             });
                                         }
@@ -530,10 +537,11 @@ public final class WlTermServer {
                                                     writeTag(TAG_CLIPBOARD_REQ);
                                                     writeString(mime);
                                                 } catch (final IOException e) {
-                                                    Log.w(TAG,
-                                                            e.getMessage() != null
-                                                                    ? e.getMessage()
-                                                                    : "???");
+                                                    if (BuildConfig.DEBUG)
+                                                        Log.w(TAG,
+                                                                e.getMessage() != null
+                                                                        ? e.getMessage()
+                                                                        : "???");
                                                 }
                                             });
                                         }
@@ -545,10 +553,11 @@ public final class WlTermServer {
                                                     writeTag(TAG_IM_PUT_STRING);
                                                     writeString(str);
                                                 } catch (final IOException e) {
-                                                    Log.w(TAG,
-                                                            e.getMessage() != null
-                                                                    ? e.getMessage()
-                                                                    : "???");
+                                                    if (BuildConfig.DEBUG)
+                                                        Log.w(TAG,
+                                                                e.getMessage() != null
+                                                                        ? e.getMessage()
+                                                                        : "???");
                                                 }
                                             });
                                         }
@@ -904,7 +913,8 @@ public final class WlTermServer {
                     } catch (final IOException e) {
                         throw new RuntimeException("Invalid pool descriptor: " + e.getMessage());
                     }
-                    Log.i(TAG, "Locked@" + wlBuffer.id);
+//                    if (BuildConfig.DEBUG)
+//                        Log.i(TAG, "Locked@" + wlBuffer.id);
                     final WlBuffer wlBufferCurrent = wlBuffer;
                     final NewId nextFrameCallbackCurrent = nextFrameCallback;
                     final Region _damage = new Region(wlBufferDamage);
@@ -916,7 +926,8 @@ public final class WlTermServer {
                                 @Override
                                 public void onBufferRelease() {
                                     wlBufferCurrent.pool.unlock();
-                                    Log.i(TAG, "Unlocked@" + wlBufferCurrent.id);
+//                                    if (BuildConfig.DEBUG)
+//                                        Log.i(TAG, "Unlocked@" + wlBufferCurrent.id);
                                     wlHandler.post(wlBufferCurrent.events::release);
                                 }
 

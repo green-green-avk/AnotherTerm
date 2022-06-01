@@ -12,7 +12,6 @@ import android.os.Build;
 import android.os.Handler;
 import android.os.Looper;
 import android.util.AttributeSet;
-import android.util.Log;
 import android.view.InputDevice;
 import android.view.MotionEvent;
 import android.view.TextureView;
@@ -183,7 +182,8 @@ public final class GlGraphicsCompositorView extends TextureView implements Graph
     protected void onSizeChanged(int w, int h, int oldw, int oldh) {
         super.onSizeChanged(w, h, oldw, oldh);
         if (compositor == null) return;
-        Log.i("WlDraw", "* Resize: " + w + "x" + h);
+//        if (BuildConfig.DEBUG)
+//            Log.i("WlDraw", "* Resize: " + w + "x" + h);
         compositor.onResize(w, h);
         // Not in the listener's onSurfaceTextureSizeChanged() for a reason...
     }
@@ -381,8 +381,9 @@ public final class GlGraphicsCompositorView extends TextureView implements Graph
                         if (surface.stride != surface.width * 4)
                             throw new IllegalArgumentException("We can't this stride: " +
                                     surface.stride + " / " + surface.width);
-                        Log.i("WlDraw", "* Frame: " +
-                                surface.width + "x" + surface.height);
+//                        if (BuildConfig.DEBUG)
+//                            Log.i("WlDraw", "* Frame: " +
+//                                    surface.width + "x" + surface.height);
                         Cache texCache = this.texCache.get(surface);
                         if (texCache == null) {
                             texCache = new Cache();

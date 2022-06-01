@@ -679,7 +679,8 @@ public class GraphicsConsoleKeyboardView extends ExtKeyboardView implements
 
     @Override
     protected void onConfigurationChanged(final Configuration newConfig) {
-//        Log.i("onConfigurationChanged", String.format("kh: %04X; hkh: %04X", newConfig.keyboardHidden, newConfig.hardKeyboardHidden));
+//        if (BuildConfig.DEBUG)
+//            Log.i("onConfigurationChanged", String.format("kh: %04X; hkh: %04X", newConfig.keyboardHidden, newConfig.hardKeyboardHidden));
         applyConfig(newConfig);
         super.onConfigurationChanged(newConfig);
     }

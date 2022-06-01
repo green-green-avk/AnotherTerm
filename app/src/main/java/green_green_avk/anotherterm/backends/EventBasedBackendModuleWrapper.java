@@ -16,6 +16,8 @@ import java.io.OutputStream;
 import java.lang.reflect.Method;
 import java.nio.ByteBuffer;
 
+import green_green_avk.anotherterm.BuildConfig;
+
 public final class EventBasedBackendModuleWrapper {
     private static final int MSG_KILL_SERV = 1;
     private static final int MSG_ERROR = 2;
@@ -261,7 +263,8 @@ public final class EventBasedBackendModuleWrapper {
     @Override
     protected void finalize() throws Throwable {
 //        destroy();
-        Log.d("Backend service", "Successfully reclaimed");
+        if (BuildConfig.DEBUG)
+            Log.d("Backend service", "Successfully reclaimed");
         super.finalize();
     }
 

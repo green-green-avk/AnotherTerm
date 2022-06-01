@@ -1,5 +1,10 @@
 package green_green_avk.anotherterm.ui.gl;
 
+import static javax.microedition.khronos.egl.EGL10.EGL_DEFAULT_DISPLAY;
+import static javax.microedition.khronos.egl.EGL10.EGL_NONE;
+import static javax.microedition.khronos.egl.EGL10.EGL_NO_CONTEXT;
+import static javax.microedition.khronos.egl.EGL10.EGL_NO_SURFACE;
+
 import android.graphics.Point;
 import android.opengl.GLES20;
 import android.util.Log;
@@ -11,10 +16,7 @@ import javax.microedition.khronos.egl.EGLDisplay;
 import javax.microedition.khronos.egl.EGLSurface;
 import javax.microedition.khronos.opengles.GL10;
 
-import static javax.microedition.khronos.egl.EGL10.EGL_DEFAULT_DISPLAY;
-import static javax.microedition.khronos.egl.EGL10.EGL_NONE;
-import static javax.microedition.khronos.egl.EGL10.EGL_NO_CONTEXT;
-import static javax.microedition.khronos.egl.EGL10.EGL_NO_SURFACE;
+import green_green_avk.anotherterm.BuildConfig;
 
 /**
  * First access to this class fields (after the VM started)
@@ -38,7 +40,8 @@ public final class GlInfo {
         final int[] eglVer = new int[2];
         egl.eglInitialize(eglDisplay, eglVer);
         eglExtensions = egl.eglQueryString(eglDisplay, EGL10.EGL_EXTENSIONS);
-        Log.i("GL_CAPS", "EGL_EXTENSIONS: " + eglExtensions);
+        if (BuildConfig.DEBUG)
+            Log.i("GL_CAPS", "EGL_EXTENSIONS: " + eglExtensions);
         final EGLConfig eglConfig =
                 BaseRenderer.chooseEglConfig(egl, eglDisplay, BaseRenderer.config0Depth);
         // Check for GL ES 3.0
@@ -47,10 +50,12 @@ public final class GlInfo {
                 new int[]{BaseRenderer.EGL_CONTEXT_CLIENT_VERSION, 3, EGL_NONE});
         if (eglContext30 == null) {
             glesVersion = 0x20000;
-            Log.i("GL_CAPS", "GL ES 2.0 supported");
+            if (BuildConfig.DEBUG)
+                Log.i("GL_CAPS", "GL ES 2.0 supported");
         } else {
             glesVersion = 0x30000;
-            Log.i("GL_CAPS", "GL ES 3.0 supported");
+            if (BuildConfig.DEBUG)
+                Log.i("GL_CAPS", "GL ES 3.0 supported");
             egl.eglDestroyContext(eglDisplay, eglContext30);
         }
         // ===
@@ -65,16 +70,19 @@ public final class GlInfo {
             if (!egl.eglMakeCurrent(eglDisplay, eglSurface, eglSurface, eglContext))
                 throw new RendererException("EGL error: " + egl.eglGetError());
             gles20Extensions = GLES20.glGetString(GL10.GL_EXTENSIONS);
-            Log.i("GL_CAPS", "GL ES 2.0 GL_EXTENSIONS: " + gles20Extensions);
+            if (BuildConfig.DEBUG)
+                Log.i("GL_CAPS", "GL ES 2.0 GL_EXTENSIONS: " + gles20Extensions);
             final int[] tmp = new int[1];
             GLES20.glGetIntegerv(GLES20.GL_MAX_TEXTURE_SIZE, tmp, 0);
             maxSize = new Point(tmp[0], tmp[0]);
-            Log.i("GL_CAPS", "GL ES 2.0 GL_MAX_TEXTURE_SIZE: " + maxSize.x);
+            if (BuildConfig.DEBUG)
+                Log.i("GL_CAPS", "GL ES 2.0 GL_MAX_TEXTURE_SIZE: " + maxSize.x);
             // It can be available in GL ES 2.0 even when it is not reported in GL_EXTENSIONS...
             GLES20.glGetIntegerv(BaseRenderer.GL_UNPACK_ROW_LENGTH_EXT, tmp, 0);
             hasUnpackRowLengthIn20 = GLES20.glGetError() == GLES20.GL_NO_ERROR;
-            Log.i("GL_CAPS", "GL ES 2.0 GL_UNPACK_ROW_LENGTH_EXT support: " +
-                    hasUnpackRowLengthIn20);
+            if (BuildConfig.DEBUG)
+                Log.i("GL_CAPS", "GL ES 2.0 GL_UNPACK_ROW_LENGTH_EXT support: " +
+                        hasUnpackRowLengthIn20);
             // ===
         } finally {
             egl.eglMakeCurrent(eglDisplay, EGL_NO_SURFACE, EGL_NO_SURFACE, EGL_NO_CONTEXT);
