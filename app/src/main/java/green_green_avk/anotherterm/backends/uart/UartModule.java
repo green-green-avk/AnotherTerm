@@ -39,7 +39,8 @@ public final class UartModule extends BackendModule {
         @Override
         @NonNull
         public Map<String, ?> fromUri(@NonNull final Uri uri) {
-            if (uri.isOpaque()) throw new ParametersUriParseException();
+            if (uri.isOpaque())
+                throw new ParametersUriParseException();
             final Map<String, Object> params = new HashMap<>();
             for (final String k : uri.getQueryParameterNames()) {
                 // TODO: '+' decoding issue before Jelly Bean
@@ -147,7 +148,8 @@ public final class UartModule extends BackendModule {
     private OnMessageListener onMessageListener = null;
 
     void reportError(@NonNull final Throwable e) {
-        if (onMessageListener != null) onMessageListener.onMessage(e);
+        if (onMessageListener != null)
+            onMessageListener.onMessage(e);
     }
 
     private Impl impl = null;
@@ -162,24 +164,28 @@ public final class UartModule extends BackendModule {
         flowControl = pp.getFromMap("flowcontrol", flowControlOpts, flowControl);
         insecure = pp.getBoolean("insecure", insecure);
         adapter = pp.getString("adapter", adapter);
-        if (adapter == null || adapter.isEmpty()) adapter = "*";
+        if (adapter == null || adapter.isEmpty())
+            adapter = "*";
     }
 
     OutputStream output = null;
     private final OutputStream input = new OutputStream() {
         @Override
         public void write(final int b) throws IOException {
-            if (impl != null) impl.getOutputStream().write(b);
+            if (impl != null)
+                impl.getOutputStream().write(b);
         }
 
         @Override
         public void write(@NonNull final byte[] b, final int off, final int len) throws IOException {
-            if (impl != null) impl.getOutputStream().write(b, off, len);
+            if (impl != null)
+                impl.getOutputStream().write(b, off, len);
         }
 
         @Override
         public void write(@NonNull final byte[] b) throws IOException {
-            if (impl != null) impl.getOutputStream().write(b);
+            if (impl != null)
+                impl.getOutputStream().write(b);
         }
     };
 
@@ -224,8 +230,8 @@ public final class UartModule extends BackendModule {
             try {
                 impl.connect();
             } catch (final AdapterNotFoundException eBt) {
-                if ("*".equals(adapter)) throw new BackendException(
-                        "No UART adapters found (USB or Bluetooth)");
+                if ("*".equals(adapter))
+                    throw new BackendException("No UART adapters found (USB or Bluetooth)");
                 throw new BackendException(String.format(Locale.getDefault(),
                         "No device at `%s' found at the moment", adapter));
             }
@@ -235,7 +241,8 @@ public final class UartModule extends BackendModule {
     @Override
     public void disconnect() {
         try {
-            if (impl == null) return;
+            if (impl == null)
+                return;
             impl.disconnect();
             impl = null;
         } finally {

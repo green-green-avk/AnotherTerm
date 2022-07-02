@@ -41,7 +41,8 @@ final class UsbImpl extends Impl {
     @NonNull
     private static UsbManager getUsbManager(@NonNull final Context context) {
         final UsbManager usbManager = (UsbManager) context.getSystemService(Context.USB_SERVICE);
-        if (usbManager == null) throw new BackendException("Cannot obtain USB service");
+        if (usbManager == null)
+            throw new BackendException("Cannot obtain USB service");
         return usbManager;
     }
 
@@ -82,9 +83,10 @@ final class UsbImpl extends Impl {
         final UsbManager mgr = getUsbManager(ctx);
         final Map<String, Integer> r = new HashMap<>();
         for (final Map.Entry<String, UsbDevice> ent : mgr.getDeviceList().entrySet()) {
-            if (!UsbSerialDevice.isSupported(ent.getValue())) continue;
+            if (!UsbSerialDevice.isSupported(ent.getValue()))
+                continue;
             r.put(String.format(Locale.ROOT, "%s %s", ent.getKey(),
-                    getDeviceDesc(ent.getValue())),
+                            getDeviceDesc(ent.getValue())),
                     activeDevices.contains(ent.getValue()) ?
                             BackendModule.Meta.ADAPTER_ALREADY_IN_USE
                             : BackendModule.Meta.ADAPTER_READY);
@@ -144,7 +146,8 @@ final class UsbImpl extends Impl {
     private final BroadcastReceiver mUsbReceiver = new BroadcastReceiver() {
         public void onReceive(final Context context, @NonNull final Intent intent) {
             final String action = intent.getAction();
-            if (action == null) return;
+            if (action == null)
+                return;
             switch (action) {
                 case ACTION_USB_PERMISSION:
                     usbAccessGranted.set(intent.getBooleanExtra(
@@ -192,16 +195,20 @@ final class UsbImpl extends Impl {
         final Map<String, UsbDevice> devs = usbManager.getDeviceList();
         if (!"*".equals(base.adapter)) {
             final UsbDevice dev = devs.get(base.adapter);
-            if (dev == null) throw new UartModule.AdapterNotFoundException();
+            if (dev == null)
+                throw new UartModule.AdapterNotFoundException();
             if (!UsbSerialDevice.isSupported(dev))
                 throw new BackendException("Device is not supported");
-            if (activeDevices.contains(dev)) throw new BackendException("Device is busy");
+            if (activeDevices.contains(dev))
+                throw new BackendException("Device is busy");
             device = dev;
             return;
         }
         for (final UsbDevice dev : devs.values()) {
-            if (!UsbSerialDevice.isSupported(dev)) continue;
-            if (activeDevices.contains(dev)) continue;
+            if (!UsbSerialDevice.isSupported(dev))
+                continue;
+            if (activeDevices.contains(dev))
+                continue;
             device = dev;
             return;
         }
@@ -291,7 +298,8 @@ final class UsbImpl extends Impl {
     @Override
     void connect() throws UartModule.AdapterNotFoundException {
         synchronized (commonLock) {
-            if (mIsConnecting) return;
+            if (mIsConnecting)
+                return;
             mIsConnecting = true;
             try {
                 synchronized (deviceLock) {
@@ -314,21 +322,25 @@ final class UsbImpl extends Impl {
             makeConnection(false);
             mIsConnected = true;
         }
-        if (base.isAcquireWakeLockOnConnect()) base.acquireWakeLock();
+        if (base.isAcquireWakeLockOnConnect())
+            base.acquireWakeLock();
     }
 
     private void tmpDisconnect() {
         synchronized (commonLock) {
-            if (serialPort != null) serialPort.close();
+            if (serialPort != null)
+                serialPort.close();
             serialPort = null;
-            if (connection != null) connection.close();
+            if (connection != null)
+                connection.close();
             connection = null;
         }
     }
 
     @Override
     void disconnect() {
-        if (!mIsConnecting) return;
+        if (!mIsConnecting)
+            return;
         mIsConnInt = true;
         usbAccessGranted.set(false);
         synchronized (commonLock) {
@@ -336,7 +348,8 @@ final class UsbImpl extends Impl {
             mIsConnected = false;
             activeDevices.remove(device);
             tmpDisconnect();
-            if (device != null) device = null;
+            if (device != null)
+                device = null;
             try {
                 base.getContext().unregisterReceiver(mUsbReceiver);
             } catch (final IllegalArgumentException ignored) {
