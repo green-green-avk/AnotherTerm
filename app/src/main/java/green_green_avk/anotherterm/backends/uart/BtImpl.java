@@ -59,7 +59,8 @@ final class BtImpl extends Impl {
         }
 
         @Override
-        public void write(@NonNull final byte[] b, final int off, final int len) throws IOException {
+        public void write(@NonNull final byte[] b, final int off, final int len)
+                throws IOException {
             final OutputStream out = spp.getOutput();
             if (out != null && spp.isConnected()) {
                 out.write(b, off, len);
@@ -98,14 +99,16 @@ final class BtImpl extends Impl {
         if (!"*".equals(base.adapter)) {
             for (final BluetoothDevice dev : list) {
                 if (base.adapter.equals(dev.getAddress())) {
-                    if (activeDevices.contains(dev)) throw new BackendException("Device is busy");
+                    if (activeDevices.contains(dev))
+                        throw new BackendException("Device is busy");
                     return dev;
                 }
             }
             throw new UartModule.AdapterNotFoundException();
         }
         for (final BluetoothDevice dev : list) {
-            if (activeDevices.contains(dev)) continue;
+            if (activeDevices.contains(dev))
+                continue;
             return dev;
         }
         throw new UartModule.AdapterNotFoundException();
@@ -128,10 +131,12 @@ final class BtImpl extends Impl {
                 return;
             }
             while (true) {
-                if (!spp.isConnected()) return;
+                if (!spp.isConnected())
+                    return;
                 try {
                     final int r = in.read(buf);
-                    if (r < 0) return;
+                    if (r < 0)
+                        return;
                     out.write(buf, 0, r);
                 } catch (final IOException e) {
                     base.reportError(e);
@@ -150,12 +155,14 @@ final class BtImpl extends Impl {
                 device = obtainDevice();
                 activeDevices.add(device);
             }
-            if (base.isAcquireWakeLockOnConnect()) base.acquireWakeLock();
+            if (base.isAcquireWakeLockOnConnect())
+                base.acquireWakeLock();
             try {
                 spp.connect(device, base.insecure);
             } catch (final IOException e) {
                 activeDevices.remove(device);
-                if (base.isReleaseWakeLockOnDisconnect()) base.releaseWakeLock();
+                if (base.isReleaseWakeLockOnDisconnect())
+                    base.releaseWakeLock();
                 throw new BackendException(e.getMessage());
             }
             readerThread = new Thread(reader);
@@ -167,7 +174,8 @@ final class BtImpl extends Impl {
     @Override
     void disconnect() {
         synchronized (commonLock) {
-            if (!spp.isConnected()) return;
+            if (!spp.isConnected())
+                return;
             try {
                 spp.disconnect();
             } catch (final IOException e) {
@@ -192,7 +200,8 @@ final class BtImpl extends Impl {
 
     @Override
     protected void finalize() throws Throwable {
-        if (device != null) activeDevices.remove(device);
+        if (device != null)
+            activeDevices.remove(device);
         super.finalize();
     }
 }
