@@ -185,7 +185,7 @@ final class UsbImpl extends Impl {
         }
     };
 
-    private final BlockingSync<Boolean> usbAccessGranted = new BlockingSync<>();
+    private final BlockingSync<Object> usbAccessGranted = new BlockingSync<>();
 
     private void obtainDevice() throws UartModule.AdapterNotFoundException {
         final UsbManager usbManager = getUsbManager(base.getContext());
@@ -217,11 +217,18 @@ final class UsbImpl extends Impl {
             usbAccessGranted.clear();
             if (mIsConnInt)
                 return; // Interrupted by disconnect
-            new Handler(Looper.getMainLooper()).post(() -> usbManager.requestPermission(device,
-                    PendingIntent.getBroadcast(base.getContext(), 0,
-                            new Intent(ACTION_USB_PERMISSION), 0)));
+            new Handler(Looper.getMainLooper()).post(() -> {
+                try {
+                    usbManager.requestPermission(device,
+                            PendingIntent.getBroadcast(base.getContext(), 0,
+                                    new Intent(ACTION_USB_PERMISSION), 0));
+                } catch (final Exception e) {
+                    usbAccessGranted.set(e);
+                }
+            });
             try {
-                if (!usbAccessGranted.get()) {
+                final Object usbAccessStatus = usbAccessGranted.get();
+                if (Boolean.FALSE.equals(usbAccessStatus)) {
                     if (mIsConnInt)
                         return; // Interrupted by disconnect
                     if (reconnect) {
@@ -231,6 +238,9 @@ final class UsbImpl extends Impl {
                         return;
                     }
                     throw new BackendException("Permission denied for device " + device);
+                } else if (usbAccessStatus instanceof Throwable) {
+                    throw new BackendException("Permission denied for device " + device +
+                            " due to " + ((Throwable) usbAccessStatus).getLocalizedMessage());
                 }
             } catch (final InterruptedException e) {
                 throw new BackendException("UI request interrupted");
