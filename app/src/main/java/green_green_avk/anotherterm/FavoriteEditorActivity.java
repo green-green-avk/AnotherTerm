@@ -305,7 +305,7 @@ public final class FavoriteEditorActivity extends AppCompatActivity {
 
     private void removeOptions() {
         if (mCurrMSL != null) {
-            mPrefs.clear();
+            mPrefs.removeBranches();
             mContainer.removeView(mCurrMSL);
             mCurrMSL = null;
         }
