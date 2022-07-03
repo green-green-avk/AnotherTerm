@@ -142,6 +142,13 @@ public final class RawPreferenceUiWrapper implements PreferenceUiWrapper {
         delayedInitNum = 0;
     }
 
+    public void removeBranches() {
+        views.clear();
+        fieldOpts.clear();
+        defaults.clear();
+        delayedInitNum = 0;
+    }
+
     public void addBranch(@NonNull final View root) {
         delayedInitDone = false;
         setupViews(root);
