@@ -143,7 +143,7 @@ dependencies {
     implementation project(path: ':jsch')
     implementation project(path: ':TelnetClient')
 
-    implementation 'com.github.green-green-avk:libusbmanager:1.5'
+    implementation 'com.github.green-green-avk:libusbmanager:1.6'
 
     implementation 'com.github.green-green-avk:anothertermshellpluginutils:1.15'
     implementation 'com.github.green-green-avk:anothertermshellpluginutils-side-application:1.0'
