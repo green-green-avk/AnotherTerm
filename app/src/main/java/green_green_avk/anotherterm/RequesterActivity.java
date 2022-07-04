@@ -76,10 +76,11 @@ public final class RequesterActivity extends AppCompatActivity {
 
     private static PendingIntent makeOwnPendingIntent(@NonNull final Context ctx,
                                                       @NonNull final Intent ownIntent) {
-        return PendingIntent.getActivity(ctx, ownIntent.getIntExtra(C.IFK_MSG_ID, 0),
+        return PendingIntent.getActivity(ctx,
+                ownIntent.getIntExtra(C.IFK_MSG_ID, 0),
                 ownIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK
                         | Intent.FLAG_ACTIVITY_MULTIPLE_TASK),
-                PendingIntent.FLAG_UPDATE_CURRENT);
+                PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_IMMUTABLE);
     }
 
     private static Notification makeOwnNotification(@NonNull final Context ctx,
