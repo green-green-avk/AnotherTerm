@@ -1,6 +1,7 @@
 package green_green_avk.anotherterm;
 
 import android.annotation.SuppressLint;
+import android.app.Activity;
 import android.app.Fragment;
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -16,6 +17,7 @@ import android.widget.CompoundButton;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -29,12 +31,13 @@ import java.io.OutputStream;
 import green_green_avk.anotherterm.utils.Misc;
 
 public final class CustomFontsFragment extends Fragment {
+    private static final int FONT_TYPES = 4;
+    private static final int IDS_OFFSET_FONT = 1;
 
-    private static final class Adapter extends RecyclerView.Adapter<Adapter.ViewHolder> {
+    private final class Adapter extends RecyclerView.Adapter<Adapter.ViewHolder> {
+        private final Typeface[] typefaces = new Typeface[FONT_TYPES];
 
-        private final Typeface[] typefaces = new Typeface[4];
-
-        private void refresh() {
+        public void refresh() {
             FontsManager.loadFromFilesFb(typefaces, FontsManager.getConsoleFontFiles());
             notifyItemRangeChanged(0, getItemCount());
         }
@@ -72,50 +75,10 @@ public final class CustomFontsFragment extends Fragment {
             wSet.setEnabled(canBeSet);
             wSet.setVisibility(canBeSet ? View.VISIBLE : View.INVISIBLE);
             wSet.setOnClickListener(v -> {
-                @SuppressLint("StaticFieldLeak") final RequesterActivity.OnResult
-                        onResult = result -> {
-                    if (result == null) return;
-                    final Uri uri = result.getData();
-                    if (uri == null) return;
-                    FontsManager.prepareConsoleFontDir(true);
-                    final InputStream is;
-                    final OutputStream os;
-                    try {
-                        is = v.getContext().getContentResolver().openInputStream(uri);
-                        if (is == null) return;
-                        os = new FileOutputStream(FontsManager.getConsoleFontFiles()[position]);
-                    } catch (final FileNotFoundException e) {
-                        return;
-                    }
-                    new AsyncTask<Object, Object, Object>() {
-                        @Override
-                        protected Object doInBackground(final Object... objects) {
-                            try {
-                                Misc.copy(os, is);
-                            } catch (final IOException ignored) {
-                            } finally {
-                                try {
-                                    is.close();
-                                } catch (final IOException ignored) {
-                                }
-                                try {
-                                    os.close();
-                                } catch (final IOException ignored) {
-                                }
-                            }
-                            return null;
-                        }
-
-                        @Override
-                        protected void onPostExecute(final Object o) {
-                            refresh(); // TODO: Correct this pattern - not good.
-                        }
-                    }.execute();
-                };
                 final Intent i = new Intent(Intent.ACTION_GET_CONTENT)
                         .addCategory(Intent.CATEGORY_OPENABLE).setType("*/*");
-                RequesterActivity.request(
-                        v.getContext(), Intent.createChooser(i, "Pick a font"), onResult);
+                startActivityForResult(Intent.createChooser(i, "Pick a font"),
+                        position + IDS_OFFSET_FONT);
             });
             wUnset.setEnabled(canBeRemoved);
             wUnset.setVisibility(canBeRemoved ? View.VISIBLE : View.INVISIBLE);
@@ -132,22 +95,83 @@ public final class CustomFontsFragment extends Fragment {
             return typefaces.length;
         }
 
-        private static final class ViewHolder extends RecyclerView.ViewHolder {
+        private final class ViewHolder extends RecyclerView.ViewHolder {
             private ViewHolder(@NonNull final View itemView) {
                 super(itemView);
             }
         }
     }
 
+    private Adapter adapter = null;
+
+    private void refresh() {
+        final Adapter a = adapter;
+        if (a != null)
+            a.refresh();
+    }
+
+    @SuppressLint("StaticFieldLeak")
+    private void onFontPicked(final int fontPos, @Nullable final Uri uri) {
+        if (uri == null)
+            return;
+        FontsManager.prepareConsoleFontDir(true);
+        final InputStream is;
+        final OutputStream os;
+        try {
+            is = getActivity().getContentResolver().openInputStream(uri);
+            if (is == null)
+                return;
+            os = new FileOutputStream(FontsManager.getConsoleFontFiles()[fontPos]);
+        } catch (final FileNotFoundException e) {
+            return;
+        }
+        new AsyncTask<Object, Object, Object>() {
+            @Override
+            protected Object doInBackground(final Object... objects) {
+                try {
+                    Misc.copy(os, is);
+                } catch (final IOException ignored) {
+                } finally {
+                    try {
+                        is.close();
+                    } catch (final IOException ignored) {
+                    }
+                    try {
+                        os.close();
+                    } catch (final IOException ignored) {
+                    }
+                }
+                return null;
+            }
+
+            @Override
+            protected void onPostExecute(final Object o) {
+                refresh(); // TODO: Suppose this task fast-running at the moment...
+            }
+        }.execute();
+    }
+
+    @Override
+    public void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        if (resultCode != Activity.RESULT_OK || data == null)
+            return;
+        if (requestCode >= IDS_OFFSET_FONT && requestCode < (IDS_OFFSET_FONT + FONT_TYPES))
+            onFontPicked(requestCode - IDS_OFFSET_FONT, data.getData());
+    }
+
     @Override
     public View onCreateView(final LayoutInflater inflater, final ViewGroup container,
                              final Bundle savedInstanceState) {
-        final View v = inflater.inflate(R.layout.custom_fonts_fragment, container, false);
+        final View v = inflater.inflate(R.layout.custom_fonts_fragment,
+                container, false);
         final TextView wLocation = v.findViewById(R.id.location);
         final RecyclerView wFont = v.findViewById(R.id.font);
         final CompoundButton wUse = v.findViewById(R.id.use);
         wFont.setLayoutManager(new LinearLayoutManager(container.getContext()));
-        wFont.setAdapter(new Adapter());
+        final Adapter a = new Adapter();
+        wFont.setAdapter(a);
+        adapter = a;
         final SharedPreferences appSP = PreferenceManager.getDefaultSharedPreferences(
                 container.getContext().getApplicationContext());
         wUse.setChecked(((App) getActivity().getApplication()).settings
