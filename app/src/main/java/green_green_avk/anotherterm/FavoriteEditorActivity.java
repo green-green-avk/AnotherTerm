@@ -18,7 +18,6 @@ import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.appcompat.app.AppCompatActivity;
 
 import java.io.Serializable;
 import java.nio.charset.Charset;
@@ -31,6 +30,7 @@ import java.util.UUID;
 
 import green_green_avk.anotherterm.backends.BackendModule;
 import green_green_avk.anotherterm.backends.BackendsList;
+import green_green_avk.anotherterm.ui.ExtAppCompatActivity;
 import green_green_avk.anotherterm.ui.UiUtils;
 import green_green_avk.anotherterm.ui.ViewValueListener;
 import green_green_avk.anotherterm.utils.BooleanCaster;
@@ -39,7 +39,9 @@ import green_green_avk.anotherterm.utils.PreferenceUiWrapper;
 import green_green_avk.anotherterm.utils.RawPreferenceUiWrapper;
 import green_green_avk.anotherterm.whatsnew.WhatsNewDialog;
 
-public final class FavoriteEditorActivity extends AppCompatActivity {
+// TODO: Refactor!!!
+
+public final class FavoriteEditorActivity extends ExtAppCompatActivity {
     private static final int INITIAL_TYPE_ID = 0;
 
     private static final List<String> TERM_COMPLIANCE_KEYS = Arrays.asList("ansi", "vt52compat");

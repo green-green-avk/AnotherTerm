@@ -29,7 +29,6 @@ import androidx.core.view.ViewCompat;
 
 import green_green_avk.anotherterm.BuildConfig;
 import green_green_avk.anotherterm.R;
-import green_green_avk.anotherterm.RequesterActivity;
 
 public class FilePickerView extends LinearLayoutCompat implements ParameterView<Uri> {
     public String title = "Pick a file";
@@ -53,6 +52,29 @@ public class FilePickerView extends LinearLayoutCompat implements ParameterView<
     private final AppCompatImageButton wSet;
     private final AppCompatImageButton wUnset;
 
+    private final RequesterCompatDelegate.ActivityResultCallback onFilePicked =
+            (resultCode, data) -> {
+                if (data == null)
+                    return;
+                final Uri uri = data.getData();
+                if (uri == null)
+                    return;
+                this.uri = uri;
+                refresh();
+                if (android.os.Build.VERSION.SDK_INT >=
+                        android.os.Build.VERSION_CODES.KITKAT) {
+                    try {
+                        getContext().getContentResolver()
+                                .takePersistableUriPermission(uri,
+                                        Intent.FLAG_GRANT_READ_URI_PERMISSION);
+                    } catch (final Exception e) {
+                        if (BuildConfig.DEBUG)
+                            Log.w(this.getClass().getSimpleName(), e);
+                    }
+                }
+                doOnValueChanged();
+            };
+
     {
         setOrientation(HORIZONTAL);
         wText = (AppCompatTextView) LayoutInflater.from(getContext())
@@ -62,34 +84,15 @@ public class FilePickerView extends LinearLayoutCompat implements ParameterView<
                 .inflate(R.layout.parameter_button, this, false);
         wSet.setImageResource(R.drawable.ic_edit);
         wSet.setContentDescription(getResources().getString(R.string.action_set));
+        final ExtAppCompatActivity activity = ExtAppCompatActivity.getByContext(getContext());
+        activity.activityRequester.checkOnResume(getTag(), onFilePicked);
         wSet.setOnClickListener(view -> {
             final Intent i = new Intent(android.os.Build.VERSION.SDK_INT >=
                     android.os.Build.VERSION_CODES.KITKAT ?
                     Intent.ACTION_OPEN_DOCUMENT : Intent.ACTION_GET_CONTENT)
                     .addCategory(Intent.CATEGORY_OPENABLE).setType(mimeType);
-            RequesterActivity.request(getContext(),
-                    Intent.createChooser(i, title),
-                    result -> {
-                        if (result == null)
-                            return;
-                        final Uri uri = result.getData();
-                        if (uri == null)
-                            return;
-                        this.uri = uri;
-                        refresh();
-                        if (android.os.Build.VERSION.SDK_INT >=
-                                android.os.Build.VERSION_CODES.KITKAT) {
-                            try {
-                                getContext().getContentResolver()
-                                        .takePersistableUriPermission(uri,
-                                                Intent.FLAG_GRANT_READ_URI_PERMISSION);
-                            } catch (final Exception e) {
-                                if (BuildConfig.DEBUG)
-                                    Log.w(this.getClass().getSimpleName(), e);
-                            }
-                        }
-                        doOnValueChanged();
-                    });
+            activity.activityRequester.launch(getTag(),
+                    Intent.createChooser(i, title), onFilePicked);
         });
         wUnset = (AppCompatImageButton) LayoutInflater.from(getContext())
                 .inflate(R.layout.parameter_button, this, false);
