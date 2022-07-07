@@ -183,8 +183,9 @@ public final class FontsManager {
     private static Typeface loadFromFile(@NonNull final File file) {
         if (file.isFile() && file.canRead())
             try {
-                return Typeface.createFromFile(file);
-            } catch (final RuntimeException ignored) {
+                final Typeface r = Typeface.createFromFile(file);
+                return r != Typeface.DEFAULT ? r : null;
+            } catch (final Exception ignored) {
             }
         return null;
     }
