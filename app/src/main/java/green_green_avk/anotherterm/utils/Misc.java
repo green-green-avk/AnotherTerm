@@ -59,7 +59,7 @@ public final class Misc {
             return ArrayUtils.EMPTY_BYTE_ARRAY;
         if (n == 1)
             return v;
-        byte[] r = Arrays.copyOf(v, v.length * n);
+        final byte[] r = Arrays.copyOf(v, v.length * n);
         for (long l = v.length; l != 0 && l < r.length; l <<= 1)
             System.arraycopy(r, 0, r, (int) l, (int) Math.min(l, r.length - l));
         return r;

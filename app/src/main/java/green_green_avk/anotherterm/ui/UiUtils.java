@@ -32,10 +32,11 @@ import androidx.appcompat.content.res.AppCompatResources;
 import androidx.core.app.ShareCompat;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Locale;
 import java.util.NoSuchElementException;
-import java.util.Stack;
 
 import green_green_avk.anotherterm.LinksProvider;
 import green_green_avk.anotherterm.R;
@@ -256,7 +257,7 @@ public final class UiUtils {
     public static Iterable<View> getIterable(@Nullable final View root) {
         return () -> new Iterator<View>() {
             private View v = root;
-            private final Stack<Integer> ii = new Stack<>(); // a little optimization
+            private final List<Integer> ii = new ArrayList<>();
 
             @Override
             public boolean hasNext() {
@@ -269,7 +270,7 @@ public final class UiUtils {
                 final View r = v;
                 if (v instanceof ViewGroup) {
                     v = ((ViewGroup) v).getChildAt(0);
-                    ii.push(0);
+                    ii.add(0);
                 } else {
                     while (true) {
                         if (v == root) {
@@ -277,13 +278,13 @@ public final class UiUtils {
                             break;
                         }
                         final ViewGroup p = (ViewGroup) v.getParent();
-                        final int i = ii.pop() + 1;
+                        final int i = ii.remove(ii.size() - 1) + 1;
                         if (p.getChildCount() == i) {
                             v = p;
                             continue;
                         }
                         v = p.getChildAt(i);
-                        ii.push(i);
+                        ii.add(i);
                         break;
                     }
                 }
