@@ -1099,12 +1099,14 @@ public final class ConsoleScreenBuffer {
         Row row;
         if (wrap && x == mWidth) {
             row = getRowForWrite(y);
-            if (row != null) row.wrapPos = mWidth;
+            if (row != null)
+                row.wrapPos = mWidth;
         }
         y = moveScrollPosY(y, x / mWidth);
         x %= mWidth;
         row = getRowForWrite(y);
-        if (row == null) return 0;
+        if (row == null)
+            return 0;
         final CharBuffer buf = s.duplicate();
         int endX = Unicode.getScreenLength(buf, buf.remaining()) + x;
         int len;

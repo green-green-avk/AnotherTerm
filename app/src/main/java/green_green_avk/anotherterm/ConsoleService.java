@@ -147,10 +147,10 @@ public final class ConsoleService extends Service {
     @UiThread
     @NonNull
     private static BackendModule createBackend(@NonNull final Map<String, ?> cp) {
-        final Class<?> klass = getBackendByParams(cp).impl;
+        final Class<? extends BackendModule> klass = getBackendByParams(cp).impl;
         final BackendModule tbe;
         try {
-            tbe = (BackendModule) klass.newInstance();
+            tbe = klass.newInstance();
         } catch (final IllegalAccessException e) {
             throw new Exception(EMSG_NI_CONNTYPE);
         } catch (final InstantiationException e) {

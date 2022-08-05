@@ -323,9 +323,12 @@ public final class Unicode {
     }
 
     public static int stepBack(@NonNull final char[] buf, final int startLimit, final int ptr) {
-        if (ptr < startLimit + 1) return ptr;
-        if (ptr == startLimit + 1) return startLimit;
-        if (Character.isSurrogatePair(buf[ptr - 2], buf[ptr - 1])) return ptr - 2;
+        if (ptr < startLimit + 1)
+            return ptr;
+        if (ptr == startLimit + 1)
+            return startLimit;
+        if (Character.isSurrogatePair(buf[ptr - 2], buf[ptr - 1]))
+            return ptr - 2;
         return ptr - 1;
     }
 
