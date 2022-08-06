@@ -29,30 +29,21 @@ EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 package com.jcraft.jsch.jce;
 
-import com.jcraft.jsch.HASH;
-
 import java.security.MessageDigest;
 
-public class MD5 implements HASH {
-    MessageDigest md;
-
+public final class MD5 extends HASH {
+    @Override
     public int getBlockSize() {
         return 16;
     }
 
+    @Override
     public void init() throws Exception {
-        try {
-            md = MessageDigest.getInstance("MD5");
-        } catch (Exception e) {
-            System.err.println(e);
-        }
+        md = MessageDigest.getInstance("MD5");
     }
 
-    public void update(byte[] foo, int start, int len) throws Exception {
-        md.update(foo, start, len);
-    }
-
-    public byte[] digest() throws Exception {
-        return md.digest();
+    @Override
+    public String name() {
+        return "MD5";
     }
 }

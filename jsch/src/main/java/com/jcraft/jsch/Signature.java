@@ -30,6 +30,15 @@ EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 package com.jcraft.jsch;
 
 public interface Signature {
+    /**
+     * Tests for availability.
+     *
+     * @throws Exception
+     */
+    default void check() throws Exception {
+        init();
+    }
+
     void init() throws Exception;
 
     void update(byte[] H) throws Exception;

@@ -38,8 +38,9 @@ import java.security.interfaces.ECPublicKey;
 import java.security.spec.ECGenParameterSpec;
 import java.security.spec.ECParameterSpec;
 import java.security.spec.ECPoint;
+import java.util.Arrays;
 
-public class KeyPairGenECDSA implements com.jcraft.jsch.KeyPairGenECDSA {
+public final class KeyPairGenECDSA implements com.jcraft.jsch.KeyPairGenECDSA {
     byte[] d;
     byte[] r;
     byte[] s;
@@ -47,23 +48,33 @@ public class KeyPairGenECDSA implements com.jcraft.jsch.KeyPairGenECDSA {
     ECPrivateKey prvKey;
     ECParameterSpec params;
 
-    public void init(int key_size) throws Exception {
-        String name = null;
-        if (key_size == 256) name = "secp256r1";
-        else if (key_size == 384) name = "secp384r1";
-        else if (key_size == 521) name = "secp521r1";
-        else throw new JSchException("unsupported key size: " + key_size);
+    @Override
+    public void init(final int key_size) throws Exception {
+        final String name;
+        switch (key_size) {
+            case 256:
+                name = "secp256r1";
+                break;
+            case 384:
+                name = "secp384r1";
+                break;
+            case 521:
+                name = "secp521r1";
+                break;
+            default:
+                throw new JSchException("unsupported key size: " + key_size);
+        }
 
         for (int i = 0; i < 1000; i++) {
-            KeyPairGenerator kpg = KeyPairGenerator.getInstance("EC");
-            ECGenParameterSpec ecsp = new ECGenParameterSpec(name);
+            final KeyPairGenerator kpg = KeyPairGenerator.getInstance("EC");
+            final ECGenParameterSpec ecsp = new ECGenParameterSpec(name);
             kpg.initialize(ecsp);
-            KeyPair kp = kpg.genKeyPair();
+            final KeyPair kp = kpg.genKeyPair();
             prvKey = (ECPrivateKey) kp.getPrivate();
             pubKey = (ECPublicKey) kp.getPublic();
             params = pubKey.getParams();
-            d = ((ECPrivateKey) prvKey).getS().toByteArray();
-            ECPoint w = pubKey.getW();
+            d = prvKey.getS().toByteArray();
+            final ECPoint w = pubKey.getW();
             r = w.getAffineX().toByteArray();
             s = w.getAffineY().toByteArray();
 
@@ -77,14 +88,17 @@ public class KeyPairGenECDSA implements com.jcraft.jsch.KeyPairGenECDSA {
         }
     }
 
+    @Override
     public byte[] getD() {
         return d;
     }
 
+    @Override
     public byte[] getR() {
         return r;
     }
 
+    @Override
     public byte[] getS() {
         return s;
     }
@@ -97,23 +111,25 @@ public class KeyPairGenECDSA implements com.jcraft.jsch.KeyPairGenECDSA {
         return prvKey;
     }
 
-    private byte[] insert0(byte[] buf) {
-//    if ((buf[0] & 0x80) == 0) return buf;
-        byte[] tmp = new byte[buf.length + 1];
+    private byte[] insert0(final byte[] buf) {
+//        if ((buf[0] & 0x80) == 0)
+//            return buf;
+        final byte[] tmp = new byte[buf.length + 1];
         System.arraycopy(buf, 0, tmp, 1, buf.length);
         bzero(buf);
         return tmp;
     }
 
-    private byte[] chop0(byte[] buf) {
-        if (buf[0] != 0 || (buf[1] & 0x80) == 0) return buf;
-        byte[] tmp = new byte[buf.length - 1];
+    private byte[] chop0(final byte[] buf) {
+        if (buf[0] != 0 || (buf[1] & 0x80) == 0)
+            return buf;
+        final byte[] tmp = new byte[buf.length - 1];
         System.arraycopy(buf, 1, tmp, 0, tmp.length);
         bzero(buf);
         return tmp;
     }
 
-    private void bzero(byte[] buf) {
-        for (int i = 0; i < buf.length; i++) buf[i] = 0;
+    private void bzero(final byte[] buf) {
+        Arrays.fill(buf, (byte) 0);
     }
 }

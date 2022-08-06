@@ -31,26 +31,19 @@ package com.jcraft.jsch.jce;
 
 import java.security.MessageDigest;
 
-public class SHA512 implements com.jcraft.jsch.HASH {
-    MessageDigest md;
-
+public final class SHA512 extends HASH {
+    @Override
     public int getBlockSize() {
         return 64;
     }
 
+    @Override
     public void init() throws Exception {
-        try {
-            md = MessageDigest.getInstance("SHA-512");
-        } catch (Exception e) {
-            System.err.println(e);
-        }
+        md = MessageDigest.getInstance("SHA-512");
     }
 
-    public void update(byte[] foo, int start, int len) throws Exception {
-        md.update(foo, start, len);
-    }
-
-    public byte[] digest() throws Exception {
-        return md.digest();
+    @Override
+    public String name() {
+        return "SHA512";
     }
 }

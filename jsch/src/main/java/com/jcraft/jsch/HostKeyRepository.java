@@ -30,12 +30,12 @@ EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 package com.jcraft.jsch;
 
 public interface HostKeyRepository {
-    final int OK = 0;
-    final int NOT_INCLUDED = 1;
-    final int CHANGED = 2;
+    int OK = 0;
+    int NOT_INCLUDED = 1;
+    int CHANGED = 2;
 
     /**
-     * Checks if <code>host</code> is included with the <code>key</code>.
+     * Checks if {@code host} is included with the {@code key}.
      *
      * @return #NOT_INCLUDED, #OK or #CHANGED
      * @see #NOT_INCLUDED
@@ -45,7 +45,7 @@ public interface HostKeyRepository {
     int check(String host, byte[] key);
 
     /**
-     * Adds a host key <code>hostkey</code>
+     * Adds a host key {@code hostkey}
      *
      * @param hostkey a host key to be added
      * @param ui      a user interface for showing messages or promping inputs.
@@ -55,7 +55,7 @@ public interface HostKeyRepository {
 
     /**
      * Removes a host key if there exists mached key with
-     * <code>host</code>, <code>type</code>.
+     * {@code host}, {@code type}.
      *
      * @see #remove(String host, String type, byte[] key)
      */
@@ -63,7 +63,7 @@ public interface HostKeyRepository {
 
     /**
      * Removes a host key if there exists a matched key with
-     * <code>host</code>, <code>type</code> and <code>key</code>.
+     * {@code host}, {@code type} and {@code key}.
      */
     void remove(String host, String type, byte[] key);
 
@@ -85,10 +85,10 @@ public interface HostKeyRepository {
      * Retuns a list for host keys managed in this repository.
      *
      * @param host a hostname used in searching host keys.
-     *             If <code>null</code> is given, every host key will be listed.
+     *             If {@code null} is given, every host key will be listed.
      * @param type a key type used in searching host keys,
      *             and it should be "ssh-dss" or "ssh-rsa".
-     *             If <code>null</code> is given, a key type type will not be ignored.
+     *             If {@code null} is given, a key type type will not be ignored.
      */
     HostKey[] getHostKey(String host, String type);
 }

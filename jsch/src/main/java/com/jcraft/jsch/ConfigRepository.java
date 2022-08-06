@@ -31,44 +31,50 @@ package com.jcraft.jsch;
 
 public interface ConfigRepository {
 
-    public Config getConfig(String host);
+    Config getConfig(String host);
 
-    public interface Config {
-        public String getHostname();
+    interface Config {
+        String getHostname();
 
-        public String getUser();
+        String getUser();
 
-        public int getPort();
+        int getPort();
 
-        public String getValue(String key);
+        String getValue(String key);
 
-        public String[] getValues(String key);
+        String[] getValues(String key);
     }
 
-    static final Config defaultConfig = new Config() {
+    Config defaultConfig = new Config() {
+        @Override
         public String getHostname() {
             return null;
         }
 
+        @Override
         public String getUser() {
             return null;
         }
 
+        @Override
         public int getPort() {
             return -1;
         }
 
-        public String getValue(String key) {
+        @Override
+        public String getValue(final String key) {
             return null;
         }
 
-        public String[] getValues(String key) {
+        @Override
+        public String[] getValues(final String key) {
             return null;
         }
     };
 
-    static final ConfigRepository nullConfig = new ConfigRepository() {
-        public Config getConfig(String host) {
+    ConfigRepository nullConfig = new ConfigRepository() {
+        @Override
+        public Config getConfig(final String host) {
             return defaultConfig;
         }
     };

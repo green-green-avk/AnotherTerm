@@ -29,7 +29,7 @@ EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 package com.jcraft.jsch;
 
-public class DHEC384 extends DHECN {
+final class DHEC384 extends DHECN {
     public DHEC384() {
         sha_name = "sha-384";
         key_size = 384;

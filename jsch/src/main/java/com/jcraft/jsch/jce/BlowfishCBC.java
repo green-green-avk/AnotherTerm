@@ -39,46 +39,49 @@ public class BlowfishCBC implements Cipher {
     private static final int bsize = 16;
     private javax.crypto.Cipher cipher;
 
+    @Override
     public int getIVSize() {
         return ivsize;
     }
 
+    @Override
     public int getBlockSize() {
         return bsize;
     }
 
-    public void init(int mode, byte[] key, byte[] iv) throws Exception {
-        String pad = "NoPadding";
+    @Override
+    public void init(final int mode, byte[] key, byte[] iv) throws Exception {
+        final String pad = "NoPadding";
 //  if(padding) pad="PKCS5Padding";
-        byte[] tmp;
         if (iv.length > ivsize) {
-            tmp = new byte[ivsize];
+            final byte[] tmp = new byte[ivsize];
             System.arraycopy(iv, 0, tmp, 0, tmp.length);
             iv = tmp;
         }
         if (key.length > bsize) {
-            tmp = new byte[bsize];
+            final byte[] tmp = new byte[bsize];
             System.arraycopy(key, 0, tmp, 0, tmp.length);
             key = tmp;
         }
         try {
-            SecretKeySpec skeySpec = new SecretKeySpec(key, "Blowfish");
+            final SecretKeySpec skeySpec = new SecretKeySpec(key, "Blowfish");
             cipher = javax.crypto.Cipher.getInstance("Blowfish/CBC/" + pad);
-            synchronized (javax.crypto.Cipher.class) {
-                cipher.init((mode == ENCRYPT_MODE ?
-                                javax.crypto.Cipher.ENCRYPT_MODE :
-                                javax.crypto.Cipher.DECRYPT_MODE),
-                        skeySpec, new IvParameterSpec(iv));
-            }
-        } catch (Exception e) {
+            cipher.init((mode == ENCRYPT_MODE ?
+                            javax.crypto.Cipher.ENCRYPT_MODE :
+                            javax.crypto.Cipher.DECRYPT_MODE),
+                    skeySpec, new IvParameterSpec(iv));
+        } catch (final Exception e) {
             throw e;
         }
     }
 
-    public void update(byte[] foo, int s1, int len, byte[] bar, int s2) throws Exception {
+    @Override
+    public void update(final byte[] foo, final int s1, final int len, final byte[] bar, final int s2)
+            throws Exception {
         cipher.update(foo, s1, len, bar, s2);
     }
 
+    @Override
     public boolean isCBC() {
         return true;
     }

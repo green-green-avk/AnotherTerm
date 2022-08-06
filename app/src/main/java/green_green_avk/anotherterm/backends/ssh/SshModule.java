@@ -13,9 +13,8 @@ import androidx.annotation.Nullable;
 import com.jcraft.jsch.Channel;
 import com.jcraft.jsch.ChannelExec;
 import com.jcraft.jsch.ChannelShell;
-import com.jcraft.jsch.Identity;
-import com.jcraft.jsch.IdentityRepository;
 import com.jcraft.jsch.JSch;
+import com.jcraft.jsch.JSchErrorException;
 import com.jcraft.jsch.JSchException;
 import com.jcraft.jsch.Logger;
 import com.jcraft.jsch.Session;
@@ -30,10 +29,10 @@ import java.net.URLEncoder;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.IllegalFormatException;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
-import java.util.Vector;
 import java.util.WeakHashMap;
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.regex.Matcher;
@@ -54,17 +53,44 @@ public final class SshModule extends BackendModule {
 
     private static final long CERT_FILE_SIZE_MAX = 1024 * 1024;
 
+    private static boolean fromJSchBoolOpt(@Nullable final String v) {
+        if (v == null)
+            return false;
+        switch (v.charAt(0)) {
+            case 'Y':
+            case 'y':
+            case 'T':
+            case 't':
+            case '1':
+                return true;
+        }
+        return false;
+    }
+
+    @NonNull
+    private static String toJSchBoolOpt(final boolean v) {
+        return v ? "yes" : "no";
+    }
+
     @Keep
     public static final Meta meta = new Meta(SshModule.class, "ssh") {
         @Override
         @NonNull
         public Map<String, ?> getDefaultParameters() {
             final Map<String, Object> r = new HashMap<>();
+            r.put("@jsch.cfg.kex", JSch.supportedKexSet);
             r.put("jsch.cfg.kex", JSch.getConfig("kex"));
+            r.put("@jsch.cfg.cipher", JSch.supportedCipherSet);
             r.put("jsch.cfg.cipher.s2c", JSch.getConfig("cipher.s2c"));
             r.put("jsch.cfg.cipher.c2s", JSch.getConfig("cipher.c2s"));
+            r.put("@jsch.cfg.mac", JSch.supportedMacSet);
             r.put("jsch.cfg.mac.s2c", JSch.getConfig("mac.s2c"));
             r.put("jsch.cfg.mac.c2s", JSch.getConfig("mac.c2s"));
+            r.put("@jsch.cfg.PubkeyAcceptedAlgorithms", JSch.supportedKeySet);
+            r.put("jsch.cfg.PubkeyAcceptedAlgorithms",
+                    JSch.getConfig("PubkeyAcceptedAlgorithms"));
+            r.put("jsch.cfg.enable_server_sig_algs",
+                    fromJSchBoolOpt(JSch.getConfig("enable_server_sig_algs")));
             return r;
         }
 
@@ -175,6 +201,9 @@ public final class SshModule extends BackendModule {
         private String cipher_c2s = JSch.getConfig("cipher.c2s");
         private String mac_s2c = JSch.getConfig("mac.s2c");
         private String mac_c2s = JSch.getConfig("mac.c2s");
+        private String pubkey_accepted_algorithms = JSch.getConfig("PubkeyAcceptedAlgorithms");
+        private boolean enable_server_sig_algs =
+                fromJSchBoolOpt(JSch.getConfig("enable_server_sig_algs"));
         private boolean preferKeyAuth = false;
         private Uri authKeyUri = null;
         private int keepaliveInterval = 0;
@@ -256,7 +285,6 @@ public final class SshModule extends BackendModule {
 
     public SshModule() {
         sshSessionSt = new SshSessionSt();
-        initIdentityRepo(sshSessionSt);
     }
 
     private SshModule(@NonNull final SshModule that) {
@@ -298,6 +326,12 @@ public final class SshModule extends BackendModule {
         sshSessionSt.cipher_c2s = pp.getString("jsch.cfg.cipher.c2s", sshSessionSt.cipher_c2s);
         sshSessionSt.mac_s2c = pp.getString("jsch.cfg.mac.s2c", sshSessionSt.mac_s2c);
         sshSessionSt.mac_c2s = pp.getString("jsch.cfg.mac.c2s", sshSessionSt.mac_c2s);
+        sshSessionSt.pubkey_accepted_algorithms =
+                pp.getString("jsch.cfg.PubkeyAcceptedAlgorithms",
+                        sshSessionSt.pubkey_accepted_algorithms);
+        sshSessionSt.enable_server_sig_algs =
+                pp.getBoolean("jsch.cfg.enable_server_sig_algs",
+                        sshSessionSt.enable_server_sig_algs);
         sshSessionSt.preferKeyAuth = pp.getBoolean("prefer_key_auth",
                 sshSessionSt.preferKeyAuth);
         final String authKeyUriStr = pp.getString("auth_key_uri", null);
@@ -465,56 +499,78 @@ public final class SshModule extends BackendModule {
     };
 
     private final UserInfo userInfo = new UserInfo() {
-        private String password = null;
-        private String passphrase = null;
-
-        @Override
-        public String getPassword() {
-            return password;
-        }
-
-        @Override
-        public String getPassphrase() {
-            return passphrase;
-        }
-
-        @Override
-        public boolean promptPassword(final String s) {
+        private CharSequence buildMessage(final int message, final Object... args) {
             try {
-                password = ui.promptPassword(s);
-            } catch (final InterruptedException e) {
-                throw new BackendInterruptedException(e);
-            }
-            return password != null;
-        }
-
-        @Override
-        public boolean promptPassphrase(final String s) {
-            try {
-                passphrase = ui.promptPassword(s);
-            } catch (final InterruptedException e) {
-                throw new BackendInterruptedException(e);
-            }
-            return passphrase != null;
-        }
-
-        @Override
-        public boolean promptYesNo(final String s) {
-            try {
-                return ui.promptYesNo(s);
-            } catch (final InterruptedException e) {
-                throw new BackendInterruptedException(e);
+                switch (message) {
+                    case Message.SIMPLE_MESSAGE:
+                        return (CharSequence) args[0];
+                    case Message.PASSWORD_FOR_HOST:
+                        return sshSessionSt.context.getString(
+                                R.string.msg_password_for_host_s,
+                                args);
+                    case Message.PASSPHRASE_FOR_KEY:
+                        return sshSessionSt.context.getString(
+                                R.string.msg_passphrase_for_key_s,
+                                args);
+                    case Message.REMOTE_IDENTITY_NEW_ASK_PROCEED:
+                        return sshSessionSt.context.getString(
+                                R.string.msg_ssh_remote_identity_new_ask_proceed,
+                                args);
+                    case Message.REMOTE_IDENTITY_CHANGED:
+                        return sshSessionSt.context.getString(
+                                R.string.msg_ssh_remote_identity_changed,
+                                args);
+                    case Message.REMOTE_IDENTITY_CHANGED_ASK_PROCEED:
+                        return sshSessionSt.context.getString(
+                                R.string.msg_ssh_remote_identity_changed_ask_proceed,
+                                args);
+                    default:
+                        throw new BackendException("Incoherent message from SSH library...");
+                }
+            } catch (final ClassCastException | IllegalFormatException e) {
+                throw new BackendException(e);
             }
         }
 
         @Override
-        public void showMessage(final String s) {
+        public void erase(final CharSequence v) {
+            ui.erase(v);
+        }
+
+        @Override
+        public CharSequence promptPassword(final String id,
+                                           final int message, final Object... args) {
+            final CharSequence messageStr = buildMessage(message, args);
+            try {
+                return ui.promptPassword(messageStr);
+            } catch (final InterruptedException e) {
+                throw new BackendInterruptedException(e);
+            }
+        }
+
+        @Override
+        public boolean promptYesNo(final String id,
+                                   final int message, final Object... args) {
+            final CharSequence messageStr = buildMessage(message, args);
+            try {
+                return ui.promptYesNo(messageStr);
+            } catch (final InterruptedException e) {
+                throw new BackendInterruptedException(e);
+            }
+        }
+
+        @Override
+        public void showMessage(final String id, final int message, final Object... args) {
+            ui.showMessage(buildMessage(message, args));
+        }
+
+        @Override
+        public void showMessage(final CharSequence s) {
             ui.showMessage(s);
         }
     };
 
-    // TODO: Nothing can be done with logging without per-instance implementation...
-    // TODO: Need introduce appropriate JSch changes before.
+    // TODO: per-session?
     static {
         if (BuildConfig.DEBUG)
             JSch.setLogger(new Logger() {
@@ -534,104 +590,75 @@ public final class SshModule extends BackendModule {
             });
     }
 
-    private static void initIdentityRepo(@NonNull final SshSessionSt st) {
-        final JSch jsch = st.jsch;
-        final IdentityRepository ir = jsch.getIdentityRepository();
-        jsch.setIdentityRepository(new IdentityRepository() {
-            private void prompt() {
-                byte[] key = null;
-                final Uri uri = st.authKeyUri;
-                String reason = null;
-                try {
-                    if (uri != null) {
-                        final BlockingSync<Object> result = new BlockingSync<>();
-                        ContentRequester.requestPersistent(result,
-                                ContentRequester.Type.BYTES,
-                                CERT_FILE_SIZE_MAX,
-                                st.context,
-                                uri);
-                        final Object r = result.get();
-                        if (r instanceof Throwable) {
-                            final String details = r instanceof SecurityException ?
+    private void onPublicKeyAuth() {
+        final SshSessionSt st = sshSessionSt;
+        final JSch jsch = st.jsch; // JSch instance is per-session
+
+        if (!jsch.getIdentityRepository().getIdentities().isEmpty())
+            return;
+
+        byte[] key = null;
+        final Uri uri = st.authKeyUri;
+        String reason = null;
+        String keyDesc = "";
+        try {
+            if (uri != null) {
+                keyDesc = uri.toString();
+                final BlockingSync<Object> result = new BlockingSync<>();
+                ContentRequester.requestPersistent(result,
+                        ContentRequester.Type.BYTES,
+                        CERT_FILE_SIZE_MAX,
+                        st.context,
+                        uri);
+                final Object r = result.get();
+                if (r instanceof Throwable) {
+                    final String details = r instanceof SecurityException ?
+                            st.context.getString(
+                                    R.string.msg_desc_permission_revoked) :
+                            r instanceof FileNotFoundException ?
                                     st.context.getString(
-                                            R.string.msg_desc_permission_revoked) :
-                                    r instanceof FileNotFoundException ?
-                                            st.context.getString(
-                                                    R.string.msg_desc_file_not_found) :
-                                            ((Throwable) r).getLocalizedMessage();
-                            reason = st.context.getString(
-                                    R.string.msg_unable_to_load_associated_key__s,
-                                    details);
-                        } else if (r instanceof byte[]) {
-                            key = (byte[]) r;
-                        }
-                    }
-                    while (true) {
-                        if (key != null) {
-                            if (ir.add(key)) {
-                                return;
-                            } else {
-                                reason = st.context.getString(
-                                        R.string.msg_desc_malformed);
-                            }
-                        }
-                        try {
-                            final String message = reason != null ?
-                                    st.context.getString(
-                                            R.string.msg_server_requests_key_identification_s,
-                                            reason) :
-                                    st.context.getString(
-                                            R.string.msg_server_requests_key_identification);
-                            key = st.ui.promptContent(Html.fromHtml(message),
-                                    "*/*", CERT_FILE_SIZE_MAX);
-                            if (key == null) {
-                                return;
-                            }
-                        } catch (final IOException e) {
-                            reason = st.context.getString(
-                                    R.string.msg_unable_to_load_associated_key__s,
-                                    e.getLocalizedMessage());
-                        }
-                    }
-                } catch (final InterruptedException e) {
-                    throw new BackendInterruptedException(e);
+                                            R.string.msg_desc_file_not_found) :
+                                    ((Throwable) r).getLocalizedMessage();
+                    reason = st.context.getString(
+                            R.string.msg_unable_to_load_associated_key__s,
+                            details);
+                } else if (r instanceof byte[]) {
+                    key = (byte[]) r;
                 }
             }
-
-            @Override
-            public String getName() {
-                return "Main Identity Repository";
+            while (true) {
+                if (key != null) {
+                    try {
+                        jsch.addIdentity(keyDesc, key, null, null);
+                        return;
+                    } catch (final JSchException e) {
+                        reason = st.context.getString(
+                                R.string.msg_desc_malformed__s,
+                                e.getLocalizedMessage());
+                    }
+                }
+                keyDesc = st.context.getString(R.string.msg_desc_obj_selected_key);
+                try {
+                    final String message = reason != null ?
+                            st.context.getString(
+                                    R.string.msg_server_requests_key_identification_s,
+                                    reason) :
+                            st.context.getString(
+                                    R.string.msg_server_requests_key_identification);
+                    key = st.ui.promptContent(Html.fromHtml(message),
+                            "*/*", CERT_FILE_SIZE_MAX);
+                    if (key == null) {
+                        return;
+                    }
+                } catch (final IOException e) {
+                    reason = st.context.getString(
+                            R.string.msg_unable_to_load_associated_key__s,
+                            e.getLocalizedMessage());
+                }
             }
-
-            @Override
-            public int getStatus() {
-                return ir.getStatus();
-            }
-
-            @Override
-            public Vector<Identity> getIdentities() {
-                final Vector<Identity> ii = ir.getIdentities();
-                if (ii.size() > 0)
-                    return ii;
-                prompt();
-                return ir.getIdentities();
-            }
-
-            @Override
-            public boolean add(final byte[] identity) {
-                return ir.add(identity);
-            }
-
-            @Override
-            public boolean remove(final byte[] blob) {
-                return ir.remove(blob);
-            }
-
-            @Override
-            public void removeAll() {
-                ir.removeAll();
-            }
-        });
+        } catch (final InterruptedException e) {
+            throw new BackendInterruptedException(e);
+        }
     }
 
     @Override
@@ -677,11 +704,16 @@ public final class SshModule extends BackendModule {
                             sshSessionSt.username, sshSessionSt.hostname, sshSessionSt.port);
                     s.setUserInfo(userInfo);
                     s.setHostKeyRepository(new SshHostKeyRepository(context));
+                    s.setOnPublicKeyAuth(this::onPublicKeyAuth);
                     s.setConfig("kex", sshSessionSt.kex);
                     s.setConfig("cipher.s2c", sshSessionSt.cipher_s2c);
                     s.setConfig("cipher.c2s", sshSessionSt.cipher_c2s);
                     s.setConfig("mac.s2c", sshSessionSt.mac_s2c);
                     s.setConfig("mac.c2s", sshSessionSt.mac_c2s);
+                    s.setConfig("PubkeyAcceptedAlgorithms",
+                            sshSessionSt.pubkey_accepted_algorithms);
+                    s.setConfig("enable_server_sig_algs",
+                            toJSchBoolOpt(sshSessionSt.enable_server_sig_algs));
                     final String cfgComp = sshSessionSt.preferCompression ?
                             "zlib,none" : "none,zlib";
                     s.setConfig("compression.s2c", cfgComp);
@@ -720,7 +752,7 @@ public final class SshModule extends BackendModule {
             ch.setOutputStream(mOS_set);
             mOS_get_orig = ch.getOutputStream();
             ch.connect(3000);
-        } catch (final JSchException e) {
+        } catch (final JSchException | JSchErrorException e) {
             sshSessionSt.refs.decrementAndGet();
             disconnect();
             throw new BackendException(e.getLocalizedMessage());
@@ -829,7 +861,7 @@ public final class SshModule extends BackendModule {
         if (ch != null) {
             try {
                 ch.sendSignal(signal);
-            } catch (final JSchException e) {
+            } catch (final JSchException | JSchErrorException e) {
                 throw new BackendException("SSH: " + e.getMessage(), e);
             } catch (final Exception e) {
                 throw new BackendException(e);

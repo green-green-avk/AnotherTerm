@@ -18,11 +18,13 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.TreeSet;
 
 import green_green_avk.anotherterm.R;
 import green_green_avk.anotherterm.ui.ParameterView;
@@ -109,9 +111,9 @@ public final class RawPreferenceUiWrapper implements PreferenceUiWrapper {
                 });
                 changedFields.add(pName); // TODO: Not now
             } else if (root instanceof ImageButton) {
-                root.setOnClickListener(v -> {
-                    set(pName, defaults.get(pName));
-                });
+                root.setOnClickListener(v -> set(pName, defaults.get(pName)));
+            } else if (root instanceof TextView) {
+                views.put(pName, root);
             }
             if (chs.length > 1)
                 fieldOpts.put(pName, Arrays.asList(Arrays.copyOfRange(
@@ -274,8 +276,21 @@ public final class RawPreferenceUiWrapper implements PreferenceUiWrapper {
                     }
                 }
             }
-            if (v == null)
-                v = value.toString();
+            if (v == null) {
+                if (value instanceof Collection) {
+                    try {
+                        if (Misc.isOrdered((Collection<?>) value))
+                            v = String.join(",",
+                                    (Collection<CharSequence>) value);
+                        else
+                            v = String.join(",",
+                                    new TreeSet<>((Set<CharSequence>) value));
+                    } catch (final ClassCastException ignored) {
+                        v = value.toString();
+                    }
+                } else
+                    v = value.toString();
+            }
             ((TextView) view).setText(v);
         }
     }
@@ -284,8 +299,11 @@ public final class RawPreferenceUiWrapper implements PreferenceUiWrapper {
     @NonNull
     public Map<String, Object> getPreferences() {
         final Map<String, Object> r = new HashMap<>();
-        for (final String k : views.keySet())
-            r.put(k, get(k));
+        for (final String k : views.keySet()) {
+            final Object v = get(k);
+            if (v != null)
+                r.put(k, v);
+        }
         return r;
     }
 

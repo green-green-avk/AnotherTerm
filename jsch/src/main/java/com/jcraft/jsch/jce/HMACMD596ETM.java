@@ -1,6 +1,6 @@
 /* -*-mode:java; c-basic-offset:2; indent-tabs-mode:nil -*- */
 /*
-Copyright (c) 2015-2018 ymnk, JCraft,Inc. All rights reserved.
+Copyright (c) 2002-2018 ymnk, JCraft,Inc. All rights reserved.
 
 Redistribution and use in source and binary forms, with or without
 modification, are permitted provided that the following conditions are met:
@@ -29,8 +29,9 @@ EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 package com.jcraft.jsch.jce;
 
-public class ECDH521 extends ECDHN implements com.jcraft.jsch.ECDH {
-    public void init() throws Exception {
-        super.init(521);
+public class HMACMD596ETM extends HMACMD596 {
+    public HMACMD596ETM() {
+        name = "hmac-md5-96-etm@openssh.com";
+        etm = true;
     }
 }

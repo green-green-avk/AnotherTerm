@@ -39,33 +39,37 @@ public class HostKey {
             Util.str2byte("ecdsa-sha2-nistp521")
     };
 
-    protected static final int GUESS = 0;
+    public static final int UNKNOWN = -1;
+    public static final int GUESS = 0;
     public static final int SSHDSS = 1;
     public static final int SSHRSA = 2;
     public static final int ECDSA256 = 3;
     public static final int ECDSA384 = 4;
     public static final int ECDSA521 = 5;
-    static final int UNKNOWN = 6;
+    public static final int ED25519 = 6;
+    public static final int ED448 = 7;
 
-    protected String marker;
+    protected final String marker;
     protected String host;
-    protected int type;
-    protected byte[] key;
+    protected final int type;
+    protected final byte[] key;
     protected String comment;
 
-    public HostKey(String host, byte[] key) throws JSchException {
+    public HostKey(final String host, final byte[] key) throws JSchException {
         this(host, GUESS, key);
     }
 
-    public HostKey(String host, int type, byte[] key) throws JSchException {
+    public HostKey(final String host, final int type, final byte[] key) throws JSchException {
         this(host, type, key, null);
     }
 
-    public HostKey(String host, int type, byte[] key, String comment) throws JSchException {
+    public HostKey(final String host, final int type, final byte[] key, final String comment)
+            throws JSchException {
         this("", host, type, key, comment);
     }
 
-    public HostKey(String marker, String host, int type, byte[] key, String comment) throws JSchException {
+    public HostKey(final String marker, final String host, final int type, final byte[] key,
+                   final String comment) throws JSchException {
         this.marker = marker;
         this.host = host;
         if (type == GUESS) {
@@ -73,6 +77,10 @@ public class HostKey {
                 this.type = SSHDSS;
             } else if (key[8] == 'r') {
                 this.type = SSHRSA;
+            } else if (key[8] == 'e' && key[10] == '2') {
+                this.type = ED25519;
+            } else if (key[8] == 'e' && key[10] == '4') {
+                this.type = ED448;
             } else if (key[8] == 'a' && key[20] == '2') {
                 this.type = ECDSA256;
             } else if (key[8] == 'a' && key[20] == '3') {
@@ -96,6 +104,8 @@ public class HostKey {
     public String getType() {
         if (type == SSHDSS ||
                 type == SSHRSA ||
+                type == ED25519 ||
+                type == ED448 ||
                 type == ECDSA256 ||
                 type == ECDSA384 ||
                 type == ECDSA521) {
@@ -104,7 +114,7 @@ public class HostKey {
         return "UNKNOWN";
     }
 
-    protected static int name2type(String name) {
+    protected static int name2type(final String name) {
         for (int i = 0; i < names.length; i++) {
             if (Util.byte2str(names[i]).equals(name)) {
                 return i + 1;
@@ -114,18 +124,27 @@ public class HostKey {
     }
 
     public String getKey() {
-        return Util.byte2str(Util.toBase64(key, 0, key.length));
+        return Util.byte2str(Util.toBase64(key, 0, key.length, true));
     }
 
-    public String getFingerPrint(JSch jsch) {
-        HASH hash = null;
+    public String getFingerPrint(final JSch jsch) {
+        final HASH hash;
         try {
-            Class c = Class.forName(jsch.getConfig("md5"));
-            hash = (HASH) (c.newInstance());
-        } catch (Exception e) {
-            System.err.println("getFingerPrint: " + e);
+            final String _c = JSch.getConfig("FingerprintHash").toLowerCase();
+            final Class<? extends HASH> c =
+                    Class.forName(JSch.getConfig(_c))
+                            .asSubclass(HASH.class);
+            hash = c.getDeclaredConstructor().newInstance();
+        } catch (final Exception e) {
+            jsch.getInstanceLogger().log(Logger.FATAL,
+                    "Unable to load the fingerprint hash class", e);
+            throw new JSchErrorException("Unable to load the fingerprint hash class", e);
         }
-        return Util.getFingerPrint(hash, key);
+        try {
+            return Util.getFingerPrint(hash, key, false, true);
+        } catch (final JSchException e) {
+            throw new JSchErrorException(e);
+        }
     }
 
     public String getComment() {
@@ -136,15 +155,15 @@ public class HostKey {
         return marker;
     }
 
-    boolean isMatched(String _host) {
+    boolean isMatched(final String _host) {
         return isIncluded(_host);
     }
 
-    private boolean isIncluded(String _host) {
+    private boolean isIncluded(final String _host) {
         int i = 0;
-        String hosts = this.host;
-        int hostslen = hosts.length();
-        int hostlen = _host.length();
+        final String hosts = this.host;
+        final int hostslen = hosts.length();
+        final int hostlen = _host.length();
         int j;
         while (i < hostslen) {
             j = hosts.indexOf(',', i);

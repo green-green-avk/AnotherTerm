@@ -30,16 +30,38 @@ EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 package com.jcraft.jsch;
 
 public interface Cipher {
-    static int ENCRYPT_MODE = 0;
-    static int DECRYPT_MODE = 1;
+    int ENCRYPT_MODE = 0;
+    int DECRYPT_MODE = 1;
 
     int getIVSize();
 
     int getBlockSize();
 
+    default int getTagSize() {
+        return 0;
+    }
+
     void init(int mode, byte[] key, byte[] iv) throws Exception;
+
+    default void update(final int foo) throws Exception {
+    }
 
     void update(byte[] foo, int s1, int len, byte[] bar, int s2) throws Exception;
 
+    default void updateAAD(final byte[] foo, final int s1, final int len) throws Exception {
+    }
+
+    default void doFinal(final byte[] foo, final int s1, final int len, final byte[] bar, final int s2)
+            throws Exception {
+    }
+
     boolean isCBC();
+
+    default boolean isAEAD() {
+        return false;
+    }
+
+    default boolean isChaCha20() {
+        return false;
+    }
 }

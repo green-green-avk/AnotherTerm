@@ -42,40 +42,44 @@ import java.net.Socket;
 import java.net.UnknownHostException;
 
 public class ProxySOCKS4 implements Proxy {
-    private static int DEFAULTPORT = 1080;
-    private String proxy_host;
-    private int proxy_port;
+    private static final int DEFAULTPORT = 1080;
+    private final String proxy_host;
+    private final int proxy_port;
     private InputStream in;
     private OutputStream out;
     private Socket socket;
+
     private String user;
     private String passwd;
 
-    public ProxySOCKS4(String proxy_host) {
+    public ProxySOCKS4(final String proxy_host) {
         int port = DEFAULTPORT;
         String host = proxy_host;
-        if (proxy_host.indexOf(':') != -1) {
+        final String[] proxyHostPort = proxy_host.split(":", 2);
+        if (proxyHostPort.length == 2) {
             try {
-                host = proxy_host.substring(0, proxy_host.indexOf(':'));
-                port = Integer.parseInt(proxy_host.substring(proxy_host.indexOf(':') + 1));
-            } catch (Exception e) {
+                host = proxyHostPort[0];
+                port = Integer.parseInt(proxyHostPort[1]);
+            } catch (final NumberFormatException ignored) {
             }
         }
         this.proxy_host = host;
         this.proxy_port = port;
     }
 
-    public ProxySOCKS4(String proxy_host, int proxy_port) {
+    public ProxySOCKS4(final String proxy_host, final int proxy_port) {
         this.proxy_host = proxy_host;
         this.proxy_port = proxy_port;
     }
 
-    public void setUserPasswd(String user, String passwd) {
+    public void setUserPasswd(final String user, final String passwd) {
         this.user = user;
         this.passwd = passwd;
     }
 
-    public void connect(SocketFactory socket_factory, String host, int port, int timeout) throws JSchException {
+    @Override
+    public void connect(final SocketFactory socket_factory, final String host, final int port,
+                        final int timeout) throws JSchException {
         try {
             if (socket_factory == null) {
                 socket = Util.createSocket(proxy_host, proxy_port, timeout);
@@ -92,8 +96,8 @@ public class ProxySOCKS4 implements Proxy {
             }
             socket.setTcpNoDelay(true);
 
-            byte[] buf = new byte[1024];
-            int index = 0;
+            final byte[] buf = new byte[1024];
+            int index;
 
 /*
    1) CONNECT
@@ -121,13 +125,13 @@ public class ProxySOCKS4 implements Proxy {
             buf[index++] = (byte) (port & 0xff);
 
             try {
-                InetAddress addr = InetAddress.getByName(host);
-                byte[] byteAddress = addr.getAddress();
-                for (int i = 0; i < byteAddress.length; i++) {
-                    buf[index++] = byteAddress[i];
+                final InetAddress addr = InetAddress.getByName(host);
+                final byte[] byteAddress = addr.getAddress();
+                for (final byte address : byteAddress) {
+                    buf[index++] = address;
                 }
-            } catch (UnknownHostException uhe) {
-                throw new JSchException("ProxySOCKS4: " + uhe.toString(), uhe);
+            } catch (final UnknownHostException uhe) {
+                throw new JSchException("ProxySOCKS4: " + uhe, uhe);
             }
 
             if (user != null) {
@@ -164,10 +168,10 @@ public class ProxySOCKS4 implements Proxy {
    The remaining fields are ignored.
 */
 
-            int len = 8;
+            final int len = 8;
             int s = 0;
             while (s < len) {
-                int i = in.read(buf, s, len - s);
+                final int i = in.read(buf, s, len - s);
                 if (i <= 0) {
                     throw new JSchException("ProxySOCKS4: stream is closed");
                 }
@@ -179,40 +183,44 @@ public class ProxySOCKS4 implements Proxy {
             if (buf[1] != 90) {
                 try {
                     socket.close();
-                } catch (Exception eee) {
+                } catch (final Exception ignored) {
                 }
-                String message = "ProxySOCKS4: server returns CD " + buf[1];
+                final String message = "ProxySOCKS4: server returns CD " + buf[1];
                 throw new JSchException(message);
             }
-        } catch (RuntimeException e) {
+        } catch (final RuntimeException e) {
             throw e;
-        } catch (Exception e) {
+        } catch (final Exception e) {
             try {
                 if (socket != null) socket.close();
-            } catch (Exception eee) {
+            } catch (final Exception ignored) {
             }
-            throw new JSchException("ProxySOCKS4: " + e.toString());
+            throw new JSchException("ProxySOCKS4: " + e, e);
         }
     }
 
+    @Override
     public InputStream getInputStream() {
         return in;
     }
 
+    @Override
     public OutputStream getOutputStream() {
         return out;
     }
 
+    @Override
     public Socket getSocket() {
         return socket;
     }
 
+    @Override
     public void close() {
         try {
             if (in != null) in.close();
             if (out != null) out.close();
             if (socket != null) socket.close();
-        } catch (Exception e) {
+        } catch (final Exception ignored) {
         }
         in = null;
         out = null;

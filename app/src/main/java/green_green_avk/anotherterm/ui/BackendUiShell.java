@@ -18,6 +18,10 @@ public final class BackendUiShell implements BackendUiInteraction, BackendUiInte
     private volatile OutputStream stdOut = null;
     private volatile OutputStream stdErr = null;
 
+    @Override
+    public void erase(@NonNull final CharSequence v) {
+    }
+
     private static void put(@Nullable final OutputStream stream, @NonNull final String message) {
         if (stream != null) {
             try {
@@ -29,7 +33,8 @@ public final class BackendUiShell implements BackendUiInteraction, BackendUiInte
 
     @Override
     @Nullable
-    public String promptPassword(@NonNull final CharSequence message) throws InterruptedException {
+    public CharSequence promptPassword(@NonNull final CharSequence message)
+            throws InterruptedException {
         return null;
     }
 

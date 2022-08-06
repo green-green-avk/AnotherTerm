@@ -42,62 +42,86 @@ import java.security.spec.ECParameterSpec;
 import java.security.spec.ECPoint;
 import java.security.spec.ECPrivateKeySpec;
 import java.security.spec.ECPublicKeySpec;
+import java.util.Arrays;
 
-public abstract class SignatureECDSAN implements com.jcraft.jsch.SignatureECDSA {
+abstract class SignatureECDSAN implements com.jcraft.jsch.SignatureECDSA {
 
-    Signature signature;
-    KeyFactory keyFactory;
+    private Signature signature;
+    private KeyFactory keyFactory;
 
     abstract String getName();
 
+    @Override
+    public void check() throws Exception {
+        com.jcraft.jsch.SignatureECDSA.super.check();
+        AlgorithmParameters.getInstance("EC");
+    }
+
+    @Override
     public void init() throws Exception {
-        String name = getName();
-        String foo = "SHA256withECDSA";
-        if (name.equals("ecdsa-sha2-nistp384")) foo = "SHA384withECDSA";
-        else if (name.equals("ecdsa-sha2-nistp521")) foo = "SHA512withECDSA";
+        final String name = getName();
+        final String foo;
+        switch (name) {
+            case "ecdsa-sha2-nistp256":
+                foo = "SHA256withECDSA";
+                break;
+            case "ecdsa-sha2-nistp384":
+                foo = "SHA384withECDSA";
+                break;
+            case "ecdsa-sha2-nistp521":
+                foo = "SHA512withECDSA";
+                break;
+            default:
+                throw new AssertionError();
+        }
         signature = java.security.Signature.getInstance(foo);
         keyFactory = KeyFactory.getInstance("EC");
     }
 
+    @Override
     public void setPubKey(byte[] r, byte[] s) throws Exception {
 
         // r and s must be unsigned values.
         r = insert0(r);
         s = insert0(s);
 
-        String name = "secp256r1";
+        final String name;
         if (r.length >= 64) name = "secp521r1";
         else if (r.length >= 48) name = "secp384r1";
+        else name = "secp256r1";
 
-        AlgorithmParameters param = AlgorithmParameters.getInstance("EC");
+        final AlgorithmParameters param = AlgorithmParameters.getInstance("EC");
         param.init(new ECGenParameterSpec(name));
-        ECParameterSpec ecparam =
-                (ECParameterSpec) param.getParameterSpec(ECParameterSpec.class);
-        ECPoint w = new ECPoint(new BigInteger(1, r), new BigInteger(1, s));
-        PublicKey pubKey =
+        final ECParameterSpec ecparam = param.getParameterSpec(ECParameterSpec.class);
+        final ECPoint w =
+                new ECPoint(new BigInteger(1, r),
+                        new BigInteger(1, s));
+        final PublicKey pubKey =
                 keyFactory.generatePublic(new ECPublicKeySpec(w, ecparam));
         signature.initVerify(pubKey);
     }
 
+    @Override
     public void setPrvKey(byte[] d) throws Exception {
 
         // d must be unsigned value.
         d = insert0(d);
 
-        String name = "secp256r1";
+        final String name;
         if (d.length >= 64) name = "secp521r1";
         else if (d.length >= 48) name = "secp384r1";
+        else name = "secp256r1";
 
-        AlgorithmParameters param = AlgorithmParameters.getInstance("EC");
+        final AlgorithmParameters param = AlgorithmParameters.getInstance("EC");
         param.init(new ECGenParameterSpec(name));
-        ECParameterSpec ecparam =
-                (ECParameterSpec) param.getParameterSpec(ECParameterSpec.class);
-        BigInteger _d = new BigInteger(1, d);
-        PrivateKey prvKey =
+        final ECParameterSpec ecparam = param.getParameterSpec(ECParameterSpec.class);
+        final BigInteger _d = new BigInteger(1, d);
+        final PrivateKey prvKey =
                 keyFactory.generatePrivate(new ECPrivateKeySpec(_d, ecparam));
         signature.initSign(prvKey);
     }
 
+    @Override
     public byte[] sign() throws Exception {
         byte[] sig = signature.sign();
 
@@ -119,7 +143,7 @@ public abstract class SignatureECDSAN implements com.jcraft.jsch.SignatureECDSA 
             r = chop0(r);
             s = chop0(s);
 
-            Buffer buf = new Buffer();
+            final Buffer buf = new Buffer();
             buf.putMPInt(r);
             buf.putMPInt(s);
 
@@ -131,10 +155,12 @@ public abstract class SignatureECDSAN implements com.jcraft.jsch.SignatureECDSA 
         return sig;
     }
 
-    public void update(byte[] foo) throws Exception {
+    @Override
+    public void update(final byte[] foo) throws Exception {
         signature.update(foo);
     }
 
+    @Override
     public boolean verify(byte[] sig) throws Exception {
 
         // It seems that SunEC expects ASN.1 data,
@@ -142,7 +168,7 @@ public abstract class SignatureECDSAN implements com.jcraft.jsch.SignatureECDSA 
         if (!(sig[0] == 0x30 &&                                    // not in ASN.1
                 ((sig[1] + 2 == sig.length) ||
                         ((sig[1] & 0x80) != 0 && (sig[2] & 0xff) + 3 == sig.length)))) {
-            Buffer b = new Buffer(sig);
+            final Buffer b = new Buffer(sig);
 
             b.getString();  // ecdsa-sha2-nistp256
             b.getInt();
@@ -150,10 +176,10 @@ public abstract class SignatureECDSAN implements com.jcraft.jsch.SignatureECDSA 
             byte[] r = b.getMPInt();
             byte[] s = b.getMPInt();
 
-            r = insert0(r);
-            s = insert0(s);
+            r = trimLeadingZeros(insert0(r));
+            s = trimLeadingZeros(insert0(s));
 
-            byte[] asn1 = null;
+            final byte[] asn1;
             if (r.length < 64) {
                 asn1 = new byte[6 + r.length + s.length];
                 asn1[0] = (byte) 0x30;
@@ -182,23 +208,44 @@ public abstract class SignatureECDSAN implements com.jcraft.jsch.SignatureECDSA 
         return signature.verify(sig);
     }
 
-    private byte[] insert0(byte[] buf) {
-        if ((buf[0] & 0x80) == 0) return buf;
-        byte[] tmp = new byte[buf.length + 1];
+    private static byte[] insert0(final byte[] buf) {
+        if ((buf[0] & 0x80) == 0)
+            return buf;
+        final byte[] tmp = new byte[buf.length + 1];
         System.arraycopy(buf, 0, tmp, 1, buf.length);
         bzero(buf);
         return tmp;
     }
 
-    private byte[] chop0(byte[] buf) {
-        if (buf[0] != 0) return buf;
-        byte[] tmp = new byte[buf.length - 1];
+    private static byte[] chop0(final byte[] buf) {
+        if (buf[0] != 0)
+            return buf;
+        final byte[] tmp = new byte[buf.length - 1];
         System.arraycopy(buf, 1, tmp, 0, tmp.length);
         bzero(buf);
         return tmp;
     }
 
-    private void bzero(byte[] buf) {
-        for (int i = 0; i < buf.length; i++) buf[i] = 0;
+    private static void bzero(final byte[] buf) {
+        Arrays.fill(buf, (byte) 0);
+    }
+
+    private static byte[] trimLeadingZeros(final byte[] buf) {
+        if (buf.length < 2)
+            return buf;
+
+        int i = 0;
+        while (i < buf.length - 1) {
+            if (buf[i] == 0 && (buf[i + 1] & 0x80) == 0) i++;
+            else break;
+        }
+
+        if (i == 0)
+            return buf;
+
+        final byte[] tmp = new byte[buf.length - i];
+        System.arraycopy(buf, i, tmp, 0, tmp.length);
+        bzero(buf);
+        return tmp;
     }
 }

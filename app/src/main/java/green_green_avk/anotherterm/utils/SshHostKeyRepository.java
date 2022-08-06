@@ -8,6 +8,7 @@ import androidx.annotation.Nullable;
 
 import com.jcraft.jsch.HostKey;
 import com.jcraft.jsch.HostKeyRepository;
+import com.jcraft.jsch.JSchErrorException;
 import com.jcraft.jsch.JSchException;
 import com.jcraft.jsch.UserInfo;
 
@@ -31,7 +32,8 @@ public final class SshHostKeyRepository implements HostKeyRepository {
     private final SharedPreferences sp;
 
     public SshHostKeyRepository(@NonNull final Context ctx) {
-        sp = ctx.getSharedPreferences(ctx.getPackageName() + "_hostkeys", Context.MODE_PRIVATE);
+        sp = ctx.getSharedPreferences(ctx.getPackageName() + "_hostkeys",
+                Context.MODE_PRIVATE);
     }
 
     @NonNull
@@ -42,7 +44,8 @@ public final class SshHostKeyRepository implements HostKeyRepository {
     @Override
     public void add(@NonNull final HostKey hostKey, @NonNull final UserInfo userInfo) {
         final Set<String> keys =
-                new HashSet<>(sp.getStringSet(hostKey.getHost(), Collections.emptySet()));
+                new HashSet<>(sp.getStringSet(hostKey.getHost(),
+                        Collections.emptySet()));
         final SharedPreferences.Editor ed = sp.edit();
         keys.add(serializeKey(hostKey));
         ed.putStringSet(hostKey.getHost(), keys);
@@ -54,7 +57,7 @@ public final class SshHostKeyRepository implements HostKeyRepository {
         final String[] kss = unparsed.split(":", 3);
         try {
             return new SshHostKey(host, kss[0], kss[1], kss[2]);
-        } catch (final JSchException e) {
+        } catch (final JSchException | JSchErrorException e) {
             throw new SshHostKeyRepository.Exception(e);
         }
     }

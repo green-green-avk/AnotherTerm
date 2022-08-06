@@ -6,6 +6,7 @@ import android.content.DialogInterface;
 import android.content.pm.PackageManager;
 import android.os.Handler;
 import android.os.Looper;
+import android.text.Editable;
 import android.text.InputType;
 import android.view.KeyEvent;
 import android.view.Window;
@@ -118,11 +119,23 @@ public class BackendUiDialogs implements BackendUiInteraction,
     }
 
     @Override
+    public void erase(@NonNull final CharSequence v) {
+        if (v instanceof Editable)
+            handler.post(() -> {
+                try {
+                    ((Editable) v).clear();
+                } catch (final Exception ignored) {
+                }
+            });
+    }
+
+    @Override
     @Nullable
-    public String promptPassword(@NonNull final CharSequence message) throws InterruptedException {
+    public CharSequence promptPassword(@NonNull final CharSequence message)
+            throws InterruptedException {
         synchronized (promptLock) {
             try {
-                final BlockingSync<String> result = new BlockingSync<>();
+                final BlockingSync<CharSequence> result = new BlockingSync<>();
                 promptState = () -> {
                     if (isShowingPrompt()) return;
                     final Activity ctx = activityRef.getNoBlock();
@@ -131,7 +144,7 @@ public class BackendUiDialogs implements BackendUiInteraction,
                     final DialogInterface.OnClickListener listener = (dialog, which) -> {
                         if (which == DialogInterface.BUTTON_POSITIVE) {
                             promptState = null;
-                            result.set(et.getText().toString());
+                            result.set(et.getText());
                             dialog.dismiss();
                         } else {
                             promptState = null;

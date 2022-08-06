@@ -37,4 +37,8 @@ public interface HASH {
     void update(byte[] foo, int start, int len) throws Exception;
 
     byte[] digest() throws Exception;
+
+    default String name() {
+        return "";
+    }
 }

@@ -30,8 +30,12 @@ EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 package com.jcraft.jsch;
 
 public interface Compression {
-    static public final int INFLATER = 0;
-    static public final int DEFLATER = 1;
+    int INFLATER = 0;
+    int DEFLATER = 1;
+
+    default void init(final int type, final int level, final Session session) {
+        init(type, level);
+    }
 
     void init(int type, int level);
 

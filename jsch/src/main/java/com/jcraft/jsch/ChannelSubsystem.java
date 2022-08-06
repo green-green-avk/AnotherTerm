@@ -29,30 +29,25 @@ EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 package com.jcraft.jsch;
 
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
+
 public class ChannelSubsystem extends ChannelSession {
-    boolean xforwading = false;
-    boolean pty = false;
     boolean want_reply = true;
     String subsystem = "";
 
-    public void setXForwarding(boolean foo) {
-        xforwading = foo;
-    }
-
-    public void setPty(boolean foo) {
-        pty = foo;
-    }
-
-    public void setWantReply(boolean foo) {
+    public void setWantReply(final boolean foo) {
         want_reply = foo;
     }
 
-    public void setSubsystem(String foo) {
+    public void setSubsystem(final String foo) {
         subsystem = foo;
     }
 
+    @Override
     public void start() throws JSchException {
-        Session _session = getSession();
+        final Session _session = getSession();
         try {
             Request request;
             if (xforwading) {
@@ -64,17 +59,16 @@ public class ChannelSubsystem extends ChannelSession {
                 request.request(_session, this);
             }
             request = new RequestSubsystem();
-            ((RequestSubsystem) request).request(_session, this, subsystem, want_reply);
-        } catch (Exception e) {
+            ((RequestSubsystem) request).request(_session, this,
+                    subsystem, want_reply);
+        } catch (final Exception e) {
             if (e instanceof JSchException) {
                 throw (JSchException) e;
             }
-            if (e instanceof Throwable)
-                throw new JSchException("ChannelSubsystem", (Throwable) e);
-            throw new JSchException("ChannelSubsystem");
+            throw new JSchException("ChannelSubsystem", e);
         }
         if (io.in != null) {
-            thread = new Thread(this);
+            thread = new Thread(this::run);
             thread.setName("Subsystem for " + _session.host);
             if (_session.daemon_thread) {
                 thread.setDaemon(_session.daemon_thread);
@@ -83,16 +77,17 @@ public class ChannelSubsystem extends ChannelSession {
         }
     }
 
+    @Override
     void init() throws JSchException {
         io.setInputStream(getSession().in);
         io.setOutputStream(getSession().out);
     }
 
-    public void setErrStream(java.io.OutputStream out) {
+    public void setErrStream(final OutputStream out) {
         setExtOutputStream(out);
     }
 
-    public java.io.InputStream getErrStream() throws java.io.IOException {
+    public InputStream getErrStream() throws IOException {
         return getExtInputStream();
     }
 }

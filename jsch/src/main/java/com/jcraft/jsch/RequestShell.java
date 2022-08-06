@@ -29,12 +29,13 @@ EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 package com.jcraft.jsch;
 
-class RequestShell extends Request {
-    public void request(Session session, Channel channel) throws Exception {
+final class RequestShell extends Request {
+    @Override
+    public void request(final Session session, final Channel channel) throws Exception {
         super.request(session, channel);
 
-        Buffer buf = new Buffer();
-        Packet packet = new Packet(buf);
+        final Buffer buf = new Buffer();
+        final Packet packet = new Packet(buf);
 
         // send
         // byte     SSH_MSG_CHANNEL_REQUEST(98)

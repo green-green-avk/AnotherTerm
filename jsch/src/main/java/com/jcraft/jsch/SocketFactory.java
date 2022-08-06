@@ -36,10 +36,16 @@ import java.net.Socket;
 import java.net.UnknownHostException;
 
 public interface SocketFactory {
-    public Socket createSocket(String host, int port) throws IOException,
-            UnknownHostException;
+    /**
+     * @param host
+     * @param port
+     * @return
+     * @throws UnknownHostException
+     * @throws IOException
+     */
+    Socket createSocket(String host, int port) throws IOException;
 
-    public InputStream getInputStream(Socket socket) throws IOException;
+    InputStream getInputStream(Socket socket) throws IOException;
 
-    public OutputStream getOutputStream(Socket socket) throws IOException;
+    OutputStream getOutputStream(Socket socket) throws IOException;
 }

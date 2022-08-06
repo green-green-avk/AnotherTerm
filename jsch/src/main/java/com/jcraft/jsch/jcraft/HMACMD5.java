@@ -38,11 +38,11 @@ public class HMACMD5 extends HMAC implements MAC {
 
     public HMACMD5() {
         super();
-        MessageDigest md = null;
+        final MessageDigest md;
         try {
             md = MessageDigest.getInstance("MD5");
-        } catch (Exception e) {
-            System.err.println(e);
+        } catch (final Exception e) {
+            throw new UnsupportedOperationException(e);
         }
         setH(md);
     }

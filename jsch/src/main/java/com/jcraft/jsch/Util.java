@@ -32,13 +32,32 @@ package com.jcraft.jsch;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
+import java.lang.annotation.ElementType;
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
+import java.lang.annotation.Target;
 import java.net.Socket;
+import java.nio.ByteBuffer;
+import java.nio.CharBuffer;
+import java.nio.charset.Charset;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Set;
 
-class Util {
+final class Util {
+    private Util() {
+    }
+
+    static final Charset UTF8 = Charset.forName("UTF8");
 
     private static final byte[] b64 = Util.str2byte("ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/=");
 
-    private static byte val(byte foo) {
+    private static byte val(final byte foo) {
         if (foo == '=') return 0;
         for (int j = 0; j < b64.length; j++) {
             if (foo == b64[j]) return (byte) j;
@@ -46,9 +65,10 @@ class Util {
         return 0;
     }
 
-    static byte[] fromBase64(byte[] buf, int start, int length) throws JSchException {
+    static byte[] fromBase64(final byte[] buf, final int start, final int length)
+            throws JSchException {
         try {
-            byte[] foo = new byte[length];
+            final byte[] foo = new byte[length];
             int j = 0;
             for (int i = start; i < start + length; i += 4) {
                 foo[j] = (byte) ((val(buf[i]) << 2) | ((val(buf[i + 1]) & 0x30) >>> 4));
@@ -64,17 +84,18 @@ class Util {
                 foo[j + 2] = (byte) (((val(buf[i + 2]) & 0x03) << 6) | (val(buf[i + 3]) & 0x3f));
                 j += 3;
             }
-            byte[] bar = new byte[j];
+            final byte[] bar = new byte[j];
             System.arraycopy(foo, 0, bar, 0, j);
             return bar;
-        } catch (ArrayIndexOutOfBoundsException e) {
+        } catch (final ArrayIndexOutOfBoundsException e) {
             throw new JSchException("fromBase64: invalid base64 data", e);
         }
     }
 
-    static byte[] toBase64(byte[] buf, int start, int length) {
+    static byte[] toBase64(final byte[] buf, final int start, final int length,
+                           final boolean include_pad) {
 
-        byte[] tmp = new byte[length * 2];
+        final byte[] tmp = new byte[length * 2];
         int i, j, k;
 
         int foo = (length / 3) * 3 + start;
@@ -96,8 +117,10 @@ class Util {
             tmp[i++] = b64[k];
             k = ((buf[j] & 0x03) << 4) & 0x3f;
             tmp[i++] = b64[k];
-            tmp[i++] = (byte) '=';
-            tmp[i++] = (byte) '=';
+            if (include_pad) {
+                tmp[i++] = (byte) '=';
+                tmp[i++] = (byte) '=';
+            }
         } else if (foo == 2) {
             k = (buf[j] >>> 2) & 0x3f;
             tmp[i++] = b64[k];
@@ -105,48 +128,56 @@ class Util {
             tmp[i++] = b64[k];
             k = ((buf[j + 1] & 0x0f) << 2) & 0x3f;
             tmp[i++] = b64[k];
-            tmp[i++] = (byte) '=';
+            if (include_pad) {
+                tmp[i++] = (byte) '=';
+            }
         }
-        byte[] bar = new byte[i];
+        final byte[] bar = new byte[i];
         System.arraycopy(tmp, 0, bar, 0, i);
         return bar;
 
 //    return sun.misc.BASE64Encoder().encode(buf);
     }
 
-    static String[] split(String foo, String split) {
+    /**
+     * A mysterious function...
+     *
+     * @param foo
+     * @param split
+     * @return
+     */
+    static String[] split(final String foo, final String split) {
         if (foo == null)
             return null;
-        byte[] buf = Util.str2byte(foo);
-        java.util.Vector bar = new java.util.Vector();
-        int start = 0;
-        int index;
-        while (true) {
-            index = foo.indexOf(split, start);
-            if (index >= 0) {
-                bar.addElement(Util.byte2str(buf, start, index - start));
-                start = index + 1;
-                continue;
-            }
-            bar.addElement(Util.byte2str(buf, start, buf.length - start));
-            break;
-        }
-        String[] result = new String[bar.size()];
-        for (int i = 0; i < result.length; i++) {
-            result[i] = (String) (bar.elementAt(i));
-        }
-        return result;
+        return foo.split(split, -1);
+//        // TODO: comprehend
+//        final byte[] buf = Util.str2byte(foo);
+//        final List<String> result = new ArrayList<>();
+//        int start = 0;
+//        int index;
+//        while (true) {
+//            index = foo.indexOf(split, start);
+//            if (index >= 0) {
+//                result.add(Util.byte2str(buf, start, index - start));
+//                start = index + 1;
+//                continue;
+//            }
+//            result.add(Util.byte2str(buf, start, buf.length - start));
+//            break;
+//        }
+//        return result.toArray(new String[0]);
     }
 
-    static boolean glob(byte[] pattern, byte[] name) {
+    static boolean glob(final byte[] pattern, final byte[] name) {
         return glob0(pattern, 0, name, 0);
     }
 
-    static private boolean glob0(byte[] pattern, int pattern_index,
-                                 byte[] name, int name_index) {
+    private static boolean glob0(final byte[] pattern, final int pattern_index,
+                                 final byte[] name, final int name_index) {
         if (name.length > 0 && name[0] == '.') {
             if (pattern.length > 0 && pattern[0] == '.') {
-                if (pattern.length == 2 && pattern[1] == '*') return true;
+                if (pattern.length == 2 && pattern[1] == '*')
+                    return true;
                 return glob(pattern, pattern_index + 1, name, name_index + 1);
             }
             return false;
@@ -154,15 +185,15 @@ class Util {
         return glob(pattern, pattern_index, name, name_index);
     }
 
-    static private boolean glob(byte[] pattern, int pattern_index,
-                                byte[] name, int name_index) {
+    private static boolean glob(final byte[] pattern, final int pattern_index,
+                                final byte[] name, final int name_index) {
         //System.err.println("glob: "+new String(pattern)+", "+pattern_index+" "+new String(name)+", "+name_index);
 
-        int patternlen = pattern.length;
+        final int patternlen = pattern.length;
         if (patternlen == 0)
             return false;
 
-        int namelen = name.length;
+        final int namelen = name.length;
         int i = pattern_index;
         int j = name_index;
 
@@ -267,19 +298,18 @@ class Util {
         return false;
     }
 
-    static String quote(String path) {
-        byte[] _path = str2byte(path);
+    static String quote(final String path) {
+        final byte[] _path = str2byte(path);
         int count = 0;
-        for (int i = 0; i < _path.length; i++) {
-            byte b = _path[i];
+        for (final byte b : _path) {
             if (b == '\\' || b == '?' || b == '*')
                 count++;
         }
         if (count == 0)
             return path;
-        byte[] _path2 = new byte[_path.length + count];
-        for (int i = 0, j = 0; i < _path.length; i++) {
-            byte b = _path[i];
+        final byte[] _path2 = new byte[_path.length + count];
+        int j = 0;
+        for (final byte b : _path) {
             if (b == '\\' || b == '?' || b == '*') {
                 _path2[j++] = '\\';
             }
@@ -288,15 +318,15 @@ class Util {
         return byte2str(_path2);
     }
 
-    static String unquote(String path) {
-        byte[] foo = str2byte(path);
-        byte[] bar = unquote(foo);
+    static String unquote(final String path) {
+        final byte[] foo = str2byte(path);
+        final byte[] bar = unquote(foo);
         if (foo.length == bar.length)
             return path;
         return byte2str(bar);
     }
 
-    static byte[] unquote(byte[] path) {
+    static byte[] unquote(final byte[] path) {
         int pathlen = path.length;
         int i = 0;
         while (i < pathlen) {
@@ -312,56 +342,56 @@ class Util {
         }
         if (pathlen == path.length)
             return path;
-        byte[] foo = new byte[pathlen];
+        final byte[] foo = new byte[pathlen];
         System.arraycopy(path, 0, foo, 0, pathlen);
         return foo;
     }
 
-    private static String[] chars = {
+    private static final String[] chars = {
             "0", "1", "2", "3", "4", "5", "6", "7", "8", "9", "a", "b", "c", "d", "e", "f"
     };
 
-    static String getFingerPrint(HASH hash, byte[] data) {
+    static String getFingerPrint(final HASH hash, final byte[] data,
+                                 final boolean include_prefix, final boolean force_hex)
+            throws JSchException {
         try {
             hash.init();
             hash.update(data, 0, data.length);
-            byte[] foo = hash.digest();
-            StringBuffer sb = new StringBuffer();
-            int bar;
-            for (int i = 0; i < foo.length; i++) {
-                bar = foo[i] & 0xff;
-                sb.append(chars[(bar >>> 4) & 0xf]);
-                sb.append(chars[(bar) & 0xf]);
-                if (i + 1 < foo.length)
-                    sb.append(":");
+            final byte[] foo = hash.digest();
+            final StringBuilder sb = new StringBuilder();
+            if (include_prefix) {
+                sb.append(hash.name());
+                sb.append(":");
+            }
+            if (force_hex || hash.name().equals("MD5")) {
+                for (int i = 0; i < foo.length; i++) {
+                    final int bar = foo[i] & 0xff;
+                    sb.append(chars[(bar >>> 4) & 0xf]);
+                    sb.append(chars[(bar) & 0xf]);
+                    if (i + 1 < foo.length)
+                        sb.append(":");
+                }
+            } else {
+                final byte[] b64str = toBase64(foo, 0, foo.length, false);
+                sb.append(byte2str(b64str, 0, b64str.length));
             }
             return sb.toString();
-        } catch (Exception e) {
-            return "???";
+        } catch (final Exception e) {
+            throw new JSchException("Error getting fingerprint", e);
         }
     }
 
-    static boolean array_equals(byte[] foo, byte bar[]) {
-        int i = foo.length;
-        if (i != bar.length) return false;
-        for (int j = 0; j < i; j++) {
-            if (foo[j] != bar[j]) return false;
-        }
-        //try{while(true){i--; if(foo[i]!=bar[i])return false;}}catch(Exception e){}
-        return true;
+    static boolean array_equals(final byte[] foo, final byte[] bar) {
+        return Arrays.equals(foo, bar);
     }
 
-    static Socket createSocket(String host, int port, int timeout) throws JSchException {
-        Socket socket = null;
+    static Socket createSocket(final String host, final int port, final int timeout)
+            throws JSchException {
         if (timeout == 0) {
             try {
-                socket = new Socket(host, port);
-                return socket;
-            } catch (Exception e) {
-                String message = e.toString();
-                if (e instanceof Throwable)
-                    throw new JSchException(message, (Throwable) e);
-                throw new JSchException(message);
+                return new Socket(host, port);
+            } catch (final Exception e) {
+                throw new JSchException(e.toString(), e);
             }
         }
         final String _host = host;
@@ -369,21 +399,19 @@ class Util {
         final Socket[] sockp = new Socket[1];
         final Exception[] ee = new Exception[1];
         String message = "";
-        Thread tmp = new Thread(new Runnable() {
-            public void run() {
-                sockp[0] = null;
-                try {
-                    sockp[0] = new Socket(_host, _port);
-                } catch (Exception e) {
-                    ee[0] = e;
-                    if (sockp[0] != null && sockp[0].isConnected()) {
-                        try {
-                            sockp[0].close();
-                        } catch (Exception eee) {
-                        }
+        Thread tmp = new Thread(() -> {
+            sockp[0] = null;
+            try {
+                sockp[0] = new Socket(_host, _port);
+            } catch (final Exception e) {
+                ee[0] = e;
+                if (sockp[0] != null && sockp[0].isConnected()) {
+                    try {
+                        sockp[0].close();
+                    } catch (final Exception ignored) {
                     }
-                    sockp[0] = null;
                 }
+                sockp[0] = null;
             }
         });
         tmp.setName("Opening Socket " + host);
@@ -391,10 +419,10 @@ class Util {
         try {
             tmp.join(timeout);
             message = "timeout: ";
-        } catch (java.lang.InterruptedException eee) {
+        } catch (final InterruptedException ignored) {
         }
         if (sockp[0] != null && sockp[0].isConnected()) {
-            socket = sockp[0];
+            return sockp[0];
         } else {
             message += "socket is not established";
             if (ee[0] != null) {
@@ -404,48 +432,109 @@ class Util {
             tmp = null;
             throw new JSchException(message, ee[0]);
         }
-        return socket;
     }
 
-    static byte[] str2byte(String str, String encoding) {
-        if (str == null)
-            return null;
-        try {
-            return str.getBytes(encoding);
-        } catch (java.io.UnsupportedEncodingException e) {
-            return str.getBytes();
+    static void wipe(final ByteBuffer v) {
+        if (v.hasArray()) {
+            final int start = v.arrayOffset() + v.position();
+            Arrays.fill(v.array(), start, start + v.remaining(), (byte) 0);
+        } else {
+            final int len = v.remaining();
+            v.put(new byte[len]);
+            v.position(v.position() - len);
         }
     }
 
-    static byte[] str2byte(String str) {
-        return str2byte(str, "UTF-8");
+    static void wipe(final CharBuffer v) {
+        if (v.hasArray()) {
+            final int start = v.arrayOffset() + v.position();
+            Arrays.fill(v.array(), start, start + v.remaining(), (char) 0);
+        } else {
+            final int len = v.remaining();
+            v.put(new char[len]);
+            v.position(v.position() - len);
+        }
     }
 
-    static String byte2str(byte[] str, String encoding) {
+    static void wipe(final CharSequence v) {
+        if (v instanceof CharBuffer) {
+            wipe((CharBuffer) v);
+        }
+    }
+
+    static void wipe(final char[] v) {
+        Arrays.fill(v, (char) 0);
+    }
+
+    static byte[] toArray(final ByteBuffer v, final boolean wipe) {
+        if (v == null)
+            return null;
+        if (v.hasArray() &&
+                v.arrayOffset() == 0 && v.position() == 0 && v.remaining() == v.array().length)
+            return v.array();
+        final byte[] r = new byte[v.remaining()];
+        v.get(r);
+        v.position(v.position() - r.length);
+        if (wipe)
+            wipe(v);
+        return r;
+    }
+
+    static byte[] str2byte(final CharSequence str, final Charset encoding) {
+        if (str == null)
+            return null;
+        if (str instanceof String)
+            return ((String) str).getBytes(encoding);
+        if (str instanceof CharBuffer)
+            return toArray(encoding.encode((CharBuffer) str), true);
+        return toArray(encoding.encode(CharBuffer.wrap(str)), true);
+    }
+
+    static byte[] str2byte(final char[] str, final Charset encoding) {
+        if (str == null)
+            return null;
+        return toArray(encoding.encode(CharBuffer.wrap(str)), true);
+    }
+
+    static byte[] str2byte(final String str, final Charset encoding) {
+        if (str == null)
+            return null;
+        return str.getBytes(encoding);
+    }
+
+    static byte[] str2byte(final CharSequence str) {
+        return str2byte(str, UTF8);
+    }
+
+    static byte[] str2byte(final char[] str) {
+        return str2byte(str, UTF8);
+    }
+
+    static byte[] str2byte(final String str) {
+        return str2byte(str, UTF8);
+    }
+
+    static String byte2str(final byte[] str, final Charset encoding) {
         return byte2str(str, 0, str.length, encoding);
     }
 
-    static String byte2str(byte[] str, int s, int l, String encoding) {
-        try {
-            return new String(str, s, l, encoding);
-        } catch (java.io.UnsupportedEncodingException e) {
-            return new String(str, s, l);
-        }
+    static String byte2str(final byte[] str, final int s, final int l, final Charset encoding) {
+        return new String(str, s, l, encoding);
     }
 
-    static String byte2str(byte[] str) {
-        return byte2str(str, 0, str.length, "UTF-8");
+    static String byte2str(final byte[] str) {
+        return byte2str(str, 0, str.length, UTF8);
     }
 
-    static String byte2str(byte[] str, int s, int l) {
-        return byte2str(str, s, l, "UTF-8");
+    static String byte2str(final byte[] str, final int s, final int l) {
+        return byte2str(str, s, l, UTF8);
     }
 
-    static String toHex(byte[] str) {
-        StringBuffer sb = new StringBuffer();
+    static String toHex(final byte[] str) {
+        final StringBuilder sb = new StringBuilder();
         for (int i = 0; i < str.length; i++) {
-            String foo = Integer.toHexString(str[i] & 0xff);
-            sb.append("0x" + (foo.length() == 1 ? "0" : "") + foo);
+            final String foo = Integer.toHexString(str[i] & 0xff);
+            sb.append("0x").append(foo.length() == 1 ? "0" : "").append(foo);
             if (i + 1 < str.length)
                 sb.append(":");
         }
@@ -474,67 +563,95 @@ class Util {
       return bar;
     }
     */
-    static void bzero(byte[] foo) {
+    static void bzero(final byte[] foo) {
         if (foo == null)
             return;
-        for (int i = 0; i < foo.length; i++)
-            foo[i] = 0;
+        Arrays.fill(foo, (byte) 0);
     }
 
-    static String diffString(String str, String[] not_available) {
-        String[] stra = Util.split(str, ",");
-        String result = null;
-        loop:
-        for (int i = 0; i < stra.length; i++) {
-            for (int j = 0; j < not_available.length; j++) {
-                if (stra[i].equals(not_available[j])) {
-                    continue loop;
-                }
-            }
-            if (result == null) {
-                result = stra[i];
-            } else {
-                result = result + "," + stra[i];
-            }
-        }
-        return result;
+    static String diffString(final String str,
+                             final Set<String> available, final Set<String> notAvailable) {
+        final String[] stra = Util.split(str, ",");
+        final List<String> result = new ArrayList<>(stra.length);
+        for (final String stre : stra)
+            if ((available == null || available.contains(stre)) &&
+                    (notAvailable == null || !notAvailable.contains(stre)))
+                result.add(stre);
+        return result.isEmpty() ? null : String.join(",", result);
     }
 
-    static String checkTilde(String str) {
-        try {
-            if (str.startsWith("~")) {
-                str = str.replace("~", System.getProperty("user.home"));
-            }
-        } catch (SecurityException e) {
-        }
+    private static String getHomeDir() {
+        throw new UnsupportedOperationException();
+    }
+
+    static String checkTilde(final String str) {
+        if (str.startsWith("~"))
+            return str.replace("~", getHomeDir());
         return str;
     }
 
-    private static int skipUTF8Char(byte b) {
+    private static int skipUTF8Char(final byte b) {
         if ((byte) (b & 0x80) == 0) return 1;
         if ((byte) (b & 0xe0) == (byte) 0xc0) return 2;
         if ((byte) (b & 0xf0) == (byte) 0xe0) return 3;
         return 1;
     }
 
-    static byte[] fromFile(String _file) throws IOException {
-        _file = checkTilde(_file);
-        File file = new File(_file);
-        FileInputStream fis = new FileInputStream(_file);
-        try {
-            byte[] result = new byte[(int) (file.length())];
+    static byte[] fromFile(final String fileName) throws IOException {
+        final File file = new File(checkTilde(fileName));
+        try (final FileInputStream fis = new FileInputStream(file)) {
+            final byte[] result = new byte[(int) (file.length())];
             int len = 0;
             while (true) {
-                int i = fis.read(result, len, result.length - len);
+                final int i = fis.read(result, len, result.length - len);
                 if (i <= 0)
                     break;
                 len += i;
             }
-            fis.close();
             return result;
-        } finally {
-            if (fis != null)
-                fis.close();
         }
+    }
+
+    static String getEnvProperty(final String key, final String def) {
+        return def;
+    }
+
+    @Retention(RetentionPolicy.SOURCE)
+    @Target(ElementType.PARAMETER)
+    @interface Unique {
+    }
+
+    @SafeVarargs
+    static <T> Set<T> setOf(@Unique final T... args) {
+        final HashSet<T> r = new HashSet<>(args.length);
+        Collections.addAll(r, args);
+        return r;
+    }
+
+    // Old Androids stuff
+
+    static <T> T requireNonNullElse(final T v, final T def) {
+        return v != null ? v : def;
+    }
+
+    interface Predicate<T> {
+        boolean test(T v);
+    }
+
+    static <T extends Collection<String>> T filter(final Util.Predicate<String> f,
+                                                   final T v) {
+        final Iterator<String> it = v.iterator();
+        while (it.hasNext())
+            if (!f.test(it.next()))
+                it.remove();
+        return v;
+    }
+
+    static <T> Predicate<T> ifIn(final Collection<T> f) {
+        return f::contains;
+    }
+
+    static <T> Predicate<T> ifNotIn(final Collection<T> f) {
+        return v -> !f.contains(v);
     }
 }

@@ -39,45 +39,51 @@ import java.security.interfaces.DSAParams;
 import java.security.interfaces.DSAPrivateKey;
 import java.security.interfaces.DSAPublicKey;
 
-public class KeyPairGenDSA implements com.jcraft.jsch.KeyPairGenDSA {
+public final class KeyPairGenDSA implements com.jcraft.jsch.KeyPairGenDSA {
     byte[] x;  // private
     byte[] y;  // public
     byte[] p;
     byte[] q;
     byte[] g;
 
-    public void init(int key_size) throws Exception {
-        KeyPairGenerator keyGen = KeyPairGenerator.getInstance("DSA");
+    @Override
+    public void init(final int key_size) throws Exception {
+        final KeyPairGenerator keyGen = KeyPairGenerator.getInstance("DSA");
         keyGen.initialize(key_size, new SecureRandom());
-        KeyPair pair = keyGen.generateKeyPair();
-        PublicKey pubKey = pair.getPublic();
-        PrivateKey prvKey = pair.getPrivate();
+        final KeyPair pair = keyGen.generateKeyPair();
+        final PublicKey pubKey = pair.getPublic();
+        final PrivateKey prvKey = pair.getPrivate();
 
         x = ((DSAPrivateKey) prvKey).getX().toByteArray();
         y = ((DSAPublicKey) pubKey).getY().toByteArray();
 
-        DSAParams params = ((DSAKey) prvKey).getParams();
+        final DSAParams params = ((DSAKey) prvKey).getParams();
         p = params.getP().toByteArray();
         q = params.getQ().toByteArray();
         g = params.getG().toByteArray();
     }
 
+    @Override
     public byte[] getX() {
         return x;
     }
 
+    @Override
     public byte[] getY() {
         return y;
     }
 
+    @Override
     public byte[] getP() {
         return p;
     }
 
+    @Override
     public byte[] getQ() {
         return q;
     }
 
+    @Override
     public byte[] getG() {
         return g;
     }

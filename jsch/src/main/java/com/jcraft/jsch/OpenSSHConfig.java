@@ -30,12 +30,16 @@ EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 package com.jcraft.jsch;
 
 import java.io.BufferedReader;
-import java.io.FileReader;
 import java.io.IOException;
 import java.io.Reader;
 import java.io.StringReader;
-import java.util.Hashtable;
-import java.util.Vector;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 /**
  * This class implements ConfigRepository interface, and parses
@@ -46,6 +50,8 @@ import java.util.Vector;
  *   <li>Hostname</li>
  *   <li>Port</li>
  *   <li>PreferredAuthentications</li>
+ *   <li>PubkeyAcceptedAlgorithms</li>
+ *   <li>FingerprintHash</li>
  *   <li>IdentityFile</li>
  *   <li>NumberOfPasswordPrompts</li>
  *   <li>ConnectTimeout</li>
@@ -69,80 +75,98 @@ import java.util.Vector;
  */
 public class OpenSSHConfig implements ConfigRepository {
 
+    private static final Set<String> keysWithListAdoption;
+
+    static {
+        final Set<String> set = new HashSet<>();
+        for (final String s : Arrays.asList("KexAlgorithms",
+                "Ciphers",
+                "HostKeyAlgorithms",
+                "MACs",
+                "PubkeyAcceptedAlgorithms",
+                "PubkeyAcceptedKeyTypes")) {
+            final String toUpperCase = s.toUpperCase();
+            set.add(toUpperCase);
+        }
+        keysWithListAdoption = set;
+    }
+
     /**
      * Parses the given string, and returns an instance of ConfigRepository.
      *
      * @param conf string, which includes OpenSSH's config
      * @return an instanceof OpenSSHConfig
      */
-    public static OpenSSHConfig parse(String conf) throws IOException {
-        Reader r = new StringReader(conf);
-        try {
-            return new OpenSSHConfig(r);
-        } finally {
-            r.close();
+    public static OpenSSHConfig parse(final String conf) throws IOException {
+        try (final Reader r = new StringReader(conf)) {
+            try (final BufferedReader br = new BufferedReader(r)) {
+                return new OpenSSHConfig(br);
+            }
         }
     }
 
     /**
      * Parses the given file, and returns an instance of ConfigRepository.
      *
-     * @param file OpenSSH's config file
+     * @param reader OpenSSH's config file reader
      * @return an instanceof OpenSSHConfig
      */
-    public static OpenSSHConfig parseFile(String file) throws IOException {
-        Reader r = new FileReader(Util.checkTilde(file));
-        try {
-            return new OpenSSHConfig(r);
-        } finally {
-            r.close();
-        }
+    public static OpenSSHConfig parseFile(final BufferedReader reader) throws IOException {
+        return new OpenSSHConfig(reader);
     }
 
-    OpenSSHConfig(Reader r) throws IOException {
-        _parse(r);
+    OpenSSHConfig(final BufferedReader br) throws IOException {
+        _parse(br);
     }
 
-    private final Hashtable config = new Hashtable();
-    private final Vector hosts = new Vector();
+    private final Map<String, List<String[]>> config = new HashMap<>();
+    private final List<String> hosts = new ArrayList<>();
 
-    private void _parse(Reader r) throws IOException {
-        BufferedReader br = new BufferedReader(r);
-
+    private void _parse(final BufferedReader br) throws IOException {
         String host = "";
-        Vector/*<String[]>*/ kv = new Vector();
-        String l = null;
+        List<String[]> kv = new ArrayList<>();
+        String l;
 
         while ((l = br.readLine()) != null) {
             l = l.trim();
-            if (l.length() == 0 || l.startsWith("#"))
+            if (l.isEmpty() || l.startsWith("#"))
                 continue;
 
-            String[] key_value = l.split("[= \t]", 2);
+            final String[] key_value = l.split("[= \t]", 2);
             for (int i = 0; i < key_value.length; i++)
                 key_value[i] = key_value[i].trim();
 
             if (key_value.length <= 1)
                 continue;
 
-            if (key_value[0].equals("Host")) {
+            if ("Host".equalsIgnoreCase(key_value[0])) {
                 config.put(host, kv);
-                hosts.addElement(host);
+                hosts.add(host);
                 host = key_value[1];
-                kv = new Vector();
+                kv = new ArrayList<>();
             } else {
-                kv.addElement(key_value);
+                kv.add(key_value);
             }
         }
         config.put(host, kv);
-        hosts.addElement(host);
+        hosts.add(host);
     }
 
-    public Config getConfig(String host) {
+    @Override
+    public Config getConfig(final String host) {
         return new MyConfig(host);
     }
 
-    private static final Hashtable keymap = new Hashtable();
+    /**
+     * Returns mapping of jsch config property names to OpenSSH property names.
+     *
+     * @return map
+     */
+    static Map<String, String> getKeymap() {
+        return keymap;
+    }
+
+    private static final Map<String, String> keymap = new HashMap<>();
 
     static {
         keymap.put("kex", "KexAlgorithms");
@@ -159,31 +183,31 @@ public class OpenSSHConfig implements ConfigRepository {
 
     class MyConfig implements Config {
 
-        private String host;
-        private Vector _configs = new Vector();
+        private final String host;
+        private final List<List<String[]>> _configs = new ArrayList<>();
 
-        MyConfig(String host) {
+        MyConfig(final String host) {
             this.host = host;
 
-            _configs.addElement(config.get(""));
+            _configs.add(config.get(""));
 
-            byte[] _host = Util.str2byte(host);
+            final byte[] _host = Util.str2byte(host);
             if (hosts.size() > 1) {
                 for (int i = 1; i < hosts.size(); i++) {
-                    String patterns[] = ((String) hosts.elementAt(i)).split("[ \t]");
-                    for (int j = 0; j < patterns.length; j++) {
+                    final String[] patterns = hosts.get(i).split("[ \t]");
+                    for (final String pattern : patterns) {
                         boolean negate = false;
-                        String foo = patterns[j].trim();
+                        String foo = pattern.trim();
                         if (foo.startsWith("!")) {
                             negate = true;
                             foo = foo.substring(1).trim();
                         }
                         if (Util.glob(Util.str2byte(foo), _host)) {
                             if (!negate) {
-                                _configs.addElement(config.get((String) hosts.elementAt(i)));
+                                _configs.add(config.get(hosts.get(i)));
                             }
                         } else if (negate) {
-                            _configs.addElement(config.get((String) hosts.elementAt(i)));
+                            _configs.add(config.get(hosts.get(i)));
                         }
                     }
                 }
@@ -191,15 +215,12 @@ public class OpenSSHConfig implements ConfigRepository {
         }
 
         private String find(String key) {
-            if (keymap.get(key) != null) {
-                key = (String) keymap.get(key);
-            }
+            final String originalKey = key;
+            key = Util.requireNonNullElse(keymap.get(key), key);
             key = key.toUpperCase();
             String value = null;
-            for (int i = 0; i < _configs.size(); i++) {
-                Vector v = (Vector) _configs.elementAt(i);
-                for (int j = 0; j < v.size(); j++) {
-                    String[] kv = (String[]) v.elementAt(j);
+            for (final List<String[]> v : _configs) {
+                for (final String[] kv : v) {
                     if (kv[0].toUpperCase().equals(key)) {
                         value = kv[1];
                         break;
@@ -218,65 +239,89 @@ public class OpenSSHConfig implements ConfigRepository {
         try {
           int timeout = Integer.parseInt(value);
           value = Integer.toString(timeout*1000);
-        } catch (NumberFormatException e) {
+        } catch (final NumberFormatException e) {
         }
       }
       */
+
+            if (keysWithListAdoption.contains(key) && value != null && (value.startsWith("+") ||
+                    value.startsWith("-") || value.startsWith("^"))) {
+
+                final String origConfig = JSch.getConfig(originalKey).trim();
+
+                if (value.startsWith("+")) {
+                    value = origConfig + "," + value.substring(1).trim();
+                } else if (value.startsWith("-")) {
+                    final List<String> algList =
+                            new ArrayList<>(Arrays.asList(Util.split(origConfig, ",")));
+                    for (final String alg : Util.split(value.substring(1).trim(), ",")) {
+                        algList.remove(alg.trim());
+                    }
+                    value = String.join(",", algList);
+                } else if (value.startsWith("^")) {
+                    value = value.substring(1).trim() + "," + origConfig;
+                }
+            }
+
             return value;
         }
 
         private String[] multiFind(String key) {
             key = key.toUpperCase();
-            Vector value = new Vector();
+            final List<String> value = new ArrayList<>();
             for (int i = 0; i < _configs.size(); i++) {
-                Vector v = (Vector) _configs.elementAt(i);
+                final List<String[]> v = _configs.get(i);
                 for (int j = 0; j < v.size(); j++) {
-                    String[] kv = (String[]) v.elementAt(j);
+                    final String[] kv = v.get(j);
                     if (kv[0].toUpperCase().equals(key)) {
-                        String foo = kv[1];
+                        final String foo = kv[1];
                         if (foo != null) {
                             value.remove(foo);
-                            value.addElement(foo);
+                            value.add(foo);
                         }
                     }
                 }
             }
-            String[] result = new String[value.size()];
-            value.toArray(result);
-            return result;
+            return value.toArray(new String[0]);
         }
 
+        @Override
         public String getHostname() {
             return find("Hostname");
         }
 
+        @Override
         public String getUser() {
             return find("User");
         }
 
+        @Override
         public int getPort() {
-            String foo = find("Port");
+            final String foo = find("Port");
             int port = -1;
             try {
                 port = Integer.parseInt(foo);
-            } catch (NumberFormatException e) {
+            } catch (final NumberFormatException e) {
                 // wrong format
             }
             return port;
         }
 
-        public String getValue(String key) {
-            if (key.equals("compression.s2c") ||
-                    key.equals("compression.c2s")) {
-                String foo = find(key);
-                if (foo == null || foo.equals("no"))
-                    return "none,zlib@openssh.com,zlib";
-                return "zlib@openssh.com,zlib,none";
+        @Override
+        public String getValue(final String key) {
+            switch (key) {
+                case "compression.s2c":
+                case "compression.c2s":
+                    final String foo = find(key);
+                    if (foo == null || "no".equals(foo))
+                        return "none,zlib@openssh.com,zlib";
+                    return "zlib@openssh.com,zlib,none";
             }
             return find(key);
         }
 
-        public String[] getValues(String key) {
+        @Override
+        public String[] getValues(final String key) {
             return multiFind(key);
         }
     }

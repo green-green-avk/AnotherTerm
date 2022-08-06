@@ -242,7 +242,7 @@
         android:background="?android:attr/listDivider" />
 
     <TextView
-        android:layout_width="wrap_content"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginTop="@dimen/text_separator"
         android:layout_marginBottom="@dimen/text_separator"
@@ -257,7 +257,7 @@
         android:text="@string/label_prefer_public_key_authentication" />
 
     <TextView
-        android:layout_width="wrap_content"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:labelFor="@id/f_auth_key_uri"
         android:text="@string/label_client_private_key_" />
@@ -281,28 +281,36 @@
         android:layout_marginLeft="@dimen/text_margin"
         android:layout_marginRight="@dimen/text_margin"
         android:textStyle="italic"
-        app:xmlText="@string/note_rely_on_jsch_documentation_regarding_the_settings_below" />
+        app:xmlText="@string/note_ssh_algorithm_lists" />
 
-    <LinearLayout
+    <TextView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:gravity="center_vertical"
-        android:orientation="horizontal">
+        android:labelFor="@id/f_kex"
+        android:text="@string/label_key_exchange" />
 
-        <TextView
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:labelFor="@id/f_kex"
-            android:text="@string/label_key_exchange" />
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginLeft="@dimen/text_margin"
+        android:layout_marginRight="@dimen/text_margin"
+        android:text="@string/label_available_" />
 
-        <ImageButton
-            style="@style/AppWidget.Editor.ImageButton.Inline"
-            android:contentDescription="@string/label_reset_to_default"
-            android:tag="jsch.cfg.kex"
-            app:srcCompat="@drawable/ic_reset" />
+    <green_green_avk.anotherterm.ui.TextCollectionView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginLeft="@dimen/frame_margin"
+        android:layout_marginRight="@dimen/frame_margin"
+        android:background="@drawable/bg_frame2"
+        android:tag="\@jsch.cfg.kex"
+        android:textSize="@dimen/xSmallUiOptionTextSize" />
 
-    </LinearLayout>
+    <ImageButton
+        style="@style/AppWidget.Editor.ImageButton.Horizontal.XSmall"
+        android:layout_gravity="end"
+        android:contentDescription="@string/label_reset_to_default"
+        android:tag="jsch.cfg.kex"
+        app:srcCompat="@drawable/ic_reset" />
 
     <EditText
         android:id="@+id/f_kex"
@@ -312,6 +320,27 @@
         android:inputType="text|textMultiLine|textNoSuggestions"
         android:tag="jsch.cfg.kex" />
 
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="@string/label_transport_encryption" />
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginLeft="@dimen/text_margin"
+        android:layout_marginRight="@dimen/text_margin"
+        android:text="@string/label_available_" />
+
+    <green_green_avk.anotherterm.ui.TextCollectionView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginLeft="@dimen/frame_margin"
+        android:layout_marginRight="@dimen/frame_margin"
+        android:background="@drawable/bg_frame2"
+        android:tag="\@jsch.cfg.cipher"
+        android:textSize="@dimen/xSmallUiOptionTextSize" />
+
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
@@ -322,11 +351,10 @@
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="1"
-            android:labelFor="@id/f_cipher_s2c"
-            android:text="@string/label_server_to_client_transport_encryption" />
+            android:text="@string/label_server_to_client" />
 
         <ImageButton
-            style="@style/AppWidget.Editor.ImageButton.Inline"
+            style="@style/AppWidget.Editor.ImageButton.Horizontal.XSmall"
             android:contentDescription="@string/label_reset_to_default"
             android:tag="jsch.cfg.cipher.s2c"
             app:srcCompat="@drawable/ic_reset" />
@@ -337,6 +365,7 @@
         android:id="@+id/f_cipher_s2c"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:contentDescription="@string/label_server_to_client_transport_encryption"
         android:importantForAutofill="no"
         android:inputType="text|textMultiLine|textNoSuggestions"
         android:tag="jsch.cfg.cipher.s2c" />
@@ -351,11 +380,10 @@
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="1"
-            android:labelFor="@id/f_cipher_c2s"
-            android:text="@string/label_client_to_server_transport_encryption" />
+            android:text="@string/label_client_to_server" />
 
         <ImageButton
-            style="@style/AppWidget.Editor.ImageButton.Inline"
+            style="@style/AppWidget.Editor.ImageButton.Horizontal.XSmall"
             android:contentDescription="@string/label_reset_to_default"
             android:tag="jsch.cfg.cipher.c2s"
             app:srcCompat="@drawable/ic_reset" />
@@ -366,9 +394,31 @@
         android:id="@+id/f_cipher_c2s"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:contentDescription="@string/label_client_to_server_transport_encryption"
         android:importantForAutofill="no"
         android:inputType="text|textMultiLine|textNoSuggestions"
         android:tag="jsch.cfg.cipher.c2s" />
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="@string/label_transport_message_authentication_code" />
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginLeft="@dimen/text_margin"
+        android:layout_marginRight="@dimen/text_margin"
+        android:text="@string/label_available_" />
+
+    <green_green_avk.anotherterm.ui.TextCollectionView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginLeft="@dimen/frame_margin"
+        android:layout_marginRight="@dimen/frame_margin"
+        android:background="@drawable/bg_frame2"
+        android:tag="\@jsch.cfg.mac"
+        android:textSize="@dimen/xSmallUiOptionTextSize" />
 
     <LinearLayout
         android:layout_width="match_parent"
@@ -380,11 +430,10 @@
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="1"
-            android:labelFor="@id/f_mac_s2c"
-            android:text="@string/label_server_to_client_transport_message_authentication_code" />
+            android:text="@string/label_server_to_client" />
 
         <ImageButton
-            style="@style/AppWidget.Editor.ImageButton.Inline"
+            style="@style/AppWidget.Editor.ImageButton.Horizontal.XSmall"
             android:contentDescription="@string/label_reset_to_default"
             android:tag="jsch.cfg.mac.s2c"
             app:srcCompat="@drawable/ic_reset" />
@@ -395,6 +444,7 @@
         android:id="@+id/f_mac_s2c"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:contentDescription="@string/label_server_to_client_transport_message_authentication_code"
         android:importantForAutofill="no"
         android:inputType="text|textMultiLine|textNoSuggestions"
         android:tag="jsch.cfg.mac.s2c" />
@@ -409,11 +459,10 @@
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="1"
-            android:labelFor="@id/f_mac_c2s"
-            android:text="@string/label_client_to_server_transport_message_authentication_code" />
+            android:text="@string/label_client_to_server" />
 
         <ImageButton
-            style="@style/AppWidget.Editor.ImageButton.Inline"
+            style="@style/AppWidget.Editor.ImageButton.Horizontal.XSmall"
             android:contentDescription="@string/label_reset_to_default"
             android:tag="jsch.cfg.mac.c2s"
             app:srcCompat="@drawable/ic_reset" />
@@ -424,8 +473,53 @@
         android:id="@+id/f_mac_c2s"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:contentDescription="@string/label_client_to_server_transport_message_authentication_code"
         android:importantForAutofill="no"
         android:inputType="text|textMultiLine|textNoSuggestions"
         android:tag="jsch.cfg.mac.c2s" />
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:labelFor="@id/f_PubkeyAcceptedAlgorithms"
+        android:text="@string/label_public_key_accepted_algorithms" />
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginLeft="@dimen/text_margin"
+        android:layout_marginRight="@dimen/text_margin"
+        android:text="@string/label_available_" />
+
+    <green_green_avk.anotherterm.ui.TextCollectionView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginLeft="@dimen/frame_margin"
+        android:layout_marginRight="@dimen/frame_margin"
+        android:background="@drawable/bg_frame2"
+        android:tag="\@jsch.cfg.PubkeyAcceptedAlgorithms"
+        android:textSize="@dimen/xSmallUiOptionTextSize" />
+
+    <ImageButton
+        style="@style/AppWidget.Editor.ImageButton.Horizontal.XSmall"
+        android:layout_gravity="end"
+        android:contentDescription="@string/label_reset_to_default"
+        android:tag="jsch.cfg.PubkeyAcceptedAlgorithms"
+        app:srcCompat="@drawable/ic_reset" />
+
+    <EditText
+        android:id="@+id/f_PubkeyAcceptedAlgorithms"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:importantForAutofill="no"
+        android:inputType="text|textMultiLine|textNoSuggestions"
+        android:tag="jsch.cfg.PubkeyAcceptedAlgorithms" />
+
+    <CheckBox
+        android:id="@+id/f_enable_server_sig_algs"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:tag="jsch.cfg.enable_server_sig_algs"
+        android:text="@string/label_enable_server_signature_algorithms" />
 
 </LinearLayout>

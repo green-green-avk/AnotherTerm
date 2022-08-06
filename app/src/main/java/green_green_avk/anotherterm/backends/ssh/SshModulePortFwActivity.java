@@ -17,6 +17,7 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.jcraft.jsch.JSchErrorException;
 import com.jcraft.jsch.JSchException;
 import com.jcraft.jsch.Session;
 
@@ -140,11 +141,11 @@ public final class SshModulePortFwActivity extends AppCompatActivity {
                                     try {
                                         session.delPortForwardingR(elt.srcPort);
                                         return null;
-                                    } catch (final JSchException e) {
+                                    } catch (final Exception e) {
                                         return e;
                                     }
                                 }, onUpdate);
-                        } catch (final JSchException e) {
+                        } catch (final JSchException | JSchErrorException e) {
                             res = e;
                         }
                     }
@@ -172,12 +173,12 @@ public final class SshModulePortFwActivity extends AppCompatActivity {
             try {
                 parsePortMappings(locals, session.getPortForwardingL());
                 Collections.sort(locals, listSortOrder);
-            } catch (final JSchException ignored) {
+            } catch (final JSchException | JSchErrorException ignored) {
             }
             try {
                 parsePortMappings(remotes, session.getPortForwardingR());
                 Collections.sort(remotes, listSortOrder);
-            } catch (final JSchException ignored) {
+            } catch (final JSchException | JSchErrorException ignored) {
             }
         }
         x11 = sshSessionSt.x11;
@@ -187,8 +188,8 @@ public final class SshModulePortFwActivity extends AppCompatActivity {
 
     private void update(@Nullable final Object v) {
         if (v instanceof Throwable) {
-            Toast.makeText(this, ((Throwable) v).getLocalizedMessage(), Toast.LENGTH_LONG)
-                    .show();
+            Toast.makeText(this, ((Throwable) v).getLocalizedMessage(),
+                    Toast.LENGTH_LONG).show();
         }
         locals.clear();
         remotes.clear();
@@ -321,7 +322,7 @@ public final class SshModulePortFwActivity extends AppCompatActivity {
                         if (session == null) return;
                         try {
                             final int srcPort = bSrcPort.get();
-                            String _host = wHost.getText().toString();
+                            final String _host = wHost.getText().toString();
                             final String host;
                             if (_host.isEmpty()) host = DEFAULT_HOST;
                             else host = _host;
@@ -333,11 +334,12 @@ public final class SshModulePortFwActivity extends AppCompatActivity {
                                     try {
                                         session.setPortForwardingR(srcPort, host, dstPort);
                                         return null;
-                                    } catch (final JSchException e) {
+                                    } catch (final Exception e) {
                                         return e;
                                     }
                                 }, onUpdate);
-                        } catch (final JSchException | ViewValueBinderException e) {
+                        } catch (final JSchException | JSchErrorException |
+                                ViewValueBinderException e) {
                             res = e;
                         }
                     }

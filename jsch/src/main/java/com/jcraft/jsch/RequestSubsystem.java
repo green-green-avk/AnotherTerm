@@ -29,20 +29,25 @@ EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 package com.jcraft.jsch;
 
-public class RequestSubsystem extends Request {
+final class RequestSubsystem extends Request {
     private String subsystem = null;
 
-    public void request(Session session, Channel channel, String subsystem, boolean want_reply) throws Exception {
+    public void request(final Session session, final Channel channel, final String subsystem,
+                        final boolean want_reply)
+            throws Exception {
         setReply(want_reply);
         this.subsystem = subsystem;
         this.request(session, channel);
     }
 
-    public void request(Session session, Channel channel) throws Exception {
+    @Override
+    public void request(final Session session, final Channel channel) throws Exception {
+        assert subsystem != null;
+
         super.request(session, channel);
 
-        Buffer buf = new Buffer();
-        Packet packet = new Packet(buf);
+        final Buffer buf = new Buffer();
+        final Packet packet = new Packet(buf);
 
         packet.reset();
         buf.putByte((byte) Session.SSH_MSG_CHANNEL_REQUEST);

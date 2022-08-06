@@ -36,30 +36,32 @@ import javax.crypto.SecretKeyFactory;
 import javax.crypto.spec.DESedeKeySpec;
 import javax.crypto.spec.IvParameterSpec;
 
-public class TripleDESCTR implements Cipher {
+public final class TripleDESCTR implements Cipher {
     private static final int ivsize = 8;
     private static final int bsize = 24;
     private javax.crypto.Cipher cipher;
 
+    @Override
     public int getIVSize() {
         return ivsize;
     }
 
+    @Override
     public int getBlockSize() {
         return bsize;
     }
 
-    public void init(int mode, byte[] key, byte[] iv) throws Exception {
-        String pad = "NoPadding";
+    @Override
+    public void init(final int mode, byte[] key, byte[] iv) throws Exception {
+        final String pad = "NoPadding";
         //if(padding) pad="PKCS5Padding";
-        byte[] tmp;
         if (iv.length > ivsize) {
-            tmp = new byte[ivsize];
+            final byte[] tmp = new byte[ivsize];
             System.arraycopy(iv, 0, tmp, 0, tmp.length);
             iv = tmp;
         }
         if (key.length > bsize) {
-            tmp = new byte[bsize];
+            final byte[] tmp = new byte[bsize];
             System.arraycopy(key, 0, tmp, 0, tmp.length);
             key = tmp;
         }
@@ -68,31 +70,32 @@ public class TripleDESCTR implements Cipher {
             cipher = javax.crypto.Cipher.getInstance("DESede/CTR/" + pad);
 /*
       // The following code does not work on IBM's JDK 1.4.1
-      SecretKeySpec skeySpec = new SecretKeySpec(key, "DESede");
+      final SecretKeySpec skeySpec = new SecretKeySpec(key, "DESede");
       cipher.init((mode==ENCRYPT_MODE?
-		   javax.crypto.Cipher.ENCRYPT_MODE:
-		   javax.crypto.Cipher.DECRYPT_MODE),
-		  skeySpec, new IvParameterSpec(iv));
+                   javax.crypto.Cipher.ENCRYPT_MODE:
+                   javax.crypto.Cipher.DECRYPT_MODE),
+                   skeySpec, new IvParameterSpec(iv));
 */
-            DESedeKeySpec keyspec = new DESedeKeySpec(key);
-            SecretKeyFactory keyfactory = SecretKeyFactory.getInstance("DESede");
-            SecretKey _key = keyfactory.generateSecret(keyspec);
-            synchronized (javax.crypto.Cipher.class) {
-                cipher.init((mode == ENCRYPT_MODE ?
-                                javax.crypto.Cipher.ENCRYPT_MODE :
-                                javax.crypto.Cipher.DECRYPT_MODE),
-                        _key, new IvParameterSpec(iv));
-            }
-        } catch (Exception e) {
+            final DESedeKeySpec keyspec = new DESedeKeySpec(key);
+            final SecretKeyFactory keyfactory = SecretKeyFactory.getInstance("DESede");
+            final SecretKey _key = keyfactory.generateSecret(keyspec);
+            cipher.init((mode == ENCRYPT_MODE ?
+                            javax.crypto.Cipher.ENCRYPT_MODE :
+                            javax.crypto.Cipher.DECRYPT_MODE),
+                    _key, new IvParameterSpec(iv));
+        } catch (final Exception e) {
             cipher = null;
             throw e;
         }
     }
 
-    public void update(byte[] foo, int s1, int len, byte[] bar, int s2) throws Exception {
+    @Override
+    public void update(final byte[] foo, final int s1, final int len, final byte[] bar, final int s2)
+            throws Exception {
         cipher.update(foo, s1, len, bar, s2);
     }
 
+    @Override
     public boolean isCBC() {
         return false;
     }

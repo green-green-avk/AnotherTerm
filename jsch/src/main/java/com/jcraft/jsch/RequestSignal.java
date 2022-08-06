@@ -29,18 +29,19 @@ EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 package com.jcraft.jsch;
 
-class RequestSignal extends Request {
+final class RequestSignal extends Request {
     private String signal = "KILL";
 
-    public void setSignal(String foo) {
+    public void setSignal(final String foo) {
         signal = foo;
     }
 
-    public void request(Session session, Channel channel) throws Exception {
+    @Override
+    public void request(final Session session, final Channel channel) throws Exception {
         super.request(session, channel);
 
-        Buffer buf = new Buffer();
-        Packet packet = new Packet(buf);
+        final Buffer buf = new Buffer();
+        final Packet packet = new Packet(buf);
 
         packet.reset();
         buf.putByte((byte) Session.SSH_MSG_CHANNEL_REQUEST);

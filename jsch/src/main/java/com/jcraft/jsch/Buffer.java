@@ -29,19 +29,19 @@ EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 package com.jcraft.jsch;
 
-public class Buffer {
-    final byte[] tmp = new byte[4];
+public final class Buffer {
+    private final byte[] tmp = new byte[4];
     byte[] buffer;
     int index;
     int s;
 
-    public Buffer(int size) {
+    public Buffer(final int size) {
         buffer = new byte[size];
         index = 0;
         s = 0;
     }
 
-    public Buffer(byte[] buffer) {
+    public Buffer(final byte[] buffer) {
         this.buffer = buffer;
         index = 0;
         s = 0;
@@ -51,29 +51,29 @@ public class Buffer {
         this(1024 * 10 * 2);
     }
 
-    public void putByte(byte foo) {
+    public void putByte(final byte foo) {
         buffer[index++] = foo;
     }
 
-    public void putByte(byte[] foo) {
+    public void putByte(final byte[] foo) {
         putByte(foo, 0, foo.length);
     }
 
-    public void putByte(byte[] foo, int begin, int length) {
+    public void putByte(final byte[] foo, final int begin, final int length) {
         System.arraycopy(foo, begin, buffer, index, length);
         index += length;
     }
 
-    public void putString(byte[] foo) {
+    public void putString(final byte[] foo) {
         putString(foo, 0, foo.length);
     }
 
-    public void putString(byte[] foo, int begin, int length) {
+    public void putString(final byte[] foo, final int begin, final int length) {
         putInt(length);
         putByte(foo, begin, length);
     }
 
-    public void putInt(int val) {
+    public void putInt(final int val) {
         tmp[0] = (byte) (val >>> 24);
         tmp[1] = (byte) (val >>> 16);
         tmp[2] = (byte) (val >>> 8);
@@ -82,7 +82,7 @@ public class Buffer {
         index += 4;
     }
 
-    public void putLong(long val) {
+    public void putLong(final long val) {
         tmp[0] = (byte) (val >>> 56);
         tmp[1] = (byte) (val >>> 48);
         tmp[2] = (byte) (val >>> 40);
@@ -96,7 +96,7 @@ public class Buffer {
         index += 8;
     }
 
-    void skip(int n) {
+    void skip(final int n) {
         index += n;
     }
 
@@ -107,7 +107,7 @@ public class Buffer {
         }
     }
 
-    public void putMPInt(byte[] foo) {
+    public void putMPInt(final byte[] foo) {
         int i = foo.length;
         if ((foo[0] & 0x80) != 0) {
             i++;
@@ -127,7 +127,7 @@ public class Buffer {
         return s;
     }
 
-    public void setOffSet(int s) {
+    public void setOffSet(final int s) {
         this.s = s;
     }
 
@@ -164,17 +164,17 @@ public class Buffer {
         return (buffer[s++] & 0xff);
     }
 
-    public void getByte(byte[] foo) {
+    public void getByte(final byte[] foo) {
         getByte(foo, 0, foo.length);
     }
 
-    void getByte(byte[] foo, int start, int len) {
+    void getByte(final byte[] foo, final int start, final int len) {
         System.arraycopy(buffer, s, foo, start, len);
         s += len;
     }
 
-    public int getByte(int len) {
-        int foo = s;
+    public int getByte(final int len) {
+        final int foo = s;
         s += len;
         return foo;
     }
@@ -186,18 +186,18 @@ public class Buffer {
             // TODO: an exception should be thrown.
             i = 8 * 1024; // the session will be broken, but working around OOME.
         }
-        byte[] foo = new byte[i];
+        final byte[] foo = new byte[i];
         getByte(foo, 0, i);
         return foo;
     }
 
     public byte[] getMPIntBits() {
-        int bits = getInt();
-        int bytes = (bits + 7) / 8;
+        final int bits = getInt();
+        final int bytes = (bits + 7) / 8;
         byte[] foo = new byte[bytes];
         getByte(foo, 0, bytes);
         if ((foo[0] & 0x80) != 0) {
-            byte[] bar = new byte[foo.length + 1];
+            final byte[] bar = new byte[foo.length + 1];
             bar[0] = 0; // ??
             System.arraycopy(foo, 0, bar, 1, foo.length);
             foo = bar;
@@ -212,13 +212,13 @@ public class Buffer {
             // TODO: an exception should be thrown.
             i = 256 * 1024; // the session will be broken, but working around OOME.
         }
-        byte[] foo = new byte[i];
+        final byte[] foo = new byte[i];
         getByte(foo, 0, i);
         return foo;
     }
 
-    byte[] getString(int[] start, int[] len) {
-        int i = getInt();
+    byte[] getString(final int[] start, final int[] len) {
+        final int i = getInt();
         start[0] = getByte(i);
         len[0] = i;
         return buffer;
@@ -232,7 +232,7 @@ public class Buffer {
     public void shift() {
         if (s == 0) return;
         System.arraycopy(buffer, s, buffer, 0, index - s);
-        index = index - s;
+        index -= s;
         s = 0;
     }
 
@@ -244,21 +244,21 @@ public class Buffer {
         return buffer[5];
     }
 
-    void checkFreeSize(int n) {
-        int size = index + n + Session.buffer_margin;
+    void checkFreeSize(final int n) {
+        final int size = index + n + Session.buffer_margin;
         if (buffer.length < size) {
             int i = buffer.length * 2;
             if (i < size) i = size;
-            byte[] tmp = new byte[i];
+            final byte[] tmp = new byte[i];
             System.arraycopy(buffer, 0, tmp, 0, index);
             buffer = tmp;
         }
     }
 
-    byte[][] getBytes(int n, String msg) throws JSchException {
-        byte[][] tmp = new byte[n][];
+    byte[][] getBytes(final int n, final String msg) throws JSchException {
+        final byte[][] tmp = new byte[n][];
         for (int i = 0; i < n; i++) {
-            int j = getInt();
+            final int j = getInt();
             if (getLength() < j) {
                 throw new JSchException(msg);
             }
@@ -282,14 +282,14 @@ public class Buffer {
   }
   */
 
-    static Buffer fromBytes(byte[][] args) {
+    static Buffer fromBytes(final byte[][] args) {
         int length = args.length * 4;
-        for (int i = 0; i < args.length; i++) {
-            length += args[i].length;
+        for (final byte[] arg : args) {
+            length += arg.length;
         }
-        Buffer buf = new Buffer(length);
-        for (int i = 0; i < args.length; i++) {
-            buf.putString(args[i]);
+        final Buffer buf = new Buffer(length);
+        for (final byte[] arg : args) {
+            buf.putString(arg);
         }
         return buf;
     }
@@ -303,15 +303,15 @@ public class Buffer {
     int foo;
     for(int i=0; i<tmp_buffer_index; i++){
         foo=tmp_buffer[i]&0xff;
-	System.err.print(chars[(foo>>>4)&0xf]);
-	System.err.print(chars[foo&0xf]);
+        System.err.print(chars[(foo>>>4)&0xf]);
+        System.err.print(chars[foo&0xf]);
         if(i%16==15){
           System.err.println("");
-	  continue;
-	}
+          continue;
+        }
         if(i>0 && i%2==1){
           System.err.print(" ");
-	}
+        }
     }
     System.err.println("");
   }

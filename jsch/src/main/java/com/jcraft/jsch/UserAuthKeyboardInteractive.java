@@ -29,8 +29,9 @@ EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 package com.jcraft.jsch;
 
-class UserAuthKeyboardInteractive extends UserAuth {
-    public boolean start(Session session) throws Exception {
+final class UserAuthKeyboardInteractive extends UserAuth {
+    @Override
+    public boolean start(final Session session) throws Exception {
         super.start(session);
 
         if (userinfo != null && !(userinfo instanceof UIKeyboardInteractive)) {
@@ -45,8 +46,7 @@ class UserAuthKeyboardInteractive extends UserAuth {
 
         boolean cancel = false;
 
-        byte[] _username = null;
-        _username = Util.str2byte(username);
+        final byte[] _username = Util.str2byte(username);
 
         while (true) {
 
@@ -75,7 +75,7 @@ class UserAuthKeyboardInteractive extends UserAuth {
             loop:
             while (true) {
                 buf = session.read(buf);
-                int command = buf.getCommand() & 0xff;
+                final int command = buf.getCommand() & 0xff;
 
                 if (command == SSH_MSG_USERAUTH_SUCCESS) {
                     return true;
@@ -84,11 +84,10 @@ class UserAuthKeyboardInteractive extends UserAuth {
                     buf.getInt();
                     buf.getByte();
                     buf.getByte();
-                    byte[] _message = buf.getString();
-                    byte[] lang = buf.getString();
-                    String message = Util.byte2str(_message);
+                    final byte[] message = buf.getString();
+                    final byte[] lang = buf.getString();
                     if (userinfo != null) {
-                        userinfo.showMessage(message);
+                        userinfo.showMessage(Util.byte2str(message));
                     }
                     continue loop;
                 }
@@ -96,10 +95,10 @@ class UserAuthKeyboardInteractive extends UserAuth {
                     buf.getInt();
                     buf.getByte();
                     buf.getByte();
-                    byte[] foo = buf.getString();
-                    int partial_success = buf.getByte();
-//	  System.err.println(new String(foo)+
-//			     " partial_success:"+(partial_success!=0));
+                    final byte[] foo = buf.getString();
+                    final int partial_success = buf.getByte();
+//          System.err.println(new String(foo)+
+//                             " partial_success:"+(partial_success!=0));
 
                     if (partial_success != 0) {
                         throw new JSchPartialAuthException(Util.byte2str(foo));
@@ -118,12 +117,12 @@ class UserAuthKeyboardInteractive extends UserAuth {
                     buf.getInt();
                     buf.getByte();
                     buf.getByte();
-                    String name = Util.byte2str(buf.getString());
-                    String instruction = Util.byte2str(buf.getString());
-                    String languate_tag = Util.byte2str(buf.getString());
-                    int num = buf.getInt();
-                    String[] prompt = new String[num];
-                    boolean[] echo = new boolean[num];
+                    final String name = Util.byte2str(buf.getString());
+                    final String instruction = Util.byte2str(buf.getString());
+                    final String languate_tag = Util.byte2str(buf.getString());
+                    final int num = buf.getInt();
+                    final String[] prompt = new String[num];
+                    final boolean[] echo = new boolean[num];
                     for (int i = 0; i < num; i++) {
                         prompt[i] = Util.byte2str(buf.getString());
                         echo[i] = (buf.getByte() != 0);
@@ -134,25 +133,28 @@ class UserAuthKeyboardInteractive extends UserAuth {
                     if (password != null &&
                             prompt.length == 1 &&
                             !echo[0] &&
-                            prompt[0].toLowerCase().indexOf("password:") >= 0) {
+                            prompt[0].toLowerCase().contains("password:")) {
                         response = new byte[1][];
                         response[0] = password;
                         password = null;
                     } else if (num > 0
-                            || (name.length() > 0 || instruction.length() > 0)
+                            || (!name.isEmpty() || !instruction.isEmpty())
                     ) {
                         if (userinfo != null) {
-                            UIKeyboardInteractive kbi = (UIKeyboardInteractive) userinfo;
-                            String[] _response = kbi.promptKeyboardInteractive(dest,
+                            final UIKeyboardInteractive kbi = (UIKeyboardInteractive) userinfo;
+                            final CharSequence[] _response = kbi.promptKeyboardInteractive(
+                                    dest,
                                     name,
                                     instruction,
                                     prompt,
-                                    echo);
+                                    echo
+                            );
                             if (_response != null) {
                                 response = new byte[_response.length][];
                                 for (int i = 0; i < _response.length; i++) {
                                     response[i] = Util.str2byte(_response[i]);
                                 }
+                                kbi.erase(_response);
                             }
                         }
                     }
@@ -188,8 +190,8 @@ class UserAuthKeyboardInteractive extends UserAuth {
                     }
                     session.write(packet);
           /*
-	  if(cancel)
-	    break;
+          if(cancel)
+            break;
           */
                     continue loop;
                 }

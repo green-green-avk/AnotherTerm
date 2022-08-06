@@ -29,16 +29,18 @@ EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 package com.jcraft.jsch;
 
-public class RequestSftp extends Request {
+final class RequestSftp extends Request {
     RequestSftp() {
         setReply(true);
     }
 
-    public void request(Session session, Channel channel) throws Exception {
+    @Override
+    public void request(final Session session, final Channel channel) throws Exception {
         super.request(session, channel);
 
-        Buffer buf = new Buffer();
-        Packet packet = new Packet(buf);
+        final Buffer buf = new Buffer();
+        final Packet packet = new Packet(buf);
+
         packet.reset();
         buf.putByte((byte) Session.SSH_MSG_CHANNEL_REQUEST);
         buf.putInt(channel.getRecipient());

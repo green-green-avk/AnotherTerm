@@ -30,9 +30,10 @@ EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 package com.jcraft.jsch;
 
 import java.math.BigInteger;
-import java.util.Vector;
+import java.util.ArrayList;
+import java.util.List;
 
-public class KeyPairPKCS8 extends KeyPair {
+final class KeyPairPKCS8 extends KeyPair {
     private static final byte[] rsaEncryption = {
             (byte) 0x2a, (byte) 0x86, (byte) 0x48, (byte) 0x86,
             (byte) 0xf7, (byte) 0x0d, (byte) 0x01, (byte) 0x01, (byte) 0x01
@@ -75,28 +76,33 @@ public class KeyPairPKCS8 extends KeyPair {
 
     private KeyPair kpair = null;
 
-    public KeyPairPKCS8(JSch jsch) {
+    KeyPairPKCS8(final JSch jsch) {
         super(jsch);
     }
 
-    void generate(int key_size) throws JSchException {
+    @Override
+    void generate(final int key_size) throws JSchException {
     }
 
     private static final byte[] begin = Util.str2byte("-----BEGIN DSA PRIVATE KEY-----");
     private static final byte[] end = Util.str2byte("-----END DSA PRIVATE KEY-----");
 
+    @Override
     byte[] getBegin() {
         return begin;
     }
 
+    @Override
     byte[] getEnd() {
         return end;
     }
 
+    @Override
     byte[] getPrivateKey() {
         return null;
     }
 
+    @Override
     boolean parse(byte[] plain) {
 
     /* from RFC5208
@@ -114,27 +120,27 @@ public class KeyPairPKCS8 extends KeyPair {
     */
 
         try {
-            Vector values = new Vector();
+            final List<byte[]> values = new ArrayList<>();
 
-            ASN1[] contents = null;
+            ASN1[] contents;
             ASN1 asn1 = new ASN1(plain);
             contents = asn1.getContents();
 
-            ASN1 privateKeyAlgorithm = contents[1];
-            ASN1 privateKey = contents[2];
+            final ASN1 privateKeyAlgorithm = contents[1];
+            final ASN1 privateKey = contents[2];
 
             contents = privateKeyAlgorithm.getContents();
-            byte[] privateKeyAlgorithmID = contents[0].getContent();
+            final byte[] privateKeyAlgorithmID = contents[0].getContent();
             contents = contents[1].getContents();
             if (contents.length > 0) {
-                for (int i = 0; i < contents.length; i++) {
-                    values.addElement(contents[i].getContent());
+                for (final ASN1 content : contents) {
+                    values.add(content.getContent());
                 }
             }
 
-            byte[] _data = privateKey.getContent();
+            final byte[] _data = privateKey.getContent();
 
-            KeyPair _kpair = null;
+            final KeyPair _kpair;
             if (Util.array_equals(privateKeyAlgorithmID, rsaEncryption)) {
                 _kpair = new KeyPairRSA(jsch);
                 _kpair.copy(this);
@@ -153,30 +159,30 @@ public class KeyPairPKCS8 extends KeyPair {
                INTEGER      // prv_array
           */
                     contents = asn1.getContents();
-                    byte[] bar = contents[1].getContent();
+                    final byte[] bar = contents[1].getContent();
                     contents = contents[0].getContents();
-                    for (int i = 0; i < contents.length; i++) {
-                        values.addElement(contents[i].getContent());
+                    for (final ASN1 content : contents) {
+                        values.add(content.getContent());
                     }
-                    values.addElement(bar);
+                    values.add(bar);
                 } else {
           /*
              INTEGER      // prv_array
           */
-                    values.addElement(asn1.getContent());
+                    values.add(asn1.getContent());
                 }
 
-                byte[] P_array = (byte[]) values.elementAt(0);
-                byte[] Q_array = (byte[]) values.elementAt(1);
-                byte[] G_array = (byte[]) values.elementAt(2);
-                byte[] prv_array = (byte[]) values.elementAt(3);
+                final byte[] P_array = values.get(0);
+                final byte[] Q_array = values.get(1);
+                final byte[] G_array = values.get(2);
+                final byte[] prv_array = values.get(3);
                 // Y = g^X mode p
-                byte[] pub_array =
+                final byte[] pub_array =
                         (new BigInteger(G_array)).
                                 modPow(new BigInteger(prv_array), new BigInteger(P_array)).
                                 toByteArray();
 
-                KeyPairDSA _key = new KeyPairDSA(jsch,
+                final KeyPairDSA _key = new KeyPairDSA(jsch,
                         P_array, Q_array, G_array,
                         pub_array, prv_array);
                 plain = _key.getPrivateKey();
@@ -187,44 +193,62 @@ public class KeyPairPKCS8 extends KeyPair {
                     kpair = _kpair;
                 }
             }
-        } catch (ASN1Exception e) {
+        } catch (final ASN1Exception e) {
             return false;
-        } catch (Exception e) {
+        } catch (final Exception e) {
             //System.err.println(e);
             return false;
         }
         return kpair != null;
     }
 
+    @Override
     public byte[] getPublicKeyBlob() {
         return kpair.getPublicKeyBlob();
     }
 
+    @Override
     byte[] getKeyTypeName() {
         return kpair.getKeyTypeName();
     }
 
+    @Override
     public int getKeyType() {
         return kpair.getKeyType();
     }
 
+    @Override
     public int getKeySize() {
         return kpair.getKeySize();
     }
 
-    public byte[] getSignature(byte[] data) {
+    @Override
+    public byte[] getSignature(final byte[] data) {
         return kpair.getSignature(data);
     }
 
+    @Override
+    public byte[] getSignature(final byte[] data, final String alg) {
+        return kpair.getSignature(data, alg);
+    }
+
+    @Override
     public Signature getVerifier() {
         return kpair.getVerifier();
     }
 
+    @Override
+    public Signature getVerifier(final String alg) {
+        return kpair.getVerifier(alg);
+    }
+
+    @Override
     public byte[] forSSHAgent() throws JSchException {
         return kpair.forSSHAgent();
     }
 
-    public boolean decrypt(byte[] _passphrase) {
+    @Override
+    public boolean decrypt(final byte[] _passphrase) {
         if (!isEncrypted()) {
             return true;
         }
@@ -260,30 +284,30 @@ or
 
         try {
 
-            ASN1[] contents = null;
-            ASN1 asn1 = new ASN1(data);
+            ASN1[] contents;
+            final ASN1 asn1 = new ASN1(data);
 
             contents = asn1.getContents();
 
-            byte[] _data = contents[1].getContent();
+            final byte[] _data = contents[1].getContent();
 
-            ASN1 pbes = contents[0];
+            final ASN1 pbes = contents[0];
             contents = pbes.getContents();
-            byte[] pbesid = contents[0].getContent();
-            ASN1 pbesparam = contents[1];
+            final byte[] pbesid = contents[0].getContent();
+            final ASN1 pbesparam = contents[1];
 
-            byte[] salt = null;
-            int iterations = 0;
-            byte[] iv = null;
-            byte[] encryptfuncid = null;
+            final byte[] salt;
+            final int iterations;
+            final byte[] iv;
+            final byte[] encryptfuncid;
 
             if (Util.array_equals(pbesid, pbes2)) {
                 contents = pbesparam.getContents();
-                ASN1 pbkdf = contents[0];
-                ASN1 encryptfunc = contents[1];
+                final ASN1 pbkdf = contents[0];
+                final ASN1 encryptfunc = contents[1];
                 contents = pbkdf.getContents();
-                byte[] pbkdfid = contents[0].getContent();
-                ASN1 pbkdffunc = contents[1];
+                final byte[] pbkdfid = contents[0].getContent();
+                final ASN1 pbkdffunc = contents[1];
                 contents = pbkdffunc.getContents();
                 salt = contents[0].getContent();
                 iterations =
@@ -299,15 +323,16 @@ or
                 return false;
             }
 
-            Cipher cipher = getCipher(encryptfuncid);
+            final Cipher cipher = getCipher(encryptfuncid);
             if (cipher == null) return false;
 
             byte[] key = null;
             try {
-                Class c = Class.forName((String) jsch.getConfig("pbkdf"));
-                PBKDF tmp = (PBKDF) (c.newInstance());
+                final Class<? extends PBKDF> c =
+                        Class.forName(JSch.getConfig("pbkdf")).asSubclass(PBKDF.class);
+                final PBKDF tmp = c.getDeclaredConstructor().newInstance();
                 key = tmp.getKey(_passphrase, salt, iterations, cipher.getBlockSize());
-            } catch (Exception ee) {
+            } catch (final Exception ignored) {
             }
 
             if (key == null) {
@@ -316,22 +341,22 @@ or
 
             cipher.init(Cipher.DECRYPT_MODE, key, iv);
             Util.bzero(key);
-            byte[] plain = new byte[_data.length];
+            final byte[] plain = new byte[_data.length];
             cipher.update(_data, 0, _data.length, plain, 0);
             if (parse(plain)) {
                 encrypted = false;
                 return true;
             }
-        } catch (ASN1Exception e) {
+        } catch (final ASN1Exception e) {
             // System.err.println(e);
-        } catch (Exception e) {
+        } catch (final Exception e) {
             // System.err.println(e);
         }
 
         return false;
     }
 
-    Cipher getCipher(byte[] id) {
+    Cipher getCipher(final byte[] id) {
         Cipher cipher = null;
         String name = null;
         try {
@@ -342,17 +367,18 @@ or
             } else if (Util.array_equals(id, aes256cbc)) {
                 name = "aes256-cbc";
             }
-            Class c = Class.forName((String) jsch.getConfig(name));
-            cipher = (Cipher) (c.newInstance());
-        } catch (Exception e) {
-            if (JSch.getLogger().isEnabled(Logger.FATAL)) {
-                String message = "";
+            final Class<? extends Cipher> c =
+                    Class.forName(JSch.getConfig(name)).asSubclass(Cipher.class);
+            cipher = c.getDeclaredConstructor().newInstance();
+        } catch (final Exception e) {
+            if (jsch.getInstanceLogger().isEnabled(Logger.FATAL)) {
+                final String message;
                 if (name == null) {
                     message = "unknown oid: " + Util.toHex(id);
                 } else {
                     message = "function " + name + " is not supported";
                 }
-                JSch.getLogger().log(Logger.FATAL, "PKCS8: " + message);
+                jsch.getInstanceLogger().log(Logger.FATAL, "PKCS8: " + message);
             }
         }
         return cipher;

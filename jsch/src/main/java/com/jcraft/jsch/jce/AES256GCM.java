@@ -1,6 +1,6 @@
 /* -*-mode:java; c-basic-offset:2; indent-tabs-mode:nil -*- */
 /*
-Copyright (c) 2015-2018 ymnk, JCraft,Inc. All rights reserved.
+Copyright (c) 2008-2018 ymnk, JCraft,Inc. All rights reserved.
 
 Redistribution and use in source and binary forms, with or without
 modification, are permitted provided that the following conditions are met:
@@ -29,8 +29,17 @@ EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 package com.jcraft.jsch.jce;
 
-public class ECDH256 extends ECDHN implements com.jcraft.jsch.ECDH {
-    public void init() throws Exception {
-        super.init(256);
+import android.os.Build;
+
+import androidx.annotation.RequiresApi;
+
+@RequiresApi(api = Build.VERSION_CODES.KITKAT)
+public final class AES256GCM extends AESGCM {
+    //Actually the key size, not block size
+    private static final int bsize = 32;
+
+    @Override
+    public int getBlockSize() {
+        return bsize;
     }
 }

@@ -34,7 +34,8 @@ import java.io.OutputStream;
 import java.net.Socket;
 
 public interface Proxy {
-    void connect(SocketFactory socket_factory, String host, int port, int timeout) throws Exception;
+    void connect(SocketFactory socket_factory, String host, int port, int timeout)
+            throws Exception;
 
     InputStream getInputStream();
 

@@ -29,120 +29,124 @@ EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 package com.jcraft.jsch;
 
-import java.util.Vector;
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.List;
+import java.util.ListIterator;
 
-class LocalIdentityRepository implements IdentityRepository {
+final class LocalIdentityRepository implements IdentityRepository {
     private static final String name = "Local Identity Repository";
 
-    private Vector identities = new Vector();
-    private JSch jsch;
+    private final List<Identity> identities = new ArrayList<>();
+    private final JSch jsch;
 
-    LocalIdentityRepository(JSch jsch) {
+    LocalIdentityRepository(final JSch jsch) {
         this.jsch = jsch;
     }
 
+    @Override
     public String getName() {
         return name;
     }
 
+    @Override
     public int getStatus() {
         return RUNNING;
     }
 
-    public synchronized Vector getIdentities() {
-        removeDupulicates();
-        Vector v = new Vector();
-        for (int i = 0; i < identities.size(); i++) {
-            v.addElement(identities.elementAt(i));
-        }
-        return v;
+    @Override
+    public synchronized List<Identity> getIdentities() {
+        removeDuplicates();
+        return new ArrayList<>(identities);
     }
 
-    public synchronized void add(Identity identity) {
+    public synchronized void add(final Identity identity) {
         if (!identities.contains(identity)) {
-            byte[] blob1 = identity.getPublicKeyBlob();
+            final byte[] blob1 = identity.getPublicKeyBlob();
             if (blob1 == null) {
-                identities.addElement(identity);
+                identities.add(identity);
                 return;
             }
-            for (int i = 0; i < identities.size(); i++) {
-                byte[] blob2 = ((Identity) identities.elementAt(i)).getPublicKeyBlob();
+            final Iterator<Identity> it = identities.iterator();
+            while (it.hasNext()) {
+                final Identity id = it.next();
+                final byte[] blob2 = id.getPublicKeyBlob();
                 if (blob2 != null && Util.array_equals(blob1, blob2)) {
-                    if (!identity.isEncrypted() &&
-                            ((Identity) identities.elementAt(i)).isEncrypted()) {
-                        remove(blob2);
+                    if (!identity.isEncrypted() && id.isEncrypted()) {
+                        it.remove();
                     } else {
                         return;
                     }
                 }
             }
-            identities.addElement(identity);
+            identities.add(identity);
         }
     }
 
-    public synchronized boolean add(byte[] identity) {
+    @Override
+    public synchronized boolean add(final byte[] identity) {
         try {
-            Identity _identity =
-                    IdentityFile.newInstance("from remote:", identity, null, jsch);
-            add(_identity);
+            add(IdentityFile.newInstance("remote key", identity, null, jsch));
             return true;
-        } catch (JSchException e) {
+        } catch (final JSchException e) {
             return false;
         }
     }
 
-    synchronized void remove(Identity identity) {
+    synchronized void remove(final Identity identity) {
         if (identities.contains(identity)) {
-            identities.removeElement(identity);
+            identities.remove(identity);
             identity.clear();
         } else {
             remove(identity.getPublicKeyBlob());
         }
     }
 
-    public synchronized boolean remove(byte[] blob) {
-        if (blob == null) return false;
-        for (int i = 0; i < identities.size(); i++) {
-            Identity _identity = (Identity) (identities.elementAt(i));
-            byte[] _blob = _identity.getPublicKeyBlob();
-            if (_blob == null || !Util.array_equals(blob, _blob))
+    @Override
+    public synchronized boolean remove(final byte[] blob) {
+        if (blob == null)
+            return false;
+        final Iterator<Identity> it = identities.iterator();
+        while (it.hasNext()) {
+            final Identity id = it.next();
+            final byte[] ib = id.getPublicKeyBlob();
+            if (ib == null || !Util.array_equals(blob, ib))
                 continue;
-            identities.removeElement(_identity);
-            _identity.clear();
+            it.remove();
+            id.clear();
             return true;
         }
         return false;
     }
 
+    @Override
     public synchronized void removeAll() {
-        for (int i = 0; i < identities.size(); i++) {
-            Identity identity = (Identity) (identities.elementAt(i));
-            identity.clear();
+        for (final Identity id : identities) {
+            id.clear();
         }
-        identities.removeAllElements();
+        identities.clear();
     }
 
-    private void removeDupulicates() {
-        Vector v = new Vector();
-        int len = identities.size();
-        if (len == 0) return;
-        for (int i = 0; i < len; i++) {
-            Identity foo = (Identity) identities.elementAt(i);
-            byte[] foo_blob = foo.getPublicKeyBlob();
-            if (foo_blob == null) continue;
-            for (int j = i + 1; j < len; j++) {
-                Identity bar = (Identity) identities.elementAt(j);
-                byte[] bar_blob = bar.getPublicKeyBlob();
-                if (bar_blob == null) continue;
-                if (Util.array_equals(foo_blob, bar_blob) &&
-                        foo.isEncrypted() == bar.isEncrypted()) {
-                    v.addElement(foo_blob);
+    // Taking into account low number identities and significant price of objects in Java...
+    // Let it be O(n^2)
+    private void removeDuplicates() {
+        if (identities.isEmpty())
+            return;
+        final ListIterator<Identity> it = identities.listIterator();
+        while (it.hasNext()) {
+            final Identity id1 = it.next();
+            final byte[] blob1 = id1.getPublicKeyBlob();
+            if (blob1 == null)
+                continue;
+            for (int ii = it.nextIndex(); ii < identities.size(); ii++) {
+                final Identity id2 = identities.get(ii);
+                final byte[] blob2 = id2.getPublicKeyBlob();
+                if (Util.array_equals(blob2, blob1) &&
+                        id2.isEncrypted() == id1.isEncrypted()) {
+                    it.remove();
                     break;
                 }
             }
-        }
-        for (int i = 0; i < v.size(); i++) {
-            remove((byte[]) v.elementAt(i));
         }
     }
 }

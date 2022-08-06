@@ -29,32 +29,38 @@ EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 package com.jcraft.jsch;
 
-public class Packet {
+final class Packet {
 
     private static Random random = null;
 
-    static void setRandom(Random foo) {
+    static void setRandom(final Random foo) {
         random = foo;
     }
 
-    Buffer buffer;
-    byte[] ba4 = new byte[4];
+    final Buffer buffer;
+    final byte[] ba4 = new byte[4];
 
-    public Packet(Buffer buffer) {
+    Packet(final Buffer buffer) {
         this.buffer = buffer;
     }
 
-    public void reset() {
+    void reset() {
         buffer.index = 5;
     }
 
-    void padding(int bsize) {
+    void padding(final int bsize, final boolean includePktLen) {
         int len = buffer.index;
+        if (!includePktLen) {
+            len -= 4;
+        }
         int pad = (-len) & (bsize - 1);
         if (pad < bsize) {
             pad += bsize;
         }
-        len = len + pad - 4;
+        len += pad;
+        if (includePktLen) {
+            len -= 4;
+        }
         ba4[0] = (byte) (len >>> 24);
         ba4[1] = (byte) (len >>> 16);
         ba4[2] = (byte) (len >>> 8);
@@ -74,7 +80,7 @@ System.err.println("");
 */
     }
 
-    int shift(int len, int bsize, int mac) {
+    int shift(final int len, final int bsize, final int mac) {
         int s = len + 5 + 9;
         int pad = (-s) & (bsize - 1);
         if (pad < bsize) pad += bsize;
@@ -84,7 +90,7 @@ System.err.println("");
 
         /**/
         if (buffer.buffer.length < s + buffer.index - 5 - 9 - len) {
-            byte[] foo = new byte[s + buffer.index - 5 - 9 - len];
+            final byte[] foo = new byte[s + buffer.index - 5 - 9 - len];
             System.arraycopy(buffer.buffer, 0, foo, 0, buffer.buffer.length);
             buffer.buffer = foo;
         }
@@ -106,7 +112,7 @@ System.err.println("");
         return s;
     }
 
-    void unshift(byte command, int recipient, int s, int len) {
+    void unshift(final byte command, final int recipient, final int s, final int len) {
         System.arraycopy(buffer.buffer,
                 s,
                 buffer.buffer, 5 + 9, len);

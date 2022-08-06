@@ -29,37 +29,172 @@ EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 package com.jcraft.jsch;
 
-import java.util.Vector;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
+import java.util.Set;
 
-class UserAuthPublicKey extends UserAuth {
+final class UserAuthPublicKey extends UserAuth {
 
-    public boolean start(Session session) throws Exception {
+    @Override
+    public boolean start(final Session session) throws Exception {
         super.start(session);
 
-        Vector identities = session.getIdentityRepository().getIdentities();
-
-        byte[] passphrase = null;
-        byte[] _username = null;
-
-        int command;
+        session.doOnPublicKeyAuth();
+        final List<Identity> identities = session.getIdentityRepository().getIdentities();
 
         synchronized (identities) {
             if (identities.size() <= 0) {
                 return false;
             }
 
-            _username = Util.str2byte(username);
+            final String pkmethodstr = session.getConfig("PubkeyAcceptedAlgorithms");
+            if (session.getLogger().isEnabled(Logger.DEBUG)) {
+                session.getLogger().log(Logger.DEBUG,
+                        "PubkeyAcceptedAlgorithms = " + pkmethodstr);
+            }
 
-            for (int i = 0; i < identities.size(); i++) {
+            final Set<String> not_available_pka =
+                    Util.requireNonNullElse(session.getUnavailableSignatures(),
+                            Collections.emptySet());
+            if (!not_available_pka.isEmpty()) {
+                if (session.getLogger().isEnabled(Logger.DEBUG)) {
+                    session.getLogger().log(Logger.DEBUG,
+                            "Signature algorithms unavailable for non-agent identities = " + not_available_pka);
+                }
+            }
 
-                if (session.auth_failures >= session.max_auth_tries) {
-                    return false;
+            final List<String> pkmethods = Arrays.asList(Util.split(pkmethodstr, ","));
+            if (pkmethods.isEmpty()) {
+                return false;
+            }
+
+            final String[] server_sig_algs = session.getServerSigAlgs();
+            if (server_sig_algs != null && server_sig_algs.length > 0) {
+                final List<String> _known = new ArrayList<>();
+                final List<String> _unknown = new ArrayList<>();
+                for (final String pkmethod : pkmethods) {
+                    boolean add = false;
+                    for (final String server_sig_alg : server_sig_algs) {
+                        if (pkmethod.equals(server_sig_alg)) {
+                            add = true;
+                            break;
+                        }
+                    }
+
+                    if (add) {
+                        _known.add(pkmethod);
+                    } else {
+                        _unknown.add(pkmethod);
+                    }
                 }
 
-                Identity identity = (Identity) (identities.elementAt(i));
-                byte[] pubkeyblob = identity.getPublicKeyBlob();
+                if (!_known.isEmpty()) {
+                    if (session.getLogger().isEnabled(Logger.DEBUG)) {
+                        session.getLogger().log(Logger.DEBUG,
+                                "PubkeyAcceptedAlgorithms in server-sig-algs = " + _known);
+                    }
+                }
 
-                if (pubkeyblob != null) {
+                if (!_unknown.isEmpty()) {
+                    if (session.getLogger().isEnabled(Logger.DEBUG)) {
+                        session.getLogger().log(Logger.DEBUG,
+                                "PubkeyAcceptedAlgorithms not in server-sig-algs = " + _unknown);
+                    }
+                }
+
+                if (!_known.isEmpty() && !_unknown.isEmpty()) {
+                    final boolean success = _start(session, identities, _known, not_available_pka);
+                    if (success) {
+                        return true;
+                    }
+
+                    return _start(session, identities, _unknown, not_available_pka);
+                }
+            } else {
+                if (session.getLogger().isEnabled(Logger.DEBUG)) {
+                    session.getLogger().log(Logger.DEBUG, "No server-sig-algs found, using PubkeyAcceptedAlgorithms = " + pkmethods);
+                }
+            }
+
+            return _start(session, identities, pkmethods, not_available_pka);
+        }
+    }
+
+    private boolean _start(final Session session, final List<Identity> identities,
+                           final List<String> pkmethods, final Set<String> not_available_pks)
+            throws Exception {
+        if (session.auth_failures >= session.max_auth_tries) {
+            return false;
+        }
+
+        final List<String> rsamethods = new ArrayList<>();
+        final List<String> nonrsamethods = new ArrayList<>();
+        for (final String pkmethod : pkmethods) {
+            switch (pkmethod) {
+                case "ssh-rsa":
+                case "rsa-sha2-256":
+                case "rsa-sha2-512":
+                case "ssh-rsa-sha224@ssh.com":
+                case "ssh-rsa-sha256@ssh.com":
+                case "ssh-rsa-sha384@ssh.com":
+                case "ssh-rsa-sha512@ssh.com":
+                    rsamethods.add(pkmethod);
+                    break;
+                default:
+                    nonrsamethods.add(pkmethod);
+                    break;
+            }
+        }
+
+        final byte[] _username = Util.str2byte(username);
+
+        int command;
+
+        iloop:
+        for (final Identity identity : identities) {
+
+            if (session.auth_failures >= session.max_auth_tries) {
+                return false;
+            }
+
+            //System.err.println("UserAuthPublicKey: identity.isEncrypted()="+identity.isEncrypted());
+            decryptKey(session, identity);
+            //System.err.println("UserAuthPublicKey: identity.isEncrypted()="+identity.isEncrypted());
+
+            final String _ipkmethod = identity.getAlgName();
+            final List<String> ipkmethods;
+            if ("ssh-rsa".equals(_ipkmethod)) {
+                ipkmethods = rsamethods;
+            } else if (nonrsamethods.contains(_ipkmethod)) {
+                ipkmethods = Collections.singletonList(_ipkmethod);
+            } else {
+                ipkmethods = null;
+            }
+            if (ipkmethods == null) {
+                if (session.getLogger().isEnabled(Logger.DEBUG)) {
+                    session.getLogger().log(Logger.DEBUG,
+                            _ipkmethod + " cannot be used as public key type for identity " + identity.getName());
+                }
+                continue;
+            }
+
+            byte[] pubkeyblob = identity.getPublicKeyBlob();
+            List<String> pkmethodsuccesses = null;
+
+            if (pubkeyblob != null) {
+                command = SSH_MSG_USERAUTH_FAILURE;
+                loop3:
+                for (final String ipkmethod : ipkmethods) {
+                    if (not_available_pks.contains(ipkmethod) && !(identity instanceof AgentIdentity)) {
+                        if (session.getLogger().isEnabled(Logger.DEBUG)) {
+                            session.getLogger().log(Logger.DEBUG,
+                                    ipkmethod + " not available for identity " + identity.getName());
+                        }
+                        continue loop3;
+                    }
+
                     // send
                     // byte      SSH_MSG_USERAUTH_REQUEST(50)
                     // string    user name
@@ -74,7 +209,7 @@ class UserAuthPublicKey extends UserAuth {
                     buf.putString(Util.str2byte("ssh-connection"));
                     buf.putString(Util.str2byte("publickey"));
                     buf.putByte((byte) 0);
-                    buf.putString(Util.str2byte(identity.getAlgName()));
+                    buf.putString(Util.str2byte(ipkmethod));
                     buf.putString(pubkeyblob);
                     session.write(packet);
 
@@ -84,16 +219,25 @@ class UserAuthPublicKey extends UserAuth {
                         command = buf.getCommand() & 0xff;
 
                         if (command == SSH_MSG_USERAUTH_PK_OK) {
-                            break;
+                            if (session.getLogger().isEnabled(Logger.DEBUG)) {
+                                session.getLogger().log(Logger.DEBUG,
+                                        ipkmethod + " preauth success");
+                            }
+                            pkmethodsuccesses = Collections.singletonList(ipkmethod);
+                            break loop3;
                         } else if (command == SSH_MSG_USERAUTH_FAILURE) {
-                            break;
+                            if (session.getLogger().isEnabled(Logger.DEBUG)) {
+                                session.getLogger().log(Logger.DEBUG,
+                                        ipkmethod + " preauth failure");
+                            }
+                            continue loop3;
                         } else if (command == SSH_MSG_USERAUTH_BANNER) {
                             buf.getInt();
                             buf.getByte();
                             buf.getByte();
-                            byte[] _message = buf.getString();
-                            byte[] lang = buf.getString();
-                            String message = Util.byte2str(_message);
+                            final byte[] _message = buf.getString();
+                            final byte[] lang = buf.getString();
+                            final String message = Util.byte2str(_message);
                             if (userinfo != null) {
                                 userinfo.showMessage(message);
                             }
@@ -101,58 +245,38 @@ class UserAuthPublicKey extends UserAuth {
                         } else {
                             //System.err.println("USERAUTH fail ("+command+")");
                             //throw new JSchException("USERAUTH fail ("+command+")");
-                            break;
-                        }
-                    }
-
-                    if (command != SSH_MSG_USERAUTH_PK_OK) {
-                        continue;
-                    }
-                }
-
-//System.err.println("UserAuthPublicKey: identity.isEncrypted()="+identity.isEncrypted());
-
-                int count = 5;
-                while (true) {
-                    if ((identity.isEncrypted() && passphrase == null)) {
-                        if (userinfo == null) throw new JSchException("USERAUTH fail");
-                        if (identity.isEncrypted() &&
-                                !userinfo.promptPassphrase("Passphrase for " + identity.getName())) {
-                            throw new JSchAuthCancelException("publickey");
-                            //throw new JSchException("USERAUTH cancel");
-                            //break;
-                        }
-                        String _passphrase = userinfo.getPassphrase();
-                        if (_passphrase != null) {
-                            passphrase = Util.str2byte(_passphrase);
-                        }
-                    }
-
-                    if (!identity.isEncrypted() || passphrase != null) {
-                        if (identity.setPassphrase(passphrase)) {
-                            if (passphrase != null &&
-                                    (session.getIdentityRepository() instanceof IdentityRepository.Wrapper)) {
-                                ((IdentityRepository.Wrapper) session.getIdentityRepository()).check();
+                            if (session.getLogger().isEnabled(Logger.DEBUG)) {
+                                session.getLogger().log(Logger.DEBUG,
+                                        ipkmethod + " preauth failure command (" + command + ")");
                             }
-                            break;
+                            continue loop3;
                         }
                     }
-                    Util.bzero(passphrase);
-                    passphrase = null;
-                    count--;
-                    if (count == 0) break;
                 }
 
-                Util.bzero(passphrase);
-                passphrase = null;
-//System.err.println("UserAuthPublicKey: identity.isEncrypted()="+identity.isEncrypted());
+                if (command != SSH_MSG_USERAUTH_PK_OK) {
+                    continue iloop;
+                }
+            }
 
-                if (identity.isEncrypted()) continue;
-                if (pubkeyblob == null) pubkeyblob = identity.getPublicKeyBlob();
+
+            if (identity.isEncrypted()) continue;
+            if (pubkeyblob == null) pubkeyblob = identity.getPublicKeyBlob();
 
 //System.err.println("UserAuthPublicKey: pubkeyblob="+pubkeyblob);
 
-                if (pubkeyblob == null) continue;
+            if (pubkeyblob == null) continue;
+            if (pkmethodsuccesses == null) pkmethodsuccesses = ipkmethods;
+
+            loop4:
+            for (final String pkmethodsuccess : pkmethodsuccesses) {
+                if (not_available_pks.contains(pkmethodsuccess) && !(identity instanceof AgentIdentity)) {
+                    if (session.getLogger().isEnabled(Logger.DEBUG)) {
+                        session.getLogger().log(Logger.DEBUG,
+                                pkmethodsuccess + " not available for identity " + identity.getName());
+                    }
+                    continue loop4;
+                }
 
                 // send
                 // byte      SSH_MSG_USERAUTH_REQUEST(50)
@@ -169,25 +293,29 @@ class UserAuthPublicKey extends UserAuth {
                 buf.putString(Util.str2byte("ssh-connection"));
                 buf.putString(Util.str2byte("publickey"));
                 buf.putByte((byte) 1);
-                buf.putString(Util.str2byte(identity.getAlgName()));
+                buf.putString(Util.str2byte(pkmethodsuccess));
                 buf.putString(pubkeyblob);
 
-//      byte[] tmp=new byte[buf.index-5];
-//      System.arraycopy(buf.buffer, 5, tmp, 0, tmp.length);
-//      buf.putString(signature);
+//        byte[] tmp=new byte[buf.index-5];
+//        System.arraycopy(buf.buffer, 5, tmp, 0, tmp.length);
+//        buf.putString(signature);
 
-                byte[] sid = session.getSessionId();
-                int sidlen = sid.length;
-                byte[] tmp = new byte[4 + sidlen + buf.index - 5];
+                final byte[] sid = session.getSessionId();
+                final int sidlen = sid.length;
+                final byte[] tmp = new byte[4 + sidlen + buf.index - 5];
                 tmp[0] = (byte) (sidlen >>> 24);
                 tmp[1] = (byte) (sidlen >>> 16);
                 tmp[2] = (byte) (sidlen >>> 8);
                 tmp[3] = (byte) (sidlen);
                 System.arraycopy(sid, 0, tmp, 4, sidlen);
                 System.arraycopy(buf.buffer, 5, tmp, 4 + sidlen, buf.index - 5);
-                byte[] signature = identity.getSignature(tmp);
+                final byte[] signature = identity.getSignature(tmp, pkmethodsuccess);
                 if (signature == null) {  // for example, too long key length.
-                    break;
+                    if (session.getLogger().isEnabled(Logger.DEBUG)) {
+                        session.getLogger().log(Logger.DEBUG,
+                                pkmethodsuccess + " signature failure");
+                    }
+                    continue loop4;
                 }
                 buf.putString(signature);
                 session.write(packet);
@@ -198,14 +326,18 @@ class UserAuthPublicKey extends UserAuth {
                     command = buf.getCommand() & 0xff;
 
                     if (command == SSH_MSG_USERAUTH_SUCCESS) {
+                        if (session.getLogger().isEnabled(Logger.DEBUG)) {
+                            session.getLogger().log(Logger.DEBUG,
+                                    pkmethodsuccess + " auth success");
+                        }
                         return true;
                     } else if (command == SSH_MSG_USERAUTH_BANNER) {
                         buf.getInt();
                         buf.getByte();
                         buf.getByte();
-                        byte[] _message = buf.getString();
-                        byte[] lang = buf.getString();
-                        String message = Util.byte2str(_message);
+                        final byte[] _message = buf.getString();
+                        final byte[] lang = buf.getString();
+                        final String message = Util.byte2str(_message);
                         if (userinfo != null) {
                             userinfo.showMessage(message);
                         }
@@ -214,22 +346,69 @@ class UserAuthPublicKey extends UserAuth {
                         buf.getInt();
                         buf.getByte();
                         buf.getByte();
-                        byte[] foo = buf.getString();
-                        int partial_success = buf.getByte();
+                        final byte[] foo = buf.getString();
+                        final int partial_success = buf.getByte();
                         //System.err.println(new String(foo)+
                         //                   " partial_success:"+(partial_success!=0));
                         if (partial_success != 0) {
                             throw new JSchPartialAuthException(Util.byte2str(foo));
                         }
                         session.auth_failures++;
-                        break;
+                        if (session.getLogger().isEnabled(Logger.DEBUG)) {
+                            session.getLogger().log(Logger.DEBUG,
+                                    pkmethodsuccess + " auth failure");
+                        }
+                        break loop2;
                     }
                     //System.err.println("USERAUTH fail ("+command+")");
                     //throw new JSchException("USERAUTH fail ("+command+")");
-                    break;
+                    if (session.getLogger().isEnabled(Logger.DEBUG)) {
+                        session.getLogger().log(Logger.DEBUG,
+                                pkmethodsuccess + " auth failure command (" + command + ")");
+                    }
+                    break loop2;
                 }
             }
         }
         return false;
+    }
+
+    private void decryptKey(final Session session, final Identity identity) throws JSchException {
+        byte[] passphrase = null;
+        int count = 5;
+        while (true) {
+            if (identity.isEncrypted() && passphrase == null) {
+                if (userinfo == null)
+                    throw new JSchException("USERAUTH fail");
+                final CharSequence _passphrase =
+                        userinfo.promptPassword(null,
+                                UserInfo.Message.PASSPHRASE_FOR_KEY,
+                                identity.getName());
+                if (_passphrase == null) {
+                    throw new JSchAuthCancelException("publickey");
+                    //throw new JSchException("USERAUTH cancel");
+                    //break;
+                }
+                passphrase = Util.str2byte(_passphrase);
+                userinfo.erase(_passphrase);
+            }
+
+            if (!identity.isEncrypted() || passphrase != null) {
+                if (identity.setPassphrase(passphrase)) {
+                    if (passphrase != null &&
+                            (session.getIdentityRepository() instanceof IdentityRepositoryWrapper)) {
+                        ((IdentityRepositoryWrapper) session.getIdentityRepository()).check();
+                    }
+                    break;
+                }
+            }
+            Util.bzero(passphrase);
+            passphrase = null;
+            count--;
+            if (count == 0) break;
+        }
+
+        Util.bzero(passphrase);
+        passphrase = null;
     }
 }

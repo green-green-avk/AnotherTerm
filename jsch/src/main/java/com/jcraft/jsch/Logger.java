@@ -29,26 +29,44 @@ EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 package com.jcraft.jsch;
 
+import java.io.PrintWriter;
+import java.io.StringWriter;
+
 public interface Logger {
+    int DEBUG = 0;
+    int INFO = 1;
+    int WARN = 2;
+    int ERROR = 3;
+    int FATAL = 4;
 
-    public final int DEBUG = 0;
-    public final int INFO = 1;
-    public final int WARN = 2;
-    public final int ERROR = 3;
-    public final int FATAL = 4;
+    boolean isEnabled(int level);
 
-    public boolean isEnabled(int level);
+    void log(int level, String message);
 
-    public void log(int level, String message);
+    default void log(final int level, final String message, final Throwable cause) {
+        if (!isEnabled(level)) {
+            return;
+        }
+        if (cause == null) {
+            log(level, message);
+            return;
+        }
+        final StringWriter sw = new StringWriter();
+        try (final PrintWriter pw = new PrintWriter(sw, true)) {
+            pw.println(message);
+            cause.printStackTrace(pw);
+        }
+        log(level, sw.toString());
+    }
 
   /*
-  public final Logger SIMPLE_LOGGER=new Logger(){
-      public boolean isEnabled(int level){return true;}
-      public void log(int level, String message){System.err.println(message);}
+  Logger SIMPLE_LOGGER=new Logger(){
+      public boolean isEnabled(final int level){return true;}
+      public void log(final int level, final String message){System.err.println(message);}
     };
-  final Logger DEVNULL=new Logger(){
-      public boolean isEnabled(int level){return false;}
-      public void log(int level, String message){}
+  Logger DEVNULL=new Logger(){
+      public boolean isEnabled(final int level){return false;}
+      public void log(final int level, final String message){}
     };
   */
 }

@@ -30,9 +30,27 @@ EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 package com.jcraft.jsch;
 
 public interface UIKeyboardInteractive {
-    String[] promptKeyboardInteractive(String destination,
-                                       String name,
-                                       String instruction,
-                                       String[] prompt,
-                                       boolean[] echo);
+    /**
+     * Erases sensitive data returned by
+     * {@link #promptKeyboardInteractive(String, String, String, String[], boolean[])} call.
+     *
+     * @param v data to erase
+     */
+    void erase(CharSequence[] v);
+
+    /**
+     * Requests Interactive keyboard input.
+     *
+     * @param destination
+     * @param name
+     * @param instruction
+     * @param prompt
+     * @param echo
+     * @return keyboard input
+     */
+    CharSequence[] promptKeyboardInteractive(String destination,
+                                             String name,
+                                             String instruction,
+                                             String[] prompt,
+                                             boolean[] echo);
 }

@@ -15,6 +15,8 @@ import android.graphics.drawable.Drawable;
 import android.net.Uri;
 import android.os.Build;
 import android.text.Layout;
+import android.text.method.LinkMovementMethod;
+import android.text.method.MovementMethod;
 import android.util.AndroidException;
 import android.util.DisplayMetrics;
 import android.util.TypedValue;
@@ -42,6 +44,7 @@ import green_green_avk.anotherterm.LinksProvider;
 import green_green_avk.anotherterm.R;
 import green_green_avk.anotherterm.ScratchpadManager;
 import green_green_avk.anotherterm.utils.Misc;
+import me.saket.bettermovementmethod.BetterLinkMovementMethod;
 
 public final class UiUtils {
     private UiUtils() {
@@ -394,5 +397,26 @@ public final class UiUtils {
                 return v.getFraction(base, pbase);
         }
         return def;
+    }
+
+    @NonNull
+    public static MovementMethod getFixedLinkMovementMethod() {
+        if (Build.VERSION.SDK_INT >= 16)
+            // https://issuetracker.google.com/issues/37068143
+            // https://stackoverflow.com/questions/22810147/error-when-selecting-text-from-textview-java-lang-indexoutofboundsexception-se
+            // https://stackoverflow.com/questions/33821008/illegalargumentexception-while-selecting-text-in-android-textview/34072449
+            // Spotted:
+            // Android 8.1 (SDK 27)
+            // java.lang.IndexOutOfBoundsException:
+            //   at android.text.SpannableStringInternal.checkRange (SpannableStringInternal.java:442)
+            // ...
+            // Android 6.0 (SDK 23)
+            // java.lang.IllegalArgumentException:
+            //   at android.text.method.WordIterator.checkOffsetIsValid (WordIterator.java:380)
+            // ...
+            // Mitigated by 'me.saket:better-link-movement-method:2.2.0'.
+            return BetterLinkMovementMethod.getInstance();
+        else
+            return LinkMovementMethod.getInstance();
     }
 }

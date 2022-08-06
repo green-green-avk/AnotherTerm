@@ -38,7 +38,7 @@ import java.security.interfaces.RSAPrivateCrtKey;
 import java.security.interfaces.RSAPrivateKey;
 import java.security.interfaces.RSAPublicKey;
 
-public class KeyPairGenRSA implements com.jcraft.jsch.KeyPairGenRSA {
+public final class KeyPairGenRSA implements com.jcraft.jsch.KeyPairGenRSA {
     byte[] d;  // private
     byte[] e;  // public
     byte[] n;
@@ -49,13 +49,14 @@ public class KeyPairGenRSA implements com.jcraft.jsch.KeyPairGenRSA {
     byte[] p;  // prime p
     byte[] q;  // prime q
 
-    public void init(int key_size) throws Exception {
-        KeyPairGenerator keyGen = KeyPairGenerator.getInstance("RSA");
+    @Override
+    public void init(final int key_size) throws Exception {
+        final KeyPairGenerator keyGen = KeyPairGenerator.getInstance("RSA");
         keyGen.initialize(key_size, new SecureRandom());
-        KeyPair pair = keyGen.generateKeyPair();
+        final KeyPair pair = keyGen.generateKeyPair();
 
-        PublicKey pubKey = pair.getPublic();
-        PrivateKey prvKey = pair.getPrivate();
+        final PublicKey pubKey = pair.getPublic();
+        final PrivateKey prvKey = pair.getPrivate();
 
         d = ((RSAPrivateKey) prvKey).getPrivateExponent().toByteArray();
         e = ((RSAPublicKey) pubKey).getPublicExponent().toByteArray();
@@ -68,34 +69,42 @@ public class KeyPairGenRSA implements com.jcraft.jsch.KeyPairGenRSA {
         q = ((RSAPrivateCrtKey) prvKey).getPrimeQ().toByteArray();
     }
 
+    @Override
     public byte[] getD() {
         return d;
     }
 
+    @Override
     public byte[] getE() {
         return e;
     }
 
+    @Override
     public byte[] getN() {
         return n;
     }
 
+    @Override
     public byte[] getC() {
         return c;
     }
 
+    @Override
     public byte[] getEP() {
         return ep;
     }
 
+    @Override
     public byte[] getEQ() {
         return eq;
     }
 
+    @Override
     public byte[] getP() {
         return p;
     }
 
+    @Override
     public byte[] getQ() {
         return q;
     }
