@@ -34,9 +34,12 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.PipedInputStream;
 import java.io.PipedOutputStream;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
-
-public abstract class Channel implements Runnable {
+public abstract class Channel {
 
     static final int SSH_MSG_CHANNEL_OPEN_CONFIRMATION = 91;
     static final int SSH_MSG_CHANNEL_OPEN_FAILURE = 92;
@@ -47,53 +50,53 @@ public abstract class Channel implements Runnable {
     static final int SSH_OPEN_UNKNOWN_CHANNEL_TYPE = 3;
     static final int SSH_OPEN_RESOURCE_SHORTAGE = 4;
 
-    static int index = 0;
-    private static java.util.Vector pool = new java.util.Vector();
+    private static final Map<String, Class<? extends Channel>> IMPLS = new HashMap<>();
 
-    static Channel getChannel(String type) {
-        if (type.equals("session")) {
-            return new ChannelSession();
-        }
-        if (type.equals("shell")) {
-            return new ChannelShell();
-        }
-        if (type.equals("exec")) {
-            return new ChannelExec();
-        }
-        if (type.equals("x11")) {
-            return new ChannelX11();
-        }
-        if (type.equals("auth-agent@openssh.com")) {
-            return new ChannelAgentForwarding();
-        }
-        if (type.equals("direct-tcpip")) {
-            return new ChannelDirectTCPIP();
-        }
-        if (type.equals("forwarded-tcpip")) {
-            return new ChannelForwardedTCPIP();
-        }
-        if (type.equals("sftp")) {
-            return new ChannelSftp();
-        }
-        if (type.equals("subsystem")) {
-            return new ChannelSubsystem();
-        }
-        return null;
+    static {
+        IMPLS.put("session", ChannelSession.class);
+        IMPLS.put("shell", ChannelShell.class);
+        IMPLS.put("exec", ChannelExec.class);
+        IMPLS.put("x11", ChannelX11.class);
+//TODO//IMPLS.put("auth-agent@openssh.com", ChannelAgentForwarding.class);
+        IMPLS.put("direct-tcpip", ChannelDirectTCPIP.class);
+        IMPLS.put("forwarded-tcpip", ChannelForwardedTCPIP.class);
+//TODO//IMPLS.put("sftp", ChannelSftp.class);
+//TODO//IMPLS.put("subsystem", ChannelSubsystem.class);
+        IMPLS.put("direct-streamlocal@openssh.com", ChannelDirectStreamLocal.class);
     }
 
-    static Channel getChannel(int id, Session session) {
+    static int index = 0;
+    private static final List<Channel> pool = new ArrayList<>();
+
+    static Channel getChannel(final String type, final Session session) {
+        final Class<? extends Channel> impl = IMPLS.get(type);
+        if (impl == null)
+            return null;
+        final Channel r;
+        try {
+            r = impl.newInstance();
+        } catch (final IllegalAccessException e) {
+            throw new Error("Bad channel implementation", e);
+        } catch (final InstantiationException e) {
+            throw new Error("Bad channel implementation", e);
+        }
+        r.setSession(session);
+        return r;
+    }
+
+    static Channel getChannel(final int id, final Session session) {
         synchronized (pool) {
             for (int i = 0; i < pool.size(); i++) {
-                Channel c = (Channel) (pool.elementAt(i));
+                final Channel c = pool.get(i);
                 if (c.id == id && c.session == session) return c;
             }
         }
         return null;
     }
 
-    static void del(Channel c) {
+    static void del(final Channel c) {
         synchronized (pool) {
-            pool.removeElement(c);
+            pool.remove(c);
         }
     }
 
@@ -118,7 +121,7 @@ public abstract class Channel implements Runnable {
     volatile boolean connected = false;
     volatile boolean open_confirmation = false;
 
-    public static abstract class ExitStatus {
+    public abstract static class ExitStatus {
     }
 
     public static final class NoExitStatus extends ExitStatus {
@@ -127,12 +130,12 @@ public abstract class Channel implements Runnable {
     }
 
     /**
-     * Channel is closed due to <code>SSH_MSG_CHANNEL_CLOSE</code> without any exit status.
+     * Channel is closed due to {@code SSH_MSG_CHANNEL_CLOSE} without any exit status.
      */
     public static final NoExitStatus CLOSED_EXIT_STATUS = new NoExitStatus();
 
     /**
-     * Channel is terminated but <code>SSH_MSG_CHANNEL_EOF</code> has already been received.
+     * Channel is terminated but {@code SSH_MSG_CHANNEL_EOF} has already been received.
      */
     public static final NoExitStatus EOF_EXIT_STATUS = new NoExitStatus();
 
@@ -166,7 +169,7 @@ public abstract class Channel implements Runnable {
     }
 
     /**
-     * Channel is closed due to <code>SSH_MSG_CHANNEL_OPEN_FAILURE</code>.
+     * Channel is closed due to {@code SSH_MSG_CHANNEL_OPEN_FAILURE}.
      * <p>
      * See <a href="https://www.rfc-editor.org/rfc/rfc4254.html">RFC4254</a>.
      */
@@ -193,18 +196,18 @@ public abstract class Channel implements Runnable {
     volatile int reply = 0;
     volatile int connectTimeout = 0;
 
-    private Session session;
+    protected Session session;
 
     int notifyme = 0;
 
     Channel() {
         synchronized (pool) {
             id = index++;
-            pool.addElement(this);
+            pool.add(this);
         }
     }
 
-    synchronized void setRecipient(int foo) {
+    synchronized void setRecipient(final int foo) {
         this.recipient = foo;
         if (notifyme > 0)
             notifyAll();
@@ -221,12 +224,12 @@ public abstract class Channel implements Runnable {
         connect(0);
     }
 
-    public void connect(int connectTimeout) throws JSchException {
+    public void connect(final int connectTimeout) throws JSchException {
         this.connectTimeout = connectTimeout;
         try {
             sendChannelOpen();
             start();
-        } catch (Exception e) {
+        } catch (final Exception e) {
             connected = false;
             disconnect();
             if (e instanceof JSchException)
@@ -235,7 +238,7 @@ public abstract class Channel implements Runnable {
         }
     }
 
-    public void setXForwarding(boolean foo) {
+    public void setXForwarding(final boolean foo) {
     }
 
     public void start() throws JSchException {
@@ -245,7 +248,7 @@ public abstract class Channel implements Runnable {
         return eof_remote;
     }
 
-    void getData(Buffer buf) {
+    void getData(final Buffer buf) {
         setRecipient(buf.getInt());
         setRemoteWindowSize(buf.getUInt());
         setRemotePacketSize(buf.getInt());
@@ -264,27 +267,27 @@ public abstract class Channel implements Runnable {
         onDisconnect = v;
     }
 
-    public void setInputStream(InputStream in) {
+    public void setInputStream(final InputStream in) {
         io.setInputStream(in, false);
     }
 
-    public void setInputStream(InputStream in, boolean dontclose) {
+    public void setInputStream(final InputStream in, final boolean dontclose) {
         io.setInputStream(in, dontclose);
     }
 
-    public void setOutputStream(OutputStream out) {
+    public void setOutputStream(final OutputStream out) {
         io.setOutputStream(out, false);
     }
 
-    public void setOutputStream(OutputStream out, boolean dontclose) {
+    public void setOutputStream(final OutputStream out, final boolean dontclose) {
         io.setOutputStream(out, dontclose);
     }
 
-    public void setExtOutputStream(OutputStream out) {
+    public void setExtOutputStream(final OutputStream out) {
         io.setExtOutputStream(out, false);
     }
 
-    public void setExtOutputStream(OutputStream out, boolean dontclose) {
+    public void setExtOutputStream(final OutputStream out, final boolean dontclose) {
         io.setExtOutputStream(out, dontclose);
     }
 
@@ -293,14 +296,14 @@ public abstract class Channel implements Runnable {
         try {
             max_input_buffer_size =
                     Integer.parseInt(getSession().getConfig("max_input_buffer_size"));
-        } catch (Exception e) {
+        } catch (final Exception ignored) {
         }
-        PipedInputStream in =
+        final PipedInputStream in =
                 new MyPipedInputStream(
                         32 * 1024,  // this value should be customizable.
                         max_input_buffer_size
                 );
-        boolean resizable = 32 * 1024 < max_input_buffer_size;
+        final boolean resizable = 32 * 1024 < max_input_buffer_size;
         io.setOutputStream(new PassiveOutputStream(in, resizable), false);
         return in;
     }
@@ -310,14 +313,14 @@ public abstract class Channel implements Runnable {
         try {
             max_input_buffer_size =
                     Integer.parseInt(getSession().getConfig("max_input_buffer_size"));
-        } catch (Exception e) {
+        } catch (final Exception ignored) {
         }
-        PipedInputStream in =
+        final PipedInputStream in =
                 new MyPipedInputStream(
                         32 * 1024,  // this value should be customizable.
                         max_input_buffer_size
                 );
-        boolean resizable = 32 * 1024 < max_input_buffer_size;
+        final boolean resizable = 32 * 1024 < max_input_buffer_size;
         io.setExtOutputStream(new PassiveOutputStream(in, resizable), false);
         return in;
     }
@@ -325,17 +328,17 @@ public abstract class Channel implements Runnable {
     public OutputStream getOutputStream() throws IOException {
 
         final Channel channel = this;
-        OutputStream out = new OutputStream() {
+        final OutputStream out = new OutputStream() {
             private int dataLen = 0;
             private Buffer buffer = null;
             private Packet packet = null;
             private boolean closed = false;
 
-            private synchronized void init() throws java.io.IOException {
+            private synchronized void init() throws IOException {
                 buffer = new Buffer(rmpsize);
                 packet = new Packet(buffer);
 
-                byte[] _buf = buffer.buffer;
+                final byte[] _buf = buffer.buffer;
                 if (_buf.length - (14 + 0) - Session.buffer_margin <= 0) {
                     buffer = null;
                     packet = null;
@@ -344,29 +347,28 @@ public abstract class Channel implements Runnable {
 
             }
 
-            byte[] b = new byte[1];
+            final byte[] b = new byte[1];
 
-            public void write(int w) throws java.io.IOException {
+            @Override
+            public void write(final int w) throws IOException {
                 b[0] = (byte) w;
                 write(b, 0, 1);
             }
 
-            public void write(byte[] buf, int s, int l) throws java.io.IOException {
+            @Override
+            public void write(final byte[] buf, int s, int l) throws IOException {
                 if (packet == null) {
                     init();
                 }
 
                 if (closed) {
-                    throw new java.io.IOException("Already closed");
+                    throw new IOException("Already closed");
                 }
 
-                byte[] _buf = buffer.buffer;
-                int _bufl = _buf.length;
+                final byte[] _buf = buffer.buffer;
+                final int _bufl = _buf.length;
                 while (l > 0) {
-                    int _l = l;
-                    if (l > _bufl - (14 + dataLen) - Session.buffer_margin) {
-                        _l = _bufl - (14 + dataLen) - Session.buffer_margin;
-                    }
+                    final int _l = Math.min(l, _bufl - (14 + dataLen) - Session.buffer_margin);
 
                     if (_l <= 0) {
                         flush();
@@ -380,9 +382,10 @@ public abstract class Channel implements Runnable {
                 }
             }
 
-            public void flush() throws java.io.IOException {
+            @Override
+            public void flush() throws IOException {
                 if (closed) {
-                    throw new java.io.IOException("Already closed");
+                    throw new IOException("Already closed");
                 }
                 if (dataLen == 0)
                     return;
@@ -392,24 +395,25 @@ public abstract class Channel implements Runnable {
                 buffer.putInt(dataLen);
                 buffer.skip(dataLen);
                 try {
-                    int foo = dataLen;
+                    final int foo = dataLen;
                     dataLen = 0;
                     synchronized (channel) {
                         if (!channel.close)
                             getSession().write(packet, channel, foo);
                     }
-                } catch (Exception e) {
+                } catch (final Exception e) {
                     close();
-                    throw new java.io.IOException(e.toString());
+                    throw new IOException(e.toString(), e);
                 }
 
             }
 
-            public void close() throws java.io.IOException {
+            @Override
+            public void close() throws IOException {
                 if (packet == null) {
                     try {
                         init();
-                    } catch (java.io.IOException e) {
+                    } catch (final IOException e) {
                         // close should be finished silently.
                         return;
                     }
@@ -427,7 +431,7 @@ public abstract class Channel implements Runnable {
         return out;
     }
 
-    class MyPipedInputStream extends PipedInputStream {
+    static class MyPipedInputStream extends PipedInputStream {
         private int BUFFER_SIZE = 1024;
         private int max_buffer_size = BUFFER_SIZE;
 
@@ -435,23 +439,23 @@ public abstract class Channel implements Runnable {
             super();
         }
 
-        MyPipedInputStream(int size) throws IOException {
+        MyPipedInputStream(final int size) throws IOException {
             super();
             buffer = new byte[size];
             BUFFER_SIZE = size;
             max_buffer_size = size;
         }
 
-        MyPipedInputStream(int size, int max_buffer_size) throws IOException {
+        MyPipedInputStream(final int size, final int max_buffer_size) throws IOException {
             this(size);
             this.max_buffer_size = max_buffer_size;
         }
 
-        MyPipedInputStream(PipedOutputStream out) throws IOException {
+        MyPipedInputStream(final PipedOutputStream out) throws IOException {
             super(out);
         }
 
-        MyPipedInputStream(PipedOutputStream out, int size) throws IOException {
+        MyPipedInputStream(final PipedOutputStream out, final int size) throws IOException {
             super(out);
             buffer = new byte[size];
             BUFFER_SIZE = size;
@@ -484,10 +488,10 @@ public abstract class Channel implements Runnable {
             return size;
         }
 
-        synchronized void checkSpace(int len) throws IOException {
-            int size = freeSpace();
+        synchronized void checkSpace(final int len) throws IOException {
+            final int size = freeSpace();
             if (size < len) {
-                int datasize = buffer.length - size;
+                final int datasize = buffer.length - size;
                 int foo = buffer.length;
                 while ((foo - datasize) < len) {
                     foo *= 2;
@@ -498,7 +502,7 @@ public abstract class Channel implements Runnable {
                 }
                 if ((foo - datasize) < len) return;
 
-                byte[] tmp = new byte[foo];
+                final byte[] tmp = new byte[foo];
                 if (out < in) {
                     System.arraycopy(buffer, 0, tmp, 0, buffer.length);
                 } else if (in < out) {
@@ -510,7 +514,7 @@ public abstract class Channel implements Runnable {
                                 (buffer.length - out));
                         out = tmp.length - (buffer.length - out);
                     }
-                } else if (in == out) {
+                } else {
                     System.arraycopy(buffer, 0, tmp, 0, buffer.length);
                     in = buffer.length;
                 }
@@ -518,56 +522,54 @@ public abstract class Channel implements Runnable {
             } else if (buffer.length == size && size > BUFFER_SIZE) {
                 int i = size / 2;
                 if (i < BUFFER_SIZE) i = BUFFER_SIZE;
-                byte[] tmp = new byte[i];
-                buffer = tmp;
+                buffer = new byte[i];
             }
         }
     }
 
-    void setLocalWindowSizeMax(int foo) {
+    void setLocalWindowSizeMax(final int foo) {
         this.lwsize_max = foo;
     }
 
-    void setLocalWindowSize(int foo) {
+    void setLocalWindowSize(final int foo) {
         this.lwsize = foo;
     }
 
-    void setLocalPacketSize(int foo) {
+    void setLocalPacketSize(final int foo) {
         this.lmpsize = foo;
     }
 
-    synchronized void setRemoteWindowSize(long foo) {
+    synchronized void setRemoteWindowSize(final long foo) {
         this.rwsize = foo;
     }
 
-    synchronized void addRemoteWindowSize(long foo) {
+    synchronized void addRemoteWindowSize(final long foo) {
         this.rwsize += foo;
         if (notifyme > 0)
             notifyAll();
     }
 
-    void setRemotePacketSize(int foo) {
+    void setRemotePacketSize(final int foo) {
         this.rmpsize = foo;
     }
 
-    public void run() {
-    }
+    abstract void run();
 
-    void write(byte[] foo) throws IOException {
+    void write(final byte[] foo) throws IOException {
         write(foo, 0, foo.length);
     }
 
-    void write(byte[] foo, int s, int l) throws IOException {
+    void write(final byte[] foo, final int s, final int l) throws IOException {
         try {
             io.put(foo, s, l);
-        } catch (NullPointerException e) {
+        } catch (final NullPointerException ignored) {
         }
     }
 
-    void write_ext(byte[] foo, int s, int l) throws IOException {
+    void write_ext(final byte[] foo, final int s, final int l) throws IOException {
         try {
             io.put_ext(foo, s, l);
-        } catch (NullPointerException e) {
+        } catch (final NullPointerException ignored) {
         }
     }
 
@@ -575,7 +577,7 @@ public abstract class Channel implements Runnable {
         eof_remote = true;
         try {
             io.out_close();
-        } catch (NullPointerException e) {
+        } catch (final NullPointerException ignored) {
         }
     }
 
@@ -583,12 +585,12 @@ public abstract class Channel implements Runnable {
         if (eof_local) return;
         eof_local = true;
 
-        int i = getRecipient();
+        final int i = getRecipient();
         if (i == -1) return;
 
         try {
-            Buffer buf = new Buffer(100);
-            Packet packet = new Packet(buf);
+            final Buffer buf = new Buffer(100);
+            final Packet packet = new Packet(buf);
             packet.reset();
             buf.putByte((byte) Session.SSH_MSG_CHANNEL_EOF);
             buf.putInt(i);
@@ -596,7 +598,7 @@ public abstract class Channel implements Runnable {
                 if (!close)
                     getSession().write(packet);
             }
-        } catch (Exception e) {
+        } catch (final Exception e) {
             //System.err.println("Channel.eof");
             //e.printStackTrace();
         }
@@ -646,19 +648,19 @@ public abstract class Channel implements Runnable {
         close = true;
         eof_local = eof_remote = true;
 
-        int i = getRecipient();
+        final int i = getRecipient();
         if (i == -1) return;
 
         try {
-            Buffer buf = new Buffer(100);
-            Packet packet = new Packet(buf);
+            final Buffer buf = new Buffer(100);
+            final Packet packet = new Packet(buf);
             packet.reset();
             buf.putByte((byte) Session.SSH_MSG_CHANNEL_CLOSE);
             buf.putInt(i);
             synchronized (this) {
                 getSession().write(packet);
             }
-        } catch (Exception e) {
+        } catch (final Exception e) {
             //e.printStackTrace();
         }
     }
@@ -667,18 +669,17 @@ public abstract class Channel implements Runnable {
         return close;
     }
 
-    static void disconnect(Session session) {
-        Channel[] channels = null;
+    static void disconnect(final Session session) {
+        final Channel[] channels;
         int count = 0;
         synchronized (pool) {
             channels = new Channel[pool.size()];
-            for (int i = 0; i < pool.size(); i++) {
+            for (final Channel c : pool) {
                 try {
-                    Channel c = ((Channel) (pool.elementAt(i)));
                     if (c.session == session) {
                         channels[count++] = c;
                     }
-                } catch (Exception e) {
+                } catch (final Exception ignored) {
                 }
             }
         }
@@ -710,7 +711,7 @@ public abstract class Channel implements Runnable {
                 if (io != null) {
                     io.close();
                 }
-            } catch (Exception e) {
+            } catch (final Exception e) {
                 //e.printStackTrace();
             }
             // io=null;
@@ -727,15 +728,15 @@ public abstract class Channel implements Runnable {
     }
 
     public boolean isConnected() {
-        Session _session = this.session;
+        final Session _session = this.session;
         if (_session != null) {
             return _session.isConnected() && connected;
         }
         return false;
     }
 
-    public void sendSignal(String signal) throws Exception {
-        RequestSignal request = new RequestSignal();
+    public void sendSignal(final String signal) throws Exception {
+        final RequestSignal request = new RequestSignal();
         request.setSignal(signal);
         request.request(getSession(), this);
     }
@@ -752,46 +753,49 @@ public abstract class Channel implements Runnable {
   }
 */
 
-    class PassiveInputStream extends MyPipedInputStream {
-        PipedOutputStream out;
+    static class PassiveInputStream extends MyPipedInputStream {
+        PipedOutputStream os;
 
-        PassiveInputStream(PipedOutputStream out, int size) throws IOException {
+        PassiveInputStream(final PipedOutputStream out, final int size) throws IOException {
             super(out, size);
-            this.out = out;
+            this.os = out;
         }
 
-        PassiveInputStream(PipedOutputStream out) throws IOException {
+        PassiveInputStream(final PipedOutputStream out) throws IOException {
             super(out);
-            this.out = out;
+            this.os = out;
         }
 
+        @Override
         public void close() throws IOException {
-            if (out != null) {
-                this.out.close();
+            if (this.os != null) {
+                this.os.close();
             }
-            out = null;
+            this.os = null;
         }
     }
 
-    class PassiveOutputStream extends PipedOutputStream {
+    static class PassiveOutputStream extends PipedOutputStream {
         private MyPipedInputStream _sink = null;
 
-        PassiveOutputStream(PipedInputStream in,
-                            boolean resizable_buffer) throws IOException {
+        PassiveOutputStream(final PipedInputStream in,
+                            final boolean resizable_buffer) throws IOException {
             super(in);
             if (resizable_buffer && (in instanceof MyPipedInputStream)) {
                 this._sink = (MyPipedInputStream) in;
             }
         }
 
-        public void write(int b) throws IOException {
+        @Override
+        public void write(final int b) throws IOException {
             if (_sink != null) {
                 _sink.checkSpace(1);
             }
             super.write(b);
         }
 
-        public void write(byte[] b, int off, int len) throws IOException {
+        @Override
+        public void write(final byte[] b, final int off, final int len) throws IOException {
             if (_sink != null) {
                 _sink.checkSpace(len);
             }
@@ -807,12 +811,12 @@ public abstract class Channel implements Runnable {
         return exitStatus;
     }
 
-    void setSession(Session session) {
+    void setSession(final Session session) {
         this.session = session;
     }
 
     public Session getSession() throws JSchException {
-        Session _session = session;
+        final Session _session = session;
         if (_session == null) {
             throw new JSchException("session is not available");
         }
@@ -824,8 +828,8 @@ public abstract class Channel implements Runnable {
     }
 
     protected void sendOpenConfirmation() throws Exception {
-        Buffer buf = new Buffer(100);
-        Packet packet = new Packet(buf);
+        final Buffer buf = new Buffer(200);
+        final Packet packet = new Packet(buf);
         packet.reset();
         buf.putByte((byte) SSH_MSG_CHANNEL_OPEN_CONFIRMATION);
         buf.putInt(getRecipient());
@@ -835,24 +839,24 @@ public abstract class Channel implements Runnable {
         getSession().write(packet);
     }
 
-    protected void sendOpenFailure(int reasoncode) {
+    protected void sendOpenFailure(final int reasonCode) {
         try {
-            Buffer buf = new Buffer(100);
-            Packet packet = new Packet(buf);
+            final Buffer buf = new Buffer(200);
+            final Packet packet = new Packet(buf);
             packet.reset();
             buf.putByte((byte) SSH_MSG_CHANNEL_OPEN_FAILURE);
             buf.putInt(getRecipient());
-            buf.putInt(reasoncode);
+            buf.putInt(reasonCode);
             buf.putString(Util.str2byte("open failed"));
             buf.putString(Util.empty);
             getSession().write(packet);
-        } catch (Exception e) {
+        } catch (final Exception ignored) {
         }
     }
 
     protected Packet genChannelOpenPacket() {
-        Buffer buf = new Buffer(100);
-        Packet packet = new Packet(buf);
+        final Buffer buf = new Buffer(200);
+        final Packet packet = new Packet(buf);
         // byte   SSH_MSG_CHANNEL_OPEN(90)
         // string channel type         //
         // uint32 sender channel       // 0
@@ -868,18 +872,19 @@ public abstract class Channel implements Runnable {
     }
 
     protected void sendChannelOpen() throws Exception {
-        Session _session = getSession();
+        final Session _session = getSession();
         if (!_session.isConnected()) {
             throw new JSchException("session is down");
         }
 
-        Packet packet = genChannelOpenPacket();
+        final Packet packet = genChannelOpenPacket();
         _session.write(packet);
 
         int retry = 2000;
-        long start = System.currentTimeMillis();
-        long timeout = connectTimeout;
-        if (timeout != 0L) retry = 1;
+        final long start = System.currentTimeMillis();
+        final long timeout = connectTimeout;
+        if (timeout != 0L)
+            retry = 1;
         synchronized (this) {
             while (this.getRecipient() == -1 &&
                     _session.isConnected() &&
@@ -891,10 +896,10 @@ public abstract class Channel implements Runnable {
                     }
                 }
                 try {
-                    long t = timeout == 0L ? 10L : timeout;
+                    final long t = timeout == 0L ? 10L : timeout;
                     this.notifyme = 1;
                     wait(t);
-                } catch (java.lang.InterruptedException e) {
+                } catch (final InterruptedException ignored) {
                 } finally {
                     this.notifyme = 0;
                 }
@@ -905,10 +910,10 @@ public abstract class Channel implements Runnable {
             throw new JSchException("session is down");
         }
         if (this.getRecipient() == -1) {  // timeout
-            throw new JSchException("channel is not opened.");
+            throw new JSchException("channel opening timed out");
         }
-        if (this.open_confirmation == false) {  // SSH_MSG_CHANNEL_OPEN_FAILURE
-            throw new JSchException("channel is not opened.");
+        if (!this.open_confirmation) {  // SSH_MSG_CHANNEL_OPEN_FAILURE
+            throw new JSchException("channel is not opened");
         }
         connected = true;
     }

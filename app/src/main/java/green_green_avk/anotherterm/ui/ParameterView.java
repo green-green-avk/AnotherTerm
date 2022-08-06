@@ -22,5 +22,8 @@ public interface ParameterView<T> {
         setValue(_v);
     }
 
+    /**
+     * @param v a callback to execute when value changed by user
+     */
     void setOnValueChanged(@Nullable OnValueChanged<T> v);
 }

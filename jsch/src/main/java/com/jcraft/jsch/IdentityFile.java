@@ -29,39 +29,41 @@ EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 package com.jcraft.jsch;
 
-import java.io.UnsupportedEncodingException;
+final class IdentityFile implements Identity {
+    private final JSch jsch;
+    private KeyPair keyPair;
+    private final String name;
 
-class IdentityFile implements Identity {
-    private JSch jsch;
-    private KeyPair kpair;
-    private String identity;
-
-    static IdentityFile newInstance(String prvfile, String pubfile, JSch jsch) throws JSchException {
-        KeyPair kpair = KeyPair.load(jsch, prvfile, pubfile);
-        return new IdentityFile(jsch, prvfile, kpair);
+    static IdentityFile newInstance(final String prvfile, final String pubfile, final JSch jsch)
+            throws JSchException {
+        return new IdentityFile(jsch, prvfile,
+                KeyPair.load(jsch, prvfile, pubfile));
     }
 
-    static IdentityFile newInstance(String name, byte[] prvkey, byte[] pubkey, JSch jsch) throws JSchException {
-
-        KeyPair kpair = KeyPair.load(jsch, prvkey, pubkey);
-        return new IdentityFile(jsch, name, kpair);
+    static IdentityFile newInstance(final String name,
+                                    final byte[] prvkey, final byte[] pubkey, final JSch jsch)
+            throws JSchException {
+        return new IdentityFile(jsch, name,
+                KeyPair.load(jsch, prvkey, pubkey));
     }
 
-    private IdentityFile(JSch jsch, String name, KeyPair kpair) throws JSchException {
+    private IdentityFile(final JSch jsch, final String name, final KeyPair keyPair)
+            throws JSchException {
         this.jsch = jsch;
-        this.identity = name;
-        this.kpair = kpair;
+        this.name = name;
+        this.keyPair = keyPair;
     }
 
     /**
      * Decrypts this identity with the specified pass-phrase.
      *
      * @param passphrase the pass-phrase for this identity.
-     * @return <tt>true</tt> if the decryption is succeeded
+     * @return {@code true} if the decryption is succeeded
      * or this identity is not cyphered.
      */
-    public boolean setPassphrase(byte[] passphrase) throws JSchException {
-        return kpair.decrypt(passphrase);
+    @Override
+    public boolean setPassphrase(final byte[] passphrase) throws JSchException {
+        return keyPair.decrypt(passphrase);
     }
 
     /**
@@ -69,8 +71,9 @@ class IdentityFile implements Identity {
      *
      * @return the public-key blob
      */
+    @Override
     public byte[] getPublicKeyBlob() {
-        return kpair.getPublicKeyBlob();
+        return keyPair.getPublicKeyBlob();
     }
 
     /**
@@ -79,14 +82,29 @@ class IdentityFile implements Identity {
      * @param data data to be signed
      * @return the signature
      */
-    public byte[] getSignature(byte[] data) {
-        return kpair.getSignature(data);
+    @Override
+    public byte[] getSignature(final byte[] data) {
+        return keyPair.getSignature(data);
+    }
+
+    /**
+     * Signs on data with this identity, and returns the result.
+     *
+     * @param data data to be signed
+     * @param alg  signature algorithm to use
+     * @return the signature
+     */
+    @Override
+    public byte[] getSignature(final byte[] data, final String alg) {
+        return keyPair.getSignature(data, alg);
     }
 
     /**
      * @see #setPassphrase(byte[] passphrase)
      * @deprecated This method should not be invoked.
      */
+    @Override
+    @Deprecated
     public boolean decrypt() {
         throw new RuntimeException("not implemented");
     }
@@ -96,38 +114,37 @@ class IdentityFile implements Identity {
      *
      * @return "ssh-rsa" or "ssh-dss"
      */
+    @Override
     public String getAlgName() {
-        byte[] name = kpair.getKeyTypeName();
-        try {
-            return new String(name, "UTF-8");
-        } catch (UnsupportedEncodingException e) {
-            return new String(name);
-        }
+        return Util.byte2str(keyPair.getKeyTypeName());
     }
 
     /**
      * Returns the name of this identity.
      * It will be useful to identify this object in the {@link IdentityRepository}.
      */
+    @Override
     public String getName() {
-        return identity;
+        return name;
     }
 
     /**
-     * Returns <tt>true</tt> if this identity is cyphered.
+     * Returns {@code true} if this identity is cyphered.
      *
-     * @return <tt>true</tt> if this identity is cyphered.
+     * @return {@code true} if this identity is cyphered.
      */
+    @Override
     public boolean isEncrypted() {
-        return kpair.isEncrypted();
+        return keyPair.isEncrypted();
     }
 
     /**
      * Disposes internally allocated data, like byte array for the private key.
      */
+    @Override
     public void clear() {
-        kpair.dispose();
-        kpair = null;
+        keyPair.dispose();
+        keyPair = null;
     }
 
     /**
@@ -136,6 +153,6 @@ class IdentityFile implements Identity {
      * @return an instance of {@link KeyPair} used in this {@link Identity}.
      */
     public KeyPair getKeyPair() {
-        return kpair;
+        return keyPair;
     }
 }

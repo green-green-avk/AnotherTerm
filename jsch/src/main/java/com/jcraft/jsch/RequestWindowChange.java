@@ -29,24 +29,25 @@ EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 package com.jcraft.jsch;
 
-class RequestWindowChange extends Request {
+final class RequestWindowChange extends Request {
     int width_columns = 80;
     int height_rows = 24;
     int width_pixels = 640;
     int height_pixels = 480;
 
-    void setSize(int col, int row, int wp, int hp) {
+    void setSize(final int col, final int row, final int wp, final int hp) {
         this.width_columns = col;
         this.height_rows = row;
         this.width_pixels = wp;
         this.height_pixels = hp;
     }
 
-    public void request(Session session, Channel channel) throws Exception {
+    @Override
+    public void request(final Session session, final Channel channel) throws Exception {
         super.request(session, channel);
 
-        Buffer buf = new Buffer();
-        Packet packet = new Packet(buf);
+        final Buffer buf = new Buffer();
+        final Packet packet = new Packet(buf);
 
         //byte      SSH_MSG_CHANNEL_REQUEST
         //uint32    recipient_channel

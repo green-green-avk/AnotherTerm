@@ -40,6 +40,12 @@ public class InlineImageSpan extends DynamicDrawableSpan {
         return mDrawable;
     }
 
+    @NonNull
+    public InlineImageSpan useTextColor() {
+        mUseTextColor = true;
+        return this;
+    }
+
     @Override
     public int getSize(@NonNull final Paint paint,
                        final CharSequence text, final int start, final int end,
@@ -62,11 +68,5 @@ public class InlineImageSpan extends DynamicDrawableSpan {
         if (mUseTextColor)
             DrawableCompat.setTint(mDrawable, paint.getColor());
         super.draw(canvas, text, start, end, x, top, y, bottom, paint);
-    }
-
-    @NonNull
-    public InlineImageSpan useTextColor() {
-        mUseTextColor = true;
-        return this;
     }
 }

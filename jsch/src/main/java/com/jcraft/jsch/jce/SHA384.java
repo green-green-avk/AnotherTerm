@@ -31,26 +31,19 @@ package com.jcraft.jsch.jce;
 
 import java.security.MessageDigest;
 
-public class SHA384 implements com.jcraft.jsch.HASH {
-    MessageDigest md;
-
+public final class SHA384 extends HASH {
+    @Override
     public int getBlockSize() {
         return 48;
     }
 
+    @Override
     public void init() throws Exception {
-        try {
-            md = MessageDigest.getInstance("SHA-384");
-        } catch (Exception e) {
-            System.err.println(e);
-        }
+        md = MessageDigest.getInstance("SHA-384");
     }
 
-    public void update(byte[] foo, int start, int len) throws Exception {
-        md.update(foo, start, len);
-    }
-
-    public byte[] digest() throws Exception {
-        return md.digest();
+    @Override
+    public String name() {
+        return "SHA384";
     }
 }

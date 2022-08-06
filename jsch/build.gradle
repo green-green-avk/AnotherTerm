@@ -2,16 +2,23 @@ plugins {
     id 'com.android.library'
 }
 
+ext {
+    libVersionName = '0.2.2.A'
+}
+
 android {
+    namespace 'com.jcraft.jsch'
+
     compileSdkVersion 30
 
     defaultConfig {
         minSdkVersion 14
         targetSdkVersion 30
 
+        buildConfigField 'String', 'VERSION_NAME', "\"$libVersionName\""
+
         consumerProguardFiles 'consumer-rules.pro'
     }
-    namespace 'com.jcraft.jsch'
 }
 
 dependencies {

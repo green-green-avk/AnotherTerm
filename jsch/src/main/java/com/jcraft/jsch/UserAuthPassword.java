@@ -29,10 +29,11 @@ EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 package com.jcraft.jsch;
 
-class UserAuthPassword extends UserAuth {
-    private final int SSH_MSG_USERAUTH_PASSWD_CHANGEREQ = 60;
+final class UserAuthPassword extends UserAuth {
+    private static final int SSH_MSG_USERAUTH_PASSWD_CHANGEREQ = 60;
 
-    public boolean start(Session session) throws Exception {
+    @Override
+    public boolean start(final Session session) throws Exception {
         super.start(session);
 
         byte[] password = session.password;
@@ -54,21 +55,18 @@ class UserAuthPassword extends UserAuth {
                         //throw new JSchException("USERAUTH fail");
                         return false;
                     }
-                    if (!userinfo.promptPassword("Password for " + dest)) {
-                        throw new JSchAuthCancelException("password");
-                        //break;
-                    }
-
-                    String _password = userinfo.getPassword();
+                    final CharSequence _password =
+                            userinfo.promptPassword(dest,
+                                    UserInfo.Message.PASSWORD_FOR_HOST, dest);
                     if (_password == null) {
                         throw new JSchAuthCancelException("password");
                         //break;
                     }
                     password = Util.str2byte(_password);
+                    userinfo.erase(_password);
                 }
 
-                byte[] _username = null;
-                _username = Util.str2byte(username);
+                final byte[] _username = Util.str2byte(username);
 
                 // send
                 // byte      SSH_MSG_USERAUTH_REQUEST(50)
@@ -89,7 +87,7 @@ class UserAuthPassword extends UserAuth {
                 loop:
                 while (true) {
                     buf = session.read(buf);
-                    int command = buf.getCommand() & 0xff;
+                    final int command = buf.getCommand() & 0xff;
 
                     if (command == SSH_MSG_USERAUTH_SUCCESS) {
                         return true;
@@ -98,11 +96,10 @@ class UserAuthPassword extends UserAuth {
                         buf.getInt();
                         buf.getByte();
                         buf.getByte();
-                        byte[] _message = buf.getString();
-                        byte[] lang = buf.getString();
-                        String message = Util.byte2str(_message);
+                        final byte[] message = buf.getString();
+                        final byte[] lang = buf.getString();
                         if (userinfo != null) {
-                            userinfo.showMessage(message);
+                            userinfo.showMessage(Util.byte2str(message));
                         }
                         continue loop;
                     }
@@ -110,8 +107,8 @@ class UserAuthPassword extends UserAuth {
                         buf.getInt();
                         buf.getByte();
                         buf.getByte();
-                        byte[] instruction = buf.getString();
-                        byte[] tag = buf.getString();
+                        final byte[] instruction = buf.getString();
+                        final byte[] tag = buf.getString();
                         if (userinfo == null ||
                                 !(userinfo instanceof UIKeyboardInteractive)) {
                             if (userinfo != null) {
@@ -120,21 +117,23 @@ class UserAuthPassword extends UserAuth {
                             return false;
                         }
 
-                        UIKeyboardInteractive kbi = (UIKeyboardInteractive) userinfo;
-                        String[] response;
-                        String name = "Password Change Required";
-                        String[] prompt = {"New Password: "};
-                        boolean[] echo = {false};
-                        response = kbi.promptKeyboardInteractive(dest,
+                        final UIKeyboardInteractive kbi = (UIKeyboardInteractive) userinfo;
+                        final String name = "Password Change Required";
+                        final String[] prompt = {"New Password: "};
+                        final boolean[] echo = {false};
+                        final CharSequence[] response = kbi.promptKeyboardInteractive(
+                                dest,
                                 name,
                                 Util.byte2str(instruction),
                                 prompt,
-                                echo);
+                                echo
+                        );
                         if (response == null) {
                             throw new JSchAuthCancelException("password");
                         }
 
-                        byte[] newpassword = Util.str2byte(response[0]);
+                        final byte[] newpassword = Util.str2byte(response[0]);
+                        kbi.erase(response);
 
                         // send
                         // byte      SSH_MSG_USERAUTH_REQUEST(50)
@@ -153,7 +152,6 @@ class UserAuthPassword extends UserAuth {
                         buf.putString(password);
                         buf.putString(newpassword);
                         Util.bzero(newpassword);
-                        response = null;
                         session.write(packet);
                         continue loop;
                     }
@@ -161,10 +159,10 @@ class UserAuthPassword extends UserAuth {
                         buf.getInt();
                         buf.getByte();
                         buf.getByte();
-                        byte[] foo = buf.getString();
-                        int partial_success = buf.getByte();
+                        final byte[] foo = buf.getString();
+                        final int partial_success = buf.getByte();
                         //System.err.println(new String(foo)+
-                        //		 " partial_success:"+(partial_success!=0));
+                        //                 " partial_success:"+(partial_success!=0));
                         if (partial_success != 0) {
                             throw new JSchPartialAuthException(Util.byte2str(foo));
                         }
@@ -172,7 +170,7 @@ class UserAuthPassword extends UserAuth {
                         break;
                     } else {
                         //System.err.println("USERAUTH fail ("+buf.getCommand()+")");
-//	  throw new JSchException("USERAUTH fail ("+buf.getCommand()+")");
+//          throw new JSchException("USERAUTH fail ("+buf.getCommand()+")");
                         return false;
                     }
                 }

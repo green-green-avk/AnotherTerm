@@ -29,7 +29,7 @@ EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 package com.jcraft.jsch;
 
-class RequestPtyReq extends Request {
+final class RequestPtyReq extends Request {
     private String ttype = "vt100";
     private int tcol = 80;
     private int trow = 24;
@@ -38,29 +38,30 @@ class RequestPtyReq extends Request {
 
     private byte[] terminal_mode = Util.empty;
 
-    void setCode(String cookie) {
+    void setCode(final String cookie) {
     }
 
-    void setTType(String ttype) {
+    void setTType(final String ttype) {
         this.ttype = ttype;
     }
 
-    void setTerminalMode(byte[] terminal_mode) {
+    void setTerminalMode(final byte[] terminal_mode) {
         this.terminal_mode = terminal_mode;
     }
 
-    void setTSize(int tcol, int trow, int twp, int thp) {
+    void setTSize(final int tcol, final int trow, final int twp, final int thp) {
         this.tcol = tcol;
         this.trow = trow;
         this.twp = twp;
         this.thp = thp;
     }
 
-    public void request(Session session, Channel channel) throws Exception {
+    @Override
+    public void request(final Session session, final Channel channel) throws Exception {
         super.request(session, channel);
 
-        Buffer buf = new Buffer();
-        Packet packet = new Packet(buf);
+        final Buffer buf = new Buffer();
+        final Packet packet = new Packet(buf);
 
         packet.reset();
         buf.putByte((byte) Session.SSH_MSG_CHANNEL_REQUEST);

@@ -29,14 +29,17 @@ EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 package com.jcraft.jsch;
 
+import java.io.IOException;
 import java.net.Socket;
+import java.util.HashMap;
+import java.util.Map;
 
-class ChannelX11 extends Channel {
+final class ChannelX11 extends Channel {
 
-    static private final int LOCAL_WINDOW_SIZE_MAX = 0x20000;
-    static private final int LOCAL_MAXIMUM_PACKET_SIZE = 0x4000;
+    private static final int LOCAL_WINDOW_SIZE_MAX = 0x20000;
+    private static final int LOCAL_MAXIMUM_PACKET_SIZE = 0x4000;
 
-    static private final int TIMEOUT = 10 * 1000;
+    private static final int TIMEOUT = 10 * 1000;
 
     private static String host = "127.0.0.1";
     private static int port = 6000;
@@ -46,22 +49,23 @@ class ChannelX11 extends Channel {
     static byte[] cookie = null;
     private static byte[] cookie_hex = null;
 
-    private static java.util.Hashtable faked_cookie_pool = new java.util.Hashtable();
-    private static java.util.Hashtable faked_cookie_hex_pool = new java.util.Hashtable();
+    private static final Map<Session, byte[]> faked_cookie_pool = new HashMap<>();
+    private static final Map<Session, byte[]> faked_cookie_hex_pool = new HashMap<>();
 
-    private static byte[] table = {0x30, 0x31, 0x32, 0x33, 0x34, 0x35, 0x36, 0x37, 0x38, 0x39,
+    private static final byte[] table = {0x30, 0x31, 0x32, 0x33, 0x34, 0x35, 0x36, 0x37, 0x38, 0x39,
             0x61, 0x62, 0x63, 0x64, 0x65, 0x66};
 
     private Socket socket = null;
 
-    static int revtable(byte foo) {
+    static int revtable(final byte foo) {
         for (int i = 0; i < table.length; i++) {
-            if (table[i] == foo) return i;
+            if (table[i] == foo)
+                return i;
         }
         return 0;
     }
 
-    static void setCookie(String foo) {
+    static void setCookie(final String foo) {
         cookie_hex = Util.str2byte(foo);
         cookie = new byte[16];
         for (int i = 0; i < 16; i++) {
@@ -70,19 +74,19 @@ class ChannelX11 extends Channel {
         }
     }
 
-    static void setHost(String foo) {
+    static void setHost(final String foo) {
         host = foo;
     }
 
-    static void setPort(int foo) {
+    static void setPort(final int foo) {
         port = foo;
     }
 
-    static byte[] getFakedCookie(Session session) {
+    static byte[] getFakedCookie(final Session session) {
         synchronized (faked_cookie_hex_pool) {
-            byte[] foo = (byte[]) faked_cookie_hex_pool.get(session);
+            byte[] foo = faked_cookie_hex_pool.get(session);
             if (foo == null) {
-                Random random = Session.random;
+                final Random random = Session.random;
                 foo = new byte[16];
                 synchronized (random) {
                     random.fill(foo, 0, 16);
@@ -95,7 +99,7 @@ for(int i=0; i<foo.length; i++){
 System.err.println("");
 */
                 faked_cookie_pool.put(session, foo);
-                byte[] bar = new byte[32];
+                final byte[] bar = new byte[32];
                 for (int i = 0; i < 16; i++) {
                     bar[2 * i] = table[(foo[i] >>> 4) & 0xf];
                     bar[2 * i + 1] = table[(foo[i]) & 0xf];
@@ -107,7 +111,7 @@ System.err.println("");
         }
     }
 
-    static void removeFakedCookie(Session session) {
+    static void removeFakedCookie(final Session session) {
         synchronized (faked_cookie_hex_pool) {
             faked_cookie_hex_pool.remove(session);
             faked_cookie_pool.remove(session);
@@ -132,13 +136,14 @@ System.err.println("");
       io.setInputStream(socket.getInputStream());
       io.setOutputStream(socket.getOutputStream());
     }
-    catch(Exception e){
+    catch(final Exception e){
       //System.err.println(e);
     }
     */
     }
 
-    public void run() {
+    @Override
+    void run() {
 
         try {
             socket = Util.createSocket(host, port, TIMEOUT);
@@ -147,7 +152,7 @@ System.err.println("");
             io.setInputStream(socket.getInputStream());
             io.setOutputStream(socket.getOutputStream());
             sendOpenConfirmation();
-        } catch (Exception e) {
+        } catch (final Exception e) {
             sendOpenFailure(SSH_OPEN_ADMINISTRATIVELY_PROHIBITED);
             close = true;
             disconnect();
@@ -155,17 +160,16 @@ System.err.println("");
         }
 
         thread = Thread.currentThread();
-        Buffer buf = new Buffer(rmpsize);
-        Packet packet = new Packet(buf);
-        int i = 0;
+        final Buffer buf = new Buffer(rmpsize);
+        final Packet packet = new Packet(buf);
         try {
             while (thread != null &&
                     io != null &&
                     io.in != null) {
-                i = io.in.read(buf.buffer,
+                final int n = io.in.read(buf.buffer,
                         14,
                         buf.buffer.length - 14 - Session.buffer_margin);
-                if (i <= 0) {
+                if (n <= 0) {
                     eof();
                     break;
                 }
@@ -173,11 +177,11 @@ System.err.println("");
                 packet.reset();
                 buf.putByte((byte) Session.SSH_MSG_CHANNEL_DATA);
                 buf.putInt(recipient);
-                buf.putInt(i);
-                buf.skip(i);
-                getSession().write(packet, this, i);
+                buf.putInt(n);
+                buf.skip(n);
+                getSession().write(packet, this, n);
             }
-        } catch (Exception e) {
+        } catch (final Exception e) {
             //System.err.println(e);
         }
         disconnect();
@@ -185,8 +189,8 @@ System.err.println("");
 
     private byte[] cache = new byte[0];
 
-    private byte[] addCache(byte[] foo, int s, int l) {
-        byte[] bar = new byte[cache.length + l];
+    private byte[] addCache(final byte[] foo, final int s, final int l) {
+        final byte[] bar = new byte[cache.length + l];
         System.arraycopy(foo, s, bar, cache.length, l);
         if (cache.length > 0)
             System.arraycopy(cache, 0, bar, 0, cache.length);
@@ -194,16 +198,17 @@ System.err.println("");
         return cache;
     }
 
-    void write(byte[] foo, int s, int l) throws java.io.IOException {
+    @Override
+    void write(byte[] foo, int s, int l) throws IOException {
         //if(eof_local)return;
 
         if (init) {
 
-            Session _session = null;
+            final Session _session;
             try {
                 _session = getSession();
-            } catch (JSchException e) {
-                throw new java.io.IOException(e.toString());
+            } catch (final JSchException e) {
+                throw new IOException(e.toString(), e);
             }
 
             foo = addCache(foo, s, l);
@@ -227,12 +232,12 @@ System.err.println("");
             if (l < 12 + plen + ((-plen) & 3) + dlen)
                 return;
 
-            byte[] bar = new byte[dlen];
+            final byte[] bar = new byte[dlen];
             System.arraycopy(foo, s + 12 + plen + ((-plen) & 3), bar, 0, dlen);
-            byte[] faked_cookie = null;
+            final byte[] faked_cookie;
 
             synchronized (faked_cookie_pool) {
-                faked_cookie = (byte[]) faked_cookie_pool.get(_session);
+                faked_cookie = faked_cookie_pool.get(_session);
             }
 
       /*
@@ -266,8 +271,8 @@ System.err.println("");
         io.put(foo, s, l);
     }
 
-    private static boolean equals(byte[] foo, byte[] bar) {
-        if (foo.length != bar.length) return false;
+    private static boolean equals(final byte[] foo, final byte[] bar) {
+        if (foo == null || bar == null || foo.length != bar.length) return false;
         for (int i = 0; i < foo.length; i++) {
             if (foo[i] != bar[i]) return false;
         }

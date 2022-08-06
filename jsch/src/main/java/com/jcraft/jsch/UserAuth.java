@@ -43,7 +43,7 @@ public abstract class UserAuth {
     protected Buffer buf;
     protected String username;
 
-    public boolean start(Session session) throws Exception {
+    public boolean start(final Session session) throws Exception {
         this.userinfo = session.getUserInfo();
         this.packet = session.packet;
         this.buf = packet.getBuffer();

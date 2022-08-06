@@ -36,47 +36,46 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.List;
 
-public
-class KnownHosts implements HostKeyRepository {
-    private static final String _known_hosts = "known_hosts";
-
-    private JSch jsch = null;
+final class KnownHosts implements HostKeyRepository {
+    private final JSch jsch;
     private String known_hosts = null;
-    private java.util.Vector pool = null;
+    private final List<HostKey> pool = new ArrayList<>();
 
-    private MAC hmacsha1 = null;
+    private final MAC hmacsha1;
 
-    KnownHosts(JSch jsch) {
+    KnownHosts(final JSch jsch) {
         super();
         this.jsch = jsch;
-        this.hmacsha1 = getHMACSHA1();
-        pool = new java.util.Vector();
+        this.hmacsha1 = createHMAC(JSch.getConfig("hmac-sha1"));
     }
 
-    void setKnownHosts(String filename) throws JSchException {
+    void setKnownHosts(final String filename) throws JSchException {
         try {
             known_hosts = filename;
-            FileInputStream fis = new FileInputStream(Util.checkTilde(filename));
+            final FileInputStream fis = new FileInputStream(Util.checkTilde(filename));
             setKnownHosts(fis);
-        } catch (FileNotFoundException e) {
+        } catch (final FileNotFoundException e) {
             // The non-existing file should be allowed.
         }
     }
 
-    void setKnownHosts(InputStream input) throws JSchException {
-        pool.removeAllElements();
-        StringBuffer sb = new StringBuffer();
+    void setKnownHosts(final InputStream input) throws JSchException {
+        pool.clear();
+        final StringBuilder sb = new StringBuilder();
         byte i;
         int j;
-        boolean error = false;
+        final boolean error = false;
         try {
-            InputStream fis = input;
+            final InputStream fis = input;
             String host;
-            String key = null;
+            String key;
             int type;
             byte[] buf = new byte[1024];
-            int bufl = 0;
+            int bufl;
             loop:
             while (true) {
                 bufl = 0;
@@ -85,9 +84,8 @@ class KnownHosts implements HostKeyRepository {
                     if (j == -1) {
                         if (bufl == 0) {
                             break loop;
-                        } else {
-                            break;
                         }
+                        break;
                     }
                     if (j == 0x0d) {
                         continue;
@@ -97,7 +95,7 @@ class KnownHosts implements HostKeyRepository {
                     }
                     if (buf.length <= bufl) {
                         if (bufl > 1024 * 10) break;   // too long...
-                        byte[] newbuf = new byte[buf.length * 2];
+                        final byte[] newbuf = new byte[buf.length * 2];
                         System.arraycopy(buf, 0, newbuf, 0, buf.length);
                         buf = newbuf;
                     }
@@ -131,7 +129,7 @@ class KnownHosts implements HostKeyRepository {
                     sb.append((char) i);
                 }
                 host = sb.toString();
-                if (j >= bufl || host.length() == 0) {
+                if (j >= bufl || host.isEmpty()) {
                     addInvalidLine(Util.byte2str(buf, 0, bufl));
                     continue loop;
                 }
@@ -158,7 +156,7 @@ class KnownHosts implements HostKeyRepository {
                         sb.append((char) i);
                     }
                     host = sb.toString();
-                    if (j >= bufl || host.length() == 0) {
+                    if (j >= bufl || host.isEmpty()) {
                         addInvalidLine(Util.byte2str(buf, 0, bufl));
                         continue loop;
                     }
@@ -182,7 +180,7 @@ class KnownHosts implements HostKeyRepository {
                     }
                     sb.append((char) i);
                 }
-                String tmp = sb.toString();
+                final String tmp = sb.toString();
                 if (HostKey.name2type(tmp) != HostKey.UNKNOWN) {
                     type = HostKey.name2type(tmp);
                 } else {
@@ -217,7 +215,7 @@ class KnownHosts implements HostKeyRepository {
                     sb.append((char) i);
                 }
                 key = sb.toString();
-                if (key.length() == 0) {
+                if (key.isEmpty()) {
                     addInvalidLine(Util.byte2str(buf, 0, bufl));
                     continue loop;
                 }
@@ -231,7 +229,7 @@ class KnownHosts implements HostKeyRepository {
                     break;
                 }
 
-                /**
+                /*
                  "man sshd" has following descriptions,
                  Note that the lines in these files are typically hundreds
                  of characters long, and you definitely don't want to type
@@ -264,61 +262,62 @@ class KnownHosts implements HostKeyRepository {
                 hk = new HashedHostKey(marker, host, type,
                         Util.fromBase64(Util.str2byte(key), 0,
                                 key.length()), comment);
-                pool.addElement(hk);
+                pool.add(hk);
             }
             if (error) {
                 throw new JSchException("KnownHosts: invalid format");
             }
-        } catch (Exception e) {
+        } catch (final Exception e) {
             if (e instanceof JSchException)
                 throw (JSchException) e;
-            if (e instanceof Throwable)
-                throw new JSchException(e.toString(), (Throwable) e);
-            throw new JSchException(e.toString());
+            throw new JSchException(e.toString(), e);
         } finally {
             try {
                 input.close();
-            } catch (IOException e) {
-                throw new JSchException(e.toString(), (Throwable) e);
+            } catch (final IOException e) {
+//                throw new JSchException(e.toString(), e); // TODO: was it correct?
             }
         }
     }
 
-    private void addInvalidLine(String line) throws JSchException {
-        HostKey hk = new HostKey(line, HostKey.UNKNOWN, null);
-        pool.addElement(hk);
+    private void addInvalidLine(final String line) throws JSchException {
+        final HostKey hk = new HostKey(line, HostKey.UNKNOWN, null);
+        pool.add(hk);
     }
 
     String getKnownHostsFile() {
         return known_hosts;
     }
 
+    @Override
     public String getKnownHostsRepositoryID() {
         return known_hosts;
     }
 
-    public int check(String host, byte[] key) {
+    @Override
+    public int check(final String host, final byte[] key) {
         int result = NOT_INCLUDED;
         if (host == null) {
             return result;
         }
 
-        HostKey hk = null;
+        final HostKey hk;
         try {
             hk = new HostKey(host, HostKey.GUESS, key);
-        } catch (JSchException e) {  // unsupported key
+        } catch (final Exception e) {  // unsupported key
+            final Logger l = jsch.getInstanceLogger();
+            if (l.isEnabled(Logger.DEBUG))
+                l.log(Logger.DEBUG, "exception while trying to read key while checking host '" + host + "'", e);
             return result;
         }
 
         synchronized (pool) {
-            for (int i = 0; i < pool.size(); i++) {
-                HostKey _hk = (HostKey) (pool.elementAt(i));
+            for (final HostKey _hk : pool) {
                 if (_hk.isMatched(host) && _hk.type == hk.type) {
                     if (Util.array_equals(_hk.key, key)) {
                         return OK;
-                    } else {
-                        result = CHANGED;
                     }
+                    result = CHANGED;
                 }
             }
         }
@@ -333,81 +332,87 @@ class KnownHosts implements HostKeyRepository {
         return result;
     }
 
-    public void add(HostKey hostkey, UserInfo userinfo) {
-        int type = hostkey.type;
-        String host = hostkey.getHost();
-        byte[] key = hostkey.key;
+    @Override
+    public void add(final HostKey hostkey, final UserInfo userinfo) {
+        final int type = hostkey.type;
+        final String host = hostkey.getHost();
+//    byte[] key=hostkey.key;
 
-        HostKey hk = null;
         synchronized (pool) {
-            for (int i = 0; i < pool.size(); i++) {
-                hk = (HostKey) (pool.elementAt(i));
+            for (final HostKey hk : pool) {
                 if (hk.isMatched(host) && hk.type == type) {
 /*
-	  if(Util.array_equals(hk.key, key)){ return; }
-	  if(hk.host.equals(host)){
-	    hk.key=key;
-	    return;
-	  }
-	  else{
-	    hk.host=deleteSubString(hk.host, host);
-	    break;
-	  }
+          if(Util.array_equals(hk.key, key)){ return; }
+          if(hk.host.equals(host)){
+            hk.key=key;
+            return;
+          }
+          else{
+            hk.host=deleteSubString(hk.host, host);
+            break;
+          }
 */
                 }
             }
         }
 
-        hk = hostkey;
+        pool.add(hostkey);
 
-        pool.addElement(hk);
+        syncKnownHostsFile(userinfo);
+    }
 
-        String bar = getKnownHostsRepositoryID();
-        if (bar != null) {
-            boolean foo = true;
-            File goo = new File(Util.checkTilde(bar));
-            if (!goo.exists()) {
-                foo = false;
-                if (userinfo != null) {
-                    foo = userinfo.promptYesNo(bar + " does not exist.\n" +
-                            "Are you sure you want to create it?"
-                    );
-                    goo = goo.getParentFile();
-                    if (foo && goo != null && !goo.exists()) {
-                        foo = userinfo.promptYesNo("The parent directory " + goo + " does not exist.\n" +
+    void syncKnownHostsFile(final UserInfo userinfo) {
+        final String khFilename = getKnownHostsRepositoryID();
+        if (khFilename == null) {
+            return;
+        }
+        boolean doSync = true;
+        File goo = new File(Util.checkTilde(khFilename));
+        if (!goo.exists()) {
+            doSync = false;
+            if (userinfo != null) {
+                doSync = userinfo.promptYesNo(null, UserInfo.Message.SIMPLE_MESSAGE,
+                        khFilename + " does not exist.\n" +
                                 "Are you sure you want to create it?"
-                        );
-                        if (foo) {
-                            if (!goo.mkdirs()) {
-                                userinfo.showMessage(goo + " has not been created.");
-                                foo = false;
-                            } else {
-                                userinfo.showMessage(goo + " has been succesfully created.\nPlease check its access permission.");
-                            }
+                );
+                goo = goo.getParentFile();
+                if (doSync && goo != null && !goo.exists()) {
+                    doSync = userinfo.promptYesNo(null, UserInfo.Message.SIMPLE_MESSAGE,
+                            "The parent directory " + goo + " does not exist.\n" +
+                                    "Are you sure you want to create it?"
+                    );
+                    if (doSync) {
+                        if (!goo.mkdirs()) {
+                            userinfo.showMessage(goo + " has not been created.");
+                            doSync = false;
+                        } else {
+                            userinfo.showMessage(goo + " has been succesfully created.\nPlease check its access permission.");
                         }
                     }
-                    if (goo == null) foo = false;
                 }
+                if (goo == null) doSync = false;
             }
-            if (foo) {
-                try {
-                    sync(bar);
-                } catch (Exception e) {
-                    System.err.println("sync known_hosts: " + e);
-                }
-            }
+        }
+        if (!doSync) {
+            return;
+        }
+        try {
+            sync(khFilename);
+        } catch (final Exception e) {
+            jsch.getInstanceLogger().log(Logger.ERROR, "unable to sync known host file " + goo.getPath(), e);
         }
     }
 
+    @Override
     public HostKey[] getHostKey() {
         return getHostKey(null, (String) null);
     }
 
-    public HostKey[] getHostKey(String host, String type) {
+    @Override
+    public HostKey[] getHostKey(final String host, final String type) {
         synchronized (pool) {
-            java.util.ArrayList v = new java.util.ArrayList();
-            for (int i = 0; i < pool.size(); i++) {
-                HostKey hk = (HostKey) pool.elementAt(i);
+            final List<HostKey> v = new ArrayList<>();
+            for (final HostKey hk : pool) {
                 if (hk.type == HostKey.UNKNOWN) continue;
                 if (host == null ||
                         (hk.isMatched(host) &&
@@ -415,15 +420,12 @@ class KnownHosts implements HostKeyRepository {
                     v.add(hk);
                 }
             }
-            HostKey[] foo = new HostKey[v.size()];
-            for (int i = 0; i < v.size(); i++) {
-                foo[i] = (HostKey) v.get(i);
-            }
+            HostKey[] foo = v.toArray(new HostKey[0]);
             if (host != null && host.startsWith("[") && host.indexOf("]:") > 1) {
-                HostKey[] tmp =
+                final HostKey[] tmp =
                         getHostKey(host.substring(1, host.indexOf("]:")), type);
                 if (tmp.length > 0) {
-                    HostKey[] bar = new HostKey[foo.length + tmp.length];
+                    final HostKey[] bar = new HostKey[foo.length + tmp.length];
                     System.arraycopy(foo, 0, bar, 0, foo.length);
                     System.arraycopy(tmp, 0, bar, foo.length, tmp.length);
                     foo = bar;
@@ -433,24 +435,27 @@ class KnownHosts implements HostKeyRepository {
         }
     }
 
-    public void remove(String host, String type) {
+    @Override
+    public void remove(final String host, final String type) {
         remove(host, type, null);
     }
 
-    public void remove(String host, String type, byte[] key) {
+    @Override
+    public void remove(final String host, final String type, final byte[] key) {
         boolean sync = false;
         synchronized (pool) {
-            for (int i = 0; i < pool.size(); i++) {
-                HostKey hk = (HostKey) (pool.elementAt(i));
+            final Iterator<HostKey> it = pool.iterator();
+            while (it.hasNext()) {
+                final HostKey hk = it.next();
                 if (host == null ||
                         (hk.isMatched(host) &&
                                 (type == null || (hk.getType().equals(type) &&
                                         (key == null || Util.array_equals(key, hk.key)))))) {
-                    String hosts = hk.getHost();
-                    if (hosts.equals(host) ||
+                    final String hosts = hk.getHost();
+                    if (host == null || hosts.equals(host) ||
                             ((hk instanceof HashedHostKey) &&
                                     ((HashedHostKey) hk).isHashed())) {
-                        pool.removeElement(hk);
+                        it.remove();
                     } else {
                         hk.host = deleteSubString(hosts, host);
                     }
@@ -461,71 +466,71 @@ class KnownHosts implements HostKeyRepository {
         if (sync) {
             try {
                 sync();
-            } catch (Exception e) {
+            } catch (final Exception ignored) {
             }
-            ;
         }
     }
 
-    protected void sync() throws IOException {
+    void sync() throws IOException {
         if (known_hosts != null)
             sync(known_hosts);
     }
 
-    protected synchronized void sync(String foo) throws IOException {
+    synchronized void sync(final String foo) throws IOException {
         if (foo == null) return;
-        FileOutputStream fos = new FileOutputStream(Util.checkTilde(foo));
-        dump(fos);
-        fos.close();
-    }
-
-    private static final byte[] space = {(byte) 0x20};
-    private static final byte[] cr = Util.str2byte("\n");
-
-    void dump(OutputStream out) throws IOException {
-        try {
-            HostKey hk;
-            synchronized (pool) {
-                for (int i = 0; i < pool.size(); i++) {
-                    hk = (HostKey) (pool.elementAt(i));
-                    //hk.dump(out);
-                    String marker = hk.getMarker();
-                    String host = hk.getHost();
-                    String type = hk.getType();
-                    String comment = hk.getComment();
-                    if (type.equals("UNKNOWN")) {
-                        out.write(Util.str2byte(host));
-                        out.write(cr);
-                        continue;
-                    }
-                    if (marker.length() != 0) {
-                        out.write(Util.str2byte(marker));
-                        out.write(space);
-                    }
-                    out.write(Util.str2byte(host));
-                    out.write(space);
-                    out.write(Util.str2byte(type));
-                    out.write(space);
-                    out.write(Util.str2byte(hk.getKey()));
-                    if (comment != null) {
-                        out.write(space);
-                        out.write(Util.str2byte(comment));
-                    }
-                    out.write(cr);
-                }
-            }
-        } catch (Exception e) {
-            System.err.println(e);
+        try (final FileOutputStream fos = new FileOutputStream(Util.checkTilde(foo))) {
+            dump(fos);
         }
     }
 
-    private String deleteSubString(String hosts, String host) {
+    private static final byte[] space = {(byte) 0x20};
+    private static final byte[] lf = Util.str2byte("\n");
+
+    void dump(final OutputStream out) {
+        try {
+            synchronized (pool) {
+                for (final HostKey hk : pool) {
+                    dumpHostKey(out, hk);
+                }
+            }
+        } catch (final Exception e) {
+            jsch.getInstanceLogger().log(Logger.ERROR, "unable to dump known hosts", e);
+        }
+    }
+
+    void dumpHostKey(final OutputStream out, final HostKey hk) throws IOException {
+        final String marker = hk.getMarker();
+        final String host = hk.getHost();
+        final String type = hk.getType();
+        final String comment = hk.getComment();
+        if ("UNKNOWN".equals(type)) {
+            out.write(Util.str2byte(host));
+            out.write(lf);
+            return;
+        }
+        if (!marker.isEmpty()) {
+            out.write(Util.str2byte(marker));
+            out.write(space);
+        }
+        out.write(Util.str2byte(host));
+        out.write(space);
+        out.write(Util.str2byte(type));
+        out.write(space);
+        out.write(Util.str2byte(hk.getKey()));
+
+        if (comment != null) {
+            out.write(space);
+            out.write(Util.str2byte(comment));
+        }
+        out.write(lf);
+    }
+
+    String deleteSubString(final String hosts, final String host) {
+        final int hostLen = host.length();
+        final int hostsLen = hosts.length();
         int i = 0;
-        int hostlen = host.length();
-        int hostslen = hosts.length();
-        int j;
-        while (i < hostslen) {
-            j = hosts.indexOf(',', i);
+        while (i < hostsLen) {
+            final int j = hosts.indexOf(',', i);
             if (j == -1) break;
             if (!host.equals(hosts.substring(i, j))) {
                 i = j + 1;
@@ -533,26 +538,30 @@ class KnownHosts implements HostKeyRepository {
             }
             return hosts.substring(0, i) + hosts.substring(j + 1);
         }
-        if (hosts.endsWith(host) && hostslen - i == hostlen) {
-            return hosts.substring(0, (hostlen == hostslen) ? 0 : hostslen - hostlen - 1);
+        if (hosts.endsWith(host) && hostsLen - i == hostLen) {
+            return hosts.substring(0, (hostLen == hostsLen) ? 0 : hostsLen - hostLen - 1);
         }
         return hosts;
     }
 
-    private MAC getHMACSHA1() {
-        if (hmacsha1 == null) {
-            try {
-                Class c = Class.forName(jsch.getConfig("hmac-sha1"));
-                hmacsha1 = (MAC) (c.newInstance());
-            } catch (Exception e) {
-                System.err.println("hmacsha1: " + e);
-            }
-        }
+    MAC getHMACSHA1() {
         return hmacsha1;
     }
 
-    HostKey createHashedHostKey(String host, byte[] key) throws JSchException {
-        HashedHostKey hhk = new HashedHostKey(host, key);
+    MAC createHMAC(final String hmacClassname) {
+        try {
+            final Class<? extends MAC> c = Class.forName(hmacClassname).asSubclass(MAC.class);
+            return c.getDeclaredConstructor().newInstance();
+        } catch (final Exception e) {
+            jsch.getInstanceLogger().log(Logger.ERROR,
+                    "Unable to instantiate HMAC class: " + hmacClassname, e);
+            throw new IllegalArgumentException(
+                    "Instantiation of " + hmacClassname + " leads to an error", e);
+        }
+    }
+
+    HostKey createHashedHostKey(final String host, final byte[] key) throws JSchException {
+        final HashedHostKey hhk = new HashedHostKey(host, key);
         hhk.hash();
         return hhk;
     }
@@ -565,25 +574,26 @@ class KnownHosts implements HostKeyRepository {
         byte[] salt = null;
         byte[] hash = null;
 
-        HashedHostKey(String host, byte[] key) throws JSchException {
+        HashedHostKey(final String host, final byte[] key) throws JSchException {
             this(host, GUESS, key);
         }
 
-        HashedHostKey(String host, int type, byte[] key) throws JSchException {
+        HashedHostKey(final String host, final int type, final byte[] key) throws JSchException {
             this("", host, type, key, null);
         }
 
-        HashedHostKey(String marker, String host, int type, byte[] key, String comment) throws JSchException {
+        HashedHostKey(final String marker, final String host, final int type, final byte[] key,
+                      final String comment) throws JSchException {
             super(marker, host, type, key, comment);
             if (this.host.startsWith(HASH_MAGIC) &&
                     this.host.substring(HASH_MAGIC.length()).indexOf(HASH_DELIM) > 0) {
-                String data = this.host.substring(HASH_MAGIC.length());
-                String _salt = data.substring(0, data.indexOf(HASH_DELIM));
-                String _hash = data.substring(data.indexOf(HASH_DELIM) + 1);
+                final String data = this.host.substring(HASH_MAGIC.length());
+                final String _salt = data.substring(0, data.indexOf(HASH_DELIM));
+                final String _hash = data.substring(data.indexOf(HASH_DELIM) + 1);
                 salt = Util.fromBase64(Util.str2byte(_salt), 0, _salt.length());
                 hash = Util.fromBase64(Util.str2byte(_hash), 0, _hash.length());
-                if (salt.length != 20 ||  // block size of hmac-sha1
-                        hash.length != 20) {
+                final int blockSize = hmacsha1.getBlockSize();
+                if (salt.length != blockSize || hash.length != blockSize) {
                     salt = null;
                     hash = null;
                     return;
@@ -592,22 +602,22 @@ class KnownHosts implements HostKeyRepository {
             }
         }
 
-        boolean isMatched(String _host) {
+        @Override
+        boolean isMatched(final String _host) {
             if (!hashed) {
                 return super.isMatched(_host);
             }
-            MAC macsha1 = getHMACSHA1();
             try {
-                synchronized (macsha1) {
-                    macsha1.init(salt);
-                    byte[] foo = Util.str2byte(_host);
-                    macsha1.update(foo, 0, foo.length);
-                    byte[] bar = new byte[macsha1.getBlockSize()];
-                    macsha1.doFinal(bar, 0);
+                synchronized (hmacsha1) {
+                    hmacsha1.init(salt);
+                    final byte[] foo = Util.str2byte(_host);
+                    hmacsha1.update(foo, 0, foo.length);
+                    final byte[] bar = new byte[hmacsha1.getBlockSize()];
+                    hmacsha1.doFinal(bar, 0);
                     return Util.array_equals(hash, bar);
                 }
-            } catch (Exception e) {
-                System.out.println(e);
+            } catch (final Exception e) {
+                jsch.getInstanceLogger().log(Logger.ERROR, "an error occurred while trying to check hash for host " + _host, e);
             }
             return false;
         }
@@ -619,26 +629,29 @@ class KnownHosts implements HostKeyRepository {
         void hash() {
             if (hashed)
                 return;
-            MAC macsha1 = getHMACSHA1();
             if (salt == null) {
-                Random random = Session.random;
+                final Random random = Session.random;
                 synchronized (random) {
-                    salt = new byte[macsha1.getBlockSize()];
+                    salt = new byte[hmacsha1.getBlockSize()];
                     random.fill(salt, 0, salt.length);
                 }
             }
             try {
-                synchronized (macsha1) {
-                    macsha1.init(salt);
-                    byte[] foo = Util.str2byte(host);
-                    macsha1.update(foo, 0, foo.length);
-                    hash = new byte[macsha1.getBlockSize()];
-                    macsha1.doFinal(hash, 0);
+                synchronized (hmacsha1) {
+                    hmacsha1.init(salt);
+                    final byte[] foo = Util.str2byte(host);
+                    hmacsha1.update(foo, 0, foo.length);
+                    hash = new byte[hmacsha1.getBlockSize()];
+                    hmacsha1.doFinal(hash, 0);
                 }
-            } catch (Exception e) {
+            } catch (final Exception e) {
+                jsch.getInstanceLogger().log(Logger.ERROR, "an error occurred while trying to calculate the hash for host " + host, e);
+                salt = null;
+                hash = null;
+                return;
             }
-            host = HASH_MAGIC + Util.byte2str(Util.toBase64(salt, 0, salt.length)) +
-                    HASH_DELIM + Util.byte2str(Util.toBase64(hash, 0, hash.length));
+            host = HASH_MAGIC + Util.byte2str(Util.toBase64(salt, 0, salt.length, true)) +
+                    HASH_DELIM + Util.byte2str(Util.toBase64(hash, 0, hash.length, true));
             hashed = true;
         }
     }

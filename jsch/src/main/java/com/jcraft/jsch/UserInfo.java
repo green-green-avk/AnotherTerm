@@ -30,15 +30,79 @@ EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 package com.jcraft.jsch;
 
 public interface UserInfo {
-    String getPassphrase();
+    interface Message {
+        /**
+         * Args: CharSequence message
+         */
+        int SIMPLE_MESSAGE = 0;
+        /**
+         * Args: String remoteHost, String hostKeyType, String hostKeyFingerprint
+         */
+        int REMOTE_IDENTITY_NEW_ASK_PROCEED = 1;
+        /**
+         * Args: String remoteHost, String hostKeyType, String hostKeyFingerprint
+         */
+        int REMOTE_IDENTITY_CHANGED = 2;
+        /**
+         * Args: String remoteHost, String hostKeyType, String hostKeyFingerprint
+         */
+        int REMOTE_IDENTITY_CHANGED_ASK_PROCEED = 3;
+        /**
+         * Args: String userHostPort
+         */
+        int PASSWORD_FOR_HOST = 17;
+        /**
+         * Args: String someKeyName
+         */
+        int PASSPHRASE_FOR_KEY = 18;
+        /**
+         * User messages start from here up
+         */
+        int USER_BASE = 0x10000;
+    }
 
-    String getPassword();
+    /**
+     * Erases sensitive data returned by {@code prompt*()} calls.
+     *
+     * @param v data to erase
+     */
+    void erase(CharSequence v);
 
-    boolean promptPassword(String message);
+    /**
+     * Requests a password from user.
+     *
+     * @param id      unique id for keyring or {@code null}
+     * @param message a message id to show: {@link Message}
+     * @param args    message arguments
+     * @return a password or {@code null} if canceled
+     */
+    CharSequence promptPassword(String id, int message, Object... args);
 
-    boolean promptPassphrase(String message);
+    /**
+     * Requests a binary answer from user.
+     *
+     * @param id      unique id for keyring or {@code null}
+     * @param message a message id to show: {@link Message}
+     * @param args    message arguments
+     * @return user's answer
+     */
+    boolean promptYesNo(String id, int message, Object... args);
 
-    boolean promptYesNo(String message);
+    /**
+     * Shows a message.
+     *
+     * @param id      unique id or {@code null} (just in case)
+     * @param message a message id to show: {@link Message}
+     * @param args    message arguments
+     */
+    void showMessage(String id, int message, Object... args);
 
-    void showMessage(String message);
+    /**
+     * Shows a message.
+     *
+     * @param message a message to show
+     */
+    default void showMessage(final CharSequence message) {
+        showMessage(null, Message.SIMPLE_MESSAGE, message);
+    }
 }

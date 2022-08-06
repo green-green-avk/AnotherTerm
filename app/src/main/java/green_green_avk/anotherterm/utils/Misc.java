@@ -27,12 +27,18 @@ import java.io.OutputStream;
 import java.lang.ref.WeakReference;
 import java.nio.charset.Charset;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.HashSet;
 import java.util.Iterator;
+import java.util.LinkedHashMap;
+import java.util.LinkedHashSet;
 import java.util.LinkedList;
+import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.Queue;
 import java.util.Set;
+import java.util.SortedMap;
+import java.util.SortedSet;
 
 import green_green_avk.anotherterm.App;
 import green_green_avk.anotherterm.BuildConfig;
@@ -266,6 +272,12 @@ public final class Misc {
         };
     }
 
+    public static boolean isOrdered(@Nullable final Collection<?> v) {
+        return v instanceof List || v instanceof Queue
+                || v instanceof LinkedHashSet || v instanceof SortedSet
+                || v instanceof LinkedHashMap || v instanceof SortedMap;
+    }
+
     public static Integer[] box(final int[] v) {
         if (v == null)
             return null;
@@ -317,7 +329,7 @@ public final class Misc {
                     return r.run();
                 } catch (final Throwable e) {
                     new Handler(Looper.getMainLooper()).post(() -> {
-                        throw new AsyncError(e);
+                        throw new AsyncError(e); // Yep, whack the main thread.
                     });
                 }
                 return null;

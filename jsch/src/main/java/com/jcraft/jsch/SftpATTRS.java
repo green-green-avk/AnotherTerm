@@ -45,7 +45,7 @@ import java.util.Date;
     ...      more extended data (extended_type - extended_data pairs),
              so that number of pairs equals extended_count
 */
-public class SftpATTRS {
+public final class SftpATTRS {
 
     static final int S_ISUID = 04000; // set user ID on execution
     static final int S_ISGID = 02000; // set group ID on execution
@@ -69,7 +69,7 @@ public class SftpATTRS {
     private static final int pmask = 0xFFF;
 
     public String getPermissionsString() {
-        StringBuffer buf = new StringBuffer(10);
+        final StringBuilder buf = new StringBuilder(10);
 
         if (isDir()) buf.append('d');
         else if (isLink()) buf.append('l');
@@ -107,12 +107,12 @@ public class SftpATTRS {
     }
 
     public String getAtimeString() {
-        Date date = new Date(((long) atime) * 1000L);
+        final Date date = new Date(atime * 1000L);
         return (date.toString());
     }
 
     public String getMtimeString() {
-        Date date = new Date(((long) mtime) * 1000L);
+        final Date date = new Date(mtime * 1000L);
         return (date.toString());
     }
 
@@ -143,8 +143,8 @@ public class SftpATTRS {
     private SftpATTRS() {
     }
 
-    static SftpATTRS getATTR(Buffer buf) {
-        SftpATTRS attr = new SftpATTRS();
+    static SftpATTRS getATTR(final Buffer buf) {
+        final SftpATTRS attr = new SftpATTRS();
         attr.flags = buf.getInt();
         if ((attr.flags & SSH_FILEXFER_ATTR_SIZE) != 0) {
             attr.size = buf.getLong();
@@ -163,7 +163,7 @@ public class SftpATTRS {
             attr.mtime = buf.getInt();
         }
         if ((attr.flags & SSH_FILEXFER_ATTR_EXTENDED) != 0) {
-            int count = buf.getInt();
+            final int count = buf.getInt();
             if (count > 0) {
                 attr.extended = new String[count * 2];
                 for (int i = 0; i < count; i++) {
@@ -192,7 +192,7 @@ public class SftpATTRS {
         }
         if ((flags & SSH_FILEXFER_ATTR_EXTENDED) != 0) {
             len += 4;
-            int count = extended.length / 2;
+            final int count = extended.length / 2;
             if (count > 0) {
                 for (int i = 0; i < count; i++) {
                     len += 4;
@@ -205,7 +205,7 @@ public class SftpATTRS {
         return len;
     }
 
-    void dump(Buffer buf) {
+    void dump(final Buffer buf) {
         buf.putInt(flags);
         if ((flags & SSH_FILEXFER_ATTR_SIZE) != 0) {
             buf.putLong(size);
@@ -224,7 +224,7 @@ public class SftpATTRS {
             buf.putInt(mtime);
         }
         if ((flags & SSH_FILEXFER_ATTR_EXTENDED) != 0) {
-            int count = extended.length / 2;
+            final int count = extended.length / 2;
             if (count > 0) {
                 for (int i = 0; i < count; i++) {
                     buf.putString(Util.str2byte(extended[i * 2]));
@@ -234,22 +234,22 @@ public class SftpATTRS {
         }
     }
 
-    void setFLAGS(int flags) {
+    void setFLAGS(final int flags) {
         this.flags = flags;
     }
 
-    public void setSIZE(long size) {
+    public void setSIZE(final long size) {
         flags |= SSH_FILEXFER_ATTR_SIZE;
         this.size = size;
     }
 
-    public void setUIDGID(int uid, int gid) {
+    public void setUIDGID(final int uid, final int gid) {
         flags |= SSH_FILEXFER_ATTR_UIDGID;
         this.uid = uid;
         this.gid = gid;
     }
 
-    public void setACMODTIME(int atime, int mtime) {
+    public void setACMODTIME(final int atime, final int mtime) {
         flags |= SSH_FILEXFER_ATTR_ACMODTIME;
         this.atime = atime;
         this.mtime = mtime;
@@ -261,7 +261,7 @@ public class SftpATTRS {
         this.permissions = permissions;
     }
 
-    private boolean isType(int mask) {
+    private boolean isType(final int mask) {
         return (flags & SSH_FILEXFER_ATTR_PERMISSIONS) != 0 &&
                 (permissions & S_IFMT) == mask;
     }
@@ -326,6 +326,7 @@ public class SftpATTRS {
         return extended;
     }
 
+    @Override
     public String toString() {
         return (getPermissionsString() + " " + getUId() + " " + getGId() + " " + getSize() + " " + getMtimeString());
     }

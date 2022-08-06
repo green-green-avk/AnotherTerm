@@ -29,15 +29,15 @@ EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 package com.jcraft.jsch;
 
-import java.util.Enumeration;
-import java.util.Hashtable;
+import java.util.HashMap;
+import java.util.Map;
 
 class ChannelSession extends Channel {
-    private static byte[] _session = Util.str2byte("session");
+    private static final byte[] _session = Util.str2byte("session");
 
     protected boolean agent_forwarding = false;
     protected boolean xforwading = false;
-    protected Hashtable env = null;
+    protected Map<byte[], byte[]> env = null;
 
     protected boolean pty = false;
 
@@ -59,7 +59,7 @@ class ChannelSession extends Channel {
      *
      * @param enable
      */
-    public void setAgentForwarding(boolean enable) {
+    public void setAgentForwarding(final boolean enable) {
         agent_forwarding = enable;
     }
 
@@ -69,16 +69,17 @@ class ChannelSession extends Channel {
      *
      * @param enable
      */
-    public void setXForwarding(boolean enable) {
+    @Override
+    public void setXForwarding(final boolean enable) {
         xforwading = enable;
     }
 
     /**
-     * @see #setEnv(String, String)
-     * @see #setEnv(byte[], byte[])
-     * @deprecated Use {@link #setEnv(String, String)} or {@link #setEnv(byte[], byte[])} instead.
+     * Set the environment variables. Directly.
+     *
+     * @param env A whole raw map.
      */
-    public void setEnv(Hashtable env) {
+    public void setEnvRaw(final Map<byte[], byte[]> env) {
         synchronized (this) {
             this.env = env;
         }
@@ -86,7 +87,7 @@ class ChannelSession extends Channel {
 
     /**
      * Set the environment variable.
-     * If <code>name</code> and <code>value</code> are needed to be passed
+     * If {@code name} and {@code value} are needed to be passed
      * to the remote in your favorite encoding,
      * use {@link #setEnv(byte[], byte[])}.
      * Refer to RFC4254 6.4 Environment Variable Passing.
@@ -94,7 +95,7 @@ class ChannelSession extends Channel {
      * @param name  A name for environment variable.
      * @param value A value for environment variable.
      */
-    public void setEnv(String name, String value) {
+    public void setEnv(final String name, final String value) {
         setEnv(Util.str2byte(name), Util.str2byte(value));
     }
 
@@ -106,15 +107,15 @@ class ChannelSession extends Channel {
      * @param value A value of environment variable.
      * @see #setEnv(String, String)
      */
-    public void setEnv(byte[] name, byte[] value) {
+    public void setEnv(final byte[] name, final byte[] value) {
         synchronized (this) {
             getEnv().put(name, value);
         }
     }
 
-    private Hashtable getEnv() {
+    private Map<byte[], byte[]> getEnv() {
         if (env == null)
-            env = new Hashtable();
+            env = new HashMap<>();
         return env;
     }
 
@@ -124,7 +125,7 @@ class ChannelSession extends Channel {
      *
      * @param enable
      */
-    public void setPty(boolean enable) {
+    public void setPty(final boolean enable) {
         pty = enable;
     }
 
@@ -133,7 +134,7 @@ class ChannelSession extends Channel {
      *
      * @param terminal_mode
      */
-    public void setTerminalMode(byte[] terminal_mode) {
+    public void setTerminalMode(final byte[] terminal_mode) {
         this.terminal_mode = terminal_mode;
     }
 
@@ -146,16 +147,16 @@ class ChannelSession extends Channel {
      * @param wp  terminal width, pixels
      * @param hp  terminal height, pixels
      */
-    public void setPtySize(int col, int row, int wp, int hp) {
+    public void setPtySize(final int col, final int row, final int wp, final int hp) {
         setPtyType(this.ttype, col, row, wp, hp);
         if (!pty || !isConnected()) {
             return;
         }
         try {
-            RequestWindowChange request = new RequestWindowChange();
+            final RequestWindowChange request = new RequestWindowChange();
             request.setSize(col, row, wp, hp);
             request.request(getSession(), this);
-        } catch (Exception e) {
+        } catch (final Exception e) {
             //System.err.println("ChannelSessio.setPtySize: "+e);
         }
     }
@@ -167,7 +168,7 @@ class ChannelSession extends Channel {
      * @param ttype terminal type(for example, "vt100")
      * @see #setPtyType(String, int, int, int, int)
      */
-    public void setPtyType(String ttype) {
+    public void setPtyType(final String ttype) {
         setPtyType(ttype, 80, 24, 640, 480);
     }
 
@@ -181,7 +182,8 @@ class ChannelSession extends Channel {
      * @param wp    terminal width, pixels
      * @param hp    terminal height, pixels
      */
-    public void setPtyType(String ttype, int col, int row, int wp, int hp) {
+    public void setPtyType(final String ttype,
+                           final int col, final int row, final int wp, final int hp) {
         this.ttype = ttype;
         this.tcol = col;
         this.trow = row;
@@ -190,7 +192,7 @@ class ChannelSession extends Channel {
     }
 
     protected void sendRequests() throws Exception {
-        Session _session = getSession();
+        final Session _session = getSession();
         Request request;
         if (agent_forwarding) {
             request = new RequestAgentForwarding();
@@ -213,36 +215,28 @@ class ChannelSession extends Channel {
         }
 
         if (env != null) {
-            for (Enumeration _env = env.keys(); _env.hasMoreElements(); ) {
-                Object name = _env.nextElement();
-                Object value = env.get(name);
+            for (final Map.Entry<byte[], byte[]> _env : env.entrySet()) {
+                final byte[] name = _env.getKey();
+                final byte[] value = _env.getValue();
                 request = new RequestEnv();
-                ((RequestEnv) request).setEnv(toByteArray(name),
-                        toByteArray(value));
+                ((RequestEnv) request).setEnv(name, value);
                 request.request(_session, this);
             }
         }
     }
 
-    private byte[] toByteArray(Object o) {
-        if (o instanceof String) {
-            return Util.str2byte((String) o);
-        }
-        return (byte[]) o;
-    }
-
-    public void run() {
+    @Override
+    void run() {
         //System.err.println(this+":run >");
 
-        Buffer buf = new Buffer(rmpsize);
-        Packet packet = new Packet(buf);
-        int i = -1;
+        final Buffer buf = new Buffer(rmpsize);
+        final Packet packet = new Packet(buf);
         try {
             while (isConnected() &&
                     thread != null &&
                     io != null &&
                     io.in != null) {
-                i = io.in.read(buf.buffer,
+                final int i = io.in.read(buf.buffer,
                         14,
                         buf.buffer.length - 14
                                 - Session.buffer_margin
@@ -261,11 +255,11 @@ class ChannelSession extends Channel {
                 buf.skip(i);
                 getSession().write(packet, this, i);
             }
-        } catch (Exception e) {
+        } catch (final Exception e) {
             //System.err.println("# ChannelExec.run");
             //e.printStackTrace();
         }
-        Thread _thread = thread;
+        final Thread _thread = thread;
         if (_thread != null) {
             synchronized (_thread) {
                 _thread.notifyAll();

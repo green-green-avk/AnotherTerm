@@ -70,19 +70,28 @@ public abstract class KeyExchange {
     public abstract void init(Session session,
                               byte[] V_S, byte[] V_C, byte[] I_S, byte[] I_C) throws Exception;
 
+    void doInit(final Session session,
+                final byte[] V_S, final byte[] V_C, final byte[] I_S, final byte[] I_C)
+            throws Exception {
+        this.session = session;
+        init(session, V_S, V_C, I_S, I_C);
+    }
+
     public abstract boolean next(Buffer buf) throws Exception;
 
     public abstract int getState();
 
-    protected final int RSA = 0;
-    protected final int DSS = 1;
-    protected final int ECDSA = 2;
+    protected static final int RSA = 0;
+    protected static final int DSS = 1;
+    protected static final int ECDSA = 2;
+    protected static final int EDDSA = 3;
     private int type = 0;
     private String key_alg_name = "";
 
     public String getKeyType() {
         if (type == DSS) return "DSA";
         if (type == RSA) return "RSA";
+        if (type == EDDSA) return "EDDSA";
         return "ECDSA";
     }
 
@@ -90,20 +99,21 @@ public abstract class KeyExchange {
         return key_alg_name;
     }
 
-    protected static String[] guess(byte[] I_S, byte[] I_C) {
-        String[] guess = new String[PROPOSAL_MAX];
-        Buffer sb = new Buffer(I_S);
+    protected static String[] guess(final Session session, final byte[] I_S, final byte[] I_C)
+            throws Exception {
+        final String[] guess = new String[PROPOSAL_MAX];
+        final Buffer sb = new Buffer(I_S);
         sb.setOffSet(17);
-        Buffer cb = new Buffer(I_C);
+        final Buffer cb = new Buffer(I_C);
         cb.setOffSet(17);
 
-        if (JSch.getLogger().isEnabled(Logger.INFO)) {
+        if (session.getLogger().isEnabled(Logger.INFO)) {
             for (int i = 0; i < PROPOSAL_MAX; i++) {
-                JSch.getLogger().log(Logger.INFO,
+                session.getLogger().log(Logger.INFO,
                         "kex: server: " + Util.byte2str(sb.getString()));
             }
             for (int i = 0; i < PROPOSAL_MAX; i++) {
-                JSch.getLogger().log(Logger.INFO,
+                session.getLogger().log(Logger.INFO,
                         "kex: client: " + Util.byte2str(cb.getString()));
             }
             sb.setOffSet(17);
@@ -111,8 +121,8 @@ public abstract class KeyExchange {
         }
 
         for (int i = 0; i < PROPOSAL_MAX; i++) {
-            byte[] sp = sb.getString();  // server proposal
-            byte[] cp = cb.getString();  // client proposal
+            final byte[] sp = sb.getString();  // server proposal
+            final byte[] cp = cb.getString();  // client proposal
             int j = 0;
             int k = 0;
 
@@ -120,7 +130,7 @@ public abstract class KeyExchange {
             while (j < cp.length) {
                 while (j < cp.length && cp[j] != ',') j++;
                 if (k == j) return null;
-                String algorithm = Util.byte2str(cp, k, j - k);
+                final String algorithm = Util.byte2str(cp, k, j - k);
                 int l = 0;
                 int m = 0;
                 while (l < sp.length) {
@@ -143,31 +153,67 @@ public abstract class KeyExchange {
             }
         }
 
-        if (JSch.getLogger().isEnabled(Logger.INFO)) {
-            JSch.getLogger().log(Logger.INFO,
+        final boolean _s2cAEAD;
+        final boolean _c2sAEAD;
+        try {
+            final Class<? extends Cipher> _s2cclazz =
+                    Class.forName(session.getConfig(guess[PROPOSAL_ENC_ALGS_STOC]))
+                            .asSubclass(Cipher.class);
+            final Cipher _s2ccipher = _s2cclazz.getDeclaredConstructor().newInstance();
+            _s2cAEAD = _s2ccipher.isAEAD();
+            if (_s2cAEAD) {
+                guess[PROPOSAL_MAC_ALGS_STOC] = null;
+            }
+
+            final Class<? extends Cipher> _c2sclazz =
+                    Class.forName(session.getConfig(guess[PROPOSAL_ENC_ALGS_CTOS]))
+                            .asSubclass(Cipher.class);
+            final Cipher _c2scipher = _c2sclazz.getDeclaredConstructor().newInstance();
+            _c2sAEAD = _c2scipher.isAEAD();
+            if (_c2sAEAD) {
+                guess[PROPOSAL_MAC_ALGS_CTOS] = null;
+            }
+        } catch (final Exception | NoClassDefFoundError e) {
+            throw new JSchException(e.toString(), e);
+        }
+
+        if (session.getLogger().isEnabled(Logger.INFO)) {
+            session.getLogger().log(Logger.INFO,
+                    "kex: algorithm: " + guess[PROPOSAL_KEX_ALGS]);
+            session.getLogger().log(Logger.INFO,
+                    "kex: host key algorithm: " + guess[PROPOSAL_SERVER_HOST_KEY_ALGS]);
+            session.getLogger().log(Logger.INFO,
                     "kex: server->client" +
-                            " " + guess[PROPOSAL_ENC_ALGS_STOC] +
-                            " " + guess[PROPOSAL_MAC_ALGS_STOC] +
-                            " " + guess[PROPOSAL_COMP_ALGS_STOC]);
-            JSch.getLogger().log(Logger.INFO,
+                            " cipher: " + guess[PROPOSAL_ENC_ALGS_STOC] +
+                            " MAC: " + (_s2cAEAD ? ("<implicit>") : (guess[PROPOSAL_MAC_ALGS_STOC])) +
+                            " compression: " + guess[PROPOSAL_COMP_ALGS_STOC]);
+            session.getLogger().log(Logger.INFO,
                     "kex: client->server" +
-                            " " + guess[PROPOSAL_ENC_ALGS_CTOS] +
-                            " " + guess[PROPOSAL_MAC_ALGS_CTOS] +
-                            " " + guess[PROPOSAL_COMP_ALGS_CTOS]);
+                            " cipher: " + guess[PROPOSAL_ENC_ALGS_CTOS] +
+                            " MAC: " + (_c2sAEAD ? ("<implicit>") : (guess[PROPOSAL_MAC_ALGS_CTOS])) +
+                            " compression: " + guess[PROPOSAL_COMP_ALGS_CTOS]);
         }
 
         return guess;
     }
 
     public String getFingerPrint() {
-        HASH hash = null;
+        final HASH hash;
         try {
-            Class c = Class.forName(session.getConfig("md5"));
-            hash = (HASH) (c.newInstance());
-        } catch (Exception e) {
-            System.err.println("getFingerPrint: " + e);
+            final String _c = session.getConfig("FingerprintHash").toLowerCase();
+            final Class<? extends HASH> c =
+                    Class.forName(session.getConfig(_c)).asSubclass(HASH.class);
+            hash = c.getDeclaredConstructor().newInstance();
+        } catch (final Exception e) {
+            JSch.getLogger().log(Logger.FATAL,
+                    "Unable to load the fingerprint hash class", e);
+            throw new JSchErrorException("Unable to load the fingerprint hash class", e);
         }
-        return Util.getFingerPrint(hash, getHostKey());
+        try {
+            return Util.getFingerPrint(hash, getHostKey(), true, false);
+        } catch (final JSchException e) {
+            throw new JSchErrorException(e);
+        }
     }
 
     byte[] getK() {
@@ -191,10 +237,10 @@ public abstract class KeyExchange {
      * its behavior.  The secrete generated by KeyAgreement#generateSecret()
      * may start with 0, even if it is a positive value.
      */
-    protected byte[] normalize(byte[] secret) {
+    protected byte[] normalize(final byte[] secret) {
         if (secret.length > 1 &&
                 secret[0] == 0 && (secret[1] & 0x80) == 0) {
-            byte[] tmp = new byte[secret.length - 1];
+            final byte[] tmp = new byte[secret.length - 1];
             System.arraycopy(secret, 1, tmp, 0, tmp.length);
             return normalize(tmp);
         } else {
@@ -202,145 +248,169 @@ public abstract class KeyExchange {
         }
     }
 
-    protected boolean verify(String alg, byte[] K_S, int index,
-                             byte[] sig_of_H) throws Exception {
+    protected boolean verify(final String alg, final byte[] K_S, final int index,
+                             final byte[] sig_of_H) throws Exception {
         int i, j;
 
         i = index;
         boolean result = false;
 
-        if (alg.equals("ssh-rsa")) {
-            byte[] tmp;
-            byte[] ee;
-            byte[] n;
+        switch (alg) {
+            case "ssh-rsa": {
+                byte[] tmp;
+                final byte[] ee;
+                final byte[] n;
 
-            type = RSA;
-            key_alg_name = alg;
+                type = RSA;
+                key_alg_name = alg;
 
-            j = ((K_S[i++] << 24) & 0xff000000) | ((K_S[i++] << 16) & 0x00ff0000) |
-                    ((K_S[i++] << 8) & 0x0000ff00) | ((K_S[i++]) & 0x000000ff);
-            tmp = new byte[j];
-            System.arraycopy(K_S, i, tmp, 0, j);
-            i += j;
-            ee = tmp;
-            j = ((K_S[i++] << 24) & 0xff000000) | ((K_S[i++] << 16) & 0x00ff0000) |
-                    ((K_S[i++] << 8) & 0x0000ff00) | ((K_S[i++]) & 0x000000ff);
-            tmp = new byte[j];
-            System.arraycopy(K_S, i, tmp, 0, j);
-            i += j;
-            n = tmp;
+                j = ((K_S[i++] << 24) & 0xff000000) | ((K_S[i++] << 16) & 0x00ff0000) |
+                        ((K_S[i++] << 8) & 0x0000ff00) | ((K_S[i++]) & 0x000000ff);
+                tmp = new byte[j];
+                System.arraycopy(K_S, i, tmp, 0, j);
+                i += j;
+                ee = tmp;
+                j = ((K_S[i++] << 24) & 0xff000000) | ((K_S[i++] << 16) & 0x00ff0000) |
+                        ((K_S[i++] << 8) & 0x0000ff00) | ((K_S[i++]) & 0x000000ff);
+                tmp = new byte[j];
+                System.arraycopy(K_S, i, tmp, 0, j);
+                i += j;
+                n = tmp;
 
-            SignatureRSA sig = null;
-            try {
-                Class c = Class.forName(session.getConfig("signature.rsa"));
-                sig = (SignatureRSA) (c.newInstance());
-                sig.init();
-            } catch (Exception e) {
-                System.err.println(e);
+                final SignatureRSA sig;
+                final Buffer buf = new Buffer(sig_of_H);
+                final String foo = Util.byte2str(buf.getString());
+                try {
+                    final Class<? extends SignatureRSA> c =
+                            Class.forName(session.getConfig(foo))
+                                    .asSubclass(SignatureRSA.class);
+                    sig = c.getDeclaredConstructor().newInstance();
+                    sig.init();
+                } catch (final Exception e) {
+                    session.getLogger().log(Logger.ERROR,
+                            "Unable to load class for " + foo, e);
+                    throw e;
+                }
+                sig.setPubKey(ee, n);
+                sig.update(H);
+                result = sig.verify(sig_of_H);
+
+                if (session.getLogger().isEnabled(Logger.INFO)) {
+                    session.getLogger().log(Logger.INFO,
+                            "ssh_rsa_verify: " + foo + " signature " + result);
+                }
+                break;
             }
-            sig.setPubKey(ee, n);
-            sig.update(H);
-            result = sig.verify(sig_of_H);
+            case "ssh-dss": {
+                byte[] q = null;
+                byte[] tmp;
+                final byte[] p;
+                final byte[] g;
+                final byte[] f;
 
-            if (JSch.getLogger().isEnabled(Logger.INFO)) {
-                JSch.getLogger().log(Logger.INFO,
-                        "ssh_rsa_verify: signature " + result);
+                type = DSS;
+                key_alg_name = alg;
+
+                j = ((K_S[i++] << 24) & 0xff000000) | ((K_S[i++] << 16) & 0x00ff0000) |
+                        ((K_S[i++] << 8) & 0x0000ff00) | ((K_S[i++]) & 0x000000ff);
+                tmp = new byte[j];
+                System.arraycopy(K_S, i, tmp, 0, j);
+                i += j;
+                p = tmp;
+                j = ((K_S[i++] << 24) & 0xff000000) | ((K_S[i++] << 16) & 0x00ff0000) |
+                        ((K_S[i++] << 8) & 0x0000ff00) | ((K_S[i++]) & 0x000000ff);
+                tmp = new byte[j];
+                System.arraycopy(K_S, i, tmp, 0, j);
+                i += j;
+                q = tmp;
+                j = ((K_S[i++] << 24) & 0xff000000) | ((K_S[i++] << 16) & 0x00ff0000) |
+                        ((K_S[i++] << 8) & 0x0000ff00) | ((K_S[i++]) & 0x000000ff);
+                tmp = new byte[j];
+                System.arraycopy(K_S, i, tmp, 0, j);
+                i += j;
+                g = tmp;
+                j = ((K_S[i++] << 24) & 0xff000000) | ((K_S[i++] << 16) & 0x00ff0000) |
+                        ((K_S[i++] << 8) & 0x0000ff00) | ((K_S[i++]) & 0x000000ff);
+                tmp = new byte[j];
+                System.arraycopy(K_S, i, tmp, 0, j);
+                i += j;
+                f = tmp;
+
+                final SignatureDSA sig;
+                try {
+                    final Class<? extends SignatureDSA> c =
+                            Class.forName(session.getConfig("signature.dss"))
+                                    .asSubclass(SignatureDSA.class);
+                    sig = c.getDeclaredConstructor().newInstance();
+                    sig.init();
+                } catch (final Exception e) {
+                    session.getLogger().log(Logger.ERROR,
+                            "Unable to load class for signature.dss", e);
+                    throw e;
+                }
+                sig.setPubKey(f, p, q, g);
+                sig.update(H);
+                result = sig.verify(sig_of_H);
+
+                if (session.getLogger().isEnabled(Logger.INFO)) {
+                    session.getLogger().log(Logger.INFO,
+                            "ssh_dss_verify: signature " + result);
+                }
+                break;
             }
-        } else if (alg.equals("ssh-dss")) {
-            byte[] q = null;
-            byte[] tmp;
-            byte[] p;
-            byte[] g;
-            byte[] f;
+            case "ecdsa-sha2-nistp256":
+            case "ecdsa-sha2-nistp384":
+            case "ecdsa-sha2-nistp521": {
+                byte[] tmp;
+                final byte[] r;
+                final byte[] s;
 
-            type = DSS;
-            key_alg_name = alg;
+                // RFC 5656,
+                type = ECDSA;
+                key_alg_name = alg;
 
-            j = ((K_S[i++] << 24) & 0xff000000) | ((K_S[i++] << 16) & 0x00ff0000) |
-                    ((K_S[i++] << 8) & 0x0000ff00) | ((K_S[i++]) & 0x000000ff);
-            tmp = new byte[j];
-            System.arraycopy(K_S, i, tmp, 0, j);
-            i += j;
-            p = tmp;
-            j = ((K_S[i++] << 24) & 0xff000000) | ((K_S[i++] << 16) & 0x00ff0000) |
-                    ((K_S[i++] << 8) & 0x0000ff00) | ((K_S[i++]) & 0x000000ff);
-            tmp = new byte[j];
-            System.arraycopy(K_S, i, tmp, 0, j);
-            i += j;
-            q = tmp;
-            j = ((K_S[i++] << 24) & 0xff000000) | ((K_S[i++] << 16) & 0x00ff0000) |
-                    ((K_S[i++] << 8) & 0x0000ff00) | ((K_S[i++]) & 0x000000ff);
-            tmp = new byte[j];
-            System.arraycopy(K_S, i, tmp, 0, j);
-            i += j;
-            g = tmp;
-            j = ((K_S[i++] << 24) & 0xff000000) | ((K_S[i++] << 16) & 0x00ff0000) |
-                    ((K_S[i++] << 8) & 0x0000ff00) | ((K_S[i++]) & 0x000000ff);
-            tmp = new byte[j];
-            System.arraycopy(K_S, i, tmp, 0, j);
-            i += j;
-            f = tmp;
+                j = ((K_S[i++] << 24) & 0xff000000) | ((K_S[i++] << 16) & 0x00ff0000) |
+                        ((K_S[i++] << 8) & 0x0000ff00) | ((K_S[i++]) & 0x000000ff);
+                tmp = new byte[j];
+                System.arraycopy(K_S, i, tmp, 0, j);
+                i += j;
+                j = ((K_S[i++] << 24) & 0xff000000) | ((K_S[i++] << 16) & 0x00ff0000) |
+                        ((K_S[i++] << 8) & 0x0000ff00) | ((K_S[i++]) & 0x000000ff);
+                i++;
+                tmp = new byte[(j - 1) / 2];
+                System.arraycopy(K_S, i, tmp, 0, tmp.length);
+                i += (j - 1) / 2;
+                r = tmp;
+                tmp = new byte[(j - 1) / 2];
+                System.arraycopy(K_S, i, tmp, 0, tmp.length);
+                i += (j - 1) / 2;
+                s = tmp;
 
-            SignatureDSA sig = null;
-            try {
-                Class c = Class.forName(session.getConfig("signature.dss"));
-                sig = (SignatureDSA) (c.newInstance());
-                sig.init();
-            } catch (Exception e) {
-                System.err.println(e);
+                final SignatureECDSA sig;
+                try {
+                    final Class<? extends SignatureECDSA> c =
+                            Class.forName(session.getConfig(alg))
+                                    .asSubclass(SignatureECDSA.class);
+                    sig = c.getDeclaredConstructor().newInstance();
+                    sig.init();
+                } catch (final Exception e) {
+                    session.getLogger().log(Logger.ERROR,
+                            "Unable to load class for " + alg, e);
+                    throw e;
+                }
+                sig.setPubKey(r, s);
+                sig.update(H);
+                result = sig.verify(sig_of_H);
+
+                if (session.getLogger().isEnabled(Logger.INFO)) {
+                    session.getLogger().log(Logger.INFO,
+                            "ssh_ecdsa_verify: " + alg + " signature " + result);
+                }
+                break;
             }
-            sig.setPubKey(f, p, q, g);
-            sig.update(H);
-            result = sig.verify(sig_of_H);
-
-            if (JSch.getLogger().isEnabled(Logger.INFO)) {
-                JSch.getLogger().log(Logger.INFO,
-                        "ssh_dss_verify: signature " + result);
-            }
-        } else if (alg.equals("ecdsa-sha2-nistp256") ||
-                alg.equals("ecdsa-sha2-nistp384") ||
-                alg.equals("ecdsa-sha2-nistp521")) {
-            byte[] tmp;
-            byte[] r;
-            byte[] s;
-
-            // RFC 5656,
-            type = ECDSA;
-            key_alg_name = alg;
-
-            j = ((K_S[i++] << 24) & 0xff000000) | ((K_S[i++] << 16) & 0x00ff0000) |
-                    ((K_S[i++] << 8) & 0x0000ff00) | ((K_S[i++]) & 0x000000ff);
-            tmp = new byte[j];
-            System.arraycopy(K_S, i, tmp, 0, j);
-            i += j;
-            j = ((K_S[i++] << 24) & 0xff000000) | ((K_S[i++] << 16) & 0x00ff0000) |
-                    ((K_S[i++] << 8) & 0x0000ff00) | ((K_S[i++]) & 0x000000ff);
-            i++;
-            tmp = new byte[(j - 1) / 2];
-            System.arraycopy(K_S, i, tmp, 0, tmp.length);
-            i += (j - 1) / 2;
-            r = tmp;
-            tmp = new byte[(j - 1) / 2];
-            System.arraycopy(K_S, i, tmp, 0, tmp.length);
-            i += (j - 1) / 2;
-            s = tmp;
-
-            SignatureECDSA sig = null;
-            try {
-                Class c = Class.forName(session.getConfig(alg));
-                sig = (SignatureECDSA) (c.newInstance());
-                sig.init();
-            } catch (Exception e) {
-                System.err.println(e);
-            }
-
-            sig.setPubKey(r, s);
-
-            sig.update(H);
-
-            result = sig.verify(sig_of_H);
-        } else {
-            System.err.println("unknown alg");
+            default:
+                session.getLogger().log(Logger.ERROR, "Unknown algorithm");
+                break;
         }
 
         return result;

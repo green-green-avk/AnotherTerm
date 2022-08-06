@@ -65,11 +65,22 @@ public class SshHostKeyRepositoryView extends RecyclerView {
             refreshKeys();
         }
 
+        @NonNull
+        private String getFingerPrintSortKey(final SshHostKey key) {
+            String r;
+            try {
+                r = key.getFingerPrint(jSch);
+            } catch (final RuntimeException e) {
+                r = null;
+            }
+            return r == null ? "" : r;
+        }
+
         protected void refreshKeys() {
             keys = new ArrayList<>(repo.getHostKeySet());
             Collections.sort(keys, (o1, o2) ->
-                    (o1.getHost() + o1.getType() + o1.getFingerPrint(jSch))
-                            .compareTo(o2.getHost() + o2.getType() + o2.getFingerPrint(jSch)));
+                    (o1.getHost() + o1.getType() + getFingerPrintSortKey(o1))
+                            .compareTo(o2.getHost() + o2.getType() + getFingerPrintSortKey(o2)));
         }
 
         @Override
@@ -90,11 +101,18 @@ public class SshHostKeyRepositoryView extends RecyclerView {
             final TextView fingerprintView = holder.itemView.findViewById(R.id.f_fingerprint);
             hostnameView.setText(key.getHost());
             typeView.setText(key.getType());
-            fingerprintView.setText(key.getFingerPrint(jSch));
+            String fp;
+            try {
+                fp = key.getFingerPrint(jSch);
+            } catch (final RuntimeException e) {
+                fp = holder.itemView.getContext()
+                        .getString(R.string.msg_desc_obj_cannot_obtain_fingerprint);
+            }
+            fingerprintView.setText(fp);
             holder.itemView.findViewById(R.id.b_menu)
                     .setOnCreateContextMenuListener((menu, v, menuInfo) ->
                             menu.add(0, R.string.action_delete,
-                                    0, R.string.action_delete)
+                                            0, R.string.action_delete)
                                     .setOnMenuItemClickListener(item -> {
                                         switch (item.getItemId()) {
                                             case R.string.action_delete:

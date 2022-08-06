@@ -29,14 +29,15 @@ EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 package com.jcraft.jsch;
 
-class RequestAgentForwarding extends Request {
-    public void request(Session session, Channel channel) throws Exception {
+final class RequestAgentForwarding extends Request {
+    @Override
+    public void request(final Session session, final Channel channel) throws Exception {
         super.request(session, channel);
 
         setReply(false);
 
-        Buffer buf = new Buffer();
-        Packet packet = new Packet(buf);
+        final Buffer buf = new Buffer();
+        final Packet packet = new Packet(buf);
 
         // byte      SSH_MSG_CHANNEL_REQUEST(98)
         // uint32 recipient channel

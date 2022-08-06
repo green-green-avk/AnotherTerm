@@ -29,3 +29,6 @@
 #-dontobfuscate
 #-dontpreverify
 -ignorewarnings
+
+#-printseeds build/seeds.txt
+#-printconfiguration build/full-r8-config.txt

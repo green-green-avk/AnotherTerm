@@ -1,6 +1,6 @@
 /* -*-mode:java; c-basic-offset:2; indent-tabs-mode:nil -*- */
 /*
-Copyright (c) 2004-2018 ymnk, JCraft,Inc. All rights reserved.
+Copyright (c) 2002-2018 ymnk, JCraft,Inc. All rights reserved.
 
 Redistribution and use in source and binary forms, with or without
 modification, are permitted provided that the following conditions are met:
@@ -29,14 +29,10 @@ EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 package com.jcraft.jsch;
 
-public interface GSSContext {
-    public void create(String user, String host) throws JSchException;
+final class DHG16 extends DHG16N {
 
-    public boolean isEstablished();
-
-    public byte[] init(byte[] token, int s, int l) throws JSchException;
-
-    public byte[] getMIC(byte[] message, int s, int l);
-
-    public void dispose();
+    @Override
+    String sha_name() {
+        return "sha-512";
+    }
 }

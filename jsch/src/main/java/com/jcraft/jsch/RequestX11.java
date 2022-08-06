@@ -29,16 +29,17 @@ EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 package com.jcraft.jsch;
 
-class RequestX11 extends Request {
-    public void setCookie(String cookie) {
+final class RequestX11 extends Request {
+    public void setCookie(final String cookie) {
         ChannelX11.cookie = Util.str2byte(cookie);
     }
 
-    public void request(Session session, Channel channel) throws Exception {
+    @Override
+    public void request(final Session session, final Channel channel) throws Exception {
         super.request(session, channel);
 
-        Buffer buf = new Buffer();
-        Packet packet = new Packet(buf);
+        final Buffer buf = new Buffer();
+        final Packet packet = new Packet(buf);
 
         // byte      SSH_MSG_CHANNEL_REQUEST(98)
         // uint32 recipient channel

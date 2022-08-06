@@ -6,8 +6,10 @@ import androidx.annotation.Nullable;
 import java.io.IOException;
 
 public interface BackendUiInteraction {
+    void erase(@NonNull CharSequence v);
+
     @Nullable
-    String promptPassword(@NonNull CharSequence message) throws InterruptedException;
+    CharSequence promptPassword(@NonNull CharSequence message) throws InterruptedException;
 
     boolean promptYesNo(@NonNull CharSequence message) throws InterruptedException;
 

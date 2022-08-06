@@ -31,7 +31,7 @@ package com.jcraft.jsch.jcraft;
 
 import java.security.MessageDigest;
 
-class HMAC {
+abstract class HMAC {
 
     /*
      * Refer to RFC2104.
@@ -51,7 +51,7 @@ class HMAC {
 
     private int bsize = 0;
 
-    protected void setH(MessageDigest md) {
+    protected void setH(final MessageDigest md) {
         this.md = md;
         bsize = md.getDigestLength();
     }
@@ -60,12 +60,10 @@ class HMAC {
         return bsize;
     }
 
-    ;
-
     public void init(byte[] key) throws Exception {
         md.reset();
         if (key.length > bsize) {
-            byte[] tmp = new byte[bsize];
+            final byte[] tmp = new byte[bsize];
             System.arraycopy(key, 0, tmp, 0, bsize);
             key = tmp;
         }
@@ -83,8 +81,8 @@ class HMAC {
 
         /* XOR key with ipad and opad values */
         for (int i = 0; i < B; i++) {
-            k_ipad[i] ^= (byte) 0x36;
-            k_opad[i] ^= (byte) 0x5c;
+            k_ipad[i] ^= 0x36;
+            k_opad[i] ^= 0x5c;
         }
 
         md.update(k_ipad, 0, B);
@@ -92,7 +90,7 @@ class HMAC {
 
     private final byte[] tmp = new byte[4];
 
-    public void update(int i) {
+    public void update(final int i) {
         tmp[0] = (byte) (i >>> 24);
         tmp[1] = (byte) (i >>> 16);
         tmp[2] = (byte) (i >>> 8);
@@ -100,17 +98,17 @@ class HMAC {
         update(tmp, 0, 4);
     }
 
-    public void update(byte foo[], int s, int l) {
+    public void update(final byte[] foo, final int s, final int l) {
         md.update(foo, s, l);
     }
 
-    public void doFinal(byte[] buf, int offset) {
-        byte[] result = md.digest();
+    public void doFinal(final byte[] buf, final int offset) {
+        final byte[] result = md.digest();
         md.update(k_opad, 0, B);
         md.update(result, 0, bsize);
         try {
             md.digest(buf, offset, bsize);
-        } catch (Exception e) {
+        } catch (final Exception ignored) {
         }
         md.update(k_ipad, 0, B);
     }

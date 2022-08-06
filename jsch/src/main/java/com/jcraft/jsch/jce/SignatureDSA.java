@@ -32,44 +32,52 @@ package com.jcraft.jsch.jce;
 import com.jcraft.jsch.Buffer;
 
 import java.math.BigInteger;
+import java.nio.charset.Charset;
 import java.security.KeyFactory;
 import java.security.PrivateKey;
 import java.security.PublicKey;
 import java.security.spec.DSAPrivateKeySpec;
 import java.security.spec.DSAPublicKeySpec;
 
-public class SignatureDSA implements com.jcraft.jsch.SignatureDSA {
+public final class SignatureDSA implements com.jcraft.jsch.SignatureDSA {
+    private static final Charset UTF8 = Charset.forName("UTF8");
 
-    java.security.Signature signature;
-    KeyFactory keyFactory;
+    private java.security.Signature signature;
+    private KeyFactory keyFactory;
 
+    @Override
     public void init() throws Exception {
         signature = java.security.Signature.getInstance("SHA1withDSA");
         keyFactory = KeyFactory.getInstance("DSA");
     }
 
-    public void setPubKey(byte[] y, byte[] p, byte[] q, byte[] g) throws Exception {
-        DSAPublicKeySpec dsaPubKeySpec =
+    @Override
+    public void setPubKey(final byte[] y, final byte[] p, final byte[] q, final byte[] g)
+            throws Exception {
+        final DSAPublicKeySpec dsaPubKeySpec =
                 new DSAPublicKeySpec(new BigInteger(y),
                         new BigInteger(p),
                         new BigInteger(q),
                         new BigInteger(g));
-        PublicKey pubKey = keyFactory.generatePublic(dsaPubKeySpec);
+        final PublicKey pubKey = keyFactory.generatePublic(dsaPubKeySpec);
         signature.initVerify(pubKey);
     }
 
-    public void setPrvKey(byte[] x, byte[] p, byte[] q, byte[] g) throws Exception {
-        DSAPrivateKeySpec dsaPrivKeySpec =
+    @Override
+    public void setPrvKey(final byte[] x, final byte[] p, final byte[] q, final byte[] g)
+            throws Exception {
+        final DSAPrivateKeySpec dsaPrivKeySpec =
                 new DSAPrivateKeySpec(new BigInteger(x),
                         new BigInteger(p),
                         new BigInteger(q),
                         new BigInteger(g));
-        PrivateKey prvKey = keyFactory.generatePrivate(dsaPrivKeySpec);
+        final PrivateKey prvKey = keyFactory.generatePrivate(dsaPrivKeySpec);
         signature.initSign(prvKey);
     }
 
+    @Override
     public byte[] sign() throws Exception {
-        byte[] sig = signature.sign();
+        final byte[] sig = signature.sign();
 /*
 System.err.print("sign["+sig.length+"] ");
 for(int i=0; i<sig.length;i++){
@@ -79,19 +87,19 @@ System.err.println("");
 */
         // sig is in ASN.1
         // SEQUENCE::={ r INTEGER, s INTEGER }
-        int len = 0;
+        int len;
         int index = 3;
         len = sig[index++] & 0xff;
 //System.err.println("! len="+len);
-        byte[] r = new byte[len];
+        final byte[] r = new byte[len];
         System.arraycopy(sig, index, r, 0, r.length);
-        index = index + len + 1;
+        index += len + 1;
         len = sig[index++] & 0xff;
 //System.err.println("!! len="+len);
-        byte[] s = new byte[len];
+        final byte[] s = new byte[len];
         System.arraycopy(sig, index, s, 0, s.length);
 
-        byte[] result = new byte[40];
+        final byte[] result = new byte[40];
 
         // result must be 40 bytes, but length of r and s may not be 20 bytes
 
@@ -108,20 +116,19 @@ System.err.println("");
         return result;
     }
 
-    public void update(byte[] foo) throws Exception {
+    @Override
+    public void update(final byte[] foo) throws Exception {
         signature.update(foo);
     }
 
+    @Override
     public boolean verify(byte[] sig) throws Exception {
-        int i = 0;
-        int j = 0;
-        byte[] tmp;
-        Buffer buf = new Buffer(sig);
+        final Buffer buf = new Buffer(sig);
 
-        if (new String(buf.getString()).equals("ssh-dss")) {
-            j = buf.getInt();
-            i = buf.getOffSet();
-            tmp = new byte[j];
+        if (new String(buf.getString(), UTF8).equals("ssh-dss")) {
+            final int j = buf.getInt();
+            final int i = buf.getOffSet();
+            final byte[] tmp = new byte[j];
             System.arraycopy(sig, i, tmp, 0, j);
             sig = tmp;
         }
@@ -135,11 +142,11 @@ System.err.println("");
         _scnd = normalize(_scnd);
 
         // ASN.1
-        int frst = ((_frst[0] & 0x80) != 0 ? 1 : 0);
-        int scnd = ((_scnd[0] & 0x80) != 0 ? 1 : 0);
+        final int frst = ((_frst[0] & 0x80) != 0 ? 1 : 0);
+        final int scnd = ((_scnd[0] & 0x80) != 0 ? 1 : 0);
 
-        int length = _frst.length + _scnd.length + 6 + frst + scnd;
-        tmp = new byte[length];
+        final int length = _frst.length + _scnd.length + 6 + frst + scnd;
+        final byte[] tmp = new byte[length];
         tmp[0] = (byte) 0x30;
         tmp[1] = (byte) (_frst.length + _scnd.length + 4);
         tmp[1] += frst;
@@ -157,10 +164,10 @@ System.err.println("");
         return signature.verify(sig);
     }
 
-    protected byte[] normalize(byte[] secret) {
+    private byte[] normalize(final byte[] secret) {
         if (secret.length > 1 &&
                 secret[0] == 0 && (secret[1] & 0x80) == 0) {
-            byte[] tmp = new byte[secret.length - 1];
+            final byte[] tmp = new byte[secret.length - 1];
             System.arraycopy(secret, 1, tmp, 0, tmp.length);
             return normalize(tmp);
         } else {

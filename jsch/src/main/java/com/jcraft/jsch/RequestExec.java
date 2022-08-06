@@ -29,18 +29,19 @@ EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 package com.jcraft.jsch;
 
-class RequestExec extends Request {
-    private byte[] command = new byte[0];
+final class RequestExec extends Request {
+    private final byte[] command;
 
-    RequestExec(byte[] command) {
+    RequestExec(final byte[] command) {
         this.command = command;
     }
 
-    public void request(Session session, Channel channel) throws Exception {
+    @Override
+    public void request(final Session session, final Channel channel) throws Exception {
         super.request(session, channel);
 
-        Buffer buf = new Buffer();
-        Packet packet = new Packet(buf);
+        final Buffer buf = new Buffer();
+        final Packet packet = new Packet(buf);
 
         // send
         // byte     SSH_MSG_CHANNEL_REQUEST(98)

@@ -31,9 +31,9 @@ package com.jcraft.jsch.jce;
 
 import java.security.SecureRandom;
 
-public class Random implements com.jcraft.jsch.Random {
+public final class Random implements com.jcraft.jsch.Random {
     private byte[] tmp = new byte[16];
-    private SecureRandom random = null;
+    private final SecureRandom random;
 
     public Random() {
 
@@ -49,11 +49,11 @@ public class Random implements com.jcraft.jsch.Random {
         random = new SecureRandom();
 
     /*
-    try{ 
+    try{
       random=SecureRandom.getInstance("SHA1PRNG"); 
       return;
     }
-    catch(java.security.NoSuchAlgorithmException e){ 
+    catch(final NoSuchAlgorithmException e){
       // System.err.println(e); 
     }
 
@@ -62,13 +62,14 @@ public class Random implements com.jcraft.jsch.Random {
       random=SecureRandom.getInstance("IBMSecureRandom"); 
       return;
     }
-    catch(java.security.NoSuchAlgorithmException ee){ 
+    catch(final NoSuchAlgorithmException ee){
       //System.err.println(ee); 
     }
     */
     }
 
-    public void fill(byte[] foo, int start, int len) {
+    @Override
+    public void fill(final byte[] foo, final int start, final int len) {
     /*
     // This case will not become true in our usage.
     if(start==0 && foo.length==len){

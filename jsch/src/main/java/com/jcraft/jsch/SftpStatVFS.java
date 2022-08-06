@@ -29,7 +29,7 @@ EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 package com.jcraft.jsch;
 
-public class SftpStatVFS {
+public final class SftpStatVFS {
 
   /*
    It seems data is serializsed according to sys/statvfs.h; for example,
@@ -60,8 +60,8 @@ public class SftpStatVFS {
     private SftpStatVFS() {
     }
 
-    static SftpStatVFS getStatVFS(Buffer buf) {
-        SftpStatVFS statvfs = new SftpStatVFS();
+    static SftpStatVFS getStatVFS(final Buffer buf) {
+        final SftpStatVFS statvfs = new SftpStatVFS();
 
         statvfs.bsize = buf.getLong();
         statvfs.frsize = buf.getLong();
@@ -72,7 +72,7 @@ public class SftpStatVFS {
         statvfs.ffree = buf.getLong();
         statvfs.favail = buf.getLong();
         statvfs.fsid = buf.getLong();
-        int flag = (int) buf.getLong();
+        final int flag = (int) buf.getLong();
         statvfs.namemax = buf.getLong();
 
         statvfs.flag =
