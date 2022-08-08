@@ -65,6 +65,17 @@ public final class Misc {
         return r;
     }
 
+    public static char[] repeat(@NonNull final char[] v, final int n) {
+        if (n <= 0)
+            return ArrayUtils.EMPTY_CHAR_ARRAY;
+        if (n == 1)
+            return v;
+        final char[] r = Arrays.copyOf(v, v.length * n);
+        for (long l = v.length; l != 0 && l < r.length; l <<= 1)
+            System.arraycopy(r, 0, r, (int) l, (int) Math.min(l, r.length - l));
+        return r;
+    }
+
     public static void copy(@NonNull final OutputStream os, @NonNull final InputStream is)
             throws IOException {
         final byte[] buf = new byte[8192];

@@ -358,16 +358,16 @@ public final class Unicode {
     }
 
     @Nullable
-    public static String getLastSymbol(@NonNull final CharSequence s) {
+    public static char[] getLastSymbol(@NonNull final CharSequence s) {
         if (s.length() <= 0)
             return null;
-        char c = s.charAt(s.length() - 1);
+        final char c = s.charAt(s.length() - 1);
         if (Character.isLowSurrogate(c) && s.length() > 1) {
-            char ch = s.charAt(s.length() - 2);
+            final char ch = s.charAt(s.length() - 2);
             if (Character.isHighSurrogate(ch))
-                return String.valueOf(new char[]{ch, c});
+                return new char[]{ch, c};
         }
-        return String.valueOf(c);
+        return new char[]{c};
     }
 
     private static final char[] superscripts = new char[]{
