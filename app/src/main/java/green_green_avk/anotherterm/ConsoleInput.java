@@ -9,11 +9,10 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.core.math.MathUtils;
 
-import org.apache.commons.lang3.StringUtils;
-
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.nio.ByteBuffer;
+import java.nio.CharBuffer;
 import java.nio.charset.Charset;
 import java.util.Collections;
 import java.util.Deque;
@@ -65,7 +64,7 @@ public final class ConsoleInput implements BytesSink {
             new DecTerminalCharsets.Table[]{null, null, null, null};
     private int mSavedDecGlCharset = 0;
 
-    private String lastSymbol = null;
+    private char[] lastSymbol = null;
 
     private int complianceLevel = defaultComplianceLevel;
 
@@ -369,7 +368,7 @@ public final class ConsoleInput implements BytesSink {
         final CharSequence text = DecTerminalCharsets.translate(v, table);
         if (text.length() <= 0)
             return;
-        final String ls = Unicode.getLastSymbol(text);
+        final char[] ls = Unicode.getLastSymbol(text);
         if (ls != null)
             lastSymbol = ls;
         if (insertMode)
@@ -902,9 +901,9 @@ public final class ConsoleInput implements BytesSink {
                         }
                         case 'b':
                             if (lastSymbol != null)
-                                putText(StringUtils.repeat(lastSymbol,
+                                putText(CharBuffer.wrap(Misc.repeat(lastSymbol,
                                         MathUtils.clamp(csi.getIntArg(0, 1),
-                                                1, 4096)));
+                                                1, 4096))));
                             return;
                         case 'q': { // DECLL
                             for (int i = 0; i < csi.args.length; ++i)
