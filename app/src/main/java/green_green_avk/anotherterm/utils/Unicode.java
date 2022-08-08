@@ -332,6 +332,16 @@ public final class Unicode {
         return ptr - 1;
     }
 
+    public static int stepBack(@NonNull final CharSequence buf, final int startLimit, final int ptr) {
+        if (ptr < startLimit + 1)
+            return ptr;
+        if (ptr == startLimit + 1)
+            return startLimit;
+        if (Character.isSurrogatePair(buf.charAt(ptr - 2), buf.charAt(ptr - 1)))
+            return ptr - 2;
+        return ptr - 1;
+    }
+
     public static int getScreenLength(@NonNull final char[] s, int offset, final int length) {
         int r = 0;
         final int to = offset + length;
