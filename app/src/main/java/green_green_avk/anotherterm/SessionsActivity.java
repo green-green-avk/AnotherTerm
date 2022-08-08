@@ -76,7 +76,9 @@ public final class SessionsActivity extends AppCompatActivity {
         final FavoritesAdapter a = new FavoritesAdapter();
         l.setAdapter(a);
         a.setOnClickListener(view -> {
-            final String name = a.getName(l.getChildAdapterPosition(view));
+            final int pos = l.getChildAdapterPosition(view);
+            if (pos < 0) return;
+            final String name = a.getName(pos);
             final PreferenceStorage ps = FavoritesManager.get(name);
             final int key;
             ps.put("name", name); // Some mark
@@ -102,7 +104,9 @@ public final class SessionsActivity extends AppCompatActivity {
             ConsoleActivity.showSession(this, key);
         });
         a.setOnCreateContextMenuListener((menu, view, menuInfo) -> {
-            final String name = a.getName(l.getChildLayoutPosition(view));
+            final int pos = l.getChildAdapterPosition(view);
+            if (pos < 0) return;
+            final String name = a.getName(pos);
             getMenuInflater().inflate(R.menu.menu_favorite, menu);
             menu.findItem(R.id.fav_edit).setOnMenuItemClickListener(item -> {
                 showEditFavoriteDlg(name);
@@ -141,12 +145,16 @@ public final class SessionsActivity extends AppCompatActivity {
         l.setLayoutManager(new LinearLayoutManager(this));
         final SessionsAdapter a = new SessionsAdapter();
         l.setAdapter(a);
-        a.setOnClickListener(v -> {
-            final int key = a.getKey(l.getChildAdapterPosition(v));
+        a.setOnClickListener(view -> {
+            final int pos = l.getChildAdapterPosition(view);
+            if (pos < 0) return;
+            final int key = a.getKey(pos);
             ConsoleActivity.showSession(this, key);
         });
         a.setOnCreateContextMenuListener((menu, view, menuInfo) -> {
-            final int key = a.getKey(l.getChildLayoutPosition(view));
+            final int pos = l.getChildAdapterPosition(view);
+            if (pos < 0) return;
+            final int key = a.getKey(pos);
             getMenuInflater().inflate(R.menu.menu_session, menu);
             menu.findItem(R.id.action_terminate).setOnMenuItemClickListener(item -> {
                 try {
