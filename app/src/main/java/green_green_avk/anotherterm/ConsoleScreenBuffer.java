@@ -554,6 +554,31 @@ public final class ConsoleScreenBuffer {
         return startInd | ((px - dx) << F_XOFF_SHIFT);
     }
 
+    private static int getCharIndexRealloc(@NonNull final CharSequence text, final int limit,
+                                           final int dx, int startInd) {
+        int px = startInd >> F_XOFF_SHIFT;
+        startInd &= F_IND_MASK;
+        while (true) {
+            if (startInd >= limit) {
+                return startInd * 2 - limit + dx - px; // as whitespaces for realloc
+            }
+            final int cp = Character.codePointAt(text, startInd);
+            final int w = Unicode.wcwidth(cp); // 0 for C0 / C1
+            if (px >= dx && w != 0)
+                break;
+            startInd += Character.charCount(cp);
+            px += w;
+        }
+        return startInd | ((px - dx) << F_XOFF_SHIFT);
+    }
+
+    private static int getCharIndex(@NonNull final CharSequence text, final int limit,
+                                    final int dx, final int startInd) {
+        final int r = getCharIndexRealloc(text, limit, dx, startInd);
+        if (r >> F_XOFF_SHIFT != 0) return r;
+        return Math.min(r, limit);
+    }
+
     private static int getCharIndex(@NonNull final char[] text, final int limit,
                                     final int dx, final int startInd) {
         final int r = getCharIndexRealloc(text, limit, dx, startInd);
@@ -959,6 +984,7 @@ public final class ConsoleScreenBuffer {
     }
 
     private static int getNextEndIndex(@NonNull final CharBuffer buf, final int dx, int i) {
+        // Speed up.
         if (buf.hasArray()) {
             final char[] a = buf.array();
             final int offset = buf.arrayOffset() + buf.position();
@@ -966,9 +992,11 @@ public final class ConsoleScreenBuffer {
             return (i >> F_XOFF_SHIFT != 0
                     ? Unicode.stepBack(a, offset, i & F_IND_MASK)
                     : i) - offset;
-        } else {
-            throw new UnsupportedOperationException();
         }
+        i = getCharIndex(buf, buf.limit(), dx, i + buf.position());
+        return (i >> F_XOFF_SHIFT != 0
+                ? Unicode.stepBack(buf, buf.position(), i & F_IND_MASK)
+                : i) - buf.position();
     }
 
     private int codePointCountRealloc(@NonNull final char[] a, final int offset, final int count) {
