@@ -46,7 +46,9 @@ final class KeyPairDeferred extends KeyPair {
 
 
         } catch (final Exception e) {
-            throw new IllegalArgumentException("Could not sucessfully decrypt openssh v1 key", e);
+            jsch.getInstanceLogger().log(Logger.INFO,
+                    "Could not successfully decrypt openssh v1 key", e);
+            return false;
         }
     }
 
