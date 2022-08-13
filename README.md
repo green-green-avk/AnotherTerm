@@ -53,7 +53,7 @@ Local PTY, USB and Bluetooth serial ports, SSH and Telnet terminal client for An
 
 * Supported SSH features:
     - zlib compression;
-    - password and public key authentication;
+    - password and public key authentication (OpenSSH and PEM key formats);
     - port forwarding (can be modified on a running SSH session);
     - starting extra shell channels on a running SSH session.
 
@@ -68,7 +68,7 @@ Local PTY, USB and Bluetooth serial ports, SSH and Telnet terminal client for An
 ## Dependencies
 
 * USB UART: <https://github.com/felHR85/UsbSerial>
-* SSH: <http://www.jcraft.com/jsch/>
+* SSH: <http://www.jcraft.com/jsch/> and <https://github.com/mwiede/jsch>
 * Console font: <https://www.fontsquirrel.com/fonts/dejavu-sans-mono>
 * MaterialSeekBarPreference: <https://github.com/MrBIMC/MaterialSeekBarPreference>
 * BetterLinkMovementMethod: <https://github.com/saket/Better-Link-Movement-Method>

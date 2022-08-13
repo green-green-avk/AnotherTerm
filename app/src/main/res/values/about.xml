@@ -56,7 +56,7 @@ to access the Android environment and own API to create them as separate APKs.</
 <li>Telnet (no encryption).</li>
 <li>Supported SSH features:<ul>
 <li>zlib compression;</li>
-<li>password and public key authentication;</li>
+<li>password and public key authentication (OpenSSH and PEM key formats);</li>
 <li>port forwarding (can be modified on a running SSH session);</li>
 <li>starting extra shell channels on a running SSH session.</li>
 </ul></li>
@@ -74,6 +74,11 @@ to access the Android environment and own API to create them as separate APKs.</
     <li><a href=\"http://www.jcraft.com/\">JCraft</a> for their
     <a href=\"http://www.jcraft.com/jsch/\">JSch</a> SSH library
     (<a href=\"http://www.jcraft.com/jsch/LICENSE.txt\">license</a>);</li>
+    <li><a href=\"https://github.com/mwiede\">mwiede</a> and other contributors for
+    <a href=\"https://github.com/mwiede/jsch\">numerous JSch library improvements</a>
+    (<a href=\"https://github.com/mwiede/jsch/blob/master/LICENSE.txt\">JSch license</a> /
+    <a href=\"https://github.com/mwiede/jsch/blob/master/LICENSE.jBCrypt.txt\">jBCrypt license</a> /
+    <a href=\"https://github.com/mwiede/jsch/blob/master/LICENSE.JZlib.txt\">JZlib license</a>);</li>
     <li>The creators of the
     <a href=\"https://www.fontsquirrel.com/fonts/dejavu-sans-mono\">DejaVu Sans Mono</a> font
     (<a href=\"https://www.fontsquirrel.com/license/dejavu-sans-mono\">license</a>);</li>
