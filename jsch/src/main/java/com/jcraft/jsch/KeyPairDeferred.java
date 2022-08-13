@@ -43,8 +43,6 @@ final class KeyPairDeferred extends KeyPair {
             delegate = getKeyPair(jsch, null, null, null, false, plain, getPublicKeyBlob(), type, VENDOR_OPENSSH_V1, publicKeyComment, cipher, null, null);
 
             return delegate != null;
-
-
         } catch (final Exception e) {
             jsch.getInstanceLogger().log(Logger.INFO,
                     "Could not successfully decrypt openssh v1 key", e);

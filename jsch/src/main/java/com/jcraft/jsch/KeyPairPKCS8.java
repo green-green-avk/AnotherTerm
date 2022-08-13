@@ -149,7 +149,7 @@ final class KeyPairPKCS8 extends KeyPair {
                 }
             } else if (Util.array_equals(privateKeyAlgorithmID, dsaEncryption)) {
                 asn1 = new ASN1(_data);
-                if (values.size() == 0) {  // embedded DSA parameters format
+                if (values.isEmpty()) {  // embedded DSA parameters format
           /*
              SEQUENCE
                SEQUENCE
