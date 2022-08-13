@@ -1,14 +1,6 @@
 ChangeLog of JSch
 ====================================================================
-Last modified: Thu, 28 Apr 2022 21:56:45 +0000
-
-
-Changes since version 0.1.55:
-- feature: Channel::setOnDisconnect(Runnable handler)
-           in order to catch the true disconnect event
-           when Channel::getExitStatus() result is ready.
-- feature: Channel::getExitStatus() now returns distinct exit status
-           for each significant cause.
+Last modified: Thu Nov 22 01:06:27 UTC 2018
 
 
 Changes since version 0.1.54:
@@ -113,7 +105,7 @@ Changes since version 0.1.50:
           window has the enough space.  FIXED.
 - bugfix: Util.createSocket() should throw an exception with 'cause'. FIXED.
 - bugfix: failed to parse .ssh/config in the EBCDIC environment. FIXED.
-- bugfix: HMACSHA1(used only for MacOSX) is not
+- bugfix: com.jcraft.jsch.jcraft.HMACSHA1(used only for MacOSX) is not
           reusable.  FIXED.
 - bugfix: NPE caused by the delayed response for channel opening
           requests. FIXED.
@@ -123,7 +115,7 @@ Changes since version 0.1.50:
           https://bugs.openjdk.java.net/browse/JDK-8028627  FIXED.
 - bugfix: in some case, JSche#setKnowHosts(InputStream stream) may fail
           to close the given stream.  FIXED
-- change: HMAC* will not be used.
+- change: com.jcraft.jsch.jcraft.HMAC* will not be used.
           It seems Java6 on Mac OS X has fixed some memory leak bug in JCE,
 	  so there is no reason to use c.j.j.j.HMAC* introduced at 0.1.30.
 - change: updating copyright messages; 2013 -> 2014
@@ -135,9 +127,9 @@ Changes since version 0.1.50:
 - change: Util#fromBase64() will throw JSchException in stead of
           RuntimeException, if the given string is not in base64 format.
 - feature: added the support for private keys in PKCS#8 format.
-- feature: introduced the interface PBKDF to abstract
+- feature: introduced the interface com.jcraft.jsch.PBKDF to abstract
            the implementation of Password-Based Key Derivation Function,
-           and added its implementation PBKDF by using JCE.
+           and added its implementation com.jcraft.jsch.jce.PBKDF by using JCE.
 
 
 Changes since version 0.1.49:
@@ -405,7 +397,7 @@ Changes since version 0.1.37:
 	   and shell channels.
 - feature: ChannelSftp#realpath(String path) has been added.
 - feature: ChannelExec#setCommand(byte[] command) has been added.
-- feature: ChannelSftp.LsEntry has implemented
+- feature: com.jcraft.jsch.ChannelSftp.LsEntry has implemented
 	   java.lang.Comparable
 - feature: Session#getServerAliveInterval(), Session#getServerAliveCountMaX()
 	   have been added.
@@ -477,7 +469,7 @@ Changes since version 0.1.33:
 - bugfix: the remote port-forwarding to the daemon had been broken
 	  since 0.1.30.                                            FIXED.
 - change: the cipher "aes128-cbc" will be used if AES is available.
-- change: the interface 'ForwardedTCPIPDaemon' has been changed.
+- change: the interface 'com.jcraft.jsch.ForwardedTCPIPDaemon' has been changed.
 - change: the data transfer rate will be improved on some environment.
 - feature: ChannelExec can control the size of pty;
 	   ChannelExec#setPtySize(int col, int row, int wp, int hp) is
@@ -512,7 +504,7 @@ Changes since version 0.1.31:
 	a session will be terminated.                              FIXED.
 - bugfix: due to the cancel for keyboard-interactive auth method,
 	a session will be terminated.                              FIXED.
-- change: Compression#uncompress will respect
+- change: com.jcraft.jsch.jcraft.Compression#uncompress will respect
 	the argument "start".
 - change: "gssapi-with-mic" will choose the default credential.
 - feature: Session#setPortForwardingL will return the assigned local
@@ -548,7 +540,7 @@ Changes since version 0.1.29:
 	  on the slow network.                                       FIXED.
 - bugfix: a bug had sneaked in the remote port forwarding.           FIXED.
 - bugfix: some APIs from JCE have the memory leak on Mac OS X,
-	  so we have re-written the code(HMAC*
+	  so we have re-written the code(com.jcraft.jsch.jcraft.HMAC*
 	  classes) without them.  On Mac OS X, such new classes will
 	  be used automatically.                                     FIXED.
 - bugfix: the session will be crashed by the long banner message.    FIXED.
@@ -556,7 +548,7 @@ Changes since version 0.1.29:
 - change: if non-standard TCP port number is used, that number will
 	  be saved in known_hosts file as recent OpenSSH's ssh client does.
 - change: Channel#getOutputStream will not use Piped{Output,Input}Stream.
-- change: HostKeyRepository interface has been
+- change: com.jcraft.jsch.HostKeyRepository interface has been
 	  slightly modified.
 - feature: Session#setPortForwardingR(String bind_address, ...) has been added.
 - feature: the packet compression method 'zlib@openssh.com' has been supported.
@@ -564,7 +556,7 @@ Changes since version 0.1.29:
 	   Refer to 'examples/KnownHosts.java'.
 - feature: the authentication method 'gssapi-with-mic' has been
  	   experimentally supported.
-- feature: Logger interface and
+- feature: com.jcraft.jsch.Logger interface and
 	   JSch#setLogger(Logger logger) have been added.
 	   Refer to 'examples/Logger.java' for the usage.
 
@@ -712,7 +704,7 @@ Changes since version 0.1.21:
 	   * setOutputStream() and
 	   * setExtOutputStream()
            methods of Channel class.
-- feature: added 'ChannelSubsystem'
+- feature: added 'com.jcraft.jsch.ChannelSubsystem'
 - feature: allowed to control the compression level in the packet compression.
  	   Refer to 'examples/Compression.java'.
 - change: modified 'com/jcraft/jsch/jce/KeyPairGenRSA.java' to be complied
@@ -739,7 +731,7 @@ Changes since version 0.1.20:
 - change: to transfer packets efficiently, the size of internal buffer
           for each channel has been increased.
 - change: ChannelSftp.ls will return a vector of
-	  ChannelSftp.LsEntry.  Sorry for inconveniences.
+	  com.jcraft.jsch.ChannelSftp.LsEntry.  Sorry for inconveniences.
 - feature: added ForwardedTCPIPDaemon.  Refer to 'examples/Daemon.java',
            which demonstrates to provide network services like inetd.
 - feature: ChannelExec.setPty() method to request for assigning pseudo tty.
@@ -764,7 +756,7 @@ Changes since version 0.1.18:
   disconnection.  FIXED.
 - fixed confusions in handling EOFs from local input stream and
   the input stream for remote process.
-- 'AES128CBC' is added, but it is not be functional in
+- 'com.jcraft.jsch.jce.AES128CBC' is added, but it is not be functional in
   this release.  It will work in the next release.
 - Some sshd(Foxit-WAC-Serve) waits for SSH_MSG_NEWKEYS request before
   sending it. FIXED.
@@ -778,7 +770,7 @@ Changes since version 0.1.18:
 
 
 Changes since version 0.1.17:
-- added 'HostKeyRepository' interface.
+- added 'com.jcraft.jsch.HostKeyRepository' interface.
   It will allow you to handle host keys in your own repository
   (for example, RDB) instead of using 'known_hosts' file.
 - added methods to get the finger-print of host keys.
@@ -1018,7 +1010,7 @@ Changes since version 0.0.9:
 Changes since version 0.0.8:
 - the tunneling through a SOCKS5 proxy is supported.
 - 'examples/ScpFrom.java' is added.
-- 'UserInfo' interface is modified.
+- 'com.jcraft.jsch.UserInfo' interface is modified.
 
 
 Changes since version 0.0.7:
