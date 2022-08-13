@@ -543,7 +543,7 @@ public abstract class KeyPair {
      */
     @Deprecated
     public void setPassphrase(final String passphrase) {
-        if (passphrase == null || passphrase.length() == 0) {
+        if (passphrase == null || passphrase.isEmpty()) {
             setPassphrase((byte[]) null);
         } else {
             setPassphrase(Util.str2byte(passphrase));
@@ -571,7 +571,7 @@ public abstract class KeyPair {
     }
 
     public boolean decrypt(final String _passphrase) {
-        if (_passphrase == null || _passphrase.length() == 0) {
+        if (_passphrase == null || _passphrase.isEmpty()) {
             return !encrypted;
         }
         return decrypt(Util.str2byte(_passphrase));
