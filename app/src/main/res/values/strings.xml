@@ -272,6 +272,8 @@
     <string name="msg_via_scratchpad">Via scratchpad</string>
     <string name="msg_nothing_to_save">Nothing to save</string>
     <string name="unit_kib" translatable="false">KiB</string>
+    <string name="label_use_list_columns">Divide the entries list into columns</string>
+    <string name="summary_if_column_width_is_gte">if a column width is ≥</string>
     <string name="label_use_for_copy_share">Use for copy/share</string>
     <string name="summary_if_data_size_is_gte">if data size is ≥</string>
     <string name="title_empty">Empty</string>

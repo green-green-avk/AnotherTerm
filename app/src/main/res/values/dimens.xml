@@ -22,6 +22,5 @@
     <dimen name="xSmallUiOptionSize">16sp</dimen>
     <dimen name="xSmallUiOptionTextSize">12sp</dimen>
     <fraction name="horizontal_bias_begin">0.0</fraction>
-    <dimen name="scratchpad_span_width_min">256sp</dimen>
     <dimen name="frame_margin">2dp</dimen>
 </resources>

@@ -133,6 +133,19 @@
         android:title="@string/title_scratchpad">
 
         <com.pavelsikun.seekbarpreference.SeekBarPreferenceCompat
+            android:defaultValue="@integer/scratchpad_column_width_min_sp"
+            android:key="scratchpad_column_width_min_sp"
+            android:summary="@string/summary_if_column_width_is_gte"
+            android:title="@string/label_use_list_columns"
+            app:msbp_dialogEnabled="true"
+            app:msbp_dialogIcon="@drawable/ic_bar_scratchpad"
+            app:msbp_interval="64"
+            app:msbp_maxValue="@integer/scratchpad_column_width_min_sp_max"
+            app:msbp_measurementUnit="@string/unit_sp"
+            app:msbp_minValue="256"
+            app:msbp_offPosition="right" />
+
+        <com.pavelsikun.seekbarpreference.SeekBarPreferenceCompat
             android:defaultValue="@integer/scratchpad_use_threshold"
             android:key="scratchpad_use_threshold"
             android:summary="@string/summary_if_data_size_is_gte"

@@ -3,6 +3,7 @@ package green_green_avk.anotherterm;
 import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.Intent;
+import android.content.res.Resources;
 import android.graphics.Point;
 import android.graphics.Rect;
 import android.net.Uri;
@@ -221,8 +222,13 @@ public final class ScratchpadActivity extends AppCompatActivity {
         wList.setAdapter(new RecyclerAdapter(sm));
         final Point sz = new Point();
         getWindowManager().getDefaultDisplay().getSize(sz);
-        final int cols = Math.max(sz.x / getResources().getDimensionPixelSize(
-                R.dimen.scratchpad_span_width_min), 1);
+        final App.Settings settings = ((App) getApplication()).settings;
+        final int minColWidthSp = settings.scratchpad_column_width_min_sp;
+        final Resources rr = getResources();
+        final int cols = minColWidthSp < rr.getInteger(
+                R.integer.scratchpad_column_width_min_sp_max) ?
+                Math.max(sz.x / (int) (minColWidthSp * rr.getDisplayMetrics().scaledDensity), 1)
+                : 1;
         wList.setLayoutManager(new GridLayoutManager(this, cols,
                 RecyclerView.VERTICAL, false));
         final int sp = getResources().getDimensionPixelSize(R.dimen.field_margin_2x);
