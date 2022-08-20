@@ -96,8 +96,8 @@
         <ImageButton
             android:id="@+id/copy"
             style="@style/AppWidget.Editor.ImageButton.Vertical"
-            android:contentDescription="@string/action_copy"
-            app:srcCompat="@drawable/ic_copy" />
+            android:contentDescription="@string/action_copy_by_uri"
+            app:srcCompat="@drawable/ic_copy_uri" />
 
         <ImageButton
             android:id="@+id/share"
