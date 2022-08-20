@@ -58,6 +58,10 @@ public final class App extends Application {
         public int terminal_scroll_follow_history_threshold;
 
         @Keep
+        @Param(defRes = R.integer.scratchpad_column_width_min_sp)
+        public int scratchpad_column_width_min_sp;
+
+        @Keep
         @Param(defRes = R.integer.scratchpad_use_threshold)
         public int scratchpad_use_threshold;
 
