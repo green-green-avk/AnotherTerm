@@ -40,6 +40,17 @@
             app:msbp_measurementUnit="@string/unit_dp"
             app:msbp_minValue="32" />
 
+        <com.pavelsikun.seekbarpreference.SeekBarPreferenceCompat
+            android:defaultValue="@integer/terminal_popup_opacity"
+            android:key="terminal_popup_opacity"
+            android:title="@string/label_terminal_popup_opacity"
+            app:msbp_dialogEnabled="true"
+            app:msbp_dialogIcon="@drawable/ic_opacity"
+            app:msbp_interval="5"
+            app:msbp_maxValue="100"
+            app:msbp_measurementUnit="@string/unit_percent"
+            app:msbp_minValue="25" />
+
     </PreferenceCategory>
 
     <PreferenceCategory

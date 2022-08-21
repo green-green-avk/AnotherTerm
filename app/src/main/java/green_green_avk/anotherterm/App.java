@@ -29,6 +29,10 @@ public final class App extends Application {
         public int terminal_selection_pad_size_dp;
 
         @Keep
+        @Param(defRes = R.integer.terminal_popup_opacity)
+        public int terminal_popup_opacity;
+
+        @Keep
         @Param(defRes = R.integer.terminal_key_height_dp)
         public int terminal_key_height_dp;
 
