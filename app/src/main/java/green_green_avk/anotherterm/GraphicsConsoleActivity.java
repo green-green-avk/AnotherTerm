@@ -164,12 +164,17 @@ public final class GraphicsConsoleActivity extends ConsoleActivity {
 
     @Override
     protected void onDestroy() {
-//        if (menuPopupWindow != null) menuPopupWindow.dismiss();
+//        if (menuPopupWindow != null)
+//            menuPopupWindow.dismiss();
         ConsoleService.removeListener(sessionsListener);
-//        if (mSession != null) mSession.input.removeOnInvalidateSink(this);
-        if (mSession != null) mSession.compositor.setOnClipboardSupportState(null);
-        if (mCkv != null) mCkv.unsetConsoleInput();
-        if (mGcv != null) mGcv.unsetCompositor();
+//        if (mSession != null)
+//            mSession.input.removeOnInvalidateSink(this);
+        if (mSession != null)
+            mSession.compositor.setOnClipboardSupportState(null);
+        if (mCkv != null)
+            mCkv.unsetConsoleInput();
+        if (mGcv != null)
+            mGcv.unsetCompositor();
         super.onDestroy();
     }
 
@@ -182,12 +187,14 @@ public final class GraphicsConsoleActivity extends ConsoleActivity {
     protected void onTitleChanged(final CharSequence title, final int color) {
         super.onTitleChanged(title, color);
         wTitle.setText(title);
-        if (color != 0) wTitle.setTextColor(color);
+        if (color != 0)
+            wTitle.setTextColor(color);
     }
 
     public void onNavUp(final View v) {
         final Intent pa = getSupportParentActivityIntent();
-        if (pa == null) return;
+        if (pa == null)
+            return;
         if (getUseRecents()) {
             startActivity(pa.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP
                     | Intent.FLAG_ACTIVITY_NEW_TASK));
@@ -237,19 +244,21 @@ public final class GraphicsConsoleActivity extends ConsoleActivity {
     }
 
     public void onFromXClipboard(final View view) {
-        mSession.compositor.requestClipboardContent("", (mime, data) -> runOnUiThread(() -> {
-            final ContentType ct;
-            try {
-                ct = ContentType.parse(mime);
-            } catch (final UnsupportedCharsetException e) {
-                return;
-            }
-            if ("text/plain".equals(ct.getMimeType())) {
-                final Charset cs = ct.getCharset();
-                final String text = new String(data, cs != null ? cs : Misc.UTF8);
-                UiUtils.toClipboard(GraphicsConsoleActivity.this, text);
-            }
-        }));
+        mSession.compositor.requestClipboardContent("", (mime, data) ->
+                runOnUiThread(() -> {
+                    final ContentType ct;
+                    try {
+                        ct = ContentType.parse(mime);
+                    } catch (final UnsupportedCharsetException e) {
+                        return;
+                    }
+                    if ("text/plain".equals(ct.getMimeType())) {
+                        final Charset cs = ct.getCharset();
+                        final String text =
+                                new String(data, cs != null ? cs : Misc.UTF8);
+                        UiUtils.toClipboard(this, text);
+                    }
+                }));
     }
 
     public void onToXClipboard(final View view) {

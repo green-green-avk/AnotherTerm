@@ -296,6 +296,11 @@ public final class Misc {
                 || v instanceof LinkedHashMap || v instanceof SortedMap;
     }
 
+    @NonNull
+    public static <T> T requireNonNullElse(@Nullable final T v, @NonNull final T def) {
+        return v != null ? v : def;
+    }
+
     public static Integer[] box(final int[] v) {
         if (v == null)
             return null;

@@ -75,12 +75,12 @@ public final class InfoActivity extends AppCompatActivity {
                             final String refRes = uri.getLastPathSegment();
                             if (refRes == null) return;
                             try {
-                                content = InfoActivity.this.getPackageManager()
+                                content = this.getPackageManager()
                                         .getResourcesForApplication(refApp)
                                         .getString(Integer.parseInt(refRes));
                             } catch (final NumberFormatException e) {
                                 wText.setXmlText(getString(R.string.msg_error_getting_info_page_s,
-                                        StringEscapeUtils.escapeXml10(e.getLocalizedMessage())),
+                                                StringEscapeUtils.escapeXml10(e.getLocalizedMessage())),
                                         true);
                                 return;
                             } catch (final PackageManager.NameNotFoundException |

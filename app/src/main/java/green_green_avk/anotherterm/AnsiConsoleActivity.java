@@ -277,14 +277,15 @@ public final class AnsiConsoleActivity extends ConsoleActivity
             finish();
             return;
         }
+        final DisplayMetrics dm = getResources().getDisplayMetrics();
         final int navBarH = (int) (((App) getApplication()).settings.terminal_key_height_dp
-                * getResources().getDisplayMetrics().density);
+                * dm.density);
         if (wNavBar.getLayoutParams().height != navBarH) {
             wNavBar.getLayoutParams().height = navBarH;
             wNavBar.requestLayout();
         }
         mCsv.setSelectionPadSize(((App) getApplication()).settings.terminal_selection_pad_size_dp
-                * getResources().getDisplayMetrics().density);
+                * dm.density);
         mCsv.setKeyHeightDp(((App) getApplication()).settings.terminal_key_height_dp);
         mCsv.setScrollFollowHistoryThreshold((float) ((App) getApplication()).settings
                 .terminal_scroll_follow_history_threshold / 100);
@@ -363,7 +364,8 @@ public final class AnsiConsoleActivity extends ConsoleActivity
     private PopupWindow createMenuPopup() {
         @SuppressLint("InflateParams") final View popupView =
                 LayoutInflater.from(this).inflate(R.layout.ansi_console_menu, null);
-        popupView.setLayoutParams(new ViewGroup.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT,
+        popupView.setLayoutParams(new ViewGroup.LayoutParams(
+                ViewGroup.LayoutParams.WRAP_CONTENT,
                 ViewGroup.LayoutParams.WRAP_CONTENT));
 
 // Module related
@@ -397,7 +399,8 @@ public final class AnsiConsoleActivity extends ConsoleActivity
                 final Class<?> retType = m.getKey().getReturnType();
                 if (paramTypes.length == 0) {
                     final TextView mi = (TextView) LayoutInflater.from(this)
-                            .inflate(R.layout.module_ui_button, moduleUiView, false);
+                            .inflate(R.layout.module_ui_button,
+                                    moduleUiView, false);
                     mi.setText(m.getValue().titleRes());
                     if (m.getValue().longTitleRes() != 0) {
                         final String desc = getString(m.getValue().longTitleRes());
@@ -422,13 +425,15 @@ public final class AnsiConsoleActivity extends ConsoleActivity
                             final Object[] values;
                             if (a instanceof BackendModule.ExportedUIMethodIntEnum) {
                                 titles = ((BackendModule.ExportedUIMethodIntEnum) a).titleRes();
-                                values = Misc.box(((BackendModule.ExportedUIMethodIntEnum) a).values());
+                                values = Misc.box(((BackendModule.ExportedUIMethodIntEnum) a)
+                                        .values());
                             } else {
                                 titles = ((BackendModule.ExportedUIMethodStrEnum) a).titleRes();
                                 values = ((BackendModule.ExportedUIMethodStrEnum) a).values();
                             }
                             final ViewGroup sm = (ViewGroup) LayoutInflater.from(this)
-                                    .inflate(R.layout.module_ui_group, moduleUiView, false);
+                                    .inflate(R.layout.module_ui_group,
+                                            moduleUiView, false);
                             sm.<TextView>findViewById(R.id.title)
                                     .setText(m.getValue().longTitleRes() != 0 ?
                                             m.getValue().longTitleRes() :
@@ -437,7 +442,8 @@ public final class AnsiConsoleActivity extends ConsoleActivity
                             for (int i = 0; i < values.length; i++) {
                                 final Object value = values[i];
                                 final TextView mi = (TextView) LayoutInflater.from(this)
-                                        .inflate(R.layout.module_ui_button, smg, false);
+                                        .inflate(R.layout.module_ui_button,
+                                                smg, false);
                                 if (titles.length > i)
                                     mi.setText(titles[i]);
                                 else
@@ -456,10 +462,12 @@ public final class AnsiConsoleActivity extends ConsoleActivity
                 } else if (paramTypes.length == 2 && paramTypes[0] == Long.TYPE &&
                         paramTypes[1] == Long.TYPE && retType == Long.TYPE) {
                     final BackendModule.ExportedUIMethodFlags a =
-                            m.getKey().getAnnotation(BackendModule.ExportedUIMethodFlags.class);
+                            m.getKey().getAnnotation(
+                                    BackendModule.ExportedUIMethodFlags.class);
                     if (a != null) {
                         final TextView mi = (TextView) LayoutInflater.from(this)
-                                .inflate(R.layout.module_ui_button, moduleUiView, false);
+                                .inflate(R.layout.module_ui_button,
+                                        moduleUiView, false);
                         mi.setText(m.getValue().titleRes());
                         if (m.getValue().longTitleRes() != 0) {
                             final String desc = getString(m.getValue().longTitleRes());
@@ -476,7 +484,7 @@ public final class AnsiConsoleActivity extends ConsoleActivity
                                 values[ai] = (bits & a.values()[ai]) == a.values()[ai];
                                 titles[ai] = getString(a.titleRes()[ai]);
                             }
-                            new AlertDialog.Builder(AnsiConsoleActivity.this)
+                            new AlertDialog.Builder(this)
                                     .setTitle(m.getValue().titleRes())
                                     .setMultiChoiceItems(titles, values,
                                             (dialog, which, isChecked) ->
@@ -495,8 +503,10 @@ public final class AnsiConsoleActivity extends ConsoleActivity
 
 // ==============
 
-        final PopupWindow window = new PopupWindow(popupView, ViewGroup.LayoutParams.WRAP_CONTENT,
-                ViewGroup.LayoutParams.WRAP_CONTENT, true);
+        final PopupWindow window = new PopupWindow(popupView,
+                ViewGroup.LayoutParams.WRAP_CONTENT,
+                ViewGroup.LayoutParams.WRAP_CONTENT,
+                true);
         window.setBackgroundDrawable(ResourcesCompat.getDrawable(getResources(),
                 android.R.drawable.dialog_holo_light_frame, null));
         window.setSplitTouchEnabled(true);
@@ -528,7 +538,8 @@ public final class AnsiConsoleActivity extends ConsoleActivity
             popupView.<TextView>findViewById(R.id.charset)
                     .setText(mSession.output.getCharset().name());
             popupView.<TextView>findViewById(R.id.keymap)
-                    .setText(TermKeyMapManagerUi.getTitle(this, mSession.output.getKeyMap()));
+                    .setText(TermKeyMapManagerUi.getTitle(this,
+                            mSession.output.getKeyMap()));
             final String w;
             if (mCsv.resizeBufferXOnUi)
                 w = getString(R.string.hint_int_value_p_auto_p,
@@ -679,7 +690,8 @@ public final class AnsiConsoleActivity extends ConsoleActivity
     public void onMouseMode(final View v) {
         mCsv.setMouseMode(!mCsv.getMouseMode());
         if (mCsv.getMouseMode()) {
-            ((ImageView) v).setImageState(new int[]{android.R.attr.state_checked}, true);
+            ((ImageView) v).setImageState(new int[]{android.R.attr.state_checked},
+                    true);
             mSmv.setVisibility(View.VISIBLE);
         } else {
             ((ImageView) v).setImageState(new int[]{}, true);
@@ -697,7 +709,8 @@ public final class AnsiConsoleActivity extends ConsoleActivity
     }
 
     public void onPaste(final View v) {
-        final ClipboardManager clipboard = (ClipboardManager) getSystemService(Context.CLIPBOARD_SERVICE);
+        final ClipboardManager clipboard =
+                (ClipboardManager) getSystemService(Context.CLIPBOARD_SERVICE);
         if (clipboard == null)
             return;
         if (!clipboard.hasPrimaryClip())
@@ -875,7 +888,8 @@ public final class AnsiConsoleActivity extends ConsoleActivity
                     refreshMenuPopup();
                     dialog.dismiss();
                 })
-                .setNegativeButton(android.R.string.cancel, (dialog, which) -> dialog.cancel())
+                .setNegativeButton(android.R.string.cancel,
+                        (dialog, which) -> dialog.cancel())
                 .setCancelable(true)
                 .show();
     }

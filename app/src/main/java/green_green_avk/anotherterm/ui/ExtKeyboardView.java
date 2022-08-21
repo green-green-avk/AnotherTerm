@@ -361,7 +361,7 @@ public abstract class ExtKeyboardView extends View /*implements View.OnClickList
     /**
      * Override current keys popup
      *
-     * @param v <code>null</code> - don't override; function returning <code>null</code> - suppress
+     * @param v {@code null} - don't override; function returning {@code null} - suppress
      */
     public void setPopupDisabled(final boolean v) {
         cancelKeys();
@@ -963,7 +963,7 @@ public abstract class ExtKeyboardView extends View /*implements View.OnClickList
                 fcn = getModifiersAltKeyFcn(keyState.key);
             else if (fcn == getModifiersAltKeyFcn(keyState.key))
                 fcn = keyState.key.getBaseFcn();
-            float pos = fcn.iconCircularPos;
+            final float pos = fcn.iconCircularPos;
             if (Float.isNaN(pos)) {
                 _altKeyFcnCoords.x = 0;
                 _altKeyFcnCoords.y = 0;
