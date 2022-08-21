@@ -8,6 +8,8 @@ import androidx.annotation.Nullable;
 
 import java.util.regex.Pattern;
 
+import green_green_avk.anotherterm.utils.Misc;
+
 public class TermKeyMap implements TermKeyMapRules {
     public static final int APP_MODE_NONE = 0;
     public static final int APP_MODE_CURSOR = 1;
@@ -83,13 +85,15 @@ public class TermKeyMap implements TermKeyMapRules {
             if (TermKeyMapRulesDefault.contains(k)) {
                 final int appMode = TermKeyMapRulesDefault.getAppMode(k);
                 final String[] nm = new String[MODIFIERS_SIZE];
-                String[] am = null;
                 for (int m = 0; m < MODIFIERS_SIZE; ++m)
                     nm[m] = TermKeyMapRulesDefault.get(k, m, APP_MODE_NONE);
+                final String[] am;
                 if (appMode != APP_MODE_NONE) {
                     am = new String[MODIFIERS_SIZE];
                     for (int m = 0; m < MODIFIERS_SIZE; ++m)
                         am[m] = TermKeyMapRulesDefault.get(k, m, APP_MODE_DEFAULT);
+                } else {
+                    am = null;
                 }
                 map[k] = new KeyMap(appMode, nm, am);
             } else
@@ -104,11 +108,11 @@ public class TermKeyMap implements TermKeyMapRules {
             final KeyMap km = map[k];
             final int appMode = keyMap.getAppMode(k);
             boolean setNM = false;
-            String[] nm = km != null ? km.nm : null;
-            if (nm == null) nm = new String[MODIFIERS_SIZE];
+            final String[] nm = Misc.requireNonNullElse(km != null ? km.nm : null,
+                    new String[MODIFIERS_SIZE]);
             boolean setAM = false;
-            String[] am = km != null ? km.am : null;
-            if (am == null) am = new String[MODIFIERS_SIZE];
+            final String[] am = Misc.requireNonNullElse(km != null ? km.am : null,
+                    new String[MODIFIERS_SIZE]);
             for (int m = 0; m < MODIFIERS_SIZE; ++m) {
                 String r;
                 r = keyMap.get(k, m, APP_MODE_NONE);

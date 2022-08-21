@@ -732,6 +732,9 @@ public class ConsoleScreenView extends ScrollableView
         return selectionPadSize;
     }
 
+    /**
+     * @param v [px]
+     */
     public void setSelectionPadSize(final float v) {
         selectionPadSize = v;
         ViewCompat.postInvalidateOnAnimation(this);
@@ -1800,8 +1803,8 @@ public class ConsoleScreenView extends ScrollableView
         if (consoleInput != null) {
             drawSelection(canvas);
             if (mBlinkState && consoleInput.cursorVisibility) canvas.drawRect(getBufferDrawRect(
-                    consoleInput.currScrBuf.getAbsPosX(),
-                    consoleInput.currScrBuf.getAbsPosY()),
+                            consoleInput.currScrBuf.getAbsPosX(),
+                            consoleInput.currScrBuf.getAbsPosY()),
                     cursorPaint);
         }
     }

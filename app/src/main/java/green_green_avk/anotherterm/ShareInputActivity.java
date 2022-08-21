@@ -31,7 +31,7 @@ import green_green_avk.anotherterm.whatsnew.WhatsNewDialog;
 public final class ShareInputActivity extends AppCompatActivity {
 
     // 32 pages minimum per the whole process env... Good enough.
-    private final static int ENV_VAR_MAX = 4096;
+    private static final int ENV_VAR_MAX = 4096;
 
     private void putIfSet(@NonNull final PreferenceStorage ps,
                           @NonNull final String name, @Nullable final String value,
@@ -61,18 +61,20 @@ public final class ShareInputActivity extends AppCompatActivity {
     }
 
     private void fillSendArgs(@NonNull final PreferenceStorage ps) {
-        final ShareCompat.IntentReader intentReader = ShareCompat.IntentReader.from(this);
+        final ShareCompat.IntentReader intentReader = new ShareCompat.IntentReader(this);
         putIfSet(ps, "$input.action", getIntent().getAction());
         putIfSet(ps, "$input.mime", intentReader.getType());
         putIfSet(ps, "$input.email_to", intentReader.getEmailTo());
         putIfSet(ps, "$input.email_cc", intentReader.getEmailCc());
         putIfSet(ps, "$input.email_bcc", intentReader.getEmailBcc());
-        putIfSet(ps, "$input.subject", intentReader.getSubject(), "text/plain");
+        putIfSet(ps, "$input.subject", intentReader.getSubject(),
+                "text/plain");
         final Intent intent = getIntent();
         final CharSequence text = intent.getCharSequenceExtra(Intent.EXTRA_TEXT);
         if (text != null) {
             if (text instanceof Spanned)
-                putIfSet(ps, "$input.spanned", HtmlUtils.toHtml(text), "text/html");
+                putIfSet(ps, "$input.spanned",
+                        HtmlUtils.toHtml(text), "text/html");
             else
                 putIfSet(ps, "$input.text", text.toString(), "text/plain");
         } else {
@@ -100,7 +102,8 @@ public final class ShareInputActivity extends AppCompatActivity {
             if (htmlTexts != null) {
                 int i = 1;
                 for (final String t : htmlTexts) {
-                    putIfSet(ps, "$input.html" + (i == 1 ? "" : i), t, "text/html");
+                    putIfSet(ps, "$input.html" + (i == 1 ? "" : i),
+                            t, "text/html");
                     i++;
                 }
             }
@@ -122,7 +125,8 @@ public final class ShareInputActivity extends AppCompatActivity {
     private void fillOpenArgs(@NonNull final PreferenceStorage ps) {
         final Intent intent = getIntent();
         final Uri data = intent.getData();
-        if (data == null) return;
+        if (data == null)
+            return;
         ps.put("$input.uri", data.toString());
         putIfSet(ps, "$input.mime", intent.getType());
         putIfSet(ps, "$input.action", intent.getAction());
@@ -146,9 +150,9 @@ public final class ShareInputActivity extends AppCompatActivity {
                 fillOpenArgs(ps);
             }
             try {
-                key = ConsoleService.startAnsiSession(ShareInputActivity.this, ps.get());
+                key = ConsoleService.startAnsiSession(this, ps.get());
             } catch (final ConsoleService.Exception | BackendException e) {
-                Toast.makeText(ShareInputActivity.this, e.getMessage(),
+                Toast.makeText(this, e.getMessage(),
                         Toast.LENGTH_LONG).show();
                 return;
             }

@@ -792,6 +792,10 @@ public final class TermSh {
                 }
             }
 
+            /**
+             * @return attached GUI dialogs if any
+             * @throws ShellUiException if no GUI is accessible at the moment
+             */
             @NonNull
             private BackendUiSessionDialogs getGui() {
                 if (shellSessionData == null)
@@ -1261,7 +1265,7 @@ public final class TermSh {
                             final BinaryGetOpts.Parser ap = new BinaryGetOpts.Parser(shellCmd.args);
                             ap.skip();
                             final Map<String, ?> opts = ap.parse(OPEN_OPTS);
-                            String mime = (String) opts.get("mime");
+                            final String mime = (String) opts.get("mime");
                             String prompt = (String) opts.get("prompt");
                             if (prompt == null)
                                 prompt = ui.ctx.getString(R.string.msg_pick_application);

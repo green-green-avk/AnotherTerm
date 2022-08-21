@@ -321,11 +321,12 @@ public final class UiUtils {
     }
 
     @UiThread
-    public static void confirm(@NonNull final Context ctx, @NonNull final String msg,
+    public static void confirm(@NonNull final Context ctx, @NonNull final CharSequence msg,
                                @NonNull final Runnable onConfirm) {
         new AlertDialog.Builder(ctx)
                 .setMessage(msg)
-                .setNegativeButton(android.R.string.no, (dialog, which) -> dialog.cancel())
+                .setNegativeButton(android.R.string.no, (dialog, which) ->
+                        dialog.cancel())
                 .setPositiveButton(android.R.string.yes, (dialog, which) -> {
                     dialog.dismiss();
                     onConfirm.run();

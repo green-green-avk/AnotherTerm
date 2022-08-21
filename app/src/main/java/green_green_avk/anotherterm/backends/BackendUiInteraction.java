@@ -6,6 +6,11 @@ import androidx.annotation.Nullable;
 import java.io.IOException;
 
 public interface BackendUiInteraction {
+    /**
+     * Erases sensitive data returned by {@code prompt*()} calls.
+     *
+     * @param v data to erase
+     */
     void erase(@NonNull CharSequence v);
 
     @Nullable

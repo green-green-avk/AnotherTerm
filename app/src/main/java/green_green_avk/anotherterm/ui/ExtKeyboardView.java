@@ -933,7 +933,7 @@ public abstract class ExtKeyboardView extends View /*implements View.OnClickList
                 fcn = getModifiersAltKeyFcn(keyState.key);
             else if (fcn == getModifiersAltKeyFcn(keyState.key))
                 fcn = keyState.key.getBaseFcn();
-            float pos = fcn.iconCircularPos;
+            final float pos = fcn.iconCircularPos;
             if (Float.isNaN(pos)) {
                 _altKeyFcnCoords.x = 0;
                 _altKeyFcnCoords.y = 0;

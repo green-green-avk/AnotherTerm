@@ -40,7 +40,8 @@ public abstract class ConsoleActivity extends AppCompatActivity {
             a = AnsiConsoleActivity.class;
         else
             throw new IllegalArgumentException("Bad session key");
-        final Intent intent = new Intent(ctx, a).putExtra(C.IFK_MSG_SESS_KEY, key);
+        final Intent intent = new Intent(ctx, a)
+                .putExtra(C.IFK_MSG_SESS_KEY, key);
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
             intent.setData(Uri.parse("key:" + key));
             if (inRecents)
