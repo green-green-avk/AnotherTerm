@@ -178,6 +178,7 @@
     <string name="label_screen_keyboard">Screen Keyboard</string>
     <string name="label_default_font_size">Default size</string>
     <string name="label_selection_pad_size">Anchor size</string>
+    <string name="label_terminal_popup_opacity">Popup opacity</string>
     <string name="label_kbd_key_height">Key height</string>
     <string name="label_kbd_autorepeat">Autorepeat</string>
     <string name="label_kbd_autorepeat_start_delay">Autorepeat start delay</string>

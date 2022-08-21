@@ -286,6 +286,7 @@ public final class AnsiConsoleActivity extends ConsoleActivity
         }
         mCsv.setSelectionPadSize(((App) getApplication()).settings.terminal_selection_pad_size_dp
                 * dm.density);
+        mCsv.setPopupOpacity(((App) getApplication()).settings.terminal_popup_opacity * 255 / 100);
         mCsv.setKeyHeightDp(((App) getApplication()).settings.terminal_key_height_dp);
         mCsv.setScrollFollowHistoryThreshold((float) ((App) getApplication()).settings
                 .terminal_scroll_follow_history_threshold / 100);

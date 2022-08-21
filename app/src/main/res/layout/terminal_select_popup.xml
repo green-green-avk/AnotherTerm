@@ -6,7 +6,8 @@
     android:background="@drawable/bg_terminal_popup_tr"
     android:divider="@drawable/ic_toolbar_div"
     android:orientation="horizontal"
-    android:showDividers="middle">
+    android:showDividers="middle"
+    android:tag="popup_background_container">
 
     <ImageButton
         android:id="@+id/b_scratchpad"

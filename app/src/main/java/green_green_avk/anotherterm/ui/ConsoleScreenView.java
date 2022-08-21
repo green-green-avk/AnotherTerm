@@ -3,6 +3,7 @@ package green_green_avk.anotherterm.ui;
 import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.content.Context;
+import android.content.res.ColorStateList;
 import android.content.res.TypedArray;
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
@@ -18,6 +19,8 @@ import android.graphics.Shader;
 import android.graphics.Typeface;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
+import android.graphics.drawable.GradientDrawable;
+import android.graphics.drawable.ShapeDrawable;
 import android.os.Build;
 import android.os.Message;
 import android.text.InputType;
@@ -42,6 +45,7 @@ import android.widget.Toast;
 
 import androidx.annotation.CallSuper;
 import androidx.annotation.CheckResult;
+import androidx.annotation.IntRange;
 import androidx.annotation.LayoutRes;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -49,10 +53,13 @@ import androidx.annotation.RequiresApi;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.content.res.AppCompatResources;
 import androidx.appcompat.widget.AppCompatEditText;
+import androidx.core.graphics.ColorUtils;
 import androidx.core.math.MathUtils;
 import androidx.core.view.ViewCompat;
 
 import java.nio.CharBuffer;
+import java.util.ArrayList;
+import java.util.List;
 
 import green_green_avk.anotherterm.AnsiConsoleInput;
 import green_green_avk.anotherterm.AnsiConsoleOutput;
@@ -129,6 +136,7 @@ public class ConsoleScreenView extends ScrollableView
     protected float mFontWidth;
     protected float mFontHeight;
     protected int keyHeightDp = 0;
+    protected int popupOpacity = 0x44;
     protected float selectionPadSize = 200; // px
     protected ConsoleScreenSelection selection = null;
     protected boolean selectionMode = false;
@@ -164,6 +172,7 @@ public class ConsoleScreenView extends ScrollableView
         protected int keySize = 0; // px
         protected final int[] parentPos = new int[2];
         protected final PopupWindow window;
+        protected final Drawable[] backgrounds;
         protected final Point pos = new Point(0, 0);
         protected final ImageView wSelMode;
         protected final TextView wSearch;
@@ -201,11 +210,48 @@ public class ConsoleScreenView extends ScrollableView
             return searchHint;
         }
 
+        protected void setPopupBackgroundAlpha(@IntRange(from = 0, to = 255) final int v) {
+            for (final Drawable bg : backgrounds) {
+                if (bg instanceof GradientDrawable) {
+                    bg.mutate();
+                    final GradientDrawable gd = (GradientDrawable) bg;
+                    final int c;
+                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+                        final ColorStateList cc = gd.getColor();
+                        if (cc != null)
+                            c = cc.getColorForState(gd.getState(), Color.BLACK);
+                        else
+                            c = Color.BLACK;
+                    } else {
+                        c = Color.BLACK; // TODO: better tweak for old APIs
+                    }
+                    gd.setColor(ColorUtils.setAlphaComponent(c, v));
+                } else if (bg instanceof ShapeDrawable) {
+                    bg.mutate();
+                    ((ShapeDrawable) bg).getPaint().setAlpha(v);
+                } else {
+                    bg.mutate();
+                    bg.setAlpha(v); // Giving up
+                }
+            }
+        }
+
+        @NonNull
+        private Drawable[] findPopupBackgrounds(@NonNull final ViewGroup vv) {
+            final List<Drawable> r = new ArrayList<>();
+            for (final View v : UiUtils.getIterable(vv)) {
+                if ("popup_background_container".equals(v.getTag()))
+                    r.add(v.getBackground());
+            }
+            return r.toArray(new Drawable[0]);
+        }
+
         {
             final ViewGroup d = new WrapperView(getContext());
             d.setLayoutParams(new ViewGroup.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT,
                     ViewGroup.LayoutParams.WRAP_CONTENT));
             inflate(getContext(), R.layout.terminal_select_search_popup, d);
+            backgrounds = findPopupBackgrounds(d);
             window = new PopupWindow(d, WindowManager.LayoutParams.WRAP_CONTENT,
                     WindowManager.LayoutParams.WRAP_CONTENT, false);
             window.setSplitTouchEnabled(true);
@@ -738,6 +784,22 @@ public class ConsoleScreenView extends ScrollableView
     public void setSelectionPadSize(final float v) {
         selectionPadSize = v;
         ViewCompat.postInvalidateOnAnimation(this);
+    }
+
+    @CheckResult
+    @IntRange(from = 0, to = 255)
+    public int getPopupOpacity() {
+        return popupOpacity;
+    }
+
+    /**
+     * Overlay popups background opacity
+     *
+     * @param v [0..255]
+     */
+    public void setPopupOpacity(@IntRange(from = 0, to = 255) final int v) {
+        popupOpacity = v;
+        selectionPopup.setPopupBackgroundAlpha(v);
     }
 
     protected void adjustSelectionPopup() {
