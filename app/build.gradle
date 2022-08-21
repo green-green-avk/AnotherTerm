@@ -11,7 +11,6 @@ android {
     namespace 'green_green_avk.anotherterm'
 
     compileSdkVersion 31
-    buildToolsVersion '30.0.3'
     ndkVersion '21.4.7075529'
 
     compileOptions {
@@ -123,7 +122,9 @@ android {
 }
 
 dependencies {
-    implementation 'androidx.appcompat:appcompat:1.4.2'
+    implementation('androidx.appcompat:appcompat:1.4.2') {
+        because 'Unable to use 1.5.x: the problem is similar to https://stackoverflow.com/questions/69817925/problem-duplicate-class-androidx-lifecycle-viewmodel-found-in-modules'
+    }
     implementation 'androidx.vectordrawable:vectordrawable:1.1.0'
     implementation 'me.saket:better-link-movement-method:2.2.0'
     implementation 'androidx.preference:preference:1.2.0'
