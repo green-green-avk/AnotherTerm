@@ -31,12 +31,14 @@ package com.jcraft.jsch;
 
 public class HostKey {
 
-    private static final byte[][] names = {
-            Util.str2byte("ssh-dss"),
-            Util.str2byte("ssh-rsa"),
-            Util.str2byte("ecdsa-sha2-nistp256"),
-            Util.str2byte("ecdsa-sha2-nistp384"),
-            Util.str2byte("ecdsa-sha2-nistp521")
+    private static final String[] names = {
+            "ssh-dss",
+            "ssh-rsa",
+            "ecdsa-sha2-nistp256",
+            "ecdsa-sha2-nistp384",
+            "ecdsa-sha2-nistp521",
+            "ssh-ed25519",
+            "ssh-ed448"
     };
 
     public static final int UNKNOWN = -1;
@@ -102,21 +104,15 @@ public class HostKey {
     }
 
     public String getType() {
-        if (type == SSHDSS ||
-                type == SSHRSA ||
-                type == ED25519 ||
-                type == ED448 ||
-                type == ECDSA256 ||
-                type == ECDSA384 ||
-                type == ECDSA521) {
-            return Util.byte2str(names[type - 1]);
+        if (type > 0 && type <= names.length) {
+            return names[type - 1];
         }
         return "UNKNOWN";
     }
 
     protected static int name2type(final String name) {
         for (int i = 0; i < names.length; i++) {
-            if (Util.byte2str(names[i]).equals(name)) {
+            if (names[i].equals(name)) {
                 return i + 1;
             }
         }
@@ -168,11 +164,13 @@ public class HostKey {
         while (i < hostslen) {
             j = hosts.indexOf(',', i);
             if (j == -1) {
-                if (hostlen != hostslen - i) return false;
+                if (hostlen != hostslen - i)
+                    return false;
                 return hosts.regionMatches(true, i, _host, 0, hostlen);
             }
             if (hostlen == (j - i)) {
-                if (hosts.regionMatches(true, i, _host, 0, hostlen)) return true;
+                if (hosts.regionMatches(true, i, _host, 0, hostlen))
+                    return true;
             }
             i = j + 1;
         }

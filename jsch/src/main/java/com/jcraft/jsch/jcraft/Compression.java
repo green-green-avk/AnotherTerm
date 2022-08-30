@@ -65,7 +65,6 @@ public final class Compression implements com.jcraft.jsch.Compression {
         int status;
         int outputlen = start;
         byte[] outputbuf = buf;
-        int tmp = 0;
 
         do {
             stream.next_out = tmpbuf;
@@ -74,7 +73,7 @@ public final class Compression implements com.jcraft.jsch.Compression {
             status = stream.deflate(JZlib.Z_PARTIAL_FLUSH);
             switch (status) {
                 case JZlib.Z_OK:
-                    tmp = BUF_SIZE - stream.avail_out;
+                    final int tmp = BUF_SIZE - stream.avail_out;
                     if (outputbuf.length < outputlen + tmp + buffer_margin) {
                         final byte[] foo = new byte[(outputlen + tmp + buffer_margin) * 2];
                         System.arraycopy(outputbuf, 0, foo, 0, outputbuf.length);

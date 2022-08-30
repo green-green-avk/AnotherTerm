@@ -63,11 +63,12 @@ public final class SshHostKeyRepository implements HostKeyRepository {
     }
 
     @Override
-    public int check(@NonNull final String s, @NonNull final byte[] bytes) {
-        final Set<String> keys = sp.getStringSet(s, Collections.emptySet());
-        if (keys.size() == 0) return NOT_INCLUDED;
+    public int check(@NonNull final String host, @NonNull final byte[] bytes) {
+        final Set<String> keys = sp.getStringSet(host, Collections.emptySet());
+        if (keys.isEmpty())
+            return NOT_INCLUDED;
         for (final String ent : keys) {
-            final SshHostKey k = parseKey(s, ent);
+            final SshHostKey k = parseKey(host, ent);
             if (Arrays.equals(k.getRawKey(), bytes)) {
                 return OK;
             }
@@ -76,12 +77,13 @@ public final class SshHostKeyRepository implements HostKeyRepository {
     }
 
     @NonNull
-    public Set<SshHostKey> getHostKeySet(@NonNull final String s, @Nullable final String s1) {
-        final Set<String> keys = sp.getStringSet(s, Collections.emptySet());
+    public Set<SshHostKey> getHostKeySet(@NonNull final String host,
+                                         @Nullable final String keyType) {
+        final Set<String> keys = sp.getStringSet(host, Collections.emptySet());
         final Set<SshHostKey> r = new HashSet<>();
         for (final String ent : keys) {
-            final SshHostKey k = parseKey(s, ent);
-            if (s1 == null || s1.equals(k.getType()))
+            final SshHostKey k = parseKey(host, ent);
+            if (keyType == null || keyType.equals(k.getType()))
                 r.add(k);
         }
         return r;
@@ -104,8 +106,8 @@ public final class SshHostKeyRepository implements HostKeyRepository {
 
     @Override
     @NonNull
-    public HostKey[] getHostKey(@NonNull final String s, @Nullable final String s1) {
-        return getHostKeySet(s, s1).toArray(new HostKey[0]);
+    public HostKey[] getHostKey(@NonNull final String host, @Nullable final String keyType) {
+        return getHostKeySet(host, keyType).toArray(new HostKey[0]);
     }
 
     @Override
@@ -115,25 +117,27 @@ public final class SshHostKeyRepository implements HostKeyRepository {
     }
 
     @Override
-    public void remove(@NonNull final String s, @Nullable final String s1) {
-        final Set<String> keys = new HashSet<>(sp.getStringSet(s, Collections.emptySet()));
+    public void remove(@NonNull final String host, @Nullable final String keyType) {
+        final Set<String> keys =
+                new HashSet<>(sp.getStringSet(host, Collections.emptySet()));
         final SharedPreferences.Editor ed = sp.edit();
-        for (final SshHostKey k : getHostKeySet(s, s1)) {
+        for (final SshHostKey k : getHostKeySet(host, keyType)) {
             keys.remove(serializeKey(k));
-            ed.putStringSet(s, keys);
+            ed.putStringSet(host, keys);
         }
         ed.apply();
     }
 
     @Override
-    public void remove(@NonNull final String s, @Nullable final String s1,
+    public void remove(@NonNull final String host, @Nullable final String keyType,
                        @NonNull final byte[] bytes) {
-        final Set<String> keys = new HashSet<>(sp.getStringSet(s, Collections.emptySet()));
+        final Set<String> keys =
+                new HashSet<>(sp.getStringSet(host, Collections.emptySet()));
         final SharedPreferences.Editor ed = sp.edit();
-        for (final SshHostKey k : getHostKeySet(s, s1)) {
+        for (final SshHostKey k : getHostKeySet(host, keyType)) {
             if (Arrays.equals(k.getRawKey(), bytes)) {
                 keys.remove(serializeKey(k));
-                ed.putStringSet(s, keys);
+                ed.putStringSet(host, keys);
                 ed.apply();
                 return;
             }
