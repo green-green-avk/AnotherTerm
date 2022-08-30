@@ -180,9 +180,10 @@ final class KnownHosts implements HostKeyRepository {
                     }
                     sb.append((char) i);
                 }
-                final String tmp = sb.toString();
-                if (HostKey.name2type(tmp) != HostKey.UNKNOWN) {
-                    type = HostKey.name2type(tmp);
+                final String typeStr = sb.toString();
+                final int typeId = HostKey.name2type(typeStr);
+                if (typeId != HostKey.UNKNOWN) {
+                    type = typeId;
                 } else {
                     j = bufl;
                 }
@@ -258,8 +259,7 @@ final class KnownHosts implements HostKeyRepository {
                 //System.err.println(host);
                 //System.err.println("|"+key+"|");
 
-                HostKey hk = null;
-                hk = new HashedHostKey(marker, host, type,
+                final HostKey hk = new HashedHostKey(marker, host, type,
                         Util.fromBase64(Util.str2byte(key), 0,
                                 key.length()), comment);
                 pool.add(hk);
@@ -405,7 +405,7 @@ final class KnownHosts implements HostKeyRepository {
 
     @Override
     public HostKey[] getHostKey() {
-        return getHostKey(null, (String) null);
+        return getHostKey(null, null);
     }
 
     @Override
@@ -617,7 +617,9 @@ final class KnownHosts implements HostKeyRepository {
                     return Util.array_equals(hash, bar);
                 }
             } catch (final Exception e) {
-                jsch.getInstanceLogger().log(Logger.ERROR, "an error occurred while trying to check hash for host " + _host, e);
+                jsch.getInstanceLogger().log(Logger.ERROR,
+                        "an error occurred while trying to check hash for host "
+                                + _host, e);
             }
             return false;
         }
