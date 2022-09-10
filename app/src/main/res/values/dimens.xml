@@ -18,6 +18,7 @@
     <dimen name="uiOptionSize">32sp</dimen>
     <dimen name="uiOptionMaxTextSize">24sp</dimen>
     <dimen name="uiOptionIndent">16sp</dimen>
+    <dimen name="uiConfirmationPopupRadius">100dp</dimen>
     <dimen name="smallUiOptionSize">24sp</dimen>
     <dimen name="xSmallUiOptionSize">16sp</dimen>
     <dimen name="xSmallUiOptionTextSize">12sp</dimen>

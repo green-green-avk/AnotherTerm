@@ -7,6 +7,8 @@
     <color name="colorAccentForte">#B0C000</color>
     <color name="colorAccenttissimo">#D8FF00</color>
     <color name="colorAccenttissimoTr">#7FD8FF00</color>
+    <color name="colorImportantLight">#F73</color>
+    <color name="colorImportantDark">#A50</color>
     <color name="colorHintWarning">#7F0000</color>
     <color name="colorTextWarning">#7F0000</color>
     <color name="colorBgWarning">#FFCCCC</color>

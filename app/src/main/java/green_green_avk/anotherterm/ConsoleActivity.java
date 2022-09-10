@@ -15,8 +15,6 @@ import androidx.appcompat.app.AppCompatActivity;
 
 import java.util.NoSuchElementException;
 
-import green_green_avk.anotherterm.ui.UiUtils;
-
 public abstract class ConsoleActivity extends AppCompatActivity {
     @NonNull
     public static Intent getShowSessionIntent(@NonNull final Context ctx, final int key) {
@@ -96,11 +94,6 @@ public abstract class ConsoleActivity extends AppCompatActivity {
     }
 
     public void onTerminate(final View view) {
-        if (view != null) {
-            UiUtils.confirm(this, getString(R.string.prompt_terminate_the_session),
-                    () -> onTerminate(null));
-            return;
-        }
         try {
             ConsoleService.stopSession(mSessionKey);
         } catch (final NoSuchElementException ignored) {

@@ -33,12 +33,14 @@
             android:textColor="?android:attr/colorBackground"
             app:buttonTint="@android:color/background_light" />
 
-        <ImageButton
+        <green_green_avk.anotherterm.ui.ConfirmingImageButton
             android:id="@+id/terminate"
             style="@style/AppWidget.ConsoleMenu.ImageButton.Horizontal"
             android:contentDescription="@string/action_terminate"
             android:onClick="onTerminate"
-            app:srcCompat="@drawable/ic_bar_poweroff" />
+            app:confirmationMessage="@string/prompt_terminate_the_session"
+            app:srcCompat="@drawable/ic_bar_poweroff"
+            app:tint="@color/colorImportantLight" />
 
     </LinearLayout>
 

@@ -28,6 +28,7 @@ import android.widget.Toast;
 import androidx.annotation.DrawableRes;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.annotation.Size;
 import androidx.annotation.UiThread;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.content.res.AppCompatResources;
@@ -44,6 +45,7 @@ import green_green_avk.anotherterm.LinksProvider;
 import green_green_avk.anotherterm.R;
 import green_green_avk.anotherterm.ScratchpadManager;
 import green_green_avk.anotherterm.utils.Misc;
+import green_green_avk.anotherterm.utils.ValueProvider;
 import me.saket.bettermovementmethod.BetterLinkMovementMethod;
 
 public final class UiUtils {
@@ -334,6 +336,31 @@ public final class UiUtils {
                 .show();
     }
 
+    public static void wrapViewClickForConfirmation(@NonNull final View view,
+                                                    @NonNull final ValueProvider<? extends CharSequence> msg,
+                                                    @NonNull final Runnable onConfirm) {
+        view.setOnClickListener(_view ->
+                confirm(_view.getContext(), msg.get(), onConfirm));
+        final Context ctx = view.getContext();
+        final Resources rr = ctx.getResources();
+        final int radius = rr.getDimensionPixelSize(R.dimen.uiConfirmationPopupRadius);
+        final ConfirmationPopupViewWrapper wrapper =
+                new ConfirmationPopupViewWrapper(view);
+        wrapper.setPopupRadius(radius);
+        wrapper.setPointerBackgroundDrawable(requireDrawable(ctx,
+                R.drawable.bg_confirm_circle));
+        wrapper.setPointerDrawable(requireDrawable(ctx,
+                R.drawable.bg_confirm_ptr_circle));
+        wrapper.setOnConfirmListener(onConfirm);
+        final ConfirmationTooltip tooltip = new ConfirmationTooltip(view);
+        tooltip.setOffset(radius);
+        wrapper.setOnShow(() -> {
+            tooltip.setText(msg.get());
+            tooltip.show();
+        });
+        wrapper.setOnHide(tooltip::hide);
+    }
+
     public static void showContextMenuOnBottom(@NonNull final View v) {
         if (Build.VERSION.SDK_INT < 24) {
             v.showContextMenu();
@@ -348,6 +375,27 @@ public final class UiUtils {
             return true;
         });
         v.setOnClickListener(UiUtils::showContextMenuOnBottom);
+    }
+
+    /**
+     * @param out     [x, y] in the activity window
+     * @param refView refers a window
+     * @param x       local x
+     * @param y       local y
+     * @return a root view of the activity window
+     */
+    @NonNull
+    public static View getWindowLocationInActivityWindow(@Size(2) @NonNull final int[] out,
+                                                         @NonNull final View refView,
+                                                         final int x, final int y) {
+        final int[] pwc = new int[2];
+        refView.getRootView().getLocationOnScreen(pwc);
+        final View rv = UiUtils.getActivity(refView).getWindow().getDecorView().getRootView();
+        final int[] rwc = new int[2];
+        rv.getLocationOnScreen(rwc);
+        out[0] = x + pwc[0] - rwc[0];
+        out[1] = y + pwc[1] - rwc[1];
+        return rv;
     }
 
     @NonNull
