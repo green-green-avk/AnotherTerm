@@ -109,7 +109,7 @@
             app:tint="@color/console_toolbar_icon"
             app:tintMode="src_atop" />
 
-        <ImageButton
+        <green_green_avk.anotherterm.ui.ConfirmingImageButton
             android:layout_width="wrap_content"
             android:layout_height="match_parent"
             android:adjustViewBounds="true"
@@ -117,8 +117,9 @@
             android:contentDescription="@string/action_terminate"
             android:onClick="onTerminate"
             android:scaleType="centerInside"
+            app:confirmationMessage="@string/prompt_terminate_the_session"
             app:srcCompat="@drawable/ic_bar_poweroff"
-            app:tint="@android:color/tertiary_text_dark" />
+            app:tint="@color/colorImportantLight" />
 
     </LinearLayout>
 
