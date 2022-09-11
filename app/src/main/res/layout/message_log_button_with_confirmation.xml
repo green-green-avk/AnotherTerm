@@ -1,0 +1,4 @@
+<?xml version="1.0" encoding="utf-8"?>
+<green_green_avk.anotherterm.ui.ConfirmingImageButton xmlns:tools="http://schemas.android.com/tools"
+    style="@style/AppWidget.ConsoleDialog.ImageButton"
+    tools:ignore="ContentDescription" />
