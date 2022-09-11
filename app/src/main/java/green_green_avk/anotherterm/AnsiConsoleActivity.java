@@ -58,6 +58,7 @@ import green_green_avk.anotherterm.backends.BackendModule;
 import green_green_avk.anotherterm.backends.BackendUiInteractionActivityCtx;
 import green_green_avk.anotherterm.backends.BackendsList;
 import green_green_avk.anotherterm.backends.EventBasedBackendModuleWrapper;
+import green_green_avk.anotherterm.ui.BackendUiDialogs;
 import green_green_avk.anotherterm.ui.ChoreographerCompat;
 import green_green_avk.anotherterm.ui.ConsoleKeyboardView;
 import green_green_avk.anotherterm.ui.ConsoleScreenView;
@@ -103,7 +104,7 @@ public final class AnsiConsoleActivity extends ConsoleActivity
                 return;
             }
             invalidateWakeLock();
-            invalidateConnectingState();
+            invalidateConnectionState();
         }
     };
 
@@ -119,10 +120,12 @@ public final class AnsiConsoleActivity extends ConsoleActivity
         }
     }
 
-    private void invalidateConnectingState() {
+    private void invalidateConnectionState() {
         if (mSession == null)
             return;
         wConnecting.setVisibility(mSession.backend.isConnecting() ? View.VISIBLE : View.GONE);
+        ((BackendUiDialogs) mSession.backend.wrapped.getUi())
+                .setShowTerminateButton(!mSession.backend.isConnected());
     }
 
     private static int asSize(final Object o) {
@@ -255,7 +258,7 @@ public final class AnsiConsoleActivity extends ConsoleActivity
 
         ConsoleService.addListener(sessionsListener);
         invalidateWakeLock();
-        invalidateConnectingState();
+        invalidateConnectionState();
     }
 
     @Override

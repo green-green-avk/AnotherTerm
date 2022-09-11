@@ -9,6 +9,7 @@ import android.widget.ImageButton;
 import android.widget.TextView;
 
 import androidx.annotation.DrawableRes;
+import androidx.annotation.LayoutRes;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.StringRes;
@@ -64,14 +65,17 @@ public class MessageLogView extends LinearLayoutCompat {
         addView(footer);
     }
 
-    public void addButton(@DrawableRes final int icon, @StringRes final int desc,
-                          @Nullable final View.OnClickListener listener) {
+    public View addButton(@LayoutRes final int layout,
+                          @DrawableRes final int icon, @StringRes final int desc,
+                          @Nullable final View.OnClickListener listener,
+                          final int position) {
         final ImageButton button = (ImageButton) LayoutInflater.from(getContext())
-                .inflate(R.layout.message_log_button, this, false);
+                .inflate(layout, this, false);
         button.setImageResource(icon);
         button.setContentDescription(getContext().getString(desc));
         button.setOnClickListener(listener);
-        footer.addView(button);
+        footer.addView(button, position);
+        return button;
     }
 
     public void setAdapter(@Nullable final Adapter adapter) {

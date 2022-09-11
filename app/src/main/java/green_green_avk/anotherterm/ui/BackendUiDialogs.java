@@ -4,11 +4,13 @@ import android.app.Activity;
 import android.app.Dialog;
 import android.content.DialogInterface;
 import android.content.pm.PackageManager;
+import android.content.res.ColorStateList;
 import android.os.Handler;
 import android.os.Looper;
 import android.text.Editable;
 import android.text.InputType;
 import android.view.KeyEvent;
+import android.view.View;
 import android.view.Window;
 import android.view.WindowManager;
 import android.view.inputmethod.EditorInfo;
@@ -20,6 +22,7 @@ import androidx.annotation.Nullable;
 import androidx.annotation.UiThread;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.widget.AppCompatEditText;
+import androidx.core.widget.ImageViewCompat;
 import androidx.recyclerview.widget.LinearLayoutManager;
 
 import java.io.IOException;
@@ -29,6 +32,7 @@ import java.util.Collections;
 import java.util.Set;
 import java.util.WeakHashMap;
 
+import green_green_avk.anotherterm.ConsoleActivity;
 import green_green_avk.anotherterm.R;
 import green_green_avk.anotherterm.backends.BackendUiInteraction;
 import green_green_avk.anotherterm.backends.BackendUiInteractionActivityCtx;
@@ -74,6 +78,9 @@ public class BackendUiDialogs implements BackendUiInteraction,
     private final ArrayList<LogMessage> msgQueue = new ArrayList<>();
     private WeakReference<MessageLogView.Adapter> msgAdapterRef = new WeakReference<>(null);
 
+    private WeakReference<View> terminateButton = new WeakReference<>(null);
+    private boolean showTerminateButton = false;
+
     @UiThread
     private void showQueuedMessages(@NonNull final Activity ctx) {
         if (ctx.isFinishing()) return;
@@ -89,9 +96,34 @@ public class BackendUiDialogs implements BackendUiInteraction,
                     msgAdapterRef = new WeakReference<>(null);
                 })
                 .show();
-        v.addButton(R.drawable.ic_check, R.string.action_close,
-                view -> d.cancel());
+        v.addButton(R.layout.message_log_button,
+                R.drawable.ic_check, R.string.action_close,
+                view -> d.cancel(), -1);
+        final ConfirmingImageButton terminate = (ConfirmingImageButton) v.addButton(
+                R.layout.message_log_button_with_confirmation,
+                R.drawable.ic_bar_poweroff, R.string.action_terminate,
+                view -> {
+                    final Activity activity = activityRef.getNoBlock();
+                    if (activity instanceof ConsoleActivity)
+                        ((ConsoleActivity) activity).onTerminate(null);
+                }, 0);
+        ImageViewCompat.setImageTintList(terminate, ColorStateList.valueOf(
+                ctx.getResources().getColor(R.color.colorImportantDark)));
+        terminate.setConfirmationMessage(ctx.getText(R.string.prompt_terminate_the_session));
+        terminate.setVisibility(showTerminateButton ? View.VISIBLE : View.GONE);
+        terminateButton = new WeakReference<>(terminate);
         dialogs.add(d);
+    }
+
+    public boolean isShowTerminateButton() {
+        return showTerminateButton;
+    }
+
+    public void setShowTerminateButton(final boolean showTerminateButton) {
+        this.showTerminateButton = showTerminateButton;
+        final View terminate = terminateButton.get();
+        if (terminate != null)
+            terminate.setVisibility(showTerminateButton ? View.VISIBLE : View.GONE);
     }
 
     // Super session levels...
