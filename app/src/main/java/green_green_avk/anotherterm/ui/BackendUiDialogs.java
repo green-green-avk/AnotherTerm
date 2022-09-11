@@ -252,8 +252,10 @@ public class BackendUiDialogs implements BackendUiInteraction,
                 }
                 msgQueue.add(new LogMessage(message));
                 final MessageLogView.Adapter a = msgAdapterRef.get();
-                if (a != null) a.notifyDataSetChanged();
-                else showQueuedMessages(ctx);
+                if (a != null)
+                    a.notifyItemInserted(a.getItemCount() - 1);
+                else
+                    showQueuedMessages(ctx);
             }
         });
     }
