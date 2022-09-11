@@ -15,7 +15,7 @@ import android.text.style.ReplacementSpan;
 import androidx.annotation.DrawableRes;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.core.content.res.ResourcesCompat;
+import androidx.appcompat.content.res.AppCompatResources;
 
 public final class BackgroundImageSpan extends ReplacementSpan {
     @Nullable
@@ -31,7 +31,7 @@ public final class BackgroundImageSpan extends ReplacementSpan {
     }
 
     public BackgroundImageSpan(@NonNull final Context ctx, @DrawableRes final int resId) {
-        this(ResourcesCompat.getDrawable(ctx.getResources(), resId, null));
+        this(AppCompatResources.getDrawable(ctx, resId));
     }
 
     /**

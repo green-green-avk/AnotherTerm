@@ -38,7 +38,7 @@ import androidx.annotation.Keep;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AlertDialog;
-import androidx.core.content.res.ResourcesCompat;
+import androidx.appcompat.content.res.AppCompatResources;
 import androidx.core.math.MathUtils;
 import androidx.core.widget.TextViewCompat;
 
@@ -507,8 +507,8 @@ public final class AnsiConsoleActivity extends ConsoleActivity
                 ViewGroup.LayoutParams.WRAP_CONTENT,
                 ViewGroup.LayoutParams.WRAP_CONTENT,
                 true);
-        window.setBackgroundDrawable(ResourcesCompat.getDrawable(getResources(),
-                android.R.drawable.dialog_holo_light_frame, null));
+        window.setBackgroundDrawable(AppCompatResources.getDrawable(this,
+                android.R.drawable.dialog_holo_light_frame));
         window.setSplitTouchEnabled(true);
         window.setAnimationStyle(android.R.style.Animation_Dialog);
         return window;
