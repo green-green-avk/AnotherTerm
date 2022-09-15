@@ -180,6 +180,10 @@ public final class ShareInputActivity extends AppCompatActivity {
     @Override
     protected void onCreate(@Nullable final Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        if (getIntent() == null || getIntent().getAction() == null) {
+            finish();
+            return;
+        }
         setContentView(R.layout.share_input_activity);
         prepareFavoritesList();
         observer.onChanged();
