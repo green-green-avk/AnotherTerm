@@ -282,6 +282,10 @@ public final class ConsoleService extends Service {
         if (s instanceof AnsiSession)
             ((AnsiSession) s).backend.stop();
         sessions.remove(key);
+        if (instance != null)
+            if (s instanceof AnsiSession)
+                ContentUrisPermsManager.freeUnusedTemp(instance,
+                        ((AnsiSession) s).boundUris);
         if (sessions.isEmpty())
             tryStop();
         execOnSessionChange(key);

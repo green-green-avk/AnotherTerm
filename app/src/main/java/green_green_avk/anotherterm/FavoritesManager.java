@@ -25,7 +25,7 @@ public final class FavoritesManager {
             Collections.newSetFromMap(new WeakHashMap<>());
 
     private static void execOnChangeListeners() {
-        PermanentContentUrisManager.freeUnused(ctx);
+        ContentUrisPermsManager.freeUnusedPerm(ctx);
         for (final Runnable r : onChangeListeners) {
             r.run();
         }

@@ -9,16 +9,17 @@ import android.os.Build;
 import android.util.Log;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.UiThread;
 
 import java.util.HashSet;
 import java.util.Set;
 
 import green_green_avk.anotherterm.utils.PreferenceStorage;
 
-public final class PermanentContentUrisManager {
-    private static final String TAG = PermanentContentUrisManager.class.getSimpleName();
+public final class ContentUrisPermsManager {
+    private static final String TAG = ContentUrisPermsManager.class.getSimpleName();
 
-    private PermanentContentUrisManager() {
+    private ContentUrisPermsManager() {
     }
 
     private static final Set<String> permUriFavFields = new HashSet<>();
@@ -27,7 +28,38 @@ public final class PermanentContentUrisManager {
         permUriFavFields.add("auth_key_uri");
     }
 
-    public static void freeUnused(@NonNull final Context ctx) {
+    private static void revokeUriPermission(@NonNull final Context ctx, @NonNull final Uri uri) {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            ctx.revokeUriPermission(BuildConfig.APPLICATION_ID, uri,
+                    Intent.FLAG_GRANT_READ_URI_PERMISSION
+                            | Intent.FLAG_GRANT_WRITE_URI_PERMISSION);
+        } else {
+            ctx.revokeUriPermission(uri,
+                    Intent.FLAG_GRANT_READ_URI_PERMISSION
+                            | Intent.FLAG_GRANT_WRITE_URI_PERMISSION);
+        }
+    }
+
+    @UiThread
+    public static void freeUnusedTemp(@NonNull final Context ctx, @NonNull final Uri uri) {
+        for (final Session session : ConsoleService.sessions.values()) {
+            if (session instanceof AnsiSession &&
+                    ((AnsiSession) session).boundUris.contains(uri))
+                return;
+        }
+        revokeUriPermission(ctx, uri);
+    }
+
+    @UiThread
+    public static void freeUnusedTemp(@NonNull final Context ctx,
+                                      @NonNull final Iterable<? extends Uri> uris) {
+        for (final Uri uri : uris)
+            if (uri != null)
+                freeUnusedTemp(ctx, uri);
+    }
+
+    @UiThread
+    public static void freeUnusedPerm(@NonNull final Context ctx) {
         if (Build.VERSION.SDK_INT < Build.VERSION_CODES.KITKAT)
             return;
         final Set<Uri> inUse = new HashSet<>();

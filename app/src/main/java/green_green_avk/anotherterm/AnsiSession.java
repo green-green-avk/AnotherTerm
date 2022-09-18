@@ -1,10 +1,13 @@
 package green_green_avk.anotherterm;
 
 import android.content.pm.ActivityInfo;
+import android.net.Uri;
 
 import androidx.annotation.NonNull;
 
+import java.util.HashSet;
 import java.util.Map;
+import java.util.Set;
 
 import green_green_avk.anotherterm.backends.BackendModule;
 import green_green_avk.anotherterm.backends.EventBasedBackendModuleWrapper;
@@ -51,6 +54,11 @@ public final class AnsiSession extends Session {
     public final Properties properties;
 
     public final UiState uiState = new UiState();
+
+    /**
+     * URIs with temporary permissions to revoke on the session end.
+     */
+    public final Set<Uri> boundUris = new HashSet<>();
 
     public AnsiSession(@NonNull final Map<String, ?> cp,
                        @NonNull final ConsoleInput ci,
