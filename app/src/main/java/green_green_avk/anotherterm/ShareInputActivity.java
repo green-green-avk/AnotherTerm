@@ -21,6 +21,9 @@ import androidx.recyclerview.widget.RecyclerView;
 import java.io.ByteArrayInputStream;
 import java.util.AbstractList;
 import java.util.ArrayList;
+import java.util.Collection;
+import java.util.HashSet;
+import java.util.Set;
 
 import green_green_avk.anotherterm.backends.BackendException;
 import green_green_avk.anotherterm.utils.HtmlUtils;
@@ -60,7 +63,32 @@ public final class ShareInputActivity extends AppCompatActivity {
         if (value != null) ps.put(name, value);
     }
 
-    private void fillSendArgs(@NonNull final PreferenceStorage ps) {
+    /**
+     * Avoids premature revocation of temporary URI permissions.
+     *
+     * @see android.content.Context#grantUriPermission(String, Uri, int)
+     */
+    private void prolongUriPermissions(@NonNull final Uri uri) {
+        try {
+            grantUriPermission(BuildConfig.APPLICATION_ID, uri,
+                    Intent.FLAG_GRANT_READ_URI_PERMISSION);
+        } catch (final Exception ignored) {
+        }
+        try {
+            grantUriPermission(BuildConfig.APPLICATION_ID, uri,
+                    Intent.FLAG_GRANT_WRITE_URI_PERMISSION);
+        } catch (final Exception ignored) {
+        }
+    }
+
+    private void prolongUriPermissions(@NonNull final Iterable<? extends Uri> uris) {
+        for (final Uri uri : uris)
+            if (uri != null)
+                prolongUriPermissions(uri);
+    }
+
+    private void fillSendArgs(@NonNull final PreferenceStorage ps,
+                              @NonNull final Collection<? super Uri> uris) {
         final ShareCompat.IntentReader intentReader = new ShareCompat.IntentReader(this);
         putIfSet(ps, "$input.action", getIntent().getAction());
         putIfSet(ps, "$input.mime", intentReader.getType());
@@ -108,8 +136,8 @@ public final class ShareInputActivity extends AppCompatActivity {
                 }
             }
         }
-        if (intentReader.getStreamCount() > 0)
-            ps.put("$input.uris", TextUtils.join(" ", new AbstractList<Uri>() {
+        if (intentReader.getStreamCount() > 0) {
+            final Collection<Uri> _uris = new AbstractList<Uri>() {
                 @Override
                 public Uri get(final int index) {
                     return intentReader.getStream(index);
@@ -119,14 +147,19 @@ public final class ShareInputActivity extends AppCompatActivity {
                 public int size() {
                     return intentReader.getStreamCount();
                 }
-            }));
+            };
+            uris.addAll(_uris);
+            ps.put("$input.uris", TextUtils.join(" ", _uris));
+        }
     }
 
-    private void fillOpenArgs(@NonNull final PreferenceStorage ps) {
+    private void fillOpenArgs(@NonNull final PreferenceStorage ps,
+                              @NonNull final Collection<? super Uri> uris) {
         final Intent intent = getIntent();
         final Uri data = intent.getData();
         if (data == null)
             return;
+        uris.add(data);
         ps.put("$input.uri", data.toString());
         putIfSet(ps, "$input.mime", intent.getType());
         putIfSet(ps, "$input.action", intent.getAction());
@@ -143,11 +176,12 @@ public final class ShareInputActivity extends AppCompatActivity {
             final int key;
             ps.put("name", name); // Some mark
             final String action = getIntent().getAction();
+            final Set<Uri> uris = new HashSet<>();
             if (Intent.ACTION_SEND.equals(action) ||
                     Intent.ACTION_SEND_MULTIPLE.equals(action)) {
-                fillSendArgs(ps);
+                fillSendArgs(ps, uris);
             } else {
-                fillOpenArgs(ps);
+                fillOpenArgs(ps, uris);
             }
             try {
                 key = ConsoleService.startAnsiSession(this, ps.get());
@@ -156,6 +190,10 @@ public final class ShareInputActivity extends AppCompatActivity {
                         Toast.LENGTH_LONG).show();
                 return;
             }
+            final AnsiSession session = ConsoleService.getAnsiSession(key);
+            uris.remove(null);
+            session.boundUris.addAll(uris);
+            prolongUriPermissions(uris);
             ConsoleActivity.showSession(this, key);
             finish();
         });

@@ -10,14 +10,8 @@
         from a session profile selected by user from an additional chooser dialog.
         <b>\"Show in &#x00AB;share with&#x00BB; / &#x00AB;open in&#x00BB; chooser dialog\"</b>
         checkbox should be set in a session profile to make it visible.</p>
-        <p><b>Note1:</b> Any URIs passed to Another&#xA0;Term are accessible
-        from all of its local shell sessions.
-        However there is no way to enumerate them
-        except cases of large texts sharing by value (see below)
-        when <code><a href=\"info:/termsh_man\">termsh uri -l</a></code> can be used.</p>
-        <p><b>Note2:</b> Passed URIs must be opened not later than a couple of seconds
-        since a sessions started: they will expire otherwise.
-        There are no other related time limitations in Android.</p>
+        <p><b>Note:</b> Any URIs passed to Another&#xA0;Term are accessible
+        from all of its local shell sessions. The access control is to be implemented…
         <h2>Environment variables</h2>
         <li><clipboard>INPUT_ACTION</clipboard> &#x2014; <code>Intent.getAction()</code>.</li>
         <li><clipboard>INPUT_MIME</clipboard> &#x2014; <code>Intent.getType()</code>.</li>
