@@ -788,7 +788,7 @@ public final class TermSh {
             private void requirePerms(final long perms) {
                 if (shellSessionData == null ||
                         (shellSessionData.permissions &
-                                perms) == 0) {
+                                perms) != perms) {
                     throw new ShellSecurityException();
                 }
             }
