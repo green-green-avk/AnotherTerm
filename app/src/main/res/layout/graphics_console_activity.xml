@@ -64,7 +64,6 @@
             android:adjustViewBounds="true"
             android:background="@drawable/bg_grid_black_btn"
             android:contentDescription="@string/action_switch_screen_keyboard"
-            android:onClick="onSwitchIme"
             android:scaleType="centerInside"
             app:srcCompat="@drawable/ic_keyboard"
             app:tint="@color/console_toolbar_icon"

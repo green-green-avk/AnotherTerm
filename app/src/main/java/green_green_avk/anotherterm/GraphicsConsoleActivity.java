@@ -21,12 +21,14 @@ import org.apache.http.entity.ContentType;
 
 import java.nio.charset.Charset;
 import java.nio.charset.UnsupportedCharsetException;
+import java.util.Arrays;
 import java.util.NoSuchElementException;
 
 import green_green_avk.anotherterm.ui.FontProvider;
 import green_green_avk.anotherterm.ui.GraphicsCompositorView;
 import green_green_avk.anotherterm.ui.GraphicsConsoleKeyboardView;
 import green_green_avk.anotherterm.ui.MouseButtonsWorkAround;
+import green_green_avk.anotherterm.ui.RichMenu;
 import green_green_avk.anotherterm.ui.ScreenMouseView;
 import green_green_avk.anotherterm.ui.UiUtils;
 import green_green_avk.anotherterm.utils.Misc;
@@ -45,6 +47,7 @@ public final class GraphicsConsoleActivity extends ConsoleActivity {
     private ImageView wUp = null;
     private Drawable wUpImDef = null;
     private TextView wTitle = null;
+    private ImageView wKeyboardMode = null;
     private ImageView wImeTextMode = null;
 
     @Keep
@@ -94,6 +97,7 @@ public final class GraphicsConsoleActivity extends ConsoleActivity {
         wUp = findViewById(R.id.action_nav_up);
         wUpImDef = wUp.getDrawable();
         wTitle = findViewById(R.id.title);
+        wKeyboardMode = findViewById(R.id.action_ime);
         wImeTextMode = findViewById(R.id.action_ime_text_mode);
 
         mSmv.setBypassTo(new View[]{mCkv});
@@ -103,6 +107,24 @@ public final class GraphicsConsoleActivity extends ConsoleActivity {
 
         mCkv.setMode(GraphicsConsoleKeyboardView.MODE_HW_ONLY);
         mCkv.setTextMode(false);
+
+        final RichMenu keyboardModeMenu =
+                new RichMenu(R.layout.term_rich_menu_popup,
+                        R.layout.term_rich_menu_entry);
+        keyboardModeMenu.setItems(Arrays.asList(
+                new RichMenu.Item(UiUtils.requireDrawable(this,
+                        R.drawable.ic_keyboard_term),
+                        getText(R.string.desc_builtin_keyboard),
+                        () -> mCkv.setMode(GraphicsConsoleKeyboardView.MODE_VISIBLE)),
+                new RichMenu.Item(UiUtils.requireDrawable(this,
+                        R.drawable.ic_keyboard),
+                        getText(R.string.desc_ime_keyboard),
+                        () -> mCkv.setMode(GraphicsConsoleKeyboardView.MODE_IME)),
+                new RichMenu.Item(UiUtils.requireDrawable(this,
+                        R.drawable.ic_keyboard_hide),
+                        getText(R.string.desc_hide_keyboard),
+                        () -> mCkv.setMode(GraphicsConsoleKeyboardView.MODE_HW_ONLY))));
+        keyboardModeMenu.wrap(wKeyboardMode);
 
         setSessionTitle(mSession.compositor.title);
 
@@ -215,21 +237,6 @@ public final class GraphicsConsoleActivity extends ConsoleActivity {
             iv.setImageState(new int[]{}, true);
             mSmv.setVisibility(View.GONE);
         }
-    }
-
-    public void onSwitchIme(final View view) {
-        final int mode;
-        switch (mCkv.getMode()) {
-            case GraphicsConsoleKeyboardView.MODE_VISIBLE:
-                mode = GraphicsConsoleKeyboardView.MODE_IME;
-                break;
-            case GraphicsConsoleKeyboardView.MODE_IME:
-                mode = GraphicsConsoleKeyboardView.MODE_HW_ONLY;
-                break;
-            default:
-                mode = GraphicsConsoleKeyboardView.MODE_VISIBLE;
-        }
-        mCkv.setMode(mode);
     }
 
     private void updateImeTextModeUi() {
