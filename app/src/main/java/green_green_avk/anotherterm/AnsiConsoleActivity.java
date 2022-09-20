@@ -47,6 +47,7 @@ import java.lang.reflect.Method;
 import java.nio.charset.Charset;
 import java.text.NumberFormat;
 import java.text.ParseException;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
@@ -64,8 +65,10 @@ import green_green_avk.anotherterm.ui.ConsoleKeyboardView;
 import green_green_avk.anotherterm.ui.ConsoleScreenView;
 import green_green_avk.anotherterm.ui.FontProvider;
 import green_green_avk.anotherterm.ui.MouseButtonsWorkAround;
+import green_green_avk.anotherterm.ui.RichMenu;
 import green_green_avk.anotherterm.ui.ScreenMouseView;
 import green_green_avk.anotherterm.ui.ScrollableView;
+import green_green_avk.anotherterm.ui.UiUtils;
 import green_green_avk.anotherterm.ui.VisibilityAnimator;
 import green_green_avk.anotherterm.utils.BooleanCaster;
 import green_green_avk.anotherterm.utils.Misc;
@@ -89,6 +92,7 @@ public final class AnsiConsoleActivity extends ConsoleActivity
     private ImageView wUp = null;
     private Drawable wUpImDef = null;
     private TextView wTitle = null;
+    private ImageView wKeyboardMode = null;
     private ImageView wMouseMode = null;
 
     private View wConnecting = null;
@@ -215,6 +219,7 @@ public final class AnsiConsoleActivity extends ConsoleActivity
         wUp = findViewById(R.id.action_nav_up);
         wUpImDef = wUp.getDrawable();
         wTitle = findViewById(R.id.title);
+        wKeyboardMode = findViewById(R.id.action_ime);
         wMouseMode = findViewById(R.id.action_mouse_mode);
 
         wConnecting = findViewById(R.id.connecting);
@@ -241,6 +246,24 @@ public final class AnsiConsoleActivity extends ConsoleActivity
 
         mCkv.setMode(((App) getApplication()).settings.terminal_key_default_ime ?
                 ConsoleKeyboardView.MODE_IME : ConsoleKeyboardView.MODE_VISIBLE);
+
+        final RichMenu keyboardModeMenu =
+                new RichMenu(R.layout.term_rich_menu_popup,
+                        R.layout.term_rich_menu_entry);
+        keyboardModeMenu.setItems(Arrays.asList(
+                new RichMenu.Item(UiUtils.requireDrawable(this,
+                        R.drawable.ic_keyboard_term),
+                        getText(R.string.desc_builtin_keyboard),
+                        () -> mCkv.setMode(ConsoleKeyboardView.MODE_VISIBLE)),
+                new RichMenu.Item(UiUtils.requireDrawable(this,
+                        R.drawable.ic_keyboard),
+                        getText(R.string.desc_ime_keyboard),
+                        () -> mCkv.setMode(ConsoleKeyboardView.MODE_IME)),
+                new RichMenu.Item(UiUtils.requireDrawable(this,
+                        R.drawable.ic_keyboard_hide),
+                        getText(R.string.desc_hide_keyboard),
+                        () -> mCkv.setMode(ConsoleKeyboardView.MODE_HW_ONLY))));
+        keyboardModeMenu.wrap(wKeyboardMode);
 
         setSessionTitle(mSession.input.currScrBuf.windowTitle);
 
@@ -701,11 +724,6 @@ public final class AnsiConsoleActivity extends ConsoleActivity
             ((ImageView) v).setImageState(new int[]{}, true);
             mSmv.setVisibility(View.GONE);
         }
-    }
-
-    public void onSwitchIme(final View v) {
-        mCkv.setMode(mCkv.getMode() == ConsoleKeyboardView.MODE_VISIBLE ?
-                ConsoleKeyboardView.MODE_IME : ConsoleKeyboardView.MODE_VISIBLE);
     }
 
     public void onSelectMode(final View v) {
