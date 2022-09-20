@@ -5,7 +5,9 @@ buildscript {
         mavenCentral()
     }
     dependencies {
-        classpath 'com.android.tools.build:gradle:7.2.2'
+        classpath('com.android.tools.build:gradle:7.2.2') {
+            because 'API 15 builds look broken with 7.3.0: upgrade postponed'
+        }
         classpath 'com.likethesalad.android:stem-plugin:2.1.1'
 
         // NOTE: Do not place your application dependencies here; they belong
