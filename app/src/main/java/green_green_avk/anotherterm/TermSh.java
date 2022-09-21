@@ -17,6 +17,7 @@ import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Handler;
+import android.os.Looper;
 import android.os.ParcelFileDescriptor;
 import android.os.Process;
 import android.provider.OpenableColumns;
@@ -127,7 +128,7 @@ public final class TermSh {
         @UiThread
         private UiBridge(@NonNull final Context context) {
             ctx = context;
-            handler = new Handler();
+            handler = new Handler(Looper.getMainLooper());
         }
 
         private void runOnUiThread(@NonNull final Runnable runnable) {
