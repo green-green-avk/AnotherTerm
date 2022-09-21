@@ -334,7 +334,7 @@ public class TelnetClient {
                 socket = new Socket(addr, port);
                 inputSocketStream = socket.getInputStream();
                 outputSocketStream = socket.getOutputStream();
-            } catch (final IOException e) {
+            } catch (final IOException | IllegalArgumentException | SecurityException e) {
                 disconnect();
                 throw new TelnetClientException(e);
             }
