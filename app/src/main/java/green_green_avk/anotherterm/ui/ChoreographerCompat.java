@@ -3,6 +3,7 @@ package green_green_avk.anotherterm.ui;
 import android.animation.ValueAnimator;
 import android.os.Build;
 import android.os.Handler;
+import android.os.Looper;
 import android.view.Choreographer;
 
 import androidx.annotation.NonNull;
@@ -18,7 +19,7 @@ public final class ChoreographerCompat {
             mHandler = null;
         } else {
             mChoreographer = null;
-            mHandler = new Handler();
+            mHandler = new Handler(Looper.getMainLooper());
         }
     }
 

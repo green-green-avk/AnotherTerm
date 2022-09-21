@@ -10,6 +10,7 @@ import android.content.Intent;
 import android.os.Build;
 import android.os.Handler;
 import android.os.IBinder;
+import android.os.Looper;
 import android.util.Log;
 
 import androidx.annotation.CheckResult;
@@ -198,7 +199,7 @@ public final class ConsoleService extends Service {
         co.setKeyMap(TermKeyMapManager.get(keyMapStr));
         final int key = obtainKey();
         tbe.setContext(ctx);
-        tbe.setOnWakeLockEvent(() -> execOnSessionChange(key), new Handler());
+        tbe.setOnWakeLockEvent(() -> execOnSessionChange(key), new Handler(Looper.getMainLooper()));
         tbe.setAcquireWakeLockOnConnect(BooleanCaster.CAST(cp.get("wakelock.acquire_on_connect")));
         tbe.setReleaseWakeLockOnDisconnect(BooleanCaster.CAST(cp.get("wakelock.release_on_disconnect")));
         tbe.setUi(new BackendUiSessionDialogs(key));
