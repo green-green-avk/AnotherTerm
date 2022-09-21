@@ -2022,6 +2022,32 @@ public final class TermSh {
                             }
                             break;
                         }
+                        case "show-XWL-session":
+                            shellCmd.requireSessionState();
+                            if (shellCmd.args.length != 2)
+                                throw new ParseException("Wrong number of arguments");
+                            final long wlHelperUuid;
+                            try {
+                                wlHelperUuid = Long.decode(Misc.fromUTF8(shellCmd.args[1]));
+                            } catch (final NumberFormatException e) {
+                                throw new ParseException("Bad UUID: " + e.getMessage());
+                            }
+                            if (shellCmd.getGui().hasUi())
+                                ui.runOnUiThread(() -> {
+                                    try {
+                                        final int sid = ((App) ui.ctx.getApplicationContext())
+                                                .wlTermServer
+                                                .getSessionKeyByHelperUuid(wlHelperUuid);
+                                        final Intent intent = GraphicsConsoleActivity
+                                                .getShowSessionIntent(ui.ctx, sid);
+                                        intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                                        ui.ctx.startActivity(intent);
+                                    } catch (final RuntimeException ignored) {
+                                    }
+                                });
+                            else
+                                exitStatus = 2;
+                            break;
                         default:
                             throw new ParseException("Unknown command");
                     }

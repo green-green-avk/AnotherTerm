@@ -363,6 +363,17 @@ wakelock {is-held|acquire [&lt;timeout&gt;]|release}
 with one millisecond granularity.</p>
 </dd><br/>
 
+<dt><p><code>
+show-XWL-session &lt;UUID&gt;
+</code></p></dt>
+<dd><p>Show a running XWayland session terminal window.</p>
+<p><code>&lt;UUID&gt;</code> is the UUID previously passed as a Wayland helper UUID
+and can be passed as either a decimal
+or <code>0x</code>hexidecimal
+or <code>0</code>octal
+value.</p>
+</dd><br/>
+
 </dl>
 
 <h4>Notes:</h4>

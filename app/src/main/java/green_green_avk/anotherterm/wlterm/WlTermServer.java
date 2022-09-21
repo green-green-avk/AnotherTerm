@@ -33,6 +33,7 @@ import java.io.InterruptedIOException;
 import java.io.OutputStream;
 import java.nio.ByteBuffer;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Queue;
@@ -98,6 +99,23 @@ public final class WlTermServer {
     private final Handler wlHandler;
     private final WlDisplay wlDisplay = new WlDisplay();
 
+    private final Map<Long, Integer> termSessions = new HashMap<>();
+
+    /**
+     * @param uuid a helper UUID
+     * @return an associated session key
+     * @throws IndexOutOfBoundsException if no sessions are associated
+     */
+    @UiThread
+    public int getSessionKeyByHelperUuid(final long uuid) {
+        final Integer sid = termSessions.get(uuid);
+        if (sid != null)
+            return sid;
+        else
+            throw new IndexOutOfBoundsException(
+                    "No session for " + Long.toHexString(uuid) + " exists");
+    }
+
     private static final class ConnectionState {
         private int sessionKey = ConsoleService.INVALID_SESSION;
         private boolean isRunning = false;
@@ -111,12 +129,14 @@ public final class WlTermServer {
         private final ConnectionState state = new ConnectionState();
 
         private void initNewSession(@NonNull final WlClientImpl wlClient) {
+            final long uuid = wlClient.wlOwnHelper.uuid;
             wlClient.removeResource(WlClientImpl.TWEAK_ID); // Be ninja
             final GraphicsCompositor compositor = new GraphicsCompositor();
             compositor.source = new GraphicsCompositor.Source() {
                 @Override
                 @UiThread
                 public void onStop() {
+                    termSessions.remove(uuid);
                     state.isRunning = false;
                     wlHandler.post(() -> {
                         ((WlSocketImpl) wlClient.socket).shutdownAndClose();
@@ -136,7 +156,7 @@ public final class WlTermServer {
             uiHandler.post(() -> {
                 state.sessionKey = ConsoleService.startGraphicsSession(ctx, compositor);
                 state.isRunning = true;
-                // TODO: show UI?
+                termSessions.put(uuid, state.sessionKey);
             });
         }
 
