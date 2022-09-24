@@ -244,8 +244,16 @@ public final class AnsiConsoleActivity extends ConsoleActivity
         mCsv.setFontSize(mSession.uiState.fontSizeDp *
                 getResources().getDisplayMetrics().density, false);
 
-        mCkv.setMode(((App) getApplication()).settings.terminal_key_default_ime ?
-                ConsoleKeyboardView.MODE_IME : ConsoleKeyboardView.MODE_VISIBLE);
+        switch (((App) getApplication()).settings.terminal_screen_keyboard_default_type) {
+            case "ime":
+                mCkv.setMode(ConsoleKeyboardView.MODE_IME);
+                break;
+            case "hidden":
+                mCkv.setMode(ConsoleKeyboardView.MODE_HW_ONLY);
+                break;
+            default:
+                mCkv.setMode(ConsoleKeyboardView.MODE_VISIBLE);
+        }
 
         final RichMenu keyboardModeMenu =
                 new RichMenu(R.layout.term_rich_menu_popup,

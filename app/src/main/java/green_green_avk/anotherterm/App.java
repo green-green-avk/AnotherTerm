@@ -1,6 +1,7 @@
 package green_green_avk.anotherterm;
 
 import android.app.Application;
+import android.content.SharedPreferences;
 import android.preference.PreferenceManager;
 
 import androidx.annotation.Keep;
@@ -49,8 +50,8 @@ public final class App extends Application {
         public int terminal_key_repeat_interval;
 
         @Keep
-        @Param(defRes = R.bool.terminal_key_default_ime)
-        public boolean terminal_key_default_ime;
+        @Param(defRes = R.string.terminal_screen_keyboard_default_type)
+        public String terminal_screen_keyboard_default_type;
 
         @Keep
         @Param(defRes = R.string.terminal_mouse_layout)
@@ -73,6 +74,19 @@ public final class App extends Application {
             if ("terminal_font_default_fromfiles".equals(key)) {
                 FontsManager.setFrom(terminal_font_default_fromfiles);
             }
+        }
+
+        @Override
+        protected void onBeforeInit(@NonNull final SharedPreferences sp) {
+            final SharedPreferences.Editor editor = sp.edit();
+            try {
+                if (!sp.contains("terminal_screen_keyboard_default_type") &&
+                        sp.getBoolean("terminal_key_default_ime", false)) {
+                    editor.putString("terminal_screen_keyboard_default_type", "ime");
+                }
+            } catch (final ClassCastException ignored) {
+            }
+            editor.apply();
         }
     }
 

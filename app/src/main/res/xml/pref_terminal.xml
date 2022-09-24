@@ -97,12 +97,13 @@
             app:msbp_measurementUnit="@string/unit_ms"
             app:msbp_minValue="100" />
 
-        <CheckBoxPreference
-            android:defaultValue="@bool/terminal_key_default_ime"
-            android:key="terminal_key_default_ime"
-            android:summaryOff="@string/state_off"
-            android:summaryOn="@string/state_on"
-            android:title="@string/label_use_system_software_keyboard_by_default" />
+        <ListPreference
+            android:defaultValue="@string/terminal_screen_keyboard_default_type"
+            android:entries="@array/labels_screen_keyboard_default_type"
+            android:entryValues="@array/values_screen_keyboard_default_type"
+            android:key="terminal_screen_keyboard_default_type"
+            android:title="@string/label_default_screen_keyboard"
+            app:useSimpleSummaryProvider="true" />
 
     </PreferenceCategory>
 
