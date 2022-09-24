@@ -32,6 +32,18 @@
         <item>DSR/DTR</item>
     </string-array>
 
+    <string-array name="labels_screen_keyboard_default_type">
+        <item>Built-in</item>
+        <item>IME</item>
+        <item>Hidden</item>
+    </string-array>
+
+    <string-array name="values_screen_keyboard_default_type">
+        <item>builtin</item>
+        <item>ime</item>
+        <item>hidden</item>
+    </string-array>
+
     <string-array name="labels_screen_mouse_layout">
         <item>Default</item>
         <item>Wide (for low resolution multitouch)</item>

@@ -30,6 +30,9 @@ public abstract class Settings {
     protected void onAfterChange(@NonNull final String key, @Nullable final Object value) {
     }
 
+    protected void onBeforeInit(@NonNull final SharedPreferences sp) {
+    }
+
     @Keep
     private final SharedPreferences.OnSharedPreferenceChangeListener onChange =
             (sharedPreferences, key) -> {
@@ -44,6 +47,7 @@ public abstract class Settings {
             };
 
     public final void init(@NonNull final Context ctx, @NonNull final SharedPreferences sp) {
+        onBeforeInit(sp);
         final SharedPreferences.Editor editor = sp.edit(); // for repair
         final Resources rr = ctx.getResources();
         final Field[] ff = getClass().getFields();
