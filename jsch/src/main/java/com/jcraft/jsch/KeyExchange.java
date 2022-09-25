@@ -117,7 +117,7 @@ public abstract class KeyExchange {
         return "ECDSA";
     }
 
-    public String getKeyAlgorithName() {
+    public String getKeyAlgorithmName() {
         return key_alg_name;
     }
 

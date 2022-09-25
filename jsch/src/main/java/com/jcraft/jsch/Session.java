@@ -909,7 +909,7 @@ public final class Session {
 
             synchronized (hkr) {
                 hkr.remove(chost,
-                        kex.getKeyAlgorithName(),
+                        kex.getKeyAlgorithmName(),
                         null);
                 insert = true;
             }
@@ -944,7 +944,7 @@ public final class Session {
 
         if (i == HostKeyRepository.OK) {
             final HostKey[] keys =
-                    hkr.getHostKey(chost, kex.getKeyAlgorithName());
+                    hkr.getHostKey(chost, kex.getKeyAlgorithmName());
             final String _key = Util.byte2str(Util.toBase64(K_S, 0, K_S.length, true));
             for (final HostKey key : keys) {
                 if (key.getKey().equals(_key) &&
