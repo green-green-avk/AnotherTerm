@@ -1,4 +1,4 @@
-* This sub-version **0.2.3.A** additions:
+* This sub-version **0.2.4.A** additions:
     * Added `Channel::setOnDisconnect(Runnable handler)`
       in order to catch the true disconnect event when `Channel::getExitStatus()` result is ready.
     * `Channel::getExitStatus()` now returns distinct exit status for each significant cause.
@@ -7,6 +7,11 @@
     * Android API < 21 compatibility.
     * Numerous small corrections.
 
+* [0.2.4](https://github.com/mwiede/jsch/releases/tag/jsch-0.2.4)
+    * When connections fail due to an algorithm negotiation failure, throw
+      a `JSchAlgoNegoFailException` that extends `JSchException`.
+        * The new `JSchAlgoNegoFailException` details which specific algorithm negotiation failed,
+          along with what both JSch and the server proposed.
 * [0.2.3](https://github.com/mwiede/jsch/releases/tag/jsch-0.2.3)
     * [#188](https://github.com/mwiede/jsch/issues/188) fix private key length checks for
       ssh-ed25519 & ssh-ed448. by @norrisjeremy in [#189](https://github.com/mwiede/jsch/pull/189)

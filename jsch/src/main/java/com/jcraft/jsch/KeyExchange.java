@@ -29,6 +29,8 @@ EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 package com.jcraft.jsch;
 
+import androidx.annotation.NonNull;
+
 public abstract class KeyExchange {
 
     static final int PROPOSAL_KEX_ALGS = 0;
@@ -41,7 +43,27 @@ public abstract class KeyExchange {
     static final int PROPOSAL_COMP_ALGS_STOC = 7;
     static final int PROPOSAL_LANG_CTOS = 8;
     static final int PROPOSAL_LANG_STOC = 9;
-    static final int PROPOSAL_MAX = 10;
+    static final int PROPOSAL_NUM = 10;
+
+    private static final String[] PROPOSAL_NAMES = new String[]{
+            "kex",
+            "server_host_key",
+            "cipher.c2s",
+            "cipher.s2c",
+            "mac.c2s",
+            "mac.s2c",
+            "compression.c2s",
+            "compression.s2c",
+            "lang.c2s",
+            "lang.s2c"
+    };
+
+    @NonNull
+    static String getAlgorithmNameByProposalIndex(final int index) {
+        if (index < 0 || index >= PROPOSAL_NAMES.length)
+            return "";
+        return PROPOSAL_NAMES[index];
+    }
 
     //static String kex_algs="diffie-hellman-group-exchange-sha1"+
     //                       ",diffie-hellman-group1-sha1";
@@ -99,20 +121,22 @@ public abstract class KeyExchange {
         return key_alg_name;
     }
 
-    protected static String[] guess(final Session session, final byte[] I_S, final byte[] I_C)
+    @NonNull
+    protected static String[] guess(@NonNull final Session session,
+                                    @NonNull final byte[] I_S, @NonNull final byte[] I_C)
             throws Exception {
-        final String[] guess = new String[PROPOSAL_MAX];
+        final String[] guess = new String[PROPOSAL_NUM];
         final Buffer sb = new Buffer(I_S);
         sb.setOffSet(17);
         final Buffer cb = new Buffer(I_C);
         cb.setOffSet(17);
 
         if (session.getLogger().isEnabled(Logger.INFO)) {
-            for (int i = 0; i < PROPOSAL_MAX; i++) {
+            for (int i = 0; i < PROPOSAL_NUM; i++) {
                 session.getLogger().log(Logger.INFO,
                         "kex: server: " + Util.byte2str(sb.getString()));
             }
-            for (int i = 0; i < PROPOSAL_MAX; i++) {
+            for (int i = 0; i < PROPOSAL_NUM; i++) {
                 session.getLogger().log(Logger.INFO,
                         "kex: client: " + Util.byte2str(cb.getString()));
             }
@@ -120,7 +144,7 @@ public abstract class KeyExchange {
             cb.setOffSet(17);
         }
 
-        for (int i = 0; i < PROPOSAL_MAX; i++) {
+        for (int i = 0; i < PROPOSAL_NUM; i++) {
             final byte[] sp = sb.getString();  // server proposal
             final byte[] cp = cb.getString();  // client proposal
             int j = 0;
@@ -129,13 +153,15 @@ public abstract class KeyExchange {
             loop:
             while (j < cp.length) {
                 while (j < cp.length && cp[j] != ',') j++;
-                if (k == j) return null;
+                if (k == j)
+                    throw new JSchAlgoNegoFailException(i, Util.byte2str(cp), Util.byte2str(sp));
                 final String algorithm = Util.byte2str(cp, k, j - k);
                 int l = 0;
                 int m = 0;
                 while (l < sp.length) {
                     while (l < sp.length && sp[l] != ',') l++;
-                    if (m == l) return null;
+                    if (m == l)
+                        throw new JSchAlgoNegoFailException(i, Util.byte2str(cp), Util.byte2str(sp));
                     if (algorithm.equals(Util.byte2str(sp, m, l - m))) {
                         guess[i] = algorithm;
                         break loop;
@@ -146,11 +172,10 @@ public abstract class KeyExchange {
                 j++;
                 k = j;
             }
-            if (j == 0) {
+            if (j == 0)
                 guess[i] = "";
-            } else if (guess[i] == null) {
-                return null;
-            }
+            else if (guess[i] == null)
+                throw new JSchAlgoNegoFailException(i, Util.byte2str(cp), Util.byte2str(sp));
         }
 
         final boolean _s2cAEAD;
