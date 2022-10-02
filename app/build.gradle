@@ -21,7 +21,7 @@ android {
     defaultConfig {
         applicationId namespace
         minSdk 14
-        targetSdk 30
+        targetSdk 31
         versionCode versionCodeMain
         versionName 'MkIV-dev26-dev'
         vectorDrawables.useSupportLibrary = true
