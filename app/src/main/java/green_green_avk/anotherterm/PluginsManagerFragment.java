@@ -107,13 +107,15 @@ public final class PluginsManagerFragment extends Fragment {
                         isChecked ? null : "revoke"
                 ));
                 try {
-                    v.getContext().startActivity(i.setClassName(pkg.packageName,
+                    v.getContext().startActivity(i.setClassName(
+                            pkg.packageName,
                             "green_green_avk.anothertermshellpluginutils_perms.PermissionRequestActivity"
                     ));
                 } catch (final SecurityException | ActivityNotFoundException e) {
                     // Old plugin
                     try {
-                        v.getContext().sendBroadcast(i.setClassName(pkg.packageName,
+                        v.getContext().sendBroadcast(i.setClassName(
+                                pkg.packageName,
                                 "green_green_avk.anothertermshellpluginutils_perms.PermissionRequestReceiver"
                         ));
                     } catch (final SecurityException ignored) {

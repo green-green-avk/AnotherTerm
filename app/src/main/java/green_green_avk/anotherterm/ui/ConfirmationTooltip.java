@@ -38,8 +38,7 @@ public final class ConfirmationTooltip {
                 ViewGroup.LayoutParams.WRAP_CONTENT));
         window = new ExtPopupWindow(tooltipView,
                 ViewGroup.LayoutParams.WRAP_CONTENT,
-                ViewGroup.LayoutParams.WRAP_CONTENT,
-                false);
+                ViewGroup.LayoutParams.WRAP_CONTENT);
         window.setClippingEnabled(true);
         window.setSplitTouchEnabled(false);
         window.setAnimationStyle(android.R.style.Animation_Dialog);
