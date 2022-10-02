@@ -10,7 +10,7 @@ android {
 
     defaultConfig {
         minSdk 14
-        targetSdk 30
+        targetSdk 31
     }
 
     externalNativeBuild {
