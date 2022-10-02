@@ -48,7 +48,7 @@ public final class PluginsManager {
     private static final BroadcastReceiver packagesChangeReceiver = new BroadcastReceiver() {
         @Override
         public void onReceive(final Context context, final Intent intent) {
-            if (onChanged.size() == 0) return;
+            if (onChanged.isEmpty()) return;
             final List<PackageInfo> plugins = getPlugins();
             for (final OnChanged l : onChanged) {
                 l.onPackagesChanged(plugins);
@@ -72,7 +72,7 @@ public final class PluginsManager {
     private static final Runnable rTryUnregister = new Runnable() {
         @Override
         public void run() {
-            if (onChanged.size() == 0) {
+            if (onChanged.isEmpty()) {
                 try {
                     ctx.unregisterReceiver(packagesChangeReceiver);
                 } catch (final IllegalArgumentException ignored) {
