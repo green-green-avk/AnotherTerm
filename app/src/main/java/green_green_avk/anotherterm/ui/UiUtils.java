@@ -390,7 +390,8 @@ public final class UiUtils {
                                                          final int x, final int y) {
         final int[] pwc = new int[2];
         refView.getRootView().getLocationOnScreen(pwc);
-        final View rv = UiUtils.getActivity(refView).getWindow().getDecorView().getRootView();
+        final View rv = UiUtils.requireActivity(refView)
+                .getWindow().getDecorView().getRootView();
         final int[] rwc = new int[2];
         rv.getLocationOnScreen(rwc);
         out[0] = x + pwc[0] - rwc[0];
@@ -411,9 +412,7 @@ public final class UiUtils {
     }
 
     @Nullable
-    public static Activity getActivity(@Nullable final View view) {
-        if (view == null)
-            return null;
+    public static Activity getActivity(@NonNull final View view) {
         Context a = view.getContext();
         while (a != null && !(a instanceof Activity)) {
             if (!(a instanceof ContextWrapper))
@@ -421,6 +420,14 @@ public final class UiUtils {
             a = ((ContextWrapper) a).getBaseContext();
         }
         return (Activity) a;
+    }
+
+    @NonNull
+    public static Activity requireActivity(@NonNull final View view) {
+        final Activity r = getActivity(view);
+        if (r == null)
+            throw new IllegalStateException("No underlying activity found");
+        return r;
     }
 
     public static float getDimensionOrFraction(@NonNull final TypedValue v,

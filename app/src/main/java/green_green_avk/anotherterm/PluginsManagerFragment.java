@@ -31,6 +31,7 @@ import androidx.recyclerview.widget.RecyclerView;
 import java.lang.ref.WeakReference;
 import java.util.List;
 
+import green_green_avk.anotherterm.ui.UiUtils;
 import green_green_avk.anothertermshellpluginutils.Plugin;
 import green_green_avk.anothertermshellpluginutils.Protocol;
 
@@ -107,7 +108,7 @@ public final class PluginsManagerFragment extends Fragment {
                         isChecked ? null : "revoke"
                 ));
                 try {
-                    v.getContext().startActivity(i.setClassName(
+                    UiUtils.requireActivity(v).startActivity(i.setClassName(
                             pkg.packageName,
                             "green_green_avk.anothertermshellpluginutils_perms.PermissionRequestActivity"
                     ));
