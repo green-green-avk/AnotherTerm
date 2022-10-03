@@ -91,7 +91,17 @@ public class ExtPopupWindow extends PopupWindow {
             final int[] loc = new int[2];
             final View actView =
                     UiUtils.getWindowLocationInActivityWindow(loc, parent, x, y);
-            super.showAtLocation(actView, gravity, loc[0], loc[1]);
+            try {
+                super.showAtLocation(actView, gravity, loc[0], loc[1]);
+            } catch (final WindowManager.BadTokenException e2) {
+                try {
+                    dismiss(); // Restoring the window state
+                } catch (final RuntimeException ignored) {
+                    // Very old Androids
+                }
+                parentRootView = null;
+                throw e2;
+            }
         }
         super.setOnDismissListener(onDismissListener);
     }

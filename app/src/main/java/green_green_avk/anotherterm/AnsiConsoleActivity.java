@@ -6,6 +6,7 @@ import android.content.ClipboardManager;
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.ActivityInfo;
+import android.graphics.Color;
 import android.graphics.Point;
 import android.graphics.Rect;
 import android.graphics.drawable.Drawable;
@@ -15,7 +16,6 @@ import android.os.Bundle;
 import android.util.DisplayMetrics;
 import android.util.Log;
 import android.util.TypedValue;
-import android.view.Gravity;
 import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.MotionEvent;
@@ -63,6 +63,7 @@ import green_green_avk.anotherterm.ui.BackendUiDialogs;
 import green_green_avk.anotherterm.ui.ChoreographerCompat;
 import green_green_avk.anotherterm.ui.ConsoleKeyboardView;
 import green_green_avk.anotherterm.ui.ConsoleScreenView;
+import green_green_avk.anotherterm.ui.ExtToast;
 import green_green_avk.anotherterm.ui.FontProvider;
 import green_green_avk.anotherterm.ui.MouseButtonsWorkAround;
 import green_green_avk.anotherterm.ui.RichMenu;
@@ -86,6 +87,7 @@ public final class AnsiConsoleActivity extends ConsoleActivity
     private View mBell = null;
     private Animation mBellAnim = null;
     private VisibilityAnimator mScrollHomeVA = null;
+    private ExtToast mScreenNote = null;
 
     private ViewGroup wNavBar = null;
 
@@ -213,6 +215,7 @@ public final class AnsiConsoleActivity extends ConsoleActivity
         mBell = findViewById(R.id.bell);
         mBellAnim = AnimationUtils.loadAnimation(this, R.anim.blink_ring);
         mScrollHomeVA = new VisibilityAnimator(findViewById(R.id.scrollHome));
+        mScreenNote = new ExtToast(this, R.layout.ansi_console_toast);
 
         wNavBar = findViewById(R.id.nav_bar);
 
@@ -331,6 +334,8 @@ public final class AnsiConsoleActivity extends ConsoleActivity
         mCkv.setHwKeyMap(HwKeyMapManager.get());
         mSmv.setButtons("wide".equals(((App) getApplication()).settings.terminal_mouse_layout) ?
                 R.layout.screen_mouse_buttons_wide : R.layout.screen_mouse_buttons);
+        UiUtils.setBackgroundAlpha(mScreenNote.getContentView().getBackground(),
+                mCsv.getPopupOpacity(), Color.BLACK);
         ((BackendUiInteractionActivityCtx) mSession.backend.wrapped.getUi()).setActivity(this);
         if (getUseRecents())
             wUp.setImageResource(R.drawable.ic_recents);
@@ -642,11 +647,8 @@ public final class AnsiConsoleActivity extends ConsoleActivity
         invalidatingSize.set(0, 0);
         if (autoFitTerminal)
             fitFontSize();
-        final Toast t = Toast.makeText(this,
-                getString(R.string.label_dims_i2, cols, rows),
-                Toast.LENGTH_SHORT);
-        t.setGravity(Gravity.CENTER, 0, 0);
-        t.show();
+        mScreenNote.setText(getString(R.string.label_dims_i2, cols, rows));
+        mScreenNote.show(mCsv, 1000);
     }
 
     @Override

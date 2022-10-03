@@ -3,7 +3,6 @@ package green_green_avk.anotherterm.ui;
 import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.content.Context;
-import android.content.res.ColorStateList;
 import android.content.res.TypedArray;
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
@@ -19,8 +18,6 @@ import android.graphics.Shader;
 import android.graphics.Typeface;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
-import android.graphics.drawable.GradientDrawable;
-import android.graphics.drawable.ShapeDrawable;
 import android.os.Build;
 import android.os.Message;
 import android.text.InputType;
@@ -53,7 +50,6 @@ import androidx.annotation.RequiresApi;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.content.res.AppCompatResources;
 import androidx.appcompat.widget.AppCompatEditText;
-import androidx.core.graphics.ColorUtils;
 import androidx.core.math.MathUtils;
 import androidx.core.view.ViewCompat;
 
@@ -211,29 +207,8 @@ public class ConsoleScreenView extends ScrollableView
         }
 
         protected void setPopupBackgroundAlpha(@IntRange(from = 0, to = 255) final int v) {
-            for (final Drawable bg : backgrounds) {
-                if (bg instanceof GradientDrawable) {
-                    bg.mutate();
-                    final GradientDrawable gd = (GradientDrawable) bg;
-                    final int c;
-                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
-                        final ColorStateList cc = gd.getColor();
-                        if (cc != null)
-                            c = cc.getColorForState(gd.getState(), Color.BLACK);
-                        else
-                            c = Color.BLACK;
-                    } else {
-                        c = Color.BLACK; // TODO: better tweak for old APIs
-                    }
-                    gd.setColor(ColorUtils.setAlphaComponent(c, v));
-                } else if (bg instanceof ShapeDrawable) {
-                    bg.mutate();
-                    ((ShapeDrawable) bg).getPaint().setAlpha(v);
-                } else {
-                    bg.mutate();
-                    bg.setAlpha(v); // Giving up
-                }
-            }
+            for (final Drawable bg : backgrounds)
+                UiUtils.setBackgroundAlpha(bg, v, Color.BLACK);
         }
 
         @NonNull
