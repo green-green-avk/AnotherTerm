@@ -10,8 +10,11 @@ import android.content.ClipboardManager;
 import android.content.Context;
 import android.content.ContextWrapper;
 import android.content.Intent;
+import android.content.res.ColorStateList;
 import android.content.res.Resources;
 import android.graphics.drawable.Drawable;
+import android.graphics.drawable.GradientDrawable;
+import android.graphics.drawable.ShapeDrawable;
 import android.net.Uri;
 import android.os.Build;
 import android.text.Layout;
@@ -25,7 +28,9 @@ import android.view.ViewGroup;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import androidx.annotation.ColorInt;
 import androidx.annotation.DrawableRes;
+import androidx.annotation.IntRange;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.Size;
@@ -33,6 +38,7 @@ import androidx.annotation.UiThread;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.content.res.AppCompatResources;
 import androidx.core.app.ShareCompat;
+import androidx.core.graphics.ColorUtils;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -474,5 +480,30 @@ public final class UiUtils {
             return BetterLinkMovementMethod.getInstance();
         else
             return LinkMovementMethod.getInstance();
+    }
+
+    public static void setBackgroundAlpha(@Nullable final Drawable drawable,
+                                          @IntRange(from = 0, to = 255) final int alpha,
+                                          @ColorInt final int defaultColor) {
+        if (drawable instanceof GradientDrawable) {
+            drawable.mutate();
+            final GradientDrawable gd = (GradientDrawable) drawable;
+            final int c;
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+                final ColorStateList cc = gd.getColor();
+                c = cc != null ?
+                        cc.getColorForState(gd.getState(), defaultColor)
+                        : defaultColor;
+            } else {
+                c = defaultColor; // TODO: better tweak for old APIs
+            }
+            gd.setColor(ColorUtils.setAlphaComponent(c, alpha));
+        } else if (drawable instanceof ShapeDrawable) {
+            drawable.mutate();
+            ((ShapeDrawable) drawable).getPaint().setAlpha(alpha);
+        } else if (drawable != null) {
+            drawable.mutate();
+            drawable.setAlpha(alpha); // Giving up
+        }
     }
 }
