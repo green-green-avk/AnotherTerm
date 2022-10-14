@@ -9,11 +9,11 @@ ext {
 android {
     namespace 'com.jcraft.jsch'
 
-    compileSdkVersion 30
+    compileSdk 31
 
     defaultConfig {
-        minSdkVersion 14
-        targetSdkVersion 30
+        minSdk 14
+        targetSdk 30
 
         buildConfigField 'String', 'VERSION_NAME', "\"$libVersionName\""
 
@@ -22,6 +22,6 @@ android {
 }
 
 dependencies {
-    implementation 'androidx.annotation:annotation:1.4.0'
+    implementation 'androidx.annotation:annotation:1.5.0'
     implementation 'com.jcraft:jzlib:1.1.3'
 }

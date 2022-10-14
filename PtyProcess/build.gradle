@@ -3,12 +3,14 @@ plugins {
 }
 
 android {
-    compileSdkVersion 30
+    namespace 'green_green_avk.ptyprocess'
+
+    compileSdk 31
     ndkVersion '21.4.7075529'
 
     defaultConfig {
-        minSdkVersion 14
-        targetSdkVersion 30
+        minSdk 14
+        targetSdk 30
     }
 
     externalNativeBuild {
@@ -16,10 +18,8 @@ android {
             path file('src/main/jni/CMakeLists.txt')
         }
     }
-    namespace 'green_green_avk.ptyprocess'
 }
 
 dependencies {
-    implementation fileTree(include: ['*.jar'], dir: 'libs')
-    implementation 'androidx.annotation:annotation:1.4.0'
+    implementation 'androidx.annotation:annotation:1.5.0'
 }

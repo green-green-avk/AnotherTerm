@@ -71,6 +71,7 @@
 
         <activity
             android:name=".SshKeysSettingsActivity"
+            android:exported="false"
             android:label="@string/action_ssh_keys_settings"
             android:parentActivityName=".SessionsActivity">
             <meta-data
@@ -80,10 +81,12 @@
 
         <activity
             android:name=".backends.ssh.SshModulePortFwActivity"
+            android:exported="false"
             android:label="@string/title_sshPortFw" />
 
         <activity
             android:name=".TermKeyMapManagerActivity"
+            android:exported="false"
             android:label="@string/title_activity_key_mappings"
             android:parentActivityName=".SessionsActivity">
             <meta-data
@@ -114,6 +117,7 @@
 
         <activity
             android:name=".ScratchpadActivity"
+            android:exported="false"
             android:label="@string/title_scratchpad" />
 
         <activity
@@ -146,6 +150,7 @@
         <activity
             android:name=".AnsiConsoleActivity"
             android:configChanges="keyboardHidden|keyboard"
+            android:exported="false"
             android:label="Console"
             android:launchMode="singleTop"
             android:parentActivityName=".SessionsActivity"
@@ -159,6 +164,7 @@
         <activity
             android:name=".GraphicsConsoleActivity"
             android:configChanges="keyboardHidden|keyboard"
+            android:exported="false"
             android:label="Console"
             android:launchMode="singleTop"
             android:parentActivityName=".SessionsActivity"
@@ -210,10 +216,12 @@
 
         <activity
             android:name=".RequesterActivity"
+            android:exported="false"
             android:label="Select" />
 
         <activity
             android:name=".AboutActivity"
+            android:exported="false"
             android:label="@string/title_about"
             android:parentActivityName=".SessionsActivity">
             <meta-data

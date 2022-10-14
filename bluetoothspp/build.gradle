@@ -3,17 +3,18 @@ plugins {
 }
 
 android {
-    compileSdkVersion 30
+    namespace 'green_green_avk.bluetoothspp'
+
+    compileSdk 31
 
     defaultConfig {
-        minSdkVersion 14
-        targetSdkVersion 30
+        minSdk 14
+        targetSdk 30
 
         consumerProguardFiles 'consumer-rules.pro'
     }
-    namespace 'green_green_avk.bluetoothspp'
 }
 
 dependencies {
-    implementation 'androidx.annotation:annotation:1.4.0'
+    implementation 'androidx.annotation:annotation:1.5.0'
 }
