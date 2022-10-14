@@ -3,18 +3,19 @@ plugins {
 }
 
 android {
-    compileSdkVersion 31
+    namespace 'com.pavelsikun.seekbarpreference'
+
+    compileSdk 31
 
     defaultConfig {
-        minSdkVersion 14
-        targetSdkVersion 30
+        minSdk 14
+        targetSdk 30
         vectorDrawables.useSupportLibrary = true
     }
 
     lint {
         abortOnError false
     }
-    namespace 'com.pavelsikun.seekbarpreference'
 }
 
 dependencies {
