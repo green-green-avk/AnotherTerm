@@ -1,11 +1,16 @@
 package green_green_avk.anotherterm.ui;
 
+import android.app.Activity;
 import android.view.View;
 import android.view.WindowManager;
 import android.widget.PopupWindow;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.lifecycle.DefaultLifecycleObserver;
+import androidx.lifecycle.LifecycleObserver;
+import androidx.lifecycle.LifecycleOwner;
 
 import java.lang.ref.WeakReference;
 
@@ -26,6 +31,19 @@ public class ExtPopupWindow extends PopupWindow {
     protected WeakReference<View> parentRootView = null;
     @Nullable
     protected PopupWindow.OnDismissListener onDismissListener = null;
+    private final LifecycleObserver lifecycleObserver = new DefaultLifecycleObserver() {
+        @Override
+        public void onDestroy(@NonNull final LifecycleOwner owner) {
+            dismiss();
+        }
+    };
+
+    protected final void setOnActivityDestroy(@NonNull final View ref) {
+        final Activity activity = UiUtils.getActivity(ref);
+        if (!(activity instanceof AppCompatActivity))
+            throw new IllegalStateException("Underlying activity is not an AppCompatActivity");
+        ((AppCompatActivity) activity).getLifecycle().addObserver(lifecycleObserver);
+    }
 
     public ExtPopupWindow(@Nullable final View contentView,
                           final int width, final int height) {
@@ -44,10 +62,21 @@ public class ExtPopupWindow extends PopupWindow {
     }
 
     @Override
+    public void dismiss() {
+        try {
+            super.dismiss();
+        } catch (final IllegalArgumentException ignored) {
+            // "not attached to window manager" exception in API 22 at least.
+            // It is silenced in new Androids.
+        }
+    }
+
+    @Override
     public void showAtLocation(@NonNull final View parent,
                                final int gravity, final int x, final int y) {
         if (isShowing())
             return;
+        setOnActivityDestroy(parent);
         super.setOnDismissListener(null);
         try {
             super.showAtLocation(parent, gravity, x, y);
