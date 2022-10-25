@@ -19,4 +19,9 @@ connect to any <code>USB_CLASS_VIDEO</code> device since Android&#xA0;9:
 <p>See
 <a href=\"https://github.com/green-green-avk/AnotherTerm/issues/29\">issue&#xA0;#29</a></p>
 ]]></string>
+    <string name="news_IV_dev26"><![CDATA[
+<h5>Changes in <kbd>MkIV-dev26</kbd></h5>
+<p>This (<kbd>redist</kbd>) flavor targets <b>Android&#xA0;12</b> from now on.</p>
+<p>Feel free to <a href=\"https://github.com/green-green-avk/AnotherTerm/issues\">post bugs</a>.</p>
+]]></string>
 </resources>

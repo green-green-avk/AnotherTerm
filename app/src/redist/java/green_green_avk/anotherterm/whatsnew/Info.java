@@ -17,7 +17,9 @@ final class Info {
                 new WhatsNewDialog.Entry(R.string.news_IV_dev20,
                         Date.UTC(122, 4, 24, 0, 0, 0)),
                 new WhatsNewDialog.Entry(R.string.news_IV_dev24,
-                        Date.UTC(122, 8, 21, 0, 0, 0))
+                        Date.UTC(122, 8, 21, 0, 0, 0)),
+                new WhatsNewDialog.Entry(R.string.news_IV_dev26,
+                        Date.UTC(122, 9, 25, 0, 0, 0))
         };
     }
 }
