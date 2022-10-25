@@ -1,5 +1,3 @@
-#pragma clang diagnostic push
-#pragma ide diagnostic ignored "misc-misplaced-const"
 //
 // Created by alex on 12/23/18.
 //
@@ -22,6 +20,9 @@
 
 #include "common.h"
 
+#pragma clang diagnostic push
+#pragma ide diagnostic ignored "misc-misplaced-const"
+
 #define REQ_JNI_VERSION JNI_VERSION_1_6
 
 #define CLASS_NAME PKG_NAME "/PtyProcess"
@@ -36,6 +37,9 @@ static jclass g_IOEC;
 static jclass g_IntIOEC;
 static jclass g_illegalArgumentEC;
 
+#pragma clang diagnostic push
+#pragma ide diagnostic ignored "google-explicit-constructor"
+
 class cStrError {
 private:
     HIDDEN char buf[1024] = "Error while obtaining error ;)";
@@ -49,6 +53,8 @@ public:
 
     HIDDEN inline operator const char *() const { return buf; }
 };
+
+#pragma clang diagnostic pop
 
 #define strError(M) cStrError(M ": ")
 
@@ -233,8 +239,8 @@ static void JNICALL m_resize(JNIEnv *const env, const jobject jthis,
         return;
     }
     const struct winsize winp = {
-            .ws_col = (unsigned short) w,
             .ws_row = (unsigned short) h,
+            .ws_col = (unsigned short) w,
             .ws_xpixel = (unsigned short) wp,
             .ws_ypixel = (unsigned short) hp
     };
@@ -397,14 +403,14 @@ static jboolean JNICALL m_isSymlink(JNIEnv *const env, const jobject jthis, cons
     const char *const _path = env->GetStringUTFChars(path, nullptr);
     if (env->ExceptionCheck() == JNI_TRUE) return JNI_FALSE;
     struct stat st;
-    const jboolean r = (jboolean) ((lstat(_path, &st) == 0 &&
-            (st.st_mode & S_IFMT) == S_IFLNK) ? JNI_TRUE
-                                              : JNI_FALSE);
+    const auto r = (jboolean) ((lstat(_path, &st) == 0 &&
+                                (st.st_mode & S_IFMT) == S_IFLNK) ? JNI_TRUE
+                                                                  : JNI_FALSE);
     env->ReleaseStringUTFChars(path, _path);
     return r;
 }
 
-static int _pathByFd(char *const realPath, const size_t realPathSize, const char *const procPath) {
+static int i_pathByFd(char *const realPath, const size_t realPathSize, const char *const procPath) {
     struct stat st1;
     if (stat(procPath, &st1) != 0) return -1;
     const ssize_t r = readlink(procPath, realPath, realPathSize - 1);
@@ -424,7 +430,7 @@ static jstring JNICALL m_pathByFd(JNIEnv *const env, const jobject jthis, const 
     sprintf(procPath, "/proc/self/fd/%u", fd);
     {
         char realPath[REALPATH_SIZE];
-        if (_pathByFd(realPath, REALPATH_SIZE, procPath) == 0)
+        if (i_pathByFd(realPath, REALPATH_SIZE, procPath) == 0)
             return env->NewStringUTF(realPath);
     }
     {
@@ -475,7 +481,7 @@ static jstring JNICALL m_pathByFd(JNIEnv *const env, const jobject jthis, const 
             munmap(realPath, REALPATH_SIZE);
             return ret;
         } else {
-            if (_pathByFd(realPath, REALPATH_SIZE, procPath) == 0) _exit(0);
+            if (i_pathByFd(realPath, REALPATH_SIZE, procPath) == 0) _exit(0);
             __android_log_print(ANDROID_LOG_ERROR, CLASS_NAME,
                                 "forked pathByFd failed [%s]", procPath);
             _exit(127);
