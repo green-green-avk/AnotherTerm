@@ -1103,6 +1103,7 @@ public final class AnsiConsoleInput implements BytesSink {
                         consoleOutput.appCursorKeys = value;
                     return;
                 case 3: // DECCOLM
+                    currScrBuf.setCurrentAttrs(mCurrAttrs);
                     resize(value ? 132 : 80, currScrBuf.getHeight());
                     currScrBuf.eraseAll();
                     currScrBuf.setAbsPos(0, 0);
@@ -1187,6 +1188,7 @@ public final class AnsiConsoleInput implements BytesSink {
                     return;
                 case 47:
                 case 1047:
+                    currScrBuf.setCurrentAttrs(mCurrAttrs);
                     if (value) {
                         altScrBuf.setPos(currScrBuf);
                         currScrBuf = altScrBuf;
@@ -1198,6 +1200,7 @@ public final class AnsiConsoleInput implements BytesSink {
                     currScrBuf.getCurrentAttrs(mCurrAttrs);
                     return;
                 case 1048:
+                    currScrBuf.setCurrentAttrs(mCurrAttrs);
                     if (value) {
                         saveCursor();
                     } else {
@@ -1206,6 +1209,7 @@ public final class AnsiConsoleInput implements BytesSink {
                     currScrBuf.getCurrentAttrs(mCurrAttrs);
                     return;
                 case 1049:
+                    currScrBuf.setCurrentAttrs(mCurrAttrs);
                     if (value) {
                         saveCursor();
                         altScrBuf.setPos(currScrBuf);
