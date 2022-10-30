@@ -100,7 +100,7 @@ public abstract class BackendModule {
         public static final int ADAPTER_BUSY = 2; // by someone else
 
         /**
-         * @return <code>null</code> if not applicable for the module or
+         * @return {@code null} if not applicable for the module or
          * &lt;unique_name&gt; &lt;description&gt; as the key and one of
          * {@link #ADAPTER_READY}/{@link #ADAPTER_ALREADY_IN_USE}/{@link #ADAPTER_BUSY}
          * as the value.
@@ -121,7 +121,7 @@ public abstract class BackendModule {
                     .scheme(getUriSchemes().iterator().next())
                     .path("opts");
             for (final String k : params.keySet()) {
-                if (k.length() > 0 && k.charAt(0) != '!') // Private parameters
+                if (!k.isEmpty() && k.charAt(0) != '!') // Private parameters
                     b.appendQueryParameter(k, params.get(k).toString());
             }
             return b.build();
@@ -133,7 +133,7 @@ public abstract class BackendModule {
             final Map<String, String> params = new HashMap<>();
             for (final String k : uri.getQueryParameterNames()) {
                 // TODO: '+' decoding issue before Jelly Bean
-                if (k.length() > 0 && k.charAt(0) != '!') // Private parameters: no spoofing
+                if (!k.isEmpty() && k.charAt(0) != '!') // Private parameters: no spoofing
                     params.put(k, uri.getQueryParameter(k));
             }
             return params;
@@ -222,8 +222,15 @@ public abstract class BackendModule {
             map = params;
         }
 
+        @NonNull
+        private static String dumpType(@Nullable final Object v) {
+            return v != null ? v.getClass().getSimpleName() : "<null>";
+        }
+
+        @NonNull
         public String getString(final String key, final String def) {
-            if (!map.containsKey(key)) return def;
+            if (!map.containsKey(key))
+                return def;
             try {
                 return map.get(key).toString();
             } catch (final RuntimeException e) {
@@ -232,27 +239,36 @@ public abstract class BackendModule {
         }
 
         public int getInt(final String key, final int def) {
-            if (!map.containsKey(key)) return def;
+            if (!map.containsKey(key))
+                return def;
             final Object v = map.get(key);
-            if (v instanceof Integer) return (int) v;
-            if (v instanceof Long) return (int) (long) v;
+            if (v instanceof Integer)
+                return (int) v;
+            if (v instanceof Long)
+                return (int) (long) v;
             throw new BackendException("Incompatible type of the key `" + key + "': " +
-                    v.getClass().getSimpleName());
+                    dumpType(v));
         }
 
         public boolean getBoolean(final String key, final boolean def) {
-            if (!map.containsKey(key)) return def;
+            if (!map.containsKey(key))
+                return def;
             final Object v = map.get(key);
-            if (v instanceof Boolean) return (boolean) v;
+            if (v instanceof Boolean)
+                return (boolean) v;
             throw new BackendException("Incompatible type of the key `" + key + "': " +
-                    v.getClass().getSimpleName());
+                    dumpType(v));
         }
 
-        public <T> T getFromMap(final String key, final Map<String, T> optsMap, final T def) {
-            if (!map.containsKey(key)) return def;
+        public <T> T getFromMap(final String key, final Map<String, ? extends T> optsMap,
+                                final T def) {
+            if (!map.containsKey(key))
+                return def;
             final Object v = map.get(key);
-            if (!(v instanceof String)) throw new BackendException("Bad option type: " + key);
-            if (!optsMap.containsKey(v)) throw new BackendException("Bad option value: " + key);
+            if (!(v instanceof String))
+                throw new BackendException("Bad option type: " + key);
+            if (!optsMap.containsKey(v))
+                throw new BackendException("Bad option value: " + key);
             return optsMap.get(v);
         }
     }
@@ -348,7 +364,7 @@ public abstract class BackendModule {
     public abstract String getConnDesc();
 
     /**
-     * @return disconnection reason (process exit status for PTY etc) (<code>null</code> if unknown)
+     * @return disconnection reason (process exit status for PTY etc) ({@code null} if unknown)
      */
     @Nullable
     public DisconnectionReason getDisconnectionReason() {
@@ -364,14 +380,16 @@ public abstract class BackendModule {
         }
 
         public boolean isHeld() {
-            BackendModule self = ref.get();
-            if (self == null) return false;
+            final BackendModule self = ref.get();
+            if (self == null)
+                return false;
             return self.isWakeLockHeld();
         }
 
         public void acquire() {
-            BackendModule self = ref.get();
-            if (self == null) return;
+            final BackendModule self = ref.get();
+            if (self == null)
+                return;
             self.acquireWakeLock();
         }
 
@@ -379,14 +397,16 @@ public abstract class BackendModule {
          * @param timeout [ms]
          */
         public void acquire(final long timeout) {
-            BackendModule self = ref.get();
-            if (self == null) return;
+            final BackendModule self = ref.get();
+            if (self == null)
+                return;
             self.acquireWakeLock(timeout);
         }
 
         public void release() {
-            BackendModule self = ref.get();
-            if (self == null) return;
+            final BackendModule self = ref.get();
+            if (self == null)
+                return;
             self.releaseWakeLock();
         }
     }

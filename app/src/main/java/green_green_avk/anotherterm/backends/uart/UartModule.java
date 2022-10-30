@@ -164,7 +164,7 @@ public final class UartModule extends BackendModule {
         flowControl = pp.getFromMap("flowcontrol", flowControlOpts, flowControl);
         insecure = pp.getBoolean("insecure", insecure);
         adapter = pp.getString("adapter", adapter);
-        if (adapter == null || adapter.isEmpty())
+        if (adapter.isEmpty())
             adapter = "*";
     }
 

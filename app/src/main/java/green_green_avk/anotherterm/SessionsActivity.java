@@ -54,13 +54,14 @@ public final class SessionsActivity extends AppCompatActivity {
             i++;
         }
         new AlertDialog.Builder(this).setItems(ii, (dialog, which) -> {
-            if (iib[which]) return;
+            if (iib[which])
+                return;
             ps.put("adapter", ii[which].split(" ", 2)[0]);
             final int key;
             try {
-                key = ConsoleService.startAnsiSession(SessionsActivity.this, ps.get());
+                key = ConsoleService.startAnsiSession(this, ps.get());
             } catch (final ConsoleService.Exception | BackendException e) {
-                Toast.makeText(SessionsActivity.this, e.getMessage(),
+                Toast.makeText(this, e.getMessage(),
                         Toast.LENGTH_LONG).show();
                 dialog.dismiss();
                 return;
@@ -86,7 +87,7 @@ public final class SessionsActivity extends AppCompatActivity {
                 final Object adapter = ps.get("adapter");
                 if (adapter == null) {
                     final Map<String, Integer> adaptersList = ConsoleService.getBackendByParams(
-                            ps.get()).meta.getAdapters(SessionsActivity.this);
+                            ps.get()).meta.getAdapters(this);
                     if (adaptersList != null) {
                         if (adaptersList.isEmpty())
                             throw new BackendException(getString(
@@ -95,9 +96,9 @@ public final class SessionsActivity extends AppCompatActivity {
                         return;
                     }
                 }
-                key = ConsoleService.startAnsiSession(SessionsActivity.this, ps.get());
+                key = ConsoleService.startAnsiSession(this, ps.get());
             } catch (final ConsoleService.Exception | BackendException e) {
-                Toast.makeText(SessionsActivity.this, e.getMessage(),
+                Toast.makeText(this, e.getMessage(),
                         Toast.LENGTH_LONG).show();
                 return;
             }
