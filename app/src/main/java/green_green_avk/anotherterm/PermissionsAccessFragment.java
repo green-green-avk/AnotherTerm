@@ -1,6 +1,5 @@
 package green_green_avk.anotherterm;
 
-import android.Manifest;
 import android.app.Activity;
 import android.app.Fragment;
 import android.content.ActivityNotFoundException;
@@ -26,10 +25,6 @@ import green_green_avk.anotherterm.utils.Misc;
 
 @RequiresApi(api = Build.VERSION_CODES.M)
 public abstract class PermissionsAccessFragment extends Fragment {
-    private static final String[] PERMS =
-            new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE,
-                    Manifest.permission.READ_EXTERNAL_STORAGE};
-
     @NonNull
     public abstract String[] getPerms();
 
@@ -46,14 +41,13 @@ public abstract class PermissionsAccessFragment extends Fragment {
     @Override
     public void onResume() {
         super.onResume();
-        final Set<String> notGranted = Misc.checkSelfPermissions(getActivity(), getPerms());
-        getView().<TextView>findViewById(R.id.f_state).setText(
-                notGranted.size() == 0
-                        ? R.string.state_enabled
-                        : R.string.state_disabled);
+        final Set<String> notGranted =
+                Misc.checkSelfPermissions(getActivity(), getPerms());
+        getView().<TextView>findViewById(R.id.f_state)
+                .setText(notGranted.isEmpty() ? R.string.state_enabled : R.string.state_disabled);
         final CompoundButton bSwitch = getView().findViewById(R.id.b_switch);
         bSwitch.setOnCheckedChangeListener(null);
-        bSwitch.setChecked(notGranted.size() == 0);
+        bSwitch.setChecked(notGranted.isEmpty());
         bSwitch.setOnCheckedChangeListener(
                 (buttonView, isChecked) -> openSettings(buttonView));
     }
@@ -61,7 +55,7 @@ public abstract class PermissionsAccessFragment extends Fragment {
     public void openSettings(final View v) {
         final Activity activity = getActivity();
         final Set<String> notGranted = Misc.checkSelfPermissions(activity, getPerms());
-        if (notGranted.size() == 0) {
+        if (notGranted.isEmpty()) {
             final String packageName = activity.getPackageName();
             try {
                 this.startActivity(new Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS)
