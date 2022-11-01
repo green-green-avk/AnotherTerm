@@ -1,9 +1,12 @@
 package green_green_avk.anotherterm;
 
+import android.app.Activity;
 import android.content.Context;
+import android.content.Intent;
 import android.content.res.Configuration;
 import android.os.Build;
 import android.os.Bundle;
+import android.preference.PreferenceActivity;
 
 import androidx.annotation.NonNull;
 import androidx.preference.PreferenceFragment;
@@ -29,7 +32,9 @@ public final class SettingsActivity extends AppCompatPreferenceActivity {
     private void loadHeaders(@NonNull final List<Header> target) {
         // Native configuration dependent resource fetching does not work for xml:
         // xml-v23 subfolder is pretty useless...
-        if (Build.VERSION.SDK_INT >= 23)
+        if (Build.VERSION.SDK_INT >= 31)
+            loadHeadersFromResource(R.xml.pref_headers_v31, target);
+        else if (Build.VERSION.SDK_INT >= 23)
             loadHeadersFromResource(R.xml.pref_headers_v23, target);
         else
             loadHeadersFromResource(R.xml.pref_headers, target);
@@ -66,5 +71,10 @@ public final class SettingsActivity extends AppCompatPreferenceActivity {
             if (Build.VERSION.SDK_INT < Build.VERSION_CODES.LOLLIPOP)
                 findPreference("terminal_use_recents").setVisible(false);
         }
+    }
+
+    public static void showPane(@NonNull final Activity ctx, @NonNull final String pane) {
+        ctx.startActivity(new Intent(ctx, SettingsActivity.class)
+                .putExtra(PreferenceActivity.EXTRA_SHOW_FRAGMENT, pane));
     }
 }

@@ -110,9 +110,13 @@ android {
     }
 
     sourceSets {
+        googleplay {
+            java.srcDirs += ['src/modern-extras/java']
+            res.srcDirs += ['src/modern-extras/res']
+        }
         redist {
-            java.srcDirs += ['src/sideload-extras/java']
-            res.srcDirs += ['src/sideload-extras/res']
+            java.srcDirs += ['src/modern-extras/java', 'src/sideload-extras/java']
+            res.srcDirs += ['src/modern-extras/res', 'src/sideload-extras/res']
         }
         oldgood {
             java.srcDirs += ['src/sideload-extras/java']

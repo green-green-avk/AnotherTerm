@@ -10,10 +10,10 @@ import androidx.annotation.RequiresApi;
 import java.util.Collection;
 import java.util.Collections;
 
-@RequiresApi(api = Build.VERSION_CODES.M)
-public final class CameraAccessFragment extends PermissionsAccessFragment {
-    private static final Collection<String> PERMS =
-            Collections.singleton(Manifest.permission.CAMERA);
+@RequiresApi(api = Build.VERSION_CODES.S)
+public final class BluetoothAccessFragment extends PermissionsAccessFragment {
+    static final Collection<String> PERMS =
+            Collections.singleton(Manifest.permission.BLUETOOTH_CONNECT);
 
     @NonNull
     @Override
@@ -24,6 +24,6 @@ public final class CameraAccessFragment extends PermissionsAccessFragment {
     @LayoutRes
     @Override
     public int getLayout() {
-        return R.layout.camera_access_fragment;
+        return R.layout.bluetooth_access_fragment;
     }
 }

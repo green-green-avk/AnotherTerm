@@ -3,6 +3,7 @@ package green_green_avk.anotherterm.backends;
 import android.annotation.SuppressLint;
 import android.content.Context;
 import android.net.Uri;
+import android.os.Build;
 import android.os.Handler;
 import android.os.Looper;
 import android.os.PowerManager;
@@ -10,6 +11,7 @@ import android.util.Log;
 
 import androidx.annotation.CallSuper;
 import androidx.annotation.CheckResult;
+import androidx.annotation.DrawableRes;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.StringRes;
@@ -23,10 +25,15 @@ import java.lang.ref.WeakReference;
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
+import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
+
+import green_green_avk.anotherterm.utils.Misc;
 
 public abstract class BackendModule {
 
@@ -98,6 +105,50 @@ public abstract class BackendModule {
         public static final int ADAPTER_READY = 0;
         public static final int ADAPTER_ALREADY_IN_USE = 1; // in use by us
         public static final int ADAPTER_BUSY = 2; // by someone else
+
+        public static abstract class Requirement {
+            @DrawableRes
+            public final int icon;
+            @StringRes
+            public final int description;
+
+            protected Requirement(@DrawableRes final int icon, @StringRes final int description) {
+                this.icon = icon;
+                this.description = description;
+            }
+
+            public static final class Permissions extends Requirement {
+                @NonNull
+                public final Set<String> permissions;
+
+                public Permissions(@DrawableRes final int icon, @StringRes final int description,
+                                   @NonNull final Set<String> permissions) {
+                    super(icon, description);
+                    this.permissions = permissions;
+                }
+            }
+        }
+
+        @NonNull
+        public Collection<Requirement> getRequirements(@NonNull final Context ctx) {
+            return Collections.emptySet();
+        }
+
+        @NonNull
+        public static Collection<Requirement> unfulfilled(@NonNull final Context ctx,
+                                                          @NonNull final Collection<? extends Requirement> requirements) {
+            final List<Requirement> r = new ArrayList<>();
+            for (final Requirement req : requirements)
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M &&
+                        req instanceof Requirement.Permissions) {
+                    final Set<String> perms = ((Requirement.Permissions) req).permissions;
+                    if (!Misc.checkSelfPermissions(ctx, perms).isEmpty())
+                        r.add(req);
+                } else {
+                    r.add(req);
+                }
+            return r;
+        }
 
         /**
          * @return {@code null} if not applicable for the module or

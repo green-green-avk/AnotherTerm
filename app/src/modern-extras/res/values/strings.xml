@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<resources>
+    <string name="action_bluetooth_permission">Bluetooth Permission</string>
+    <string name="desc_android12_bluetooth_perm" formatted="false"><![CDATA[
+        <p><code>android.permission.BLUETOOTH_CONNECT</code>
+        must be granted in order to connect to a Bluetooth SPP UART dongle
+        on Android&#xA0;12 and higher.</p>
+    ]]></string>
+</resources>

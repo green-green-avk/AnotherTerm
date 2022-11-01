@@ -257,6 +257,7 @@
     <string name="title_wireless_parameters">Wireless parameters</string>
     <string name="label_insecure">Insecure</string>
     <string name="msg_no_adapters_connected">No dongles connected</string>
+    <string name="label_req_uart_bt_perms">android.permission.BLUETOOTH_CONNECT must be granted in order to access Bluetooth SPP UART dongles</string>
     <string name="action_release_on_disconnect">Release On Disconnect</string>
     <string name="hint_release_wake_lock_on_disconnect">Release Wake Lock On Disconnect</string>
     <string name="action_acquire_on_connect">Acquire On Connect</string>

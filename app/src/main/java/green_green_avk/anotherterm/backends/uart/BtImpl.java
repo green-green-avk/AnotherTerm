@@ -1,6 +1,8 @@
 package green_green_avk.anotherterm.backends.uart;
 
 import android.bluetooth.BluetoothDevice;
+import android.content.Context;
+import android.os.Build;
 
 import androidx.annotation.NonNull;
 
@@ -14,8 +16,10 @@ import java.util.Map;
 import java.util.Set;
 import java.util.WeakHashMap;
 
+import green_green_avk.anotherterm.BuildConfig;
 import green_green_avk.anotherterm.backends.BackendException;
 import green_green_avk.anotherterm.backends.BackendModule;
+import green_green_avk.anotherterm.utils.Misc;
 import green_green_avk.bluetoothspp.BluetoothSPP;
 import green_green_avk.bluetoothspp.BluetoothSPPException;
 
@@ -26,8 +30,24 @@ final class BtImpl extends Impl {
         return String.format(Locale.ROOT, "%s %s", dev.getAddress(), dev.getName());
     }
 
+    private static boolean isUsable(@NonNull final Context ctx) {
+        return isAvailable(ctx) && (Build.VERSION.SDK_INT < Build.VERSION_CODES.M ||
+                Misc.checkSelfPermissions(ctx, getPermissions()).isEmpty());
+    }
+
+    static boolean isAvailable(@NonNull final Context ctx) {
+        return BluetoothSPP.isAvailable(ctx);
+    }
+
     @NonNull
-    static Map<String, Integer> getAdapters() {
+    static Set<String> getPermissions() {
+        return BluetoothSPP.getRequiredPermissions(BuildConfig.TARGET_SDK_VERSION);
+    }
+
+    @NonNull
+    static Map<String, Integer> getAdapters(@NonNull final Context ctx) {
+        if (!isUsable(ctx))
+            return Collections.emptyMap();
         final Map<String, Integer> r = new HashMap<>();
         try {
             for (final BluetoothDevice dev : BluetoothSPP.getDeviceList()) {
@@ -150,6 +170,8 @@ final class BtImpl extends Impl {
 
     @Override
     void connect() throws UartModule.AdapterNotFoundException {
+        if (!isUsable(base.getContext()))
+            throw new UartModule.AdapterNotFoundException();
         synchronized (commonLock) {
             synchronized (deviceLock) {
                 device = obtainDevice();
