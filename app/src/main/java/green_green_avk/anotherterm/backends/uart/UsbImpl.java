@@ -228,7 +228,8 @@ final class UsbImpl extends Impl {
                 try {
                     usbManager.requestPermission(device,
                             PendingIntent.getBroadcast(base.getContext(), 0,
-                                    new Intent(ACTION_USB_PERMISSION), 0));
+                                    new Intent(ACTION_USB_PERMISSION),
+                                    PendingIntent.FLAG_MUTABLE));
                 } catch (final Exception e) {
                     usbAccessGranted.set(e);
                 }
