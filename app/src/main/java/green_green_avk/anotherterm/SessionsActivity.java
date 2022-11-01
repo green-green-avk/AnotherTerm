@@ -11,12 +11,11 @@ import android.widget.Toast;
 import androidx.annotation.Keep;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
-import java.util.Locale;
+import java.util.Collection;
 import java.util.Map;
 import java.util.NoSuchElementException;
 
@@ -43,32 +42,9 @@ public final class SessionsActivity extends AppCompatActivity {
     }
 
     private void showAdapterDialog(@NonNull final PreferenceStorage ps,
-                                   @NonNull final Map<String, Integer> list) {
-        final String[] ii = new String[list.size()];
-        final boolean[] iib = new boolean[list.size()];
-        int i = 0;
-        for (final Map.Entry<String, Integer> ent : list.entrySet()) {
-            ii[i] = (ent.getValue() == BackendModule.Meta.ADAPTER_READY ? ent.getKey() :
-                    String.format(Locale.getDefault(), "%s [busy]", ent.getKey()));
-            iib[i] = ent.getValue() != BackendModule.Meta.ADAPTER_READY;
-            i++;
-        }
-        new AlertDialog.Builder(this).setItems(ii, (dialog, which) -> {
-            if (iib[which])
-                return;
-            ps.put("adapter", ii[which].split(" ", 2)[0]);
-            final int key;
-            try {
-                key = ConsoleService.startAnsiSession(this, ps.get());
-            } catch (final ConsoleService.Exception | BackendException e) {
-                Toast.makeText(this, e.getMessage(),
-                        Toast.LENGTH_LONG).show();
-                dialog.dismiss();
-                return;
-            }
-            ConsoleActivity.showSession(this, key);
-            dialog.dismiss();
-        }).setCancelable(true).show();
+                                   @NonNull final Map<String, Integer> list,
+                                   @NonNull final Collection<? extends BackendModule.Meta.Requirement> requirements) {
+        BackendAdapterDialog.show(this, ps, list, requirements);
     }
 
     private void prepareFavoritesList() {
@@ -86,13 +62,17 @@ public final class SessionsActivity extends AppCompatActivity {
             try {
                 final Object adapter = ps.get("adapter");
                 if (adapter == null) {
-                    final Map<String, Integer> adaptersList = ConsoleService.getBackendByParams(
-                            ps.get()).meta.getAdapters(this);
+                    final BackendModule.Meta meta =
+                            ConsoleService.getBackendByParams(ps.get()).meta;
+                    final Map<String, Integer> adaptersList = meta.getAdapters(this);
                     if (adaptersList != null) {
-                        if (adaptersList.isEmpty())
+                        final Collection<BackendModule.Meta.Requirement> requirements =
+                                BackendModule.Meta.unfulfilled(this,
+                                        meta.getRequirements(this));
+                        if (adaptersList.isEmpty() && requirements.isEmpty())
                             throw new BackendException(getString(
                                     R.string.msg_no_adapters_connected));
-                        showAdapterDialog(ps, adaptersList);
+                        showAdapterDialog(ps, adaptersList, requirements);
                         return;
                     }
                 }

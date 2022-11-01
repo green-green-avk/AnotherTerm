@@ -377,10 +377,11 @@ public final class Misc {
     @RequiresApi(23)
     @NonNull
     public static Set<String> checkSelfPermissions(@NonNull final Context ctx,
-                                                   @NonNull final String[] perms) {
+                                                   @NonNull final Iterable<String> perms) {
         final Set<String> r = new HashSet<>();
         for (final String perm : perms)
-            if (ctx.checkSelfPermission(perm) != PackageManager.PERMISSION_GRANTED) r.add(perm);
+            if (ctx.checkSelfPermission(perm) != PackageManager.PERMISSION_GRANTED)
+                r.add(perm);
         return r;
     }
 

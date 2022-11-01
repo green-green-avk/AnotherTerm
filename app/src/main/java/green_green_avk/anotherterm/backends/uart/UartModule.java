@@ -11,11 +11,16 @@ import com.felhr.usbserial.UsbSerialInterface;
 
 import java.io.IOException;
 import java.io.OutputStream;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.Set;
 
+import green_green_avk.anotherterm.R;
 import green_green_avk.anotherterm.backends.BackendException;
 import green_green_avk.anotherterm.backends.BackendModule;
 import green_green_avk.anotherterm.utils.ResultException;
@@ -25,11 +30,29 @@ public final class UartModule extends BackendModule {
 
     @Keep
     public static final Meta meta = new Meta(UartModule.class, "uart") {
+        private final Collection<Requirement> btRequirements = new ArrayList<>();
+
+        {
+            final Set<String> perms = BtImpl.getPermissions();
+            if (!perms.isEmpty())
+                btRequirements.add(new Requirement.Permissions(
+                        R.drawable.ic_bluetooth,
+                        R.string.label_req_uart_bt_perms,
+                        perms
+                ));
+        }
+
+        @Override
+        @NonNull
+        public Collection<Requirement> getRequirements(@NonNull final Context ctx) {
+            return BtImpl.isAvailable(ctx) ? btRequirements : Collections.emptySet();
+        }
+
         @Override
         @NonNull
         public Map<String, Integer> getAdapters(@NonNull final Context ctx) {
             final Map<String, Integer> usbList = UsbImpl.getAdapters(ctx);
-            final Map<String, Integer> btList = BtImpl.getAdapters();
+            final Map<String, Integer> btList = BtImpl.getAdapters(ctx);
             final Map<String, Integer> r = new HashMap<>();
             r.putAll(usbList);
             r.putAll(btList);

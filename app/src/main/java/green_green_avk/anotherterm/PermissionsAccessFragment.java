@@ -19,6 +19,7 @@ import androidx.annotation.LayoutRes;
 import androidx.annotation.NonNull;
 import androidx.annotation.RequiresApi;
 
+import java.util.Collection;
 import java.util.Set;
 
 import green_green_avk.anotherterm.utils.Misc;
@@ -26,7 +27,7 @@ import green_green_avk.anotherterm.utils.Misc;
 @RequiresApi(api = Build.VERSION_CODES.M)
 public abstract class PermissionsAccessFragment extends Fragment {
     @NonNull
-    public abstract String[] getPerms();
+    public abstract Collection<String> getPerms();
 
     @LayoutRes
     public abstract int getLayout();
