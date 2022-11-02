@@ -112,6 +112,14 @@
         android:title="@string/label_screen_mouse">
 
         <ListPreference
+            android:defaultValue="@string/terminal_ansi_screen_mouse_default_mode"
+            android:entries="@array/labels_terminal_ansi_x_screen_mouse_mode"
+            android:entryValues="@array/values_terminal_ansi_x_screen_mouse_mode"
+            android:key="terminal_ansi_screen_mouse_default_mode"
+            android:title="@string/label_ansi_screen_mouse_default_mode"
+            app:useSimpleSummaryProvider="true" />
+
+        <ListPreference
             android:defaultValue="@string/terminal_mouse_layout"
             android:entries="@array/labels_screen_mouse_layout"
             android:entryValues="@array/values_screen_mouse_layout"

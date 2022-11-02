@@ -17,8 +17,11 @@ import green_green_avk.anotherterm.ui.ConsoleScreenView;
 public final class AnsiSession extends Session {
 
     public static final class UiState {
+        public enum MouseMode {UNDEFINED, DIRECT, OVERLAID}
+
         public final ConsoleScreenView.State csv = new ConsoleScreenView.State();
         public final ConsoleKeyboardView.State ckv = new ConsoleKeyboardView.State();
+        public MouseMode mouseMode = MouseMode.UNDEFINED;
         public float fontSizeDp = 0F; // Invariant for resolution switching
         public int screenOrientation = ActivityInfo.SCREEN_ORIENTATION_UNSPECIFIED;
         public boolean keepScreenOn = false;

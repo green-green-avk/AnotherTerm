@@ -238,16 +238,17 @@ public final class AnsiConsoleActivity extends ConsoleActivity
         mCsv.setFont(fp);
         mCkv.setFont(fp); // Old Android devices have no glyphs for some special symbols
 
+        final App.Settings globalSettings = ((App) getApplication()).settings;
         final DisplayMetrics dm = getResources().getDisplayMetrics();
 
         if (isNew && !autoFitTerminal)
             mSession.uiState.fontSizeDp =
-                    ((App) getApplication()).settings.terminal_font_default_size_sp *
+                    globalSettings.terminal_font_default_size_sp *
                             (dm.scaledDensity / dm.density);
         mCsv.setFontSize(mSession.uiState.fontSizeDp *
                 getResources().getDisplayMetrics().density, false);
 
-        switch (((App) getApplication()).settings.terminal_screen_keyboard_default_type) {
+        switch (globalSettings.terminal_screen_keyboard_default_type) {
             case "ime":
                 mCkv.setMode(ConsoleKeyboardView.MODE_IME);
                 break;
@@ -289,6 +290,10 @@ public final class AnsiConsoleActivity extends ConsoleActivity
                     asSize(mSession.connectionParams.get("screen_rows")));
         mSession.uiState.csv.apply(mCsv);
         mSession.uiState.ckv.apply(mCkv);
+        if (mSession.uiState.mouseMode == AnsiSession.UiState.MouseMode.UNDEFINED)
+            setMouseMode("overlaid".equals(globalSettings.terminal_ansi_screen_mouse_default_mode));
+        else
+            setMouseMode(mSession.uiState.mouseMode == AnsiSession.UiState.MouseMode.OVERLAID);
 
         ConsoleService.addListener(sessionsListener);
         invalidateWakeLock();
@@ -314,25 +319,25 @@ public final class AnsiConsoleActivity extends ConsoleActivity
             finish();
             return;
         }
+        final App.Settings globalSettings = ((App) getApplication()).settings;
         final DisplayMetrics dm = getResources().getDisplayMetrics();
-        final int navBarH = (int) (((App) getApplication()).settings.terminal_key_height_dp
+        final int navBarH = (int) (globalSettings.terminal_key_height_dp
                 * dm.density);
         if (wNavBar.getLayoutParams().height != navBarH) {
             wNavBar.getLayoutParams().height = navBarH;
             wNavBar.requestLayout();
         }
-        mCsv.setSelectionPadSize(((App) getApplication()).settings.terminal_selection_pad_size_dp
-                * dm.density);
-        mCsv.setPopupOpacity(((App) getApplication()).settings.terminal_popup_opacity * 255 / 100);
-        mCsv.setKeyHeightDp(((App) getApplication()).settings.terminal_key_height_dp);
-        mCsv.setScrollFollowHistoryThreshold((float) ((App) getApplication()).settings
+        mCsv.setSelectionPadSize(globalSettings.terminal_selection_pad_size_dp * dm.density);
+        mCsv.setPopupOpacity(globalSettings.terminal_popup_opacity * 255 / 100);
+        mCsv.setKeyHeightDp(globalSettings.terminal_key_height_dp);
+        mCsv.setScrollFollowHistoryThreshold((float) globalSettings
                 .terminal_scroll_follow_history_threshold / 100);
-        mCkv.setAutoRepeatAllowed(((App) getApplication()).settings.terminal_key_repeat);
-        mCkv.setAutoRepeatDelay(((App) getApplication()).settings.terminal_key_repeat_delay);
-        mCkv.setAutoRepeatInterval(((App) getApplication()).settings.terminal_key_repeat_interval);
-        mCkv.setKeyHeightDp(((App) getApplication()).settings.terminal_key_height_dp);
+        mCkv.setAutoRepeatAllowed(globalSettings.terminal_key_repeat);
+        mCkv.setAutoRepeatDelay(globalSettings.terminal_key_repeat_delay);
+        mCkv.setAutoRepeatInterval(globalSettings.terminal_key_repeat_interval);
+        mCkv.setKeyHeightDp(globalSettings.terminal_key_height_dp);
         mCkv.setHwKeyMap(HwKeyMapManager.get());
-        mSmv.setButtons("wide".equals(((App) getApplication()).settings.terminal_mouse_layout) ?
+        mSmv.setButtons("wide".equals(globalSettings.terminal_mouse_layout) ?
                 R.layout.screen_mouse_buttons_wide : R.layout.screen_mouse_buttons);
         UiUtils.setBackgroundAlpha(mScreenNote.getContentView().getBackground(),
                 mCsv.getPopupOpacity(), Color.BLACK);
@@ -352,6 +357,9 @@ public final class AnsiConsoleActivity extends ConsoleActivity
                 getResources().getDisplayMetrics().density);
         mSession.uiState.csv.save(mCsv);
         mSession.uiState.ckv.save(mCkv);
+        mSession.uiState.mouseMode = getMouseMode() ?
+                AnsiSession.UiState.MouseMode.OVERLAID :
+                AnsiSession.UiState.MouseMode.DIRECT;
         mSession.uiState.screenOrientation = screenOrientation;
         mSession.thumbnail = mCsv.makeThumbnail(256, 128);
         super.onPause();
@@ -620,9 +628,8 @@ public final class AnsiConsoleActivity extends ConsoleActivity
                 setSessionTitle(mSession.input.currScrBuf.windowTitle);
             final boolean ms = mSession.output.isMouseSupported();
             if (ms != (wMouseMode.getVisibility() == View.VISIBLE)) {
-                if (!ms)
-                    turnOffMouseMode();
                 wMouseMode.setVisibility(ms ? View.VISIBLE : View.GONE);
+                applyMouseMode();
             }
             if (mSession.input.getBell() != 0) {
                 if (!mBellAnim.hasStarted() || mBellAnim.hasEnded())
@@ -688,8 +695,7 @@ public final class AnsiConsoleActivity extends ConsoleActivity
 
     @Override
     public void onSelectionModeChange(final boolean mode) {
-        if (mode)
-            turnOffMouseMode();
+        applyMouseMode();
     }
 
     @Override
@@ -705,13 +711,6 @@ public final class AnsiConsoleActivity extends ConsoleActivity
         }
     }
 
-    private void turnOffMouseMode() {
-        mCsv.setMouseMode(false);
-        wMouseMode.setImageState(new int[]{}, true);
-        if (mSmv.getVisibility() != View.GONE)
-            mSmv.setVisibility(View.GONE);
-    }
-
     public void onNavUp(final View v) {
         final Intent pa = getSupportParentActivityIntent();
         if (pa == null)
@@ -724,16 +723,32 @@ public final class AnsiConsoleActivity extends ConsoleActivity
         supportNavigateUpTo(pa);
     }
 
-    public void onMouseMode(final View v) {
-        mCsv.setMouseMode(!mCsv.getMouseMode());
+    private boolean mouseMode = false;
+
+    private void applyMouseMode() {
+        mCsv.setMouseMode(mouseMode && mSession.output.isMouseSupported() &&
+                !mCsv.getSelectionMode());
         if (mCsv.getMouseMode()) {
-            ((ImageView) v).setImageState(new int[]{android.R.attr.state_checked},
+            wMouseMode.setImageState(new int[]{android.R.attr.state_checked},
                     true);
             mSmv.setVisibility(View.VISIBLE);
         } else {
-            ((ImageView) v).setImageState(new int[]{}, true);
+            wMouseMode.setImageState(new int[]{}, true);
             mSmv.setVisibility(View.GONE);
         }
+    }
+
+    public boolean getMouseMode() {
+        return mouseMode;
+    }
+
+    public void setMouseMode(final boolean overlaid) {
+        mouseMode = overlaid;
+        applyMouseMode();
+    }
+
+    public void onMouseMode(final View v) {
+        setMouseMode(!getMouseMode());
     }
 
     public void onSelectMode(final View v) {
