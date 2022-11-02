@@ -7,8 +7,11 @@ import green_green_avk.anotherterm.ui.GraphicsConsoleKeyboardView;
 public final class GraphicsSession extends Session {
 
     public static final class UiState {
+        public enum MouseMode {UNDEFINED, DIRECT, OVERLAID}
+
         //        public final ConsoleScreenView.State csv = new ConsoleScreenView.State();
         public final GraphicsConsoleKeyboardView.State ckv = new GraphicsConsoleKeyboardView.State();
+        public MouseMode mouseMode = MouseMode.UNDEFINED;
 //        public int screenOrientation = ActivityInfo.SCREEN_ORIENTATION_UNSPECIFIED;
 //        public boolean keepScreenOn = false;
     }

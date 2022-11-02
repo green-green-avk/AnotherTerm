@@ -44,6 +44,16 @@
         <item>hidden</item>
     </string-array>
 
+    <string-array name="labels_terminal_ansi_x_screen_mouse_mode">
+        <item>Left click by a finger with the cursor position under the finger</item>
+        <item>Overlay with scrollable cursor and buttons</item>
+    </string-array>
+
+    <string-array name="values_terminal_ansi_x_screen_mouse_mode">
+        <item>direct</item>
+        <item>overlaid</item>
+    </string-array>
+
     <string-array name="labels_screen_mouse_layout">
         <item>Default</item>
         <item>Wide (for low resolution multitouch)</item>

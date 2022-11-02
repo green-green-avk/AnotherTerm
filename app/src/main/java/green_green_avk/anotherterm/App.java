@@ -55,6 +55,14 @@ public final class App extends Application {
         public String terminal_screen_keyboard_default_type;
 
         @Keep
+        @Param(defRes = R.string.terminal_ansi_screen_mouse_default_mode)
+        public String terminal_ansi_screen_mouse_default_mode;
+
+        @Keep
+        @Param(defRes = R.string.terminal_x_screen_mouse_default_mode)
+        public String terminal_x_screen_mouse_default_mode;
+
+        @Keep
         @Param(defRes = R.string.terminal_mouse_layout)
         public String terminal_mouse_layout;
 

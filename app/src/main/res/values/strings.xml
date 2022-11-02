@@ -214,6 +214,8 @@
     <string name="title_suffix_has_unsaved_changes"><b>*</b></string>
     <string name="msg_permission_confirmation">%2$s\n`%1$s\' permission requested by the script. Confirm?</string>
     <string name="label_screen_mouse">Screen Mouse</string>
+    <string name="label_ansi_screen_mouse_default_mode">Default mode for the ANSI terminals</string>
+    <string name="label_x_screen_mouse_default_mode">Default mode for the graphic terminals</string>
     <string name="label_screen_mouse_buttons_layout">Buttons layout</string>
     <string name="label_dims_div">X</string>
     <string name="label_dims_s2">%1$s X %2$s</string>

@@ -49,6 +49,7 @@ public final class GraphicsConsoleActivity extends ConsoleActivity {
     private TextView wTitle = null;
     private ImageView wKeyboardMode = null;
     private ImageView wImeTextMode = null;
+    private ImageView wMouseMode = null;
 
     @Keep
     private final ConsoleService.Listener sessionsListener = new ConsoleService.Listener() {
@@ -99,6 +100,7 @@ public final class GraphicsConsoleActivity extends ConsoleActivity {
         wTitle = findViewById(R.id.title);
         wKeyboardMode = findViewById(R.id.action_ime);
         wImeTextMode = findViewById(R.id.action_ime_text_mode);
+        wMouseMode = findViewById(R.id.action_mouse_mode);
 
         mSmv.setBypassTo(new View[]{mCkv});
 
@@ -135,6 +137,11 @@ public final class GraphicsConsoleActivity extends ConsoleActivity {
 //        mSession.uiState.csv.apply(mCsv);
         mSession.uiState.ckv.apply(mCkv);
         updateImeTextModeUi();
+        final App.Settings globalSettings = ((App) getApplication()).settings;
+        if (mSession.uiState.mouseMode == GraphicsSession.UiState.MouseMode.UNDEFINED)
+            setMouseMode("overlaid".equals(globalSettings.terminal_x_screen_mouse_default_mode));
+        else
+            setMouseMode(mSession.uiState.mouseMode == GraphicsSession.UiState.MouseMode.OVERLAID);
 
         ConsoleService.addListener(sessionsListener);
     }
@@ -152,18 +159,19 @@ public final class GraphicsConsoleActivity extends ConsoleActivity {
             finish();
             return;
         }
-        final int navBarH = (int) (((App) getApplication()).settings.terminal_key_height_dp
+        final App.Settings globalSettings = ((App) getApplication()).settings;
+        final int navBarH = (int) (globalSettings.terminal_key_height_dp
                 * getResources().getDisplayMetrics().density);
         if (wNavBar.getLayoutParams().height != navBarH) {
             wNavBar.getLayoutParams().height = navBarH;
             wNavBar.requestLayout();
         }
-        mCkv.setAutoRepeatAllowed(((App) getApplication()).settings.terminal_key_repeat);
-        mCkv.setAutoRepeatDelay(((App) getApplication()).settings.terminal_key_repeat_delay);
-        mCkv.setAutoRepeatInterval(((App) getApplication()).settings.terminal_key_repeat_interval);
-        mCkv.setKeyHeightDp(((App) getApplication()).settings.terminal_key_height_dp);
+        mCkv.setAutoRepeatAllowed(globalSettings.terminal_key_repeat);
+        mCkv.setAutoRepeatDelay(globalSettings.terminal_key_repeat_delay);
+        mCkv.setAutoRepeatInterval(globalSettings.terminal_key_repeat_interval);
+        mCkv.setKeyHeightDp(globalSettings.terminal_key_height_dp);
         mCkv.setHwKeyMap(HwKeyMapManager.get());
-        mSmv.setButtons("wide".equals(((App) getApplication()).settings.terminal_mouse_layout) ?
+        mSmv.setButtons("wide".equals(globalSettings.terminal_mouse_layout) ?
                 R.layout.screen_mouse_buttons_wide : R.layout.screen_mouse_buttons);
 //        ((BackendUiInteractionActivityCtx) mSession.backend.wrapped.getUi()).setActivity(this);
         if (getUseRecents())
@@ -179,6 +187,9 @@ public final class GraphicsConsoleActivity extends ConsoleActivity {
 //        ((BackendUiInteractionActivityCtx) mSession.backend.wrapped.getUi()).setActivity(null);
 //        mSession.uiState.csv.save(mCsv);
         mSession.uiState.ckv.save(mCkv);
+        mSession.uiState.mouseMode = getMouseMode() ?
+                GraphicsSession.UiState.MouseMode.OVERLAID :
+                GraphicsSession.UiState.MouseMode.DIRECT;
 //        mSession.uiState.screenOrientation = screenOrientation;
         mSession.thumbnail = mGcv.makeThumbnail(256, 128);
         super.onPause();
@@ -227,16 +238,23 @@ public final class GraphicsConsoleActivity extends ConsoleActivity {
 
     private boolean mouseMode = false;
 
-    public void onMouseMode(final View v) {
-        mouseMode = !mouseMode;
-        final ImageView iv = findViewById(R.id.action_mouse_mode);
+    public boolean getMouseMode() {
+        return mouseMode;
+    }
+
+    public void setMouseMode(final boolean overlaid) {
+        mouseMode = overlaid;
         if (mouseMode) {
-            iv.setImageState(new int[]{android.R.attr.state_checked}, true);
+            wMouseMode.setImageState(new int[]{android.R.attr.state_checked}, true);
             mSmv.setVisibility(View.VISIBLE);
         } else {
-            iv.setImageState(new int[]{}, true);
+            wMouseMode.setImageState(new int[]{}, true);
             mSmv.setVisibility(View.GONE);
         }
+    }
+
+    public void onMouseMode(final View v) {
+        setMouseMode((!getMouseMode()));
     }
 
     private void updateImeTextModeUi() {

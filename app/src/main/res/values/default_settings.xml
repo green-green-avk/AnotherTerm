@@ -10,6 +10,8 @@
     <integer name="terminal_key_repeat_delay">1000</integer><!-- [ms] -->
     <integer name="terminal_key_repeat_interval">100</integer><!-- [ms] -->
     <string name="terminal_screen_keyboard_default_type">builtin</string>
+    <string name="terminal_ansi_screen_mouse_default_mode">direct</string>
+    <string name="terminal_x_screen_mouse_default_mode">direct</string>
     <string name="terminal_mouse_layout">default</string>
     <integer name="terminal_scroll_follow_history_threshold">50
     </integer><!-- [% of visible history buffer] -->
