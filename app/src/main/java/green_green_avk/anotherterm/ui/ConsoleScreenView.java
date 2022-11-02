@@ -1929,7 +1929,7 @@ public class ConsoleScreenView extends ScrollableView
                 ViewCompat.postInvalidateOnAnimation(this);
                 return;
             }
-            if (dF > dL || dL != Float.POSITIVE_INFINITY) {
+            if (dF > dL || dF != Float.POSITIVE_INFINITY) {
                 selectionMarker = selectionMarkerLast;
                 scrollDisabled = true;
                 ViewCompat.postInvalidateOnAnimation(this);
