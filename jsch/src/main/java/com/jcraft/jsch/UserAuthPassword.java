@@ -55,9 +55,9 @@ final class UserAuthPassword extends UserAuth {
                         //throw new JSchException("USERAUTH fail");
                         return false;
                     }
-                    final CharSequence _password =
-                            userinfo.promptPassword(dest,
-                                    UserInfo.Message.PASSWORD_FOR_HOST, dest);
+                    final CharSequence _password = userinfo.promptPassword(dest,
+                            UserInfo.Message.PASSWORD_FOR_HOST,
+                            dest);
                     if (_password == null) {
                         throw new JSchAuthCancelException("password");
                         //break;

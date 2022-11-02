@@ -700,8 +700,8 @@ public final class SshModule extends BackendModule {
         try {
             synchronized (sshSessionSt.lock) {
                 if (sshSessionSt.session == null) {
-                    final Session s = sshSessionSt.jsch.getSession(
-                            sshSessionSt.username, sshSessionSt.hostname, sshSessionSt.port);
+                    final Session s = sshSessionSt.jsch.getSession(sshSessionSt.username,
+                            sshSessionSt.hostname, sshSessionSt.port);
                     s.setUserInfo(userInfo);
                     s.setHostKeyRepository(new SshHostKeyRepository(context));
                     s.setOnPublicKeyAuth(this::onPublicKeyAuth);

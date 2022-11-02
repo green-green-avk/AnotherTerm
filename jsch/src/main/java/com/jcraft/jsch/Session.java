@@ -82,6 +82,9 @@ public final class Session {
 
     private static final int PACKET_MAX_SIZE = 256 * 1024;
 
+    static final byte[] SSH_SHELL_RESULT_EXIT_STATUS = Util.str2byte("exit-status");
+    static final byte[] SSH_SHELL_RESULT_EXIT_SIGNAL = Util.str2byte("exit-signal");
+
     private byte[] V_S;                                 // server version
     private byte[] V_C = Util.str2byte("SSH-2.0-JSCH_" + JSch.VERSION); // client version
 
@@ -1873,7 +1876,7 @@ public final class Session {
                         channel = Channel.getChannel(i, this);
                         if (channel != null) {
                             byte reply_type = (byte) SSH_MSG_CHANNEL_FAILURE;
-                            if ((Util.byte2str(foo)).equals("exit-status")) {
+                            if (Arrays.equals(foo, SSH_SHELL_RESULT_EXIT_STATUS)) {
                                 final int exitStatus = buf.getInt();
                                 if (!(channel.getExitStatus() instanceof
                                         Channel.ProcessSignalExitStatus)) {
@@ -1882,7 +1885,7 @@ public final class Session {
                                     ));
                                 }
                                 reply_type = (byte) SSH_MSG_CHANNEL_SUCCESS;
-                            } else if ((Util.byte2str(foo)).equals("exit-signal")) {
+                            } else if (Arrays.equals(foo, SSH_SHELL_RESULT_EXIT_SIGNAL)) {
                                 final byte[] signalName = buf.getString();
                                 final boolean coreDumped = buf.getByte() != 0;
                                 final byte[] errorMessage = buf.getString();

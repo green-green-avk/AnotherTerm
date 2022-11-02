@@ -140,6 +140,7 @@ public abstract class WheelPopupViewWrapper {
                     break;
                 case MotionEvent.ACTION_UP:
                     processed |= dispatchClick(event);
+                    // fallthrough
                 case MotionEvent.ACTION_CANCEL:
                     processed |= onGestureEnd(event);
                     if (processed)

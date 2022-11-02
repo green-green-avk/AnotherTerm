@@ -278,7 +278,6 @@ public abstract class BackendModule {
             return v != null ? v.getClass().getSimpleName() : "<null>";
         }
 
-        @NonNull
         public String getString(final String key, final String def) {
             if (!map.containsKey(key))
                 return def;

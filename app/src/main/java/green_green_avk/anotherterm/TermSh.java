@@ -1873,9 +1873,11 @@ public final class TermSh {
                             final BackendUiSessionDialogs gui = shellCmd.waitForGuiWithNotification(ui);
                             shellCmd.setOnTerminate(() -> cancel(true));
                             try {
-                                if (gui.promptYesNo(
-                                        ui.ctx.getString(R.string.msg_permission_confirmation,
-                                                ui.ctx.getString(permMeta.titleRes), prompt)))
+                                if (gui.promptYesNo(ui.ctx.getString(
+                                        R.string.msg_permission_confirmation,
+                                        ui.ctx.getString(
+                                                permMeta.titleRes
+                                        ), prompt)))
                                     synchronized (shellCmd.shellSessionData) {
                                         shellCmd.shellSessionData.permissions |= permMeta.bits;
                                     }

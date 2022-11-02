@@ -94,7 +94,8 @@ public class ConsoleScreenView extends ScrollableView
         }
 
         public void apply(@NonNull final ConsoleScreenView v) {
-            if (scrollPosition == null) return;
+            if (scrollPosition == null)
+                return;
             v.scrollPosition.set(scrollPosition);
             v.resizeBufferXOnUi = resizeBufferXOnUi;
             v.resizeBufferYOnUi = resizeBufferYOnUi;
@@ -543,11 +544,14 @@ public class ConsoleScreenView extends ScrollableView
         selectionPaint.setXfermode(new PorterDuffXfermode(PorterDuff.Mode.SCREEN));
 
         if (selectionMarkerPtr != null)
-            selectionMarkerPtr.setColorFilter(selectionPaint.getColor(), PorterDuff.Mode.MULTIPLY);
+            selectionMarkerPtr
+                    .setColorFilter(selectionPaint.getColor(), PorterDuff.Mode.MULTIPLY);
         if (selectionMarkerPad != null)
-            selectionMarkerPad.setColorFilter(selectionPaint.getColor(), PorterDuff.Mode.MULTIPLY);
+            selectionMarkerPad
+                    .setColorFilter(selectionPaint.getColor(), PorterDuff.Mode.MULTIPLY);
         if (selectionMarkerOOB != null)
-            selectionMarkerOOB.setColorFilter(selectionPaint.getColor(), PorterDuff.Mode.MULTIPLY);
+            selectionMarkerOOB
+                    .setColorFilter(selectionPaint.getColor(), PorterDuff.Mode.MULTIPLY);
         if (selectionWrappedLineMarker != null)
             selectionWrappedLineMarker
                     .setColorFilter(selectionPaint.getColor(), PorterDuff.Mode.MULTIPLY);
@@ -598,8 +602,10 @@ public class ConsoleScreenView extends ScrollableView
     public void setScreenSize(int cols, int rows, final int bufferRows) {
         resizeBufferXOnUi = cols <= 0;
         resizeBufferYOnUi = rows <= 0;
-        if (resizeBufferXOnUi) cols = getCols();
-        if (resizeBufferYOnUi) rows = getRows();
+        if (resizeBufferXOnUi)
+            cols = getCols();
+        if (resizeBufferYOnUi)
+            rows = getRows();
         consoleInput.resize(cols, rows, bufferRows);
     }
 
@@ -731,7 +737,8 @@ public class ConsoleScreenView extends ScrollableView
             resizeBuffer();
             ViewCompat.postInvalidateOnAnimation(this);
         }
-        if (onStateChange != null) onStateChange.onFontSizeChange(getFontSize());
+        if (onStateChange != null)
+            onStateChange.onFontSizeChange(getFontSize());
     }
 
     @CheckResult
@@ -788,7 +795,8 @@ public class ConsoleScreenView extends ScrollableView
     }
 
     public void setSelectionMode(final boolean mode) {
-        if (selectionMode == mode) return;
+        if (selectionMode == mode)
+            return;
         if (mode) setMouseMode(false);
         selectionMode = mode;
         if (mode) {
@@ -805,7 +813,8 @@ public class ConsoleScreenView extends ScrollableView
         }
         adjustSelectionPopup();
         ViewCompat.postInvalidateOnAnimation(this);
-        if (onStateChange != null) onStateChange.onSelectionModeChange(mode);
+        if (onStateChange != null)
+            onStateChange.onSelectionModeChange(mode);
     }
 
     public void invalidateSelectionUi(final boolean adjustPopup) {
@@ -861,8 +870,10 @@ public class ConsoleScreenView extends ScrollableView
     }
 
     public void setMouseMode(final boolean mode) {
-        if (mouseMode == mode) return;
-        if (mode) setSelectionMode(false);
+        if (mouseMode == mode)
+            return;
+        if (mode)
+            setSelectionMode(false);
         mouseMode = mode;
         scrollDisabled = mode;
     }
@@ -1060,30 +1071,39 @@ public class ConsoleScreenView extends ScrollableView
     @CheckResult
     @Nullable
     public String getSelectedText() {
-        if (consoleInput == null || selection == null) return null;
+        if (consoleInput == null || selection == null)
+            return null;
         final ConsoleScreenSelection s = selection.getDirect();
         final StringBuilder sb = new StringBuilder();
         final ConsoleScreenBuffer.BufferTextRange v = new ConsoleScreenBuffer.BufferTextRange();
         int r;
         if (s.first.y == s.last.y) {
-            r = consoleInput.currScrBuf.getChars(s.first.x, s.first.y, s.last.x - s.first.x + 1, v);
-            if (r >= 0) sb.append(v.toString().trim());
+            r = consoleInput.currScrBuf
+                    .getChars(s.first.x, s.first.y, s.last.x - s.first.x + 1, v);
+            if (r >= 0)
+                sb.append(v.toString().trim());
         } else if (selection.isRectangular) {
             for (int y = s.first.y; y <= s.last.y - 1; y++) {
-                r = consoleInput.currScrBuf.getChars(s.first.x, y, s.last.x - s.first.x + 1, v);
-                if (r >= 0) sb.append(v.toString().replaceAll(" *$", ""));
+                r = consoleInput.currScrBuf
+                        .getChars(s.first.x, y, s.last.x - s.first.x + 1, v);
+                if (r >= 0)
+                    sb.append(v.toString().replaceAll(" *$", ""));
                 sb.append('\n');
             }
-            r = consoleInput.currScrBuf.getChars(s.first.x, s.last.y, s.last.x - s.first.x + 1, v);
-            if (r >= 0) sb.append(v.toString().replaceAll(" *$", ""));
+            r = consoleInput.currScrBuf
+                    .getChars(s.first.x, s.last.y, s.last.x - s.first.x + 1, v);
+            if (r >= 0)
+                sb.append(v.toString().replaceAll(" *$", ""));
         } else {
             r = consoleInput.currScrBuf.getChars(s.first.x, s.first.y,
                     consoleInput.currScrBuf.getWidth() - s.first.x, v);
             if (consoleInput.currScrBuf.isLineWrapped(s.first.y)) {
-                if (r < 0) return null;
-                sb.append(v.toString());
+                if (r < 0)
+                    return null;
+                sb.append(v);
             } else {
-                if (r >= 0) sb.append(v.toString().replaceAll(" *$", ""));
+                if (r >= 0)
+                    sb.append(v.toString().replaceAll(" *$", ""));
                 sb.append('\n');
             }
             for (int y = s.first.y + 1; y <= s.last.y - 1; y++) {
@@ -1091,17 +1111,19 @@ public class ConsoleScreenView extends ScrollableView
                         consoleInput.currScrBuf.getWidth(), v);
                 if (consoleInput.currScrBuf.isLineWrapped(y)) {
                     if (r < 0) return null;
-                    sb.append(v.toString());
+                    sb.append(v);
                 } else {
                     if (r >= 0) sb.append(v.toString().replaceAll(" *$", ""));
                     sb.append('\n');
                 }
             }
             r = consoleInput.currScrBuf.getChars(0, s.last.y, s.last.x + 1, v);
-            if (r >= 0) sb.append(v.toString().replaceAll(" *$", ""));
+            if (r >= 0)
+                sb.append(v.toString().replaceAll(" *$", ""));
         }
         final String result = sb.toString();
-        if (result.isEmpty()) return null;
+        if (result.isEmpty())
+            return null;
         return result;
     }
 
@@ -1317,7 +1339,8 @@ public class ConsoleScreenView extends ScrollableView
                     }
                     break;
             }
-            if (selectionMarker != null) return true;
+            if (selectionMarker != null)
+                return true;
         } else if (mouseMode) { // No gestures here
             if (consoleInput != null && consoleInput.consoleOutput != null) {
                 final int x = getBufferTextPosX(MathUtils.clamp((int) event.getX(),
@@ -1332,7 +1355,8 @@ public class ConsoleScreenView extends ScrollableView
                         } else {
                             final int bs = getButtons(event);
                             buttons = bs & ~mButtons;
-                            if (buttons == 0) break;
+                            if (buttons == 0)
+                                break;
                             mButtons = bs;
                         }
                         consoleInput.consoleOutput.feed(AnsiConsoleOutput.MouseEventType.PRESS,
@@ -1342,7 +1366,8 @@ public class ConsoleScreenView extends ScrollableView
                         break;
                     }
                     case MotionEvent.ACTION_MOVE: {
-                        if (mXY.x == x && mXY.y == y) break;
+                        if (mXY.x == x && mXY.y == y)
+                            break;
                         final int buttons =
                                 event.getToolType(0) == MotionEvent.TOOL_TYPE_FINGER
                                         ? MotionEvent.BUTTON_PRIMARY
@@ -1362,7 +1387,8 @@ public class ConsoleScreenView extends ScrollableView
                         } else {
                             final int bs = getButtons(event);
                             buttons = mButtons & ~bs;
-                            if (buttons == 0) break;
+                            if (buttons == 0)
+                                break;
                             mButtons = bs;
                         }
                         consoleInput.consoleOutput.feed(AnsiConsoleOutput.MouseEventType.RELEASE,
@@ -1408,7 +1434,8 @@ public class ConsoleScreenView extends ScrollableView
                         0, getHeight() - 1));
                 switch (event.getActionMasked()) {
                     case MotionEvent.ACTION_HOVER_MOVE: {
-                        if (mXY.x == x && mXY.y == y) break;
+                        if (mXY.x == x && mXY.y == y)
+                            break;
                         // Some fancy things for styluses (there are no button events before API 23)
                         final boolean isStylus = (event.getSource() & InputDevice.SOURCE_STYLUS)
                                 == InputDevice.SOURCE_STYLUS;
@@ -1505,7 +1532,8 @@ public class ConsoleScreenView extends ScrollableView
                 execOnScroll();
                 ViewCompat.postInvalidateOnAnimation(this);
             }
-            return (bufDY == 0 && bufDX == 0) || super.onScroll(e1, e2, bufDX, bufDY);
+            return (bufDY == 0 && bufDX == 0) ||
+                    super.onScroll(e1, e2, bufDX, bufDY);
         }
         return super.onScroll(e1, e2, distanceX, distanceY);
     }
@@ -1545,7 +1573,8 @@ public class ConsoleScreenView extends ScrollableView
                 appTextScroller.fling(-(int) (appDX / scrollScale.x),
                         -(int) (appDY / scrollScale.y));
             }
-            return (bufDY == 0 && bufDX == 0) || super.onFling(e1, e2, bufDX, bufDY);
+            return (bufDY == 0 && bufDX == 0) ||
+                    super.onFling(e1, e2, bufDX, bufDY);
         }
         return super.onFling(e1, e2, velocityX, velocityY);
     }
@@ -1589,15 +1618,20 @@ public class ConsoleScreenView extends ScrollableView
             final int py = (int) Math.floor(selectionMarkerExpr.y);
             final ConsoleScreenBuffer.BufferTextRange chars =
                     new ConsoleScreenBuffer.BufferTextRange();
-            if (consoleInput.currScrBuf.getChars(0, py, Integer.MAX_VALUE, chars) >= 0) {
+            if (consoleInput.currScrBuf
+                    .getChars(0, py, Integer.MAX_VALUE, chars) >= 0) {
                 final int ptr = ConsoleScreenBuffer.getCharIndex(chars.text,
                         px, 0, true);
                 final char sym = (ptr >= chars.text.length) ? '\0' : chars.text[ptr];
-                CharsAutoSelector.select(chars.text, chars.start, chars.start + chars.length,
+                CharsAutoSelector.select(chars.text,
+                        chars.start, chars.start + chars.length,
                         ptr, sym, bb);
-                selection.first.set(ConsoleScreenBuffer.getCharPos(chars.text, 0, bb[0]), py);
-                selection.last.set(ConsoleScreenBuffer.getCharPos(chars.text, 0, bb[1]) - 1, py);
-                doAutoSelectDown(py, sym, doAutoSelectUp(py, sym, AUTOSELECT_LINES_MAX));
+                selection.first.set(ConsoleScreenBuffer
+                        .getCharPos(chars.text, 0, bb[0]), py);
+                selection.last.set(ConsoleScreenBuffer
+                        .getCharPos(chars.text, 0, bb[1]) - 1, py);
+                doAutoSelectDown(py, sym,
+                        doAutoSelectUp(py, sym, AUTOSELECT_LINES_MAX));
                 getCenterText(selection.first.x, selection.first.y, selectionMarkerFirst);
                 getCenterText(selection.last.x, selection.last.y, selectionMarkerLast);
             }
@@ -1610,11 +1644,14 @@ public class ConsoleScreenView extends ScrollableView
                 new ConsoleScreenBuffer.BufferTextRange();
         py--;
         while (ly > 0 && selection.first.x == 0 && consoleInput.currScrBuf.isLineWrapped(py) &&
-                consoleInput.currScrBuf.getChars(0, py, Integer.MAX_VALUE, chars) >= 0) {
+                consoleInput.currScrBuf
+                        .getChars(0, py, Integer.MAX_VALUE, chars) >= 0) {
             final int ptr = chars.start + chars.length - 1;
-            CharsAutoSelector.select(chars.text, chars.start, chars.start + chars.length,
+            CharsAutoSelector.select(chars.text,
+                    chars.start, chars.start + chars.length,
                     ptr, sym, bb);
-            selection.first.set(ConsoleScreenBuffer.getCharPos(chars.text, 0, bb[0]), py);
+            selection.first.set(ConsoleScreenBuffer
+                    .getCharPos(chars.text, 0, bb[0]), py);
             ly--;
             py--;
         }
@@ -1628,11 +1665,14 @@ public class ConsoleScreenView extends ScrollableView
         py++;
         while (ly > 0 && selection.last.x == consoleInput.currScrBuf.getWidth() - 1 &&
                 consoleInput.currScrBuf.isLineWrapped(py - 1) &&
-                consoleInput.currScrBuf.getChars(0, py, Integer.MAX_VALUE, chars) >= 0) {
+                consoleInput.currScrBuf
+                        .getChars(0, py, Integer.MAX_VALUE, chars) >= 0) {
             final int ptr = chars.start;
-            CharsAutoSelector.select(chars.text, chars.start, chars.start + chars.length,
+            CharsAutoSelector.select(chars.text,
+                    chars.start, chars.start + chars.length,
                     ptr, sym, bb);
-            selection.last.set(ConsoleScreenBuffer.getCharPos(chars.text, 0, bb[1]) - 1, py);
+            selection.last.set(ConsoleScreenBuffer
+                    .getCharPos(chars.text, 0, bb[1]) - 1, py);
             ly--;
             py++;
         }
@@ -1739,11 +1779,13 @@ public class ConsoleScreenView extends ScrollableView
             vMarkH = vTrackH.findViewById(R.id.mark);
             vMarkV = vTrackV.findViewById(R.id.mark);
             vHistory = vTrackV.findViewById(R.id.history);
-            popupH = new PopupWindow(vTrackH, ViewGroup.LayoutParams.MATCH_PARENT, lpH.height);
+            popupH = new PopupWindow(vTrackH,
+                    ViewGroup.LayoutParams.MATCH_PARENT, lpH.height);
             popupH.setClippingEnabled(false);
             popupH.setSplitTouchEnabled(false);
             popupH.setAnimationStyle(android.R.style.Animation_Dialog);
-            popupV = new PopupWindow(vTrackV, lpV.width, ViewGroup.LayoutParams.MATCH_PARENT);
+            popupV = new PopupWindow(vTrackV,
+                    lpV.width, ViewGroup.LayoutParams.MATCH_PARENT);
             popupV.setClippingEnabled(false);
             popupV.setSplitTouchEnabled(false);
             popupV.setAnimationStyle(android.R.style.Animation_Dialog);
@@ -1851,8 +1893,10 @@ public class ConsoleScreenView extends ScrollableView
                                                      final float r) {
         final float eX = event.getX();
         final float eY = event.getY();
-        final float mX = MathUtils.clamp(getBufferDrawPosXF(marker.x), 0, getWidth() - 1);
-        final float mY = MathUtils.clamp(getBufferDrawPosYF(marker.y), 0, getHeight() - 1);
+        final float mX = MathUtils.clamp(getBufferDrawPosXF(marker.x),
+                0, getWidth() - 1);
+        final float mY = MathUtils.clamp(getBufferDrawPosYF(marker.y),
+                0, getHeight() - 1);
         final float d = (float) Math.hypot(eX - mX, eY - mY);
         return (d > r) ? Float.POSITIVE_INFINITY : d;
     }
@@ -1871,8 +1915,10 @@ public class ConsoleScreenView extends ScrollableView
                 }
                 return;
             }
-            final float dF = getSelectionMarkerDistance(event, selectionMarkerFirst, r);
-            final float dL = getSelectionMarkerDistance(event, selectionMarkerLast, r);
+            final float dF = getSelectionMarkerDistance(event,
+                    selectionMarkerFirst, r);
+            final float dL = getSelectionMarkerDistance(event,
+                    selectionMarkerLast, r);
             if (dF < dL) {
                 selectionMarker = selectionMarkerFirst;
                 scrollDisabled = true;
@@ -2017,7 +2063,9 @@ public class ConsoleScreenView extends ScrollableView
                         ConsoleScreenBuffer.decodeAttrs(consoleInput.currScrBuf.defaultAttrs,
                                 charAttrs);
                         applyCharAttrs();
-                        canvas.drawRect(strFragLeft, strTop, getWidth(), strBottom, bgPaint);
+                        canvas.drawRect(strFragLeft, strTop,
+                                getWidth(), strBottom,
+                                bgPaint);
                         break;
                     }
                     ConsoleScreenBuffer.decodeAttrs(_draw_run.attrs, charAttrs);
@@ -2026,7 +2074,9 @@ public class ConsoleScreenView extends ScrollableView
                     if (sr > 0) {
                         // background is only for non-zero length glyphs
                         // see https://en.wikipedia.org/wiki/Combining_character
-                        canvas.drawRect(strFragLeft, strTop, strFragRight, strBottom, bgPaint);
+                        canvas.drawRect(strFragLeft, strTop,
+                                strFragRight, strBottom,
+                                bgPaint);
                     }
                     if (!charAttrs.invisible && charAttrs.fgColor != charAttrs.bgColor &&
                             _draw_run.length > 0 && !isAllSpaces(_draw_run)) {
@@ -2050,21 +2100,28 @@ public class ConsoleScreenView extends ScrollableView
             hasVisibleBlinking = _hasVisibleBlinking;
             if (paddingMarkup != null) {
                 if (vDivBottom < getHeight())
-                    drawDrawable(canvas, paddingMarkup, 0, (int) vDivBottom,
+                    drawDrawable(canvas, paddingMarkup,
+                            0, (int) vDivBottom,
                             getWidth(), getHeight());
                 if (hDiv < getWidth())
                     drawDrawable(canvas, paddingMarkup, (int) hDiv, 0,
                             getWidth(), Math.min(getHeight(), (int) vDivBottom));
             }
-            canvas.drawLine(0, vDivBottom, getWidth(), vDivBottom, paddingMarkupPaint);
-            canvas.drawLine(0, vDivBuf, getWidth(), vDivBuf, paddingMarkupPaint);
-            canvas.drawLine(hDiv, 0, hDiv, getHeight(), paddingMarkupPaint);
+            canvas.drawLine(0, vDivBottom, getWidth(), vDivBottom,
+                    paddingMarkupPaint);
+            canvas.drawLine(0, vDivBuf, getWidth(), vDivBuf,
+                    paddingMarkupPaint);
+            canvas.drawLine(hDiv, 0, hDiv, getHeight(),
+                    paddingMarkupPaint);
         }
     }
 
-    protected final void drawDrawable(@NonNull final Canvas canvas, @Nullable final Drawable drawable,
-                                      final int left, final int top, final int right, final int bottom) {
-        if (drawable == null) return;
+    protected final void drawDrawable(@NonNull final Canvas canvas,
+                                      @Nullable final Drawable drawable,
+                                      final int left, final int top,
+                                      final int right, final int bottom) {
+        if (drawable == null)
+            return;
         int xOff = 0;
         int yOff = 0;
         int xSize = 0;

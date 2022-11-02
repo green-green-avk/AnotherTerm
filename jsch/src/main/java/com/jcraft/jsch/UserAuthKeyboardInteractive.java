@@ -119,7 +119,7 @@ final class UserAuthKeyboardInteractive extends UserAuth {
                     buf.getByte();
                     final String name = Util.byte2str(buf.getString());
                     final String instruction = Util.byte2str(buf.getString());
-                    final String languate_tag = Util.byte2str(buf.getString());
+                    final String language_tag = Util.byte2str(buf.getString());
                     final int num = buf.getInt();
                     final String[] prompt = new String[num];
                     final boolean[] echo = new boolean[num];

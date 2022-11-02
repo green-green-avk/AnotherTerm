@@ -44,7 +44,7 @@ public final class ConsoleService extends Service {
     }
 
     private static final String EMSG_NI_CONNTYPE = "This Connection type is not implemented yet";
-    private static final int ID_FG = 1;
+    private static final int FG_ID = 1;
     private static final String NOTIFICATION_CHANNEL_ID = ConsoleService.class.getName();
 
     private static AnsiSession.Properties.Condition parseCondition(@Nullable final Object v) {
@@ -58,6 +58,7 @@ public final class ConsoleService extends Service {
 
     private static ConsoleService instance = null;
 
+    @Nullable
     public static ConsoleService getInstance() {
         return instance;
     }
@@ -73,20 +74,23 @@ public final class ConsoleService extends Service {
 
     @Override
     public int onStartCommand(final Intent intent, final int flags, final int startId) {
-        if (intent == null) stopSelf(); // Nothing to do after restart
+        if (intent == null)
+            stopSelf(); // Nothing to do after restart
         return START_STICKY; // Just in case
     }
 
     private static void tryStart(@NonNull final Context appCtx) {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O)
-            appCtx.startForegroundService(
-                    new Intent(appCtx.getApplicationContext(), ConsoleService.class));
+            appCtx.startForegroundService(new Intent(appCtx.getApplicationContext(),
+                    ConsoleService.class));
         else
-            appCtx.startService(new Intent(appCtx.getApplicationContext(), ConsoleService.class));
+            appCtx.startService(new Intent(appCtx.getApplicationContext(),
+                    ConsoleService.class));
     }
 
     private static void tryStop() {
-        if (instance != null) instance.stopSelf();
+        if (instance != null)
+            instance.stopSelf();
     }
 
     private void tryFg() {
@@ -111,7 +115,7 @@ public final class ConsoleService extends Service {
                 .setContentIntent(tsb.getPendingIntent(0,
                         PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_IMMUTABLE))
                 .build();
-        startForeground(ID_FG, n);
+        startForeground(FG_ID, n);
     }
 
     @Override
@@ -248,7 +252,6 @@ public final class ConsoleService extends Service {
 
             @Override
             public void onError(@NonNull final Throwable e) {
-//                ci.currScrBuf.setChars(e.toString());
                 final String msg = e.getMessage();
                 tbe.getUi().showMessage(msg != null ? msg : e.toString());
             }
