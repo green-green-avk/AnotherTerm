@@ -22,8 +22,7 @@
 
     <item
         android:id="@+id/action_ssh_keys_settings"
-        android:title="@string/action_ssh_keys_settings"
-        app:showAsAction="never" />
+        android:title="@string/action_ssh_keys_settings" />
 
     <item
         android:id="@+id/action_settings"
