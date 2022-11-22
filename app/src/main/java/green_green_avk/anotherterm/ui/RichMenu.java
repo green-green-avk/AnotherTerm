@@ -70,6 +70,11 @@ public final class RichMenu {
         public int getPopupRefY() {
             return -ownerView.getHeight() / 2;
         }
+
+        @Override
+        protected int getAnimationStyle() {
+            return android.R.style.Animation_Dialog;
+        }
     }
 
     public void wrap(@NonNull final View view) {
