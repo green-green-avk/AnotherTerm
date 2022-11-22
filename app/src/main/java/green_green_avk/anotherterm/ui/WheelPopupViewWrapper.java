@@ -20,12 +20,16 @@ import androidx.annotation.CheckResult;
 import androidx.annotation.LayoutRes;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.annotation.StyleRes;
 import androidx.core.view.MotionEventCompat;
 
 public abstract class WheelPopupViewWrapper {
     public abstract int getPopupRefX();
 
     public abstract int getPopupRefY();
+
+    @StyleRes
+    protected abstract int getAnimationStyle();
 
     protected boolean onGestureEnd(@NonNull final MotionEvent event) {
         return false;
@@ -122,7 +126,7 @@ public abstract class WheelPopupViewWrapper {
         // ===
         window.setClippingEnabled(false);
         window.setSplitTouchEnabled(true);
-        window.setAnimationStyle(android.R.style.Animation_Dialog);
+        window.setAnimationStyle(getAnimationStyle());
         contentViewWrapper.setOnGenericMotionListener((v, event) -> {
             if (showOnHover) {
                 switch (event.getActionMasked()) {

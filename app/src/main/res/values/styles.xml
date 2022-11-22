@@ -55,6 +55,11 @@
         <item name="android:textColor">@android:color/tertiary_text_light</item>
     </style>
 
+    <style name="Animation.WheelPopup" parent="android:Animation.Dialog">
+        <item name="android:windowEnterAnimation">@null</item>
+        <item name="android:windowExitAnimation">@anim/slow_fade</item>
+    </style>
+
     <style name="AppScreenMouseButtonStyle" parent="Widget.AppCompat.Button.Borderless">
         <item name="android:background">@null</item>
         <item name="android:layout_margin">1dp</item>

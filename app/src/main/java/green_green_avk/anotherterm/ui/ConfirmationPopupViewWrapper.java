@@ -15,7 +15,12 @@ import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
 import androidx.core.view.ViewCompat;
 
+import green_green_avk.anotherterm.R;
+
 public final class ConfirmationPopupViewWrapper extends WheelPopupViewWrapper {
+    private static final int[] ATTRS_NONE = new int[]{};
+    private static final int[] ATTRS_HIGHLIGHT = new int[]{android.R.attr.state_pressed};
+
     @Nullable
     private Drawable pointerDrawable = null;
 
@@ -99,6 +104,7 @@ public final class ConfirmationPopupViewWrapper extends WheelPopupViewWrapper {
                 final int yOff = Math.round(r * yC);
                 pointerDrawable.setBounds(xC - xOff, yC - yOff,
                         xC + xOff, yC + yOff);
+                pointerDrawable.setState(r >= 1F ? ATTRS_HIGHLIGHT : ATTRS_NONE);
                 pointerDrawable.draw(canvas);
             }
         }
@@ -149,5 +155,10 @@ public final class ConfirmationPopupViewWrapper extends WheelPopupViewWrapper {
     @Override
     public int getPopupRefY() {
         return popupView.getLayoutParams().height / 2;
+    }
+
+    @Override
+    protected int getAnimationStyle() {
+        return R.style.Animation_WheelPopup;
     }
 }
