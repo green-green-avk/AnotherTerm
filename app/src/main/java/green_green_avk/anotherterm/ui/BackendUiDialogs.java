@@ -155,7 +155,9 @@ public class BackendUiDialogs implements BackendUiInteraction,
         if (v instanceof Editable)
             handler.post(() -> {
                 try {
-                    ((Editable) v).clear();
+                    ((Editable) v)
+                            .replace(0, v.length(), CharBuffer.allocate(v.length()))
+                            .clear();
                 } catch (final Exception ignored) {
                 }
             });
@@ -180,6 +182,7 @@ public class BackendUiDialogs implements BackendUiInteraction,
                             dialog.dismiss();
                         } else {
                             promptState = null;
+                            erase(et.getText());
                             result.set(null);
                             dialog.dismiss();
                         }
@@ -189,6 +192,7 @@ public class BackendUiDialogs implements BackendUiInteraction,
                     final Dialog d = new AlertDialog.Builder(ctx)
                             .setOnCancelListener(dialog -> {
                                 promptState = null;
+                                erase(et.getText());
                                 result.set(null);
                             })
                             .setCancelable(false)
