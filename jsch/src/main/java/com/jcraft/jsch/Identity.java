@@ -35,6 +35,9 @@ public interface Identity {
      * Decrypts this identity with the specified pass-phrase.
      *
      * @param passphrase the pass-phrase for this identity.
+     *                   (It is NOT erased inside the method
+     *                   in the case of {@link KeyPairDeferred}
+     *                   key pairs anymore.)
      * @return {@code true} if the decryption is succeeded
      * or this identity is not cyphered.
      */

@@ -60,7 +60,6 @@ final class KeyPairDeferred extends KeyPair {
 
             new BCrypt().pbkdf(_passphrase, opts.getString(), opts.getInt(), keyiv);
 
-            Arrays.fill(_passphrase, (byte) 0);
             final byte[] key = Arrays.copyOfRange(keyiv, 0, 32);
             final byte[] iv = Arrays.copyOfRange(keyiv, 32, 48);
             cipher.init(Cipher.DECRYPT_MODE, key, iv);
