@@ -156,7 +156,7 @@ final class KeyPairDeferred extends KeyPair {
 
     private <T> T requireDecrypted(final T obj) {
         if (obj == null)
-            throw new IllegalStateException("encrypted key has not been decrypted yet.");
+            throw new JSchErrorException("Encrypted key has not been decrypted yet");
         return obj;
     }
 }

@@ -405,7 +405,9 @@ final class UserAuthPublicKey extends UserAuth {
             Util.bzero(passphrase);
             passphrase = null;
             count--;
-            if (count == 0) break;
+            if (count == 0) {
+                throw new JSchKeyDecryptionException("Too many retries");
+            }
         }
 
         Util.bzero(passphrase);
