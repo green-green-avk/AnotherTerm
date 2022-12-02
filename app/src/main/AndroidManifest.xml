@@ -70,6 +70,14 @@
         </activity>
 
         <activity
+            android:name=".PasswordManagementActivity"
+            android:excludeFromRecents="true"
+            android:exported="false"
+            android:label="@string/title_activity_saved_passwords"
+            android:launchMode="singleTask"
+            android:taskAffinity="" />
+
+        <activity
             android:name=".SshKeysSettingsActivity"
             android:exported="false"
             android:label="@string/action_ssh_keys_settings"
@@ -177,6 +185,11 @@
 
         <service
             android:name=".ConsoleService"
+            android:enabled="true"
+            android:exported="false" />
+
+        <service
+            android:name=".PasswordService"
             android:enabled="true"
             android:exported="false" />
 

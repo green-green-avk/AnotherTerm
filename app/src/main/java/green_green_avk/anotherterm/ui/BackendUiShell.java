@@ -6,6 +6,7 @@ import androidx.annotation.Nullable;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.util.List;
 
 import green_green_avk.anotherterm.backends.BackendUiInteraction;
 import green_green_avk.anotherterm.backends.BackendUiInteractionShellCtx;
@@ -32,8 +33,15 @@ public final class BackendUiShell implements BackendUiInteraction, BackendUiInte
     }
 
     @Override
+    public boolean promptFields(@NonNull final List<CustomFieldOpts> fieldsOpts)
+            throws InterruptedException {
+        return false;
+    }
+
+    @Override
     @Nullable
-    public CharSequence promptPassword(@NonNull final CharSequence message)
+    public CharSequence promptPassword(@NonNull final CharSequence message,
+                                       @NonNull final List<CustomFieldOpts> extras)
             throws InterruptedException {
         return null;
     }

@@ -1,13 +1,10 @@
 package green_green_avk.anotherterm;
 
 import android.app.Notification;
-import android.app.NotificationChannel;
-import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.app.Service;
 import android.content.Context;
 import android.content.Intent;
-import android.os.Build;
 import android.os.Handler;
 import android.os.IBinder;
 import android.os.Looper;
@@ -34,6 +31,7 @@ import green_green_avk.anotherterm.backends.BackendsList;
 import green_green_avk.anotherterm.backends.EventBasedBackendModuleWrapper;
 import green_green_avk.anotherterm.ui.BackendUiSessionDialogs;
 import green_green_avk.anotherterm.utils.BooleanCaster;
+import green_green_avk.anotherterm.utils.ForegroundServices;
 
 public final class ConsoleService extends Service {
 
@@ -45,7 +43,6 @@ public final class ConsoleService extends Service {
 
     private static final String EMSG_NI_CONNTYPE = "This Connection type is not implemented yet";
     private static final int FG_ID = 1;
-    private static final String NOTIFICATION_CHANNEL_ID = ConsoleService.class.getName();
 
     private static AnsiSession.Properties.Condition parseCondition(@Nullable final Object v) {
         if (C.COND_STR_PROCESS_EXIT_STATUS_0.equals(v))
@@ -80,12 +77,7 @@ public final class ConsoleService extends Service {
     }
 
     private static void tryStart(@NonNull final Context appCtx) {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O)
-            appCtx.startForegroundService(new Intent(appCtx.getApplicationContext(),
-                    ConsoleService.class));
-        else
-            appCtx.startService(new Intent(appCtx.getApplicationContext(),
-                    ConsoleService.class));
+        ForegroundServices.startForegroundService(appCtx, ConsoleService.class);
     }
 
     private static void tryStop() {
@@ -94,22 +86,14 @@ public final class ConsoleService extends Service {
     }
 
     private void tryFg() {
-        final TaskStackBuilder tsb = TaskStackBuilder.create(getApplicationContext())
-                .addNextIntentWithParentStack(
-                        new Intent(getApplicationContext(), SessionsActivity.class)
-                                .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
-                );
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            final NotificationChannel nc = new NotificationChannel(NOTIFICATION_CHANNEL_ID,
-                    getString(R.string.app_name),
-                    NotificationManager.IMPORTANCE_LOW);
-            ((NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE))
-                    .createNotificationChannel(nc);
-        }
-        final Notification n = new NotificationCompat.Builder(getApplicationContext(),
-                NOTIFICATION_CHANNEL_ID)
+        final Context appCtx = getApplicationContext();
+        final TaskStackBuilder tsb = TaskStackBuilder.create(appCtx)
+                .addNextIntentWithParentStack(new Intent(appCtx,
+                        SessionsActivity.class)
+                        .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK));
+        final Notification n = new NotificationCompat.Builder(appCtx,
+                ForegroundServices.getAppNotificationChannelId(appCtx))
                 .setContentTitle(getString(R.string.there_are_active_terminals))
-//                .setContentText("Console is running")
                 .setSmallIcon(R.drawable.ic_stat_serv)
                 .setPriority(NotificationCompat.PRIORITY_LOW)
                 .setContentIntent(tsb.getPendingIntent(0,

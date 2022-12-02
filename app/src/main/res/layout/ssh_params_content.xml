@@ -246,8 +246,15 @@
         android:layout_height="wrap_content"
         android:layout_marginTop="@dimen/text_separator"
         android:layout_marginBottom="@dimen/text_separator"
-        android:text="@string/title_encryption_preferences"
+        android:text="@string/title_ssh_prefs_auth"
         android:textSize="@dimen/text_header_size" />
+
+    <CheckBox
+        android:id="@+id/f_silently_use_saved_passwords"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:tag="silently_use_saved_passwords"
+        android:text="@string/label_ssh_silently_use_saved_passwords" />
 
     <CheckBox
         android:id="@+id/f_prefer_key_auth"
@@ -255,6 +262,19 @@
         android:layout_height="wrap_content"
         android:tag="prefer_key_auth"
         android:text="@string/label_prefer_public_key_authentication" />
+
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:background="?android:attr/listDivider" />
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="@dimen/text_separator"
+        android:layout_marginBottom="@dimen/text_separator"
+        android:text="@string/title_ssh_prefs_encryption"
+        android:textSize="@dimen/text_header_size" />
 
     <TextView
         android:layout_width="match_parent"

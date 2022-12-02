@@ -36,11 +36,10 @@ final class UserAuthPassword extends UserAuth {
     public boolean start(final Session session) throws Exception {
         super.start(session);
 
+        final String dest = "ssh://" + username + "@" + session.host + ":" + session.port;
+
         byte[] password = session.password;
-        String dest = username + "@" + session.host;
-        if (session.port != 22) {
-            dest += (":" + session.port);
-        }
+        byte[] newPassword = null;
 
         try {
 
@@ -89,104 +88,101 @@ final class UserAuthPassword extends UserAuth {
                     buf = session.read(buf);
                     final int command = buf.getCommand() & 0xff;
 
-                    if (command == SSH_MSG_USERAUTH_SUCCESS) {
-                        return true;
-                    }
-                    if (command == SSH_MSG_USERAUTH_BANNER) {
-                        buf.getInt();
-                        buf.getByte();
-                        buf.getByte();
-                        final byte[] message = buf.getString();
-                        final byte[] lang = buf.getString();
-                        if (userinfo != null) {
-                            userinfo.showMessage(Util.byte2str(message));
+                    switch (command) {
+                        case SSH_MSG_USERAUTH_SUCCESS: {
+                            reportPasswordState(UserInfo.Result.SUCCESS,
+                                    dest, newPassword != null ? newPassword : password);
+                            return true;
                         }
-                        continue loop;
-                    }
-                    if (command == SSH_MSG_USERAUTH_PASSWD_CHANGEREQ) {
-                        buf.getInt();
-                        buf.getByte();
-                        buf.getByte();
-                        final byte[] instruction = buf.getString();
-                        final byte[] tag = buf.getString();
-                        if (userinfo == null ||
-                                !(userinfo instanceof UIKeyboardInteractive)) {
+                        case SSH_MSG_USERAUTH_BANNER: {
+                            buf.getInt();
+                            buf.getByte();
+                            buf.getByte();
+                            final byte[] message = buf.getString();
+                            final byte[] lang = buf.getString();
                             if (userinfo != null) {
-                                userinfo.showMessage("Password must be changed.");
+                                userinfo.showMessage(Util.byte2str(message));
                             }
+                            continue loop;
+                        }
+                        case SSH_MSG_USERAUTH_PASSWD_CHANGEREQ: {
+                            buf.getInt();
+                            buf.getByte();
+                            buf.getByte();
+                            final byte[] instruction = buf.getString();
+                            final byte[] language_tag = buf.getString();
+                            if (userinfo == null) {
+                                return false;
+                            }
+
+                            final CharSequence _newPassword = userinfo.promptPassword(dest,
+                                    UserInfo.Message.PASSWORD_FOR_HOST_CHANGE,
+                                    instruction, language_tag);
+                            if (_newPassword == null) {
+                                throw new JSchAuthCancelException("password");
+                            }
+                            Util.bzero(newPassword);
+                            newPassword = Util.str2byte(_newPassword);
+                            userinfo.erase(_newPassword);
+
+                            // send
+                            // byte      SSH_MSG_USERAUTH_REQUEST(50)
+                            // string    user name
+                            // string    service name ("ssh-connection")
+                            // string    "password"
+                            // boolen    TRUE
+                            // string    plaintext old password (ISO-10646 UTF-8)
+                            // string    plaintext new password (ISO-10646 UTF-8)
+                            packet.reset();
+                            buf.putByte((byte) SSH_MSG_USERAUTH_REQUEST);
+                            buf.putString(_username);
+                            buf.putString(Util.str2byte("ssh-connection"));
+                            buf.putString(Util.str2byte("password"));
+                            buf.putByte((byte) 1);
+                            buf.putString(password);
+                            buf.putString(newPassword);
+                            session.write(packet);
+                            continue loop;
+                        }
+                        case SSH_MSG_USERAUTH_FAILURE: {
+                            buf.getInt();
+                            buf.getByte();
+                            buf.getByte();
+                            final byte[] foo = buf.getString();
+                            final int partial_success = buf.getByte();
+                            //System.err.println(new String(foo)+
+                            //                 " partial_success:"+(partial_success!=0));
+                            if (partial_success != 0) {
+                                if (newPassword != null) {
+                                    reportPasswordState(UserInfo.Result.SUCCESS,
+                                            dest, newPassword);
+                                }
+                                throw new JSchPartialAuthException(Util.byte2str(foo));
+                            } else {
+                                reportPasswordState(UserInfo.Result.FAILURE,
+                                        dest, password);
+                            }
+                            session.auth_failures++;
+                            break loop;
+                        }
+                        default: {
+                            //System.err.println("USERAUTH fail ("+buf.getCommand()+")");
+//          throw new JSchException("USERAUTH fail ("+buf.getCommand()+")");
                             return false;
                         }
-
-                        final UIKeyboardInteractive kbi = (UIKeyboardInteractive) userinfo;
-                        final String name = "Password Change Required";
-                        final String[] prompt = {"New Password: "};
-                        final boolean[] echo = {false};
-                        final CharSequence[] response = kbi.promptKeyboardInteractive(
-                                dest,
-                                name,
-                                Util.byte2str(instruction),
-                                prompt,
-                                echo
-                        );
-                        if (response == null) {
-                            throw new JSchAuthCancelException("password");
-                        }
-
-                        final byte[] newpassword = Util.str2byte(response[0]);
-                        kbi.erase(response);
-
-                        // send
-                        // byte      SSH_MSG_USERAUTH_REQUEST(50)
-                        // string    user name
-                        // string    service name ("ssh-connection")
-                        // string    "password"
-                        // boolen    TRUE
-                        // string    plaintext old password (ISO-10646 UTF-8)
-                        // string    plaintext new password (ISO-10646 UTF-8)
-                        packet.reset();
-                        buf.putByte((byte) SSH_MSG_USERAUTH_REQUEST);
-                        buf.putString(_username);
-                        buf.putString(Util.str2byte("ssh-connection"));
-                        buf.putString(Util.str2byte("password"));
-                        buf.putByte((byte) 1);
-                        buf.putString(password);
-                        buf.putString(newpassword);
-                        Util.bzero(newpassword);
-                        session.write(packet);
-                        continue loop;
-                    }
-                    if (command == SSH_MSG_USERAUTH_FAILURE) {
-                        buf.getInt();
-                        buf.getByte();
-                        buf.getByte();
-                        final byte[] foo = buf.getString();
-                        final int partial_success = buf.getByte();
-                        //System.err.println(new String(foo)+
-                        //                 " partial_success:"+(partial_success!=0));
-                        if (partial_success != 0) {
-                            throw new JSchPartialAuthException(Util.byte2str(foo));
-                        }
-                        session.auth_failures++;
-                        break;
-                    } else {
-                        //System.err.println("USERAUTH fail ("+buf.getCommand()+")");
-//          throw new JSchException("USERAUTH fail ("+buf.getCommand()+")");
-                        return false;
                     }
                 }
 
-                if (password != null) {
-                    Util.bzero(password);
-                    password = null;
-                }
+                Util.bzero(password);
+                password = null;
+                Util.bzero(newPassword);
+                newPassword = null;
 
             }
 
         } finally {
-            if (password != null) {
-                Util.bzero(password);
-                password = null;
-            }
+            Util.bzero(password);
+            Util.bzero(newPassword);
         }
 
         //throw new JSchException("USERAUTH fail");

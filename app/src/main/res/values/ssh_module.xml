@@ -1,7 +1,12 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="title_encryption_preferences">Encryption preferences</string>
+    <string name="title_ssh_prefs_auth">Authentication</string>
+    <string name="label_ssh_silently_use_saved_passwords">Silently use saved passwords <i>(password authentication and private key decryption)</i></string>
+    <string name="label_ssh_save_password">Save on success</string>
+    <string name="label_ssh_use_saved_password">Use saved</string>
     <string name="label_prefer_public_key_authentication">Prefer Public Key Authentication</string>
+    <string name="note_ssh_trying_keyboard_interactive___"><i>Trying the <b>keyboard-interactive</b> authentication method as the last resort…</i></string>
+    <string name="title_ssh_prefs_encryption">Encryption</string>
     <string name="label_client_private_key_">Client private key (OpenSSH or PEM):</string>
     <string name="label_key_exchange">Key exchange <i>(kex)</i></string>
     <string name="label_transport_encryption">Transport encryption <i>(cipher)</i></string>

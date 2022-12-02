@@ -18,6 +18,7 @@ import com.jcraft.jsch.JSchErrorException;
 import com.jcraft.jsch.JSchException;
 import com.jcraft.jsch.Logger;
 import com.jcraft.jsch.Session;
+import com.jcraft.jsch.UIKeyboardInteractive;
 import com.jcraft.jsch.UserInfo;
 
 import org.apache.commons.text.StringEscapeUtils;
@@ -26,10 +27,12 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.net.URLEncoder;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.IllegalFormatException;
+import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
@@ -44,9 +47,11 @@ import green_green_avk.anotherterm.backends.BackendException;
 import green_green_avk.anotherterm.backends.BackendInterruptedException;
 import green_green_avk.anotherterm.backends.BackendModule;
 import green_green_avk.anotherterm.backends.BackendUiInteraction;
+import green_green_avk.anotherterm.backends.BackendUiPasswordStorage;
 import green_green_avk.anotherterm.ui.BackendUiDialogs;
 import green_green_avk.anotherterm.ui.ContentRequester;
 import green_green_avk.anotherterm.utils.BlockingSync;
+import green_green_avk.anotherterm.utils.Password;
 import green_green_avk.anotherterm.utils.SshHostKeyRepository;
 
 public final class SshModule extends BackendModule {
@@ -277,6 +282,8 @@ public final class SshModule extends BackendModule {
     @NonNull
     private final SshSessionSt sshSessionSt;
 
+    private boolean silentlyUseSavedPasswords = false;
+    private boolean savePasswords = silentlyUseSavedPasswords;
     @NonNull
     private String terminalString = "xterm";
     @NonNull
@@ -338,8 +345,10 @@ public final class SshModule extends BackendModule {
         if (authKeyUriStr != null)
             sshSessionSt.authKeyUri = Uri.parse(authKeyUriStr);
 
+        silentlyUseSavedPasswords = pp.getBoolean("silently_use_saved_passwords",
+                silentlyUseSavedPasswords);
+        savePasswords = silentlyUseSavedPasswords;
         terminalString = pp.getString("terminal_string", terminalString);
-
         execute = pp.getString("execute", execute);
 
         sshSessionSt.keepaliveInterval = pp.getInt("keepalive_interval",
@@ -498,7 +507,10 @@ public final class SshModule extends BackendModule {
         }
     };
 
-    private final UserInfo userInfo = new UserInfo() {
+    private interface UserInfoKi extends UserInfo, UIKeyboardInteractive {
+    }
+
+    private final UserInfoKi userInfo = new UserInfoKi() {
         private CharSequence buildMessage(final int message, final Object... args) {
             try {
                 switch (message) {
@@ -508,6 +520,10 @@ public final class SshModule extends BackendModule {
                         return sshSessionSt.context.getString(
                                 R.string.msg_password_for_host_s,
                                 args);
+                    case Message.PASSWORD_FOR_HOST_CHANGE:
+                        return sshSessionSt.context.getString(
+                                R.string.msg_password_for_host_change_s_s,
+                                args[0], args[1]);
                     case Message.PASSPHRASE_FOR_KEY:
                         return sshSessionSt.context.getString(
                                 R.string.msg_passphrase_for_key_s,
@@ -534,17 +550,143 @@ public final class SshModule extends BackendModule {
 
         @Override
         public void erase(final CharSequence v) {
-            ui.erase(v);
+            if (v != null)
+                ui.erase(v);
+        }
+
+        @Override
+        public void erase(final CharSequence[] v) {
+            if (v != null)
+                for (final CharSequence c : v)
+                    erase(c);
+        }
+
+        private static final String modulePrefix = "ssh@";
+
+        @Override
+        public void onAuthResult(final int result,
+                                 final String id, final SensitiveStringProvider v) {
+            if (savePasswords && ui instanceof BackendUiPasswordStorage) {
+                switch (result) {
+                    case Result.SUCCESS: {
+                        final Password pwd = Password.adopt(v.get());
+                        ((BackendUiPasswordStorage) ui).putPassword(modulePrefix + id, pwd);
+                        pwd.erase();
+                        break;
+                    }
+                    case Result.FAILURE: {
+                        final Password pwd = Password.adopt(v.get());
+                        ((BackendUiPasswordStorage) ui).erasePassword(modulePrefix + id, pwd);
+                        pwd.erase();
+                        break;
+                    }
+                }
+            }
+        }
+
+        @Override
+        public CharSequence[] promptKeyboardInteractive(final String destination,
+                                                        final String name,
+                                                        final String instruction,
+                                                        final String[] prompt,
+                                                        final boolean[] echo) {
+            final List<BackendUiInteraction.CustomFieldOpts> fieldsOpts =
+                    new ArrayList<>(4 + prompt.length);
+            fieldsOpts.add(new BackendUiInteraction.CustomFieldOpts(sshSessionSt.context
+                    .getText(R.string.note_ssh_trying_keyboard_interactive___),
+                    BackendUiInteraction.CustomFieldAction.label));
+            fieldsOpts.add(new BackendUiInteraction.CustomFieldOpts(destination,
+                    BackendUiInteraction.CustomFieldAction.label));
+            fieldsOpts.add(new BackendUiInteraction.CustomFieldOpts(name,
+                    BackendUiInteraction.CustomFieldAction.label));
+            fieldsOpts.add(new BackendUiInteraction.CustomFieldOpts(instruction,
+                    BackendUiInteraction.CustomFieldAction.label));
+            final CharSequence[] result = new CharSequence[prompt.length];
+            for (int i = 0; i < prompt.length; i++) {
+                final int idx = i;
+                fieldsOpts.add(new BackendUiInteraction.CustomFieldOpts(prompt[i],
+                        new BackendUiInteraction.CustomTextInputAction() {
+                            @Override
+                            public void onSubmit(@NonNull final BackendUiInteraction.CustomPrompt prompt,
+                                                 @NonNull final CharSequence v) {
+                                result[idx] = v;
+                            }
+
+                            @Override
+                            @NonNull
+                            public Type getType() {
+                                return echo[idx] ? Type.NORMAL : Type.PASSWORD;
+                            }
+                        }));
+            }
+            final boolean r;
+            try {
+                r = ui.promptFields(fieldsOpts);
+            } catch (final InterruptedException e) {
+                throw new BackendInterruptedException(e);
+            }
+            if (!r) {
+                erase(result);
+                return null;
+            }
+            return result;
         }
 
         @Override
         public CharSequence promptPassword(final String id,
                                            final int message, final Object... args) {
             final CharSequence messageStr = buildMessage(message, args);
+            final Password savedPassword;
+            if (ui instanceof BackendUiPasswordStorage) {
+                savedPassword = ((BackendUiPasswordStorage) ui)
+                        .getPassword(modulePrefix + id);
+            } else {
+                savedPassword = null;
+            }
+            if (silentlyUseSavedPasswords && savedPassword != null) {
+                return savedPassword;
+            }
+            final List<BackendUiInteraction.CustomFieldOpts> extras = new ArrayList<>(2);
+            extras.add(new BackendUiInteraction.CustomFieldOpts(
+                    sshSessionSt.context.getString(
+                            R.string.label_ssh_save_password),
+                    new BackendUiInteraction.CustomCheckboxAction() {
+                        @Override
+                        @NonNull
+                        public Boolean onInit() {
+                            return savePasswords;
+                        }
+
+                        @Override
+                        public void onSubmit(@NonNull final BackendUiInteraction.CustomPrompt prompt,
+                                             @NonNull final Boolean v) {
+                            savePasswords = v;
+                        }
+                    }));
+            final boolean[] useSaved = new boolean[]{false};
+            if (savedPassword != null) {
+                extras.add(new BackendUiInteraction.CustomFieldOpts(
+                        sshSessionSt.context.getString(
+                                R.string.label_ssh_use_saved_password),
+                        (BackendUiInteraction.CustomButtonAction) prompt -> {
+                            useSaved[0] = true;
+                            prompt.submit();
+                        }
+                ));
+            }
+            final CharSequence r;
             try {
-                return ui.promptPassword(messageStr);
+                r = ui.promptPassword(messageStr, extras);
             } catch (final InterruptedException e) {
                 throw new BackendInterruptedException(e);
+            }
+            if (useSaved[0]) {
+                erase(r);
+                return savedPassword;
+            } else {
+                if (savedPassword != null)
+                    savedPassword.erase();
+                return r;
             }
         }
 
@@ -720,8 +862,8 @@ public final class SshModule extends BackendModule {
                     s.setConfig("compression.c2s", cfgComp);
                     s.setConfig("StrictHostKeyChecking", "ask");
                     s.setConfig("PreferredAuthentications", sshSessionSt.preferKeyAuth
-                            ? "none,publickey,keyboard-interactive,password"
-                            : "none,keyboard-interactive,password,publickey");
+                            ? "none,publickey,password,keyboard-interactive"
+                            : "none,password,publickey,keyboard-interactive");
                     s.setServerAliveInterval(sshSessionSt.keepaliveInterval);
                     s.setServerAliveCountMax(10);
                     s.setX11Host(sshSessionSt.x11Host);
