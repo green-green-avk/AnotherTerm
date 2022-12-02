@@ -218,39 +218,40 @@ final class UserAuthPublicKey extends UserAuth {
                         buf = session.read(buf);
                         command = buf.getCommand() & 0xff;
 
-                        if (command == SSH_MSG_USERAUTH_PK_OK) {
-                            if (session.getLogger().isEnabled(Logger.DEBUG)) {
-                                session.getLogger().log(Logger.DEBUG,
-                                        ipkmethod + " preauth success");
+                        switch (command) {
+                            case SSH_MSG_USERAUTH_PK_OK:
+                                if (session.getLogger().isEnabled(Logger.DEBUG)) {
+                                    session.getLogger().log(Logger.DEBUG,
+                                            ipkmethod + " preauth success");
+                                }
+                                pkmethodsuccesses = Collections.singletonList(ipkmethod);
+                                break loop3;
+                            case SSH_MSG_USERAUTH_FAILURE:
+                                if (session.getLogger().isEnabled(Logger.DEBUG)) {
+                                    session.getLogger().log(Logger.DEBUG,
+                                            ipkmethod + " preauth failure");
+                                }
+                                continue loop3;
+                            case SSH_MSG_USERAUTH_BANNER: {
+                                buf.getInt();
+                                buf.getByte();
+                                buf.getByte();
+                                final byte[] _message = buf.getString();
+                                final byte[] lang = buf.getString();
+                                final String message = Util.byte2str(_message);
+                                if (userinfo != null) {
+                                    userinfo.showMessage(message);
+                                }
+                                continue loop1;
                             }
-                            pkmethodsuccesses = Collections.singletonList(ipkmethod);
-                            break loop3;
-                        } else if (command == SSH_MSG_USERAUTH_FAILURE) {
-                            if (session.getLogger().isEnabled(Logger.DEBUG)) {
-                                session.getLogger().log(Logger.DEBUG,
-                                        ipkmethod + " preauth failure");
-                            }
-                            continue loop3;
-                        } else if (command == SSH_MSG_USERAUTH_BANNER) {
-                            buf.getInt();
-                            buf.getByte();
-                            buf.getByte();
-                            final byte[] _message = buf.getString();
-                            final byte[] lang = buf.getString();
-                            final String message = Util.byte2str(_message);
-                            if (userinfo != null) {
-                                userinfo.showMessage(message);
-                            }
-                            continue loop1;
-                        } else {
-                            //System.err.println("USERAUTH fail ("+command+")");
-                            //throw new JSchException("USERAUTH fail ("+command+")");
-                            if (session.getLogger().isEnabled(Logger.DEBUG)) {
-                                session.getLogger().log(Logger.DEBUG,
-                                        ipkmethod + " preauth failure command (" + command + ")");
-                            }
-                            continue loop3;
                         }
+                        //System.err.println("USERAUTH fail ("+command+")");
+                        //throw new JSchException("USERAUTH fail ("+command+")");
+                        if (session.getLogger().isEnabled(Logger.DEBUG)) {
+                            session.getLogger().log(Logger.DEBUG,
+                                    ipkmethod + " preauth failure command (" + command + ")");
+                        }
+                        continue loop3;
                     }
                 }
 
@@ -263,7 +264,7 @@ final class UserAuthPublicKey extends UserAuth {
             if (identity.isEncrypted()) continue;
             if (pubkeyblob == null) pubkeyblob = identity.getPublicKeyBlob();
 
-//System.err.println("UserAuthPublicKey: pubkeyblob="+pubkeyblob);
+            //System.err.println("UserAuthPublicKey: pubkeyblob="+pubkeyblob);
 
             if (pubkeyblob == null) continue;
             if (pkmethodsuccesses == null) pkmethodsuccesses = ipkmethods;
@@ -296,9 +297,9 @@ final class UserAuthPublicKey extends UserAuth {
                 buf.putString(Util.str2byte(pkmethodsuccess));
                 buf.putString(pubkeyblob);
 
-//        byte[] tmp=new byte[buf.index-5];
-//        System.arraycopy(buf.buffer, 5, tmp, 0, tmp.length);
-//        buf.putString(signature);
+                //        byte[] tmp=new byte[buf.index-5];
+                //        System.arraycopy(buf.buffer, 5, tmp, 0, tmp.length);
+                //        buf.putString(signature);
 
                 final byte[] sid = session.getSessionId();
                 final int sidlen = sid.length;
@@ -325,40 +326,43 @@ final class UserAuthPublicKey extends UserAuth {
                     buf = session.read(buf);
                     command = buf.getCommand() & 0xff;
 
-                    if (command == SSH_MSG_USERAUTH_SUCCESS) {
-                        if (session.getLogger().isEnabled(Logger.DEBUG)) {
-                            session.getLogger().log(Logger.DEBUG,
-                                    pkmethodsuccess + " auth success");
+                    switch (command) {
+                        case SSH_MSG_USERAUTH_SUCCESS:
+                            if (session.getLogger().isEnabled(Logger.DEBUG)) {
+                                session.getLogger().log(Logger.DEBUG,
+                                        pkmethodsuccess + " auth success");
+                            }
+                            return true;
+                        case SSH_MSG_USERAUTH_BANNER: {
+                            buf.getInt();
+                            buf.getByte();
+                            buf.getByte();
+                            final byte[] _message = buf.getString();
+                            final byte[] lang = buf.getString();
+                            final String message = Util.byte2str(_message);
+                            if (userinfo != null) {
+                                userinfo.showMessage(message);
+                            }
+                            continue loop2;
                         }
-                        return true;
-                    } else if (command == SSH_MSG_USERAUTH_BANNER) {
-                        buf.getInt();
-                        buf.getByte();
-                        buf.getByte();
-                        final byte[] _message = buf.getString();
-                        final byte[] lang = buf.getString();
-                        final String message = Util.byte2str(_message);
-                        if (userinfo != null) {
-                            userinfo.showMessage(message);
+                        case SSH_MSG_USERAUTH_FAILURE: {
+                            buf.getInt();
+                            buf.getByte();
+                            buf.getByte();
+                            final byte[] foo = buf.getString();
+                            final int partial_success = buf.getByte();
+                            //System.err.println(new String(foo)+
+                            //                   " partial_success:"+(partial_success!=0));
+                            if (partial_success != 0) {
+                                throw new JSchPartialAuthException(Util.byte2str(foo));
+                            }
+                            session.auth_failures++;
+                            if (session.getLogger().isEnabled(Logger.DEBUG)) {
+                                session.getLogger().log(Logger.DEBUG,
+                                        pkmethodsuccess + " auth failure");
+                            }
+                            break loop2;
                         }
-                        continue loop2;
-                    } else if (command == SSH_MSG_USERAUTH_FAILURE) {
-                        buf.getInt();
-                        buf.getByte();
-                        buf.getByte();
-                        final byte[] foo = buf.getString();
-                        final int partial_success = buf.getByte();
-                        //System.err.println(new String(foo)+
-                        //                   " partial_success:"+(partial_success!=0));
-                        if (partial_success != 0) {
-                            throw new JSchPartialAuthException(Util.byte2str(foo));
-                        }
-                        session.auth_failures++;
-                        if (session.getLogger().isEnabled(Logger.DEBUG)) {
-                            session.getLogger().log(Logger.DEBUG,
-                                    pkmethodsuccess + " auth failure");
-                        }
-                        break loop2;
                     }
                     //System.err.println("USERAUTH fail ("+command+")");
                     //throw new JSchException("USERAUTH fail ("+command+")");
@@ -378,10 +382,11 @@ final class UserAuthPublicKey extends UserAuth {
         int count = 5;
         while (true) {
             if (identity.isEncrypted() && passphrase == null) {
-                if (userinfo == null)
+                if (userinfo == null) {
                     throw new JSchException("USERAUTH fail");
+                }
                 final CharSequence _passphrase =
-                        userinfo.promptPassword(null,
+                        userinfo.promptPassword(identity.getName(),
                                 UserInfo.Message.PASSPHRASE_FOR_KEY,
                                 identity.getName());
                 if (_passphrase == null) {
@@ -395,11 +400,19 @@ final class UserAuthPublicKey extends UserAuth {
 
             if (!identity.isEncrypted() || passphrase != null) {
                 if (identity.setPassphrase(passphrase)) {
-                    if (passphrase != null &&
-                            (session.getIdentityRepository() instanceof IdentityRepositoryWrapper)) {
-                        ((IdentityRepositoryWrapper) session.getIdentityRepository()).check();
+                    if (passphrase != null) {
+                        if (session.getIdentityRepository() instanceof IdentityRepositoryWrapper) {
+                            ((IdentityRepositoryWrapper) session.getIdentityRepository()).check();
+                        }
+                        reportPasswordState(UserInfo.Result.SUCCESS,
+                                identity.getName(), passphrase);
                     }
                     break;
+                } else {
+                    if (passphrase != null) {
+                        reportPasswordState(UserInfo.Result.FAILURE,
+                                identity.getName(), passphrase);
+                    }
                 }
             }
             Util.bzero(passphrase);
@@ -411,6 +424,5 @@ final class UserAuthPublicKey extends UserAuth {
         }
 
         Util.bzero(passphrase);
-        passphrase = null;
     }
 }

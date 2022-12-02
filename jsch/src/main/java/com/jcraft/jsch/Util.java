@@ -530,6 +530,14 @@ final class Util {
         return byte2str(str, s, l, UTF8);
     }
 
+    static CharBuffer byte2char(final byte[] str, final Charset encoding) {
+        return encoding.decode(ByteBuffer.wrap(str));
+    }
+
+    static CharBuffer byte2char(final byte[] str) {
+        return byte2char(str, UTF8);
+    }
+
     static String toHex(final byte[] str) {
         final StringBuilder sb = new StringBuilder();
         for (int i = 0; i < str.length; i++) {

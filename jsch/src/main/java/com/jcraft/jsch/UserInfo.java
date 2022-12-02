@@ -29,10 +29,12 @@ EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 package com.jcraft.jsch;
 
+import java.nio.CharBuffer;
+
 public interface UserInfo {
     interface Message {
         /**
-         * Args: CharSequence message
+         * Args: CharSequence message, String languageTag
          */
         int SIMPLE_MESSAGE = 0;
         /**
@@ -50,11 +52,15 @@ public interface UserInfo {
         /**
          * Args: String userHostPort
          */
-        int PASSWORD_FOR_HOST = 17;
+        int PASSWORD_FOR_HOST = 0x11;
         /**
          * Args: String someKeyName
          */
-        int PASSPHRASE_FOR_KEY = 18;
+        int PASSPHRASE_FOR_KEY = 0x12;
+        /**
+         * Args: String userHostPort, String prompt, String languageTag
+         */
+        int PASSWORD_FOR_HOST_CHANGE = 0x21;
         /**
          * User messages start from here up
          */
@@ -67,6 +73,31 @@ public interface UserInfo {
      * @param v data to erase
      */
     void erase(CharSequence v);
+
+    interface SensitiveStringProvider {
+        /**
+         * @return a copy of the actual string that must be erased after use
+         */
+        CharBuffer get();
+    }
+
+    interface Result {
+        int SUCCESS = 0;
+        int FAILURE = 1;
+    }
+
+    /**
+     * Provides a way to manage the password returned by {@code prompt*()} calls for future use.
+     *
+     * @param result {@link Result}
+     * @param id     unique id for keyring
+     * @param v      password to save
+     *               (this {@link SensitiveStringProvider}
+     *               will no longer be valid after the function returns:
+     *               use {@link SensitiveStringProvider#get()} to )
+     */
+    default void onAuthResult(final int result, final String id, final SensitiveStringProvider v) {
+    }
 
     /**
      * Requests a password from user.
@@ -103,6 +134,6 @@ public interface UserInfo {
      * @param message a message to show
      */
     default void showMessage(final CharSequence message) {
-        showMessage(null, Message.SIMPLE_MESSAGE, message);
+        showMessage(null, Message.SIMPLE_MESSAGE, message, "en");
     }
 }

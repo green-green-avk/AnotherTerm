@@ -236,6 +236,10 @@ public final class SessionsActivity extends AppCompatActivity {
                 startActivity(new Intent(this, SshKeysSettingsActivity.class));
                 return true;
             }
+            case R.id.action_saved_passwords_settings: {
+                startActivity(new Intent(this, PasswordManagementActivity.class));
+                return true;
+            }
             case R.id.action_settings: {
                 startActivity(new Intent(this, SettingsActivity.class));
                 return true;

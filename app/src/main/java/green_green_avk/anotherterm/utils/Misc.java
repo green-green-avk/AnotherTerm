@@ -8,6 +8,8 @@ import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Handler;
 import android.os.Looper;
+import android.text.TextUtils;
+import android.util.Log;
 import android.util.SparseArray;
 import android.util.SparseBooleanArray;
 import android.util.SparseIntArray;
@@ -25,6 +27,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.lang.ref.WeakReference;
+import java.nio.CharBuffer;
 import java.nio.charset.Charset;
 import java.util.Arrays;
 import java.util.Collection;
@@ -42,6 +45,7 @@ import java.util.SortedSet;
 
 import green_green_avk.anotherterm.App;
 import green_green_avk.anotherterm.BuildConfig;
+import green_green_avk.anotherterm.C;
 
 public final class Misc {
     private Misc() {
@@ -292,6 +296,54 @@ public final class Misc {
         return r;
     }
 
+    public static boolean equals(@NonNull final CharSequence a, @NonNull final char[] b) {
+        if (a.length() != b.length)
+            return false;
+        for (int i = 0; i < b.length; i++) {
+            if (a.charAt(i) != b[i])
+                return false;
+        }
+        return true;
+    }
+
+    @NonNull
+    public static char[] toArray(@NonNull final CharSequence v) {
+        if (v instanceof String)
+            return ((String) v).toCharArray();
+        else if (v instanceof Password)
+            return ((Password) v).toArray();
+        final char[] r = new char[v.length()];
+        if (v instanceof CharBuffer)
+            ((CharBuffer) v).get(r);
+        else
+            TextUtils.getChars(v, 0, v.length(), r, 0);
+        return r;
+    }
+
+    public static void erase(@NonNull final CharSequence v) {
+        if (v instanceof Erasable) {
+            ((Erasable) v).erase();
+        } else if (v instanceof CharBuffer) {
+            final CharBuffer bv = (CharBuffer) v;
+            if (bv.hasArray()) {
+                Arrays.fill(bv.array(), '\0');
+            } else {
+                bv.clear();
+                bv.put(new char[bv.remaining()]);
+                bv.clear();
+            }
+        } else if (BuildConfig.DEBUG) {
+            Log.e(C.LOG_TAG_SECURITY, "Ouch! We can't erase some in-memory string!");
+        }
+    }
+
+    @NonNull
+    public static char[] toArrayAndErase(@NonNull final CharSequence v) {
+        final char[] r = toArray(v);
+        erase(v);
+        return r;
+    }
+
     public static <T extends Comparable<T>> T clamp(@NonNull final T v, final T min, final T max) {
         if (v.compareTo(min) < 0) return min;
         if (v.compareTo(max) > 0) return max;
@@ -304,6 +356,14 @@ public final class Misc {
 
     public static boolean bitsAs(final int v, final int m) {
         return (v & m) != 0;
+    }
+
+    public static void postOnMainThread(@NonNull final Runnable r) {
+        if (Looper.getMainLooper().getThread() == Thread.currentThread()) {
+            r.run();
+        } else {
+            new Handler(Looper.getMainLooper()).post(r);
+        }
     }
 
     public static void runOnThread(@NonNull final Runnable r) {

@@ -38,11 +38,7 @@ final class UserAuthKeyboardInteractive extends UserAuth {
             return false;
         }
 
-        String dest = username + "@" + session.host;
-        if (session.port != 22) {
-            dest += (":" + session.port);
-        }
-        byte[] password = session.password;
+        final String dest = "ssh://" + username + "@" + session.host + ":" + session.port;
 
         boolean cancel = false;
 
@@ -130,16 +126,7 @@ final class UserAuthKeyboardInteractive extends UserAuth {
 
                     byte[][] response = null;
 
-                    if (password != null &&
-                            prompt.length == 1 &&
-                            !echo[0] &&
-                            prompt[0].toLowerCase().contains("password:")) {
-                        response = new byte[1][];
-                        response[0] = password;
-                        password = null;
-                    } else if (num > 0
-                            || (!name.isEmpty() || !instruction.isEmpty())
-                    ) {
+                    if (num > 0 || (!name.isEmpty() || !instruction.isEmpty())) {
                         if (userinfo != null) {
                             final UIKeyboardInteractive kbi = (UIKeyboardInteractive) userinfo;
                             final CharSequence[] _response = kbi.promptKeyboardInteractive(

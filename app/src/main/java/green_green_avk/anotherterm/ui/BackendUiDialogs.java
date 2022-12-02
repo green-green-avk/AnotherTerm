@@ -2,6 +2,7 @@ package green_green_avk.anotherterm.ui;
 
 import android.app.Activity;
 import android.app.Dialog;
+import android.content.Context;
 import android.content.DialogInterface;
 import android.content.pm.PackageManager;
 import android.content.res.ColorStateList;
@@ -11,37 +12,54 @@ import android.text.Editable;
 import android.text.InputType;
 import android.view.KeyEvent;
 import android.view.View;
+import android.view.ViewGroup;
 import android.view.Window;
 import android.view.WindowManager;
 import android.view.inputmethod.EditorInfo;
+import android.widget.Button;
+import android.widget.CompoundButton;
 import android.widget.EditText;
+import android.widget.LinearLayout;
+import android.widget.ScrollView;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.UiThread;
 import androidx.appcompat.app.AlertDialog;
+import androidx.appcompat.widget.AppCompatButton;
+import androidx.appcompat.widget.AppCompatCheckBox;
 import androidx.appcompat.widget.AppCompatEditText;
+import androidx.appcompat.widget.AppCompatTextView;
 import androidx.core.widget.ImageViewCompat;
 import androidx.recyclerview.widget.LinearLayoutManager;
 
 import java.io.IOException;
 import java.lang.ref.WeakReference;
+import java.nio.CharBuffer;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.List;
 import java.util.Set;
 import java.util.WeakHashMap;
 
 import green_green_avk.anotherterm.ConsoleActivity;
+import green_green_avk.anotherterm.PasswordService;
 import green_green_avk.anotherterm.R;
 import green_green_avk.anotherterm.backends.BackendUiInteraction;
 import green_green_avk.anotherterm.backends.BackendUiInteractionActivityCtx;
+import green_green_avk.anotherterm.backends.BackendUiPasswordStorage;
 import green_green_avk.anotherterm.utils.BlockingSync;
+import green_green_avk.anotherterm.utils.Erasable;
 import green_green_avk.anotherterm.utils.LogMessage;
+import green_green_avk.anotherterm.utils.Misc;
+import green_green_avk.anotherterm.utils.Password;
 import green_green_avk.anotherterm.utils.WeakBlockingSync;
 
 // TODO: Split into UI and UI thread connector queue classes
 public class BackendUiDialogs implements BackendUiInteraction,
+        BackendUiPasswordStorage,
         BackendUiInteractionActivityCtx {
 
     private final Handler handler = new Handler(Looper.getMainLooper());
@@ -152,7 +170,9 @@ public class BackendUiDialogs implements BackendUiInteraction,
 
     @Override
     public void erase(@NonNull final CharSequence v) {
-        if (v instanceof Editable)
+        if (v instanceof Erasable) { // Must try first
+            ((Erasable) v).erase();
+        } else if (v instanceof Editable) {
             handler.post(() -> {
                 try {
                     ((Editable) v)
@@ -161,26 +181,238 @@ public class BackendUiDialogs implements BackendUiInteraction,
                 } catch (final Exception ignored) {
                 }
             });
+        } else {
+            Misc.erase(v);
+        }
+    }
+
+    private interface GetValue<T> {
+        @NonNull
+        T getValue();
+    }
+
+    private final class CustomFieldsBuilder {
+        public CustomPrompt prompt = null;
+        public final List<CustomField> fields = new ArrayList<>();
+
+        public void submit() {
+            for (final CustomField field : fields) {
+                if (field instanceof CustomValueField) {
+                    final CustomFieldAction action =
+                            field.getOpts().action;
+                    if (action instanceof CustomValueAction) {
+                        ((CustomValueAction<Object>) action).onSubmit(prompt,
+                                ((CustomValueField<?>) field).getValue());
+                    }
+                }
+            }
+        }
+
+        public void cancel() {
+            for (final CustomField field : fields) {
+                if (field instanceof CustomValueField) {
+                    final CustomFieldAction action =
+                            field.getOpts().action;
+                    if (action instanceof CustomTextInputAction &&
+                            ((CustomTextInputAction) action).getType() ==
+                                    CustomTextInputAction.Type.PASSWORD) {
+                        erase(((CustomValueField<? extends CharSequence>) field).getValue());
+                    }
+                }
+            }
+        }
+
+        private <T> CustomValueField<T> makeValueField(@NonNull final CustomFieldOpts fieldOpts,
+                                                       @NonNull final GetValue<? extends T> onGetValue) {
+            return new CustomValueField<T>() {
+                @Override
+                @NonNull
+                public CustomFieldOpts getOpts() {
+                    return fieldOpts;
+                }
+
+                @Override
+                @NonNull
+                public T getValue() {
+                    return onGetValue.getValue();
+                }
+            };
+        }
+
+        public void build(@NonNull final ViewGroup container,
+                          @NonNull final List<CustomFieldOpts> fieldsOpts,
+                          @NonNull final Runnable onSubmit) {
+            final Context ctx = container.getContext();
+            final CustomPrompt prompt = new CustomPrompt() {
+                @Override
+                public void submit() {
+                    onSubmit.run();
+                }
+
+                @Override
+                @NonNull
+                public List<CustomField> getFields() {
+                    return fields;
+                }
+            };
+            for (final CustomFieldOpts fieldOpts : fieldsOpts) {
+                if (fieldOpts.action instanceof CustomButtonAction) {
+                    final CustomButtonAction action =
+                            (CustomButtonAction) fieldOpts.action;
+                    final Button extraView = new AppCompatButton(ctx);
+                    extraView.setText(fieldOpts.label);
+                    extraView.setOnClickListener(_view ->
+                            action.onClick(prompt));
+                    fields.add(() -> fieldOpts);
+                    container.addView(extraView, new ViewGroup.LayoutParams(
+                            ViewGroup.LayoutParams.MATCH_PARENT,
+                            ViewGroup.LayoutParams.WRAP_CONTENT
+                    ));
+                } else if (fieldOpts.action instanceof CustomCheckboxAction) {
+                    final CustomCheckboxAction action =
+                            (CustomCheckboxAction) fieldOpts.action;
+                    final CompoundButton fieldView = new AppCompatCheckBox(ctx);
+                    fieldView.setText(fieldOpts.label);
+                    fieldView.setChecked(action.onInit());
+                    fields.add(makeValueField(fieldOpts, fieldView::isChecked));
+                    container.addView(fieldView, new ViewGroup.LayoutParams(
+                            ViewGroup.LayoutParams.MATCH_PARENT,
+                            ViewGroup.LayoutParams.WRAP_CONTENT
+                    ));
+                } else if (fieldOpts.action instanceof CustomTextInputAction) {
+                    final CustomTextInputAction action =
+                            (CustomTextInputAction) fieldOpts.action;
+                    final TextView fieldLabelView = new AppCompatTextView(ctx);
+                    fieldLabelView.setText(fieldOpts.label);
+                    final EditText fieldView = new AppCompatEditText(ctx);
+                    fieldView.setContentDescription(fieldOpts.label);
+                    fieldView.setInputType(InputType.TYPE_CLASS_TEXT |
+                            (action.getType() == CustomTextInputAction.Type.PASSWORD ?
+                                    InputType.TYPE_TEXT_VARIATION_PASSWORD :
+                                    InputType.TYPE_TEXT_VARIATION_VISIBLE_PASSWORD));
+                    fieldView.setText(action.onInit());
+                    fields.add(makeValueField(fieldOpts, fieldView::getText));
+                    container.addView(fieldLabelView, new ViewGroup.LayoutParams(
+                            ViewGroup.LayoutParams.MATCH_PARENT,
+                            ViewGroup.LayoutParams.WRAP_CONTENT
+                    ));
+                    container.addView(fieldView, new ViewGroup.LayoutParams(
+                            ViewGroup.LayoutParams.MATCH_PARENT,
+                            ViewGroup.LayoutParams.WRAP_CONTENT
+                    ));
+                } else if (fieldOpts.action == CustomFieldAction.label) {
+                    final TextView fieldLabelView = new AppCompatTextView(ctx);
+                    fieldLabelView.setText(fieldOpts.label);
+                    container.addView(fieldLabelView, new ViewGroup.LayoutParams(
+                            ViewGroup.LayoutParams.MATCH_PARENT,
+                            ViewGroup.LayoutParams.WRAP_CONTENT
+                    ));
+                }
+            }
+        }
+    }
+
+    @Override
+    public boolean promptFields(@NonNull final List<CustomFieldOpts> fieldsOpts)
+            throws InterruptedException {
+        synchronized (promptLock) {
+            try {
+                final BlockingSync<Boolean> result = new BlockingSync<>();
+                promptState = () -> {
+                    if (isShowingPrompt())
+                        return;
+                    final Activity ctx = activityRef.getNoBlock();
+                    if (ctx == null)
+                        return;
+                    final CustomFieldsBuilder customFields = new CustomFieldsBuilder();
+                    final LinearLayout container = new LinearLayout(ctx);
+                    container.setOrientation(LinearLayout.VERTICAL);
+                    final ScrollView scroller = new ScrollView(ctx);
+                    scroller.setVerticalFadingEdgeEnabled(true);
+                    final ViewGroup.MarginLayoutParams containerLp =
+                            new ViewGroup.MarginLayoutParams(
+                                    ViewGroup.LayoutParams.MATCH_PARENT,
+                                    ViewGroup.LayoutParams.WRAP_CONTENT
+                            );
+                    final int margin = ctx.getResources()
+                            .getDimensionPixelSize(R.dimen.text_margin);
+                    containerLp.setMargins(margin, margin, margin, margin);
+                    scroller.addView(container, containerLp);
+                    scroller.setLayoutParams(new ViewGroup.LayoutParams(
+                            ViewGroup.LayoutParams.MATCH_PARENT,
+                            ViewGroup.LayoutParams.WRAP_CONTENT
+                    ));
+                    final DialogInterface.OnClickListener listener = (dialog, which) -> {
+                        if (which == DialogInterface.BUTTON_POSITIVE) {
+                            customFields.submit();
+                            promptState = null;
+                            result.set(true);
+                            dialog.dismiss();
+                        } else {
+                            customFields.cancel();
+                            promptState = null;
+                            result.set(false);
+                            dialog.dismiss();
+                        }
+                    };
+                    final Dialog d = new AlertDialog.Builder(ctx)
+                            .setOnCancelListener(dialog -> {
+                                customFields.cancel();
+                                promptState = null;
+                                result.set(false);
+                            })
+                            .setCancelable(false)
+                            .setView(scroller)
+                            .setNegativeButton(android.R.string.cancel, listener)
+                            .setPositiveButton(android.R.string.ok, listener)
+                            .create();
+                    customFields.build(container, fieldsOpts, () ->
+                            listener.onClick(d, DialogInterface.BUTTON_POSITIVE));
+                    showPrompt(d);
+                };
+                handler.post(promptState);
+                return result.get();
+            } finally {
+                promptState = null;
+                handler.post(this::expirePrompt);
+            }
+        }
     }
 
     @Override
     @Nullable
-    public CharSequence promptPassword(@NonNull final CharSequence message)
+    public CharSequence promptPassword(@NonNull final CharSequence message,
+                                       @NonNull final List<CustomFieldOpts> extras)
             throws InterruptedException {
         synchronized (promptLock) {
             try {
                 final BlockingSync<CharSequence> result = new BlockingSync<>();
                 promptState = () -> {
-                    if (isShowingPrompt()) return;
+                    if (isShowingPrompt())
+                        return;
                     final Activity ctx = activityRef.getNoBlock();
-                    if (ctx == null) return;
+                    if (ctx == null)
+                        return;
+                    final CustomFieldsBuilder customFields = new CustomFieldsBuilder();
+                    final LinearLayout container = new LinearLayout(ctx);
+                    container.setOrientation(LinearLayout.VERTICAL);
+                    container.setLayoutParams(new ViewGroup.LayoutParams(
+                            ViewGroup.LayoutParams.MATCH_PARENT,
+                            ViewGroup.LayoutParams.WRAP_CONTENT
+                    ));
                     final EditText et = new AppCompatEditText(ctx);
+                    container.addView(et, new ViewGroup.LayoutParams(
+                            ViewGroup.LayoutParams.MATCH_PARENT,
+                            ViewGroup.LayoutParams.WRAP_CONTENT
+                    ));
                     final DialogInterface.OnClickListener listener = (dialog, which) -> {
                         if (which == DialogInterface.BUTTON_POSITIVE) {
+                            customFields.submit();
                             promptState = null;
                             result.set(et.getText());
                             dialog.dismiss();
                         } else {
+                            customFields.cancel();
                             promptState = null;
                             erase(et.getText());
                             result.set(null);
@@ -191,16 +423,19 @@ public class BackendUiDialogs implements BackendUiInteraction,
                             InputType.TYPE_TEXT_VARIATION_PASSWORD);
                     final Dialog d = new AlertDialog.Builder(ctx)
                             .setOnCancelListener(dialog -> {
+                                customFields.cancel();
                                 promptState = null;
                                 erase(et.getText());
                                 result.set(null);
                             })
                             .setCancelable(false)
                             .setMessage(message)
-                            .setView(et)
+                            .setView(container)
                             .setNegativeButton(android.R.string.cancel, listener)
                             .setPositiveButton(android.R.string.ok, listener)
                             .create();
+                    customFields.build(container, extras, () ->
+                            listener.onClick(d, DialogInterface.BUTTON_POSITIVE));
                     et.setOnEditorActionListener((v, actionId, event) -> {
                         if (actionId == EditorInfo.IME_ACTION_DONE) {
                             /* We cannot react on ACTION_UP here but it's a reasonable way
@@ -361,6 +596,22 @@ public class BackendUiDialogs implements BackendUiInteraction,
         boolean r = true;
         for (final int v : result) r &= v == PackageManager.PERMISSION_GRANTED;
         return r;
+    }
+
+    @Override
+    @Nullable
+    public Password getPassword(@NonNull final String target) {
+        return PasswordService.get(target);
+    }
+
+    @Override
+    public void putPassword(@NonNull final String target, @NonNull final CharSequence pwd) {
+        PasswordService.put(target, pwd);
+    }
+
+    @Override
+    public void erasePassword(@NonNull final String target, @Nullable final CharSequence pwd) {
+        PasswordService.remove(target, pwd);
     }
 
     public boolean hasUi() {

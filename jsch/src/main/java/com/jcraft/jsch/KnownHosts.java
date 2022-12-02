@@ -373,13 +373,15 @@ final class KnownHosts implements HostKeyRepository {
             if (userinfo != null) {
                 doSync = userinfo.promptYesNo(null, UserInfo.Message.SIMPLE_MESSAGE,
                         khFilename + " does not exist.\n" +
-                                "Are you sure you want to create it?"
+                                "Are you sure you want to create it?",
+                        "en"
                 );
                 goo = goo.getParentFile();
                 if (doSync && goo != null && !goo.exists()) {
                     doSync = userinfo.promptYesNo(null, UserInfo.Message.SIMPLE_MESSAGE,
                             "The parent directory " + goo + " does not exist.\n" +
-                                    "Are you sure you want to create it?"
+                                    "Are you sure you want to create it?",
+                            "en"
                     );
                     if (doSync) {
                         if (!goo.mkdirs()) {

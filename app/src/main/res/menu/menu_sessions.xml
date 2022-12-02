@@ -25,6 +25,10 @@
         android:title="@string/action_ssh_keys_settings" />
 
     <item
+        android:id="@+id/action_saved_passwords_settings"
+        android:title="@string/action_saved_passwords_settings" />
+
+    <item
         android:id="@+id/action_settings"
         android:title="@string/action_settings" />
 

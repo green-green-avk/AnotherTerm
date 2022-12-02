@@ -115,6 +115,7 @@ public final class App extends Application {
     @Override
     public void onCreate() {
         super.onCreate();
+        PasswordService.setContextProvider(ConsoleService::getInstance);
         PluginsManager.init(this);
         settings.init(this, PreferenceManager.getDefaultSharedPreferences(this));
 //        sSettings = settings;

@@ -29,6 +29,8 @@ EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 package com.jcraft.jsch;
 
+import androidx.annotation.NonNull;
+
 public abstract class UserAuth {
     protected static final int SSH_MSG_USERAUTH_REQUEST = 50;
     protected static final int SSH_MSG_USERAUTH_FAILURE = 51;
@@ -49,5 +51,12 @@ public abstract class UserAuth {
         this.buf = packet.getBuffer();
         this.username = session.getUserName();
         return true;
+    }
+
+    protected final void reportPasswordState(final int result,
+                                             final String id, @NonNull final byte[] password) {
+        if (userinfo != null) {
+            userinfo.onAuthResult(result, id, () -> Util.byte2char(password));
+        }
     }
 }

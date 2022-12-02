@@ -25,4 +25,5 @@ public final class C {
             new ArrayList<>(Charset.availableCharsets().keySet());
     public static final int KEYCODE_LED_WAKE_LOCK = 0x10000;
     public static final String COND_STR_PROCESS_EXIT_STATUS_0 = "pes=0";
+    public static final String LOG_TAG_SECURITY = "SECURITY";
 }
