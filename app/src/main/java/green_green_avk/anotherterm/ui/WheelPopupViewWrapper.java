@@ -2,6 +2,7 @@ package green_green_avk.anotherterm.ui;
 
 import android.annotation.SuppressLint;
 import android.content.Context;
+import android.content.res.Resources;
 import android.graphics.Color;
 import android.graphics.Point;
 import android.graphics.PointF;
@@ -210,12 +211,14 @@ public abstract class WheelPopupViewWrapper {
 
     public final void setContentView(@Nullable final View view) {
         contentViewWrapper.removeAllViewsInLayout();
-        contentViewWrapper.addView(view);
+        if (view != null)
+            contentViewWrapper.addView(view);
     }
 
     public final void setContentView(@LayoutRes final int res) {
         contentViewWrapper.removeAllViewsInLayout();
-        View.inflate(getContext(), res, contentViewWrapper);
+        if (res != Resources.ID_NULL)
+            View.inflate(getContext(), res, contentViewWrapper);
     }
 
     public final boolean isShowOnHover() {
