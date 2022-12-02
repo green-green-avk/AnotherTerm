@@ -151,6 +151,7 @@ public abstract class WheelPopupViewWrapper {
                     }
                     break;
                 case MotionEvent.ACTION_DOWN:
+                    v.getParent().requestDisallowInterceptTouchEvent(true);
                     if (MotionEventCompat.isFromSource(event, InputDevice.SOURCE_MOUSE)
                             && (event.getButtonState() & MotionEvent.BUTTON_PRIMARY) == 0)
                         return false;
