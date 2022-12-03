@@ -169,6 +169,7 @@ public class ConsoleScreenView extends ScrollableView
         protected int keySize = 0; // px
         protected final int[] parentPos = new int[2];
         protected final PopupWindow window;
+        protected AlertDialog auxDialog = null;
         protected final Drawable[] backgrounds;
         protected final Point pos = new Point(0, 0);
         protected final ImageView wSelMode;
@@ -289,7 +290,8 @@ public class ConsoleScreenView extends ScrollableView
                         | InputType.TYPE_TEXT_VARIATION_NORMAL);
                 et.setHint(getSearchHint());
                 et.setText(wSearch.getText());
-                new AlertDialog.Builder(getContext())
+                auxDialog = new AlertDialog.Builder(getContext())
+                        .setOnDismissListener(dialog -> auxDialog = null)
                         .setView(et)
                         .setPositiveButton(android.R.string.ok, (dialog, which) ->
                                 setSearchPattern(et.getText()))
@@ -470,6 +472,8 @@ public class ConsoleScreenView extends ScrollableView
         }
 
         protected void hide() {
+            if (auxDialog != null)
+                auxDialog.dismiss();
             window.dismiss();
         }
     }
