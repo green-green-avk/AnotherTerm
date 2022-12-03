@@ -2,8 +2,13 @@
 <resources>
     <string name="app_name">Another Term (Debug)</string>
     <string name="title_activity_favorite_editor">Favorite Editor (Debug)</string>
+    <string name="title_activity_key_mappings">Key Mappings (Debug)</string>
     <string name="title_activity_key_mapping_editor">Key Mapping Editor (Debug)</string>
+    <string name="title_activity_settings">Settings (Debug)</string>
     <string name="title_activity_saved_passwords">Saved Passwords (Debug)</string>
+    <string name="title_ssh_keys_settings">SSH Keys Settings (Debug)</string>
     <string name="action_share_with_new_session">Share with a newly created session (Debug)</string>
     <string name="action_open_in_new_session">Open in a newly created session (Debug)</string>
+    <string name="title_scratchpad">Scratchpad (Debug)</string>
+    <string name="title_info">Info (Debug)</string>
 </resources>
