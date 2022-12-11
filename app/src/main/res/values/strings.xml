@@ -181,6 +181,7 @@
     <string name="label_keymode_application">Application (DEC?KM)</string>
     <string name="label_save_as_">Save as:</string>
     <string name="label_key_">Key:</string>
+    <string name="label_navigation">Navigation</string>
     <string name="label_font">Font</string>
     <string name="label_selection">Selection</string>
     <string name="label_screen_keyboard">Screen Keyboard</string>
