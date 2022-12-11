@@ -68,8 +68,9 @@ public final class SettingsActivity extends AppCompatPreferenceActivity {
         @Override
         public void onCreatePreferences(final Bundle bundle, final String s) {
             addPreferencesFromResource(R.xml.pref_terminal);
-            if (Build.VERSION.SDK_INT < Build.VERSION_CODES.LOLLIPOP)
-                findPreference("terminal_use_recents").setVisible(false);
+            if (Build.VERSION.SDK_INT < Build.VERSION_CODES.LOLLIPOP) {
+                findPreference("terminal_use_recents").getParent().setVisible(false);
+            }
         }
     }
 

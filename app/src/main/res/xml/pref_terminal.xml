@@ -2,11 +2,16 @@
 <PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto">
 
-    <CheckBoxPreference
-        android:defaultValue="@bool/terminal_use_recents"
+    <PreferenceCategory
         android:icon="@drawable/ic_recents"
-        android:key="terminal_use_recents"
-        android:title="@string/label_keep_terminal_activities_on_the_recents_screen" />
+        android:title="@string/label_navigation">
+
+        <CheckBoxPreference
+            android:defaultValue="@bool/terminal_use_recents"
+            android:key="terminal_use_recents"
+            android:title="@string/label_keep_terminal_activities_on_the_recents_screen" />
+
+    </PreferenceCategory>
 
     <PreferenceCategory
         android:icon="@drawable/ic_font"
