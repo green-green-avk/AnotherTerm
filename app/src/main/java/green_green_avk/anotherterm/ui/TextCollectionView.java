@@ -20,7 +20,7 @@ import green_green_avk.anotherterm.utils.ClipboardSpan;
 import green_green_avk.anotherterm.utils.Misc;
 
 public class TextCollectionView extends AppCompatTextView
-        implements ParameterView<Collection<CharSequence>> {
+        implements ParameterView<Collection<? extends CharSequence>> {
     public TextCollectionView(@NonNull final Context context) {
         super(context);
     }
@@ -37,14 +37,14 @@ public class TextCollectionView extends AppCompatTextView
     @NonNull
     public CharSequence delimiter = ",";
 
-    public void setText(@Nullable final Collection<CharSequence> list) {
+    public void setText(@Nullable final Collection<? extends CharSequence> list) {
         if (list == null) {
             setText("");
             return;
         }
         setMovementMethod(UiUtils.getFixedLinkMovementMethod());
         final SpannableStringBuilder builder = new SpannableStringBuilder();
-        for (final Iterator<CharSequence> it = list.iterator(); it.hasNext(); ) {
+        for (final Iterator<? extends CharSequence> it = list.iterator(); it.hasNext(); ) {
             final CharSequence v = it.next();
             builder.append("X");
             final SpannableStringBuilder subBuilder = new SpannableStringBuilder(v);
@@ -68,12 +68,12 @@ public class TextCollectionView extends AppCompatTextView
 
     @Override
     @Nullable
-    public Collection<CharSequence> getValue() {
+    public Collection<? extends CharSequence> getValue() {
         return null;
     }
 
     @Override
-    public void setValue(@Nullable final Collection<CharSequence> v) {
+    public void setValue(@Nullable final Collection<? extends CharSequence> v) {
         setText(v);
     }
 
@@ -91,7 +91,7 @@ public class TextCollectionView extends AppCompatTextView
     }
 
     @Override
-    public void setOnValueChanged(@Nullable final OnValueChanged<Collection<CharSequence>> v) {
+    public void setOnValueChanged(@Nullable final OnValueChanged<? super Collection<? extends CharSequence>> v) {
         // Never happens
     }
 }

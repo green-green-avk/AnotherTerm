@@ -72,7 +72,7 @@ public class FilePickerView extends LinearLayoutCompat implements ParameterView<
                             Log.w(this.getClass().getSimpleName(), e);
                     }
                 }
-                doOnValueChanged();
+                notifyValueChanged();
             };
 
     {
@@ -104,7 +104,7 @@ public class FilePickerView extends LinearLayoutCompat implements ParameterView<
                 return;
             this.uri = null;
             refresh();
-            doOnValueChanged();
+            notifyValueChanged();
         });
         addView(wUnset);
         addView(wText);
@@ -216,16 +216,16 @@ public class FilePickerView extends LinearLayoutCompat implements ParameterView<
             throw new IllegalArgumentException();
     }
 
-    private OnValueChanged<Uri> onValueChanged = null;
+    private OnValueChanged<? super Uri> onValueChanged = null;
 
-    private void doOnValueChanged() {
-        final OnValueChanged<Uri> h = onValueChanged;
+    private void notifyValueChanged() {
+        final OnValueChanged<? super Uri> h = onValueChanged;
         if (h != null)
             h.onValueChanged(uri);
     }
 
     @Override
-    public void setOnValueChanged(@Nullable final OnValueChanged<Uri> v) {
+    public void setOnValueChanged(@Nullable final OnValueChanged<? super Uri> v) {
         onValueChanged = v;
     }
 }
