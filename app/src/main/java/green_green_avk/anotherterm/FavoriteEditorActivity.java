@@ -119,7 +119,7 @@ public final class FavoriteEditorActivity extends ExtAppCompatActivity {
             if (mOldName != null)
                 FavoritesManager.remove(mOldName);
             finish();
-            Toast.makeText(FavoriteEditorActivity.this, R.string.msg_favorite_deleted, Toast.LENGTH_SHORT).show();
+            Toast.makeText(this, R.string.msg_favorite_deleted, Toast.LENGTH_SHORT).show();
         };
         UiUtils.confirm(this, getString(R.string.do_you_want_to_delete_this_favorite), r);
     }
@@ -143,7 +143,7 @@ public final class FavoriteEditorActivity extends ExtAppCompatActivity {
             mOldName = name;
             isNeedSave = false;
             asEdit();
-            Toast.makeText(FavoriteEditorActivity.this, R.string.msg_saved, Toast.LENGTH_SHORT).show();
+            Toast.makeText(this, R.string.msg_saved, Toast.LENGTH_SHORT).show();
         };
         if ((mMakeNew || !name.equals(mOldName)) && FavoritesManager.contains(name))
             UiUtils.confirm(this, getString(R.string.msg_favorite_s_is_already_exists_replace, name), r);
@@ -164,7 +164,7 @@ public final class FavoriteEditorActivity extends ExtAppCompatActivity {
 
     @Override
     public boolean onSupportNavigateUp() {
-        close(FavoriteEditorActivity.super::onSupportNavigateUp);
+        close(super::onSupportNavigateUp);
         return true;
     }
 
