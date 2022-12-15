@@ -111,7 +111,13 @@ public final class RawPreferenceUiWrapper implements PreferenceUiWrapper {
                 });
                 changedFields.add(pName); // TODO: Not now
             } else if (root instanceof ImageButton) {
-                root.setOnClickListener(v -> set(pName, defaults.get(pName)));
+                root.setOnClickListener(v -> {
+                    set(pName, defaults.get(pName));
+                    if (!isFrozen && views.get(pName) instanceof ParameterView) {
+                        changedFields.add(pName);
+                        callOnChanged(pName);
+                    }
+                });
             } else if (root instanceof TextView) {
                 views.put(pName, root);
             }
