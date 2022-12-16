@@ -646,7 +646,7 @@ final class Util {
         boolean test(T v);
     }
 
-    static <T extends Collection<String>> T filter(final Util.Predicate<String> f,
+    static <T extends Collection<String>> T filter(final Predicate<? super String> f,
                                                    final T v) {
         final Iterator<String> it = v.iterator();
         while (it.hasNext())

@@ -17,7 +17,9 @@ import android.graphics.drawable.GradientDrawable;
 import android.graphics.drawable.ShapeDrawable;
 import android.net.Uri;
 import android.os.Build;
+import android.text.Editable;
 import android.text.Layout;
+import android.text.Selection;
 import android.text.method.LinkMovementMethod;
 import android.text.method.MovementMethod;
 import android.util.AndroidException;
@@ -493,5 +495,17 @@ public final class UiUtils {
             drawable.mutate();
             drawable.setAlpha(alpha); // Giving up
         }
+    }
+
+    public static void replaceSelection(@NonNull final Editable editable,
+                                        @NonNull final CharSequence replacement) {
+        final int selStart = Selection.getSelectionStart(editable);
+        final int selEnd = Selection.getSelectionEnd(editable);
+        if (selStart < 0 || selEnd < 0)
+            return;
+        final int start = Math.min(selStart, selEnd);
+        final int end = Math.max(selStart, selEnd);
+        Selection.setSelection(editable, end);
+        editable.replace(start, end, replacement);
     }
 }

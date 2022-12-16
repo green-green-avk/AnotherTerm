@@ -298,6 +298,7 @@ public final class FavoriteEditorActivity extends ExtAppCompatActivity {
                         mContainer, false);
         mCurrMSL.setSaveFromParentEnabled(false);
         mContainer.addView(mCurrMSL);
+        mPrefs.setPreferencesMeta(BackendsList.get(id).meta.getParametersMeta());
         mPrefs.addBranch(mCurrMSL);
         mPrefs.setDefaultPreferences(getDefaultPreferences());
         final Map<String, ?> values = new HashMap<>(mPrefsSt.get());
@@ -308,6 +309,7 @@ public final class FavoriteEditorActivity extends ExtAppCompatActivity {
     private void removeOptions() {
         if (mCurrMSL != null) {
             mPrefs.removeBranches();
+            mPrefs.setPreferencesMeta(Collections.emptyMap());
             mContainer.removeView(mCurrMSL);
             mCurrMSL = null;
         }

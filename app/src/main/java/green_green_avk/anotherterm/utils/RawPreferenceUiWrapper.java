@@ -19,6 +19,7 @@ import androidx.annotation.Nullable;
 
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -27,13 +28,23 @@ import java.util.Set;
 import java.util.TreeSet;
 
 import green_green_avk.anotherterm.R;
+import green_green_avk.anotherterm.backends.BackendModule;
+import green_green_avk.anotherterm.ui.CategorizedCollectionView;
+import green_green_avk.anotherterm.ui.DragAndDropCollectionView;
+import green_green_avk.anotherterm.ui.MetaParameterView;
 import green_green_avk.anotherterm.ui.ParameterView;
+import green_green_avk.anotherterm.ui.ReadonlyParameterView;
+import green_green_avk.anotherterm.ui.StringifiableCollectionView;
 
 public final class RawPreferenceUiWrapper implements PreferenceUiWrapper {
     private final Map<String, View> views = new HashMap<>();
+    private final Map<String, View> metaViews = new HashMap<>();
     private final Map<String, List<?>> fieldOpts = new HashMap<>();
     private final Set<String> changedFields = new HashSet<>();
     private final Map<String, Object> defaults = new HashMap<>();
+    @NonNull
+    private Map<String, BackendModule.Meta.ParameterMeta<?>> parametersMeta =
+            Collections.emptyMap();
     private boolean isFrozen = false;
     private int delayedInitNum = 0;
     private boolean delayedInitDone = true;
@@ -43,7 +54,9 @@ public final class RawPreferenceUiWrapper implements PreferenceUiWrapper {
         if (tag instanceof String) {
             final String[] chs = ((String) tag).split("/");
             final String pName = chs[0].intern();
-            if (root instanceof ParameterView) {
+            if (root instanceof MetaParameterView) {
+                metaViews.put(pName, root);
+            } else if (root instanceof ParameterView) {
                 views.put(pName, root);
                 ((ParameterView<?>) root).setOnValueChanged(v -> {
                     if (!isFrozen) {
@@ -209,7 +222,9 @@ public final class RawPreferenceUiWrapper implements PreferenceUiWrapper {
     @Override
     public Object get(final String key) {
         final View view = views.get(key);
-        if (view instanceof ParameterView) {
+        if (view instanceof StringifiableCollectionView) {
+            return ((StringifiableCollectionView) view).getValueAsString();
+        } else if (view instanceof ParameterView) {
             return ((ParameterView<?>) view).getValue();
         } else if (view instanceof EditText) {
             final String t = ((EditText) view).getText().toString();
@@ -251,8 +266,50 @@ public final class RawPreferenceUiWrapper implements PreferenceUiWrapper {
     @Override
     public void set(final String key, final Object value) {
         final View view = views.get(key);
-        if (view instanceof ParameterView) {
-            ((ParameterView<?>) view).setValueFrom(value);
+        final View metaView = metaViews.get(key);
+        final BackendModule.Meta.ParameterMeta<?> parameterMeta = parametersMeta.get(key);
+        if (parameterMeta != null) {
+            final CategorizedCollectionView.GetItemCategory<Object> f = item -> {
+                if (parameterMeta.possibleValues != null &&
+                        !parameterMeta.possibleValues.contains(item)) {
+                    return new CategorizedCollectionView.ItemCategory(
+                            R.string.note_ssh_algorithm_not_implemented,
+                            R.color.note_ssh_algorithm_not_implemented);
+                }
+                if (parameterMeta.possibleValuesOnDevice != null &&
+                        !parameterMeta.possibleValuesOnDevice.contains(item)) {
+                    return new CategorizedCollectionView.ItemCategory(
+                            R.string.note_ssh_algorithm_not_supported,
+                            R.color.note_ssh_algorithm_not_supported);
+                }
+                return null;
+            };
+            if (view instanceof CategorizedCollectionView)
+                ((CategorizedCollectionView<?>) view).setOnGetItemCategory(f);
+            if (view instanceof DragAndDropCollectionView)
+                ((DragAndDropCollectionView) view)
+                        .setDragAndDropMimeType("param-type/" + parameterMeta.typeName);
+            if (metaView instanceof CategorizedCollectionView)
+                ((CategorizedCollectionView<?>) metaView).setOnGetItemCategory(f);
+            if (metaView instanceof DragAndDropCollectionView)
+                ((DragAndDropCollectionView) metaView)
+                        .setDragAndDropMimeType("param-type/" + parameterMeta.typeName);
+            if (metaView instanceof ReadonlyParameterView)
+                ((ReadonlyParameterView<?>) metaView).setValueFrom(parameterMeta.possibleValues);
+        } else {
+            if (view instanceof CategorizedCollectionView)
+                ((CategorizedCollectionView<?>) view).setOnGetItemCategory(null);
+            if (view instanceof DragAndDropCollectionView)
+                ((DragAndDropCollectionView) view).setDragAndDropMimeType(null);
+            if (metaView instanceof CategorizedCollectionView)
+                ((CategorizedCollectionView<?>) metaView).setOnGetItemCategory(null);
+            if (metaView instanceof DragAndDropCollectionView)
+                ((DragAndDropCollectionView) metaView).setDragAndDropMimeType(null);
+            if (metaView instanceof ReadonlyParameterView)
+                ((ReadonlyParameterView<?>) metaView).setValueFrom(null);
+        }
+        if (view instanceof ReadonlyParameterView) {
+            ((ReadonlyParameterView<?>) view).setValueFrom(value);
         } else if (view instanceof AdapterView) {
             final List<?> values = fieldOpts.get(key);
             if (values == null) {
@@ -287,10 +344,10 @@ public final class RawPreferenceUiWrapper implements PreferenceUiWrapper {
                     try {
                         if (Misc.isOrdered((Collection<?>) value))
                             v = String.join(",",
-                                    (Collection<CharSequence>) value);
+                                    (Collection<? extends CharSequence>) value);
                         else
                             v = String.join(",",
-                                    new TreeSet<>((Set<CharSequence>) value));
+                                    new TreeSet<>((Set<? extends CharSequence>) value));
                     } catch (final ClassCastException ignored) {
                         v = value.toString();
                     }
@@ -328,6 +385,11 @@ public final class RawPreferenceUiWrapper implements PreferenceUiWrapper {
         } finally {
             freeze(false);
         }
+    }
+
+    @Override
+    public void setPreferencesMeta(@NonNull final Map<String, BackendModule.Meta.ParameterMeta<?>> ppMeta) {
+        parametersMeta = ppMeta;
     }
 
     @Override

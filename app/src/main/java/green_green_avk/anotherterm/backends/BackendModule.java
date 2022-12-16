@@ -95,6 +95,28 @@ public abstract class BackendModule {
             return null;
         }
 
+        public static class ParameterMeta<T> {
+            @NonNull
+            public final String typeName; // For D&D
+            @Nullable
+            public final Set<T> possibleValues;
+            @Nullable
+            public final Set<T> possibleValuesOnDevice;
+
+            public ParameterMeta(@NonNull final String typeName,
+                                 @Nullable final Set<T> possibleValues,
+                                 @Nullable final Set<T> possibleValuesOnDevice) {
+                this.typeName = typeName;
+                this.possibleValues = possibleValues;
+                this.possibleValuesOnDevice = possibleValuesOnDevice;
+            }
+        }
+
+        @NonNull
+        public Map<String, ParameterMeta<?>> getParametersMeta() {
+            return Collections.emptyMap();
+        }
+
         /**
          * @return disconnection reason types bits
          */

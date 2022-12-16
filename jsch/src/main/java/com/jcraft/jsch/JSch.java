@@ -33,6 +33,7 @@ import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -207,142 +208,202 @@ public class JSch {
         config.put("ClearAllForwardings", "no");
     }
 
+    /**
+     * Key exchange algorithms implemented by the library.
+     */
+    public static final Set<String> implementedKexSet =
+            Collections.unmodifiableSet(
+                    Util.setOf(
+                            "diffie-hellman-group1-sha1",
+                            "diffie-hellman-group14-sha1",
+                            "diffie-hellman-group14-sha256",
+                            "diffie-hellman-group16-sha512",
+                            "diffie-hellman-group18-sha512",
+                            "diffie-hellman-group-exchange-sha1",
+                            "diffie-hellman-group-exchange-sha256",
+                            "ecdh-sha2-nistp256",
+                            "ecdh-sha2-nistp384",
+                            "ecdh-sha2-nistp521",
+                            "curve448-sha512",
+                            "curve25519-sha256",
+                            "curve25519-sha256@libssh.org",
+                            "sntrup4591761x25519-sha512@tinyssh.org",
+
+                            "diffie-hellman-group-exchange-sha224@ssh.com",
+                            "diffie-hellman-group-exchange-sha384@ssh.com",
+                            "diffie-hellman-group-exchange-sha512@ssh.com",
+                            "diffie-hellman-group15-sha512",
+                            "diffie-hellman-group17-sha512",
+                            "diffie-hellman-group14-sha256@ssh.com",
+                            "diffie-hellman-group14-sha224@ssh.com",
+                            "diffie-hellman-group15-sha256@ssh.com",
+                            "diffie-hellman-group15-sha384@ssh.com",
+                            "diffie-hellman-group16-sha512@ssh.com",
+                            "diffie-hellman-group16-sha384@ssh.com",
+                            "diffie-hellman-group18-sha512@ssh.com"
+                    ));
+    /**
+     * Key exchange algorithms supported by a runtime.
+     */
     public static final Set<String> supportedKexSet =
             Collections.unmodifiableSet(
                     Util.filter(kex -> Session.checkKex(JSch.getConfig(kex)),
-                            Util.setOf(
-                                    "diffie-hellman-group1-sha1",
-                                    "diffie-hellman-group14-sha1",
-                                    "diffie-hellman-group14-sha256",
-                                    "diffie-hellman-group16-sha512",
-                                    "diffie-hellman-group18-sha512",
-                                    "diffie-hellman-group-exchange-sha1",
-                                    "diffie-hellman-group-exchange-sha256",
-                                    "ecdh-sha2-nistp256",
-                                    "ecdh-sha2-nistp384",
-                                    "ecdh-sha2-nistp521",
-                                    "curve448-sha512",
-                                    "curve25519-sha256",
-                                    "curve25519-sha256@libssh.org",
-                                    "sntrup4591761x25519-sha512@tinyssh.org",
+                            new HashSet<>(implementedKexSet)));
 
-                                    "diffie-hellman-group-exchange-sha224@ssh.com",
-                                    "diffie-hellman-group-exchange-sha384@ssh.com",
-                                    "diffie-hellman-group-exchange-sha512@ssh.com",
-                                    "diffie-hellman-group15-sha512",
-                                    "diffie-hellman-group17-sha512",
-                                    "diffie-hellman-group14-sha256@ssh.com",
-                                    "diffie-hellman-group14-sha224@ssh.com",
-                                    "diffie-hellman-group15-sha256@ssh.com",
-                                    "diffie-hellman-group15-sha384@ssh.com",
-                                    "diffie-hellman-group16-sha512@ssh.com",
-                                    "diffie-hellman-group16-sha384@ssh.com",
-                                    "diffie-hellman-group18-sha512@ssh.com"
-                            )));
+    /**
+     * Encryption algorithms implemented by the library.
+     */
+    public static final Set<String> implementedCipherSet =
+            Collections.unmodifiableSet(
+                    Util.setOf(
+                            "3des-cbc",
+                            "aes128-cbc",
+                            "aes192-cbc",
+                            "aes256-cbc",
+                            "rijndael-cbc@lysator.liu.se",
+                            "aes128-ctr",
+                            "aes192-ctr",
+                            "aes256-ctr",
+                            "aes128-gcm@openssh.com",
+                            "aes256-gcm@openssh.com",
+                            "chacha20-poly1305@openssh.com",
 
+                            "blowfish-cbc",
+                            "3des-ctr",
+                            "blowfish-ctr",
+                            "arcfour",
+                            "arcfour128",
+                            "arcfour256"
+                    ));
+    /**
+     * Encryption algorithms supported by a runtime.
+     */
     public static final Set<String> supportedCipherSet =
             Collections.unmodifiableSet(
                     Util.filter(cipher -> Session.checkCipher(JSch.getConfig(cipher)),
-                            Util.setOf(
-                                    "3des-cbc",
-                                    "aes128-cbc",
-                                    "aes192-cbc",
-                                    "aes256-cbc",
-                                    "rijndael-cbc@lysator.liu.se",
-                                    "aes128-ctr",
-                                    "aes192-ctr",
-                                    "aes256-ctr",
-                                    "aes128-gcm@openssh.com",
-                                    "aes256-gcm@openssh.com",
-                                    "chacha20-poly1305@openssh.com",
+                            new HashSet<>(implementedCipherSet)));
 
-                                    "blowfish-cbc",
-                                    "3des-ctr",
-                                    "blowfish-ctr",
-                                    "arcfour",
-                                    "arcfour128",
-                                    "arcfour256"
-                            )));
+    /**
+     * Message authentication code algorithms implemented by the library.
+     */
+    public static final Set<String> implementedMacSet =
+            Collections.unmodifiableSet(
+                    Util.setOf(
+                            "hmac-sha1",
+                            "hmac-sha1-96",
+                            "hmac-sha2-256",
+                            "hmac-sha2-512",
+                            "hmac-md5",
+                            "hmac-md5-96",
+                            "umac-64@openssh.com",
+                            "umac-128@openssh.com",
+                            "hmac-sha1-etm@openssh.com",
+                            "hmac-sha1-96-etm@openssh.com",
+                            "hmac-sha2-256-etm@openssh.com",
+                            "hmac-sha2-512-etm@openssh.com",
+                            "hmac-md5-etm@openssh.com",
+                            "hmac-md5-96-etm@openssh.com",
+                            "umac-64-etm@openssh.com",
+                            "umac-128-etm@openssh.com",
 
+                            "hmac-sha256-2@ssh.com",
+                            "hmac-sha224@ssh.com",
+                            "hmac-sha256@ssh.com",
+                            "hmac-sha384@ssh.com",
+                            "hmac-sha512@ssh.com"
+                    ));
+    /**
+     * Message authentication code algorithms supported by a runtime.
+     */
     public static final Set<String> supportedMacSet =
             Collections.unmodifiableSet(
                     Util.filter(mac -> Session.checkMac(JSch.getConfig(mac)),
-                            Util.setOf(
-                                    "hmac-sha1",
-                                    "hmac-sha1-96",
-                                    "hmac-sha2-256",
-                                    "hmac-sha2-512",
-                                    "hmac-md5",
-                                    "hmac-md5-96",
-                                    "umac-64@openssh.com",
-                                    "umac-128@openssh.com",
-                                    "hmac-sha1-etm@openssh.com",
-                                    "hmac-sha1-96-etm@openssh.com",
-                                    "hmac-sha2-256-etm@openssh.com",
-                                    "hmac-sha2-512-etm@openssh.com",
-                                    "hmac-md5-etm@openssh.com",
-                                    "hmac-md5-96-etm@openssh.com",
-                                    "umac-64-etm@openssh.com",
-                                    "umac-128-etm@openssh.com",
+                            new HashSet<>(implementedMacSet)));
 
-                                    "hmac-sha256-2@ssh.com",
-                                    "hmac-sha224@ssh.com",
-                                    "hmac-sha256@ssh.com",
-                                    "hmac-sha384@ssh.com",
-                                    "hmac-sha512@ssh.com"
-                            )));
-
+    /**
+     * Signature algorithms implemented by the library.
+     */
+    public static final Set<String> implementedSigSet =
+            Collections.unmodifiableSet(
+                    Util.setOf(
+                            "ssh-ed25519",
+                            "ssh-ed25519-cert-v01@openssh.com",
+                            "sk-ssh-ed25519@openssh.com",
+                            "sk-ssh-ed25519-cert-v01@openssh.com",
+                            "ssh-rsa",
+                            "rsa-sha2-256",
+                            "rsa-sha2-512",
+                            "ssh-dss",
+                            "ecdsa-sha2-nistp256",
+                            "ecdsa-sha2-nistp384",
+                            "ecdsa-sha2-nistp521",
+                            "sk-ecdsa-sha2-nistp256@openssh.com",
+                            "webauthn-sk-ecdsa-sha2-nistp256@openssh.com",
+                            "ssh-rsa-cert-v01@openssh.com",
+                            "rsa-sha2-256-cert-v01@openssh.com",
+                            "rsa-sha2-512-cert-v01@openssh.com",
+                            "ssh-dss-cert-v01@openssh.com",
+                            "ecdsa-sha2-nistp256-cert-v01@openssh.com",
+                            "ecdsa-sha2-nistp384-cert-v01@openssh.com",
+                            "ecdsa-sha2-nistp521-cert-v01@openssh.com",
+                            "sk-ecdsa-sha2-nistp256-cert-v01@openssh.com"
+                    ));
+    /**
+     * Signature algorithms supported by a runtime.
+     */
     public static final Set<String> supportedSigSet =
             Collections.unmodifiableSet(
                     Util.filter(sig -> Session.checkSignature(JSch.getConfig(sig)),
-                            Util.setOf(
-                                    "ssh-ed25519",
-                                    "ssh-ed25519-cert-v01@openssh.com",
-                                    "sk-ssh-ed25519@openssh.com",
-                                    "sk-ssh-ed25519-cert-v01@openssh.com",
-                                    "ssh-rsa",
-                                    "rsa-sha2-256",
-                                    "rsa-sha2-512",
-                                    "ssh-dss",
-                                    "ecdsa-sha2-nistp256",
-                                    "ecdsa-sha2-nistp384",
-                                    "ecdsa-sha2-nistp521",
-                                    "sk-ecdsa-sha2-nistp256@openssh.com",
-                                    "webauthn-sk-ecdsa-sha2-nistp256@openssh.com",
-                                    "ssh-rsa-cert-v01@openssh.com",
-                                    "rsa-sha2-256-cert-v01@openssh.com",
-                                    "rsa-sha2-512-cert-v01@openssh.com",
-                                    "ssh-dss-cert-v01@openssh.com",
-                                    "ecdsa-sha2-nistp256-cert-v01@openssh.com",
-                                    "ecdsa-sha2-nistp384-cert-v01@openssh.com",
-                                    "ecdsa-sha2-nistp521-cert-v01@openssh.com",
-                                    "sk-ecdsa-sha2-nistp256-cert-v01@openssh.com"
-                            )));
+                            new HashSet<>(implementedSigSet)));
 
+    /**
+     * Public key algorithms implemented by the library.
+     */
+    public static final Set<String> implementedKeySet =
+            Collections.unmodifiableSet(
+                    Util.setOf(
+                            "ssh-ed25519",
+                            "ssh-ed25519-cert-v01@openssh.com",
+                            "sk-ssh-ed25519@openssh.com",
+                            "sk-ssh-ed25519-cert-v01@openssh.com",
+                            "ssh-rsa",
+                            "ssh-dss",
+                            "ecdsa-sha2-nistp256",
+                            "ecdsa-sha2-nistp384",
+                            "ecdsa-sha2-nistp521",
+                            "sk-ecdsa-sha2-nistp256@openssh.com",
+                            "ssh-rsa-cert-v01@openssh.com",
+                            "ssh-dss-cert-v01@openssh.com",
+                            "ecdsa-sha2-nistp256-cert-v01@openssh.com",
+                            "ecdsa-sha2-nistp384-cert-v01@openssh.com",
+                            "ecdsa-sha2-nistp521-cert-v01@openssh.com",
+                            "sk-ecdsa-sha2-nistp256-cert-v01@openssh.com",
+
+                            "rsa-sha2-256",
+                            "rsa-sha2-512"
+                    ));
+    /**
+     * Public key algorithms supported by a runtime.
+     */
     public static final Set<String> supportedKeySet =
             Collections.unmodifiableSet(
                     Util.filter(supportedSigSet::contains,
-                            Util.setOf(
-                                    "ssh-ed25519",
-                                    "ssh-ed25519-cert-v01@openssh.com",
-                                    "sk-ssh-ed25519@openssh.com",
-                                    "sk-ssh-ed25519-cert-v01@openssh.com",
-                                    "ssh-rsa",
-                                    "ssh-dss",
-                                    "ecdsa-sha2-nistp256",
-                                    "ecdsa-sha2-nistp384",
-                                    "ecdsa-sha2-nistp521",
-                                    "sk-ecdsa-sha2-nistp256@openssh.com",
-                                    "ssh-rsa-cert-v01@openssh.com",
-                                    "ssh-dss-cert-v01@openssh.com",
-                                    "ecdsa-sha2-nistp256-cert-v01@openssh.com",
-                                    "ecdsa-sha2-nistp384-cert-v01@openssh.com",
-                                    "ecdsa-sha2-nistp521-cert-v01@openssh.com",
-                                    "sk-ecdsa-sha2-nistp256-cert-v01@openssh.com",
+                            new HashSet<>(implementedKeySet)));
 
-                                    "rsa-sha2-512",
-                                    "rsa-sha2-256"
-                            )));
+    /**
+     * Authentication types implemented by the library.
+     */
+    public static final Set<String> implementedAuthTypes =
+            Collections.unmodifiableSet(Util.setOf(
+                    "none",
+                    "keyboard-interactive",
+                    "password",
+                    "publickey"
+            ));
+    /**
+     * Authentication types supported by a runtime.
+     */
+    public static final Set<String> supportedAuthTypes = implementedAuthTypes;
 
     private final List<Session> sessionPool = new ArrayList<>();
 
