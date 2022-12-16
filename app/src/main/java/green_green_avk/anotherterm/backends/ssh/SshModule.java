@@ -77,21 +77,57 @@ public final class SshModule extends BackendModule {
         return v ? "yes" : "no";
     }
 
+    private static final Map<String, Meta.ParameterMeta<?>> parametersMeta;
+
+    static {
+        final Map<String, Meta.ParameterMeta<?>> r = new HashMap<>();
+        r.put("jsch.cfg.kex",
+                new Meta.ParameterMeta<>("jsch.cfg.kex",
+                        JSch.implementedKexSet,
+                        JSch.supportedKexSet));
+        r.put("jsch.cfg.cipher.s2c",
+                new Meta.ParameterMeta<>("jsch.cfg.cipher",
+                        JSch.implementedCipherSet,
+                        JSch.supportedCipherSet));
+        r.put("jsch.cfg.cipher.c2s",
+                new Meta.ParameterMeta<>("jsch.cfg.cipher",
+                        JSch.implementedCipherSet,
+                        JSch.supportedCipherSet));
+        r.put("jsch.cfg.mac.s2c",
+                new Meta.ParameterMeta<>("jsch.cfg.mac",
+                        JSch.implementedMacSet,
+                        JSch.supportedMacSet));
+        r.put("jsch.cfg.mac.c2s",
+                new Meta.ParameterMeta<>("jsch.cfg.mac",
+                        JSch.implementedMacSet,
+                        JSch.supportedMacSet));
+        r.put("jsch.cfg.PubkeyAcceptedAlgorithms",
+                new Meta.ParameterMeta<>("jsch.cfg.PubkeyAcceptedAlgorithms",
+                        JSch.implementedKeySet,
+                        JSch.supportedKeySet));
+        r.put("jsch.auth.order", new Meta.ParameterMeta<>("jsch.auth.order",
+                JSch.implementedAuthTypes,
+                JSch.supportedAuthTypes));
+        parametersMeta = Collections.unmodifiableMap(r);
+    }
+
     @Keep
     public static final Meta meta = new Meta(SshModule.class, "ssh") {
         @Override
         @NonNull
+        public Map<String, ParameterMeta<?>> getParametersMeta() {
+            return parametersMeta;
+        }
+
+        @Override
+        @NonNull
         public Map<String, ?> getDefaultParameters() {
             final Map<String, Object> r = new HashMap<>();
-            r.put("@jsch.cfg.kex", JSch.supportedKexSet);
             r.put("jsch.cfg.kex", JSch.getConfig("kex"));
-            r.put("@jsch.cfg.cipher", JSch.supportedCipherSet);
             r.put("jsch.cfg.cipher.s2c", JSch.getConfig("cipher.s2c"));
             r.put("jsch.cfg.cipher.c2s", JSch.getConfig("cipher.c2s"));
-            r.put("@jsch.cfg.mac", JSch.supportedMacSet);
             r.put("jsch.cfg.mac.s2c", JSch.getConfig("mac.s2c"));
             r.put("jsch.cfg.mac.c2s", JSch.getConfig("mac.c2s"));
-            r.put("@jsch.cfg.PubkeyAcceptedAlgorithms", JSch.supportedKeySet);
             r.put("jsch.cfg.PubkeyAcceptedAlgorithms",
                     JSch.getConfig("PubkeyAcceptedAlgorithms"));
             r.put("jsch.cfg.enable_server_sig_algs",

@@ -20,8 +20,15 @@
     <string name="label_public_key_accepted_algorithms">Public key algorithms</string>
     <string name="label_enable_server_signature_algorithms">Prioritize matching algorithms from the <b>server-sig-algs</b> response</string>
     <string name="label_prefer_compression">Prefer compression</string>
-    <string name="note_highest_priority_first_lists"><![CDATA[<p>Highest priority - first in the next lists</p>]]></string>
-    <string name="note_ssh_algorithm_lists">@string/note_highest_priority_first_lists</string>
+    <string name="note_ssh_algorithm_lists"><![CDATA[
+        <p>Highest priority - first in the next lists</p>
+        <p><font color=\"@note_ssh_algorithm_not_implemented\">&lt;algorithm&gt;</font> - not supported by the application</p>
+        <p><font color=\"@note_ssh_algorithm_not_supported\">&lt;algorithm&gt;</font> - not supported on this device</p>
+    ]]></string>
+    <string name="note_ssh_algorithm_not_implemented">Not supported by the application</string>
+    <color name="note_ssh_algorithm_not_implemented">@color/colorTextWarning</color>
+    <string name="note_ssh_algorithm_not_supported">Not supported on this device</string>
+    <color name="note_ssh_algorithm_not_supported">@color/colorImportantDark</color>
 
     <string name="label_port_forwarding_">Port forwarding:</string>
     <string name="label_port_forwarding_local_">Local:</string>

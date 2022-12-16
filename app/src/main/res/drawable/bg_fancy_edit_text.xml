@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<selector xmlns:android="http://schemas.android.com/apk/res/android">
+    <item android:drawable="@drawable/bg_fancy_edit_text_f" android:state_focused="true" />
+    <item android:drawable="@drawable/bg_fancy_edit_text_a" android:state_activated="true" />
+    <item android:drawable="@drawable/bg_fancy_edit_text_n" />
+</selector>

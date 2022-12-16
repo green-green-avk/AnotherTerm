@@ -7,6 +7,7 @@ import android.text.SpannableStringBuilder;
 import android.text.Spanned;
 import android.text.style.BackgroundColorSpan;
 import android.text.style.BulletSpan;
+import android.text.style.ForegroundColorSpan;
 import android.text.style.LeadingMarginSpan;
 import android.text.style.RelativeSizeSpan;
 import android.text.style.StyleSpan;
@@ -134,7 +135,8 @@ public final class XmlToSpanned {
         }
 
         private int getResourceId(@Nullable final String name, @Nullable final String defaultType) {
-            if (name == null) return 0;
+            if (name == null)
+                return 0;
             if (name.charAt(0) == '@') {
                 return ctx.getResources().getIdentifier(name.substring(1),
                         defaultType, BuildConfig.APPLICATION_ID);
@@ -268,6 +270,20 @@ public final class XmlToSpanned {
                             new CustomQuoteSpan(ctx.getResources().getColor(R.color.colorAccent)),
                             output.length());
                     break;
+                case "font": {
+                    final int colorRes =
+                            getResourceId(parser.getAttributeValue(
+                                            null, "color"),
+                                    "color");
+                    if (colorRes == 0) {
+                        startNullSpan();
+                    } else {
+                        startSpan(new ForegroundColorSpan(
+                                        ctx.getResources().getColor(colorRes)),
+                                output.length());
+                    }
+                    break;
+                }
                 case "clipboard":
                     startSpan(new ClipboardSpan(), output.length());
                     break;
@@ -308,6 +324,7 @@ public final class XmlToSpanned {
                 case "btn":
                 case "em":
                 case "i":
+                case "font":
                 case "img":
                 case "kbd":
                     endSpan(output.length());

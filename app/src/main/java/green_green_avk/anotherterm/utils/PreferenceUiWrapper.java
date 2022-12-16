@@ -8,12 +8,14 @@ import androidx.annotation.Nullable;
 import java.util.Map;
 import java.util.Set;
 
+import green_green_avk.anotherterm.backends.BackendModule;
+
 public interface PreferenceUiWrapper {
 
     class ParseException extends RuntimeException {
-        final public View view;
-        final public String key;
-        final public Object value;
+        public final View view;
+        public final String key;
+        public final Object value;
 
         public ParseException(final String message, final View view,
                               final String key, final Object value) {
@@ -34,6 +36,8 @@ public interface PreferenceUiWrapper {
     void setPreferences(@NonNull Map<String, ?> pp);
 
     void setDefaultPreferences(@NonNull Map<String, ?> pp);
+
+    void setPreferencesMeta(@NonNull Map<String, BackendModule.Meta.ParameterMeta<?>> ppMeta);
 
     /**
      * @return Fields defined by user, not default.
