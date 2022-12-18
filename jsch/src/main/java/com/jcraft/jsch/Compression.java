@@ -33,11 +33,9 @@ public interface Compression {
     int INFLATER = 0;
     int DEFLATER = 1;
 
-    default void init(final int type, final int level, final Session session) {
-        init(type, level);
-    }
-
     void init(int type, int level);
+
+    void setLogger(Logger logger);
 
     byte[] compress(byte[] buf, int start, int[] len);
 

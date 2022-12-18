@@ -31,7 +31,7 @@ package com.jcraft.jsch.jce;
 
 public final class SignatureECDSA521 extends SignatureECDSAN {
     @Override
-    String getName() {
-        return "ecdsa-sha2-nistp521";
+    String getAlgo() {
+        return "SHA512withECDSA";
     }
 }

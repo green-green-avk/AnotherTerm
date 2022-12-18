@@ -79,9 +79,8 @@ public final class TripleDESCBC implements Cipher {
             final DESedeKeySpec keyspec = new DESedeKeySpec(key);
             final SecretKeyFactory keyfactory = SecretKeyFactory.getInstance("DESede");
             final SecretKey _key = keyfactory.generateSecret(keyspec);
-            cipher.init((mode == ENCRYPT_MODE ?
-                            javax.crypto.Cipher.ENCRYPT_MODE :
-                            javax.crypto.Cipher.DECRYPT_MODE),
+            cipher.init(mode == ENCRYPT_MODE ?
+                            javax.crypto.Cipher.ENCRYPT_MODE : javax.crypto.Cipher.DECRYPT_MODE,
                     _key, new IvParameterSpec(iv));
         } catch (final Exception e) {
             cipher = null;

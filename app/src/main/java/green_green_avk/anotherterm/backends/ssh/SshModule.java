@@ -893,7 +893,7 @@ public final class SshModule extends BackendModule {
                     s.setConfig("enable_server_sig_algs",
                             toJSchBoolOpt(sshSessionSt.enable_server_sig_algs));
                     final String cfgComp = sshSessionSt.preferCompression ?
-                            "zlib,none" : "none,zlib";
+                            "zlib@openssh.com,zlib,none" : "none,zlib@openssh.com,zlib";
                     s.setConfig("compression.s2c", cfgComp);
                     s.setConfig("compression.c2s", cfgComp);
                     s.setConfig("StrictHostKeyChecking", "ask");
@@ -942,7 +942,7 @@ public final class SshModule extends BackendModule {
             sshSessionSt.refs.decrementAndGet();
             disconnect();
             throw new BackendException(e);
-        } catch (final NoClassDefFoundError e) {
+        } catch (final LinkageError e) { // TODO: further fix JSch library
             sshSessionSt.refs.decrementAndGet();
             disconnect();
             throw new BackendException(context.getString(R.string.msg_feature_class_not_found,

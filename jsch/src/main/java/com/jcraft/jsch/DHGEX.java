@@ -58,33 +58,22 @@ abstract class DHGEX extends KeyExchange {
 
     protected String hash;
 
-    @Override
-    public void init(final Session session,
-                     final byte[] V_S, final byte[] V_C, final byte[] I_S, final byte[] I_C)
-            throws Exception {
-        this.V_S = V_S;
-        this.V_C = V_C;
-        this.I_S = I_S;
-        this.I_C = I_C;
-
+    private void preInit(final Configuration cfg) throws JSchNotImplementedException {
         try {
             final Class<? extends HASH> c =
-                    Class.forName(session.getConfig(hash)).asSubclass(HASH.class);
+                    Class.forName(cfg.getConfig(hash)).asSubclass(HASH.class);
             sha = c.getDeclaredConstructor().newInstance();
             sha.init();
-        } catch (final Exception e) {
-            throw new JSchException("Unable to load class for '" + hash + "': " + e, e);
+        } catch (final Exception | LinkageError e) {
+            throw JSchNotImplementedException.forFeature(hash, e);
         }
-
-        buf = new Buffer();
-        packet = new Packet(buf);
 
         try {
             final Class<? extends DH> c =
-                    Class.forName(session.getConfig("dh")).asSubclass(DH.class);
-            min = Integer.parseInt(session.getConfig("dhgex_min"));
-            max = Integer.parseInt(session.getConfig("dhgex_max"));
-            preferred = Integer.parseInt(session.getConfig("dhgex_preferred"));
+                    Class.forName(cfg.getConfig("dh")).asSubclass(DH.class);
+            min = Integer.parseInt(cfg.getConfig("dhgex_min"));
+            max = Integer.parseInt(cfg.getConfig("dhgex_max"));
+            preferred = Integer.parseInt(cfg.getConfig("dhgex_preferred"));
             if (checkInvalidSize(min) || checkInvalidSize(max) ||
                     checkInvalidSize(preferred) || preferred < min || max < preferred) {
                 throw new JSchException("Invalid DHGEX sizes: min=" +
@@ -92,9 +81,29 @@ abstract class DHGEX extends KeyExchange {
             }
             dh = c.getDeclaredConstructor().newInstance();
             dh.init();
-        } catch (final Exception e) {
-            throw new JSchException("Unable to load class for 'dh': " + e, e);
+        } catch (final Exception | LinkageError e) {
+            throw JSchNotImplementedException.forFeature("dh", e);
         }
+    }
+
+    @Override
+    public void check(final Configuration cfg) throws JSchException {
+        preInit(cfg);
+    }
+
+    @Override
+    public void init(final Session _session,
+                     final byte[] V_S, final byte[] V_C, final byte[] I_S, final byte[] I_C)
+            throws Exception {
+        super.init(_session, V_S, V_C, I_S, I_C);
+        preInit(session);
+        this.V_S = V_S;
+        this.V_C = V_C;
+        this.I_S = I_S;
+        this.I_C = I_C;
+
+        buf = new Buffer();
+        packet = new Packet(buf);
 
         packet.reset();
         buf.putByte((byte) SSH_MSG_KEX_DH_GEX_REQUEST);
@@ -125,7 +134,7 @@ abstract class DHGEX extends KeyExchange {
                 _buf.getByte();
                 j = _buf.getByte();
                 if (j != SSH_MSG_KEX_DH_GEX_GROUP) {
-                    JSch.getLogger().log(Logger.ERROR,
+                    session.getLogger().log(Logger.ERROR,
                             "type: must be SSH_MSG_KEX_DH_GEX_GROUP " + j);
                     return false;
                 }
@@ -168,7 +177,7 @@ abstract class DHGEX extends KeyExchange {
                 j = _buf.getByte();
                 j = _buf.getByte();
                 if (j != SSH_MSG_KEX_DH_GEX_REPLY) {
-                    JSch.getLogger().log(Logger.ERROR,
+                    session.getLogger().log(Logger.ERROR,
                             "type: must be SSH_MSG_KEX_DH_GEX_REPLY " + j);
                     return false;
                 }

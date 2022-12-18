@@ -1,4 +1,5 @@
 -keep !abstract !interface
+ com.jcraft.jsch.bc.**,
  com.jcraft.jsch.jce.**,
  com.jcraft.jsch.jcraft.**,
  com.jcraft.jsch.Cipher*,

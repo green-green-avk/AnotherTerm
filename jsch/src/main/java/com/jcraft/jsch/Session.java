@@ -47,7 +47,7 @@ import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
 
-public final class Session {
+public final class Session implements Configuration {
 
     // http://ietf.org/internet-drafts/draft-ietf-secsh-assignednumbers-01.txt
     static final int SSH_MSG_DISCONNECT = 1;
@@ -609,20 +609,20 @@ public final class Session {
                     Class.forName(getConfig(guess[KeyExchange.PROPOSAL_KEX_ALGS]))
                             .asSubclass(KeyExchange.class);
             kex = c.getDeclaredConstructor().newInstance();
-        } catch (final Exception | NoClassDefFoundError e) {
+        } catch (final Exception | LinkageError e) {
             throw new JSchException(e.toString(), e);
         }
 
-        kex.doInit(this, V_S, V_C, I_S, I_C);
+        kex.init(this, V_S, V_C, I_S, I_C);
         return kex;
     }
 
     private volatile boolean in_kex = false;
     private volatile boolean in_prompt = false;
-    private volatile Set<String> not_available_shks = null;
+    private volatile Set<String> available_shks = null;
 
-    public Set<String> getUnavailableSignatures() {
-        return not_available_shks;
+    public Set<String> getAvailableSignatures() {
+        return available_shks;
     }
 
     public void rekey() throws Exception {
@@ -633,113 +633,55 @@ public final class Session {
         if (in_kex)
             return;
 
-        String cipherc2s = getConfig("cipher.c2s");
-        String ciphers2c = getConfig("cipher.s2c");
-        final Set<String> not_available_ciphers = checkCiphers(getConfig("CheckCiphers"));
-        if (not_available_ciphers != null && !not_available_ciphers.isEmpty()) {
-            if (getLogger().isEnabled(Logger.DEBUG)) {
-                getLogger().log(Logger.DEBUG,
-                        "cipher.c2s proposal before removing unavailable algos is: " + cipherc2s);
-                getLogger().log(Logger.DEBUG,
-                        "cipher.s2c proposal before removing unavailable algos is: " + ciphers2c);
-            }
-
-            cipherc2s = Util.diffString(cipherc2s,
-                    JSch.supportedCipherSet, not_available_ciphers);
-            ciphers2c = Util.diffString(ciphers2c,
-                    JSch.supportedCipherSet, not_available_ciphers);
-            if (cipherc2s == null || ciphers2c == null) {
-                throw new JSchException("There are not any available ciphers.");
-            }
-
-            if (getLogger().isEnabled(Logger.DEBUG)) {
-                getLogger().log(Logger.DEBUG,
-                        "cipher.c2s proposal after removing unavailable algos is: " + cipherc2s);
-                getLogger().log(Logger.DEBUG,
-                        "cipher.s2c proposal after removing unavailable algos is: " + ciphers2c);
-            }
+        final List<String> cipherc2s =
+                Util.splitIntoList(getConfig("cipher.c2s"), ",");
+        final List<String> ciphers2c =
+                Util.splitIntoList(getConfig("cipher.s2c"), ",");
+        Util.filter(v -> JSch.implementedCipherSet.contains(v) &&
+                checkCipher(getConfig(v)), cipherc2s);
+        Util.filter(v -> JSch.implementedCipherSet.contains(v) &&
+                checkCipher(getConfig(v)), ciphers2c);
+        if (cipherc2s.isEmpty() || ciphers2c.isEmpty()) {
+            throw new JSchException("There are no available ciphers");
         }
 
-        String macc2s = getConfig("mac.c2s");
-        String macs2c = getConfig("mac.s2c");
-        final Set<String> not_available_macs = checkMacs(getConfig("CheckMacs"));
-        if (not_available_macs != null && !not_available_macs.isEmpty()) {
-            if (getLogger().isEnabled(Logger.DEBUG)) {
-                getLogger().log(Logger.DEBUG,
-                        "mac.c2s proposal before removing unavailable algos is: " + macc2s);
-                getLogger().log(Logger.DEBUG,
-                        "mac.s2c proposal before removing unavailable algos is: " + macs2c);
-            }
-
-            macc2s = Util.diffString(macc2s,
-                    JSch.supportedMacSet, not_available_macs);
-            macs2c = Util.diffString(macs2c,
-                    JSch.supportedMacSet, not_available_macs);
-            if (macc2s == null || macs2c == null) {
-                throw new JSchException("There are not any available macs.");
-            }
-
-            if (getLogger().isEnabled(Logger.DEBUG)) {
-                getLogger().log(Logger.DEBUG,
-                        "mac.c2s proposal after removing unavailable algos is: " + macc2s);
-                getLogger().log(Logger.DEBUG,
-                        "mac.s2c proposal after removing unavailable algos is: " + macs2c);
-            }
+        final List<String> macc2s = Util.splitIntoList(getConfig("mac.c2s"), ",");
+        final List<String> macs2c = Util.splitIntoList(getConfig("mac.s2c"), ",");
+        Util.filter(v -> JSch.implementedMacSet.contains(v) &&
+                checkMac(getConfig(v)), macc2s);
+        Util.filter(v -> JSch.implementedMacSet.contains(v) &&
+                checkMac(getConfig(v)), macs2c);
+        if (macc2s.isEmpty() || macs2c.isEmpty()) {
+            throw new JSchException("There are no available macs");
         }
 
-        String kex = getConfig("kex");
-        final Set<String> not_available_kexes = checkKexes(getConfig("CheckKexes"));
-        if (not_available_kexes != null && !not_available_kexes.isEmpty()) {
-            if (getLogger().isEnabled(Logger.DEBUG)) {
-                getLogger().log(Logger.DEBUG,
-                        "kex proposal before removing unavailable algos is: " + kex);
-            }
-
-            kex = Util.diffString(kex,
-                    JSch.supportedKexSet, not_available_kexes);
-            if (kex == null) {
-                throw new JSchException("There are not any available kexes.");
-            }
-
-            if (getLogger().isEnabled(Logger.DEBUG)) {
-                getLogger().log(Logger.DEBUG,
-                        "kex proposal after removing unavailable algos is: " + kex);
-            }
+        final List<String> kex = Util.splitIntoList(getConfig("kex"), ",");
+        Util.filter(v -> JSch.implementedKexSet.contains(v) &&
+                checkKex(this, getConfig(v)), kex);
+        if (kex.isEmpty()) {
+            throw new JSchException("There are no available kexes");
         }
 
         final String enable_server_sig_algs = getConfig("enable_server_sig_algs");
         if ("yes".equals(enable_server_sig_algs) && !isAuthed) {
-            kex += ",ext-info-c";
+            kex.add("ext-info-c");
         }
 
-        String server_host_key = getConfig("server_host_key");
-        final Set<String> not_available_shks =
-                checkSignatures(getConfig("CheckSignatures"));
-        // Cache for UserAuthPublicKey
-        this.not_available_shks = not_available_shks;
-        if (not_available_shks != null && !not_available_shks.isEmpty()) {
-            if (getLogger().isEnabled(Logger.DEBUG)) {
-                getLogger().log(Logger.DEBUG,
-                        "server_host_key proposal before removing unavailable algos is: " + server_host_key);
-            }
-
-            server_host_key = Util.diffString(server_host_key,
-                    null, not_available_shks);
-            if (server_host_key == null) {
-                throw new JSchException("There are not any available sig algorithm.");
-            }
-
-            if (getLogger().isEnabled(Logger.DEBUG)) {
-                getLogger().log(Logger.DEBUG,
-                        "server_host_key proposal after removing unavailable algos is: " + server_host_key);
-            }
+        available_shks = Util.filter(v -> checkSignature(getConfig(v)),
+                new HashSet<>(JSch.implementedKeySet));
+        List<String> server_host_key =
+                Util.splitIntoList(getConfig("server_host_key"), ",");
+        Util.filter(available_shks::contains, server_host_key);
+        if (server_host_key.isEmpty()) {
+            throw new JSchException("There are no available sig algorithm");
         }
 
         final String prefer_hkr = getConfig("prefer_known_host_key_types");
         if ("yes".equals(prefer_hkr)) {
             if (getLogger().isEnabled(Logger.DEBUG)) {
                 getLogger().log(Logger.DEBUG,
-                        "server_host_key proposal before known_host reordering is: " + server_host_key);
+                        "server_host_key proposal before known_host reordering is: " +
+                                server_host_key);
             }
 
             final HostKeyRepository hkr = getHostKeyRepository();
@@ -753,9 +695,7 @@ public final class Session {
             final HostKey[] hks = hkr.getHostKey(chost, null);
             if (hks != null && hks.length > 0) {
                 final List<String> pref_shks = new ArrayList<>();
-                final List<String> shks = new ArrayList<>(Arrays.asList(
-                        Util.split(server_host_key, ",")));
-                final Iterator<String> it = shks.iterator();
+                final Iterator<String> it = server_host_key.iterator();
                 while (it.hasNext()) {
                     final String algo = it.next();
                     String type = algo;
@@ -778,14 +718,15 @@ public final class Session {
                     }
                 }
                 if (!pref_shks.isEmpty()) {
-                    pref_shks.addAll(shks);
-                    server_host_key = String.join(",", pref_shks);
+                    pref_shks.addAll(server_host_key);
+                    server_host_key = pref_shks;
                 }
             }
 
             if (getLogger().isEnabled(Logger.DEBUG)) {
                 getLogger().log(Logger.DEBUG,
-                        "server_host_key proposal after known_host reordering is: " + server_host_key);
+                        "server_host_key proposal after known_host reordering is: " +
+                                server_host_key);
             }
         }
 
@@ -812,12 +753,12 @@ public final class Session {
             random.fill(buf.buffer, buf.index, 16);
             buf.skip(16);
         }
-        buf.putString(Util.str2byte(kex));
-        buf.putString(Util.str2byte(server_host_key));
-        buf.putString(Util.str2byte(cipherc2s));
-        buf.putString(Util.str2byte(ciphers2c));
-        buf.putString(Util.str2byte(getConfig("mac.c2s")));
-        buf.putString(Util.str2byte(getConfig("mac.s2c")));
+        buf.putString(Util.str2byte(String.join(",", kex)));
+        buf.putString(Util.str2byte(String.join(",", server_host_key)));
+        buf.putString(Util.str2byte(String.join(",", cipherc2s)));
+        buf.putString(Util.str2byte(String.join(",", ciphers2c)));
+        buf.putString(Util.str2byte(String.join(",", macc2s)));
+        buf.putString(Util.str2byte(String.join(",", macs2c)));
         buf.putString(Util.str2byte(getConfig("compression.c2s")));
         buf.putString(Util.str2byte(getConfig("compression.s2c")));
         buf.putString(Util.str2byte(getConfig("lang.c2s")));
@@ -1024,12 +965,22 @@ public final class Session {
             //bsize=c2scipher.getIVSize();
             bsize = c2scipher_size;
         }
-        final boolean isAEAD = (c2scipher != null && c2scipher.isAEAD());
-        final boolean isEtM = (!isAEAD && c2scipher != null && c2smac != null && c2smac.isEtM());
-        packet.padding(bsize, !(isAEAD || isEtM));
+        final boolean isChaCha20 = c2scipher != null && c2scipher.isChaCha20();
+        final boolean isAEAD = c2scipher != null && c2scipher.isAEAD();
+        final boolean isEtM = !isChaCha20 && !isAEAD && c2scipher != null &&
+                c2smac != null && c2smac.isEtM();
+        packet.padding(bsize, !(isChaCha20 || isAEAD || isEtM));
 
         final byte[] buf = packet.buffer.buffer;
-        if (isAEAD) {
+        if (isChaCha20) {
+            // init cipher with seq number
+            c2scipher.update(seqo);
+            //encrypt packet length field
+            c2scipher.update(buf, 0, 4, buf, 0);
+            //encrypt rest of packet & add tag
+            c2scipher.doFinal(buf, 0, packet.buffer.index, buf, 0);
+            packet.buffer.skip(c2scipher.getTagSize());
+        } else if (isAEAD) {
             c2scipher.updateAAD(buf, 0, 4);
             c2scipher.doFinal(buf, 4, packet.buffer.index - 4, buf, 4);
             packet.buffer.skip(c2scipher.getTagSize());
@@ -1062,11 +1013,56 @@ public final class Session {
 
     Buffer read(final Buffer buf) throws Exception {
         int j = 0;
-        final boolean isAEAD = (s2ccipher != null && s2ccipher.isAEAD());
-        final boolean isEtM = (!isAEAD && s2ccipher != null && s2cmac != null && s2cmac.isEtM());
+        final boolean isChaCha20 = s2ccipher != null && s2ccipher.isChaCha20();
+        final boolean isAEAD = s2ccipher != null && s2ccipher.isAEAD();
+        final boolean isEtM = !isChaCha20 && !isAEAD && s2ccipher != null &&
+                s2cmac != null && s2cmac.isEtM();
         while (true) {
             buf.reset();
-            if (isAEAD || isEtM) {
+            if (isChaCha20) {
+                //read encrypted packet length field
+                io.getByte(buf.buffer, buf.index, 4);
+                buf.index += 4;
+                // init cipher with seq number
+                s2ccipher.update(seqi);
+                //decrypt packet length field
+                final byte[] tmp = new byte[4];
+                s2ccipher.update(buf.buffer, 0, 4, tmp, 0);
+                j = ((tmp[0] << 24) & 0xff000000) |
+                        ((tmp[1] << 16) & 0x00ff0000) |
+                        ((tmp[2] << 8) & 0x0000ff00) |
+                        ((tmp[3]) & 0x000000ff);
+                // RFC 4253 6.1. Maximum Packet Length
+                if (j < 5 || j > PACKET_MAX_SIZE) {
+                    start_discard(buf, s2ccipher, s2cmac, 0, PACKET_MAX_SIZE);
+                }
+                j += s2ccipher.getTagSize();
+                if ((buf.index + j) > buf.buffer.length) {
+                    final byte[] foo = new byte[buf.index + j];
+                    System.arraycopy(buf.buffer, 0, foo, 0, buf.index);
+                    buf.buffer = foo;
+                }
+
+                if ((j % s2ccipher_size) != 0) {
+                    final String message = "Bad packet length " + j;
+                    if (getLogger().isEnabled(Logger.FATAL)) {
+                        getLogger().log(Logger.FATAL, message);
+                    }
+                    start_discard(buf, s2ccipher, s2cmac, 0, PACKET_MAX_SIZE - s2ccipher_size);
+                }
+
+                io.getByte(buf.buffer, buf.index, j);
+                // subtract tag size now that whole packet has been fetched
+                j -= s2ccipher.getTagSize();
+                buf.index += (j);
+                try {
+                    s2ccipher.doFinal(buf.buffer, 0, j + 4, buf.buffer, 0);
+                } catch (final JSchAEADBadTagException e) {
+                    throw new JSchException("Packet corrupt", e);
+                }
+                // overwrite encrypted packet length field with decrypted version
+                System.arraycopy(tmp, 0, buf.buffer, 0, 4);
+            } else if (isAEAD || isEtM) {
                 io.getByte(buf.buffer, buf.index, 4);
                 buf.index += 4;
                 j = ((buf.buffer[0] << 24) & 0xff000000) |
@@ -1472,7 +1468,7 @@ public final class Session {
             initInflater(method);
         } catch (final NoSuchAlgorithmException e) {
             throw new JSchException("Unable to load " + method + ": " + e, e);
-        } catch (final Exception | NoClassDefFoundError e) {
+        } catch (final Exception | LinkageError e) {
             if (e instanceof JSchException)
                 throw e;
             throw new JSchException(e.toString(), e);
@@ -2594,9 +2590,10 @@ public final class Session {
                         level = Integer.parseInt(getConfig("compression_level"));
                     } catch (final Exception ignored) {
                     }
-                    deflater.init(Compression.DEFLATER, level, this);
-                } catch (final Exception ee) {
-                    throw new JSchException(ee.toString(), ee);
+                    deflater.setLogger(getLogger());
+                    deflater.init(Compression.DEFLATER, level);
+                } catch (final Exception | LinkageError e) {
+                    throw JSchNotImplementedException.forFeature(method, e);
                 }
             }
         }
@@ -2615,9 +2612,10 @@ public final class Session {
                     final Class<? extends Compression> c =
                             Class.forName(foo).asSubclass(Compression.class);
                     inflater = c.getDeclaredConstructor().newInstance();
-                    inflater.init(Compression.INFLATER, 0, this);
-                } catch (final Exception ee) {
-                    throw new JSchException(ee.toString(), ee);
+                    inflater.setLogger(getLogger());
+                    inflater.init(Compression.INFLATER, 0);
+                } catch (final Exception | LinkageError e) {
+                    throw JSchNotImplementedException.forFeature(method, e);
                 }
             }
         }
@@ -2695,6 +2693,7 @@ public final class Session {
         setConfig(r);
     }
 
+    @Override
     public void setConfig(final Map<String, String> newConf) {
         synchronized (lock) {
             for (final Map.Entry<String, String> entry : newConf.entrySet()) {
@@ -2708,6 +2707,7 @@ public final class Session {
         }
     }
 
+    @Override
     public void setConfig(final String key, final String value) {
         synchronized (lock) {
             final String _key = JSch._getInternalKey(key);
@@ -2718,6 +2718,7 @@ public final class Session {
         }
     }
 
+    @Override
     public String getConfig(final String key) {
         final String r;
         synchronized (lock) {
@@ -2873,40 +2874,6 @@ public final class Session {
         this.daemon_thread = enable;
     }
 
-    private Set<String> checkCiphers(final String ciphers) {
-        if (ciphers == null || ciphers.isEmpty())
-            return null;
-
-        if (getLogger().isEnabled(Logger.INFO)) {
-            getLogger().log(Logger.INFO,
-                    "CheckCiphers: " + ciphers);
-        }
-
-        final String cipherc2s = getConfig("cipher.c2s");
-        final String ciphers2c = getConfig("cipher.s2c");
-
-        final Set<String> result = new HashSet<>();
-        for (final String cipher : Util.split(ciphers, ",")) {
-            if (!ciphers2c.contains(cipher) && !cipherc2s.contains(cipher))
-                continue;
-            if (!checkCipher(getConfig(cipher))) {
-                result.add(cipher);
-            }
-        }
-
-        if (result.isEmpty())
-            return null;
-
-        if (getLogger().isEnabled(Logger.INFO)) {
-            for (final String s : result) {
-                getLogger().log(Logger.INFO,
-                        s + " is not available.");
-            }
-        }
-
-        return result;
-    }
-
     static boolean checkCipher(final String cipher) {
         try {
             final Class<? extends Cipher> c = Class.forName(cipher).asSubclass(Cipher.class);
@@ -2915,43 +2882,9 @@ public final class Session {
                     new byte[_c.getBlockSize()],
                     new byte[_c.getIVSize()]);
             return true;
-        } catch (final Exception | NoClassDefFoundError e) {
+        } catch (final Exception | LinkageError e) {
             return false;
         }
-    }
-
-    private Set<String> checkMacs(final String macs) {
-        if (macs == null || macs.isEmpty())
-            return null;
-
-        if (getLogger().isEnabled(Logger.INFO)) {
-            getLogger().log(Logger.INFO,
-                    "CheckMacs: " + macs);
-        }
-
-        final String macc2s = getConfig("mac.c2s");
-        final String macs2c = getConfig("mac.s2c");
-
-        final Set<String> result = new HashSet<>();
-        for (final String mac : Util.split(macs, ",")) {
-            if (!macs2c.contains(mac) && !macc2s.contains(mac))
-                continue;
-            if (!checkMac(getConfig(mac))) {
-                result.add(mac);
-            }
-        }
-
-        if (result.isEmpty())
-            return null;
-
-        if (getLogger().isEnabled(Logger.INFO)) {
-            for (final String s : result) {
-                getLogger().log(Logger.INFO,
-                        s + " is not available.");
-            }
-        }
-
-        return result;
     }
 
     static boolean checkMac(final String mac) {
@@ -2960,90 +2893,21 @@ public final class Session {
             final MAC _c = c.getDeclaredConstructor().newInstance();
             _c.init(new byte[_c.getBlockSize()]);
             return true;
-        } catch (final Exception | NoClassDefFoundError e) {
+        } catch (final Exception | LinkageError e) {
             return false;
         }
     }
 
-    private Set<String> checkKexes(final String kexes) {
-        if (kexes == null || kexes.isEmpty())
-            return null;
-
-        if (getLogger().isEnabled(Logger.INFO)) {
-            getLogger().log(Logger.INFO,
-                    "CheckKexes: " + kexes);
-        }
-
-        final Set<String> result = new HashSet<>();
-        for (final String kex : Util.split(kexes, ",")) {
-            if (!checkKex(this, getConfig(kex))) {
-                result.add(kex);
-            }
-        }
-
-        if (result.isEmpty())
-            return null;
-
-        if (getLogger().isEnabled(Logger.INFO)) {
-            for (final String kex : result) {
-                getLogger().log(Logger.INFO,
-                        kex + " is not available.");
-            }
-        }
-
-        return result;
-    }
-
-    static boolean checkKex(final Session s, final String kex) {
+    static boolean checkKex(final Configuration cfg, final String kex) {
         try {
             final Class<? extends KeyExchange> c =
                     Class.forName(kex).asSubclass(KeyExchange.class);
             final KeyExchange _c = c.getDeclaredConstructor().newInstance();
-            _c.doInit(s, null, null, null, null);
+            _c.check(cfg);
             return true;
-        } catch (final Exception | NoClassDefFoundError e) {
+        } catch (final Exception | LinkageError e) {
             return false;
         }
-    }
-
-    static boolean checkKex(final String kex) {
-        try {
-            final Class<? extends KeyExchange> c =
-                    Class.forName(kex).asSubclass(KeyExchange.class);
-            final KeyExchange _c = c.getDeclaredConstructor().newInstance();
-            return true;
-        } catch (final Exception | NoClassDefFoundError e) {
-            return false;
-        }
-    }
-
-    private Set<String> checkSignatures(final String sigs) {
-        if (sigs == null || sigs.isEmpty())
-            return null;
-
-        if (getLogger().isEnabled(Logger.INFO)) {
-            getLogger().log(Logger.INFO,
-                    "CheckSignatures: " + sigs);
-        }
-
-        final Set<String> result = new HashSet<>();
-        for (final String sig : Util.split(sigs, ",")) {
-            if (!checkSignature(JSch.getConfig(sig))) {
-                result.add(sig);
-            }
-        }
-
-        if (result.isEmpty())
-            return null;
-
-        if (getLogger().isEnabled(Logger.INFO)) {
-            for (final String s : result) {
-                getLogger().log(Logger.INFO,
-                        s + " is not available.");
-            }
-        }
-
-        return result;
     }
 
     static boolean checkSignature(final String sig) {
@@ -3053,7 +2917,7 @@ public final class Session {
             final Signature _c = c.getDeclaredConstructor().newInstance();
             _c.check();
             return true;
-        } catch (final Exception | NoClassDefFoundError e) {
+        } catch (final Exception | LinkageError e) {
             return false;
         }
     }

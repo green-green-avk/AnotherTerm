@@ -139,33 +139,14 @@ final class Util {
 //    return sun.misc.BASE64Encoder().encode(buf);
     }
 
-    /**
-     * A mysterious function...
-     *
-     * @param foo
-     * @param split
-     * @return
-     */
     static String[] split(final String foo, final String split) {
         if (foo == null)
             return null;
         return foo.split(split, -1);
-//        // TODO: comprehend
-//        final byte[] buf = Util.str2byte(foo);
-//        final List<String> result = new ArrayList<>();
-//        int start = 0;
-//        int index;
-//        while (true) {
-//            index = foo.indexOf(split, start);
-//            if (index >= 0) {
-//                result.add(Util.byte2str(buf, start, index - start));
-//                start = index + 1;
-//                continue;
-//            }
-//            result.add(Util.byte2str(buf, start, buf.length - start));
-//            break;
-//        }
-//        return result.toArray(new String[0]);
+    }
+
+    static List<String> splitIntoList(final String v, final String delimiter) {
+        return new ArrayList<>(Arrays.asList(v.split(delimiter)));
     }
 
     static boolean glob(final byte[] pattern, final byte[] name) {
@@ -551,41 +532,10 @@ final class Util {
 
     static final byte[] empty = str2byte("");
 
-    /*
-    static byte[] char2byte(char[] foo){
-      int len=0;
-      for(int i=0; i<foo.length; i++){
-        if((foo[i]&0xff00)==0) len++;
-        else len+=2;
-      }
-      byte[] bar=new byte[len];
-      for(int i=0, j=0; i<foo.length; i++){
-        if((foo[i]&0xff00)==0){
-          bar[j++]=(byte)foo[i];
-        }
-        else{
-          bar[j++]=(byte)(foo[i]>>>8);
-          bar[j++]=(byte)foo[i];
-        }
-      }
-      return bar;
-    }
-    */
     static void bzero(final byte[] foo) {
         if (foo == null)
             return;
         Arrays.fill(foo, (byte) 0);
-    }
-
-    static String diffString(final String str,
-                             final Set<String> available, final Set<String> notAvailable) {
-        final String[] stra = Util.split(str, ",");
-        final List<String> result = new ArrayList<>(stra.length);
-        for (final String stre : stra)
-            if ((available == null || available.contains(stre)) &&
-                    (notAvailable == null || !notAvailable.contains(stre)))
-                result.add(stre);
-        return result.isEmpty() ? null : String.join(",", result);
     }
 
     private static String getHomeDir() {

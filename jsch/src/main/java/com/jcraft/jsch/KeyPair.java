@@ -47,6 +47,8 @@ public abstract class KeyPair {
     public static final int RSA = 2;
     public static final int ECDSA = 3;
     public static final int UNKNOWN = 4;
+    public static final int ED25519 = 5;
+    public static final int ED448 = 6;
 
     static final int VENDOR_OPENSSH = 0;
     static final int VENDOR_FSECURE = 1;
@@ -75,6 +77,12 @@ public abstract class KeyPair {
                 break;
             case ECDSA:
                 kpair = new KeyPairECDSA(jsch);
+                break;
+            case ED25519:
+                kpair = new KeyPairEd25519(jsch);
+                break;
+            case ED448:
+                kpair = new KeyPairEd448(jsch);
                 break;
             default:
                 kpair = null;
@@ -678,6 +686,12 @@ public abstract class KeyPair {
                 case "ecdsa-sha2-nistp521":
                     kpair = KeyPairECDSA.fromSSHAgent(jsch, buf);
                     break;
+                case "ssh-ed25519":
+                    kpair = KeyPairEd25519.fromSSHAgent(jsch, buf);
+                    break;
+                case "ssh-ed448":
+                    kpair = KeyPairEd448.fromSSHAgent(jsch, buf);
+                    break;
                 default:
                     throw new JSchException("privatekey: invalid key " + Util.byte2str(prvkey, 4, 7));
             }
@@ -1020,6 +1034,10 @@ public abstract class KeyPair {
                                     type = DSA;
                                 } else if (buf[4] == 'r') {
                                     type = RSA;
+                                } else if (buf[4] == 'e' && buf[6] == '2') {
+                                    type = ED25519;
+                                } else if (buf[4] == 'e' && buf[6] == '4') {
+                                    type = ED448;
                                 }
                             }
                             i = 0;
@@ -1081,8 +1099,9 @@ public abstract class KeyPair {
                 } catch (final Exception ignored) {
                 }
             }
+        } catch (final JSchException | JSchErrorException e) {
+            throw e;
         } catch (final Exception e) {
-            if (e instanceof JSchException) throw (JSchException) e;
             throw new JSchException(e.toString(), e);
         }
 
@@ -1097,6 +1116,10 @@ public abstract class KeyPair {
             kpair = new KeyPairRSA(jsch);
         } else if (type == ECDSA) {
             kpair = new KeyPairECDSA(jsch, pubkey);
+        } else if (type == ED25519) {
+            kpair = new KeyPairEd25519(jsch, pubkey, prvkey);
+        } else if (type == ED448) {
+            kpair = new KeyPairEd448(jsch, pubkey, prvkey);
         } else if (vendor == VENDOR_PKCS8) {
             kpair = new KeyPairPKCS8(jsch);
         } else if (type == DEFERRED) {
@@ -1139,7 +1162,6 @@ public abstract class KeyPair {
      * @throws JSchException
      */
     static int readOpenSSHKeyv1(final byte[] data) throws IOException, JSchException {
-
         if (data.length % 8 != 0) {
             throw new IOException("The private key section must be a multiple of the block size (8)");
         }
@@ -1160,14 +1182,19 @@ public abstract class KeyPair {
             return DSA;
         } else if (keyType.startsWith("ecdsa-sha2")) {
             return ECDSA;
+        } else if (keyType.startsWith("ssh-ed25519")) {
+            return ED25519;
+        } else if (keyType.startsWith("ssh-ed448")) {
+            return ED448;
         } else
-            throw new JSchException("keytype " + keyType + " not supported as part of openssh v1 format");
-
+            throw new JSchException("keytype " + keyType +
+                    " not supported as part of openssh v1 format");
     }
 
     private static boolean isOpenSSHPrivateKey(final byte[] buf, final int i, final int len) {
         final String ident = "OPENSSH PRIVATE KEY-----";
-        return i + ident.length() < len && ident.equals(Util.byte2str(Arrays.copyOfRange(buf, i, i + ident.length())));
+        return i + ident.length() < len && ident.equals(Util.byte2str(
+                Arrays.copyOfRange(buf, i, i + ident.length())));
     }
 
     private static byte a2b(final byte c) {
@@ -1241,7 +1268,7 @@ public abstract class KeyPair {
         prvkey = Util.fromBase64(prvkey, 0, prvkey.length);
         pubkey = Util.fromBase64(pubkey, 0, pubkey.length);
 
-        KeyPair kpair = null;
+        final KeyPair kpair;
 
         switch (typ) {
             case "ssh-rsa": {
@@ -1344,7 +1371,8 @@ public abstract class KeyPair {
         return data;
     }
 
-    private static boolean parseHeader(final Buffer buffer, final Map<String, String> v) {
+    private static boolean parseHeader(final Buffer buffer,
+                                       final Map<? super String, ? super String> output) {
         final byte[] buf = buffer.buffer;
         int index = buffer.index;
         String key = null;
@@ -1380,7 +1408,7 @@ public abstract class KeyPair {
         }
 
         if (value != null) {
-            v.put(key, value);
+            output.put(key, value);
             buffer.index = index;
         }
 

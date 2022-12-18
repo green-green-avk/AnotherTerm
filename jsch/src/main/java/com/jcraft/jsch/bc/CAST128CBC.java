@@ -1,6 +1,6 @@
 /* -*-mode:java; c-basic-offset:2; indent-tabs-mode:nil -*- */
 /*
-Copyright (c) 2006-2018 ymnk, JCraft,Inc. All rights reserved.
+Copyright (c) 2005-2018 ymnk, JCraft,Inc. All rights reserved.
 
 Redistribution and use in source and binary forms, with or without
 modification, are permitted provided that the following conditions are met:
@@ -27,27 +27,55 @@ NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,
 EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-package com.jcraft.jsch.jcraft;
+package com.jcraft.jsch.bc;
 
-import com.jcraft.jsch.MAC;
+import com.jcraft.jsch.Cipher;
 
-import java.security.MessageDigest;
+import org.bouncycastle.crypto.BufferedBlockCipher;
+import org.bouncycastle.crypto.engines.CAST5Engine;
+import org.bouncycastle.crypto.modes.CBCBlockCipher;
+import org.bouncycastle.crypto.params.KeyParameter;
+import org.bouncycastle.crypto.params.ParametersWithIV;
 
-public class HMACMD5 extends HMAC implements MAC {
-    private static final String name = "hmac-md5";
+public final class CAST128CBC implements Cipher {
+    private static final int ivsize = 8;
+    private static final int bsize = 16;
 
-    public HMACMD5() {
-        super();
-        final MessageDigest md;
-        try {
-            md = MessageDigest.getInstance("MD5");
-        } catch (final Exception e) {
-            throw new UnsupportedOperationException(e);
-        }
-        setH(md);
+    private BufferedBlockCipher cipher;
+
+    @Override
+    public int getIVSize() {
+        return ivsize;
     }
 
-    public String getName() {
-        return name;
+    @Override
+    public int getBlockSize() {
+        return bsize;
+    }
+
+    @Override
+    public void init(final int mode, final byte[] key, final byte[] iv) throws Exception {
+        try {
+            final ParametersWithIV keyspec = new ParametersWithIV(
+                    new KeyParameter(key, 0, bsize),
+                    iv, 0, ivsize);
+            cipher = new BufferedBlockCipher(new CBCBlockCipher(new CAST5Engine()));
+            cipher.init(mode == ENCRYPT_MODE, keyspec);
+        } catch (final Exception e) {
+            cipher = null;
+            throw e;
+        }
+    }
+
+    @Override
+    public void update(final byte[] foo, final int s1, final int len,
+                       final byte[] bar, final int s2)
+            throws Exception {
+        cipher.processBytes(foo, s1, len, bar, s2);
+    }
+
+    @Override
+    public boolean isCBC() {
+        return true;
     }
 }

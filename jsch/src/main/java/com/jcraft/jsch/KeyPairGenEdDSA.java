@@ -1,6 +1,6 @@
 /* -*-mode:java; c-basic-offset:2; indent-tabs-mode:nil -*- */
 /*
-Copyright (c) 2006-2018 ymnk, JCraft,Inc. All rights reserved.
+Copyright (c) 2002-2018 ymnk, JCraft,Inc. All rights reserved.
 
 Redistribution and use in source and binary forms, with or without
 modification, are permitted provided that the following conditions are met:
@@ -27,27 +27,12 @@ NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,
 EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-package com.jcraft.jsch.jcraft;
+package com.jcraft.jsch;
 
-import com.jcraft.jsch.MAC;
+public interface KeyPairGenEdDSA {
+    void init(String Name, int keyLength) throws Exception;
 
-import java.security.MessageDigest;
+    byte[] getPub();
 
-public class HMACSHA1 extends HMAC implements MAC {
-    private static final String name = "hmac-sha1";
-
-    public HMACSHA1() {
-        super();
-        final MessageDigest md;
-        try {
-            md = MessageDigest.getInstance("SHA-1");
-        } catch (final Exception e) {
-            throw new UnsupportedOperationException(e);
-        }
-        setH(md);
-    }
-
-    public String getName() {
-        return name;
-    }
+    byte[] getPrv();
 }
