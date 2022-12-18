@@ -1,6 +1,6 @@
 /* -*-mode:java; c-basic-offset:2; indent-tabs-mode:nil -*- */
 /*
-Copyright (c) 2006-2018 ymnk, JCraft,Inc. All rights reserved.
+Copyright (c) 2005-2018 ymnk, JCraft,Inc. All rights reserved.
 
 Redistribution and use in source and binary forms, with or without
 modification, are permitted provided that the following conditions are met:
@@ -27,25 +27,13 @@ NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,
 EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-package com.jcraft.jsch.jcraft;
+package com.jcraft.jsch.bc;
 
-public final class HMACMD596 extends HMACMD5 {
+public final class Twofish128CBC extends TwofishCBC {
+    private static final int bsize = 16;
 
-    private static final String name = "hmac-md5-96";
-    private static final int BSIZE = 12;
-
+    @Override
     public int getBlockSize() {
-        return BSIZE;
-    }
-
-    private final byte[] _buf16 = new byte[16];
-
-    public void doFinal(final byte[] buf, final int offset) {
-        super.doFinal(_buf16, 0);
-        System.arraycopy(_buf16, 0, buf, offset, BSIZE);
-    }
-
-    public String getName() {
-        return name;
+        return bsize;
     }
 }

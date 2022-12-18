@@ -55,16 +55,6 @@ final class UserAuthPublicKey extends UserAuth {
                         "PubkeyAcceptedAlgorithms = " + pkmethodstr);
             }
 
-            final Set<String> not_available_pka =
-                    Util.requireNonNullElse(session.getUnavailableSignatures(),
-                            Collections.emptySet());
-            if (!not_available_pka.isEmpty()) {
-                if (session.getLogger().isEnabled(Logger.DEBUG)) {
-                    session.getLogger().log(Logger.DEBUG,
-                            "Signature algorithms unavailable for non-agent identities = " + not_available_pka);
-                }
-            }
-
             final List<String> pkmethods = Arrays.asList(Util.split(pkmethodstr, ","));
             if (pkmethods.isEmpty()) {
                 return false;
@@ -105,12 +95,12 @@ final class UserAuthPublicKey extends UserAuth {
                 }
 
                 if (!_known.isEmpty() && !_unknown.isEmpty()) {
-                    final boolean success = _start(session, identities, _known, not_available_pka);
+                    final boolean success = _start(session, identities, _known);
                     if (success) {
                         return true;
                     }
 
-                    return _start(session, identities, _unknown, not_available_pka);
+                    return _start(session, identities, _unknown);
                 }
             } else {
                 if (session.getLogger().isEnabled(Logger.DEBUG)) {
@@ -118,16 +108,18 @@ final class UserAuthPublicKey extends UserAuth {
                 }
             }
 
-            return _start(session, identities, pkmethods, not_available_pka);
+            return _start(session, identities, pkmethods);
         }
     }
 
-    private boolean _start(final Session session, final List<Identity> identities,
-                           final List<String> pkmethods, final Set<String> not_available_pks)
+    private boolean _start(final Session session, final List<? extends Identity> identities,
+                           final List<String> pkmethods)
             throws Exception {
         if (session.auth_failures >= session.max_auth_tries) {
             return false;
         }
+
+        final Set<String> available_pks = session.getAvailableSignatures();
 
         final List<String> rsamethods = new ArrayList<>();
         final List<String> nonrsamethods = new ArrayList<>();
@@ -187,7 +179,7 @@ final class UserAuthPublicKey extends UserAuth {
                 command = SSH_MSG_USERAUTH_FAILURE;
                 loop3:
                 for (final String ipkmethod : ipkmethods) {
-                    if (not_available_pks.contains(ipkmethod) && !(identity instanceof AgentIdentity)) {
+                    if (!available_pks.contains(ipkmethod) && !(identity instanceof AgentIdentity)) {
                         if (session.getLogger().isEnabled(Logger.DEBUG)) {
                             session.getLogger().log(Logger.DEBUG,
                                     ipkmethod + " not available for identity " + identity.getName());
@@ -271,7 +263,7 @@ final class UserAuthPublicKey extends UserAuth {
 
             loop4:
             for (final String pkmethodsuccess : pkmethodsuccesses) {
-                if (not_available_pks.contains(pkmethodsuccess) && !(identity instanceof AgentIdentity)) {
+                if (!available_pks.contains(pkmethodsuccess) && !(identity instanceof AgentIdentity)) {
                     if (session.getLogger().isEnabled(Logger.DEBUG)) {
                         session.getLogger().log(Logger.DEBUG,
                                 pkmethodsuccess + " not available for identity " + identity.getName());
@@ -419,7 +411,7 @@ final class UserAuthPublicKey extends UserAuth {
             passphrase = null;
             count--;
             if (count == 0) {
-                throw new JSchKeyDecryptionException("Too many retries");
+                throw new JSchAuthKeyDecryptionException("Too many retries");
             }
         }
 

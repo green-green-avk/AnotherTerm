@@ -68,7 +68,8 @@ Local PTY, USB and Bluetooth serial ports, SSH and Telnet terminal client for An
 ## Dependencies
 
 * USB UART: <https://github.com/felHR85/UsbSerial>
-* SSH: <http://www.jcraft.com/jsch/> and <https://github.com/mwiede/jsch>
+* SSH: <http://www.jcraft.com/jsch/>, <https://github.com/mwiede/jsch>
+  and <https://mvnrepository.com/artifact/org.bouncycastle/bcprov-jdk18on>
 * Console font: <https://www.fontsquirrel.com/fonts/dejavu-sans-mono>
 * MaterialSeekBarPreference: <https://github.com/MrBIMC/MaterialSeekBarPreference>
 * BetterLinkMovementMethod: <https://github.com/saket/Better-Link-Movement-Method>
@@ -81,9 +82,7 @@ Local PTY, USB and Bluetooth serial ports, SSH and Telnet terminal client for An
 ## Cryptography usage note
 
 The only part of this application that touches on cryptography is the SSH client used to communicate
-with remote systems. Currently this is provided by the JSch library. It does not directly implement
-any encryption, but instead relies on Java Cryptography Extension (JCE)
-and its providers that are a part of Android.
+with remote systems. Currently this is provided by the JSch library.
 
 This application is self-classified under ECCN 5D992 with the encryption authorization type
 identifier MMKT.

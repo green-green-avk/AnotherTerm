@@ -1,0 +1,197 @@
+/* -*-mode:java; c-basic-offset:2; indent-tabs-mode:nil -*- */
+/*
+Copyright (c) 2002-2018 ymnk, JCraft,Inc. All rights reserved.
+
+Redistribution and use in source and binary forms, with or without
+modification, are permitted provided that the following conditions are met:
+
+  1. Redistributions of source code must retain the above copyright notice,
+     this list of conditions and the following disclaimer.
+
+  2. Redistributions in binary form must reproduce the above copyright 
+     notice, this list of conditions and the following disclaimer in 
+     the documentation and/or other materials provided with the distribution.
+
+  3. The names of the authors may not be used to endorse or promote products
+     derived from this software without specific prior written permission.
+
+THIS SOFTWARE IS PROVIDED ``AS IS'' AND ANY EXPRESSED OR IMPLIED WARRANTIES,
+INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND
+FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL JCRAFT,
+INC. OR ANY CONTRIBUTORS TO THIS SOFTWARE BE LIABLE FOR ANY DIRECT, INDIRECT,
+INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
+LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA,
+OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF
+LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING
+NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,
+EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+*/
+
+package com.jcraft.jsch;
+
+import java.util.Arrays;
+
+abstract class KeyPairEdDSA extends KeyPair {
+    private byte[] pub_array;
+    private byte[] prv_array;
+
+    KeyPairEdDSA(final JSch jsch,
+                 final byte[] pub_array,
+                 final byte[] prv_array) {
+        super(jsch);
+        this.pub_array = pub_array;
+        this.prv_array = prv_array;
+    }
+
+    abstract String getSshName();
+
+    abstract String getJceName();
+
+    @Override
+    void generate(final int key_size) throws JSchException {
+        try {
+            final Class<? extends KeyPairGenEdDSA> c =
+                    Class.forName(JSch.getConfig("keypairgen.eddsa"))
+                            .asSubclass(KeyPairGenEdDSA.class);
+            final KeyPairGenEdDSA keypairgen = c.getDeclaredConstructor().newInstance();
+            keypairgen.init(getJceName(), getKeySize());
+            pub_array = keypairgen.getPub();
+            prv_array = keypairgen.getPrv();
+        } catch (final Exception | LinkageError e) {
+            throw new JSchNotImplementedException("keypairgen.eddsa", e);
+        }
+    }
+
+    // These methods appear to be for writing keys to a file.
+    // And since writing VENDOR_OPENSSH_V1 isn't supported yet, have these methods fail.
+    @Override
+    byte[] getBegin() {
+        throw new UnsupportedOperationException();
+    }
+
+    @Override
+    byte[] getEnd() {
+        throw new UnsupportedOperationException();
+    }
+
+    @Override
+    byte[] getPrivateKey() {
+        throw new UnsupportedOperationException();
+    }
+
+    @Override
+    boolean parse(final byte[] plain) {
+
+        // Only OPENSSH Key v1 Format supported for EdDSA keys
+        if (vendor != VENDOR_OPENSSH_V1) return false;
+        try {
+            // OPENSSH Key v1 Format
+            final Buffer buf = new Buffer(plain);
+            final int checkInt1 = buf.getInt(); // uint32 checkint1
+            final int checkInt2 = buf.getInt(); // uint32 checkint2
+            if (checkInt1 != checkInt2) {
+                throw new JSchException("check failed");
+            }
+            final String keyType = Util.byte2str(buf.getString()); // string keytype
+            pub_array = buf.getString(); // public key
+            // OpenSSH stores private key in first half of string and duplicate copy of public key in second half of string
+            final byte[] tmp = buf.getString(); // secret key (private key + public key)
+            prv_array = Arrays.copyOf(tmp, getKeySize());
+            publicKeyComment = Util.byte2str(buf.getString());
+            return true;
+        } catch (final Exception e) {
+            //System.err.println(e);
+            return false;
+        }
+    }
+
+    @Override
+    public byte[] getPublicKeyBlob() {
+        final byte[] foo = super.getPublicKeyBlob();
+        if (foo != null) return foo;
+
+        if (pub_array == null) return null;
+        final byte[][] tmp = new byte[2][];
+        tmp[0] = getKeyTypeName();
+        tmp[1] = pub_array;
+        return Buffer.fromBytes(tmp).buffer;
+    }
+
+    @Override
+    byte[] getKeyTypeName() {
+        return Util.str2byte(getSshName());
+    }
+
+    @Override
+    public byte[] getSignature(final byte[] data) {
+        return getSignature(data, getSshName());
+    }
+
+    @Override
+    public byte[] getSignature(final byte[] data, final String alg) {
+        try {
+            final Class<? extends SignatureEdDSA> c = Class.forName(JSch.getConfig(alg)).asSubclass(SignatureEdDSA.class);
+            final SignatureEdDSA eddsa = c.getDeclaredConstructor().newInstance();
+            eddsa.init();
+            eddsa.setPrvKey(prv_array);
+
+            eddsa.update(data);
+            final byte[] sig = eddsa.sign();
+            final byte[][] tmp = new byte[2][];
+            tmp[0] = Util.str2byte(alg);
+            tmp[1] = sig;
+            return Buffer.fromBytes(tmp).buffer;
+        } catch (final Exception | LinkageError e) {
+        }
+        return null;
+    }
+
+    @Override
+    public Signature getVerifier() {
+        return getVerifier(getSshName());
+    }
+
+    @Override
+    public Signature getVerifier(final String alg) {
+        try {
+            final Class<? extends SignatureEdDSA> c = Class.forName(JSch.getConfig(alg)).asSubclass(SignatureEdDSA.class);
+            final SignatureEdDSA eddsa = c.getDeclaredConstructor().newInstance();
+            eddsa.init();
+
+            if (pub_array == null && getPublicKeyBlob() != null) {
+                final Buffer buf = new Buffer(getPublicKeyBlob());
+                buf.getString();
+                pub_array = buf.getString();
+            }
+
+            eddsa.setPubKey(pub_array);
+            return eddsa;
+        } catch (final Exception | LinkageError e) {
+        }
+        return null;
+    }
+
+    @Override
+    public byte[] forSSHAgent() throws JSchException {
+        if (isEncrypted()) {
+            throw new JSchException("key is encrypted.");
+        }
+        final Buffer buf = new Buffer();
+        buf.putString(getKeyTypeName());
+        buf.putString(pub_array);
+        final byte[] tmp = new byte[prv_array.length + pub_array.length];
+        System.arraycopy(prv_array, 0, tmp, 0, prv_array.length);
+        System.arraycopy(pub_array, 0, tmp, prv_array.length, pub_array.length);
+        buf.putString(tmp);
+        buf.putString(Util.str2byte(publicKeyComment));
+        final byte[] result = new byte[buf.getLength()];
+        buf.getByte(result, 0, result.length);
+        return result;
+    }
+
+    @Override
+    public void dispose() {
+        super.dispose();
+        Util.bzero(prv_array);
+    }
+}

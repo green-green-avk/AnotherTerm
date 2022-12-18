@@ -51,48 +51,51 @@ abstract class DHECN extends KeyExchange {
     protected String sha_name;
     protected int key_size;
 
+    private void preInit(final Configuration cfg) throws JSchNotImplementedException {
+        try {
+            final Class<? extends HASH> c =
+                    Class.forName(cfg.getConfig(sha_name))
+                            .asSubclass(HASH.class);
+            sha = c.getDeclaredConstructor().newInstance();
+            sha.init();
+        } catch (final Exception | LinkageError e) {
+            throw JSchNotImplementedException.forFeature(sha_name, e);
+        }
+
+        try {
+            final Class<? extends ECDH> c =
+                    Class.forName(cfg.getConfig("ecdh-sha2-nistp"))
+                            .asSubclass(ECDH.class);
+            ecdh = c.getDeclaredConstructor().newInstance();
+            ecdh.init(key_size);
+            Q_C = ecdh.getQ();
+        } catch (final Exception | LinkageError e) {
+            throw JSchNotImplementedException.forFeature("ecdh-sha2-nistp", e);
+        }
+    }
+
     @Override
-    public void init(final Session session,
+    public void check(final Configuration cfg) throws JSchException {
+        preInit(cfg);
+    }
+
+    @Override
+    public void init(final Session _session,
                      final byte[] V_S, final byte[] V_C, final byte[] I_S, final byte[] I_C)
             throws Exception {
+        super.init(_session, V_S, V_C, I_S, I_C);
+        preInit(session);
         this.V_S = V_S;
         this.V_C = V_C;
         this.I_S = I_S;
         this.I_C = I_C;
-
-        try {
-            final Class<? extends HASH> c =
-                    Class.forName(session.getConfig(sha_name))
-                            .asSubclass(HASH.class);
-            sha = c.getDeclaredConstructor().newInstance();
-            sha.init();
-        } catch (final Exception e) {
-            throw new JSchException("Unable to load class for '" + sha_name + "': " + e, e);
-        }
 
         buf = new Buffer();
         final Packet packet = new Packet(buf);
 
         packet.reset();
         buf.putByte((byte) SSH_MSG_KEX_ECDH_INIT);
-
-        try {
-            final Class<? extends ECDH> c =
-                    Class.forName(session.getConfig("ecdh-sha2-nistp"))
-                            .asSubclass(ECDH.class);
-            ecdh = c.getDeclaredConstructor().newInstance();
-            ecdh.init(key_size);
-
-            Q_C = ecdh.getQ();
-            buf.putString(Q_C);
-        } catch (final Exception e) {
-            throw new JSchException("Unable to load class for 'ecdh-sha2-nistp': " + e, e);
-        }
-
-        if (V_S == null) {  // This is a really ugly hack for Session.checkKexes ;-(
-            return;
-        }
-
+        buf.putString(Q_C);
         session.write(packet);
 
         if (session.getLogger().isEnabled(Logger.INFO)) {
@@ -119,7 +122,7 @@ abstract class DHECN extends KeyExchange {
                 j = _buf.getByte();
                 j = _buf.getByte();
                 if (j != SSH_MSG_KEX_ECDH_REPLY) {
-                    JSch.getLogger().log(Logger.ERROR,
+                    session.getLogger().log(Logger.ERROR,
                             "type: must be SSH_MSG_KEX_ECDH_REPLY " + j);
                     return false;
                 }

@@ -89,14 +89,17 @@ public abstract class KeyExchange {
     protected byte[] H = null;
     protected byte[] K_S = null;
 
-    public abstract void init(Session session,
-                              byte[] V_S, byte[] V_C, byte[] I_S, byte[] I_C) throws Exception;
+    /**
+     * Checks the implementation availability
+     *
+     * @throws JSchException on failure
+     */
+    public abstract void check(Configuration cfg) throws JSchException;
 
-    void doInit(final Session session,
-                final byte[] V_S, final byte[] V_C, final byte[] I_S, final byte[] I_C)
+    public void init(final Session session,
+                     final byte[] V_S, final byte[] V_C, final byte[] I_S, final byte[] I_C)
             throws Exception {
         this.session = session;
-        init(session, V_S, V_C, I_S, I_C);
     }
 
     public abstract boolean next(Buffer buf) throws Exception;
@@ -198,7 +201,7 @@ public abstract class KeyExchange {
             if (_c2sAEAD) {
                 guess[PROPOSAL_MAC_ALGS_CTOS] = null;
             }
-        } catch (final Exception | NoClassDefFoundError e) {
+        } catch (final Exception | LinkageError e) {
             throw new JSchException(e.toString(), e);
         }
 
@@ -230,7 +233,7 @@ public abstract class KeyExchange {
                     Class.forName(session.getConfig(_c)).asSubclass(HASH.class);
             hash = c.getDeclaredConstructor().newInstance();
         } catch (final Exception e) {
-            JSch.getLogger().log(Logger.FATAL,
+            session.getLogger().log(Logger.FATAL,
                     "Unable to load the fingerprint hash class", e);
             throw new JSchErrorException("Unable to load the fingerprint hash class", e);
         }
@@ -311,10 +314,8 @@ public abstract class KeyExchange {
                                     .asSubclass(SignatureRSA.class);
                     sig = c.getDeclaredConstructor().newInstance();
                     sig.init();
-                } catch (final Exception e) {
-                    session.getLogger().log(Logger.ERROR,
-                            "Unable to load class for " + foo, e);
-                    throw e;
+                } catch (final Exception | LinkageError e) {
+                    throw JSchNotImplementedException.forFeature(foo, e);
                 }
                 sig.setPubKey(ee, n);
                 sig.update(H);
@@ -368,10 +369,8 @@ public abstract class KeyExchange {
                                     .asSubclass(SignatureDSA.class);
                     sig = c.getDeclaredConstructor().newInstance();
                     sig.init();
-                } catch (final Exception e) {
-                    session.getLogger().log(Logger.ERROR,
-                            "Unable to load class for signature.dss", e);
-                    throw e;
+                } catch (final Exception | LinkageError e) {
+                    throw JSchNotImplementedException.forFeature("signature.dss", e);
                 }
                 sig.setPubKey(f, p, q, g);
                 sig.update(H);
@@ -418,10 +417,8 @@ public abstract class KeyExchange {
                                     .asSubclass(SignatureECDSA.class);
                     sig = c.getDeclaredConstructor().newInstance();
                     sig.init();
-                } catch (final Exception e) {
-                    session.getLogger().log(Logger.ERROR,
-                            "Unable to load class for " + alg, e);
-                    throw e;
+                } catch (final Exception | LinkageError e) {
+                    throw JSchNotImplementedException.forFeature(alg, e);
                 }
                 sig.setPubKey(r, s);
                 sig.update(H);
@@ -430,6 +427,41 @@ public abstract class KeyExchange {
                 if (session.getLogger().isEnabled(Logger.INFO)) {
                     session.getLogger().log(Logger.INFO,
                             "ssh_ecdsa_verify: " + alg + " signature " + result);
+                }
+                break;
+            }
+            case "ssh-ed25519":
+            case "ssh-ed448": {
+                // RFC 8709,
+                type = EDDSA;
+                key_alg_name = alg;
+
+                j = ((K_S[i++] << 24) & 0xff000000) | ((K_S[i++] << 16) & 0x00ff0000) |
+                        ((K_S[i++] << 8) & 0x0000ff00) | ((K_S[i++]) & 0x000000ff);
+                final byte[] tmp = new byte[j];
+                System.arraycopy(K_S, i, tmp, 0, j);
+                i += j;
+
+                final SignatureEdDSA sig;
+                try {
+                    final Class<? extends SignatureEdDSA> c =
+                            Class.forName(session.getConfig(alg))
+                                    .asSubclass(SignatureEdDSA.class);
+                    sig = c.getDeclaredConstructor().newInstance();
+                    sig.init();
+                } catch (final Exception | LinkageError e) {
+                    throw JSchNotImplementedException.forFeature(alg, e);
+                }
+
+                sig.setPubKey(tmp);
+
+                sig.update(H);
+
+                result = sig.verify(sig_of_H);
+
+                if (session.getLogger().isEnabled(Logger.INFO)) {
+                    session.getLogger().log(Logger.INFO,
+                            "ssh_eddsa_verify: " + alg + " signature " + result);
                 }
                 break;
             }

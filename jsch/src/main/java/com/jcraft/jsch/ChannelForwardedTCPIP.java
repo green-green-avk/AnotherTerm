@@ -151,9 +151,10 @@ public final class ChannelForwardedTCPIP extends Channel {
         } catch (final JSchException e) {
             // session has been already down.
             this.config = null;
-            if (JSch.getLogger().isEnabled(Logger.ERROR)) {
-                JSch.getLogger().log(Logger.ERROR,
-                        "ChannelForwardedTCPIP: " + Util.byte2str(addr) + ":" + port + " is not registered.");
+            if (session.getLogger().isEnabled(Logger.ERROR)) {
+                session.getLogger().log(Logger.ERROR,
+                        "ChannelForwardedTCPIP: " +
+                                Util.byte2str(addr) + ":" + port + " is not registered.");
             }
             return;
         }
@@ -165,7 +166,8 @@ public final class ChannelForwardedTCPIP extends Channel {
         if (this.config == null) {
             if (_session.getLogger().isEnabled(Logger.ERROR)) {
                 _session.getLogger().log(Logger.ERROR,
-                        "ChannelForwardedTCPIP: " + Util.byte2str(addr) + ":" + port + " is not registered.");
+                        "ChannelForwardedTCPIP: " +
+                                Util.byte2str(addr) + ":" + port + " is not registered.");
             }
         }
     }
@@ -270,7 +272,8 @@ public final class ChannelForwardedTCPIP extends Channel {
 
     static void delPort(final Session session, String address_to_bind, final int rport) {
         synchronized (pool) {
-            Config config = getPort(session, normalize(address_to_bind), rport);
+            Config config = getPort(session,
+                    normalize(address_to_bind), rport);
             if (config == null)
                 config = getPort(session, null, rport);
             if (config == null) return;

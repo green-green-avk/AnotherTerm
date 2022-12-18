@@ -48,7 +48,7 @@ public class JSch {
 
     static {
         config.put("kex", Util.getEnvProperty("jsch.kex", "curve25519-sha256,curve25519-sha256@libssh.org,ecdh-sha2-nistp256,ecdh-sha2-nistp384,ecdh-sha2-nistp521,diffie-hellman-group-exchange-sha256,diffie-hellman-group16-sha512,diffie-hellman-group18-sha512,diffie-hellman-group14-sha256"));
-        config.put("server_host_key", Util.getEnvProperty("jsch.server_host_key", "ecdsa-sha2-nistp256,ecdsa-sha2-nistp384,ecdsa-sha2-nistp521,rsa-sha2-512,rsa-sha2-256"));
+        config.put("server_host_key", Util.getEnvProperty("jsch.server_host_key", "ssh-ed25519,ecdsa-sha2-nistp256,ecdsa-sha2-nistp384,ecdsa-sha2-nistp521,rsa-sha2-512,rsa-sha2-256"));
         config.put("prefer_known_host_key_types", Util.getEnvProperty("jsch.prefer_known_host_key_types", "yes"));
         config.put("enable_server_sig_algs", Util.getEnvProperty("jsch.enable_server_sig_algs", "yes"));
         config.put("cipher.s2c", Util.getEnvProperty("jsch.cipher", "aes128-ctr,aes192-ctr,aes256-ctr,aes128-gcm@openssh.com,aes256-gcm@openssh.com"));
@@ -120,8 +120,11 @@ public class JSch {
         config.put("curve448-sha512", "com.jcraft.jsch.DH448");
 
         config.put("dh", "com.jcraft.jsch.jce.DH");
+        config.put("xdh", "com.jcraft.jsch.bc.XDH");
+
         config.put("3des-cbc", "com.jcraft.jsch.jce.TripleDESCBC");
         config.put("blowfish-cbc", "com.jcraft.jsch.jce.BlowfishCBC");
+
         config.put("hmac-sha1", "com.jcraft.jsch.jce.HMACSHA1");
         config.put("hmac-sha1-96", "com.jcraft.jsch.jce.HMACSHA196");
         config.put("hmac-sha2-256", "com.jcraft.jsch.jce.HMACSHA256");
@@ -139,6 +142,11 @@ public class JSch {
         config.put("hmac-sha256@ssh.com", "com.jcraft.jsch.jce.HMACSHA256SSHCOM");
         config.put("hmac-sha384@ssh.com", "com.jcraft.jsch.jce.HMACSHA384SSHCOM");
         config.put("hmac-sha512@ssh.com", "com.jcraft.jsch.jce.HMACSHA512SSHCOM");
+
+        config.put("hmac-ripemd160", "com.jcraft.jsch.bc.HMACRIPEMD160");
+        config.put("hmac-ripemd160@openssh.com", "com.jcraft.jsch.bc.HMACRIPEMD160OpenSSH");
+        config.put("hmac-ripemd160-etm@openssh.com", "com.jcraft.jsch.bc.HMACRIPEMD160ETM");
+
         config.put("sha-1", "com.jcraft.jsch.jce.SHA1");
         config.put("sha-224", "com.jcraft.jsch.jce.SHA224");
         config.put("sha-256", "com.jcraft.jsch.jce.SHA256");
@@ -150,6 +158,7 @@ public class JSch {
         config.put("sha256", "com.jcraft.jsch.jce.SHA256");
         config.put("sha384", "com.jcraft.jsch.jce.SHA384");
         config.put("sha512", "com.jcraft.jsch.jce.SHA512");
+
         config.put("signature.dss", "com.jcraft.jsch.jce.SignatureDSA");
         config.put("ssh-rsa", "com.jcraft.jsch.jce.SignatureRSA");
         config.put("rsa-sha2-256", "com.jcraft.jsch.jce.SignatureRSASHA256");
@@ -161,6 +170,11 @@ public class JSch {
         config.put("keypairgen.dsa", "com.jcraft.jsch.jce.KeyPairGenDSA");
         config.put("keypairgen.rsa", "com.jcraft.jsch.jce.KeyPairGenRSA");
         config.put("keypairgen.ecdsa", "com.jcraft.jsch.jce.KeyPairGenECDSA");
+
+        config.put("ssh-ed25519", "com.jcraft.jsch.bc.SignatureEd25519");
+        config.put("ssh-ed448", "com.jcraft.jsch.bc.SignatureEd448");
+        config.put("keypairgen.eddsa", "com.jcraft.jsch.bc.KeyPairGenEdDSA");
+
         config.put("random", "com.jcraft.jsch.jce.Random");
 
         config.put("none", "com.jcraft.jsch.CipherNone");
@@ -172,6 +186,18 @@ public class JSch {
         config.put("aes192-cbc", "com.jcraft.jsch.jce.AES192CBC");
         config.put("aes256-cbc", "com.jcraft.jsch.jce.AES256CBC");
         config.put("rijndael-cbc@lysator.liu.se", "com.jcraft.jsch.jce.AES256CBC");
+
+        config.put("chacha20-poly1305@openssh.com", "com.jcraft.jsch.bc.ChaCha20Poly1305");
+        config.put("cast128-cbc", "com.jcraft.jsch.bc.CAST128CBC");
+        config.put("cast128-ctr", "com.jcraft.jsch.bc.CAST128CTR");
+        config.put("twofish128-cbc", "com.jcraft.jsch.bc.Twofish128CBC");
+        config.put("twofish192-cbc", "com.jcraft.jsch.bc.Twofish192CBC");
+        config.put("twofish256-cbc", "com.jcraft.jsch.bc.Twofish256CBC");
+        config.put("twofish-cbc", "com.jcraft.jsch.bc.Twofish256CBC");
+        config.put("twofish128-ctr", "com.jcraft.jsch.bc.Twofish128CTR");
+        config.put("twofish192-ctr", "com.jcraft.jsch.bc.Twofish192CTR");
+        config.put("twofish256-ctr", "com.jcraft.jsch.bc.Twofish256CTR");
+        config.put("seed-cbc@ssh.com", "com.jcraft.jsch.bc.SEEDCBC");
 
         config.put("aes128-ctr", "com.jcraft.jsch.jce.AES128CTR");
         config.put("aes192-ctr", "com.jcraft.jsch.jce.AES192CTR");
@@ -187,8 +213,8 @@ public class JSch {
         config.put("userauth.keyboard-interactive", "com.jcraft.jsch.UserAuthKeyboardInteractive");
         config.put("userauth.publickey", "com.jcraft.jsch.UserAuthPublicKey");
 
-        config.put("zlib", "com.jcraft.jsch.jzlib.Compression");
-        config.put("zlib@openssh.com", "com.jcraft.jsch.jzlib.Compression");
+        config.put("zlib", "com.jcraft.jsch.jcraft.Compression");
+        config.put("zlib@openssh.com", "com.jcraft.jsch.jcraft.Compression");
 
         config.put("pbkdf", "com.jcraft.jsch.jce.PBKDF");
 
@@ -196,17 +222,30 @@ public class JSch {
         config.put("HashKnownHosts", "no");
 
         config.put("PreferredAuthentications", Util.getEnvProperty("jsch.preferred_authentications", "publickey,keyboard-interactive,password"));
-        config.put("PubkeyAcceptedAlgorithms", Util.getEnvProperty("jsch.client_pubkey", "ecdsa-sha2-nistp256,ecdsa-sha2-nistp384,ecdsa-sha2-nistp521,rsa-sha2-512,rsa-sha2-256"));
+        config.put("PubkeyAcceptedAlgorithms", Util.getEnvProperty("jsch.client_pubkey", "ssh-ed25519,ecdsa-sha2-nistp256,ecdsa-sha2-nistp384,ecdsa-sha2-nistp521,rsa-sha2-512,rsa-sha2-256"));
 
-        config.put("CheckCiphers", Util.getEnvProperty("jsch.check_ciphers", "aes256-ctr,aes192-ctr,aes128-ctr,aes256-cbc,aes192-cbc,aes128-cbc,3des-ctr,arcfour,arcfour128,arcfour256"));
-        config.put("CheckMacs", Util.getEnvProperty("jsch.check_macs", "hmac-sha2-256-etm@openssh.com,hmac-sha2-512-etm@openssh.com,hmac-sha1-etm@openssh.com,hmac-sha2-256,hmac-sha2-512"));
-        config.put("CheckKexes", Util.getEnvProperty("jsch.check_kexes", "curve25519-sha256,curve25519-sha256@libssh.org,curve448-sha512,diffie-hellman-group16-sha512,diffie-hellman-group18-sha512,diffie-hellman-group14-sha256,diffie-hellman-group14-sha1,ecdh-sha2-nistp256,ecdh-sha2-nistp384,ecdh-sha2-nistp521"));
-        config.put("CheckSignatures", Util.getEnvProperty("jsch.check_signatures", "ecdsa-sha2-nistp256,ecdsa-sha2-nistp384,ecdsa-sha2-nistp521"));
         config.put("FingerprintHash", Util.getEnvProperty("jsch.fingerprint_hash", "sha256"));
 
         config.put("MaxAuthTries", Util.getEnvProperty("jsch.max_auth_tries", "6"));
         config.put("ClearAllForwardings", "no");
     }
+
+    private static final Configuration mConfig = new Configuration() {
+        @Override
+        public String getConfig(final String key) {
+            return JSch.getConfig(key);
+        }
+
+        @Override
+        public void setConfig(final String key, final String value) {
+            JSch.setConfig(key, value);
+        }
+
+        @Override
+        public void setConfig(final Map<String, String> newConf) {
+            JSch.setConfig(newConf);
+        }
+    };
 
     /**
      * Key exchange algorithms implemented by the library.
@@ -224,10 +263,9 @@ public class JSch {
                             "ecdh-sha2-nistp256",
                             "ecdh-sha2-nistp384",
                             "ecdh-sha2-nistp521",
-                            "curve448-sha512",
                             "curve25519-sha256",
                             "curve25519-sha256@libssh.org",
-                            "sntrup4591761x25519-sha512@tinyssh.org",
+                            "curve448-sha512",
 
                             "diffie-hellman-group-exchange-sha224@ssh.com",
                             "diffie-hellman-group-exchange-sha384@ssh.com",
@@ -247,7 +285,8 @@ public class JSch {
      */
     public static final Set<String> supportedKexSet =
             Collections.unmodifiableSet(
-                    Util.filter(kex -> Session.checkKex(JSch.getConfig(kex)),
+                    Util.filter(kex -> Session.checkKex(JSch.getConfiguration(),
+                                    JSch.getConfig(kex)),
                             new HashSet<>(implementedKexSet)));
 
     /**
@@ -256,6 +295,18 @@ public class JSch {
     public static final Set<String> implementedCipherSet =
             Collections.unmodifiableSet(
                     Util.setOf(
+                            "chacha20-poly1305@openssh.com",
+                            "cast128-cbc",
+                            "cast128-ctr",
+                            "twofish128-cbc",
+                            "twofish192-cbc",
+                            "twofish256-cbc",
+                            "twofish-cbc",
+                            "twofish128-ctr",
+                            "twofish192-ctr",
+                            "twofish256-ctr",
+                            "seed-cbc@ssh.com",
+
                             "3des-cbc",
                             "aes128-cbc",
                             "aes192-cbc",
@@ -266,7 +317,6 @@ public class JSch {
                             "aes256-ctr",
                             "aes128-gcm@openssh.com",
                             "aes256-gcm@openssh.com",
-                            "chacha20-poly1305@openssh.com",
 
                             "blowfish-cbc",
                             "3des-ctr",
@@ -289,22 +339,22 @@ public class JSch {
     public static final Set<String> implementedMacSet =
             Collections.unmodifiableSet(
                     Util.setOf(
+                            "hmac-ripemd160",
+                            "hmac-ripemd160@openssh.com",
+                            "hmac-ripemd160-etm@openssh.com",
+
                             "hmac-sha1",
                             "hmac-sha1-96",
                             "hmac-sha2-256",
                             "hmac-sha2-512",
                             "hmac-md5",
                             "hmac-md5-96",
-                            "umac-64@openssh.com",
-                            "umac-128@openssh.com",
                             "hmac-sha1-etm@openssh.com",
                             "hmac-sha1-96-etm@openssh.com",
                             "hmac-sha2-256-etm@openssh.com",
                             "hmac-sha2-512-etm@openssh.com",
                             "hmac-md5-etm@openssh.com",
                             "hmac-md5-96-etm@openssh.com",
-                            "umac-64-etm@openssh.com",
-                            "umac-128-etm@openssh.com",
 
                             "hmac-sha256-2@ssh.com",
                             "hmac-sha224@ssh.com",
@@ -327,26 +377,13 @@ public class JSch {
             Collections.unmodifiableSet(
                     Util.setOf(
                             "ssh-ed25519",
-                            "ssh-ed25519-cert-v01@openssh.com",
-                            "sk-ssh-ed25519@openssh.com",
-                            "sk-ssh-ed25519-cert-v01@openssh.com",
-                            "ssh-rsa",
+                            "ssh-ed448",
                             "rsa-sha2-256",
                             "rsa-sha2-512",
-                            "ssh-dss",
                             "ecdsa-sha2-nistp256",
                             "ecdsa-sha2-nistp384",
                             "ecdsa-sha2-nistp521",
-                            "sk-ecdsa-sha2-nistp256@openssh.com",
-                            "webauthn-sk-ecdsa-sha2-nistp256@openssh.com",
-                            "ssh-rsa-cert-v01@openssh.com",
-                            "rsa-sha2-256-cert-v01@openssh.com",
-                            "rsa-sha2-512-cert-v01@openssh.com",
-                            "ssh-dss-cert-v01@openssh.com",
-                            "ecdsa-sha2-nistp256-cert-v01@openssh.com",
-                            "ecdsa-sha2-nistp384-cert-v01@openssh.com",
-                            "ecdsa-sha2-nistp521-cert-v01@openssh.com",
-                            "sk-ecdsa-sha2-nistp256-cert-v01@openssh.com"
+                            "ssh-rsa"
                     ));
     /**
      * Signature algorithms supported by a runtime.
@@ -363,24 +400,13 @@ public class JSch {
             Collections.unmodifiableSet(
                     Util.setOf(
                             "ssh-ed25519",
-                            "ssh-ed25519-cert-v01@openssh.com",
-                            "sk-ssh-ed25519@openssh.com",
-                            "sk-ssh-ed25519-cert-v01@openssh.com",
-                            "ssh-rsa",
-                            "ssh-dss",
+                            "ssh-ed448",
+                            "rsa-sha2-256",
+                            "rsa-sha2-512",
                             "ecdsa-sha2-nistp256",
                             "ecdsa-sha2-nistp384",
                             "ecdsa-sha2-nistp521",
-                            "sk-ecdsa-sha2-nistp256@openssh.com",
-                            "ssh-rsa-cert-v01@openssh.com",
-                            "ssh-dss-cert-v01@openssh.com",
-                            "ecdsa-sha2-nistp256-cert-v01@openssh.com",
-                            "ecdsa-sha2-nistp384-cert-v01@openssh.com",
-                            "ecdsa-sha2-nistp521-cert-v01@openssh.com",
-                            "sk-ecdsa-sha2-nistp256-cert-v01@openssh.com",
-
-                            "rsa-sha2-256",
-                            "rsa-sha2-512"
+                            "ssh-rsa"
                     ));
     /**
      * Public key algorithms supported by a runtime.
@@ -802,6 +828,10 @@ public class JSch {
         synchronized (config) {
             config.put(_getInternalKey(key), value);
         }
+    }
+
+    public static Configuration getConfiguration() {
+        return mConfig;
     }
 
     /**

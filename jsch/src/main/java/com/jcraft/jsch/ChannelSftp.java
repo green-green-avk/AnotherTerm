@@ -647,7 +647,7 @@ public final class ChannelSftp extends ChannelSession {
                                 final int _ackid = ackid[0];
                                 if (startid > _ackid || _ackid > seq - 1) {
                                     if (_ackid == seq) {
-                                        JSch.getLogger().log(Logger.ERROR,
+                                        session.getLogger().log(Logger.ERROR,
                                                 "ack error: startid=" + startid + " seq=" + seq + " _ackid=" + _ackid);
                                     } else {
                                         throw new SftpException(SSH_FX_FAILURE, "ack error: startid=" + startid + " seq=" + seq + " _ackid=" + _ackid);

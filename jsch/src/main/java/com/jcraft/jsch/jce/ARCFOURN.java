@@ -65,9 +65,8 @@ abstract class ARCFOURN implements Cipher {
         try {
             cipher = javax.crypto.Cipher.getInstance("RC4");
             final SecretKeySpec _key = new SecretKeySpec(key, "RC4");
-            cipher.init((mode == ENCRYPT_MODE ?
-                            javax.crypto.Cipher.ENCRYPT_MODE :
-                            javax.crypto.Cipher.DECRYPT_MODE),
+            cipher.init(mode == ENCRYPT_MODE ?
+                            javax.crypto.Cipher.ENCRYPT_MODE : javax.crypto.Cipher.DECRYPT_MODE,
                     _key);
             skip();
         } catch (final Exception e) {

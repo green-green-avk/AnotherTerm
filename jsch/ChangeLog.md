@@ -3,7 +3,6 @@
       in order to catch the true disconnect event when `Channel::getExitStatus()` result is ready.
     * `Channel::getExitStatus()` now returns distinct exit status for each significant cause.
     * General API rework for uniformity / better security / keyring integration.
-    * No Bouncy Castle algorithms at the moment.
     * Android API < 21 compatibility.
     * Numerous small corrections.
 

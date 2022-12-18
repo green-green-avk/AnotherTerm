@@ -42,6 +42,4 @@ public class HMACSHA256SSHCOM extends HMAC {
     public int getBlockSize() {
         return 32;
     }
-
-    ;
 }

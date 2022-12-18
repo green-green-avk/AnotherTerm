@@ -37,7 +37,9 @@ import com.jcraft.jzlib.ZStream;
 public final class Compression implements com.jcraft.jsch.Compression {
     private static final int BUF_SIZE = 4096;
     private static final int buffer_margin = 32 + 20; // AES256 + HMACSHA1
-    private int type;
+
+    private Logger logger = JSch.getLogger();
+
     private final ZStream stream;
     private final byte[] tmpbuf = new byte[BUF_SIZE];
 
@@ -48,12 +50,15 @@ public final class Compression implements com.jcraft.jsch.Compression {
     public void init(final int type, final int level) {
         if (type == DEFLATER) {
             stream.deflateInit(level);
-            this.type = DEFLATER;
         } else if (type == INFLATER) {
             stream.inflateInit();
             inflated_buf = new byte[BUF_SIZE];
-            this.type = INFLATER;
         }
+    }
+
+    @Override
+    public void setLogger(final Logger logger) {
+        this.logger = logger;
     }
 
     private byte[] inflated_buf;
@@ -83,7 +88,7 @@ public final class Compression implements com.jcraft.jsch.Compression {
                     outputlen += tmp;
                     break;
                 default:
-                    JSch.getLogger().log(Logger.ERROR,
+                    logger.log(Logger.ERROR,
                             "compress: deflate returned " + status);
             }
         }
@@ -108,10 +113,8 @@ public final class Compression implements com.jcraft.jsch.Compression {
             switch (status) {
                 case JZlib.Z_OK:
                     if (inflated_buf.length < inflated_end + BUF_SIZE - stream.avail_out) {
-                        int len = inflated_buf.length * 2;
-                        if (len < inflated_end + BUF_SIZE - stream.avail_out)
-                            len = inflated_end + BUF_SIZE - stream.avail_out;
-                        final byte[] foo = new byte[len];
+                        final byte[] foo = new byte[Math.max(inflated_buf.length * 2,
+                                inflated_end + BUF_SIZE - stream.avail_out)];
                         System.arraycopy(inflated_buf, 0, foo, 0, inflated_end);
                         inflated_buf = foo;
                     }
@@ -133,7 +136,7 @@ public final class Compression implements com.jcraft.jsch.Compression {
                     length[0] = inflated_end;
                     return buffer;
                 default:
-                    JSch.getLogger().log(Logger.ERROR,
+                    logger.log(Logger.ERROR,
                             "uncompress: inflate returned " + status);
                     return null;
             }

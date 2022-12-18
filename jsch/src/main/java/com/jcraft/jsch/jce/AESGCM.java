@@ -76,9 +76,8 @@ abstract class AESGCM implements Cipher {
             System.arraycopy(key, 0, tmp, 0, tmp.length);
             key = tmp;
         }
-        this.mode = ((mode == ENCRYPT_MODE) ?
-                javax.crypto.Cipher.ENCRYPT_MODE :
-                javax.crypto.Cipher.DECRYPT_MODE);
+        this.mode = mode == ENCRYPT_MODE ?
+                javax.crypto.Cipher.ENCRYPT_MODE : javax.crypto.Cipher.DECRYPT_MODE;
         this.iv = ByteBuffer.wrap(iv);
         initcounter = this.iv.getLong(4);
         try {

@@ -49,7 +49,7 @@ abstract class SignatureECDSAN implements com.jcraft.jsch.SignatureECDSA {
     private Signature signature;
     private KeyFactory keyFactory;
 
-    abstract String getName();
+    abstract String getAlgo();
 
     @Override
     public void check() throws Exception {
@@ -59,22 +59,7 @@ abstract class SignatureECDSAN implements com.jcraft.jsch.SignatureECDSA {
 
     @Override
     public void init() throws Exception {
-        final String name = getName();
-        final String foo;
-        switch (name) {
-            case "ecdsa-sha2-nistp256":
-                foo = "SHA256withECDSA";
-                break;
-            case "ecdsa-sha2-nistp384":
-                foo = "SHA384withECDSA";
-                break;
-            case "ecdsa-sha2-nistp521":
-                foo = "SHA512withECDSA";
-                break;
-            default:
-                throw new AssertionError();
-        }
-        signature = java.security.Signature.getInstance(foo);
+        signature = java.security.Signature.getInstance(getAlgo());
         keyFactory = KeyFactory.getInstance("EC");
     }
 
@@ -86,9 +71,12 @@ abstract class SignatureECDSAN implements com.jcraft.jsch.SignatureECDSA {
         s = insert0(s);
 
         final String name;
-        if (r.length >= 64) name = "secp521r1";
-        else if (r.length >= 48) name = "secp384r1";
-        else name = "secp256r1";
+        if (r.length >= 64)
+            name = "secp521r1";
+        else if (r.length >= 48)
+            name = "secp384r1";
+        else
+            name = "secp256r1";
 
         final AlgorithmParameters param = AlgorithmParameters.getInstance("EC");
         param.init(new ECGenParameterSpec(name));
@@ -108,9 +96,12 @@ abstract class SignatureECDSAN implements com.jcraft.jsch.SignatureECDSA {
         d = insert0(d);
 
         final String name;
-        if (d.length >= 64) name = "secp521r1";
-        else if (d.length >= 48) name = "secp384r1";
-        else name = "secp256r1";
+        if (d.length >= 64)
+            name = "secp521r1";
+        else if (d.length >= 48)
+            name = "secp384r1";
+        else
+            name = "secp256r1";
 
         final AlgorithmParameters param = AlgorithmParameters.getInstance("EC");
         param.init(new ECGenParameterSpec(name));
@@ -129,7 +120,7 @@ abstract class SignatureECDSAN implements com.jcraft.jsch.SignatureECDSA {
         // so we have to convert it.
         if (sig[0] == 0x30 &&                                      // in ASN.1
                 ((sig[1] + 2 == sig.length) ||
-                        ((sig[1] & 0x80) != 0 && (sig[2] & 0xff) + 3 == sig.length))) {// 2bytes for len
+                        ((sig[1] & 0x80) != 0 && (sig[2] & 0xff) + 3 == sig.length))) { // 2bytes for len
 
             int index = 3;
             if ((sig[1] & 0x80) != 0 && (sig[2] & 0xff) + 3 == sig.length)

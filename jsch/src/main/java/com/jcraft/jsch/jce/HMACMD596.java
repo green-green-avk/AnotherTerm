@@ -39,8 +39,6 @@ public class HMACMD596 extends HMACMD5 {
         return 12;
     }
 
-    ;
-
     private final byte[] _buf16 = new byte[16];
 
     @Override

@@ -31,7 +31,7 @@ package com.jcraft.jsch.jce;
 
 public final class SignatureECDSA256 extends SignatureECDSAN {
     @Override
-    String getName() {
-        return "ecdsa-sha2-nistp256";
+    String getAlgo() {
+        return "SHA256withECDSA";
     }
 }

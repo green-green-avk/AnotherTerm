@@ -79,6 +79,9 @@ to access the Android environment and own API to create them as separate APKs.</
     (<a href=\"https://github.com/mwiede/jsch/blob/master/LICENSE.txt\">JSch license</a> /
     <a href=\"https://github.com/mwiede/jsch/blob/master/LICENSE.jBCrypt.txt\">jBCrypt license</a> /
     <a href=\"https://github.com/mwiede/jsch/blob/master/LICENSE.JZlib.txt\">JZlib license</a>);</li>
+    <li><a href=\"https://www.bouncycastle.org/\">The Legion of the Bouncy Castle</a>
+    for some modern ciphers for old Androids
+    (<a href=\"https://www.bouncycastle.org/license.html\">license</a>);</li>
     <li>The creators of the
     <a href=\"https://www.fontsquirrel.com/fonts/dejavu-sans-mono\">DejaVu Sans Mono</a> font
     (<a href=\"https://www.fontsquirrel.com/license/dejavu-sans-mono\">license</a>);</li>
@@ -102,10 +105,7 @@ to access the Android environment and own API to create them as separate APKs.</
 </ul>
 <h1>Cryptography usage note</h1>
 <p>The only part of this application that touches on cryptography is the SSH client used to
-communicate with remote systems. Currently this is provided by the JSch library.
-It does not directly implement any encryption,
-but instead relies on Java Cryptography Extension (JCE) and its providers that are a part of
-Android.</p>
+communicate with remote systems. Currently this is provided by the JSch library.</p>
 <p>This application is self-classified under ECCN 5D992 with the encryption authorization
 type identifier MMKT.</p>
 <h1>Disclaimer</h1>

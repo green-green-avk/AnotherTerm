@@ -66,9 +66,8 @@ public class BlowfishCTR implements Cipher {
         try {
             final SecretKeySpec skeySpec = new SecretKeySpec(key, "Blowfish");
             cipher = javax.crypto.Cipher.getInstance("Blowfish/CTR/" + pad);
-            cipher.init((mode == ENCRYPT_MODE ?
-                            javax.crypto.Cipher.ENCRYPT_MODE :
-                            javax.crypto.Cipher.DECRYPT_MODE),
+            cipher.init(mode == ENCRYPT_MODE ?
+                            javax.crypto.Cipher.ENCRYPT_MODE : javax.crypto.Cipher.DECRYPT_MODE,
                     skeySpec, new IvParameterSpec(iv));
         } catch (final Exception e) {
             throw e;

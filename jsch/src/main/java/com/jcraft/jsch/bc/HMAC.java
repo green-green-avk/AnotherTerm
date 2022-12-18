@@ -1,6 +1,6 @@
 /* -*-mode:java; c-basic-offset:2; indent-tabs-mode:nil -*- */
 /*
-Copyright (c) 2006-2018 ymnk, JCraft,Inc. All rights reserved.
+Copyright (c) 2012-2018 ymnk, JCraft,Inc. All rights reserved.
 
 Redistribution and use in source and binary forms, with or without
 modification, are permitted provided that the following conditions are met:
@@ -27,69 +27,36 @@ NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,
 EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-package com.jcraft.jsch.jcraft;
+package com.jcraft.jsch.bc;
 
-import java.security.MessageDigest;
+import com.jcraft.jsch.MAC;
 
-abstract class HMAC {
+import org.bouncycastle.crypto.Digest;
+import org.bouncycastle.crypto.macs.HMac;
+import org.bouncycastle.crypto.params.KeyParameter;
 
-    /*
-     * Refer to RFC2104.
-     *
-     * H(K XOR opad, H(K XOR ipad, text))
-     *
-     * where K is an n byte key
-     * ipad is the byte 0x36 repeated 64 times
-     * opad is the byte 0x5c repeated 64 times
-     * and text is the data being protected
-     */
-    private static final int B = 64;
-    private byte[] k_ipad = null;
-    private byte[] k_opad = null;
+abstract class HMAC implements MAC {
+    protected String name;
+    protected int bsize;
+    protected Digest digest;
+    protected boolean etm;
+    private HMac mac;
 
-    private MessageDigest md = null;
-
-    private int bsize = 0;
-
-    protected void setH(final MessageDigest md) {
-        this.md = md;
-        bsize = md.getDigestLength();
-    }
-
+    @Override
     public int getBlockSize() {
         return bsize;
     }
 
-    public void init(byte[] key) throws Exception {
-        md.reset();
-        if (key.length > bsize) {
-            final byte[] tmp = new byte[bsize];
-            System.arraycopy(key, 0, tmp, 0, bsize);
-            key = tmp;
-        }
-
-        /* if key is longer than B bytes reset it to key=MD5(key) */
-        if (key.length > B) {
-            md.update(key, 0, key.length);
-            key = md.digest();
-        }
-
-        k_ipad = new byte[B];
-        System.arraycopy(key, 0, k_ipad, 0, key.length);
-        k_opad = new byte[B];
-        System.arraycopy(key, 0, k_opad, 0, key.length);
-
-        /* XOR key with ipad and opad values */
-        for (int i = 0; i < B; i++) {
-            k_ipad[i] ^= 0x36;
-            k_opad[i] ^= 0x5c;
-        }
-
-        md.update(k_ipad, 0, B);
+    @Override
+    public void init(final byte[] key) throws Exception {
+        final KeyParameter skey = new KeyParameter(key, 0, bsize);
+        mac = new HMac(digest);
+        mac.init(skey);
     }
 
     private final byte[] tmp = new byte[4];
 
+    @Override
     public void update(final int i) {
         tmp[0] = (byte) (i >>> 24);
         tmp[1] = (byte) (i >>> 16);
@@ -98,18 +65,23 @@ abstract class HMAC {
         update(tmp, 0, 4);
     }
 
+    @Override
     public void update(final byte[] foo, final int s, final int l) {
-        md.update(foo, s, l);
+        mac.update(foo, s, l);
     }
 
+    @Override
     public void doFinal(final byte[] buf, final int offset) {
-        final byte[] result = md.digest();
-        md.update(k_opad, 0, B);
-        md.update(result, 0, bsize);
-        try {
-            md.digest(buf, offset, bsize);
-        } catch (final Exception ignored) {
-        }
-        md.update(k_ipad, 0, B);
+        mac.doFinal(buf, offset);
+    }
+
+    @Override
+    public String getName() {
+        return name;
+    }
+
+    @Override
+    public boolean isEtM() {
+        return etm;
     }
 }
