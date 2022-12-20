@@ -577,6 +577,10 @@ public final class SshModule extends BackendModule {
                         return sshSessionSt.context.getString(
                                 R.string.msg_ssh_remote_identity_changed_ask_proceed,
                                 args);
+                    case Message.REMOTE_IDENTITY_KEY_REVOKED:
+                        return sshSessionSt.context.getString(
+                                R.string.msg_ssh_remote_identity_key_revoked,
+                                args);
                     default:
                         throw new BackendException("Incoherent message from SSH library...");
                 }

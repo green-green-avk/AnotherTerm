@@ -62,6 +62,10 @@ public interface UserInfo {
          */
         int PASSWORD_FOR_HOST_CHANGE = 0x21;
         /**
+         * Args: String remoteHost, String hostKeyType
+         */
+        int REMOTE_IDENTITY_KEY_REVOKED = 0x31;
+        /**
          * User messages start from here up
          */
         int USER_BASE = 0x10000;
