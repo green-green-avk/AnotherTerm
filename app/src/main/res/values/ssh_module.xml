@@ -72,6 +72,12 @@
         \
         Do you want to delete the old key and insert the new one?
     ]]></string>
+    <string name="msg_ssh_remote_identity_key_revoked"><![CDATA[
+        WARNING: REMOTE HOST KEY IS MARKED AS REVOKED!\
+        %1$s [%2$s]\
+        This could mean that a stolen key is being used to impersonate this host.\
+        Please contact your system administrator.
+    ]]></string>
 
     <string name="action_new_shell_in_this_ssh_session">+ Terminal Window</string>
     <string name="desc_new_shell_in_this_ssh_session">Start a new shell channel in this SSH session</string>

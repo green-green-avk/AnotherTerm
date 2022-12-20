@@ -894,10 +894,9 @@ public final class Session implements Configuration {
                 if (key.getKey().equals(_key) &&
                         "@revoked".equals(key.getMarker())) {
                     if (userinfo != null) {
-                        userinfo.showMessage(
-                                "The " + key_type + " host key for " + host + " is marked as revoked.\n" +
-                                        "This could mean that a stolen key is being used to " +
-                                        "impersonate this host.");
+                        userinfo.showMessage(host,
+                                UserInfo.Message.REMOTE_IDENTITY_KEY_REVOKED,
+                                host, key_type);
                     }
                     if (getLogger().isEnabled(Logger.INFO)) {
                         getLogger().log(Logger.INFO,
