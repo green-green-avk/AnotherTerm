@@ -24,7 +24,8 @@ import org.xmlpull.v1.XmlPullParserFactory;
 
 import java.io.IOException;
 import java.io.StringReader;
-import java.util.Stack;
+import java.util.Deque;
+import java.util.LinkedList;
 import java.util.regex.Pattern;
 
 import green_green_avk.anotherterm.BuildConfig;
@@ -72,8 +73,8 @@ public final class XmlToSpanned {
             this.ctx = ctx;
         }
 
-        private final Stack<Object> lists = new Stack<>();
-        private final Stack<Object> spans = new Stack<>();
+        private final Deque<Object> lists = new LinkedList<>();
+        private final Deque<Object> spans = new LinkedList<>();
 
         private void startNullSpan() {
             spans.push(null);
@@ -97,7 +98,9 @@ public final class XmlToSpanned {
                                 output.length() - 2, output.length(),
                                 Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
                     }
-                } else output.removeSpan(span);
+                } else {
+                    output.removeSpan(span);
+                }
             }
             return span;
         }
@@ -226,7 +229,7 @@ public final class XmlToSpanned {
                 case "li": {
                     startParagraph();
                     Object list = null;
-                    if (!lists.empty() && (list = lists.peek()) instanceof Integer) {
+                    if (!lists.isEmpty() && (list = lists.peek()) instanceof Integer) {
                         output.append(list.toString()).append(") ");
                         lists.pop();
                         lists.push((int) list + 1);
@@ -257,7 +260,8 @@ public final class XmlToSpanned {
                     startSpan(new LeadingMarginSpan.Standard(15), output.length());
                     if ("none".equals(parser.getAttributeValue(null, "type")))
                         lists.push(null);
-                    else lists.push('*');
+                    else
+                        lists.push('*');
                     break;
                 case "ol":
                     startParagraph();

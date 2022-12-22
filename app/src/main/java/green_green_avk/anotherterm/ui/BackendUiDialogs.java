@@ -89,7 +89,8 @@ public class BackendUiDialogs implements BackendUiInteraction,
     @UiThread
     private void expirePrompt() {
         final Dialog d = promptDialog.get();
-        if (d != null) d.dismiss();
+        if (d != null)
+            d.dismiss();
     }
 
     private final Object msgQueueLock = new Object();
@@ -101,7 +102,8 @@ public class BackendUiDialogs implements BackendUiInteraction,
 
     @UiThread
     private void showQueuedMessages(@NonNull final Activity ctx) {
-        if (ctx.isFinishing()) return;
+        if (ctx.isFinishing())
+            return;
         final MessageLogView v = new MessageLogView(ctx);
         v.setLayoutManager(new LinearLayoutManager(ctx));
         final MessageLogView.Adapter a = new MessageLogView.Adapter(msgQueue);
@@ -151,8 +153,10 @@ public class BackendUiDialogs implements BackendUiInteraction,
     @UiThread
     public void setActivity(@Nullable final Activity ctx) {
         final BackendUiInteractionActivityCtx p = parent;
-        if (p != null) p.setActivity(ctx);
-        if (ctx == activityRef.getNoBlock()) return;
+        if (p != null)
+            p.setActivity(ctx);
+        if (ctx == activityRef.getNoBlock())
+            return;
         synchronized (msgQueueLock) {
             msgAdapterRef = new WeakReference<>(null);
             activityRef.set(ctx);
@@ -160,9 +164,11 @@ public class BackendUiDialogs implements BackendUiInteraction,
                 final Runnable ps = promptState;
                 if (ps != null)
                     ps.run();
-                if (!msgQueue.isEmpty()) showQueuedMessages(ctx);
+                if (!msgQueue.isEmpty())
+                    showQueuedMessages(ctx);
             } else {
-                for (final Dialog d : dialogs) d.dismiss();
+                for (final Dialog d : dialogs)
+                    d.dismiss();
                 dialogs.clear();
             }
         }
@@ -477,9 +483,11 @@ public class BackendUiDialogs implements BackendUiInteraction,
             try {
                 final BlockingSync<Boolean> result = new BlockingSync<>();
                 promptState = () -> {
-                    if (isShowingPrompt()) return;
+                    if (isShowingPrompt())
+                        return;
                     final Activity ctx = activityRef.getNoBlock();
-                    if (ctx == null) return;
+                    if (ctx == null)
+                        return;
                     final DialogInterface.OnClickListener listener = (dialog, which) -> {
                         if (which == DialogInterface.BUTTON_POSITIVE) {
                             promptState = null;
@@ -534,7 +542,8 @@ public class BackendUiDialogs implements BackendUiInteraction,
     @Override
     public void showToast(@NonNull final CharSequence message) {
         final Activity ctx = activityRef.getNoBlock();
-        if (ctx == null) return;
+        if (ctx == null)
+            return;
         ctx.runOnUiThread(() ->
                 Toast.makeText(ctx, message, Toast.LENGTH_SHORT).show());
     }
@@ -547,9 +556,11 @@ public class BackendUiDialogs implements BackendUiInteraction,
             try {
                 final BlockingSync<Object> result = new BlockingSync<>();
                 promptState = () -> {
-                    if (isShowingPrompt()) return;
+                    if (isShowingPrompt())
+                        return;
                     final Activity ctx = activityRef.getNoBlock();
-                    if (ctx == null) return;
+                    if (ctx == null)
+                        return;
                     final DialogInterface.OnClickListener listener = (dialog, which) -> {
                         if (which == DialogInterface.BUTTON_POSITIVE) {
                             promptState = null;
@@ -594,7 +605,8 @@ public class BackendUiDialogs implements BackendUiInteraction,
         final Activity ctx = activityRef.get();
         final int[] result = Permissions.requestBlocking(ctx, perms);
         boolean r = true;
-        for (final int v : result) r &= v == PackageManager.PERMISSION_GRANTED;
+        for (final int v : result)
+            r &= v == PackageManager.PERMISSION_GRANTED;
         return r;
     }
 

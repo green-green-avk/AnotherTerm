@@ -12,10 +12,10 @@ import org.xmlpull.v1.XmlPullParserFactory;
 
 import java.io.IOException;
 import java.io.StringReader;
+import java.util.Deque;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.NoSuchElementException;
-import java.util.Stack;
 
 public final class XmlToAnsi implements Iterable<String> {
     @NonNull
@@ -40,24 +40,29 @@ public final class XmlToAnsi implements Iterable<String> {
     }
 
     private static final class OutputVec extends LinkedList<String> implements Appendable {
-
-        @NonNull
         @Override
+        @NonNull
+        public OutputVec clone() throws AssertionError {
+            throw new AssertionError();
+        }
+
+        @Override
+        @NonNull
         public OutputVec append(@Nullable final CharSequence csq) {
             if (csq != null) add(csq.toString());
             return this;
         }
 
-        @NonNull
         @Override
+        @NonNull
         public OutputVec append(@Nullable final CharSequence csq,
                                 final int start, final int end) {
             if (csq != null) add(csq.subSequence(start, end).toString());
             return this;
         }
 
-        @NonNull
         @Override
+        @NonNull
         public OutputVec append(final char c) {
             add(Character.toString(c));
             return this;
@@ -91,7 +96,7 @@ public final class XmlToAnsi implements Iterable<String> {
         private int indent = 0;
         private boolean isInP = false;
         private boolean isInPre = false;
-        private final Stack<String> lts = new Stack<>();
+        private final Deque<String> lts = new LinkedList<>();
 
         private void appendResetAttrs() {
             output.append("\u001B[0m");
@@ -121,7 +126,8 @@ public final class XmlToAnsi implements Iterable<String> {
         private int currCol = 0;
 
         private void renderParagraphText(@NonNull final String v) {
-            if (false/*isInPre*/) output.append(v);
+            if (false/*isInPre*/)
+                output.append(v);
             else {
                 int ptr = 0;
                 if (currCol == 0 && v.charAt(0) == ' ')
@@ -173,7 +179,8 @@ public final class XmlToAnsi implements Iterable<String> {
         }
 
         private void renderParagraphInterval() {
-            if (!isInP) return;
+            if (!isInP)
+                return;
             appendLn();
             output.append("\n");
             currCol = 0;
@@ -216,11 +223,11 @@ public final class XmlToAnsi implements Iterable<String> {
         }
 
         private abstract class AnsiAttrColor extends AnsiAttr {
-            protected final Stack<Integer> stack = new Stack<>();
+            protected final Deque<Integer> stack = new LinkedList<>();
 
             @Override
             boolean isSet() {
-                return !stack.empty();
+                return !stack.isEmpty();
             }
 
             void begin(final int color) {
@@ -330,7 +337,7 @@ public final class XmlToAnsi implements Iterable<String> {
                 }
                 case "li":
                     renderParagraphInterval();
-                    switch (lts.empty() ? "" : lts.peek()) {
+                    switch (lts.isEmpty() ? "" : lts.peek()) {
                         case "none":
                             appendLeftMargin(0);
                             break;
@@ -406,7 +413,7 @@ public final class XmlToAnsi implements Iterable<String> {
                     return;
                 case "ul":
                 case "ol":
-                    if (!lts.empty()) lts.pop();
+                    if (!lts.isEmpty()) lts.pop();
                     indent--;
                     return;
                 case "dt":
