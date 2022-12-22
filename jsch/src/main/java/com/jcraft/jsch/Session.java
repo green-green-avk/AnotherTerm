@@ -566,8 +566,12 @@ public final class Session implements Configuration {
             }
             isConnected = false;
             //e.printStackTrace();
-            if (e instanceof RuntimeException) throw (RuntimeException) e;
-            if (e instanceof JSchException) throw (JSchException) e;
+            if (e instanceof JSchErrorException)
+                throw (JSchErrorException) e;
+            if (e instanceof RuntimeException)
+                throw new JSchErrorException(e);
+            if (e instanceof JSchException)
+                throw (JSchException) e;
             throw new JSchException("Session.connect: " + e, e);
         } finally {
             Util.bzero(this.password);
@@ -1469,6 +1473,8 @@ public final class Session implements Configuration {
             throw new JSchException("Unable to load " + method + ": " + e, e);
         } catch (final Exception | LinkageError e) {
             if (e instanceof JSchException)
+                throw e;
+            if (e instanceof JSchErrorException)
                 throw e;
             throw new JSchException(e.toString(), e);
             //System.err.println("updatekeys: "+e);
