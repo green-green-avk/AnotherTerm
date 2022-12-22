@@ -5,19 +5,18 @@ package com.jcraft.jsch;
  * negotiation.
  */
 public class JSchAlgoNegoFailException extends JSchException {
-
     private static final long serialVersionUID = -1L;
 
     private final String algorithmName;
-    private final String jschProposal;
+    private final String clientProposal;
     private final String serverProposal;
 
     JSchAlgoNegoFailException(final int algorithmIndex,
-                              final String jschProposal, final String serverProposal) {
+                              final String clientProposal, final String serverProposal) {
         super(failString(algorithmIndex,
-                jschProposal, serverProposal));
+                clientProposal, serverProposal));
         algorithmName = KeyExchange.getAlgorithmNameByProposalIndex(algorithmIndex);
-        this.jschProposal = jschProposal;
+        this.clientProposal = clientProposal;
         this.serverProposal = serverProposal;
     }
 
@@ -29,10 +28,10 @@ public class JSchAlgoNegoFailException extends JSchException {
     }
 
     /**
-     * Get the JSch algorithm proposal.
+     * Get the client algorithm proposal.
      */
-    public String getJSchProposal() {
-        return jschProposal;
+    public String getClientProposal() {
+        return clientProposal;
     }
 
     /**
@@ -43,10 +42,10 @@ public class JSchAlgoNegoFailException extends JSchException {
     }
 
     private static String failString(final int algorithmIndex,
-                                     final String jschProposal, final String serverProposal) {
+                                     final String clientProposal, final String serverProposal) {
         return String.format(
-                "Algorithm negotiation fail: algorithmName=\"%s\" jschProposal=\"%s\" serverProposal=\"%s\"",
+                "Algorithm negotiation fail:\nalgorithmName=\"%s\"\nclientProposal=\"%s\"\nserverProposal=\"%s\"",
                 KeyExchange.getAlgorithmNameByProposalIndex(algorithmIndex),
-                jschProposal, serverProposal);
+                clientProposal, serverProposal);
     }
 }
