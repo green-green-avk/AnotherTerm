@@ -98,10 +98,10 @@ abstract class DHECN extends KeyExchange {
         buf.putString(Q_C);
         session.write(packet);
 
-        if (session.getLogger().isEnabled(Logger.INFO)) {
-            session.getLogger().log(Logger.INFO,
+        if (session.getLogger().isEnabled(Logger.DEBUG)) {
+            session.getLogger().log(Logger.DEBUG,
                     "SSH_MSG_KEX_ECDH_INIT sent");
-            session.getLogger().log(Logger.INFO,
+            session.getLogger().log(Logger.DEBUG,
                     "expecting SSH_MSG_KEX_ECDH_REPLY");
         }
 

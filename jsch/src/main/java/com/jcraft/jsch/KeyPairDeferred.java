@@ -28,7 +28,7 @@ final class KeyPairDeferred extends KeyPair {
                 return true;
             }
             if (_passphrase == null) {
-                jsch.getInstanceLogger().log(Logger.ERROR, "no passphrase set.");
+                jsch.getInstanceLogger().log(Logger.ERROR, "No passphrase set");
                 return false;
             }
 
@@ -44,7 +44,7 @@ final class KeyPairDeferred extends KeyPair {
 
             return delegate != null;
         } catch (final Exception e) {
-            jsch.getInstanceLogger().log(Logger.INFO,
+            jsch.getInstanceLogger().log(Logger.DEBUG,
                     "Could not successfully decrypt openssh v1 key", e);
             return false;
         }
@@ -64,7 +64,7 @@ final class KeyPairDeferred extends KeyPair {
             final byte[] iv = Arrays.copyOfRange(keyiv, 32, 48);
             cipher.init(Cipher.DECRYPT_MODE, key, iv);
         } else {
-            throw new IllegalStateException("No support for KDF '" + kdfName + "'.");
+            throw new IllegalStateException("No support for KDF '" + kdfName + "'");
         }
     }
 

@@ -356,8 +356,8 @@ public abstract class KeyExchange {
                 sig.update(H);
                 result = sig.verify(sig_of_H);
 
-                if (session.getLogger().isEnabled(Logger.INFO)) {
-                    session.getLogger().log(Logger.INFO,
+                if (session.getLogger().isEnabled(Logger.DEBUG)) {
+                    session.getLogger().log(Logger.DEBUG,
                             "ssh_rsa_verify: " + foo + " signature " + result);
                 }
                 break;
@@ -411,8 +411,8 @@ public abstract class KeyExchange {
                 sig.update(H);
                 result = sig.verify(sig_of_H);
 
-                if (session.getLogger().isEnabled(Logger.INFO)) {
-                    session.getLogger().log(Logger.INFO,
+                if (session.getLogger().isEnabled(Logger.DEBUG)) {
+                    session.getLogger().log(Logger.DEBUG,
                             "ssh_dss_verify: signature " + result);
                 }
                 break;
@@ -459,8 +459,8 @@ public abstract class KeyExchange {
                 sig.update(H);
                 result = sig.verify(sig_of_H);
 
-                if (session.getLogger().isEnabled(Logger.INFO)) {
-                    session.getLogger().log(Logger.INFO,
+                if (session.getLogger().isEnabled(Logger.DEBUG)) {
+                    session.getLogger().log(Logger.DEBUG,
                             "ssh_ecdsa_verify: " + alg + " signature " + result);
                 }
                 break;
@@ -494,8 +494,8 @@ public abstract class KeyExchange {
 
                 result = sig.verify(sig_of_H);
 
-                if (session.getLogger().isEnabled(Logger.INFO)) {
-                    session.getLogger().log(Logger.INFO,
+                if (session.getLogger().isEnabled(Logger.DEBUG)) {
+                    session.getLogger().log(Logger.DEBUG,
                             "ssh_eddsa_verify: " + alg + " signature " + result);
                 }
                 break;
@@ -507,5 +507,4 @@ public abstract class KeyExchange {
 
         return result;
     }
-
 }
