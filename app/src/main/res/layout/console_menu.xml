@@ -81,6 +81,13 @@
         android:gravity="right"
         android:orientation="horizontal">
 
+        <ImageButton
+            android:id="@+id/show_log"
+            style="@style/AppWidget.ConsoleMenu.ImageButton.Horizontal"
+            android:contentDescription="@string/action_session_log"
+            android:onClick="onMenuShowLog"
+            app:srcCompat="@drawable/ic_log" />
+
         <CheckBox
             android:id="@+id/horizontal_app_scrolling"
             android:layout_width="wrap_content"

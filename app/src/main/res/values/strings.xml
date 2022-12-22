@@ -276,6 +276,7 @@
     <string name="hint_terminate_on_disconnect">Terminate On Disconnect</string>
     <string name="label___if_pe_0">… if process exits with 0</string>
     <string name="hint___if_pe_0">@string/label___if_pe_0</string>
+    <string name="action_session_log">Show session log</string>
     <string name="title_scratchpad">Scratchpad</string>
     <string name="action_scratchpad">Scratchpad</string>
     <string name="msg_scratchpad_malfunction_s">Scratchpad malfunction: %s</string>

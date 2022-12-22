@@ -41,6 +41,10 @@ import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.content.res.AppCompatResources;
 import androidx.core.math.MathUtils;
 import androidx.core.widget.TextViewCompat;
+import androidx.lifecycle.DefaultLifecycleObserver;
+import androidx.lifecycle.LifecycleObserver;
+import androidx.lifecycle.LifecycleOwner;
+import androidx.recyclerview.widget.LinearLayoutManager;
 
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Method;
@@ -65,6 +69,7 @@ import green_green_avk.anotherterm.ui.ConsoleKeyboardView;
 import green_green_avk.anotherterm.ui.ConsoleScreenView;
 import green_green_avk.anotherterm.ui.ExtToast;
 import green_green_avk.anotherterm.ui.FontProvider;
+import green_green_avk.anotherterm.ui.MessageLogView;
 import green_green_avk.anotherterm.ui.MouseButtonsWorkAround;
 import green_green_avk.anotherterm.ui.RichMenu;
 import green_green_avk.anotherterm.ui.ScreenMouseView;
@@ -72,6 +77,7 @@ import green_green_avk.anotherterm.ui.ScrollableView;
 import green_green_avk.anotherterm.ui.UiUtils;
 import green_green_avk.anotherterm.ui.VisibilityAnimator;
 import green_green_avk.anotherterm.utils.BooleanCaster;
+import green_green_avk.anotherterm.utils.LogMessage;
 import green_green_avk.anotherterm.utils.Misc;
 
 public final class AnsiConsoleActivity extends ConsoleActivity
@@ -576,6 +582,8 @@ public final class AnsiConsoleActivity extends ConsoleActivity
                 .setChecked(mCsv.isAppHScrollEnabled());
         if (mSession != null) {
             final BackendModule be = mSession.backend.wrapped;
+            popupView.findViewById(R.id.show_log)
+                    .setVisibility(be.getLog() != null ? View.VISIBLE : View.GONE);
             popupView.<CompoundButton>findViewById(R.id.wakelock).setChecked(be.isWakeLockHeld());
             popupView.<CompoundButton>findViewById(R.id.keep_screen_on)
                     .setChecked(mSession.uiState.keepScreenOn);
@@ -962,6 +970,32 @@ public final class AnsiConsoleActivity extends ConsoleActivity
 
     public void onMenuScratchpad(final View view) {
         startActivity(new Intent(this, ScratchpadActivity.class));
+    }
+
+    public void onMenuShowLog(final View view) {
+        if (mSession == null)
+            return;
+        final List<LogMessage> log = mSession.backend.wrapped.getLog();
+        if (log == null)
+            return;
+        final MessageLogView v = new MessageLogView(this);
+        v.setLayoutManager(new LinearLayoutManager(this));
+        v.setAdapter(new MessageLogView.Adapter(log));
+        final AlertDialog d = new AlertDialog.Builder(this)
+                .setView(v)
+                .setCancelable(true)
+                .show();
+        v.addButton(R.layout.message_log_button,
+                R.drawable.ic_check, R.string.action_close,
+                _v -> d.cancel(), -1);
+        final LifecycleObserver o = new DefaultLifecycleObserver() {
+            @Override
+            public void onDestroy(@NonNull final LifecycleOwner owner) {
+                d.dismiss();
+            }
+        };
+        d.setOnDismissListener(dialog -> getLifecycle().removeObserver(o));
+        getLifecycle().addObserver(o);
     }
 
     public void onMenuHelp(final View view) {
