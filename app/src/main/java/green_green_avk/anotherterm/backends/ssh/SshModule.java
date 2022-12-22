@@ -783,11 +783,12 @@ public final class SshModule extends BackendModule {
 
                 @Override
                 public void log(final int level, final String message) {
-                    if (level >= ERROR) {
+                    if (!isEnabled(level))
+                        return;
+                    if (level >= ERROR)
                         Log.e("JSch", message);
-                    } else {
+                    else
                         Log.w("JSch", message);
-                    }
                 }
             });
     }
