@@ -90,7 +90,7 @@ public interface Identity {
      * @see #getSignature(byte[])
      * @since 0.1.57
      */
-    default byte[] getSignature(byte[] data, String alg) {
+    default byte[] getSignature(final byte[] data, final String alg) {
         return getSignature(data);
     }
 

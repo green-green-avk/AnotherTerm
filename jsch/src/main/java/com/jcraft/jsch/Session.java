@@ -598,7 +598,8 @@ public final class Session implements Configuration {
         switch (guess[KeyExchange.PROPOSAL_KEX_ALGS]) {
             case "ext-info-c":
             case "ext-info-s":
-                throw new JSchException("Invalid Kex negotiated: " + guess[KeyExchange.PROPOSAL_KEX_ALGS]);
+                throw new JSchException("Invalid Kex negotiated: " +
+                        guess[KeyExchange.PROPOSAL_KEX_ALGS]);
         }
 
         if (!isAuthed &&
