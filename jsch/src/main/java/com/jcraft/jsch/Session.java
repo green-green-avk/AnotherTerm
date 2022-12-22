@@ -655,9 +655,9 @@ public final class Session implements Configuration {
                 checkMac(getConfig(v)), macc2s);
         Util.filter(v -> JSch.implementedMacSet.contains(v) &&
                 checkMac(getConfig(v)), macs2c);
-        if (macc2s.isEmpty() || macs2c.isEmpty()) {
-            throw new JSchException("There are no available macs");
-        }
+//        if (macc2s.isEmpty() || macs2c.isEmpty()) {
+//            throw new JSchException("There are no available macs");
+//        }
 
         final List<String> kex = Util.splitIntoList(getConfig("kex"), ",");
         Util.filter(v -> JSch.implementedKexSet.contains(v) &&
@@ -677,7 +677,7 @@ public final class Session implements Configuration {
                 Util.splitIntoList(getConfig("server_host_key"), ",");
         Util.filter(available_shks::contains, server_host_key);
         if (server_host_key.isEmpty()) {
-            throw new JSchException("There are no available sig algorithm");
+            throw new JSchException("There are no available sig algorithms");
         }
 
         final String prefer_hkr = getConfig("prefer_known_host_key_types");

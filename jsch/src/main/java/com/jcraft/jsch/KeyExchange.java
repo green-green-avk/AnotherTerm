@@ -31,8 +31,10 @@ package com.jcraft.jsch;
 
 import androidx.annotation.NonNull;
 
-public abstract class KeyExchange {
+import java.util.Arrays;
+import java.util.List;
 
+public abstract class KeyExchange {
     static final int PROPOSAL_KEX_ALGS = 0;
     static final int PROPOSAL_SERVER_HOST_KEY_ALGS = 1;
     static final int PROPOSAL_ENC_ALGS_CTOS = 2;
@@ -124,86 +126,117 @@ public abstract class KeyExchange {
         return key_alg_name;
     }
 
+    protected static boolean isAEAD(@NonNull final String cipherClassName) {
+        try {
+            final Class<? extends Cipher> c =
+                    Class.forName(cipherClassName).asSubclass(Cipher.class);
+            return c.getDeclaredConstructor().newInstance().isAEAD();
+        } catch (final Exception | LinkageError e) {
+            throw new JSchErrorException(e);
+        }
+    }
+
+    protected static boolean guess(@NonNull final String[] out, final int what,
+                                   @NonNull final List<String>[] sProps,
+                                   @NonNull final List<String>[] cProps,
+                                   @NonNull final Util.Predicate<? super String> filter) {
+        for (final String cProp : cProps[what]) {
+            if (filter.test(cProp) && sProps[what].contains(cProp)) {
+                out[what] = cProp;
+                return true;
+            }
+        }
+        out[what] = null;
+        return false;
+    }
+
+    protected static void guess(@NonNull final String[] out, final int what,
+                                @NonNull final List<String>[] sProps,
+                                @NonNull final List<String>[] cProps)
+            throws JSchAlgoNegoFailException {
+        if (guess(out, what, sProps, cProps, name -> true))
+            return;
+        throw new JSchAlgoNegoFailException(what,
+                cProps[what].toString(), sProps[what].toString());
+    }
+
+    /**
+     * Guess or get the first server option if nothing matches
+     * (or {@code null} if there is nothing in {@code sProps[what]}).
+     */
+    protected static void guessOrServerFirst(@NonNull final String[] out, final int what,
+                                             @NonNull final List<String>[] sProps,
+                                             @NonNull final List<String>[] cProps) {
+        if (guess(out, what, sProps, cProps, name -> true))
+            return;
+        out[what] = sProps[what].isEmpty() ? null : sProps[what].get(0);
+    }
+
+    /**
+     * If there is no matched MAC, prioritize AEAD ciphers.
+     */
+    protected static void guess(@NonNull final String[] out, final int cipher, final int mac,
+                                @NonNull final List<String>[] sProps,
+                                @NonNull final List<String>[] cProps,
+                                @NonNull final Configuration cfg)
+            throws JSchAlgoNegoFailException {
+        final boolean hasMac =
+                guess(out, mac, sProps, cProps, name -> true);
+        if (guess(out, cipher, sProps, cProps, name -> hasMac ||
+                isAEAD(cfg.getConfig(name)))) {
+            if (hasMac && isAEAD(cfg.getConfig(out[cipher])))
+                out[mac] = null;
+            return;
+        }
+        throw new JSchAlgoNegoFailException(cipher,
+                cProps[cipher] + " for MACs: " + cProps[mac],
+                sProps[cipher] + " for MACs: " + sProps[mac]);
+    }
+
+    /**
+     * Not exactly matches <b>RFC4253 7.1</b>. There are small but reasonable deviations.
+     * <p>
+     * For example: empty MAC fields and AEAD ciphers works pretty well with the OpenSSH server.
+     */
     @NonNull
     protected static String[] guess(@NonNull final Session session,
                                     @NonNull final byte[] I_S, @NonNull final byte[] I_C)
             throws Exception {
-        final String[] guess = new String[PROPOSAL_NUM];
         final Buffer sb = new Buffer(I_S);
         sb.setOffSet(17);
         final Buffer cb = new Buffer(I_C);
         cb.setOffSet(17);
 
-        if (session.getLogger().isEnabled(Logger.INFO)) {
-            for (int i = 0; i < PROPOSAL_NUM; i++) {
-                session.getLogger().log(Logger.INFO,
-                        "kex: server: " + Util.byte2str(sb.getString()));
-            }
-            for (int i = 0; i < PROPOSAL_NUM; i++) {
-                session.getLogger().log(Logger.INFO,
-                        "kex: client: " + Util.byte2str(cb.getString()));
-            }
-            sb.setOffSet(17);
-            cb.setOffSet(17);
-        }
+        final List<String>[] sProps = new List[PROPOSAL_NUM];
+        final List<String>[] cProps = new List[PROPOSAL_NUM];
 
-        for (int i = 0; i < PROPOSAL_NUM; i++) {
-            final byte[] sp = sb.getString();  // server proposal
-            final byte[] cp = cb.getString();  // client proposal
-            int j = 0;
-            int k = 0;
-
-            loop:
-            while (j < cp.length) {
-                while (j < cp.length && cp[j] != ',') j++;
-                if (k == j)
-                    throw new JSchAlgoNegoFailException(i, Util.byte2str(cp), Util.byte2str(sp));
-                final String algorithm = Util.byte2str(cp, k, j - k);
-                int l = 0;
-                int m = 0;
-                while (l < sp.length) {
-                    while (l < sp.length && sp[l] != ',') l++;
-                    if (m == l)
-                        throw new JSchAlgoNegoFailException(i, Util.byte2str(cp), Util.byte2str(sp));
-                    if (algorithm.equals(Util.byte2str(sp, m, l - m))) {
-                        guess[i] = algorithm;
-                        break loop;
-                    }
-                    l++;
-                    m = l;
-                }
-                j++;
-                k = j;
-            }
-            if (j == 0)
-                guess[i] = "";
-            else if (guess[i] == null)
-                throw new JSchAlgoNegoFailException(i, Util.byte2str(cp), Util.byte2str(sp));
-        }
-
-        final boolean _s2cAEAD;
-        final boolean _c2sAEAD;
         try {
-            final Class<? extends Cipher> _s2cclazz =
-                    Class.forName(session.getConfig(guess[PROPOSAL_ENC_ALGS_STOC]))
-                            .asSubclass(Cipher.class);
-            final Cipher _s2ccipher = _s2cclazz.getDeclaredConstructor().newInstance();
-            _s2cAEAD = _s2ccipher.isAEAD();
-            if (_s2cAEAD) {
-                guess[PROPOSAL_MAC_ALGS_STOC] = null;
+            for (int i = 0; i < PROPOSAL_NUM; i++) {
+                sProps[i] = Arrays.asList(Util.byte2str(sb.getString()).split(","));
+                cProps[i] = Arrays.asList(Util.byte2str(cb.getString()).split(","));
+                if (session.getLogger().isEnabled(Logger.INFO)) {
+                    session.getLogger().log(Logger.INFO, "Server " +
+                            getAlgorithmNameByProposalIndex(i) + ": " + sProps[i]);
+                    session.getLogger().log(Logger.INFO, "Client " +
+                            getAlgorithmNameByProposalIndex(i) + ": " + cProps[i]);
+                }
             }
-
-            final Class<? extends Cipher> _c2sclazz =
-                    Class.forName(session.getConfig(guess[PROPOSAL_ENC_ALGS_CTOS]))
-                            .asSubclass(Cipher.class);
-            final Cipher _c2scipher = _c2sclazz.getDeclaredConstructor().newInstance();
-            _c2sAEAD = _c2scipher.isAEAD();
-            if (_c2sAEAD) {
-                guess[PROPOSAL_MAC_ALGS_CTOS] = null;
-            }
-        } catch (final Exception | LinkageError e) {
-            throw new JSchException(e.toString(), e);
+        } catch (final RuntimeException e) {
+            throw new JSchException("Bad proposals format", e);
         }
+
+        final String[] guess = new String[PROPOSAL_NUM];
+
+        guess(guess, PROPOSAL_KEX_ALGS, sProps, cProps);
+        guess(guess, PROPOSAL_SERVER_HOST_KEY_ALGS, sProps, cProps);
+        guess(guess, PROPOSAL_ENC_ALGS_CTOS, PROPOSAL_MAC_ALGS_CTOS,
+                sProps, cProps, session);
+        guess(guess, PROPOSAL_ENC_ALGS_STOC, PROPOSAL_MAC_ALGS_STOC,
+                sProps, cProps, session);
+        guess(guess, PROPOSAL_COMP_ALGS_CTOS, sProps, cProps);
+        guess(guess, PROPOSAL_COMP_ALGS_STOC, sProps, cProps);
+        guessOrServerFirst(guess, PROPOSAL_LANG_CTOS, sProps, cProps);
+        guessOrServerFirst(guess, PROPOSAL_LANG_STOC, sProps, cProps);
 
         if (session.getLogger().isEnabled(Logger.INFO)) {
             session.getLogger().log(Logger.INFO,
@@ -213,12 +246,14 @@ public abstract class KeyExchange {
             session.getLogger().log(Logger.INFO,
                     "kex: server->client" +
                             " cipher: " + guess[PROPOSAL_ENC_ALGS_STOC] +
-                            " MAC: " + (_s2cAEAD ? ("<implicit>") : (guess[PROPOSAL_MAC_ALGS_STOC])) +
+                            " MAC: " + Util.requireNonNullElse(guess[PROPOSAL_MAC_ALGS_STOC],
+                            "<implicit>") +
                             " compression: " + guess[PROPOSAL_COMP_ALGS_STOC]);
             session.getLogger().log(Logger.INFO,
                     "kex: client->server" +
                             " cipher: " + guess[PROPOSAL_ENC_ALGS_CTOS] +
-                            " MAC: " + (_c2sAEAD ? ("<implicit>") : (guess[PROPOSAL_MAC_ALGS_CTOS])) +
+                            " MAC: " + Util.requireNonNullElse(guess[PROPOSAL_MAC_ALGS_CTOS],
+                            "<implicit>") +
                             " compression: " + guess[PROPOSAL_COMP_ALGS_CTOS]);
         }
 
