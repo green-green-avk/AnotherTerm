@@ -48,13 +48,13 @@ public class JSch {
 
     static {
         config.put("kex", Util.getEnvProperty("jsch.kex", "curve25519-sha256,curve25519-sha256@libssh.org,ecdh-sha2-nistp256,ecdh-sha2-nistp384,ecdh-sha2-nistp521,diffie-hellman-group-exchange-sha256,diffie-hellman-group16-sha512,diffie-hellman-group18-sha512,diffie-hellman-group14-sha256"));
-        config.put("server_host_key", Util.getEnvProperty("jsch.server_host_key", "ssh-ed25519,ecdsa-sha2-nistp256,ecdsa-sha2-nistp384,ecdsa-sha2-nistp521,rsa-sha2-512,rsa-sha2-256"));
+        config.put("server_host_key", Util.getEnvProperty("jsch.server_host_key", "ecdsa-sha2-nistp256,ecdsa-sha2-nistp384,ecdsa-sha2-nistp521,ssh-ed25519,rsa-sha2-512,rsa-sha2-256,ssh-rsa"));
         config.put("prefer_known_host_key_types", Util.getEnvProperty("jsch.prefer_known_host_key_types", "yes"));
         config.put("enable_server_sig_algs", Util.getEnvProperty("jsch.enable_server_sig_algs", "yes"));
-        config.put("cipher.s2c", Util.getEnvProperty("jsch.cipher", "aes128-ctr,aes192-ctr,aes256-ctr,aes128-gcm@openssh.com,aes256-gcm@openssh.com"));
-        config.put("cipher.c2s", Util.getEnvProperty("jsch.cipher", "aes128-ctr,aes192-ctr,aes256-ctr,aes128-gcm@openssh.com,aes256-gcm@openssh.com"));
-        config.put("mac.s2c", Util.getEnvProperty("jsch.mac", "hmac-sha2-256-etm@openssh.com,hmac-sha2-512-etm@openssh.com,hmac-sha1-etm@openssh.com,hmac-sha2-256,hmac-sha2-512,hmac-sha1"));
-        config.put("mac.c2s", Util.getEnvProperty("jsch.mac", "hmac-sha2-256-etm@openssh.com,hmac-sha2-512-etm@openssh.com,hmac-sha1-etm@openssh.com,hmac-sha2-256,hmac-sha2-512,hmac-sha1"));
+        config.put("cipher.s2c", Util.getEnvProperty("jsch.cipher", "chacha20-poly1305@openssh.com,aes128-ctr,aes192-ctr,aes256-ctr,aes128-gcm@openssh.com,aes256-gcm@openssh.com"));
+        config.put("cipher.c2s", Util.getEnvProperty("jsch.cipher", "chacha20-poly1305@openssh.com,aes128-ctr,aes192-ctr,aes256-ctr,aes128-gcm@openssh.com,aes256-gcm@openssh.com"));
+        config.put("mac.s2c", Util.getEnvProperty("jsch.mac", "hmac-sha2-256-etm@openssh.com,hmac-sha2-512-etm@openssh.com,hmac-sha2-256,hmac-sha2-512"));
+        config.put("mac.c2s", Util.getEnvProperty("jsch.mac", "hmac-sha2-256-etm@openssh.com,hmac-sha2-512-etm@openssh.com,hmac-sha2-256,hmac-sha2-512"));
         config.put("compression.s2c", Util.getEnvProperty("jsch.compression", "none"));
         config.put("compression.c2s", Util.getEnvProperty("jsch.compression", "none"));
 
@@ -222,7 +222,7 @@ public class JSch {
         config.put("HashKnownHosts", "no");
 
         config.put("PreferredAuthentications", Util.getEnvProperty("jsch.preferred_authentications", "publickey,keyboard-interactive,password"));
-        config.put("PubkeyAcceptedAlgorithms", Util.getEnvProperty("jsch.client_pubkey", "ssh-ed25519,ecdsa-sha2-nistp256,ecdsa-sha2-nistp384,ecdsa-sha2-nistp521,rsa-sha2-512,rsa-sha2-256"));
+        config.put("PubkeyAcceptedAlgorithms", Util.getEnvProperty("jsch.client_pubkey", "ecdsa-sha2-nistp256,ecdsa-sha2-nistp384,ecdsa-sha2-nistp521,ssh-ed25519,rsa-sha2-512,rsa-sha2-256,ssh-rsa"));
 
         config.put("FingerprintHash", Util.getEnvProperty("jsch.fingerprint_hash", "sha256"));
 
