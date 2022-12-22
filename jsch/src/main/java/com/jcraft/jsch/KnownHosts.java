@@ -306,8 +306,8 @@ final class KnownHosts implements HostKeyRepository {
             hk = new HostKey(host, HostKey.GUESS, key);
         } catch (final Exception e) {  // unsupported key
             final Logger l = jsch.getInstanceLogger();
-            if (l.isEnabled(Logger.DEBUG))
-                l.log(Logger.DEBUG, "exception while trying to read key while checking host '" + host + "'", e);
+            if (l.isEnabled(Logger.VERBOSE))
+                l.log(Logger.VERBOSE, "exception while trying to read key while checking host '" + host + "'", e);
             return result;
         }
 

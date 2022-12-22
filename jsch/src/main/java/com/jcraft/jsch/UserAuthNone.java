@@ -46,10 +46,8 @@ final class UserAuthNone extends UserAuth {
         buf.putString(Util.str2byte("ssh-userauth"));
         session.write(packet);
 
-        if (session.getLogger().isEnabled(Logger.INFO)) {
-            session.getLogger().log(Logger.INFO,
-                    "SSH_MSG_SERVICE_REQUEST sent");
-        }
+        session.getLogger().log(Logger.VERBOSE,
+                "SSH_MSG_SERVICE_REQUEST sent");
 
         // receive
         // byte      SSH_MSG_SERVICE_ACCEPT(6)
@@ -59,10 +57,9 @@ final class UserAuthNone extends UserAuth {
 
         final boolean result = (command == SSH_MSG_SERVICE_ACCEPT);
 
-        if (session.getLogger().isEnabled(Logger.INFO)) {
-            session.getLogger().log(Logger.INFO,
-                    "SSH_MSG_SERVICE_ACCEPT received");
-        }
+        session.getLogger().log(Logger.VERBOSE,
+                "SSH_MSG_SERVICE_ACCEPT received");
+
         if (!result)
             return false;
 

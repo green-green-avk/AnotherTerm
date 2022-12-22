@@ -33,11 +33,12 @@ import java.io.PrintWriter;
 import java.io.StringWriter;
 
 public interface Logger {
-    int DEBUG = 0;
-    int INFO = 1;
-    int WARN = 2;
-    int ERROR = 3;
-    int FATAL = 4;
+    int VERBOSE = 0;
+    int DEBUG = 1;
+    int INFO = 2;
+    int WARN = 3;
+    int ERROR = 4;
+    int FATAL = 5;
 
     boolean isEnabled(int level);
 

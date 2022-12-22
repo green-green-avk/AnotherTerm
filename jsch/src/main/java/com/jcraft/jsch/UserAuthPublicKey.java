@@ -50,8 +50,8 @@ final class UserAuthPublicKey extends UserAuth {
             }
 
             final String pkmethodstr = session.getConfig("PubkeyAcceptedAlgorithms");
-            if (session.getLogger().isEnabled(Logger.DEBUG)) {
-                session.getLogger().log(Logger.DEBUG,
+            if (session.getLogger().isEnabled(Logger.VERBOSE)) {
+                session.getLogger().log(Logger.VERBOSE,
                         "PubkeyAcceptedAlgorithms = " + pkmethodstr);
             }
 
@@ -81,15 +81,15 @@ final class UserAuthPublicKey extends UserAuth {
                 }
 
                 if (!_known.isEmpty()) {
-                    if (session.getLogger().isEnabled(Logger.DEBUG)) {
-                        session.getLogger().log(Logger.DEBUG,
+                    if (session.getLogger().isEnabled(Logger.VERBOSE)) {
+                        session.getLogger().log(Logger.VERBOSE,
                                 "PubkeyAcceptedAlgorithms in server-sig-algs = " + _known);
                     }
                 }
 
                 if (!_unknown.isEmpty()) {
-                    if (session.getLogger().isEnabled(Logger.DEBUG)) {
-                        session.getLogger().log(Logger.DEBUG,
+                    if (session.getLogger().isEnabled(Logger.VERBOSE)) {
+                        session.getLogger().log(Logger.VERBOSE,
                                 "PubkeyAcceptedAlgorithms not in server-sig-algs = " + _unknown);
                     }
                 }
@@ -103,8 +103,9 @@ final class UserAuthPublicKey extends UserAuth {
                     return _start(session, identities, _unknown);
                 }
             } else {
-                if (session.getLogger().isEnabled(Logger.DEBUG)) {
-                    session.getLogger().log(Logger.DEBUG, "No server-sig-algs found, using PubkeyAcceptedAlgorithms = " + pkmethods);
+                if (session.getLogger().isEnabled(Logger.VERBOSE)) {
+                    session.getLogger().log(Logger.VERBOSE,
+                            "No server-sig-algs found, using PubkeyAcceptedAlgorithms = " + pkmethods);
                 }
             }
 
@@ -165,8 +166,8 @@ final class UserAuthPublicKey extends UserAuth {
                 ipkmethods = null;
             }
             if (ipkmethods == null) {
-                if (session.getLogger().isEnabled(Logger.DEBUG)) {
-                    session.getLogger().log(Logger.DEBUG,
+                if (session.getLogger().isEnabled(Logger.VERBOSE)) {
+                    session.getLogger().log(Logger.VERBOSE,
                             _ipkmethod + " cannot be used as public key type for identity " + identity.getName());
                 }
                 continue;
@@ -180,8 +181,8 @@ final class UserAuthPublicKey extends UserAuth {
                 loop3:
                 for (final String ipkmethod : ipkmethods) {
                     if (!available_pks.contains(ipkmethod) && !(identity instanceof AgentIdentity)) {
-                        if (session.getLogger().isEnabled(Logger.DEBUG)) {
-                            session.getLogger().log(Logger.DEBUG,
+                        if (session.getLogger().isEnabled(Logger.VERBOSE)) {
+                            session.getLogger().log(Logger.VERBOSE,
                                     ipkmethod + " not available for identity " + identity.getName());
                         }
                         continue loop3;
@@ -212,15 +213,15 @@ final class UserAuthPublicKey extends UserAuth {
 
                         switch (command) {
                             case SSH_MSG_USERAUTH_PK_OK:
-                                if (session.getLogger().isEnabled(Logger.DEBUG)) {
-                                    session.getLogger().log(Logger.DEBUG,
+                                if (session.getLogger().isEnabled(Logger.VERBOSE)) {
+                                    session.getLogger().log(Logger.VERBOSE,
                                             ipkmethod + " preauth success");
                                 }
                                 pkmethodsuccesses = Collections.singletonList(ipkmethod);
                                 break loop3;
                             case SSH_MSG_USERAUTH_FAILURE:
-                                if (session.getLogger().isEnabled(Logger.DEBUG)) {
-                                    session.getLogger().log(Logger.DEBUG,
+                                if (session.getLogger().isEnabled(Logger.VERBOSE)) {
+                                    session.getLogger().log(Logger.VERBOSE,
                                             ipkmethod + " preauth failure");
                                 }
                                 continue loop3;
@@ -239,8 +240,8 @@ final class UserAuthPublicKey extends UserAuth {
                         }
                         //System.err.println("USERAUTH fail ("+command+")");
                         //throw new JSchException("USERAUTH fail ("+command+")");
-                        if (session.getLogger().isEnabled(Logger.DEBUG)) {
-                            session.getLogger().log(Logger.DEBUG,
+                        if (session.getLogger().isEnabled(Logger.VERBOSE)) {
+                            session.getLogger().log(Logger.VERBOSE,
                                     ipkmethod + " preauth failure command (" + command + ")");
                         }
                         continue loop3;
@@ -264,8 +265,8 @@ final class UserAuthPublicKey extends UserAuth {
             loop4:
             for (final String pkmethodsuccess : pkmethodsuccesses) {
                 if (!available_pks.contains(pkmethodsuccess) && !(identity instanceof AgentIdentity)) {
-                    if (session.getLogger().isEnabled(Logger.DEBUG)) {
-                        session.getLogger().log(Logger.DEBUG,
+                    if (session.getLogger().isEnabled(Logger.VERBOSE)) {
+                        session.getLogger().log(Logger.VERBOSE,
                                 pkmethodsuccess + " not available for identity " + identity.getName());
                     }
                     continue loop4;
@@ -304,8 +305,8 @@ final class UserAuthPublicKey extends UserAuth {
                 System.arraycopy(buf.buffer, 5, tmp, 4 + sidlen, buf.index - 5);
                 final byte[] signature = identity.getSignature(tmp, pkmethodsuccess);
                 if (signature == null) {  // for example, too long key length.
-                    if (session.getLogger().isEnabled(Logger.DEBUG)) {
-                        session.getLogger().log(Logger.DEBUG,
+                    if (session.getLogger().isEnabled(Logger.VERBOSE)) {
+                        session.getLogger().log(Logger.VERBOSE,
                                 pkmethodsuccess + " signature failure");
                     }
                     continue loop4;
@@ -320,8 +321,8 @@ final class UserAuthPublicKey extends UserAuth {
 
                     switch (command) {
                         case SSH_MSG_USERAUTH_SUCCESS:
-                            if (session.getLogger().isEnabled(Logger.DEBUG)) {
-                                session.getLogger().log(Logger.DEBUG,
+                            if (session.getLogger().isEnabled(Logger.VERBOSE)) {
+                                session.getLogger().log(Logger.VERBOSE,
                                         pkmethodsuccess + " auth success");
                             }
                             return true;
@@ -349,8 +350,8 @@ final class UserAuthPublicKey extends UserAuth {
                                 throw new JSchPartialAuthException(Util.byte2str(foo));
                             }
                             session.auth_failures++;
-                            if (session.getLogger().isEnabled(Logger.DEBUG)) {
-                                session.getLogger().log(Logger.DEBUG,
+                            if (session.getLogger().isEnabled(Logger.VERBOSE)) {
+                                session.getLogger().log(Logger.VERBOSE,
                                         pkmethodsuccess + " auth failure");
                             }
                             break loop2;
@@ -358,8 +359,8 @@ final class UserAuthPublicKey extends UserAuth {
                     }
                     //System.err.println("USERAUTH fail ("+command+")");
                     //throw new JSchException("USERAUTH fail ("+command+")");
-                    if (session.getLogger().isEnabled(Logger.DEBUG)) {
-                        session.getLogger().log(Logger.DEBUG,
+                    if (session.getLogger().isEnabled(Logger.VERBOSE)) {
+                        session.getLogger().log(Logger.VERBOSE,
                                 pkmethodsuccess + " auth failure command (" + command + ")");
                     }
                     break loop2;

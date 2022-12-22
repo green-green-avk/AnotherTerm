@@ -214,8 +214,8 @@ public final class Session implements Configuration {
         }
         Packet.setRandom(random);
 
-        if (getLogger().isEnabled(Logger.INFO)) {
-            getLogger().log(Logger.INFO,
+        if (getLogger().isEnabled(Logger.DEBUG)) {
+            getLogger().log(Logger.DEBUG,
                     "Connecting to " + host + " port " + port);
         }
 
@@ -253,8 +253,8 @@ public final class Session implements Configuration {
 
             isConnected = true;
 
-            if (getLogger().isEnabled(Logger.INFO)) {
-                getLogger().log(Logger.INFO,
+            if (getLogger().isEnabled(Logger.DEBUG)) {
+                getLogger().log(Logger.DEBUG,
                         "Connection established");
             }
 
@@ -314,10 +314,10 @@ public final class Session implements Configuration {
             final String _v_s = Util.byte2str(V_S);
             sshBugSigType74 = _v_s.startsWith("SSH-2.0-OpenSSH_7.4");
 
-            if (getLogger().isEnabled(Logger.INFO)) {
-                getLogger().log(Logger.INFO,
+            if (getLogger().isEnabled(Logger.DEBUG)) {
+                getLogger().log(Logger.DEBUG,
                         "Remote version string: " + _v_s);
-                getLogger().log(Logger.INFO,
+                getLogger().log(Logger.DEBUG,
                         "Local version string: " + Util.byte2str(V_C));
             }
 
@@ -329,8 +329,8 @@ public final class Session implements Configuration {
                 throw new JSchException("invalid protocol: " + buf.getCommand());
             }
 
-            if (getLogger().isEnabled(Logger.INFO)) {
-                getLogger().log(Logger.INFO,
+            if (getLogger().isEnabled(Logger.DEBUG)) {
+                getLogger().log(Logger.DEBUG,
                         "SSH_MSG_KEXINIT received");
             }
 
@@ -371,8 +371,8 @@ public final class Session implements Configuration {
             //System.err.println("read: 21 ? "+buf.getCommand());
             if (buf.getCommand() == SSH_MSG_NEWKEYS) {
 
-                if (getLogger().isEnabled(Logger.INFO)) {
-                    getLogger().log(Logger.INFO,
+                if (getLogger().isEnabled(Logger.DEBUG)) {
+                    getLogger().log(Logger.DEBUG,
                             "SSH_MSG_NEWKEYS received");
                 }
 
@@ -446,16 +446,16 @@ public final class Session implements Configuration {
 
                     //System.err.println("  method: "+method);
 
-                    if (getLogger().isEnabled(Logger.INFO)) {
+                    if (getLogger().isEnabled(Logger.DEBUG)) {
                         String str = "Authentications that can continue: ";
                         for (int k = methodi - 1; k < cmethoda.length; k++) {
                             str += cmethoda[k];
                             if (k + 1 < cmethoda.length)
                                 str += ",";
                         }
-                        getLogger().log(Logger.INFO,
+                        getLogger().log(Logger.DEBUG,
                                 str);
-                        getLogger().log(Logger.INFO,
+                        getLogger().log(Logger.DEBUG,
                                 "Next authentication method: " + method);
                     }
 
@@ -479,8 +479,8 @@ public final class Session implements Configuration {
                         try {
                             auth = ua.start(this);
                             if (auth &&
-                                    getLogger().isEnabled(Logger.INFO)) {
-                                getLogger().log(Logger.INFO,
+                                    getLogger().isEnabled(Logger.DEBUG)) {
+                                getLogger().log(Logger.DEBUG,
                                         "Authentication succeeded (" + method + ").");
                             }
                         } catch (final JSchAuthCancelException ee) {
@@ -514,8 +514,8 @@ public final class Session implements Configuration {
 
             if (!auth) {
                 if (auth_failures >= max_auth_tries) {
-                    if (getLogger().isEnabled(Logger.INFO)) {
-                        getLogger().log(Logger.INFO,
+                    if (getLogger().isEnabled(Logger.DEBUG)) {
+                        getLogger().log(Logger.DEBUG,
                                 "Login trials exceeds " + max_auth_tries);
                     }
                 }
@@ -682,8 +682,8 @@ public final class Session implements Configuration {
 
         final String prefer_hkr = getConfig("prefer_known_host_key_types");
         if ("yes".equals(prefer_hkr)) {
-            if (getLogger().isEnabled(Logger.DEBUG)) {
-                getLogger().log(Logger.DEBUG,
+            if (getLogger().isEnabled(Logger.VERBOSE)) {
+                getLogger().log(Logger.VERBOSE,
                         "server_host_key proposal before known_host reordering is: " +
                                 server_host_key);
             }
@@ -727,8 +727,8 @@ public final class Session implements Configuration {
                 }
             }
 
-            if (getLogger().isEnabled(Logger.DEBUG)) {
-                getLogger().log(Logger.DEBUG,
+            if (getLogger().isEnabled(Logger.VERBOSE)) {
+                getLogger().log(Logger.VERBOSE,
                         "server_host_key proposal after known_host reordering is: " +
                                 server_host_key);
             }
@@ -776,8 +776,8 @@ public final class Session implements Configuration {
 
         write(packet);
 
-        if (getLogger().isEnabled(Logger.INFO)) {
-            getLogger().log(Logger.INFO,
+        if (getLogger().isEnabled(Logger.DEBUG)) {
+            getLogger().log(Logger.DEBUG,
                     "SSH_MSG_KEXINIT sent");
         }
     }
@@ -788,8 +788,8 @@ public final class Session implements Configuration {
         buf.putByte((byte) SSH_MSG_NEWKEYS);
         write(packet);
 
-        if (getLogger().isEnabled(Logger.INFO)) {
-            getLogger().log(Logger.INFO,
+        if (getLogger().isEnabled(Logger.DEBUG)) {
+            getLogger().log(Logger.DEBUG,
                     "SSH_MSG_NEWKEYS sent");
         }
     }
@@ -902,8 +902,8 @@ public final class Session implements Configuration {
                                 UserInfo.Message.REMOTE_IDENTITY_KEY_REVOKED,
                                 host, key_type);
                     }
-                    if (getLogger().isEnabled(Logger.INFO)) {
-                        getLogger().log(Logger.INFO,
+                    if (getLogger().isEnabled(Logger.DEBUG)) {
+                        getLogger().log(Logger.DEBUG,
                                 "Host '" + host + "' has provided revoked key.");
                     }
                     throw new JSchException("revoked HostKey: " + host);
@@ -912,8 +912,8 @@ public final class Session implements Configuration {
         }
 
         if (i == HostKeyRepository.OK &&
-                getLogger().isEnabled(Logger.INFO)) {
-            getLogger().log(Logger.INFO,
+                getLogger().isEnabled(Logger.DEBUG)) {
+            getLogger().log(Logger.DEBUG,
                     "Host '" + host + "' is known and matches the " + key_type + " host key");
         }
 
@@ -1208,8 +1208,8 @@ public final class Session implements Configuration {
                 buf.getInt();
                 buf.getShort();
                 final int reason_id = buf.getInt();
-                if (getLogger().isEnabled(Logger.INFO)) {
-                    getLogger().log(Logger.INFO,
+                if (getLogger().isEnabled(Logger.DEBUG)) {
+                    getLogger().log(Logger.DEBUG,
                             "Received SSH_MSG_UNIMPLEMENTED for " + reason_id);
                 }
             } else if (type == SSH_MSG_DEBUG) {
@@ -1241,25 +1241,25 @@ public final class Session implements Configuration {
                 final String enable_server_sig_algs = getConfig("enable_server_sig_algs");
                 if (!"yes".equals(enable_server_sig_algs)) {
                     ignore = true;
-                    if (getLogger().isEnabled(Logger.INFO)) {
-                        getLogger().log(Logger.INFO,
+                    if (getLogger().isEnabled(Logger.DEBUG)) {
+                        getLogger().log(Logger.DEBUG,
                                 "Ignoring SSH_MSG_EXT_INFO while enable_server_sig_algs != yes");
                     }
                 } else if (isAuthed) {
                     ignore = true;
-                    if (getLogger().isEnabled(Logger.INFO)) {
-                        getLogger().log(Logger.INFO,
+                    if (getLogger().isEnabled(Logger.DEBUG)) {
+                        getLogger().log(Logger.DEBUG,
                                 "Ignoring SSH_MSG_EXT_INFO received after SSH_MSG_USERAUTH_SUCCESS");
                     }
                 } else if (in_kex) {
                     ignore = true;
-                    if (getLogger().isEnabled(Logger.INFO)) {
-                        getLogger().log(Logger.INFO,
+                    if (getLogger().isEnabled(Logger.DEBUG)) {
+                        getLogger().log(Logger.DEBUG,
                                 "Ignoring SSH_MSG_EXT_INFO received before SSH_MSG_NEWKEYS");
                     }
                 } else {
-                    if (getLogger().isEnabled(Logger.INFO)) {
-                        getLogger().log(Logger.INFO,
+                    if (getLogger().isEnabled(Logger.DEBUG)) {
+                        getLogger().log(Logger.DEBUG,
                                 "SSH_MSG_EXT_INFO received");
                     }
                 }
@@ -1269,8 +1269,8 @@ public final class Session implements Configuration {
                     final byte[] ext_value = buf.getString();
                     if (!ignore && "server-sig-algs".equals(Util.byte2str(ext_name))) {
                         String foo = Util.byte2str(ext_value);
-                        if (getLogger().isEnabled(Logger.INFO)) {
-                            getLogger().log(Logger.INFO, "server-sig-algs=<" + foo + ">");
+                        if (getLogger().isEnabled(Logger.DEBUG)) {
+                            getLogger().log(Logger.DEBUG, "server-sig-algs=<" + foo + ">");
                         }
                         if (sshBugSigType74) {
                             if (!foo.isEmpty()) {
@@ -1278,8 +1278,8 @@ public final class Session implements Configuration {
                             } else {
                                 foo = "rsa-sha2-256,rsa-sha2-512";
                             }
-                            if (getLogger().isEnabled(Logger.INFO)) {
-                                getLogger().log(Logger.INFO,
+                            if (getLogger().isEnabled(Logger.DEBUG)) {
+                                getLogger().log(Logger.DEBUG,
                                         "OpenSSH 7.4 detected: adding rsa-sha2-256 & rsa-sha2-512 to server-sig-algs");
                             }
                         }
@@ -1990,8 +1990,8 @@ public final class Session implements Configuration {
             }
         } catch (final Exception e) {
             in_kex = false;
-            if (getLogger().isEnabled(Logger.INFO)) {
-                getLogger().log(Logger.INFO,
+            if (getLogger().isEnabled(Logger.DEBUG)) {
+                getLogger().log(Logger.DEBUG,
                         "Caught an exception, leaving main loop due to " + e.getMessage());
             }
             //System.err.println("# Session.run");
