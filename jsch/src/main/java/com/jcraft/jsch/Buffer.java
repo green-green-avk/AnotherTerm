@@ -102,7 +102,7 @@ public final class Buffer {
 
     void putPad(int n) {
         while (n > 0) {
-            buffer[index++] = (byte) 0;
+            buffer[index++] = 0;
             n--;
         }
     }
@@ -144,11 +144,9 @@ public final class Buffer {
     }
 
     public long getUInt() {
-        long foo = 0L;
-        long bar = 0L;
-        foo = getByte();
+        long foo = getByte();
         foo = ((foo << 8) & 0xff00) | (getByte() & 0xff);
-        bar = getByte();
+        long bar = getByte();
         bar = ((bar << 8) & 0xff00) | (getByte() & 0xff);
         foo = ((foo << 16) & 0xffff0000) | (bar & 0xffff);
         return foo;
@@ -180,11 +178,10 @@ public final class Buffer {
     }
 
     public byte[] getMPInt() {
-        int i = getInt();  // uint32
+        final int i = getInt();  // uint32
         if (i < 0 ||  // bigger than 0x7fffffff
                 i > 8 * 1024) {
-            // TODO: an exception should be thrown.
-            i = 8 * 1024; // the session will be broken, but working around OOME.
+            throw new RuntimeException("Bad packet");
         }
         final byte[] foo = new byte[i];
         getByte(foo, 0, i);
@@ -206,11 +203,10 @@ public final class Buffer {
     }
 
     public byte[] getString() {
-        int i = getInt();  // uint32
+        final int i = getInt();  // uint32
         if (i < 0 ||  // bigger than 0x7fffffff
                 i > 256 * 1024) {
-            // TODO: an exception should be thrown.
-            i = 256 * 1024; // the session will be broken, but working around OOME.
+            throw new RuntimeException("Bad packet");
         }
         final byte[] foo = new byte[i];
         getByte(foo, 0, i);
