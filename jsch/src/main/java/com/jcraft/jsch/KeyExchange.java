@@ -210,19 +210,31 @@ public abstract class KeyExchange {
         final List<String>[] sProps = new List[PROPOSAL_NUM];
         final List<String>[] cProps = new List[PROPOSAL_NUM];
 
-        try {
-            for (int i = 0; i < PROPOSAL_NUM; i++) {
+        for (int i = 0; i < PROPOSAL_NUM; i++) {
+            try {
                 sProps[i] = Arrays.asList(Util.byte2str(sb.getString()).split(","));
-                cProps[i] = Arrays.asList(Util.byte2str(cb.getString()).split(","));
-                if (session.getLogger().isEnabled(Logger.INFO)) {
-                    session.getLogger().log(Logger.INFO, "Server " +
-                            getAlgorithmNameByProposalIndex(i) + ": " + sProps[i]);
-                    session.getLogger().log(Logger.INFO, "Client " +
-                            getAlgorithmNameByProposalIndex(i) + ": " + cProps[i]);
-                }
+            } catch (final RuntimeException e) {
+                throw new JSchException("Bad server proposals format of " +
+                        getAlgorithmNameByProposalIndex(i), e);
             }
-        } catch (final RuntimeException e) {
-            throw new JSchException("Bad proposals format", e);
+            try {
+                cProps[i] = Arrays.asList(Util.byte2str(cb.getString()).split(","));
+            } catch (final RuntimeException e) {
+                throw new JSchException("Bad client proposals format of " +
+                        getAlgorithmNameByProposalIndex(i), e);
+            }
+        }
+
+        if (session.getLogger().isEnabled(Logger.INFO)) {
+            final StringBuilder msg = new StringBuilder("Proposals:\n");
+            for (int i = 0; i < PROPOSAL_NUM; i++) {
+                msg.append("Server ").append(getAlgorithmNameByProposalIndex(i)).append(": ")
+                        .append(sProps[i]).append('\n');
+                msg.append("Client ").append(getAlgorithmNameByProposalIndex(i)).append(": ")
+                        .append(cProps[i]).append('\n');
+            }
+            msg.setLength(msg.length() - 1);
+            session.getLogger().log(Logger.INFO, msg.toString());
         }
 
         final String[] guess = new String[PROPOSAL_NUM];
@@ -239,22 +251,14 @@ public abstract class KeyExchange {
         guessOrServerFirst(guess, PROPOSAL_LANG_STOC, sProps, cProps);
 
         if (session.getLogger().isEnabled(Logger.INFO)) {
-            session.getLogger().log(Logger.INFO,
-                    "kex: algorithm: " + guess[PROPOSAL_KEX_ALGS]);
-            session.getLogger().log(Logger.INFO,
-                    "kex: host key algorithm: " + guess[PROPOSAL_SERVER_HOST_KEY_ALGS]);
-            session.getLogger().log(Logger.INFO,
-                    "kex: server->client" +
-                            " cipher: " + guess[PROPOSAL_ENC_ALGS_STOC] +
-                            " MAC: " + Util.requireNonNullElse(guess[PROPOSAL_MAC_ALGS_STOC],
-                            "<implicit>") +
-                            " compression: " + guess[PROPOSAL_COMP_ALGS_STOC]);
-            session.getLogger().log(Logger.INFO,
-                    "kex: client->server" +
-                            " cipher: " + guess[PROPOSAL_ENC_ALGS_CTOS] +
-                            " MAC: " + Util.requireNonNullElse(guess[PROPOSAL_MAC_ALGS_CTOS],
-                            "<implicit>") +
-                            " compression: " + guess[PROPOSAL_COMP_ALGS_CTOS]);
+            final StringBuilder msg = new StringBuilder("Proposals selected:\n");
+            for (int i = 0; i < PROPOSAL_NUM; i++) {
+                msg.append(getAlgorithmNameByProposalIndex(i)).append(": ")
+                        .append(Util.requireNonNullElse(guess[i], "<implicit>"))
+                        .append('\n');
+            }
+            msg.setLength(msg.length() - 1);
+            session.getLogger().log(Logger.INFO, msg.toString());
         }
 
         return guess;

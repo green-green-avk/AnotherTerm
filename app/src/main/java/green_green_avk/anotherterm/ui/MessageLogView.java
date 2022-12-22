@@ -16,7 +16,7 @@ import androidx.annotation.StringRes;
 import androidx.appcompat.widget.LinearLayoutCompat;
 import androidx.recyclerview.widget.RecyclerView;
 
-import java.util.ArrayList;
+import java.util.List;
 
 import green_green_avk.anotherterm.R;
 import green_green_avk.anotherterm.utils.LogMessage;
@@ -105,9 +105,12 @@ public class MessageLogView extends LinearLayoutCompat {
 
     public static class Adapter extends RecyclerView.Adapter<MessageLogView.ViewHolder> {
         @NonNull
-        protected final ArrayList<LogMessage> msgs;
+        protected final List<LogMessage> msgs;
 
-        public Adapter(@NonNull final ArrayList<LogMessage> msgs) {
+        /**
+         * @param msgs messages to show. Should be a {@link  java.util.RandomAccess}
+         */
+        public Adapter(@NonNull final List<LogMessage> msgs) {
             this.msgs = msgs;
         }
 
