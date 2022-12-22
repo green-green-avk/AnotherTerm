@@ -619,7 +619,7 @@ public final class SshModule extends BackendModule {
                     erase(c);
         }
 
-        private static final String modulePrefix = "ssh@";
+        private static final String modulePrefix = ""; // Empty for good
 
         @Override
         public void onAuthResult(final int result,
