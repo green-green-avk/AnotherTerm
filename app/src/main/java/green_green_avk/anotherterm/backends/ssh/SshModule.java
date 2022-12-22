@@ -52,6 +52,7 @@ import green_green_avk.anotherterm.backends.BackendUiPasswordStorage;
 import green_green_avk.anotherterm.ui.BackendUiDialogs;
 import green_green_avk.anotherterm.ui.ContentRequester;
 import green_green_avk.anotherterm.utils.BlockingSync;
+import green_green_avk.anotherterm.utils.LogMessage;
 import green_green_avk.anotherterm.utils.Password;
 import green_green_avk.anotherterm.utils.SshHostKeyRepository;
 
@@ -336,6 +337,8 @@ public final class SshModule extends BackendModule {
     @NonNull
     private String execute = "";
     private boolean x11 = false; // per-channel usage
+
+    private final List<LogMessage> log = Collections.synchronizedList(new ArrayList<>());
 
     public SshModule() {
         sshSessionSt = new SshSessionSt();
@@ -772,7 +775,6 @@ public final class SshModule extends BackendModule {
         }
     };
 
-    // TODO: per-session?
     static {
         if (BuildConfig.DEBUG)
             JSch.setLogger(new Logger() {
@@ -905,6 +907,34 @@ public final class SshModule extends BackendModule {
                 if (sshSessionSt.session == null) {
                     final Session s = sshSessionSt.jsch.getSession(sshSessionSt.username,
                             sshSessionSt.hostname, sshSessionSt.port);
+                    s.setLogger(new Logger() {
+                        @Override
+                        public boolean isEnabled(final int level) {
+                            return level >= INFO;
+                        }
+
+                        // TODO: Possibly migrate to java.util.logging.Level
+                        private LogMessage.Level mapLevel(final int level) {
+                            switch (level) {
+                                case FATAL:
+                                    return LogMessage.Level.FATAL;
+                                case ERROR:
+                                    return LogMessage.Level.ERROR;
+                                case WARN:
+                                    return LogMessage.Level.WARNING;
+                                default:
+                                    return LogMessage.Level.INFO;
+                            }
+                        }
+
+                        @Override
+                        public void log(final int level, final String message) {
+                            if (!isEnabled(level))
+                                return;
+                            JSch.getLogger().log(level, message);
+                            log.add(new LogMessage(mapLevel(level), message));
+                        }
+                    });
                     s.setUserInfo(userInfo);
                     s.setHostKeyRepository(new SshHostKeyRepository(context));
                     s.setOnPublicKeyAuth(this::onPublicKeyAuth);
@@ -1010,6 +1040,12 @@ public final class SshModule extends BackendModule {
             ((ChannelExec) channel).setPtySize(col, row, wp, hp);
         else if (ch instanceof ChannelShell)
             ((ChannelShell) channel).setPtySize(col, row, wp, hp);
+    }
+
+    @Override
+    @Nullable
+    public List<LogMessage> getLog() {
+        return log;
     }
 
     @Override

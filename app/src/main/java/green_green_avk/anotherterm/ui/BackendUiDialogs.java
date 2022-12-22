@@ -526,10 +526,10 @@ public class BackendUiDialogs implements BackendUiInteraction,
             synchronized (msgQueueLock) {
                 final Activity ctx = activityRef.getNoBlock();
                 if (ctx == null) {
-                    msgQueue.add(new LogMessage(message));
+                    msgQueue.add(new LogMessage(LogMessage.Level.INFO, message));
                     return;
                 }
-                msgQueue.add(new LogMessage(message));
+                msgQueue.add(new LogMessage(LogMessage.Level.INFO, message));
                 final MessageLogView.Adapter a = msgAdapterRef.get();
                 if (a != null)
                     a.notifyItemInserted(a.getItemCount() - 1);
