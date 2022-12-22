@@ -15,6 +15,7 @@ import java.io.IOException;
 import java.io.OutputStream;
 import java.security.SecureRandom;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
@@ -24,6 +25,7 @@ import green_green_avk.anotherterm.R;
 import green_green_avk.anotherterm.backends.BackendException;
 import green_green_avk.anotherterm.backends.BackendModule;
 import green_green_avk.anotherterm.backends.BackendUiInteraction;
+import green_green_avk.anotherterm.utils.LogMessage;
 import green_green_avk.anotherterm.utils.Misc;
 import green_green_avk.ptyprocess.PtyProcess;
 
@@ -393,6 +395,12 @@ public final class LocalModule extends BackendModule {
             p.resize(col, row, wp, hp);
         } catch (final IOException ignored) {
         }
+    }
+
+    @Override
+    @Nullable
+    public List<LogMessage> getLog() {
+        return null;
     }
 
     @Override

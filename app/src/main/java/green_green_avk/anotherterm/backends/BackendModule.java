@@ -33,6 +33,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import green_green_avk.anotherterm.utils.LogMessage;
 import green_green_avk.anotherterm.utils.Misc;
 
 public abstract class BackendModule {
@@ -431,6 +432,9 @@ public abstract class BackendModule {
     public abstract void disconnect();
 
     public abstract void resize(int col, int row, int wp, int hp);
+
+    @Nullable
+    public abstract List<LogMessage> getLog();
 
     @NonNull
     public abstract String getConnDesc();

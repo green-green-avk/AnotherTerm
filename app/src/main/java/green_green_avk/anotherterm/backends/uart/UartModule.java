@@ -23,6 +23,7 @@ import java.util.Set;
 import green_green_avk.anotherterm.R;
 import green_green_avk.anotherterm.backends.BackendException;
 import green_green_avk.anotherterm.backends.BackendModule;
+import green_green_avk.anotherterm.utils.LogMessage;
 import green_green_avk.anotherterm.utils.ResultException;
 import green_green_avk.anotherterm.utils.SimpleBiDirHashMap;
 
@@ -275,6 +276,12 @@ public final class UartModule extends BackendModule {
 
     @Override
     public void resize(final int col, final int row, final int wp, final int hp) {
+    }
+
+    @Override
+    @Nullable
+    public List<LogMessage> getLog() {
+        return null;
     }
 
     @Override

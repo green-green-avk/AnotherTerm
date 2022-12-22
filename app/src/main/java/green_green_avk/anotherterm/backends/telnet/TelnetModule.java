@@ -11,11 +11,13 @@ import org.apache.commons.lang3.StringUtils;
 import java.io.OutputStream;
 import java.net.URLEncoder;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 
 import green_green_avk.anotherterm.backends.BackendException;
 import green_green_avk.anotherterm.backends.BackendModule;
+import green_green_avk.anotherterm.utils.LogMessage;
 import green_green_avk.telnetclient.EchoTelnetOptionHandler;
 import green_green_avk.telnetclient.SuppressGATelnetOptionHandler;
 import green_green_avk.telnetclient.TelnetClient;
@@ -202,6 +204,12 @@ public final class TelnetModule extends BackendModule {
         } catch (final TelnetClientException e) {
             throw new BackendException(e);
         }
+    }
+
+    @Override
+    @Nullable
+    public List<LogMessage> getLog() {
+        return null;
     }
 
     @Override
