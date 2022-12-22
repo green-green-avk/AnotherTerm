@@ -10,7 +10,7 @@ public interface BackendUiPasswordStorage {
      * Loads a password from the storage.
      *
      * @param target unique id for keyring
-     * @return the password or {@code null} if not exists
+     * @return the password (a copy) or {@code null} if not exists
      */
     @Nullable
     Password getPassword(@NonNull String target);
@@ -19,7 +19,7 @@ public interface BackendUiPasswordStorage {
      * Saves a password to the storage.
      *
      * @param target unique id for keyring etc.
-     * @param pwd    password to save
+     * @param pwd    password to save (will be copied)
      */
     void putPassword(@NonNull String target, @NonNull CharSequence pwd);
 
