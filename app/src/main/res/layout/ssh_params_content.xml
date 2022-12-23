@@ -344,6 +344,51 @@
     <TextView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:labelFor="@id/f_server_host_key"
+        android:text="@string/label_server_host_key" />
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginLeft="@dimen/text_margin"
+        android:layout_marginRight="@dimen/text_margin"
+        android:text="@string/label_available_" />
+
+    <green_green_avk.anotherterm.ui.MetaStringCollectionView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginLeft="@dimen/frame_margin"
+        android:layout_marginRight="@dimen/frame_margin"
+        android:background="@drawable/bg_frame2"
+        android:tag="jsch.cfg.server_host_key"
+        android:textSize="@dimen/xSmallUiOptionTextSize" />
+
+    <ImageButton
+        style="@style/AppWidget.Editor.ImageButton.Horizontal.XSmall"
+        android:layout_gravity="end"
+        android:contentDescription="@string/label_reset_to_default"
+        android:tag="jsch.cfg.server_host_key"
+        app:srcCompat="@drawable/ic_reset" />
+
+    <green_green_avk.anotherterm.ui.EditableTokenCollectionView
+        android:id="@+id/f_server_host_key"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="@drawable/bg_fancy_edit_text"
+        android:importantForAutofill="no"
+        android:inputType="text|textMultiLine|textNoSuggestions"
+        android:tag="jsch.cfg.server_host_key" />
+
+    <CheckBox
+        android:id="@+id/f_prefer_known_host_key_types"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:tag="jsch.cfg.prefer_known_host_key_types"
+        android:text="@string/label_prefer_known_host_key_types" />
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
         android:text="@string/label_transport_encryption" />
 
     <TextView

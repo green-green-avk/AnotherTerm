@@ -86,6 +86,10 @@ public final class SshModule extends BackendModule {
                 new Meta.ParameterMeta<>("jsch.cfg.kex",
                         JSch.implementedKexSet,
                         JSch.supportedKexSet));
+        r.put("jsch.cfg.server_host_key",
+                new Meta.ParameterMeta<>("jsch.cfg.server_host_key",
+                        JSch.implementedKeySet,
+                        JSch.supportedKeySet));
         r.put("jsch.cfg.cipher.s2c",
                 new Meta.ParameterMeta<>("jsch.cfg.cipher",
                         JSch.implementedCipherSet,
@@ -125,6 +129,9 @@ public final class SshModule extends BackendModule {
         public Map<String, ?> getDefaultParameters() {
             final Map<String, Object> r = new HashMap<>();
             r.put("jsch.cfg.kex", JSch.getConfig("kex"));
+            r.put("jsch.cfg.server_host_key", JSch.getConfig("server_host_key"));
+            r.put("jsch.cfg.prefer_known_host_key_types",
+                    fromJSchBoolOpt(JSch.getConfig("prefer_known_host_key_types")));
             r.put("jsch.cfg.cipher.s2c", JSch.getConfig("cipher.s2c"));
             r.put("jsch.cfg.cipher.c2s", JSch.getConfig("cipher.c2s"));
             r.put("jsch.cfg.mac.s2c", JSch.getConfig("mac.s2c"));
@@ -239,6 +246,9 @@ public final class SshModule extends BackendModule {
         private int port = 22;
         private String username = null;
         private String kex = JSch.getConfig("kex");
+        private String server_host_key = JSch.getConfig("server_host_key");
+        private boolean prefer_known_host_key_types =
+                fromJSchBoolOpt(JSch.getConfig("prefer_known_host_key_types"));
         private String cipher_s2c = JSch.getConfig("cipher.s2c");
         private String cipher_c2s = JSch.getConfig("cipher.c2s");
         private String mac_s2c = JSch.getConfig("mac.s2c");
@@ -366,8 +376,15 @@ public final class SshModule extends BackendModule {
             throw new BackendException("`username' is not defined");
 
         sshSessionSt.kex = pp.getString("jsch.cfg.kex", sshSessionSt.kex);
-        sshSessionSt.cipher_s2c = pp.getString("jsch.cfg.cipher.s2c", sshSessionSt.cipher_s2c);
-        sshSessionSt.cipher_c2s = pp.getString("jsch.cfg.cipher.c2s", sshSessionSt.cipher_c2s);
+        sshSessionSt.server_host_key = pp.getString("jsch.cfg.server_host_key",
+                sshSessionSt.server_host_key);
+        sshSessionSt.prefer_known_host_key_types =
+                pp.getBoolean("jsch.cfg.prefer_known_host_key_types",
+                        sshSessionSt.prefer_known_host_key_types);
+        sshSessionSt.cipher_s2c = pp.getString("jsch.cfg.cipher.s2c",
+                sshSessionSt.cipher_s2c);
+        sshSessionSt.cipher_c2s = pp.getString("jsch.cfg.cipher.c2s",
+                sshSessionSt.cipher_c2s);
         sshSessionSt.mac_s2c = pp.getString("jsch.cfg.mac.s2c", sshSessionSt.mac_s2c);
         sshSessionSt.mac_c2s = pp.getString("jsch.cfg.mac.c2s", sshSessionSt.mac_c2s);
         sshSessionSt.pubkey_accepted_algorithms =
@@ -891,6 +908,9 @@ public final class SshModule extends BackendModule {
                     s.setHostKeyRepository(new SshHostKeyRepository(context));
                     s.setOnPublicKeyAuth(this::onPublicKeyAuth);
                     s.setConfig("kex", sshSessionSt.kex);
+                    s.setConfig("server_host_key", sshSessionSt.server_host_key);
+                    s.setConfig("prefer_known_host_key_types",
+                            toJSchBoolOpt(sshSessionSt.prefer_known_host_key_types));
                     s.setConfig("cipher.s2c", sshSessionSt.cipher_s2c);
                     s.setConfig("cipher.c2s", sshSessionSt.cipher_c2s);
                     s.setConfig("mac.s2c", sshSessionSt.mac_s2c);

@@ -9,6 +9,8 @@
     <string name="title_ssh_prefs_encryption">Encryption</string>
     <string name="label_client_private_key_">Client private key (OpenSSH or PEM):</string>
     <string name="label_key_exchange">Key exchange <i>(kex)</i></string>
+    <string name="label_server_host_key">Server host key <i>(server_host_key)</i></string>
+    <string name="label_prefer_known_host_key_types">Prioritize already known host keys algorithms</string>
     <string name="label_transport_encryption">Transport encryption <i>(cipher)</i></string>
     <string name="label_transport_message_authentication_code">Transport message authentication code <i>(mac)</i></string>
     <string name="label_server_to_client">Server-to-client <i>(s2c)</i></string>
