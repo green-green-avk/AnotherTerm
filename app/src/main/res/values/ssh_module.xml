@@ -20,7 +20,7 @@
     <string name="label_server_to_client_transport_message_authentication_code">Server-to-client transport message authentication code <i>(mac.s2c)</i></string>
     <string name="label_client_to_server_transport_message_authentication_code">Client-to-server transport message authentication code <i>(mac.c2s)</i></string>
     <string name="label_public_key_accepted_algorithms">Public key algorithms</string>
-    <string name="label_enable_server_signature_algorithms">Prioritize matching algorithms from the <b>server-sig-algs</b> response</string>
+    <string name="label_enable_server_signature_algorithms">Prioritize algorithms from the <b>server-sig-algs</b> response</string>
     <string name="label_prefer_compression">Prefer compression</string>
     <string name="note_ssh_algorithm_lists"><![CDATA[
         <p>Highest priority - first in the next lists</p>
