@@ -3,6 +3,7 @@ package green_green_avk.anotherterm.utils;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
+import java.nio.CharBuffer;
 import java.util.Arrays;
 
 public final class Password implements ErasableCharSequence {
@@ -84,6 +85,19 @@ public final class Password implements ErasableCharSequence {
     protected void finalize() throws Throwable {
         erase();
         super.finalize();
+    }
+
+    /**
+     * Exposes the wrapped internal array in order to work around a Dalvik and early ART bug
+     * with garbage output of {@link java.nio.charset.Charset#encode(CharBuffer)}
+     * if its argument is represented by {@link CharBuffer#wrap(CharSequence)}
+     * around this object.
+     * <p>
+     * Android APIs < 24 are affected.
+     */
+    @NonNull
+    public CharBuffer asCharBuffer() {
+        return CharBuffer.wrap(data);
     }
 
     @NonNull

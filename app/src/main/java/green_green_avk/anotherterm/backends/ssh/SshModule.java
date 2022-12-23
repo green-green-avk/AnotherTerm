@@ -3,6 +3,7 @@ package green_green_avk.anotherterm.backends.ssh;
 import android.content.Context;
 import android.content.Intent;
 import android.net.Uri;
+import android.os.Build;
 import android.text.Html;
 import android.util.Log;
 
@@ -718,7 +719,9 @@ public final class SshModule extends BackendModule {
             }
             if (useSaved[0]) {
                 erase(r);
-                return savedPassword;
+                // TODO: Find more about this Android bug...
+                return Build.VERSION.SDK_INT < Build.VERSION_CODES.N ?
+                        savedPassword.asCharBuffer() : savedPassword;
             } else {
                 if (savedPassword != null)
                     savedPassword.erase();
