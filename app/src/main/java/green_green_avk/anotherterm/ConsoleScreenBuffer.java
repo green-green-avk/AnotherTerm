@@ -1048,7 +1048,7 @@ public final class ConsoleScreenBuffer {
         }
         if (toEnd >> F_XOFF_SHIFT != 0) {
             toEnd &= F_IND_MASK;
-            toEnd = Unicode.stepBack(row.text, 0, toEnd);
+            toEnd--;
             row.text[toEnd] = ' ';
         }
         final int attrsStart = codePointCountRealloc(row.text, 0, toStart);
