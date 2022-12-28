@@ -4,6 +4,8 @@ import androidx.annotation.CheckResult;
 import androidx.annotation.ColorInt;
 import androidx.annotation.NonNull;
 
+import java.util.Arrays;
+
 public final class ConsoleScreenCharAttrs {
     private static final int[] DEF_BASIC_COLORS = new int[]{
             // Normal
@@ -59,7 +61,7 @@ public final class ConsoleScreenCharAttrs {
         }
     }
 
-    public static class TabularColorProfile implements AnsiColorProfile {
+    public static class TabularColorProfile implements AnsiColorProfile.Editable {
         @NonNull
         public int[] basic = DEF_BASIC_COLORS;
         @NonNull
@@ -70,6 +72,42 @@ public final class ConsoleScreenCharAttrs {
 
         public TabularColorProfile(@NonNull final int[] basic) {
             this.basic = basic;
+        }
+
+        @Override
+        @NonNull
+        public TabularColorProfile clone() {
+            final TabularColorProfile r;
+            try {
+                r = (TabularColorProfile) super.clone();
+            } catch (final CloneNotSupportedException e) {
+                throw new AssertionError();
+            }
+            r.basic = basic.clone();
+            r._8bit = _8bit.clone();
+            return r;
+        }
+
+        @Override
+        public void set(@NonNull final Editable that) {
+            if (that instanceof TabularColorProfile) {
+                System.arraycopy(((TabularColorProfile) that).basic, 0,
+                        basic, 0, basic.length);
+                System.arraycopy(((TabularColorProfile) that)._8bit, 0,
+                        _8bit, 0, _8bit.length);
+                return;
+            }
+            throw new IllegalArgumentException("Wrong type");
+        }
+
+        @Override
+        public boolean dataEquals(@NonNull final Editable that) {
+            if (this == that)
+                return true;
+            if (that instanceof TabularColorProfile)
+                return Arrays.equals(basic, ((TabularColorProfile) that).basic) &&
+                        Arrays.equals(_8bit, ((TabularColorProfile) that)._8bit);
+            return false;
         }
 
         @ColorInt
@@ -122,6 +160,86 @@ public final class ConsoleScreenCharAttrs {
                 return getColor(attrs.fgColor, true, false, false);
             }
             return getColor(attrs.bgColor, false, false, false);
+        }
+
+        @Override
+        public int getDefaultFgNormal() {
+            return basic[24];
+        }
+
+        @Override
+        public void setDefaultFgNormal(final int color) {
+            basic[24] = color;
+        }
+
+        @Override
+        public int getDefaultFgBold() {
+            return basic[25];
+        }
+
+        @Override
+        public void setDefaultFgBold(final int color) {
+            basic[25] = color;
+        }
+
+        @Override
+        public int getDefaultFgFaint() {
+            return basic[26];
+        }
+
+        @Override
+        public void setDefaultFgFaint(final int color) {
+            basic[26] = color;
+        }
+
+        @Override
+        public int getDefaultBg() {
+            return basic[27];
+        }
+
+        @Override
+        public void setDefaultBg(final int color) {
+            basic[27] = color;
+        }
+
+        @Override
+        public int getBasicNormal(final int idx) {
+            return basic[idx & 0x07];
+        }
+
+        @Override
+        public void setBasicNormal(final int idx, final int color) {
+            basic[idx & 0x07] = color;
+        }
+
+        @Override
+        public int getBasicBold(final int idx) {
+            return basic[idx & 0x07 | 0x08];
+        }
+
+        @Override
+        public void setBasicBold(final int idx, final int color) {
+            basic[idx & 0x07 | 0x08] = color;
+        }
+
+        @Override
+        public int getBasicFaint(final int idx) {
+            return basic[idx & 0x07 | 0x10];
+        }
+
+        @Override
+        public void setBasicFaint(final int idx, final int color) {
+            basic[idx & 0x07 | 0x10] = color;
+        }
+
+        @Override
+        public int get8bit(final int idx) {
+            return _8bit[idx & 0xFF];
+        }
+
+        @Override
+        public void set8bit(final int idx, final int color) {
+            _8bit[idx & 0xFF] = color;
         }
     }
 

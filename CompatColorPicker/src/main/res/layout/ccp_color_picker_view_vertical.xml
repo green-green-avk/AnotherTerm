@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.appcompat.widget.LinearLayoutCompat xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@drawable/ccp_bg_checkers"
+    android:orientation="vertical">
+
+    <name.green_green_avk.compatcolorpicker.ColorPickerWheelView
+        android:id="@+id/color_hs"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_margin="1dp"
+        android:adjustViewBounds="true" />
+
+    <name.green_green_avk.compatcolorpicker.ColorPickerValueView
+        android:id="@+id/color_v"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1" />
+
+    <name.green_green_avk.compatcolorpicker.ColorPickerChannelView
+        android:id="@+id/color_a"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        app:channel="alpha" />
+
+    <name.green_green_avk.compatcolorpicker.ColorPickerChannelView
+        android:id="@+id/color_r"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        app:channel="red" />
+
+    <name.green_green_avk.compatcolorpicker.ColorPickerChannelView
+        android:id="@+id/color_g"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        app:channel="green" />
+
+    <name.green_green_avk.compatcolorpicker.ColorPickerChannelView
+        android:id="@+id/color_b"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        app:channel="blue" />
+
+    <name.green_green_avk.compatcolorpicker.ColorPickerTextView
+        android:id="@+id/color_result"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1" />
+
+</androidx.appcompat.widget.LinearLayoutCompat>

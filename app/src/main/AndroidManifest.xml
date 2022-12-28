@@ -123,6 +123,37 @@
         </activity>
 
         <activity
+            android:name=".AnsiColorManagerActivity"
+            android:exported="false"
+            android:label="@string/title_activity_color_mappings"
+            android:parentActivityName=".SessionsActivity">
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value="${namespace}.SessionsActivity" />
+        </activity>
+
+        <activity
+            android:name=".AnsiColorEditorActivity"
+            android:configChanges="keyboardHidden|keyboard"
+            android:exported="true"
+            android:label="@string/title_activity_color_mapping_editor"
+            android:parentActivityName=".AnsiColorManagerActivity"
+            android:theme="@style/AppSettingsTheme"
+            android:windowSoftInputMode="adjustResize">
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value="${namespace}.AnsiColorManagerActivity" />
+            <intent-filter>
+                <action android:name="android.intent.action.VIEW" />
+
+                <category android:name="android.intent.category.DEFAULT" />
+                <category android:name="android.intent.category.BROWSABLE" />
+
+                <data android:scheme="termcolormap" />
+            </intent-filter>
+        </activity>
+
+        <activity
             android:name=".ScratchpadActivity"
             android:exported="false"
             android:label="@string/title_scratchpad" />

@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <declare-styleable name="ColorPickerPopupView">
+        <attr name="colorPickerPopupViewStyle" format="reference" />
+        <attr name="hasAlpha" format="boolean" />
+    </declare-styleable>
+
+    <style name="AppColorPickerViewStyle">
+        <item name="android:background">@drawable/bg_color_slot</item>
+    </style>
+</resources>

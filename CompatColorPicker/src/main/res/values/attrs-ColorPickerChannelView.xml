@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <declare-styleable name="ColorPickerChannelView">
+        <attr name="channel" format="enum">
+            <enum name="blue" value="0" />
+            <enum name="green" value="1" />
+            <enum name="red" value="2" />
+            <enum name="alpha" value="3" />
+        </attr>
+    </declare-styleable>
+</resources>

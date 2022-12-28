@@ -86,12 +86,14 @@ public class ConsoleScreenView extends ScrollableView
         private boolean resizeBufferXOnUi = true;
         private boolean resizeBufferYOnUi = true;
         private boolean appHScrollEnabled = false;
+        private AnsiColorProfile colorProfile = null;
 
         public void save(@NonNull final ConsoleScreenView v) {
             scrollPosition = v.scrollPosition;
             resizeBufferXOnUi = v.resizeBufferXOnUi;
             resizeBufferYOnUi = v.resizeBufferYOnUi;
             appHScrollEnabled = v.appHScrollEnabled;
+            colorProfile = v.colorProfile;
         }
 
         public void apply(@NonNull final ConsoleScreenView v) {
@@ -101,6 +103,7 @@ public class ConsoleScreenView extends ScrollableView
             v.resizeBufferXOnUi = resizeBufferXOnUi;
             v.resizeBufferYOnUi = resizeBufferYOnUi;
             v.appHScrollEnabled = appHScrollEnabled;
+            v.colorProfile = colorProfile;
             v.execOnScroll();
         }
     }
@@ -698,6 +701,11 @@ public class ConsoleScreenView extends ScrollableView
         r[1] = p.getFontSpacing();
         r[0] = p.measureText("A");
         return r;
+    }
+
+    @NonNull
+    public AnsiColorProfile getColorProfile() {
+        return colorProfile;
     }
 
     protected void _setColorProfile(@NonNull final AnsiColorProfile v) {

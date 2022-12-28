@@ -1,0 +1,184 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.appcompat.widget.LinearLayoutCompat xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    tools:context=".AnsiColorEditorActivity">
+
+    <androidx.appcompat.widget.LinearLayoutCompat
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:padding="@dimen/text_padding">
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:labelFor="@id/f_name"
+            android:text="@string/label_save_as_" />
+
+        <EditText
+            android:id="@+id/f_name"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:importantForAutofill="no"
+            android:inputType="text" />
+
+    </androidx.appcompat.widget.LinearLayoutCompat>
+
+    <androidx.appcompat.widget.LinearLayoutCompat
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        android:baselineAligned="false"
+        android:orientation="horizontal"
+        android:paddingLeft="@dimen/text_padding"
+        android:paddingRight="@dimen/text_padding">
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:gravity="center_vertical"
+            android:labelFor="@id/f_color_def_bg"
+            android:paddingLeft="@dimen/text_padding"
+            android:paddingRight="@dimen/text_padding"
+            android:text="@string/label_default_background"
+            app:autoSizeMaxTextSize="@dimen/uiOptionMaxTextSize"
+            app:autoSizeTextType="uniform" />
+
+        <green_green_avk.anotherterm.ui.ColorPickerPopupView
+            android:id="@+id/f_color_def_bg"
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="1" />
+
+    </androidx.appcompat.widget.LinearLayoutCompat>
+
+    <TableLayout
+        android:id="@+id/list"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="10"
+        android:paddingLeft="@dimen/text_padding"
+        android:paddingRight="@dimen/text_padding">
+
+        <TableRow android:layout_weight="1">
+
+            <Space
+                android:layout_width="wrap_content"
+                android:layout_height="match_parent" />
+
+            <TextView
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:layout_weight="1"
+                android:gravity="center_horizontal|bottom"
+                android:lines="1"
+                android:text="@string/label_normal"
+                app:autoSizeMaxTextSize="@dimen/uiOptionMaxTextSize"
+                app:autoSizeTextType="uniform" />
+
+            <TextView
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:layout_weight="1"
+                android:gravity="center_horizontal|bottom"
+                android:lines="1"
+                android:text="@string/label_bold"
+                android:textStyle="bold"
+                app:autoSizeMaxTextSize="@dimen/uiOptionMaxTextSize"
+                app:autoSizeTextType="uniform" />
+
+            <TextView
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:layout_weight="1"
+                android:alpha="0.75"
+                android:gravity="center_horizontal|bottom"
+                android:lines="1"
+                android:text="@string/label_faint"
+                app:autoSizeMaxTextSize="@dimen/uiOptionMaxTextSize"
+                app:autoSizeTextType="uniform" />
+
+        </TableRow>
+
+        <TableRow
+            android:layout_weight="1"
+            android:baselineAligned="false">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="match_parent"
+                android:gravity="center"
+                android:lines="1"
+                android:paddingLeft="@dimen/text_padding"
+                android:paddingRight="@dimen/text_padding"
+                android:text="@string/label_default"
+                app:autoSizeMaxTextSize="@dimen/uiOptionMaxTextSize"
+                app:autoSizeTextType="uniform" />
+
+            <green_green_avk.anotherterm.ui.ColorPickerPopupView
+                android:id="@+id/f_color_def_fg_normal"
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:layout_weight="1" />
+
+            <green_green_avk.anotherterm.ui.ColorPickerPopupView
+                android:id="@+id/f_color_def_fg_bold"
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:layout_weight="1" />
+
+            <green_green_avk.anotherterm.ui.ColorPickerPopupView
+                android:id="@+id/f_color_def_fg_faint"
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:layout_weight="1" />
+
+        </TableRow>
+
+    </TableLayout>
+
+    <Space
+        android:layout_width="match_parent"
+        android:layout_height="@dimen/text_padding" />
+
+    <androidx.appcompat.widget.LinearLayoutCompat
+        android:layout_width="match_parent"
+        android:layout_height="32dp"
+        android:orientation="horizontal">
+
+        <ImageButton
+            android:id="@+id/b_share"
+            style="@style/AppWidget.EditorToolbar.ImageButton.Horizontal"
+            android:contentDescription="@string/action_share"
+            android:onClick="share"
+            app:srcCompat="@drawable/ic_share" />
+
+        <ImageButton
+            android:id="@+id/b_copy"
+            style="@style/AppWidget.EditorToolbar.ImageButton.Horizontal"
+            android:contentDescription="@android:string/copy"
+            android:onClick="copy"
+            app:srcCompat="@drawable/ic_copy" />
+
+        <ImageButton
+            android:id="@+id/b_paste"
+            style="@style/AppWidget.EditorToolbar.ImageButton.Horizontal"
+            android:contentDescription="@android:string/paste"
+            android:onClick="paste"
+            app:srcCompat="@drawable/ic_paste" />
+
+        <ImageButton
+            android:id="@+id/b_save"
+            style="@style/AppWidget.EditorToolbar.ImageButton.Horizontal"
+            android:contentDescription="@string/action_save"
+            android:onClick="save"
+            app:srcCompat="@drawable/ic_save" />
+
+    </androidx.appcompat.widget.LinearLayoutCompat>
+
+</androidx.appcompat.widget.LinearLayoutCompat>

@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="utf-8"?>
+<TableRow xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_weight="1"
+    android:baselineAligned="false">
+
+    <TextView
+        android:id="@+id/f_label"
+        android:layout_width="wrap_content"
+        android:layout_height="match_parent"
+        android:gravity="center"
+        android:lines="1"
+        android:paddingLeft="@dimen/text_padding"
+        android:paddingRight="@dimen/text_padding"
+        app:autoSizeMaxTextSize="@dimen/uiOptionMaxTextSize"
+        app:autoSizeTextType="uniform"
+        tools:text="Idx" />
+
+    <green_green_avk.anotherterm.ui.ColorPickerPopupView
+        android:id="@+id/f_color_normal"
+        android:layout_width="0dp"
+        android:layout_height="match_parent"
+        android:layout_weight="1" />
+
+    <green_green_avk.anotherterm.ui.ColorPickerPopupView
+        android:id="@+id/f_color_bold"
+        android:layout_width="0dp"
+        android:layout_height="match_parent"
+        android:layout_weight="1" />
+
+    <green_green_avk.anotherterm.ui.ColorPickerPopupView
+        android:id="@+id/f_color_faint"
+        android:layout_width="0dp"
+        android:layout_height="match_parent"
+        android:layout_weight="1" />
+
+</TableRow>

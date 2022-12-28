@@ -104,6 +104,8 @@ public final class App extends Application {
 
     public ScratchpadManager scratchpadManager = null;
 
+    public AnsiColorManager ansiColorManager = null;
+
     // Turned out, it's supposed that any obfuscated fields are reflection unreachable...
     // Must be kept in order to prevent its unexpected early finalization.
     @Keep
@@ -125,6 +127,7 @@ public final class App extends Application {
         HwKeyMapManager.init(this);
         FavoritesManager.init(this);
         scratchpadManager = new ScratchpadManager(this, "scratchpad");
+        ansiColorManager = new AnsiColorManager(this, "ansi");
         termSh = new TermSh(this);
         libUsbManager = new LibUsbManager(this);
     }

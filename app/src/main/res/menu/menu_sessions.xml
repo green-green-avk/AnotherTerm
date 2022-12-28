@@ -17,6 +17,10 @@
         app:showAsAction="ifRoom" />
 
     <item
+        android:id="@+id/action_term_color_mapping"
+        android:title="@string/action_term_color_mapping" />
+
+    <item
         android:id="@+id/action_term_key_mapping"
         android:title="@string/action_term_key_mapping" />
 

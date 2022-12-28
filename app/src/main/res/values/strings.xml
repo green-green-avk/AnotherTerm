@@ -116,9 +116,11 @@
     <string name="msg_desc_malformed__s">It looks malformed: %s</string>
     <string name="msg_clipboard_does_not_contain_applicable_settings">Clipboard does not contain applicable settings</string>
     <string name="title_activity_key_mappings">Key Mappings</string>
+    <string name="title_activity_color_mappings">Color Mappings</string>
     <string name="action_add">Add</string>
     <string name="none">None</string>
     <string name="action_term_key_mapping">Key Mapping</string>
+    <string name="action_term_color_mapping">Color Mapping</string>
     <string name="prompt_overwrite">Overwrite?</string>
     <string name="msg_name_must_not_be_empty">Name must not be empty</string>
     <string name="title_license">License</string>
@@ -132,6 +134,7 @@
     <string name="title_ssh_keys_settings">SSH Keys Settings</string>
     <string name="label_in_memory_saved_passwords">In-memory</string>
     <string name="label_key_map">Key Map</string>
+    <string name="label_color_map">Color Map</string>
     <string name="label_host_keys">Host Keys</string>
     <string name="unit_ms" translatable="false">ms</string>
     <string name="unit_sp" translatable="false">sp</string>
@@ -175,8 +178,10 @@
     <string name="msg_pick_destination">Pick destination</string>
     <string name="msg_pick_source">Pick source</string>
     <string name="title_activity_key_mapping_editor">Key Mapping Editor</string>
+    <string name="title_activity_color_mapping_editor">Color Mapping Editor</string>
     <string name="linktype_connection_settings">connection settings</string>
     <string name="linktype_key_map_settings">key map settings</string>
+    <string name="linktype_color_map_settings">color map settings</string>
     <string name="action_revoke_permissions">Revoke Permissions</string>
     <string name="label_keymode_normal">Normal</string>
     <string name="label_keymode_application">Application (DEC?KM)</string>
@@ -353,4 +358,10 @@
     <string name="msg_search_bottom_reached">Bottom reached</string>
     <string name="msg_setting_is_immutable_on_a_live_session">This setting cannot be changed on a live session</string>
     <string name="label_reset_to_default">Reset to default</string>
+    <string name="label_default">Default</string>
+
+    <string name="label_normal">Normal</string>
+    <string name="label_bold">Bold</string>
+    <string name="label_faint">Faint</string>
+    <string name="label_default_background">Default Background</string>
 </resources>

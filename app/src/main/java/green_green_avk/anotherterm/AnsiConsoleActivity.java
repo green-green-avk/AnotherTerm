@@ -41,6 +41,7 @@ import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.content.res.AppCompatResources;
 import androidx.core.math.MathUtils;
 import androidx.core.widget.TextViewCompat;
+import androidx.lifecycle.Lifecycle;
 import androidx.recyclerview.widget.LinearLayoutManager;
 
 import java.lang.annotation.Annotation;
@@ -54,6 +55,7 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.NoSuchElementException;
+import java.util.Objects;
 
 import green_green_avk.anotherterm.backends.BackendException;
 import green_green_avk.anotherterm.backends.BackendModule;
@@ -76,6 +78,7 @@ import green_green_avk.anotherterm.ui.UiUtils;
 import green_green_avk.anotherterm.ui.VisibilityAnimator;
 import green_green_avk.anotherterm.utils.LogMessage;
 import green_green_avk.anotherterm.utils.Misc;
+import green_green_avk.anotherterm.utils.ProfileManager;
 
 public final class AnsiConsoleActivity extends ConsoleActivity
         implements ConsoleInput.OnInvalidateSink, ScrollableView.OnScroll,
@@ -190,6 +193,14 @@ public final class AnsiConsoleActivity extends ConsoleActivity
         }
     }
 
+    private final Runnable updateColorProfile = () -> {
+        if (getLifecycle().getCurrentState() == Lifecycle.State.DESTROYED)
+            return;
+        final AnsiColorManager manager = AnsiColorManagerUi.instance.getManager(this);
+        final ProfileManager.Meta meta = manager.getMeta(mCsv.getColorProfile());
+        mCsv.setColorProfile(meta != null ? manager.get(meta) : manager.get((String) null));
+    };
+
     @Override
     protected void onCreate(@Nullable final Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -290,9 +301,13 @@ public final class AnsiConsoleActivity extends ConsoleActivity
         mCsv.onScroll = this;
         mCsv.onStateChange = this;
 
+        final AnsiColorManager colorManager = AnsiColorManagerUi.instance.getManager(this);
+
         if (isNew) {
             mCsv.setScreenSize(asSize(mSession.connectionParams.get("screen_cols")),
                     asSize(mSession.connectionParams.get("screen_rows")));
+            mCsv.setColorProfile(colorManager.get(Objects.toString(
+                    mSession.connectionParams.get("colormap"), null)));
         }
         mSession.uiState.csv.apply(mCsv);
         mSession.uiState.ckv.apply(mCkv);
@@ -300,6 +315,8 @@ public final class AnsiConsoleActivity extends ConsoleActivity
             setMouseMode("overlaid".equals(globalSettings.terminal_ansi_screen_mouse_default_mode));
         else
             setMouseMode(mSession.uiState.mouseMode == AnsiSession.UiState.MouseMode.OVERLAID);
+
+        colorManager.addOnChangeListener(updateColorProfile);
 
         ConsoleService.addListener(sessionsListener);
         invalidateWakeLock();
@@ -593,6 +610,9 @@ public final class AnsiConsoleActivity extends ConsoleActivity
                             R.string.label_term_compliance_ansi);
             popupView.<TextView>findViewById(R.id.charset)
                     .setText(mSession.output.getCharset().name());
+            popupView.<TextView>findViewById(R.id.colormap)
+                    .setText(AnsiColorManagerUi.instance.getTitle(this,
+                            mCsv.getColorProfile()));
             popupView.<TextView>findViewById(R.id.keymap)
                     .setText(TermKeyMapManagerUi.instance.getTitle(this,
                             mSession.output.getKeyMap()));
@@ -825,6 +845,15 @@ public final class AnsiConsoleActivity extends ConsoleActivity
                     refreshMenuPopup();
                     dialog.dismiss();
                 }).setCancelable(true).show(), null);
+    }
+
+    public void onMenuColorMap(final View view) {
+        if (mSession == null)
+            return;
+        AnsiColorManagerUi.instance.showList(this, meta -> {
+            mCsv.setColorProfile(AnsiColorManagerUi.instance.getManager(this).get(meta));
+            refreshMenuPopup();
+        }, mCsv.getColorProfile());
     }
 
     public void onMenuKeymap(final View view) {

@@ -1,0 +1,28 @@
+plugins {
+    id 'com.android.library'
+}
+
+android {
+    namespace 'name.green_green_avk.compatcolorpicker'
+
+    compileSdk 33
+
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_1_8
+        targetCompatibility JavaVersion.VERSION_1_8
+    }
+
+    defaultConfig {
+        minSdk 14
+        targetSdk 33
+        vectorDrawables.useSupportLibrary = true
+
+        consumerProguardFiles 'consumer-rules.pro'
+    }
+}
+
+dependencies {
+    implementation('androidx.appcompat:appcompat:1.4.2') {
+        because 'Unable to use 1.5.x: the problem is similar to https://stackoverflow.com/questions/69817925/problem-duplicate-class-androidx-lifecycle-viewmodel-found-in-modules'
+    }
+}
