@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <declare-styleable name="ColorPickerView">
+        <attr name="layout" format="reference" />
+        <attr name="hasAlpha" format="boolean" />
+    </declare-styleable>
+</resources>

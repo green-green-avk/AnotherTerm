@@ -229,6 +229,10 @@ public final class SessionsActivity extends AppCompatActivity {
                 startActivity(new Intent(this, ScratchpadActivity.class));
                 return true;
             }
+            case R.id.action_term_color_mapping: {
+                startActivity(new Intent(this, AnsiColorManagerActivity.class));
+                return true;
+            }
             case R.id.action_term_key_mapping: {
                 startActivity(new Intent(this, TermKeyMapManagerActivity.class));
                 return true;

@@ -10,6 +10,7 @@
         <item name="screenMouseViewStyle">@style/AppScreenMouseViewStyle</item>
         <item name="fancyButtonStyle">@style/AppFancyButtonStyle</item>
         <item name="htmlTextViewStyle">@style/AppHtmlTextView</item>
+        <item name="colorPickerPopupViewStyle">@style/AppColorPickerViewStyle</item>
         <item name="preferenceTheme">@style/AppPreferenceTheme</item>
         <item name="android:windowEnableSplitTouch">true</item>
     </style>

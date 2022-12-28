@@ -58,6 +58,7 @@ public final class FavoriteEditorActivity extends ExtAppCompatActivity {
     private CompoundButton mWakeLockROD;
     private Spinner mTermCompliance;
     private Spinner mCharsetW;
+    private Spinner mColorMapW;
     private Spinner mKeyMapW;
     private Spinner mTypeW;
     private ViewGroup mTokenG;
@@ -265,6 +266,7 @@ public final class FavoriteEditorActivity extends ExtAppCompatActivity {
         ps.put("term_compliance", TERM_COMPLIANCE_KEYS
                 .get(mTermCompliance.getSelectedItemPosition()));
         ps.put("charset", C.charsetList.get(mCharsetW.getSelectedItemPosition()));
+        ps.put("colormap", ((AnsiColorManager.Meta) mColorMapW.getSelectedItem()).name);
         ps.put("keymap", ((TermKeyMapManager.Meta) mKeyMapW.getSelectedItem()).name);
         ps.put("screen_cols", getSize(mScrColsW));
         ps.put("screen_rows", getSize(mScrRowsW));
@@ -385,6 +387,21 @@ public final class FavoriteEditorActivity extends ExtAppCompatActivity {
             final int pos = C.charsetList.indexOf(charset.toString());
             if (pos >= 0)
                 mCharsetW.setSelection(pos);
+        }
+        final Object colorMap = mPrefsSt.get("colormap");
+        if (colorMap != null) {
+            final String colorMapName = colorMap.toString();
+            int pos = AnsiColorAdapter.getSelf(mColorMapW.getAdapter())
+                    .getPosition(colorMapName);
+            if (pos < 0) {
+                AnsiColorAdapter.getSelf(mColorMapW.getAdapter())
+                        .setZeroEntry(new AnsiColorManager.Meta(colorMapName,
+                                getString(R.string.profile_title_s_q_not_defined_here_q,
+                                        colorMapName),
+                                false));
+                pos = 0;
+            }
+            mColorMapW.setSelection(pos);
         }
         final Object keyMap = mPrefsSt.get("keymap");
         if (keyMap != null) {
@@ -529,6 +546,7 @@ public final class FavoriteEditorActivity extends ExtAppCompatActivity {
 
         mTermCompliance = findViewById(R.id.fav_term_compliance);
         mCharsetW = findViewById(R.id.fav_charset);
+        mColorMapW = findViewById(R.id.fav_colormap);
         mKeyMapW = findViewById(R.id.fav_keymap);
         mTypeW = findViewById(R.id.fav_type);
         mTokenG = findViewById(R.id.g_token);
@@ -537,6 +555,7 @@ public final class FavoriteEditorActivity extends ExtAppCompatActivity {
 
         mTermCompliance.setSaveEnabled(false);
         mCharsetW.setSaveEnabled(false);
+        mColorMapW.setSaveEnabled(false);
         mKeyMapW.setSaveEnabled(false);
         mTypeW.setSaveEnabled(false);
 
@@ -572,6 +591,7 @@ public final class FavoriteEditorActivity extends ExtAppCompatActivity {
 
         lNeedSaveDelayed.adoptView(mTermCompliance);
         lNeedSaveDelayed.adoptView(mCharsetW);
+        lNeedSaveDelayed.adoptView(mColorMapW);
         lNeedSaveDelayed.adoptView(mKeyMapW);
 
         final ArrayAdapter<String> aType = new ArrayAdapter<>(this,
@@ -612,6 +632,14 @@ public final class FavoriteEditorActivity extends ExtAppCompatActivity {
         aCharset.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
         mCharsetW.setAdapter(aCharset);
         mCharsetW.setSelection(C.charsetList.indexOf(Charset.defaultCharset().name()));
+
+        mColorMapW.setAdapter(new AnsiColorAdapter(this)
+                .setIncludeBuiltIns(true)
+                .setItemLayoutRes(android.R.layout.simple_spinner_item)
+                .setDropDownItemLayoutRes(android.R.layout.simple_spinner_dropdown_item)
+                .getAdapter());
+        mColorMapW.setSelection(AnsiColorAdapter.getSelf(mColorMapW.getAdapter())
+                .getPosition(null));
 
         mKeyMapW.setAdapter(new TermKeyMapAdapter(this)
                 .setIncludeBuiltIns(true)

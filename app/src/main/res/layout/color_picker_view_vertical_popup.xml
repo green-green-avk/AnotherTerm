@@ -1,0 +1,70 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@drawable/ccp_bg_checkers">
+
+    <name.green_green_avk.compatcolorpicker.ColorPickerWheelView
+        android:id="@+id/color_hs"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_margin="1dp"
+        android:adjustViewBounds="true"
+        app:layout_constraintBottom_toTopOf="@id/color_v"
+        app:layout_constraintHeight_default="wrap"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <name.green_green_avk.compatcolorpicker.ColorPickerValueView
+        android:id="@+id/color_v"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        app:layout_constraintBottom_toTopOf="@id/color_a"
+        app:layout_constraintHeight_min="@dimen/smallUiOptionSize"
+        app:layout_constraintTop_toBottomOf="@id/color_hs" />
+
+    <name.green_green_avk.compatcolorpicker.ColorPickerChannelView
+        android:id="@+id/color_a"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        app:channel="alpha"
+        app:layout_constraintBottom_toTopOf="@id/color_r"
+        app:layout_constraintHeight_min="@dimen/smallUiOptionSize"
+        app:layout_constraintTop_toBottomOf="@id/color_v" />
+
+    <name.green_green_avk.compatcolorpicker.ColorPickerChannelView
+        android:id="@+id/color_r"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        app:channel="red"
+        app:layout_constraintBottom_toTopOf="@id/color_g"
+        app:layout_constraintHeight_min="@dimen/smallUiOptionSize"
+        app:layout_constraintTop_toBottomOf="@id/color_a" />
+
+    <name.green_green_avk.compatcolorpicker.ColorPickerChannelView
+        android:id="@+id/color_g"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        app:channel="green"
+        app:layout_constraintBottom_toTopOf="@id/color_b"
+        app:layout_constraintHeight_min="@dimen/smallUiOptionSize"
+        app:layout_constraintTop_toBottomOf="@id/color_r" />
+
+    <name.green_green_avk.compatcolorpicker.ColorPickerChannelView
+        android:id="@+id/color_b"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        app:channel="blue"
+        app:layout_constraintBottom_toTopOf="@id/color_result"
+        app:layout_constraintHeight_min="@dimen/smallUiOptionSize"
+        app:layout_constraintTop_toBottomOf="@id/color_g" />
+
+    <name.green_green_avk.compatcolorpicker.ColorPickerTextView
+        android:id="@+id/color_result"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintHeight_min="@dimen/smallUiOptionSize"
+        app:layout_constraintTop_toBottomOf="@id/color_b" />
+
+</androidx.constraintlayout.widget.ConstraintLayout>

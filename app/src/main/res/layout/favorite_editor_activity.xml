@@ -327,6 +327,24 @@
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
+                        android:labelFor="@id/fav_colormap"
+                        android:text="@string/label_color_map" />
+
+                    <Spinner
+                        android:id="@+id/fav_colormap"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1" />
+
+                </TableRow>
+
+                <TableRow
+                    android:gravity="center_vertical"
+                    android:minHeight="@dimen/settings_row_minHeight">
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
                         android:labelFor="@id/fav_keymap"
                         android:text="@string/label_key_map" />
 

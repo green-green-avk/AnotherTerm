@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<name.green_green_avk.compatcolorpicker.ColorPickerView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/color_picker"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    app:layout="@layout/ccp_color_picker_view_horizontal" />
