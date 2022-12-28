@@ -42,6 +42,10 @@ public final class EscCsi {
     }
 
     public int getIntArg(final int n, final int def) {
+        return getIntArg(args, n, def);
+    }
+
+    public static int getIntArg(@NonNull final String[] args, final int n, final int def) {
         if (args.length <= n)
             return def;
         try {

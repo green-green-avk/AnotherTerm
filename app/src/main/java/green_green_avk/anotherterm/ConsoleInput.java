@@ -26,6 +26,7 @@ import java.util.WeakHashMap;
 import green_green_avk.anotherterm.backends.EventBasedBackendModuleWrapper;
 import green_green_avk.anotherterm.utils.BinderInputStream;
 import green_green_avk.anotherterm.utils.BytesSink;
+import green_green_avk.anotherterm.utils.ColorUtils;
 import green_green_avk.anotherterm.utils.Compat;
 import green_green_avk.anotherterm.utils.DecTerminalCharsets;
 import green_green_avk.anotherterm.utils.EscCsi;
@@ -771,6 +772,14 @@ public final class ConsoleInput implements BytesSink {
                                 return;
                             }
                             while (i < csi.args.length) {
+                                if (csi.args[i].startsWith("38:")) {
+                                    parseColors(csi.args[i++], true);
+                                    continue;
+                                }
+                                if (csi.args[i].startsWith("48:")) {
+                                    parseColors(csi.args[i++], false);
+                                    continue;
+                                }
                                 final int a = csi.getIntArg(i++, 0);
                                 switch (a) {
                                     case 0:
@@ -1046,28 +1055,64 @@ public final class ConsoleInput implements BytesSink {
                     csi.body + csi.suffix + csi.type);
     }
 
-    private int parseColors(@NonNull final EscCsi csi, int i, final boolean isFg) {
-        if (csi.args.length == i)
+    private int parseColors(@NonNull final EscCsi csi, final int i, final boolean isFg) {
+        return parseColors(csi.args, i, isFg, false);
+    }
+
+    private void parseColors(@NonNull final String subArgs, final boolean isFg) {
+        parseColors(subArgs.split(":", -1), 1, isFg, true);
+    }
+
+    // It can be several parameters or sub-parameters.
+    // See https://en.wikipedia.org/wiki/ANSI_escape_code#8-bit
+    private int parseColors(@NonNull final String[] args, int i, final boolean isFg,
+                            final boolean isITU) {
+        if (args.length == i)
             return i;
         final int color;
         final ConsoleScreenCharAttrs.Color.Type colorType;
-        switch (csi.getIntArg(i, 0)) {
+        switch (EscCsi.getIntArg(args, i, 0)) {
             case 2: // TrueColor
-                if (csi.args.length - i < 4)
+                if (args.length - i < (isITU ? 5 : 4))
                     return i;
-                ++i;
+                i++;
+                if (isITU)
+                    i++; // https://en.wikipedia.org/wiki/ANSI_escape_code#24-bit
                 color = Color.rgb(
-                        csi.getIntArg(i++, 0),
-                        csi.getIntArg(i++, 0),
-                        csi.getIntArg(i++, 0)
+                        EscCsi.getIntArg(args, i++, 0),
+                        EscCsi.getIntArg(args, i++, 0),
+                        EscCsi.getIntArg(args, i++, 0)
                 ); // Bad taste but valid in Java.
                 colorType = ConsoleScreenCharAttrs.Color.Type.TRUE;
                 break;
-            case 5: // 256
-                if (csi.args.length - i < 2)
+            case 3: // CMY
+                if (!isITU || args.length - i < 5)
                     return i;
-                ++i;
-                final int c = csi.getIntArg(i++, 0);
+                i += 2;
+                color = ColorUtils.CMYToRGB(
+                        EscCsi.getIntArg(args, i++, 0),
+                        EscCsi.getIntArg(args, i++, 0),
+                        EscCsi.getIntArg(args, i++, 0)
+                );
+                colorType = ConsoleScreenCharAttrs.Color.Type.TRUE;
+                break;
+            case 4: // CMYK
+                if (!isITU || args.length - i < 6)
+                    return i;
+                i += 2;
+                color = ColorUtils.CMYKToRGB(
+                        EscCsi.getIntArg(args, i++, 0),
+                        EscCsi.getIntArg(args, i++, 0),
+                        EscCsi.getIntArg(args, i++, 0),
+                        EscCsi.getIntArg(args, i++, 0)
+                );
+                colorType = ConsoleScreenCharAttrs.Color.Type.TRUE;
+                break;
+            case 5: // 256
+                if (args.length - i < 2)
+                    return i;
+                i++;
+                final int c = EscCsi.getIntArg(args, i++, 0);
                 if ((c & ~0xFF) != 0)
                     return i - 2;
                 color = c;
