@@ -92,6 +92,19 @@ public final class Misc {
         return r;
     }
 
+    public static void repeatFill(@NonNull final char[] dest, final int start, final int end,
+                                  final int recordLength) {
+        final int destLen = end - start;
+        if (destLen <= recordLength)
+            return;
+        int len = recordLength;
+        for (; len < destLen >> 1; len <<= 1) {
+            System.arraycopy(dest, start, dest, start + len, len);
+        }
+        System.arraycopy(dest, start, dest, start + len,
+                destLen - len);
+    }
+
     public static void copy(@NonNull final OutputStream os, @NonNull final InputStream is)
             throws IOException {
         final byte[] buf = new byte[8192];
