@@ -41,6 +41,7 @@ public final class ConsoleInput implements BytesSink {
 
     public ConsoleOutput consoleOutput = null;
     public EventBasedBackendModuleWrapper backendModule = null;
+    @NonNull
     public ConsoleScreenBuffer currScrBuf;
     private final ConsoleScreenBuffer mainScrBuf;
     private final ConsoleScreenBuffer altScrBuf;
@@ -193,7 +194,7 @@ public final class ConsoleInput implements BytesSink {
         mOnBufferScroll.remove(h);
     }
 
-    private void dispatchOnBufferScroll(int from, int to, int n) {
+    private void dispatchOnBufferScroll(final int from, final int to, final int n) {
         for (final OnBufferScroll h : mOnBufferScroll) {
             h.onBufferScroll(from, to, n);
         }
@@ -827,33 +828,33 @@ public final class ConsoleInput implements BytesSink {
                                         i = parseColors(csi, i, true);
                                         break;
                                     case 39:
-                                        aa.resetFg();
+                                        aa.fgColor.setDefault();
                                         break;
                                     case 48:
                                         i = parseColors(csi, i, false);
                                         break;
                                     case 49:
-                                        aa.resetBg();
+                                        aa.bgColor.setDefault();
                                         break;
                                     default:
                                         if ((a >= 30) && (a <= 37)) {
-                                            aa.fgColor = a - 30;
-                                            aa.fgColorIndexed = true;
+                                            aa.fgColor.value = a - 30;
+                                            aa.fgColor.type = ConsoleScreenCharAttrs.Color.Type.BASIC;
                                             break;
                                         }
                                         if ((a >= 40) && (a <= 47)) {
-                                            aa.bgColor = ConsoleScreenCharAttrs
-                                                    .getBasicColor(a - 40);
+                                            aa.bgColor.value = a - 40;
+                                            aa.bgColor.type = ConsoleScreenCharAttrs.Color.Type.BASIC;
                                             break;
                                         }
                                         if ((a >= 90) && (a <= 97)) {
-                                            aa.fgColor = (a - 90) | 8;
-                                            aa.fgColorIndexed = true;
+                                            aa.fgColor.value = (a - 90) | 8;
+                                            aa.fgColor.type = ConsoleScreenCharAttrs.Color.Type.BASIC;
                                             break;
                                         }
                                         if ((a >= 100) && (a <= 107)) {
-                                            aa.bgColor = ConsoleScreenCharAttrs
-                                                    .getBasicColor((a - 100) | 8);
+                                            aa.bgColor.value = (a - 100) | 8;
+                                            aa.bgColor.type = ConsoleScreenCharAttrs.Color.Type.BASIC;
                                             break;
                                         }
                                         if (LOG_UNKNOWN_ESC)
@@ -1046,49 +1047,42 @@ public final class ConsoleInput implements BytesSink {
     }
 
     private int parseColors(@NonNull final EscCsi csi, int i, final boolean isFg) {
-        if (csi.args.length == i) return i;
+        if (csi.args.length == i)
+            return i;
         final int color;
+        final ConsoleScreenCharAttrs.Color.Type colorType;
         switch (csi.getIntArg(i, 0)) {
             case 2: // TrueColor
-                if (csi.args.length - i < 4) return i;
+                if (csi.args.length - i < 4)
+                    return i;
                 ++i;
                 color = Color.rgb(
                         csi.getIntArg(i++, 0),
                         csi.getIntArg(i++, 0),
                         csi.getIntArg(i++, 0)
                 ); // Bad taste but valid in Java.
+                colorType = ConsoleScreenCharAttrs.Color.Type.TRUE;
                 break;
             case 5: // 256
-                if (csi.args.length - i < 2) return i;
+                if (csi.args.length - i < 2)
+                    return i;
                 ++i;
                 final int c = csi.getIntArg(i++, 0);
-                if ((c & ~0xFF) != 0) return i - 2;
-                if (c < 16) {
-                    final int l = 127 | Misc.bitsAs(c, 8, 128);
-                    color = Color.rgb(
-                            Misc.bitsAs(c, 1, l),
-                            Misc.bitsAs(c, 2, l),
-                            Misc.bitsAs(c, 4, l)
-                    );
-                } else if (c < 232) {
-                    final int _c = c - 16;
-                    color = Color.rgb(
-                            (_c / 36) * 51,
-                            ((_c / 6) % 6) * 51,
-                            (_c % 6) * 51
-                    );
-                } else {
-                    final int l = 8 + 10 * (c - 232);
-                    color = Color.rgb(l, l, l);
-                }
+                if ((c & ~0xFF) != 0)
+                    return i - 2;
+                color = c;
+                colorType = ConsoleScreenCharAttrs.Color.Type._8BIT;
                 break;
             default:
                 return i;
         }
         if (isFg) {
-            mCurrAttrs.fgColor = color;
-            mCurrAttrs.fgColorIndexed = false;
-        } else mCurrAttrs.bgColor = color;
+            mCurrAttrs.fgColor.value = color;
+            mCurrAttrs.fgColor.type = colorType;
+        } else {
+            mCurrAttrs.bgColor.value = color;
+            mCurrAttrs.bgColor.type = colorType;
+        }
         return i;
     }
 
@@ -1109,7 +1103,7 @@ public final class ConsoleInput implements BytesSink {
                     currScrBuf.setAbsPos(0, 0);
                     return;
                 case 5:
-                    currScrBuf.inverseScreen = value; // DECSCNM
+                    currScrBuf.screenInverse = value; // DECSCNM
                     return;
                 case 6: // DECOM
                     currScrBuf.originMode = value;

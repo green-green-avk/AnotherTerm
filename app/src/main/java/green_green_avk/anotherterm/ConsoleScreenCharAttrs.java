@@ -1,47 +1,159 @@
 package green_green_avk.anotherterm;
 
-import android.graphics.Color;
-
+import androidx.annotation.CheckResult;
+import androidx.annotation.ColorInt;
 import androidx.annotation.NonNull;
 
-import green_green_avk.anotherterm.utils.Misc;
-
 public final class ConsoleScreenCharAttrs {
-    private static final int NH = 0xC0;
-    private static final int NL = 0x00;
-    private static final int BH = 0xFF;
-    private static final int BL = 0x80;
+    private static final int[] DEF_BASIC_COLORS = new int[]{
+            // Normal
+            android.graphics.Color.rgb(0, 0, 0),
+            android.graphics.Color.rgb(0xEE, 0x33, 0x33),
+            android.graphics.Color.rgb(0x33, 0xCC, 0x33),
+            android.graphics.Color.rgb(0xCC, 0xAA, 0x33),
+            android.graphics.Color.rgb(0x33, 0x33, 0xCC),
+            android.graphics.Color.rgb(0xCC, 0x33, 0xAA),
+            android.graphics.Color.rgb(0x33, 0xAA, 0xAA),
+            android.graphics.Color.rgb(0xCC, 0xCC, 0xCC),
+            // Bold
+            android.graphics.Color.rgb(0x77, 0x77, 0x77),
+            android.graphics.Color.rgb(0xFF, 0x88, 0x88),
+            android.graphics.Color.rgb(0x88, 0xFF, 0x88),
+            android.graphics.Color.rgb(0xFF, 0xFF, 0x88),
+            android.graphics.Color.rgb(0x88, 0x88, 0xFF),
+            android.graphics.Color.rgb(0xFF, 0x88, 0xFF),
+            android.graphics.Color.rgb(0x88, 0xFF, 0xFF),
+            android.graphics.Color.rgb(0xFF, 0xFF, 0xFF),
+            // Faint
+            android.graphics.Color.rgb(0x11, 0x11, 0x11),
+            android.graphics.Color.rgb(0xCC, 0x22, 0x22),
+            android.graphics.Color.rgb(0x22, 0xAA, 0x22),
+            android.graphics.Color.rgb(0xAA, 0x88, 0x22),
+            android.graphics.Color.rgb(0x22, 0x22, 0xAA),
+            android.graphics.Color.rgb(0xAA, 0x22, 0x88),
+            android.graphics.Color.rgb(0x22, 0x88, 0x88),
+            android.graphics.Color.rgb(0x77, 0x77, 0x77),
+            // Default foreground normal / bold / faint / background
+            android.graphics.Color.rgb(0xCC, 0xCC, 0xCC),
+            android.graphics.Color.rgb(0xFF, 0xFF, 0xFF),
+            android.graphics.Color.rgb(0x77, 0x77, 0x77),
+            android.graphics.Color.rgb(0, 0, 0)
+    };
+    public static final int BASIC_COLORS_NUM = DEF_BASIC_COLORS.length;
 
-    private static final int[] DEF_BASIC_COLORS = new int[16];
+    private static final int[] DEF_8BIT_COLORS = new int[256];
 
     static {
-        for (int i = 0; i < 8; i++) {
-            DEF_BASIC_COLORS[i] = Color.rgb(
-                    Misc.bitsAs(i, 1) ? NH : NL,
-                    Misc.bitsAs(i, 2) ? NH : NL,
-                    Misc.bitsAs(i, 4) ? NH : NL
+        System.arraycopy(DEF_BASIC_COLORS, 0,
+                DEF_8BIT_COLORS, 0, 16);
+        for (int i = 0; i < 216; i++) {
+            DEF_8BIT_COLORS[i + 16] = android.graphics.Color.rgb(
+                    (i / 36) * 51,
+                    ((i / 6) % 6) * 51,
+                    (i % 6) * 51
             );
         }
-        for (int i = 8; i < 16; i++) {
-            DEF_BASIC_COLORS[i] = Color.rgb(
-                    Misc.bitsAs(i, 1) ? BH : BL,
-                    Misc.bitsAs(i, 2) ? BH : BL,
-                    Misc.bitsAs(i, 4) ? BH : BL
-            );
+        for (int i = 0; i < 24; i++) {
+            final int l = 8 + 10 * i;
+            DEF_8BIT_COLORS[i + 232] = android.graphics.Color.rgb(l, l, l);
         }
     }
 
-    private static final boolean DEF_FG_COLOR_INDEXED = true;
-    private static final int DEF_FG_COLOR = 7; // index
-    private static final int DEF_BG_COLOR = DEF_BASIC_COLORS[0];
+    public static class TabularColorProfile implements AnsiColorProfile {
+        @NonNull
+        public int[] basic = DEF_BASIC_COLORS;
+        @NonNull
+        public int[] _8bit = DEF_8BIT_COLORS;
 
-    public static int getBasicColor(final int index) {
-        return ConsoleScreenCharAttrs.DEF_BASIC_COLORS[index];
+        public TabularColorProfile() {
+        }
+
+        public TabularColorProfile(@NonNull final int[] basic) {
+            this.basic = basic;
+        }
+
+        @ColorInt
+        protected int getColor(@NonNull final Color color, final boolean isFg,
+                               final boolean bold, final boolean faint) {
+            if (color.isDefault()) {
+                if (!isFg)
+                    return basic[27];
+                if (bold == faint)
+                    return basic[24];
+                if (bold)
+                    return basic[25];
+                return basic[26];
+            }
+            switch (color.type) {
+                case BASIC:
+                    if (bold == faint)
+                        return basic[color.value & 0x0F];
+                    if (bold)
+                        return basic[color.value & 0x0F | 0x08];
+                    return basic[color.value & 0x07 | 0x10];
+                case _8BIT:
+                    return _8bit[color.value & 0xFF];
+                default:
+                    return color.value;
+            }
+        }
+
+        @Override
+        @ColorInt
+        public int getColor(@NonNull final Color color) {
+            return getColor(color, true, false, false);
+        }
+
+        @Override
+        @ColorInt
+        public int getFgColor(@NonNull final ConsoleScreenCharAttrs attrs,
+                              final boolean screenInverse) {
+            if (attrs.inverse != screenInverse) {
+                return getColor(attrs.bgColor, false, false, false);
+            }
+            return getColor(attrs.fgColor, true, attrs.bold, attrs.faint);
+        }
+
+        @Override
+        @ColorInt
+        public int getBgColor(@NonNull final ConsoleScreenCharAttrs attrs,
+                              final boolean screenInverse) {
+            if (attrs.inverse != screenInverse) {
+                return getColor(attrs.fgColor, true, false, false);
+            }
+            return getColor(attrs.bgColor, false, false, false);
+        }
     }
 
-    public int fgColor;
-    public int bgColor;
-    public boolean fgColorIndexed; // Tweak when bold / faint.
+    public static final AnsiColorProfile DEFAULT_COLOR_PROFILE = new TabularColorProfile();
+
+    public static final class Color {
+        private static final int DEFAULT = 0xFF;
+
+        public enum Type {BASIC, _8BIT, TRUE}
+
+        public int value = DEFAULT;
+        @NonNull
+        public Type type = Type.BASIC;
+
+        public void set(@NonNull final Color color) {
+            type = color.type;
+            value = color.value;
+        }
+
+        @CheckResult(suggest = "#setDefault()")
+        public boolean isDefault() {
+            return type == Type.BASIC && value == DEFAULT;
+        }
+
+        public void setDefault() {
+            type = Type.BASIC;
+            value = DEFAULT;
+        }
+    }
+
+    public final Color fgColor = new Color();
+    public final Color bgColor = new Color();
     public boolean invisible;
     public boolean inverse;
     public boolean bold;
@@ -60,8 +172,8 @@ public final class ConsoleScreenCharAttrs {
     }
 
     public void reset() {
-        resetFg();
-        resetBg();
+        fgColor.setDefault();
+        bgColor.setDefault();
         invisible = false;
         inverse = false;
         bold = false;
@@ -72,19 +184,9 @@ public final class ConsoleScreenCharAttrs {
         blinking = false;
     }
 
-    public void resetFg() {
-        fgColorIndexed = DEF_FG_COLOR_INDEXED;
-        fgColor = DEF_FG_COLOR;
-    }
-
-    public void resetBg() {
-        bgColor = DEF_BG_COLOR;
-    }
-
     public void set(@NonNull final ConsoleScreenCharAttrs aa) {
-        fgColorIndexed = aa.fgColorIndexed;
-        fgColor = aa.fgColor;
-        bgColor = aa.bgColor;
+        fgColor.set(aa.fgColor);
+        bgColor.set(aa.bgColor);
         invisible = aa.invisible;
         inverse = aa.inverse;
         bold = aa.bold;

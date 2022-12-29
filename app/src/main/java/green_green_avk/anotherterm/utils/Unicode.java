@@ -343,6 +343,18 @@ public final class Unicode {
         return ptr - 1;
     }
 
+    public static int getGlyphCount(@NonNull final char[] s, int offset, final int length) {
+        int r = 0;
+        final int to = offset + length;
+        while (offset < to) {
+            final int cp = Character.codePointAt(s, offset);
+            if (wcwidth(cp) != 0)
+                r++;
+            offset += Character.charCount(cp);
+        }
+        return r;
+    }
+
     public static int getScreenLength(@NonNull final char[] s, int offset, final int length) {
         int r = 0;
         final int to = offset + length;

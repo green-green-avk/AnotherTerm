@@ -57,6 +57,7 @@ import java.nio.CharBuffer;
 import java.util.ArrayList;
 import java.util.List;
 
+import green_green_avk.anotherterm.AnsiColorProfile;
 import green_green_avk.anotherterm.ConsoleInput;
 import green_green_avk.anotherterm.ConsoleOutput;
 import green_green_avk.anotherterm.ConsoleScreenBuffer;
@@ -128,6 +129,8 @@ public class ConsoleScreenView extends ScrollableView
     @LayoutRes
     protected int terminalScrollVerticalLayout = R.layout.terminal_v_scrollbar;
 
+    @NonNull
+    protected AnsiColorProfile colorProfile = ConsoleScreenCharAttrs.DEFAULT_COLOR_PROFILE;
     @NonNull
     protected FontProvider fontProvider = DefaultConsoleFontProvider.getInstance();
     protected float mFontSize = 16F; // px
@@ -697,6 +700,15 @@ public class ConsoleScreenView extends ScrollableView
         return r;
     }
 
+    protected void _setColorProfile(@NonNull final AnsiColorProfile v) {
+        colorProfile = v;
+    }
+
+    public void setColorProfile(@NonNull final AnsiColorProfile v) {
+        _setColorProfile(v);
+        ViewCompat.postInvalidateOnAnimation(this);
+    }
+
     protected void applyFont() {
         final float[] charSize = getCharSize(mFontSize);
         mFontHeight = charSize[1];
@@ -1023,13 +1035,14 @@ public class ConsoleScreenView extends ScrollableView
     }
 
     public void applyCharAttrs() {
+        final boolean inverse = consoleInput != null && consoleInput.currScrBuf.screenInverse;
         fontProvider.setPaint(fgPaint, (charAttrs.bold ? Typeface.BOLD : 0) |
                 (charAttrs.italic ? Typeface.ITALIC : 0));
-        fgPaint.setColor(charAttrs.fgColor);
+        fgPaint.setColor(colorProfile.getFgColor(charAttrs, inverse));
         fgPaint.setUnderlineText(charAttrs.underline);
         fgPaint.setStrikeThruText(charAttrs.crossed);
 //        fgPaint.setShadowLayer(1, 0, 0, fgColor);
-        bgPaint.setColor(charAttrs.bgColor);
+        bgPaint.setColor(colorProfile.getBgColor(charAttrs, inverse));
     }
 
     public void setConsoleInput(@NonNull final ConsoleInput consoleInput) {
@@ -1991,7 +2004,8 @@ public class ConsoleScreenView extends ScrollableView
                     }
             if (selectionMarker != null) {
                 if (selectionMarkerPtr != null) {
-                    drawMarker(canvas, selectionMarkerPtr, selectionMarker, mFontHeight * 3);
+                    drawMarker(canvas, selectionMarkerPtr,
+                            selectionMarker, mFontHeight * 3);
                 }
             } else if (!inGesture) {
                 if (selectionMarkerPad != null) {
@@ -2066,15 +2080,18 @@ public class ConsoleScreenView extends ScrollableView
                             consoleInput.currScrBuf.getCharsRun(i, j, _draw_textRect.right,
                                     _draw_run);
                     if (sr < 0) {
-                        ConsoleScreenBuffer.decodeAttrs(consoleInput.currScrBuf.defaultAttrs,
-                                charAttrs);
+                        ConsoleScreenBuffer.decodeFgAttrs(charAttrs,
+                                consoleInput.currScrBuf.defaultFgAttrs);
+                        ConsoleScreenBuffer.decodeBgAttrs(charAttrs,
+                                consoleInput.currScrBuf.defaultBgAttrs);
                         applyCharAttrs();
                         canvas.drawRect(strFragLeft, strTop,
                                 getWidth(), strBottom,
                                 bgPaint);
                         break;
                     }
-                    ConsoleScreenBuffer.decodeAttrs(_draw_run.attrs, charAttrs);
+                    ConsoleScreenBuffer.decodeFgAttrs(charAttrs, _draw_run.fgAttrs);
+                    ConsoleScreenBuffer.decodeBgAttrs(charAttrs, _draw_run.bgAttrs);
                     applyCharAttrs();
                     final float strFragRight = getBufferDrawPosXF(i + sr);
                     if (sr > 0) {
@@ -2101,7 +2118,7 @@ public class ConsoleScreenView extends ScrollableView
                     }
                     i += sr;
                 }
-                _draw_run.reinit();
+                _draw_run.init();
             }
             hasVisibleBlinking = _hasVisibleBlinking;
             if (paddingMarkup != null) {
