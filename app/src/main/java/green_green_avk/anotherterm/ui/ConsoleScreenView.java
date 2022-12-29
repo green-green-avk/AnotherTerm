@@ -128,7 +128,8 @@ public class ConsoleScreenView extends ScrollableView
     @LayoutRes
     protected int terminalScrollVerticalLayout = R.layout.terminal_v_scrollbar;
 
-    protected FontProvider fontProvider = new DefaultConsoleFontProvider();
+    @NonNull
+    protected FontProvider fontProvider = DefaultConsoleFontProvider.getInstance();
     protected float mFontSize = 16F; // px
     protected float mFontWidth;
     protected float mFontHeight;
@@ -1060,7 +1061,8 @@ public class ConsoleScreenView extends ScrollableView
 
     @CheckResult
     public int getSelectedCellsCount() {
-        if (consoleInput == null || selection == null) return 0;
+        if (consoleInput == null || selection == null)
+            return 0;
         final ConsoleScreenSelection s = selection.getDirect();
         if (s.first.y == s.last.y) {
             return s.last.x - s.first.x + 1;

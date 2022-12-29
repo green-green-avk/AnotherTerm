@@ -29,8 +29,7 @@ public final class SharedPreferencesSet {
     private final Set<String> keys = new HashSet<>();
     private final Set<String> keysRO = Collections.unmodifiableSet(keys);
 
-    private final Set<Runnable> onChangeListeners =
-            Collections.newSetFromMap(new WeakHashMap<Runnable, Boolean>());
+    private final Set<Runnable> onChangeListeners = Collections.newSetFromMap(new WeakHashMap<>());
 
     private static String encKey(@NonNull final String v) {
         return URLEncoder.encode(v);
@@ -57,7 +56,8 @@ public final class SharedPreferencesSet {
 
     @MainThread
     public void init(@NonNull final Context context, @NonNull final String prefix) {
-        if (ctx != null) return;
+        if (ctx != null)
+            return;
         reinit(context, prefix);
     }
 
@@ -71,7 +71,7 @@ public final class SharedPreferencesSet {
         final File dir = getDir();
         if (dir.exists() && dir.isDirectory()) {
             final String[] names = dir.list();
-            if (names != null)
+            if (names != null) {
                 for (final String i : names) {
                     final Matcher m = pat.matcher(i);
                     if (m.matches()) {
@@ -85,6 +85,7 @@ public final class SharedPreferencesSet {
                         }
                     }
                 }
+            }
         }
     }
 
@@ -108,7 +109,8 @@ public final class SharedPreferencesSet {
     @MainThread
     public SharedPreferences get(@NonNull final String key) {
         final SharedPreferences sp = peek(key);
-        if (keys.add(key)) execOnChangeListeners();
+        if (keys.add(key))
+            execOnChangeListeners();
         return sp;
     }
 
@@ -122,11 +124,13 @@ public final class SharedPreferencesSet {
             e.clear();
             e.commit(); // Sorry, we must synchronize before
             final File dir = getDir();
-            if (!dir.exists() || !dir.isDirectory()) return;
+            if (!dir.exists() || !dir.isDirectory())
+                return;
             final File f = new File(dir, getFileName(key));
             f.delete();
         }
-        if (r) execOnChangeListeners();
+        if (r)
+            execOnChangeListeners();
     }
 
     @MainThread
@@ -150,9 +154,8 @@ public final class SharedPreferencesSet {
     }
 
     private void execOnChangeListeners() {
-        for (final Runnable r : onChangeListeners) {
+        for (final Runnable r : onChangeListeners)
             r.run();
-        }
     }
 
     /**

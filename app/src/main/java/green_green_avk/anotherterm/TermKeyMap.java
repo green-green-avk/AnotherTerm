@@ -5,6 +5,7 @@ import android.view.KeyEvent;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.annotation.ReturnThis;
 
 import java.util.regex.Pattern;
 
@@ -56,7 +57,8 @@ public class TermKeyMap implements TermKeyMapRules {
     }
 
     protected TermKeyMap(final boolean doInit) {
-        if (!doInit) return;
+        if (!doInit)
+            return;
         reinit();
     }
 
@@ -69,16 +71,20 @@ public class TermKeyMap implements TermKeyMapRules {
         return new TermKeyMap(this);
     }
 
+    @ReturnThis
     @NonNull
     public TermKeyMap reinit(@NonNull final TermKeyMap keyMap) {
         for (int k = 0; k < keyMap.map.length; ++k) {
             final KeyMap km = keyMap.map[k];
-            if (km != null) map[k] = km.copy();
-            else map[k] = null;
+            if (km != null)
+                map[k] = km.copy();
+            else
+                map[k] = null;
         }
         return this;
     }
 
+    @ReturnThis
     @NonNull
     public TermKeyMap reinit() {
         for (int k = 0; k < map.length; ++k) {
@@ -96,12 +102,14 @@ public class TermKeyMap implements TermKeyMapRules {
                     am = null;
                 }
                 map[k] = new KeyMap(appMode, nm, am);
-            } else
+            } else {
                 map[k] = null;
+            }
         }
         return this;
     }
 
+    @ReturnThis
     @NonNull
     public TermKeyMap append(@NonNull final TermKeyMapRules keyMap) {
         for (final int k : TermKeyMapRulesDefault.getSupportedKeys()) {
@@ -134,19 +142,23 @@ public class TermKeyMap implements TermKeyMapRules {
 
     @Override
     public int getAppMode(final int code) {
-        if (code >= map.length || code < 0) return APP_MODE_DEFAULT;
+        if (code >= map.length || code < 0)
+            return APP_MODE_DEFAULT;
         final KeyMap km = map[code];
-        if (km == null) return APP_MODE_DEFAULT;
+        if (km == null)
+            return APP_MODE_DEFAULT;
         return km.appMode;
     }
 
     @Nullable
     @Override
     public String get(final int code, final int modifiers, final int appMode) {
-        if (code >= map.length || code < 0) return null;
+        if (code >= map.length || code < 0)
+            return null;
         final KeyMap km = map[code];
-        if (km == null) return null;
-        else return (km.appMode & appMode) == 0
+        if (km == null)
+            return null;
+        return (km.appMode & appMode) == 0
                 ? (km.nm != null ? km.nm[modifiers % MODIFIERS_SIZE] : null)
                 : (km.am != null ? km.am[modifiers % MODIFIERS_SIZE] : null);
     }
@@ -169,8 +181,8 @@ public class TermKeyMap implements TermKeyMapRules {
         final int kc = code & KEYCODES_SET_MASK;
         String label = keyLabels.get(kc);
         if (label == null) {
-            label = keyLabelsP.matcher(KeyEvent.keyCodeToString(kc)).replaceFirst("")
-                    .replace('_', ' ');
+            label = keyLabelsP.matcher(KeyEvent.keyCodeToString(kc))
+                    .replaceFirst("").replace('_', ' ');
         }
         if ((code & KEYCODES_VT52) != 0)
             label += " (VT52)";

@@ -33,7 +33,6 @@ import green_green_avk.anotherterm.GraphicsConsoleLedsInput;
 import green_green_avk.anotherterm.GraphicsConsoleOutput;
 import green_green_avk.anotherterm.HwKeyMapManager;
 import green_green_avk.anotherterm.R;
-import green_green_avk.anotherterm.utils.KeyIntervalDetector;
 
 public class GraphicsConsoleKeyboardView extends ExtKeyboardView implements
         ExtKeyboardView.OnKeyboardActionListener, GraphicsConsoleLedsInput.OnInvalidateSink {

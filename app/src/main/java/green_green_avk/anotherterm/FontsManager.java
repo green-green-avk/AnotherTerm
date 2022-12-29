@@ -72,7 +72,8 @@ public final class FontsManager {
     }
 
     private static void clearFontFileObservers() {
-        for (final FontFileObserver fo : fontFileObservers) fo.stopWatching();
+        for (final FontFileObserver fo : fontFileObservers)
+            fo.stopWatching();
         fontFileObservers.clear();
     }
 
@@ -92,7 +93,8 @@ public final class FontsManager {
     private static final Runnable refreshFromFs = () -> {
         try {
             clearFontFileObservers();
-            if (!trackFontFiles) return;
+            if (!trackFontFiles)
+                return;
             addFontFileObserver(dataDir);
             consoleFontDir.mkdirs();
             if (!consoleFontDir.isDirectory()) {
@@ -136,7 +138,8 @@ public final class FontsManager {
         if (fontDir) {
             trackFontFiles = true;
             refreshFromFs.run();
-            if (consoleTypefaces == defaultTypefaces) setFromDefaultAsset();
+            if (consoleTypefaces == defaultTypefaces)
+                setFromDefaultAsset();
         } else {
             trackFontFiles = false;
             clearFontFileObservers();
@@ -181,21 +184,27 @@ public final class FontsManager {
 
     @Nullable
     private static Typeface loadFromFile(@NonNull final File file) {
-        if (file.isFile() && file.canRead())
+        if (file.isFile() && file.canRead()) {
             try {
                 final Typeface r = Typeface.createFromFile(file);
                 return r != Typeface.DEFAULT ? r : null;
             } catch (final Exception ignored) {
             }
+        }
         return null;
     }
 
     public static void loadFromFilesFb(@NonNull final Typeface[] tfs, @NonNull final File[] files) {
-        for (int i = 0; i < 4; ++i) tfs[i] = loadFromFile(files[i]);
-        if (tfs[0] == null) return;
-        if (tfs[1] == null) tfs[1] = tfs[0];
-        if (tfs[2] == null) tfs[2] = tfs[0];
-        if (tfs[3] == null) tfs[3] = tfs[2] != tfs[0] ? tfs[2] : tfs[1];
+        for (int i = 0; i < 4; ++i)
+            tfs[i] = loadFromFile(files[i]);
+        if (tfs[0] == null)
+            return;
+        if (tfs[1] == null)
+            tfs[1] = tfs[0];
+        if (tfs[2] == null)
+            tfs[2] = tfs[0];
+        if (tfs[3] == null)
+            tfs[3] = tfs[2] != tfs[0] ? tfs[2] : tfs[1];
     }
 
     @NonNull
@@ -206,13 +215,12 @@ public final class FontsManager {
     }
 
     public static boolean isExists(@NonNull final Typeface[] tfs, final int style) {
-        if (tfs[style] == null) return false;
+        if (tfs[style] == null)
+            return false;
         if (style > 0) {
-            int i = style - 1;
-            while (i >= 0) {
-                if (tfs[style] == tfs[i]) return false;
-                i--;
-            }
+            for (int i = style - 1; i >= 0; i--)
+                if (tfs[style] == tfs[i])
+                    return false;
         }
         return true;
     }
@@ -222,24 +230,30 @@ public final class FontsManager {
         paint.setFakeBoldText(false);
         paint.setTextSkewX(0);
         Typeface tf = tfs[style];
-        if (tf == null) tf = FontsManager.defaultConsoleTypefaces[style];
-        if (tf == null) tf = FontsManager.defaultTypefaces[style];
+        if (tf == null)
+            tf = FontsManager.defaultConsoleTypefaces[style];
+        if (tf == null)
+            tf = FontsManager.defaultTypefaces[style];
         switch (style) {
             case Typeface.NORMAL:
                 paint.setTypeface(tf);
                 break;
             case Typeface.BOLD:
                 paint.setTypeface(tf);
-                if (tf == tfs[0] || !tf.isBold()) paint.setFakeBoldText(true);
+                if (tf == tfs[0] || !tf.isBold())
+                    paint.setFakeBoldText(true);
                 break;
             case Typeface.ITALIC:
                 paint.setTypeface(tf);
-                if (tf == tfs[0] || !tf.isItalic()) paint.setTextSkewX(-0.25F);
+                if (tf == tfs[0] || !tf.isItalic())
+                    paint.setTextSkewX(-0.25F);
                 break;
             case Typeface.BOLD_ITALIC:
                 paint.setTypeface(tf);
-                if (tf == tfs[2] || !tf.isBold()) paint.setFakeBoldText(true);
-                if (tf == tfs[1] || !tf.isItalic()) paint.setTextSkewX(-0.25F);
+                if (tf == tfs[2] || !tf.isBold())
+                    paint.setFakeBoldText(true);
+                if (tf == tfs[1] || !tf.isItalic())
+                    paint.setTextSkewX(-0.25F);
                 break;
         }
     }
@@ -249,19 +263,23 @@ public final class FontsManager {
     }
 
     private static void delete(@NonNull final File f) {
-        if (!f.exists()) return;
+        if (!f.exists())
+            return;
         if (f.isDirectory() && !PtyProcess.isSymlink(f.getPath())) {
             f.setExecutable(true);
             f.setWritable(true);
             final File[] ff = f.listFiles();
-            if (ff != null) for (final File fe : ff) delete(fe);
+            if (ff != null)
+                for (final File fe : ff)
+                    delete(fe);
         }
         f.delete();
     }
 
     public static boolean prepareConsoleFontDir(final boolean force) {
         try {
-            if (consoleFontDir.isDirectory() && consoleFontDir.canWrite()) return true;
+            if (consoleFontDir.isDirectory() && consoleFontDir.canWrite())
+                return true;
             if (force) {
                 delete(consoleFontDir);
             }

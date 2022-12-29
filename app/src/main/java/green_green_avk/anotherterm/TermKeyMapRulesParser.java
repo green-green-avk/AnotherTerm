@@ -40,10 +40,10 @@ public final class TermKeyMapRulesParser {
             this.map = (Map<String, Object>) map;
         }
 
-        private void putEntry_v1(@NonNull String key, Object value) {
+        private void putEntry_v1(@NonNull final String key, final Object value) {
             final Matcher m = keyP_v1.matcher(key);
             if (m.find()) {
-                int hash = getKeyHash(
+                final int hash = getKeyHash(
                         Integer.parseInt(m.group(1)),
                         Integer.parseInt(m.group(2)),
                         m.group(3).toLowerCase().charAt(0) == 't'
@@ -53,7 +53,7 @@ public final class TermKeyMapRulesParser {
             }
         }
 
-        private void putEntry_v2(@NonNull String key, Object value) {
+        private void putEntry_v2(@NonNull final String key, final Object value) {
             try {
                 this.fastMap.put(Integer.parseInt(key, 16), value);
                 this.map.put(key, value);
@@ -131,9 +131,9 @@ public final class TermKeyMapRulesParser {
         public void fromUri(@NonNull final Uri uri) {
             if (uriScheme.equals(uri.getScheme())) {
                 final String path = uri.getPath();
-                if (path != null)
+                if (path != null) {
                     // TODO: '+' decoding issue before Jelly Bean
-                    switch (uri.getPath()) {
+                    switch (path) {
                         case "/v1":
                             for (final String k : uri.getQueryParameterNames()) {
                                 if (!uriCheckP_v1.matcher(k).find()) continue;
@@ -151,6 +151,7 @@ public final class TermKeyMapRulesParser {
                             }
                             return;
                     }
+                }
             }
             throw new IllegalArgumentException("Unsupported URI format");
         }

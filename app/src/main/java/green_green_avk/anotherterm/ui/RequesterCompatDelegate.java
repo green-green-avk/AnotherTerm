@@ -59,8 +59,7 @@ public final class RequesterCompatDelegate {
     private ResultModel resultModel;
 
     public void onCreate(@Nullable final Bundle savedInstanceState) {
-        resultModel = new ViewModelProvider((ViewModelStoreOwner) that)
-                .get(ResultModel.class);
+        resultModel = new ViewModelProvider(that).get(ResultModel.class);
     }
 
     public void onResume() {

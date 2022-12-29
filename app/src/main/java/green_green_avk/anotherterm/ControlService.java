@@ -46,17 +46,22 @@ public final class ControlService extends Service {
     @Nullable
     private static PreferenceStorage getFav(@NonNull final Intent intent) {
         final String token = intent.getStringExtra(EXTRA_FAV_TOKEN);
-        if (token == null || token.length() < FAV_TOKEN_LENGTH_MIN) return null;
+        if (token == null || token.length() < FAV_TOKEN_LENGTH_MIN)
+            return null;
         for (final String name : FavoritesManager.enumerate()) {
             final PreferenceStorage ps = FavoritesManager.get(name);
             final int id = BackendsList.getId(ps.get("type"));
-            if (id < 0 || !BackendsList.get(id).exportable) continue;
-            if (!token.equals(ps.get(FAV_TOKEN_KEY))) continue;
+            if (id < 0 || !BackendsList.get(id).exportable)
+                continue;
+            if (!token.equals(ps.get(FAV_TOKEN_KEY)))
+                continue;
             final Bundle ee = intent.getExtras();
             for (final String k : ee.keySet()) {
-                if (EXTRA_FAV_TOKEN.equals(k)) continue; // Hide the token value
+                if (EXTRA_FAV_TOKEN.equals(k))
+                    continue; // Hide the token value
                 final Object v = ee.get(k);
-                if (!(v instanceof String)) continue;
+                if (!(v instanceof String))
+                    continue;
                 ps.put(getEnvName(k), v);
             }
             ps.put(EXTRA_FAV_TOKEN_INPUT_NAME, ""); // Mark as run by token
@@ -68,7 +73,8 @@ public final class ControlService extends Service {
 
     private void startSession(@NonNull final Intent intent) {
         final PreferenceStorage ps = getFav(intent);
-        if (ps == null) return;
+        if (ps == null)
+            return;
         try {
             ConsoleService.startAnsiSession(this, ps.get());
         } catch (final ConsoleService.Exception | BackendException ignored) {

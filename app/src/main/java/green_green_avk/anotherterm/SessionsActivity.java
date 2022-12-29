@@ -54,7 +54,8 @@ public final class SessionsActivity extends AppCompatActivity {
         l.setAdapter(a);
         a.setOnClickListener(view -> {
             final int pos = l.getChildAdapterPosition(view);
-            if (pos < 0) return;
+            if (pos < 0)
+                return;
             final String name = a.getName(pos);
             final PreferenceStorage ps = FavoritesManager.get(name);
             final int key;
@@ -86,7 +87,8 @@ public final class SessionsActivity extends AppCompatActivity {
         });
         a.setOnCreateContextMenuListener((menu, view, menuInfo) -> {
             final int pos = l.getChildAdapterPosition(view);
-            if (pos < 0) return;
+            if (pos < 0)
+                return;
             final String name = a.getName(pos);
             getMenuInflater().inflate(R.menu.menu_favorite, menu);
             menu.findItem(R.id.fav_edit).setOnMenuItemClickListener(item -> {
@@ -134,7 +136,8 @@ public final class SessionsActivity extends AppCompatActivity {
         });
         a.setOnCreateContextMenuListener((menu, view, menuInfo) -> {
             final int pos = l.getChildAdapterPosition(view);
-            if (pos < 0) return;
+            if (pos < 0)
+                return;
             final int key = a.getKey(pos);
             getMenuInflater().inflate(R.menu.menu_session, menu);
             menu.findItem(R.id.action_terminate).setOnMenuItemClickListener(item -> {
@@ -144,7 +147,7 @@ public final class SessionsActivity extends AppCompatActivity {
                 }
                 return true;
             });
-            if (ConsoleService.hasAnsiSession(key))
+            if (ConsoleService.hasAnsiSession(key)) {
                 menu.findItem(R.id.action_toggle_wake_lock).setOnMenuItemClickListener(item -> {
                     final BackendModule be;
                     try {
@@ -156,8 +159,9 @@ public final class SessionsActivity extends AppCompatActivity {
                     else be.acquireWakeLock();
                     return true;
                 });
-            else
+            } else {
                 menu.removeItem(R.id.action_toggle_wake_lock);
+            }
         });
         a.registerAdapterDataObserver(observer);
     }

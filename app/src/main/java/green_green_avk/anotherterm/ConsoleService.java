@@ -30,8 +30,8 @@ import green_green_avk.anotherterm.backends.BackendModule;
 import green_green_avk.anotherterm.backends.BackendsList;
 import green_green_avk.anotherterm.backends.EventBasedBackendModuleWrapper;
 import green_green_avk.anotherterm.ui.BackendUiSessionDialogs;
-import green_green_avk.anotherterm.utils.BooleanCaster;
 import green_green_avk.anotherterm.utils.ForegroundServices;
+import green_green_avk.anotherterm.utils.Misc;
 
 public final class ConsoleService extends Service {
 
@@ -48,7 +48,7 @@ public final class ConsoleService extends Service {
         if (C.COND_STR_PROCESS_EXIT_STATUS_0.equals(v))
             return AnsiSession.Properties.PROCESS_EXIT_STATUS_0;
         else
-            return BooleanCaster.CAST(v)
+            return Misc.toBoolean(v)
                     ? AnsiSession.Properties.ALWAYS
                     : AnsiSession.Properties.NEVER;
     }
@@ -188,8 +188,8 @@ public final class ConsoleService extends Service {
         final int key = obtainKey();
         tbe.setContext(ctx);
         tbe.setOnWakeLockEvent(() -> execOnSessionChange(key), new Handler(Looper.getMainLooper()));
-        tbe.setAcquireWakeLockOnConnect(BooleanCaster.CAST(cp.get("wakelock.acquire_on_connect")));
-        tbe.setReleaseWakeLockOnDisconnect(BooleanCaster.CAST(cp.get("wakelock.release_on_disconnect")));
+        tbe.setAcquireWakeLockOnConnect(Misc.toBoolean(cp.get("wakelock.acquire_on_connect")));
+        tbe.setReleaseWakeLockOnDisconnect(Misc.toBoolean(cp.get("wakelock.release_on_disconnect")));
         tbe.setUi(new BackendUiSessionDialogs(key));
         if (setBeParams)
             tbe.setParameters(cp);

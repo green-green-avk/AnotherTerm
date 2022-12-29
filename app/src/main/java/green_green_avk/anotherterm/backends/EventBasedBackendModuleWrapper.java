@@ -9,8 +9,6 @@ import android.util.Log;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
-import org.apache.commons.lang3.NotImplementedException;
-
 import java.io.IOException;
 import java.io.OutputStream;
 import java.lang.reflect.Method;
@@ -303,9 +301,9 @@ public final class EventBasedBackendModuleWrapper {
                 m.getAnnotation(BackendModule.ExportedUIMethodOnThread.class);
         if (ta != null) {
             if (m.getReturnType() != Void.TYPE)
-                throw new NotImplementedException("We can't return values from a thread yet");
+                throw new UnsupportedOperationException("We can't return values from a thread yet");
             if (ta.thread() != BackendModule.ExportedUIMethodOnThread.Thread.WRITE)
-                throw new NotImplementedException("Unsupported thread type");
+                throw new UnsupportedOperationException("Unsupported thread type");
             final Message msg = serviceHandler.obtainMessage(MSG_S_METHOD,
                     (Runnable) () -> {
                         try {

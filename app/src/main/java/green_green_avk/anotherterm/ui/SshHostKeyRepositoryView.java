@@ -23,7 +23,6 @@ import green_green_avk.anotherterm.utils.SshHostKey;
 import green_green_avk.anotherterm.utils.SshHostKeyRepository;
 
 public class SshHostKeyRepositoryView extends RecyclerView {
-
     public SshHostKeyRepositoryView(@NonNull final Context context) {
         super(context);
         init();
@@ -47,14 +46,12 @@ public class SshHostKeyRepositoryView extends RecyclerView {
     }
 
     protected static class ViewHolder extends RecyclerView.ViewHolder {
-
         public ViewHolder(@NonNull final View v) {
             super(v);
         }
     }
 
     protected static class Adapter extends RecyclerView.Adapter<ViewHolder> {
-
         protected final SshHostKeyRepository repo;
         protected final JSch jSch = new JSch();
         protected List<SshHostKey> keys;

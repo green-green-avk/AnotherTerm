@@ -311,7 +311,7 @@ public final class Unicode {
      */
     public static int wcwidth(final int codePoint) {
         // test for 8-bit control characters
-        if (codePoint < 32 || (codePoint >= 0x7f && codePoint < 0xa0)) {
+        if (codePoint < 32 || (codePoint >= 0x7F && codePoint < 0xA0)) {
             return 0;
         }
         // binary search in table of non-spacing characters
@@ -323,7 +323,7 @@ public final class Unicode {
     }
 
     public static int stepBack(@NonNull final char[] buf, final int startLimit, final int ptr) {
-        if (ptr < startLimit + 1)
+        if (ptr <= startLimit)
             return ptr;
         if (ptr == startLimit + 1)
             return startLimit;
@@ -332,8 +332,9 @@ public final class Unicode {
         return ptr - 1;
     }
 
-    public static int stepBack(@NonNull final CharSequence buf, final int startLimit, final int ptr) {
-        if (ptr < startLimit + 1)
+    public static int stepBack(@NonNull final CharSequence buf,
+                               final int startLimit, final int ptr) {
+        if (ptr <= startLimit)
             return ptr;
         if (ptr == startLimit + 1)
             return startLimit;
@@ -357,7 +358,8 @@ public final class Unicode {
         // Speed up.
         if (s instanceof CharBuffer && ((CharBuffer) s).hasArray())
             return getScreenLength(((CharBuffer) s).array(),
-                    ((CharBuffer) s).arrayOffset() + ((CharBuffer) s).position(), length);
+                    ((CharBuffer) s).arrayOffset() + ((CharBuffer) s).position(),
+                    length);
         int r = 0;
         for (int i = 0; i < length; ) {
             final int cp = Character.codePointAt(s, i);

@@ -15,7 +15,7 @@ import java.util.HashSet;
 import java.util.Set;
 
 import green_green_avk.anotherterm.backends.BackendsList;
-import green_green_avk.anotherterm.utils.BooleanCaster;
+import green_green_avk.anotherterm.utils.Misc;
 import green_green_avk.anotherterm.utils.PreferenceStorage;
 
 public final class FavoritesAdapter extends RecyclerView.Adapter<FavoritesAdapter.ViewHolder> {
@@ -44,7 +44,7 @@ public final class FavoritesAdapter extends RecyclerView.Adapter<FavoritesAdapte
             keysList = new HashSet<>();
             for (final String key : FavoritesManager.enumerate()) {
                 final PreferenceStorage ps = FavoritesManager.get(key);
-                if (!BooleanCaster.CAST(ps.get("shareable"))) continue;
+                if (!Misc.toBoolean(ps.get("shareable"))) continue;
                 keysList.add(key);
             }
         } else keysList = FavoritesManager.enumerate();
@@ -90,7 +90,7 @@ public final class FavoritesAdapter extends RecyclerView.Adapter<FavoritesAdapte
         iconView.setImageResource(blit.icon);
         final ImageView markView = holder.itemView.findViewById(R.id.mark);
         markView.setVisibility(!mShareableOnly &&
-                blit.exportable && BooleanCaster.CAST(ps.get("shareable"))
+                blit.exportable && Misc.toBoolean(ps.get("shareable"))
                 ? View.VISIBLE : View.INVISIBLE);
     }
 

@@ -17,10 +17,13 @@ public final class Compat {
     @NonNull
     public static CharBuffer subSequence(@NonNull final CharBuffer that,
                                          final int start, final int end) {
-        if (Build.VERSION.SDK_INT >= 19) return that.subSequence(start, end);
+        if (Build.VERSION.SDK_INT >= 19)
+            return that.subSequence(start, end);
         if (that.hasArray()) {
-            if (end > that.remaining()) throw new IndexOutOfBoundsException("Bad end");
-            if (start > end) throw new IndexOutOfBoundsException("Bad start");
+            if (end > that.remaining())
+                throw new IndexOutOfBoundsException("Bad end");
+            if (start > end)
+                throw new IndexOutOfBoundsException("Bad start");
             try {
                 return CharBuffer.wrap(that.array(),
                         start + that.arrayOffset() + that.position(), end - start);
@@ -28,7 +31,7 @@ public final class Compat {
                 throw new IndexOutOfBoundsException(e.getMessage());
             }
         }
-        throw new IllegalArgumentException(
+        throw new AssertionError(
                 "Unable to handle native and readonly buffers for API < 19");
     }
 }

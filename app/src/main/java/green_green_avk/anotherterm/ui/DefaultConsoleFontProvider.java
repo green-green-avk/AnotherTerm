@@ -6,7 +6,17 @@ import android.graphics.Typeface;
 import androidx.annotation.NonNull;
 
 public final class DefaultConsoleFontProvider implements FontProvider {
-    public static final Typeface[] typefaces = {
+    private DefaultConsoleFontProvider() {
+    }
+
+    private static final DefaultConsoleFontProvider instance = new DefaultConsoleFontProvider();
+
+    @NonNull
+    public static DefaultConsoleFontProvider getInstance() {
+        return instance;
+    }
+
+    private static final Typeface[] typefaces = {
             Typeface.create(Typeface.MONOSPACE, Typeface.NORMAL),
             Typeface.create(Typeface.MONOSPACE, Typeface.BOLD),
             Typeface.create(Typeface.MONOSPACE, Typeface.ITALIC),
