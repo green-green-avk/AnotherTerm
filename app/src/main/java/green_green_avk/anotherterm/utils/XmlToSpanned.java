@@ -30,7 +30,10 @@ import java.util.regex.Pattern;
 
 import green_green_avk.anotherterm.BuildConfig;
 import green_green_avk.anotherterm.R;
+import green_green_avk.anotherterm.ui.BackgroundImageSpan;
 import green_green_avk.anotherterm.ui.ButtonSpan;
+import green_green_avk.anotherterm.ui.ClipboardSpan;
+import green_green_avk.anotherterm.ui.CustomQuoteSpan;
 import green_green_avk.anotherterm.ui.FixedImageSpan;
 import green_green_avk.anotherterm.ui.InlineImageSpan;
 

@@ -1,4 +1,4 @@
-package green_green_avk.anotherterm.utils;
+package green_green_avk.anotherterm.ui;
 
 import android.content.ClipData;
 import android.content.ClipboardManager;

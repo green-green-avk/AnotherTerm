@@ -33,7 +33,7 @@ import green_green_avk.anotherterm.backends.BackendsList;
 import green_green_avk.anotherterm.ui.ExtAppCompatActivity;
 import green_green_avk.anotherterm.ui.UiUtils;
 import green_green_avk.anotherterm.ui.ViewValueListener;
-import green_green_avk.anotherterm.utils.BooleanCaster;
+import green_green_avk.anotherterm.utils.Misc;
 import green_green_avk.anotherterm.utils.PreferenceStorage;
 import green_green_avk.anotherterm.utils.PreferenceUiWrapper;
 import green_green_avk.anotherterm.utils.RawPreferenceUiWrapper;
@@ -226,12 +226,12 @@ public final class FavoriteEditorActivity extends ExtAppCompatActivity {
         return err;
     }
 
-    private static boolean dissolveErrors(@NonNull final Map<String, ?> pm) {
+    private static boolean dissolveErrors(@NonNull final Map<String, Object> pm) {
         boolean err = false;
         for (final String k : pm.keySet()) {
             final Object v = pm.get(k);
             if (v instanceof PreferenceUiWrapper.ParseException) {
-                ((Map<String, Object>) pm).put(k, ((PreferenceUiWrapper.ParseException) v).value);
+                pm.put(k, ((PreferenceUiWrapper.ParseException) v).value);
                 err = true;
             }
         }
@@ -262,7 +262,8 @@ public final class FavoriteEditorActivity extends ExtAppCompatActivity {
         final String token = mTokenW.getText().toString();
         if (token.length() >= ControlService.FAV_TOKEN_LENGTH_MIN)
             ps.put(ControlService.FAV_TOKEN_KEY, token);
-        ps.put("term_compliance", TERM_COMPLIANCE_KEYS.get(mTermCompliance.getSelectedItemPosition()));
+        ps.put("term_compliance", TERM_COMPLIANCE_KEYS
+                .get(mTermCompliance.getSelectedItemPosition()));
         ps.put("charset", C.charsetList.get(mCharsetW.getSelectedItemPosition()));
         ps.put("keymap", ((TermKeyMapManager.Meta) mKeyMapW.getSelectedItem()).name);
         ps.put("screen_cols", getSize(mScrColsW));
@@ -353,7 +354,7 @@ public final class FavoriteEditorActivity extends ExtAppCompatActivity {
                 }
         } else mPrefs.setPreferences(mPrefsSt.get());
         final Object token = mPrefsSt.get(ControlService.FAV_TOKEN_KEY);
-        if (token instanceof String && ((String) token).length() > 0) {
+        if (token instanceof String && !((String) token).isEmpty()) {
             mTokenW.setText((String) token);
             mTokenFG.setVisibility(View.VISIBLE);
         } else {
@@ -362,17 +363,17 @@ public final class FavoriteEditorActivity extends ExtAppCompatActivity {
         }
         setSizeText(mScrColsW, mPrefsSt.get("screen_cols"));
         setSizeText(mScrRowsW, mPrefsSt.get("screen_rows"));
-        mFontSizeAutoW.setChecked(BooleanCaster.CAST(mPrefsSt.get("font_size_auto")));
+        mFontSizeAutoW.setChecked(Misc.toBoolean(mPrefsSt.get("font_size_auto")));
         final Object terminateOD = mPrefsSt.get("terminate.on_disconnect");
         if (C.COND_STR_PROCESS_EXIT_STATUS_0.equals(terminateOD)) {
             mTerminateOD.setChecked(true);
             mTerminateODIfPES0.setChecked(true);
         } else {
-            mTerminateOD.setChecked(BooleanCaster.CAST(terminateOD));
+            mTerminateOD.setChecked(Misc.toBoolean(terminateOD));
             mTerminateODIfPES0.setChecked(false);
         }
-        mWakeLockAOC.setChecked(BooleanCaster.CAST(mPrefsSt.get("wakelock.acquire_on_connect")));
-        mWakeLockROD.setChecked(BooleanCaster.CAST(mPrefsSt.get("wakelock.release_on_disconnect")));
+        mWakeLockAOC.setChecked(Misc.toBoolean(mPrefsSt.get("wakelock.acquire_on_connect")));
+        mWakeLockROD.setChecked(Misc.toBoolean(mPrefsSt.get("wakelock.release_on_disconnect")));
         final Object termCompliance = mPrefsSt.get("term_compliance");
         if (termCompliance != null) {
             final int pos = TERM_COMPLIANCE_KEYS.indexOf(termCompliance.toString());
@@ -485,7 +486,7 @@ public final class FavoriteEditorActivity extends ExtAppCompatActivity {
         super.onSaveInstanceState(outState);
         outState.putString("E_OLD_NAME", mOldName);
         outState.putBoolean("E_NEW", mMakeNew);
-        final Map<String, ?> pm = getPreferences().get();
+        final Map<String, Object> pm = getPreferences().get();
         dissolveErrors(pm);
         mPrefsSt.putAll(pm);
         outState.putSerializable("E_PARAMS", (Serializable) mPrefsSt.get());
@@ -618,8 +619,10 @@ public final class FavoriteEditorActivity extends ExtAppCompatActivity {
         mKeyMapW.setSelection(((TermKeyMapAdapter) mKeyMapW.getAdapter()).getPosition(null));
 
         if (savedInstanceState != null) {
-            Collections.addAll(mPrefs.getChangedFields(), savedInstanceState.getStringArray("E_SET_PARAMS"));
-            setPreferencesOnlyChanged(new PreferenceStorage((Map<String, ?>) savedInstanceState.get("E_PARAMS")));
+            Collections.addAll(mPrefs.getChangedFields(),
+                    savedInstanceState.getStringArray("E_SET_PARAMS"));
+            setPreferencesOnlyChanged(new PreferenceStorage(
+                    (Map<String, Object>) savedInstanceState.get("E_PARAMS")));
             mOldName = savedInstanceState.getString("E_OLD_NAME");
             mMakeNew = savedInstanceState.getBoolean("E_NEW");
             isNeedSave = savedInstanceState.getBoolean("E_NEED_SAVE", isNeedSave);

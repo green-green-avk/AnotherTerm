@@ -34,7 +34,6 @@ import green_green_avk.anotherterm.ConsoleInput;
 import green_green_avk.anotherterm.ConsoleOutput;
 import green_green_avk.anotherterm.HwKeyMapManager;
 import green_green_avk.anotherterm.R;
-import green_green_avk.anotherterm.utils.KeyIntervalDetector;
 
 public class ConsoleKeyboardView extends ExtKeyboardView implements
         ExtKeyboardView.OnKeyboardActionListener, ConsoleInput.OnInvalidateSink {

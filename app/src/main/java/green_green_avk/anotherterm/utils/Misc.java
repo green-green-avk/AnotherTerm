@@ -72,8 +72,10 @@ public final class Misc {
         if (n == 1)
             return v;
         final byte[] r = Arrays.copyOf(v, v.length * n);
-        for (long l = v.length; l != 0 && l < r.length; l <<= 1)
-            System.arraycopy(r, 0, r, (int) l, (int) Math.min(l, r.length - l));
+        for (long l = v.length; l != 0 && l < r.length; l <<= 1) {
+            System.arraycopy(r, 0, r, (int) l,
+                    (int) Math.min(l, r.length - l));
+        }
         return r;
     }
 
@@ -83,8 +85,10 @@ public final class Misc {
         if (n == 1)
             return v;
         final char[] r = Arrays.copyOf(v, v.length * n);
-        for (long l = v.length; l != 0 && l < r.length; l <<= 1)
-            System.arraycopy(r, 0, r, (int) l, (int) Math.min(l, r.length - l));
+        for (long l = v.length; l != 0 && l < r.length; l <<= 1) {
+            System.arraycopy(r, 0, r, (int) l,
+                    (int) Math.min(l, r.length - l));
+        }
         return r;
     }
 
@@ -346,6 +350,16 @@ public final class Misc {
         return r;
     }
 
+    public static boolean toBoolean(@Nullable final Object v) {
+        if (v instanceof String) return Boolean.parseBoolean((String) v);
+        if (v instanceof Boolean) return (boolean) v;
+        if (v instanceof Integer) return ((int) v) != 0;
+        if (v instanceof Long) return ((long) v) != 0;
+        if (v instanceof Float) return ((float) v) != 0;
+        if (v instanceof Double) return ((Double) v) != 0;
+        return false;
+    }
+
     public static <T extends Comparable<T>> T clamp(@NonNull final T v, final T min, final T max) {
         if (v.compareTo(min) < 0) return min;
         if (v.compareTo(max) > 0) return max;
@@ -451,8 +465,11 @@ public final class Misc {
 
     @NonNull
     public static String[] getAbis() {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) return Build.SUPPORTED_ABIS;
-        else if (Build.CPU_ABI2 != null) return new String[]{Build.CPU_ABI, Build.CPU_ABI2};
-        else return new String[]{Build.CPU_ABI};
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP)
+            return Build.SUPPORTED_ABIS;
+        else if (Build.CPU_ABI2 != null)
+            return new String[]{Build.CPU_ABI, Build.CPU_ABI2};
+        else
+            return new String[]{Build.CPU_ABI};
     }
 }

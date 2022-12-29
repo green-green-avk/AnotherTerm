@@ -25,16 +25,16 @@ public class MessageLogView extends LinearLayoutCompat {
     protected final RecyclerView list;
     protected final ViewGroup footer;
 
-    public MessageLogView(final Context context) {
+    public MessageLogView(@NonNull final Context context) {
         super(context);
         setOrientation(LinearLayoutCompat.VERTICAL);
     }
 
-    public MessageLogView(final Context context, @Nullable final AttributeSet attrs) {
+    public MessageLogView(@NonNull final Context context, @Nullable final AttributeSet attrs) {
         super(context, attrs);
     }
 
-    public MessageLogView(final Context context, @Nullable final AttributeSet attrs,
+    public MessageLogView(@NonNull final Context context, @Nullable final AttributeSet attrs,
                           final int defStyle) {
         super(context, attrs, defStyle);
     }
@@ -97,8 +97,7 @@ public class MessageLogView extends LinearLayoutCompat {
     }
 
     protected static class ViewHolder extends RecyclerView.ViewHolder {
-
-        public ViewHolder(final View v) {
+        public ViewHolder(@NonNull final View v) {
             super(v);
         }
     }

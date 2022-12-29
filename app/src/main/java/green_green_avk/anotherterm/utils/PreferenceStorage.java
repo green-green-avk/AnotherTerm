@@ -19,13 +19,25 @@ public final class PreferenceStorage {
         this.prefs = new HashMap<>();
     }
 
-    public PreferenceStorage(@Nullable final Map<String, ?> prefs) {
-        this.prefs = prefs != null ? (Map<String, Object>) prefs : new HashMap<String, Object>();
+    /**
+     * Move semantics.
+     *
+     * @param prefs to adopt
+     */
+    public PreferenceStorage(@Nullable final Map<String, Object> prefs) {
+        this.prefs = prefs != null ? prefs : new HashMap<>();
     }
 
-    public void set(@Nullable final Map<String, ?> prefs) {
-        if (prefs != null) this.prefs = (Map<String, Object>) prefs;
-        else clear();
+    /**
+     * Move semantics.
+     *
+     * @param prefs to adopt
+     */
+    public void set(@Nullable final Map<String, Object> prefs) {
+        if (prefs != null)
+            this.prefs = prefs;
+        else
+            clear();
     }
 
     public void clear() {
@@ -34,7 +46,7 @@ public final class PreferenceStorage {
 
     @CheckResult
     @NonNull
-    public Map<String, ?> get() {
+    public Map<String, Object> get() {
         return prefs;
     }
 

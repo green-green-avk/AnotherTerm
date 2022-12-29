@@ -64,11 +64,12 @@ public final class PluginsManagerFragment extends Fragment {
         @NonNull
         public ViewHolder onCreateViewHolder(@NonNull final ViewGroup parent,
                                              final int viewType) {
-            if (viewType == 0)
+            if (viewType == 0) {
                 return new ViewHolder(
                         LayoutInflater.from(parent.getContext())
                                 .inflate(R.layout.plugins_manager_entry,
                                         parent, false));
+            }
             return new ViewHolder(LayoutInflater.from(parent.getContext())
                     .inflate(R.layout.empty, parent, false));
 
@@ -95,7 +96,8 @@ public final class PluginsManagerFragment extends Fragment {
                 final ClipboardManager clipboard =
                         (ClipboardManager) v.getContext()
                                 .getSystemService(Context.CLIPBOARD_SERVICE);
-                if (clipboard == null) return;
+                if (clipboard == null)
+                    return;
                 clipboard.setPrimaryClip(ClipData.newPlainText(
                         null, pkg.packageName));
                 Toast.makeText(v.getContext(), R.string.msg_copied_to_clipboard,
@@ -122,8 +124,10 @@ public final class PluginsManagerFragment extends Fragment {
                     } catch (final SecurityException ignored) {
                     }
                 }
-                if (isChecked) PluginsManager.grant(pkg);
-                else PluginsManager.revoke(pkg);
+                if (isChecked)
+                    PluginsManager.grant(pkg);
+                else
+                    PluginsManager.revoke(pkg);
             });
             wEssential.setChecked(PluginsManager.getBooleanFeature(pkg.packageName,
                     PluginsManager.F_ESSENTIAL));
@@ -132,7 +136,8 @@ public final class PluginsManagerFragment extends Fragment {
                             isChecked));
             wInfo.setOnClickListener(v -> {
                 final ComponentName cn = Plugin.getComponent(v.getContext(), pkg.packageName);
-                if (cn == null) return;
+                if (cn == null)
+                    return;
                 new InfoPageTask(v.getContext()).execute(cn);
             });
             wAppInfo.setOnClickListener(v -> {
@@ -186,7 +191,8 @@ public final class PluginsManagerFragment extends Fragment {
                 } catch (final Throwable e) {
                     return noInfoUri;
                 }
-                if (resId == 0) return noInfoUri;
+                if (resId == 0)
+                    return noInfoUri;
                 return new Uri.Builder()
                         .scheme(ContentResolver.SCHEME_ANDROID_RESOURCE)
                         .authority(cn.getPackageName())
@@ -199,7 +205,8 @@ public final class PluginsManagerFragment extends Fragment {
             protected void onPostExecute(final Uri uri) {
                 final Context ctx = actCtx.get();
                 if (ctx != null)
-                    ctx.startActivity(new Intent(ctx, InfoActivity.class).setData(uri));
+                    ctx.startActivity(new Intent(ctx, InfoActivity.class)
+                            .setData(uri));
             }
         }
 
@@ -223,7 +230,8 @@ public final class PluginsManagerFragment extends Fragment {
     @Override
     public View onCreateView(final LayoutInflater inflater, final ViewGroup container,
                              final Bundle savedInstanceState) {
-        final View v = inflater.inflate(R.layout.plugins_manager_fragment, container, false);
+        final View v = inflater.inflate(R.layout.plugins_manager_fragment, container,
+                false);
         final RecyclerView l = v.findViewById(R.id.plugins);
         l.setLayoutManager(new LinearLayoutManager(container.getContext()));
         l.setAdapter(new PluginsAdapter());

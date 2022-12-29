@@ -1,12 +1,12 @@
 package green_green_avk.anotherterm.utils;
 
+import static android.os.Build.VERSION.SDK_INT;
+
 import android.text.Html;
 import android.text.Spanned;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-
-import static android.os.Build.VERSION.SDK_INT;
 
 public final class HtmlUtils {
     private HtmlUtils() {
@@ -46,7 +46,7 @@ public final class HtmlUtils {
         if (SDK_INT >= 16) {
             return Html.escapeHtml(text);
         } else {
-            StringBuilder out = new StringBuilder();
+            final StringBuilder out = new StringBuilder();
             withinStyle(out, text, 0, text.length());
             return out.toString();
         }

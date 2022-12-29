@@ -13,17 +13,22 @@ public final class EscCsi {
     public final String[] args;
     public final String suffix;
 
-    public EscCsi(@NonNull final CharBuffer v) throws IllegalArgumentException {
+    /**
+     * @param v to parse
+     * @throws IllegalArgumentException if malformed
+     */
+    public EscCsi(@NonNull final CharBuffer v) {
         final int end_i = v.length() - 1;
         type = v.charAt(end_i);
         int suf_i;
         for (suf_i = end_i - 1; suf_i >= 0; suf_i--) {
             final char c = v.charAt(suf_i);
-            if (c < 0x20 || c > 0x2F) break;
+            if (c < 0x20 || c > 0x2F)
+                break;
         }
         suf_i++;
-        if (suf_i == end_i) suffix = "";
-        else suffix = Compat.subSequence(v, suf_i, end_i).toString();
+        suffix = suf_i == end_i ? "" :
+                Compat.subSequence(v, suf_i, end_i).toString();
         final int skip = v.charAt(0) == '\u001B' ? 2 : 1; // 7-bit / 8-bit
         final char pre = v.charAt(skip);
         if (pre >= 60 && pre <= 63) {
@@ -37,7 +42,8 @@ public final class EscCsi {
     }
 
     public int getIntArg(final int n, final int def) {
-        if (args.length <= n) return def;
+        if (args.length <= n)
+            return def;
         try {
             return Integer.parseInt(args[n]);
         } catch (final NumberFormatException e) {

@@ -20,7 +20,7 @@ public final class TermKeyMapManagerActivity extends AppCompatActivity {
         l.setAdapter(a);
         a.setOnClickListener(v -> {
             final String name = a.getName(l.getPositionForView(v));
-            TermKeyMapEditorActivity.start(TermKeyMapManagerActivity.this, name);
+            TermKeyMapEditorActivity.start(this, name);
         });
         a.setOnCreateContextMenuListener((menu, v, menuInfo) -> {
             final String name = a.getName(l.getPositionForView(v));

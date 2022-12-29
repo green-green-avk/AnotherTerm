@@ -18,8 +18,6 @@ import java.util.TreeSet;
 import green_green_avk.anotherterm.R;
 import green_green_avk.anotherterm.ui.dragndrop.DragLinkMovementMethod;
 import green_green_avk.anotherterm.ui.dragndrop.TextDragSpan;
-import green_green_avk.anotherterm.utils.BackgroundImageSpan;
-import green_green_avk.anotherterm.utils.ClipboardSpan;
 import green_green_avk.anotherterm.utils.Misc;
 
 public class MetaStringCollectionView extends AppCompatTextView

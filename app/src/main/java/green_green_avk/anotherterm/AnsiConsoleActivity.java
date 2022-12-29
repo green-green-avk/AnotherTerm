@@ -76,7 +76,6 @@ import green_green_avk.anotherterm.ui.ScreenMouseView;
 import green_green_avk.anotherterm.ui.ScrollableView;
 import green_green_avk.anotherterm.ui.UiUtils;
 import green_green_avk.anotherterm.ui.VisibilityAnimator;
-import green_green_avk.anotherterm.utils.BooleanCaster;
 import green_green_avk.anotherterm.utils.LogMessage;
 import green_green_avk.anotherterm.utils.Misc;
 
@@ -234,11 +233,12 @@ public final class AnsiConsoleActivity extends ConsoleActivity
         wConnecting = findViewById(R.id.connecting);
 
         final boolean isNew = mSession.uiState.fontSizeDp == 0F;
-        if (isNew)
+        if (isNew) {
             autoFitTerminal =
-                    BooleanCaster.CAST(mSession.connectionParams.get("font_size_auto"));
-        else
+                    Misc.toBoolean(mSession.connectionParams.get("font_size_auto"));
+        } else {
             autoFitTerminal = mSession.uiState.fontSizeDp < 0F;
+        }
 
         final FontProvider fp = new ConsoleFontProvider();
         mCsv.setFont(fp);
@@ -247,10 +247,11 @@ public final class AnsiConsoleActivity extends ConsoleActivity
         final App.Settings globalSettings = ((App) getApplication()).settings;
         final DisplayMetrics dm = getResources().getDisplayMetrics();
 
-        if (isNew && !autoFitTerminal)
+        if (isNew && !autoFitTerminal) {
             mSession.uiState.fontSizeDp =
                     globalSettings.terminal_font_default_size_sp *
                             (dm.scaledDensity / dm.density);
+        }
         mCsv.setFontSize(mSession.uiState.fontSizeDp *
                 getResources().getDisplayMetrics().density, false);
 
@@ -291,9 +292,10 @@ public final class AnsiConsoleActivity extends ConsoleActivity
         mCsv.onScroll = this;
         mCsv.onStateChange = this;
 
-        if (isNew)
+        if (isNew) {
             mCsv.setScreenSize(asSize(mSession.connectionParams.get("screen_cols")),
                     asSize(mSession.connectionParams.get("screen_rows")));
+        }
         mSession.uiState.csv.apply(mCsv);
         mSession.uiState.ckv.apply(mCkv);
         if (mSession.uiState.mouseMode == AnsiSession.UiState.MouseMode.UNDEFINED)

@@ -123,7 +123,8 @@ public final class TermKeyMapEditorActivity extends AppCompatActivity {
     private boolean isNeedSave = false;
 
     private void setNeedSave(final boolean v) {
-        if (v == isNeedSave) return;
+        if (v == isNeedSave)
+            return;
         isNeedSave = v;
         setTitle(v ? titleNeedSave : title);
     }
@@ -132,8 +133,8 @@ public final class TermKeyMapEditorActivity extends AppCompatActivity {
 
     private void updateRedefinedKeyCodes(final int code) {
         for (int m = 0; m < TermKeyMap.MODIFIERS_SIZE; m++)
-            if (keyMap.get(code, m, TermKeyMap.APP_MODE_NONE) != null
-                    || keyMap.get(code, m, TermKeyMap.APP_MODE_DEFAULT) != null) {
+            if (keyMap.get(code, m, TermKeyMap.APP_MODE_NONE) != null ||
+                    keyMap.get(code, m, TermKeyMap.APP_MODE_DEFAULT) != null) {
                 redefinedKeyCodes.add(code);
                 return;
             }
@@ -151,7 +152,8 @@ public final class TermKeyMapEditorActivity extends AppCompatActivity {
 
     @Nullable
     private static String nullUnescape(@NonNull final String v) {
-        if (v.isEmpty()) return null;
+        if (v.isEmpty())
+            return null;
         try {
             return Unescape.c(v);
         } catch (final IllegalArgumentException e) {
@@ -176,7 +178,8 @@ public final class TermKeyMapEditorActivity extends AppCompatActivity {
             @Override
             public void afterTextChanged(final Editable s) {
                 if (byUser && currentKeyCode >= 0) {
-                    keyMap.set(currentKeyCode, m, am, nullUnescape(s.toString()));
+                    keyMap.set(currentKeyCode, m, am,
+                            nullUnescape(s.toString()));
                     updateRedefinedKeyCodes(currentKeyCode);
                     setNeedSave(true);
                     keysAdapter.notifyDataSetChanged();
@@ -193,10 +196,10 @@ public final class TermKeyMapEditorActivity extends AppCompatActivity {
                 final View v = keysView.getChildAt(m);
                 final EditText nView = v.findViewById(R.id.normal);
                 final EditText aView = v.findViewById(R.id.app);
-                nView.setHint(Escape.c(TermKeyMapManager.defaultKeyMap.get(currentKeyCode, m,
-                        TermKeyMap.APP_MODE_NONE)));
-                aView.setHint(Escape.c(TermKeyMapManager.defaultKeyMap.get(currentKeyCode, m,
-                        TermKeyMap.APP_MODE_DEFAULT)));
+                nView.setHint(Escape.c(TermKeyMapManager.defaultKeyMap.get(
+                        currentKeyCode, m, TermKeyMap.APP_MODE_NONE)));
+                aView.setHint(Escape.c(TermKeyMapManager.defaultKeyMap.get(
+                        currentKeyCode, m, TermKeyMap.APP_MODE_DEFAULT)));
                 nView.setText(Escape.c(keyMap.get(currentKeyCode, m,
                         TermKeyMap.APP_MODE_NONE)));
                 aView.setText(Escape.c(keyMap.get(currentKeyCode, m,
@@ -319,19 +322,20 @@ public final class TermKeyMapEditorActivity extends AppCompatActivity {
 
     @Override
     public void onBackPressed() {
-        close(TermKeyMapEditorActivity.super::onBackPressed);
+        close(super::onBackPressed);
     }
 
     @Override
     public boolean onSupportNavigateUp() {
-        close(TermKeyMapEditorActivity.super::onSupportNavigateUp);
+        close(super::onSupportNavigateUp);
         return true;
     }
 
     public void save(final View v) {
         final String name = getName();
         if (name.isEmpty()) {
-            Toast.makeText(this, getString(R.string.msg_name_must_not_be_empty), Toast.LENGTH_SHORT).show();
+            Toast.makeText(this, getString(R.string.msg_name_must_not_be_empty),
+                    Toast.LENGTH_SHORT).show();
         } else {
             if (TermKeyMapManager.contains(name))
                 UiUtils.confirm(this, getString(R.string.prompt_overwrite), () -> {
@@ -357,7 +361,8 @@ public final class TermKeyMapEditorActivity extends AppCompatActivity {
         try {
             ((TermKeyMapRules.UriImportable) keyMap).fromUri(uri);
         } catch (final IllegalArgumentException e) {
-            Toast.makeText(this, R.string.msg_clipboard_does_not_contain_applicable_settings,
+            Toast.makeText(this,
+                    R.string.msg_clipboard_does_not_contain_applicable_settings,
                     Toast.LENGTH_SHORT).show();
             return;
         }
@@ -375,13 +380,15 @@ public final class TermKeyMapEditorActivity extends AppCompatActivity {
         final Uri uri = ((TermKeyMapRules.UriExportable) keyMap).toUri().buildUpon()
                 .appendQueryParameter("name", name).build();
         try {
-            UiUtils.uriToClipboard(this, uri, getString(R.string.title_terminal_s_link_s,
+            UiUtils.uriToClipboard(this, uri, getString(
+                    R.string.title_terminal_s_link_s,
                     name,
                     getString(R.string.linktype_key_map_settings)));
         } catch (final IllegalStateException e) {
             return;
         }
-        Toast.makeText(this, R.string.msg_copied_to_clipboard, Toast.LENGTH_SHORT).show();
+        Toast.makeText(this, R.string.msg_copied_to_clipboard,
+                Toast.LENGTH_SHORT).show();
     }
 
     public void share(final View view) {
@@ -389,7 +396,8 @@ public final class TermKeyMapEditorActivity extends AppCompatActivity {
             return;
         final Uri uri = ((TermKeyMapRules.UriExportable) keyMap).toUri().buildUpon()
                 .appendQueryParameter("name", getName()).build();
-        UiUtils.shareUri(this, uri, getString(R.string.linktype_key_map_settings));
+        UiUtils.shareUri(this, uri,
+                getString(R.string.linktype_key_map_settings));
     }
 
     public void info(final View v) {

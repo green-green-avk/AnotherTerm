@@ -107,7 +107,7 @@ public abstract class ExtKeyboardView extends View /*implements View.OnClickList
     protected boolean mHidden = false;
     protected ExtKeyboard mKeyboard = null;
 
-    protected FontProvider fontProvider = new DefaultConsoleFontProvider();
+    protected FontProvider fontProvider = DefaultConsoleFontProvider.getInstance();
 
     protected final Paint mPaint = new Paint();
     protected final Rect mKeyPadding = new Rect(0, 0, 0, 0);
