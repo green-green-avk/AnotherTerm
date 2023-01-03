@@ -596,7 +596,7 @@ public final class AnsiConsoleActivity extends ConsoleActivity
             popupView.<TextView>findViewById(R.id.charset)
                     .setText(mSession.output.getCharset().name());
             popupView.<TextView>findViewById(R.id.keymap)
-                    .setText(TermKeyMapManagerUi.getTitle(this,
+                    .setText(TermKeyMapManagerUi.instance.getTitle(this,
                             mSession.output.getKeyMap()));
             final String w;
             if (mCsv.resizeBufferXOnUi)
@@ -832,10 +832,10 @@ public final class AnsiConsoleActivity extends ConsoleActivity
     public void onMenuKeymap(final View view) {
         if (mSession == null)
             return;
-        TermKeyMapManagerUi.showList(this, (isBuiltIn, name, rules, title) -> {
+        TermKeyMapManagerUi.instance.showList(this, meta -> {
             if (mSession == null)
                 return;
-            mSession.output.setKeyMap(rules);
+            mSession.output.setKeyMap(TermKeyMapManagerUi.instance.getManager(this).get(meta));
             refreshMenuPopup();
         }, mSession.output.getKeyMap());
     }

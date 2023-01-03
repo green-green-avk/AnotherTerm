@@ -39,8 +39,10 @@ public final class TermKeyMapEditorActivity extends AppCompatActivity {
     private static final int DEF_POS = 0;
 
     public static void start(@Nullable final Context context, @Nullable final String name) {
-        if (context == null) return;
-        context.startActivity(new Intent(context, TermKeyMapEditorActivity.class)
+        if (context == null)
+            return;
+        context.startActivity(new Intent(context,
+                TermKeyMapEditorActivity.class)
                 .putExtra(C.IFK_MSG_NAME, name));
     }
 
@@ -240,10 +242,10 @@ public final class TermKeyMapEditorActivity extends AppCompatActivity {
                 name = uri.getQueryParameter("name");
                 setNeedSave(true);
             } catch (final IllegalArgumentException e) {
-                keyMap = (TermKeyMapRules.Editable) TermKeyMapManager.getRules(name);
+                keyMap = TermKeyMapManager.instance.getForEdit(name);
             }
         } else {
-            keyMap = (TermKeyMapRules.Editable) TermKeyMapManager.getRules(name);
+            keyMap = TermKeyMapManager.instance.getForEdit(name);
         }
         updateRedefinedKeyCodes();
         setName(name);
@@ -309,7 +311,7 @@ public final class TermKeyMapEditorActivity extends AppCompatActivity {
     }
 
     private void save(@NonNull final String name) {
-        TermKeyMapManager.set(name, keyMap);
+        TermKeyMapManager.instance.set(name, keyMap);
         Toast.makeText(this, R.string.msg_saved, Toast.LENGTH_SHORT).show();
     }
 
@@ -337,12 +339,13 @@ public final class TermKeyMapEditorActivity extends AppCompatActivity {
             Toast.makeText(this, getString(R.string.msg_name_must_not_be_empty),
                     Toast.LENGTH_SHORT).show();
         } else {
-            if (TermKeyMapManager.contains(name))
-                UiUtils.confirm(this, getString(R.string.prompt_overwrite), () -> {
-                    save(name);
-                    setNeedSave(false);
-                });
-            else {
+            if (TermKeyMapManager.instance.containsCustom(name)) {
+                UiUtils.confirm(this, getString(R.string.prompt_overwrite),
+                        () -> {
+                            save(name);
+                            setNeedSave(false);
+                        });
+            } else {
                 save(name);
                 setNeedSave(false);
             }
