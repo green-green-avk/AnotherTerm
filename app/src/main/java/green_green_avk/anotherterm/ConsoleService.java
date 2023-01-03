@@ -184,7 +184,7 @@ public final class ConsoleService extends Service {
         }
         String keyMapStr = (String) cp.get("keymap");
         if (keyMapStr != null && keyMapStr.isEmpty()) keyMapStr = null;
-        co.setKeyMap(TermKeyMapManager.get(keyMapStr));
+        co.setKeyMap(TermKeyMapManager.instance.get(keyMapStr));
         final int key = obtainKey();
         tbe.setContext(ctx);
         tbe.setOnWakeLockEvent(() -> execOnSessionChange(key), new Handler(Looper.getMainLooper()));

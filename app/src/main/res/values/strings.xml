@@ -146,9 +146,9 @@
     <string name="msg_too_large_to_web_search">
         The text is too large for Web search.
     </string>
-    <string name="keymap_title_s_q_not_defined_here_q">%s (not defined here)</string>
-    <string name="keymap_title_anonymous">Anonymous</string>
-    <string name="keymap_title_default">Default</string>
+    <string name="profile_title_s_q_not_defined_here_q">%s (not defined here)</string>
+    <string name="profile_title_anonymous">Anonymous</string>
+    <string name="profile_title_default">Default</string>
     <string name="title_shell_of_s">%s Shell</string>
     <string name="title_shell_of_s_script_notification_">%s Shell: script notification:</string>
     <string name="title_about">About</string>

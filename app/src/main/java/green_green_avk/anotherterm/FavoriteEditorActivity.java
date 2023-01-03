@@ -389,12 +389,14 @@ public final class FavoriteEditorActivity extends ExtAppCompatActivity {
         final Object keyMap = mPrefsSt.get("keymap");
         if (keyMap != null) {
             final String keyMapName = keyMap.toString();
-            int pos = ((TermKeyMapAdapter) mKeyMapW.getAdapter()).getPosition(keyMapName);
+            int pos = TermKeyMapAdapter.getSelf(mKeyMapW.getAdapter())
+                    .getPosition(keyMapName);
             if (pos < 0) {
-                ((TermKeyMapAdapter) mKeyMapW.getAdapter()).setZeroEntry(new TermKeyMapManager.Meta(
-                        keyMapName,
-                        getString(R.string.keymap_title_s_q_not_defined_here_q, keyMapName),
-                        false));
+                TermKeyMapAdapter.getSelf(mKeyMapW.getAdapter())
+                        .setZeroEntry(new TermKeyMapManager.Meta(keyMapName,
+                                getString(R.string.profile_title_s_q_not_defined_here_q,
+                                        keyMapName),
+                                false));
                 pos = 0;
             }
             mKeyMapW.setSelection(pos);
@@ -611,12 +613,13 @@ public final class FavoriteEditorActivity extends ExtAppCompatActivity {
         mCharsetW.setAdapter(aCharset);
         mCharsetW.setSelection(C.charsetList.indexOf(Charset.defaultCharset().name()));
 
-        mKeyMapW.setAdapter(new TermKeyMapAdapter(getApplicationContext())
+        mKeyMapW.setAdapter(new TermKeyMapAdapter(this)
                 .setIncludeBuiltIns(true)
                 .setItemLayoutRes(android.R.layout.simple_spinner_item)
                 .setDropDownItemLayoutRes(android.R.layout.simple_spinner_dropdown_item)
-        );
-        mKeyMapW.setSelection(((TermKeyMapAdapter) mKeyMapW.getAdapter()).getPosition(null));
+                .getAdapter());
+        mKeyMapW.setSelection(TermKeyMapAdapter.getSelf(mKeyMapW.getAdapter())
+                .getPosition(null));
 
         if (savedInstanceState != null) {
             Collections.addAll(mPrefs.getChangedFields(),
