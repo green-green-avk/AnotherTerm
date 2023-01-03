@@ -3,7 +3,6 @@ package com.pavelsikun.seekbarpreference;
 import android.annotation.SuppressLint;
 import android.app.Dialog;
 import android.content.Context;
-import android.content.DialogInterface;
 import android.content.res.TypedArray;
 import android.graphics.drawable.Drawable;
 import android.text.TextUtils;
@@ -41,7 +40,7 @@ final class CustomValueDialog {
     private PersistValueListener persistValueListener;
 
     private String titleText;
-    private Drawable icon = null;
+    private Drawable icon;
     private String okText;
     private String cancelText;
 
@@ -57,8 +56,8 @@ final class CustomValueDialog {
         this.currentValue = currentValue;
 
         titleText = title;
-        if (iconResId != 0)
-            icon = AppCompatResources.getDrawable(context, iconResId);
+        icon = iconResId != 0 ?
+                AppCompatResources.getDrawable(context, iconResId) : null;
         okText = context.getString(DEFAULT_OK_RES_ID);
         cancelText = context.getString(DEFAULT_CANCEL_RES_ID);
 
@@ -81,7 +80,8 @@ final class CustomValueDialog {
                 style != 0 ? new ContextThemeWrapper(context, style) : context;
 
         final TextView warnWinView = new AppCompatTextView(context);
-        warnWinView.setLayoutParams(new ViewGroup.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT,
+        warnWinView.setLayoutParams(new ViewGroup.LayoutParams(
+                ViewGroup.LayoutParams.WRAP_CONTENT,
                 ViewGroup.LayoutParams.WRAP_CONTENT));
         warnWinView.setBackgroundResource(R.drawable.msbp_warning_popup);
         warnWin = new PopupWindow(warnWinView,
@@ -93,7 +93,7 @@ final class CustomValueDialog {
 
     private void init(@NonNull final AlertDialog.Builder dialogBuilder) {
         @SuppressLint("InflateParams") final View dialogView = LayoutInflater.from(dialogBuilder
-                .getContext()).inflate(R.layout.value_selector_dialog, null);
+                .getContext()).inflate(R.layout.msbp_value_selector_dialog, null);
 
         final TextView minValueView = dialogView.findViewById(R.id.minValue);
         final TextView maxValueView = dialogView.findViewById(R.id.maxValue);
@@ -129,32 +129,9 @@ final class CustomValueDialog {
         btnApply.setText(okText);
         btnCancel.setText(cancelText);
 
-        btnApply.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(final View v) {
-                tryApply();
-            }
-        });
-        btnCancel.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(final View v) {
-                dialog.cancel();
-            }
-        });
-        dialogBuilder.setOnCancelListener(new DialogInterface.OnCancelListener() {
-            @Override
-            public void onCancel(final DialogInterface dialog) {
-                warnWin.dismiss();
-            }
-        });
-/* TODO: on min API 17
-        dialogBuilder.setOnDismissListener(new DialogInterface.OnDismissListener() {
-            @Override
-            public void onDismiss(DialogInterface dialog) {
-                warnWin.dismiss();
-            }
-        });
-*/
+        btnApply.setOnClickListener(v -> tryApply());
+        btnCancel.setOnClickListener(v -> dialog.cancel());
+        dialogBuilder.setOnDismissListener(dialog -> warnWin.dismiss());
         dialog = dialogBuilder.setView(dialogView).create();
     }
 
@@ -163,8 +140,14 @@ final class CustomValueDialog {
         return this;
     }
 
-    void show() {
+    void dismiss() {
+        dialog.dismiss();
+    }
+
+    @NonNull
+    CustomValueDialog show() {
         dialog.show();
+        return this;
     }
 
     private void tryApply() {
@@ -194,7 +177,8 @@ final class CustomValueDialog {
                 }
             }
         } catch (final NumberFormatException e) {
-            notifyWrongInput(dialog.getContext().getString(R.string.msg_invalid_number));
+            notifyWrongInput(dialog.getContext().getString(
+                    R.string.msbp_msg_invalid_number));
             return;
         }
 

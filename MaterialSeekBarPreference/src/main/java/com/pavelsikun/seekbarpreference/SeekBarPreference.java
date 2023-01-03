@@ -43,7 +43,7 @@ public class SeekBarPreference extends Preference implements View.OnClickListene
     }
 
     private void init(@Nullable final AttributeSet attrs) {
-        setLayoutResource(R.layout.seekbar_view_layout);
+        setLayoutResource(R.layout.msbp_seekbar_view_layout);
         controllerDelegate = new PreferenceControllerDelegate(getContext(), false);
 
         controllerDelegate.setViewStateListener(this);

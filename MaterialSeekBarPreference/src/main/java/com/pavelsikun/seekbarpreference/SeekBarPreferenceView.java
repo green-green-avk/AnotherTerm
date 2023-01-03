@@ -49,7 +49,13 @@ public class SeekBarPreferenceView extends FrameLayout implements View.OnClickLi
     @Override
     protected void onAttachedToWindow() {
         super.onAttachedToWindow();
-        controllerDelegate.onBind(inflate(getContext(), R.layout.seekbar_view_layout, this));
+        controllerDelegate.onBind(inflate(getContext(), R.layout.msbp_seekbar_view_layout, this));
+    }
+
+    @Override
+    protected void onDetachedFromWindow() {
+        controllerDelegate.onDetached();
+        super.onDetachedFromWindow();
     }
 
     @Override

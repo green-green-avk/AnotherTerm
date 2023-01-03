@@ -58,7 +58,7 @@
             android:layout_height="wrap_content"
             android:layout_weight="0.25"
             android:gravity="center"
-            android:text="@string/label_less_than_or_equal"
+            android:text="@string/msbp_label_less_than_or_equal"
             android:textSize="18sp" />
 
         <EditText
@@ -76,7 +76,7 @@
             android:layout_height="wrap_content"
             android:layout_weight="0.25"
             android:gravity="center"
-            android:text="@string/label_less_than_or_equal"
+            android:text="@string/msbp_label_less_than_or_equal"
             android:textSize="18sp" />
 
         <TextView

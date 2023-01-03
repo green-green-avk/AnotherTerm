@@ -6,6 +6,7 @@ import android.os.Build;
 import android.util.AttributeSet;
 import android.view.View;
 
+import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
 import androidx.preference.Preference;
@@ -44,7 +45,7 @@ public class SeekBarPreferenceCompat extends Preference implements View.OnClickL
     }
 
     private void init(@Nullable final AttributeSet attrs) {
-        setLayoutResource(R.layout.seekbar_view_layout);
+        setLayoutResource(R.layout.msbp_seekbar_view_layout);
         controllerDelegate = new PreferenceControllerDelegate(getContext(), false);
 
         controllerDelegate.setViewStateListener(this);
@@ -55,7 +56,13 @@ public class SeekBarPreferenceCompat extends Preference implements View.OnClickL
     }
 
     @Override
-    public void onBindViewHolder(final PreferenceViewHolder viewRoot) {
+    public void onDetached() {
+        controllerDelegate.onDetached();
+        super.onDetached();
+    }
+
+    @Override
+    public void onBindViewHolder(@NonNull final PreferenceViewHolder viewRoot) {
         super.onBindViewHolder(viewRoot);
         controllerDelegate.onBind(viewRoot.itemView);
         controllerDelegate.setTitle(getTitle() != null ? getTitle().toString() : null);
