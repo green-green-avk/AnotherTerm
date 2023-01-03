@@ -410,7 +410,7 @@ public final class UiUtils {
                                                          final int x, final int y) {
         final int[] pwc = new int[2];
         refView.getRootView().getLocationOnScreen(pwc);
-        final View rv = UiUtils.requireActivity(refView)
+        final View rv = requireActivity(refView.getContext())
                 .getWindow().getDecorView().getRootView();
         final int[] rwc = new int[2];
         rv.getLocationOnScreen(rwc);
@@ -432,19 +432,18 @@ public final class UiUtils {
     }
 
     @Nullable
-    public static Activity getActivity(@NonNull final View view) {
-        Context a = view.getContext();
-        while (a != null && !(a instanceof Activity)) {
-            if (!(a instanceof ContextWrapper))
+    public static Activity getActivity(@Nullable Context ctx) {
+        while (!(ctx instanceof Activity)) {
+            if (!(ctx instanceof ContextWrapper))
                 return null;
-            a = ((ContextWrapper) a).getBaseContext();
+            ctx = ((ContextWrapper) ctx).getBaseContext();
         }
-        return (Activity) a;
+        return (Activity) ctx;
     }
 
     @NonNull
-    public static Activity requireActivity(@NonNull final View view) {
-        final Activity r = getActivity(view);
+    public static Activity requireActivity(@Nullable final Context ctx) {
+        final Activity r = getActivity(ctx);
         if (r == null)
             throw new IllegalStateException("No underlying activity found");
         return r;
