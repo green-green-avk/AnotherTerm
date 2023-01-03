@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="msg_invalid_number">!</string>
-    <string name="label_less_than_or_equal">≤</string>
-    <string name="title_dialog">%1$s [%2$s]</string>
-    <string name="value_off">Off</string>
+    <string name="msbp_msg_invalid_number">!</string>
+    <string name="msbp_label_less_than_or_equal">≤</string>
+    <string name="msbp_title_dialog">%1$s [%2$s]</string>
+    <string name="msbp_value_off">Off</string>
 </resources>

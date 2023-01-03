@@ -17,6 +17,8 @@ import androidx.annotation.Nullable;
 import androidx.annotation.StyleRes;
 import androidx.core.math.MathUtils;
 
+import java.lang.ref.WeakReference;
+
 /**
  * Created by Pavel Sikun on 28.05.16.
  * <p>
@@ -24,7 +26,8 @@ import androidx.core.math.MathUtils;
  */
 
 @SuppressWarnings("WeakerAccess")
-final class PreferenceControllerDelegate implements SeekBar.OnSeekBarChangeListener, View.OnClickListener {
+final class PreferenceControllerDelegate
+        implements SeekBar.OnSeekBarChangeListener, View.OnClickListener {
     private static final boolean DEBUG = BuildConfig.DEBUG;
     private static final String TAG = PreferenceControllerDelegate.class.getSimpleName();
     static final String NS_ANDROID = "http://schemas.android.com/apk/res/android";
@@ -76,6 +79,8 @@ final class PreferenceControllerDelegate implements SeekBar.OnSeekBarChangeListe
     private PersistValueListener persistValueListener;
     private ChangeValueListener changeValueListener;
 
+    private WeakReference<CustomValueDialog> dialogRef = new WeakReference<>(null);
+
     interface ViewStateListener {
         boolean isEnabled();
 
@@ -85,7 +90,7 @@ final class PreferenceControllerDelegate implements SeekBar.OnSeekBarChangeListe
     PreferenceControllerDelegate(@NonNull final Context context, final Boolean isView) {
         this.context = context;
         this.isView = isView;
-        this.offText = this.context.getString(R.string.value_off);
+        this.offText = this.context.getString(R.string.msbp_value_off);
     }
 
     void setPersistValueListener(@Nullable final PersistValueListener persistValueListener) {
@@ -102,31 +107,44 @@ final class PreferenceControllerDelegate implements SeekBar.OnSeekBarChangeListe
 
     void loadValuesFromXml(@Nullable final AttributeSet attrs) {
         if (attrs != null) {
-            final TypedArray a = context.obtainStyledAttributes(attrs, R.styleable.SeekBarPreference);
+            final TypedArray a =
+                    context.obtainStyledAttributes(attrs, R.styleable.SeekBarPreference);
             try {
-                minValue = a.getInt(R.styleable.SeekBarPreference_msbp_minValue, DEFAULT_MIN_VALUE);
-                maxValue = a.getInt(R.styleable.SeekBarPreference_msbp_maxValue, DEFAULT_MAX_VALUE);
-                interval = a.getInt(R.styleable.SeekBarPreference_msbp_interval, DEFAULT_INTERVAL);
+                minValue = a.getInt(R.styleable.SeekBarPreference_msbp_minValue,
+                        DEFAULT_MIN_VALUE);
+                maxValue = a.getInt(R.styleable.SeekBarPreference_msbp_maxValue,
+                        DEFAULT_MAX_VALUE);
+                interval = a.getInt(R.styleable.SeekBarPreference_msbp_interval,
+                        DEFAULT_INTERVAL);
 
-                dialogEnabled = a.getBoolean(R.styleable.SeekBarPreference_msbp_dialogEnabled, DEFAULT_DIALOG_ENABLED);
+                dialogEnabled = a.getBoolean(R.styleable.SeekBarPreference_msbp_dialogEnabled,
+                        DEFAULT_DIALOG_ENABLED);
 
                 // plurals support for units
                 // TODO: case when the string is not a reference
-                unit.set(a.getResourceId(R.styleable.SeekBarPreference_msbp_measurementUnit, 0));
+                unit.set(a.getResourceId(R.styleable.SeekBarPreference_msbp_measurementUnit,
+                        0));
 
-                offPosition = a.getInt(R.styleable.SeekBarPreference_msbp_offPosition, OFFPOS_NONE);
+                offPosition = a.getInt(R.styleable.SeekBarPreference_msbp_offPosition,
+                        OFFPOS_NONE);
                 offText = a.getString(R.styleable.SeekBarPreference_msbp_offText);
 
-                dialogStyle = a.getResourceId(R.styleable.SeekBarPreference_msbp_dialogStyle, 0);
+                dialogStyle = a.getResourceId(R.styleable.SeekBarPreference_msbp_dialogStyle,
+                        0);
                 dialogTitle = a.getString(R.styleable.SeekBarPreference_msbp_dialogTitle);
-                dialogIconResId = a.getResourceId(R.styleable.SeekBarPreference_msbp_dialogIcon, 0);
+                dialogIconResId =
+                        a.getResourceId(R.styleable.SeekBarPreference_msbp_dialogIcon,
+                                0);
 
                 if (isView) {
                     title = a.getString(R.styleable.SeekBarPreference_msbp_view_title);
 
-                    currentValue = a.getInt(R.styleable.SeekBarPreference_msbp_view_defaultValue, DEFAULT_CURRENT_VALUE);
+                    currentValue =
+                            a.getInt(R.styleable.SeekBarPreference_msbp_view_defaultValue,
+                                    DEFAULT_CURRENT_VALUE);
 
-                    isEnabled = a.getBoolean(R.styleable.SeekBarPreference_msbp_view_enabled, DEFAULT_IS_ENABLED);
+                    isEnabled = a.getBoolean(R.styleable.SeekBarPreference_msbp_view_enabled,
+                            DEFAULT_IS_ENABLED);
 
                     // following lines are dealing with plurals resource for summary
                     // plurals resource may be specified in "msbp_view_summary"
@@ -134,15 +152,25 @@ final class PreferenceControllerDelegate implements SeekBar.OnSeekBarChangeListe
 
                     // try "android:summary" for reference first
                     // TODO: case when the string is not a reference
-                    summary.set(attrs.getAttributeResourceValue(NS_ANDROID, "summary",
-                            attrs.getAttributeResourceValue(R.styleable.SeekBarPreference_msbp_view_summary, 0)));
+                    summary.set(attrs.getAttributeResourceValue(NS_ANDROID,
+                            "summary",
+                            attrs.getAttributeResourceValue(
+                                    R.styleable.SeekBarPreference_msbp_view_summary,
+                                    0)));
                 }
             } finally {
                 a.recycle();
             }
 
-            if (offText == null) offText = context.getString(R.string.value_off);
+            if (offText == null)
+                offText = context.getString(R.string.msbp_value_off);
         }
+    }
+
+    void onDetached() {
+        final CustomValueDialog dialog = dialogRef.get();
+        if (dialog != null)
+            dialog.dismiss();
     }
 
     void onBind(@NonNull final View view) {
@@ -179,9 +207,9 @@ final class PreferenceControllerDelegate implements SeekBar.OnSeekBarChangeListe
                 return;
             }
             String s = unit.apply(context, currentValue);
-            if (!unit.isFormatted()) s = TextUtils.isEmpty(s)
-                    ? Integer.toString(currentValue)
-                    : currentValue + " " + s;
+            if (!unit.isFormatted())
+                s = TextUtils.isEmpty(s) ?
+                        Integer.toString(currentValue) : currentValue + " " + s;
             valueView.setText(s);
         }
     }
@@ -207,9 +235,11 @@ final class PreferenceControllerDelegate implements SeekBar.OnSeekBarChangeListe
     @Override
     public void onClick(final View v) {
         // TODO: separate atomic interval
-        new CustomValueDialog(context, dialogStyle,
+        dialogRef = new WeakReference<>(new CustomValueDialog(context,
+                dialogStyle,
                 dialogTitle == null ?
-                        context.getString(R.string.title_dialog, title, unit.get(context, 1))
+                        context.getString(R.string.msbp_title_dialog, title,
+                                unit.get(context, 1))
                         : dialogTitle, dialogIconResId,
                 minValue, maxValue, 1, currentValue)
                 .setPersistValueListener(new PersistValueListener() {
@@ -219,7 +249,7 @@ final class PreferenceControllerDelegate implements SeekBar.OnSeekBarChangeListe
                         return true;
                     }
                 })
-                .show();
+                .show());
     }
 
     String getTitle() {
@@ -251,7 +281,8 @@ final class PreferenceControllerDelegate implements SeekBar.OnSeekBarChangeListe
     }
 
     void setEnabled(final boolean enabled, final boolean viewsOnly) {
-        if (DEBUG) Log.d(TAG, "setEnabled = " + enabled);
+        if (DEBUG)
+            Log.d(TAG, "setEnabled = " + enabled);
         isEnabled = enabled;
 
         if (viewStateListener != null && !viewsOnly) {
@@ -259,7 +290,8 @@ final class PreferenceControllerDelegate implements SeekBar.OnSeekBarChangeListe
         }
 
         if (seekBarView != null) { //theoretically might not always work
-            if (DEBUG) Log.d(TAG, "view is disabled!");
+            if (DEBUG)
+                Log.d(TAG, "view is disabled!");
             seekBarView.setEnabled(enabled);
             valueView.setEnabled(enabled);
             valueHolderView.setClickable(enabled);
@@ -293,15 +325,18 @@ final class PreferenceControllerDelegate implements SeekBar.OnSeekBarChangeListe
     }
 
     private int valueToProgress(int value) {
-        if (value >= maxValue) value = maxValue;
-        else if (value <= minValue) return 0;
+        if (value >= maxValue)
+            value = maxValue;
+        else if (value <= minValue)
+            return 0;
         return (value - minValue + interval / 2) / interval; // round to nearest
     }
 
     private int progressToValue(final int progress) {
-        if (progress <= 0) return minValue;
+        if (progress <= 0)
+            return minValue;
         final int r = progress * interval + minValue;
-        return r > maxValue ? maxValue : r;
+        return Math.min(r, maxValue);
     }
 
     int getMinValue() {
@@ -327,10 +362,13 @@ final class PreferenceControllerDelegate implements SeekBar.OnSeekBarChangeListe
 
     void setCurrentValue(int value) { // TODO: refactor
         value = MathUtils.clamp(value, minValue, maxValue);
-        if (changeValueListener != null && !changeValueListener.onChange(value)) return;
+        if (changeValueListener != null && !changeValueListener.onChange(value))
+            return;
         currentValue = value;
-        if (seekBarView != null) seekBarView.setProgress(valueToProgress(currentValue));
-        if (persistValueListener != null) persistValueListener.persistInt(value);
+        if (seekBarView != null)
+            seekBarView.setProgress(valueToProgress(currentValue));
+        if (persistValueListener != null)
+            persistValueListener.persistInt(value);
         bindCurrentValueToView();
     }
 
