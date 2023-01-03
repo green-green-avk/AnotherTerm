@@ -18,6 +18,7 @@ import java.util.Comparator;
 
 import green_green_avk.anotherterm.BuildConfig;
 import green_green_avk.anotherterm.R;
+import green_green_avk.anotherterm.ui.DialogUtils;
 import green_green_avk.anotherterm.ui.HtmlTextView;
 
 public final class WhatsNewDialog {
@@ -108,9 +109,9 @@ public final class WhatsNewDialog {
         final RecyclerView list = v.findViewById(R.id.list);
         list.setLayoutManager(new LinearLayoutManager(ctx));
         list.setAdapter(new Adapter(num));
-        new AlertDialog.Builder(ctx).setView(v).setCancelable(false)
+        DialogUtils.wrapLeakageSafe(new AlertDialog.Builder(ctx).setView(v).setCancelable(false)
                 .setPositiveButton(android.R.string.ok,
-                        (dialog, which) -> setSeen(ctx)).show();
+                        (dialog, which) -> setSeen(ctx)).show(), null);
     }
 
     public static void showUnseen(@NonNull final Context ctx) {

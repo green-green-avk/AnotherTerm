@@ -11,9 +11,6 @@ import android.widget.Toast;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.lifecycle.DefaultLifecycleObserver;
-import androidx.lifecycle.LifecycleObserver;
-import androidx.lifecycle.LifecycleOwner;
 
 import java.util.Collection;
 import java.util.Locale;
@@ -21,6 +18,7 @@ import java.util.Map;
 
 import green_green_avk.anotherterm.backends.BackendException;
 import green_green_avk.anotherterm.backends.BackendModule;
+import green_green_avk.anotherterm.ui.DialogUtils;
 import green_green_avk.anotherterm.utils.PreferenceStorage;
 
 public final class BackendAdapterDialog {
@@ -93,14 +91,7 @@ public final class BackendAdapterDialog {
                     wReqs.addView(wReq);
                 }
             }
-        final LifecycleObserver dt = new DefaultLifecycleObserver() {
-            @Override
-            public void onDestroy(@NonNull final LifecycleOwner owner) {
-                d.dismiss();
-            }
-        };
-        d.setOnDismissListener((dialog) -> activity.getLifecycle().removeObserver(dt));
-        activity.getLifecycle().addObserver(dt);
         d.show();
+        DialogUtils.wrapLeakageSafe(d, null);
     }
 }
