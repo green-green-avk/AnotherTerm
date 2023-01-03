@@ -345,7 +345,7 @@ public final class UiUtils {
     @UiThread
     public static void confirm(@NonNull final Context ctx, @NonNull final CharSequence msg,
                                @NonNull final Runnable onConfirm) {
-        new AlertDialog.Builder(ctx)
+        DialogUtils.wrapLeakageSafe(new AlertDialog.Builder(ctx)
                 .setMessage(msg)
                 .setNegativeButton(android.R.string.no, (dialog, which) ->
                         dialog.cancel())
@@ -353,7 +353,7 @@ public final class UiUtils {
                     dialog.dismiss();
                     onConfirm.run();
                 })
-                .show();
+                .show(), null);
     }
 
     public static void wrapViewClickForConfirmation(@NonNull final View view,

@@ -41,9 +41,6 @@ import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.content.res.AppCompatResources;
 import androidx.core.math.MathUtils;
 import androidx.core.widget.TextViewCompat;
-import androidx.lifecycle.DefaultLifecycleObserver;
-import androidx.lifecycle.LifecycleObserver;
-import androidx.lifecycle.LifecycleOwner;
 import androidx.recyclerview.widget.LinearLayoutManager;
 
 import java.lang.annotation.Annotation;
@@ -67,6 +64,7 @@ import green_green_avk.anotherterm.ui.AnsiConsoleKeyboardView;
 import green_green_avk.anotherterm.ui.BackendUiDialogs;
 import green_green_avk.anotherterm.ui.ChoreographerCompat;
 import green_green_avk.anotherterm.ui.ConsoleScreenView;
+import green_green_avk.anotherterm.ui.DialogUtils;
 import green_green_avk.anotherterm.ui.ExtToast;
 import green_green_avk.anotherterm.ui.FontProvider;
 import green_green_avk.anotherterm.ui.MessageLogView;
@@ -540,7 +538,7 @@ public final class AnsiConsoleActivity extends ConsoleActivity
                                 values[ai] = (bits & a.values()[ai]) == a.values()[ai];
                                 titles[ai] = getString(a.titleRes()[ai]);
                             }
-                            new AlertDialog.Builder(this)
+                            DialogUtils.wrapLeakageSafe(new AlertDialog.Builder(this)
                                     .setTitle(m.getValue().titleRes())
                                     .setMultiChoiceItems(titles, values,
                                             (dialog, which, isChecked) ->
@@ -549,7 +547,7 @@ public final class AnsiConsoleActivity extends ConsoleActivity
                                                                     a.values()[which] : 0L,
                                                             a.values()[which]))
                                     .setCancelable(true)
-                                    .show();
+                                    .show(), null);
                         });
                         moduleUiView.addView(mi);
                     }
@@ -794,7 +792,7 @@ public final class AnsiConsoleActivity extends ConsoleActivity
                 getString(R.string.label_term_compliance_ansi),
                 getString(R.string.label_term_compliance_vt52compat)
         });
-        new AlertDialog.Builder(this)
+        DialogUtils.wrapLeakageSafe(new AlertDialog.Builder(this)
                 .setSingleChoiceItems(a, p, (dialog, which) -> {
                     if (mSession == null)
                         return;
@@ -803,7 +801,7 @@ public final class AnsiConsoleActivity extends ConsoleActivity
                     mSession.input.invalidateSink();
                     refreshMenuPopup();
                     dialog.dismiss();
-                }).setCancelable(true).show();
+                }).setCancelable(true).show(), null);
     }
 
     public void onMenuCharset(final View view) {
@@ -812,7 +810,7 @@ public final class AnsiConsoleActivity extends ConsoleActivity
         final int p = C.charsetList.indexOf(mSession.output.getCharset().name());
         final ArrayAdapter<String> a = new ArrayAdapter<>(this,
                 R.layout.dialogmenu_entry, C.charsetList);
-        new AlertDialog.Builder(this)
+        DialogUtils.wrapLeakageSafe(new AlertDialog.Builder(this)
                 .setSingleChoiceItems(a, p, (dialog, which) -> {
                     if (mSession == null)
                         return;
@@ -826,7 +824,7 @@ public final class AnsiConsoleActivity extends ConsoleActivity
                     }
                     refreshMenuPopup();
                     dialog.dismiss();
-                }).setCancelable(true).show();
+                }).setCancelable(true).show(), null);
     }
 
     public void onMenuKeymap(final View view) {
@@ -885,7 +883,7 @@ public final class AnsiConsoleActivity extends ConsoleActivity
                 wOrientation.check(R.id.orientation_default);
         }
         wBufferHeight.setText(String.valueOf(mSession.input.getMaxBufferHeight()));
-        new AlertDialog.Builder(this)
+        DialogUtils.wrapLeakageSafe(new AlertDialog.Builder(this)
                 .setView(v)
                 .setTitle(R.string.dialog_title_terminal_screen)
                 .setPositiveButton(android.R.string.ok, (dialog, which) -> {
@@ -948,7 +946,7 @@ public final class AnsiConsoleActivity extends ConsoleActivity
                 .setNegativeButton(android.R.string.cancel,
                         (dialog, which) -> dialog.cancel())
                 .setCancelable(true)
-                .show();
+                .show(), null);
     }
 
     public void onMenuTerminateOnDisconnect(final View view) {
@@ -987,17 +985,10 @@ public final class AnsiConsoleActivity extends ConsoleActivity
                 .setView(v)
                 .setCancelable(true)
                 .show();
+        DialogUtils.wrapLeakageSafe(d, null);
         v.addButton(R.layout.message_log_button,
                 R.drawable.ic_check, R.string.action_close,
                 _v -> d.cancel(), -1);
-        final LifecycleObserver o = new DefaultLifecycleObserver() {
-            @Override
-            public void onDestroy(@NonNull final LifecycleOwner owner) {
-                d.dismiss();
-            }
-        };
-        d.setOnDismissListener(dialog -> getLifecycle().removeObserver(o));
-        getLifecycle().addObserver(o);
     }
 
     public void onMenuHelp(final View view) {

@@ -81,7 +81,7 @@ public abstract class ProfileManagerUi<T> {
                                 @Nullable final String name) {
         if (parent instanceof View) {
             final Context ctx = ((View) parent).getContext();
-            final PopupWindow d = new PopupWindow(ctx);
+            final PopupWindow d = new ExtPopupWindow(ctx);
             d.setBackgroundDrawable(AppCompatResources.getDrawable(ctx,
                     android.R.drawable.dialog_holo_light_frame));
             d.setFocusable(true);
@@ -121,6 +121,7 @@ public abstract class ProfileManagerUi<T> {
             v.setFocusable(false);
             d.setView(v);
             d.show();
+            DialogUtils.wrapLeakageSafe(d, null);
             return d::dismiss;
         }
         throw new IllegalArgumentException(MSG_ILL_PARENT);

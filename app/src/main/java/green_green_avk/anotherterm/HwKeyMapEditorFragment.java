@@ -23,6 +23,7 @@ import java.util.AbstractList;
 import java.util.Arrays;
 import java.util.List;
 
+import green_green_avk.anotherterm.ui.DialogUtils;
 import green_green_avk.anotherterm.ui.HwKeyMap;
 
 public final class HwKeyMapEditorFragment extends Fragment {
@@ -246,5 +247,6 @@ public final class HwKeyMapEditorFragment extends Fragment {
             return true;
         });
         d.show();
+        DialogUtils.wrapLeakageSafe(d, null);
     }
 }

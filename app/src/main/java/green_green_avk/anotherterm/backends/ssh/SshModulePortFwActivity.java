@@ -29,6 +29,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import green_green_avk.anotherterm.R;
+import green_green_avk.anotherterm.ui.DialogUtils;
 import green_green_avk.anotherterm.ui.forms.EditTextValueBinder;
 import green_green_avk.anotherterm.ui.forms.SubmitFormValidator;
 import green_green_avk.anotherterm.ui.forms.ViewValueBinderException;
@@ -346,6 +347,7 @@ public final class SshModulePortFwActivity extends AppCompatActivity {
                     update(res);
                 }).setNegativeButton(android.R.string.cancel, (dialog, which) -> {
                 }).show();
+        DialogUtils.wrapLeakageSafe(d, null);
         inputValidator.setSubmitButton(d.getButton(AlertDialog.BUTTON_POSITIVE));
     }
 }
