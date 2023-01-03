@@ -21,7 +21,7 @@ public class ButtonSpan extends ClickableSpan {
 
     @Override
     public void onClick(@NonNull final View widget) {
-        final Activity ctx = UiUtils.getActivity(widget);
+        final Activity ctx = UiUtils.getActivity(widget.getContext());
         if (ctx == null) {
             Log.e(getClass().getName(), "No underlying activity found");
             return;

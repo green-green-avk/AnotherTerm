@@ -57,7 +57,7 @@ public final class VectorCompat {
         }
 
         /**
-         * A bit different from {@link UiUtils#getActivity(View)}
+         * A bit different from {@link UiUtils#getActivity(Context)}
          * just to preserve original semantics.
          */
         private void resolveMethod(@Nullable Context context) {

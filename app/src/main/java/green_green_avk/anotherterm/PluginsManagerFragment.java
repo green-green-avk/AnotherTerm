@@ -110,7 +110,7 @@ public final class PluginsManagerFragment extends Fragment {
                         isChecked ? null : "revoke"
                 ));
                 try {
-                    UiUtils.requireActivity(v).startActivity(i.setClassName(
+                    UiUtils.requireActivity(v.getContext()).startActivity(i.setClassName(
                             pkg.packageName,
                             "green_green_avk.anothertermshellpluginutils_perms.PermissionRequestActivity"
                     ));

@@ -1,6 +1,7 @@
 package green_green_avk.anotherterm.ui;
 
 import android.app.Activity;
+import android.content.Context;
 import android.view.View;
 import android.view.WindowManager;
 import android.widget.PopupWindow;
@@ -9,6 +10,7 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.lifecycle.DefaultLifecycleObserver;
+import androidx.lifecycle.Lifecycle;
 import androidx.lifecycle.LifecycleObserver;
 import androidx.lifecycle.LifecycleOwner;
 
@@ -37,12 +39,26 @@ public class ExtPopupWindow extends PopupWindow {
             dismiss();
         }
     };
+    private WeakReference<Lifecycle> lifecycleRef = new WeakReference<>(null);
+    protected PopupWindow.OnDismissListener onDismissListenerWrapper = () -> {
+        if (onDismissListener != null)
+            onDismissListener.onDismiss();
+        final Lifecycle lifecycle = lifecycleRef.get();
+        if (lifecycle != null)
+            lifecycle.removeObserver(lifecycleObserver);
+    };
 
     protected final void setOnActivityDestroy(@NonNull final View ref) {
-        final Activity activity = UiUtils.getActivity(ref);
+        final Activity activity = UiUtils.getActivity(ref.getContext());
         if (!(activity instanceof AppCompatActivity))
             throw new IllegalStateException("Underlying activity is not an AppCompatActivity");
-        ((AppCompatActivity) activity).getLifecycle().addObserver(lifecycleObserver);
+        final Lifecycle lifecycle = ((AppCompatActivity) activity).getLifecycle();
+        lifecycleRef = new WeakReference<>(lifecycle);
+        lifecycle.addObserver(lifecycleObserver);
+    }
+
+    public ExtPopupWindow(@NonNull final Context context) {
+        super(context);
     }
 
     public ExtPopupWindow(@Nullable final View contentView,
@@ -103,7 +119,7 @@ public class ExtPopupWindow extends PopupWindow {
                 throw e2;
             }
         }
-        super.setOnDismissListener(onDismissListener);
+        super.setOnDismissListener(onDismissListenerWrapper);
     }
 
     @Override
