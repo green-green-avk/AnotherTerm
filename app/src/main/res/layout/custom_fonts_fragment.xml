@@ -43,6 +43,8 @@
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/font"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content" />
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        app:layoutManager="LinearLayoutManager" />
 
 </LinearLayout>

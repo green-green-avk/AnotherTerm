@@ -41,7 +41,9 @@ public class SshHostKeyRepositoryView extends RecyclerView {
     }
 
     protected void init() {
-        setLayoutManager(new LinearLayoutManager(getContext()));
+        setLayoutManager(new LinearLayoutManager(getContext(),
+                LinearLayoutManager.VERTICAL, false));
+        setVerticalFadingEdgeEnabled(true);
         setAdapter(new Adapter(getContext()));
     }
 

@@ -14,7 +14,6 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.jcraft.jsch.JSchErrorException;
@@ -214,7 +213,6 @@ public final class SshModulePortFwActivity extends AppCompatActivity {
         loadLists();
         setContentView(R.layout.ssh_module_portfw_activity);
         wList = findViewById(R.id.list);
-        wList.setLayoutManager(new LinearLayoutManager(this));
         wList.setAdapter(new Adapter());
         final TextView wX11 = findViewById(R.id.x11HostPort);
         wX11.setVisibility(x11 ? View.VISIBLE : View.GONE);
