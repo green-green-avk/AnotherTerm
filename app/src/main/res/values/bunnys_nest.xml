@@ -1,0 +1,4 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="msg_sharing_with_a_bad_intent">Your explicit <i>intent</i> <b>must</b> be formed rightly, comrade!</string>
+</resources>

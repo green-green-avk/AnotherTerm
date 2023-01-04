@@ -2,7 +2,9 @@ package green_green_avk.anotherterm.utils;
 
 import android.content.Context;
 import android.content.ContextWrapper;
+import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.content.pm.ResolveInfo;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Build;
@@ -432,6 +434,26 @@ public final class Misc {
             final AsyncResult _onResult = onResultRef.get();
             if (_onResult != null) _onResult.onResult(v);
         });
+    }
+
+    /**
+     * Rechecks against intent filters.
+     *
+     * @param ctx    context
+     * @param intent to resolve against filters
+     * @return see {@link android.content.pm.PackageManager#resolveActivity(Intent, int)}
+     */
+    @Nullable
+    public static ResolveInfo resolveActivityAsImplicit(@NonNull final Context ctx,
+                                                        @Nullable final Intent intent) {
+        if (intent == null)
+            return null;
+        return ctx.getPackageManager()
+                .resolveActivity(
+                        intent.cloneFilter()
+                                .setComponent(null).setPackage(ctx.getPackageName()),
+                        PackageManager.MATCH_DEFAULT_ONLY
+                );
     }
 
     @RequiresApi(23)
