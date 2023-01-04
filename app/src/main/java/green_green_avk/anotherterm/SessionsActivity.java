@@ -12,7 +12,6 @@ import androidx.annotation.Keep;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import java.util.Collection;
@@ -49,7 +48,6 @@ public final class SessionsActivity extends AppCompatActivity {
 
     private void prepareFavoritesList() {
         final RecyclerView l = findViewById(R.id.favorites_list);
-        l.setLayoutManager(new LinearLayoutManager(this));
         final FavoritesAdapter a = new FavoritesAdapter();
         l.setAdapter(a);
         a.setOnClickListener(view -> {
@@ -125,7 +123,6 @@ public final class SessionsActivity extends AppCompatActivity {
 
     private void prepareSessionsList() {
         final RecyclerView l = findViewById(R.id.sessions_list);
-        l.setLayoutManager(new LinearLayoutManager(this));
         final SessionsAdapter a = new SessionsAdapter();
         l.setAdapter(a);
         a.setOnClickListener(view -> {

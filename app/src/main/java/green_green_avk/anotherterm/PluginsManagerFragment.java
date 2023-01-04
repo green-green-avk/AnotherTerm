@@ -25,7 +25,6 @@ import android.widget.Toast;
 
 import androidx.annotation.Keep;
 import androidx.annotation.NonNull;
-import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import java.lang.ref.WeakReference;
@@ -233,7 +232,6 @@ public final class PluginsManagerFragment extends Fragment {
         final View v = inflater.inflate(R.layout.plugins_manager_fragment, container,
                 false);
         final RecyclerView l = v.findViewById(R.id.plugins);
-        l.setLayoutManager(new LinearLayoutManager(container.getContext()));
         l.setAdapter(new PluginsAdapter());
         return v;
     }

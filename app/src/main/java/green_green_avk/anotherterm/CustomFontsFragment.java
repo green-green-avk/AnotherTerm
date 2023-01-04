@@ -18,7 +18,6 @@ import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import java.io.File;
@@ -168,7 +167,6 @@ public final class CustomFontsFragment extends Fragment {
         final TextView wLocation = v.findViewById(R.id.location);
         final RecyclerView wFont = v.findViewById(R.id.font);
         final CompoundButton wUse = v.findViewById(R.id.use);
-        wFont.setLayoutManager(new LinearLayoutManager(container.getContext()));
         final Adapter a = new Adapter();
         wFont.setAdapter(a);
         adapter = a;

@@ -15,7 +15,6 @@ import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ShareCompat;
 import androidx.core.content.IntentCompat;
-import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import java.io.ByteArrayInputStream;
@@ -167,7 +166,6 @@ public final class ShareInputActivity extends AppCompatActivity {
 
     private void prepareFavoritesList() {
         final RecyclerView l = findViewById(R.id.favorites_list);
-        l.setLayoutManager(new LinearLayoutManager(this));
         final FavoritesAdapter a = new FavoritesAdapter(true);
         l.setAdapter(a);
         a.setOnClickListener(view -> {

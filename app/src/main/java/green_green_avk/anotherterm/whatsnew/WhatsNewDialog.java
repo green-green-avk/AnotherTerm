@@ -10,7 +10,6 @@ import android.view.ViewGroup;
 import androidx.annotation.NonNull;
 import androidx.annotation.StringRes;
 import androidx.appcompat.app.AlertDialog;
-import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import java.util.Arrays;
@@ -107,7 +106,6 @@ public final class WhatsNewDialog {
     public static void show(@NonNull final Context ctx, final int num) {
         final View v = LayoutInflater.from(ctx).inflate(R.layout.whats_new_dialog, null);
         final RecyclerView list = v.findViewById(R.id.list);
-        list.setLayoutManager(new LinearLayoutManager(ctx));
         list.setAdapter(new Adapter(num));
         DialogUtils.wrapLeakageSafe(new AlertDialog.Builder(ctx).setView(v).setCancelable(false)
                 .setPositiveButton(android.R.string.ok,
