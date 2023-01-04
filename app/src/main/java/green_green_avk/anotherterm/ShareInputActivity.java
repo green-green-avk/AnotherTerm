@@ -218,7 +218,9 @@ public final class ShareInputActivity extends AppCompatActivity {
     @Override
     protected void onCreate(@Nullable final Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        if (getIntent() == null || getIntent().getAction() == null) {
+        if (Misc.resolveActivityAsImplicit(this, getIntent()) == null) {
+            Toast.makeText(this, R.string.msg_sharing_with_a_bad_intent,
+                    Toast.LENGTH_LONG).show();
             finish();
             return;
         }
@@ -230,8 +232,12 @@ public final class ShareInputActivity extends AppCompatActivity {
 
     @Override
     protected void onDestroy() {
-        this.<RecyclerView>findViewById(R.id.favorites_list)
-                .getAdapter().unregisterAdapterDataObserver(observer);
+        final RecyclerView list = findViewById(R.id.favorites_list);
+        if (list != null) {
+            final RecyclerView.Adapter<?> adapter = list.getAdapter();
+            if (adapter != null)
+                adapter.unregisterAdapterDataObserver(observer);
+        }
         super.onDestroy();
     }
 
