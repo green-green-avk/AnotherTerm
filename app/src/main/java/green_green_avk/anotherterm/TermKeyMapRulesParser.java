@@ -20,24 +20,28 @@ public final class TermKeyMapRulesParser {
 
         @NonNull
         private final Map<String, Object> map;
-        private final Map<Integer, Object> fastMap = new HashMap<>();
+        private final transient Map<Integer, Object> fastMap = new HashMap<>();
 
-        private RulesFromSP(@NonNull final Map<String, ?> map) {
-            if (!map.containsKey("V")) {
-                this.map = new HashMap<>();
-                for (final Map.Entry<String, Object> me : ((Map<String, Object>) map).entrySet()) {
-                    putEntry_v1(me.getKey(), me.getValue());
-                }
-                this.map.put("V", "2");
-                return;
-            }
-            for (final Map.Entry<String, Object> me : ((Map<String, Object>) map).entrySet()) {
+        private void syncFastMap() {
+            for (final Map.Entry<String, Object> me : map.entrySet()) {
                 try {
                     this.fastMap.put(Integer.parseInt(me.getKey(), 16), me.getValue());
                 } catch (final NumberFormatException ignored) {
                 }
             }
-            this.map = (Map<String, Object>) map;
+        }
+
+        private RulesFromSP(@NonNull final Map<String, Object> map) {
+            if (!map.containsKey("V")) {
+                this.map = new HashMap<>();
+                for (final Map.Entry<String, Object> me : map.entrySet()) {
+                    putEntry_v1(me.getKey(), me.getValue());
+                }
+                this.map.put("V", "2");
+                return;
+            }
+            this.map = map;
+            syncFastMap();
         }
 
         private void putEntry_v1(@NonNull final String key, final Object value) {
@@ -168,6 +172,12 @@ public final class TermKeyMapRulesParser {
             }
             return b.build();
         }
+
+        private void readObject(@NonNull final java.io.ObjectInputStream in)
+                throws java.io.IOException, ClassNotFoundException {
+            in.defaultReadObject();
+            syncFastMap();
+        }
     }
 
     @NonNull
@@ -176,12 +186,12 @@ public final class TermKeyMapRulesParser {
     }
 
     @NonNull
-    public static TermKeyMapRules.Editable fromSP(@NonNull final Map<String, ?> vv) {
+    public static TermKeyMapRules.Editable fromSP(@NonNull final Map<String, Object> vv) {
         return new RulesFromSP(vv);
     }
 
     @NonNull
-    public static Map<String, ?> toSP(@NonNull final TermKeyMapRules rules) {
+    public static Map<String, Object> toSP(@NonNull final TermKeyMapRules rules) {
         if (rules instanceof RulesFromSP) return ((RulesFromSP) rules).map;
         throw new IllegalArgumentException("Key mapping rules cannot be saved");
     }
