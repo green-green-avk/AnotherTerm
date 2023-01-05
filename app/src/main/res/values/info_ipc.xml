@@ -4,16 +4,16 @@
         <h1>Start a session by an intent</h1>
         <p>Android has no means to determine the intent source
         (the Android own permission model is not flexible enough to pair arbitrary applications)
-        and the automation software like Tasker
+        and the automation software like <b>Automate</b>
         do not usually provide any simple means to bind to a service
         (in which case an application credentials check is possible).
-        So, the \"token\" field has been added to the favorite parameters
+        So, the <i>\"token\"</i> field has been added to the favorite parameters
         to mitigate this situation. This field stores a unique ID
         that acts as a passphrase to start a session.</p>
         <p>A script is being executed inside the session
         is supposed to control the number of running session instances.</p>
-        <p>To start a session (from Tasker, for example) use:</p>
-        <p><b>Intent target:</b> <i>service</i></p>
+        <p>To start a session (from <b>Automate</b>, for example) use:</p>
+        <p><b>Intent target:</b> <i>service (start in foreground)</i></p>
         <p>
         <b>Package (application ID):</b>
         <clipboard>${applicationId}</clipboard>
@@ -33,12 +33,12 @@
         <p>
         <b>Extra:</b>
         <clipboard>green_green_avk.anotherterm.intent.extra.FAV_TOKEN</clipboard><br/>
-        The value should be a <i>String</i> from the \"token\" field from
+        The value should be a <i>String</i> from the <i>\"token\"</i> field from
         the desired favorite settings.
         </p>
         <p>All <i>String</i> <b>extras</b> will be passed to the environment variables named
         with the <b>extras</b> names converted as
-        <code>.toUpperCase(Locale.ROOT).replaceAll(\"[^A-Z0-9_]\", \"_\")</code>
+        <code>String.toUpperCase(Locale.ROOT).replaceAll(\"[^A-Z0-9_]\", \"_\")</code>
         and prefixed by <code>INPUT_</code>. <code>…FAV_TOKEN</code> value will be hidden.</p>
     ]]></string>
 </resources>
