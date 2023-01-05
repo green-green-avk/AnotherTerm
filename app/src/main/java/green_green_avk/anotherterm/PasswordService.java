@@ -22,7 +22,7 @@ import green_green_avk.anotherterm.utils.Misc;
 import green_green_avk.anotherterm.utils.Password;
 
 public final class PasswordService extends Service {
-    private static final int FG_ID = 2;
+    private static final int FG_ID = 3;
 
     private static PasswordService instance = null;
 

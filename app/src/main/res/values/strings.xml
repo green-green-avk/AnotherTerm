@@ -91,6 +91,7 @@
     <string name="number_expected">Number expected</string>
     <string name="field_must_not_be_empty">Must not be empty</string>
     <string name="there_are_active_terminals">There are active terminals</string>
+    <string name="there_are_active_session_startups">Trying to start a session by an intent…</string>
     <string name="there_are_in_memory_stored_passwords">There are in-memory stored passwords</string>
     <string name="action_clone">Clone</string>
     <string name="action_terminate">Terminate</string>

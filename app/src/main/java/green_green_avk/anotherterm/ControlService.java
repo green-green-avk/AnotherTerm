@@ -1,20 +1,28 @@
 package green_green_avk.anotherterm;
 
+import android.app.Notification;
+import android.app.PendingIntent;
 import android.app.Service;
+import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.os.IBinder;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.core.app.NotificationCompat;
+import androidx.core.app.TaskStackBuilder;
 
 import java.util.Locale;
 
 import green_green_avk.anotherterm.backends.BackendException;
 import green_green_avk.anotherterm.backends.BackendsList;
+import green_green_avk.anotherterm.utils.ForegroundServices;
 import green_green_avk.anotherterm.utils.PreferenceStorage;
 
 public final class ControlService extends Service {
+    private static final int FG_ID = 2;
+
     /**
      * Start session request.
      */
@@ -67,8 +75,33 @@ public final class ControlService extends Service {
         }
     }
 
+    /**
+     * This service is extremely short-living.
+     * It implements the trampoline logic to start a terminal session.
+     */
+    private void tryFg() {
+        final Context appCtx = getApplicationContext();
+        final TaskStackBuilder tsb = TaskStackBuilder.create(appCtx)
+                .addNextIntentWithParentStack(new Intent(appCtx,
+                        SessionsActivity.class)
+                        .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK));
+        final Notification n = new NotificationCompat.Builder(appCtx,
+                ForegroundServices.getAppNotificationChannelId(appCtx))
+                .setContentTitle(getString(R.string.there_are_active_session_startups))
+                .setSmallIcon(R.drawable.ic_stat_serv)
+                .setPriority(NotificationCompat.PRIORITY_LOW)
+                .setContentIntent(tsb.getPendingIntent(0,
+                        PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_IMMUTABLE))
+                .build();
+        try {
+            startForeground(FG_ID, n);
+        } catch (final Exception e) {
+        }
+    }
+
     @Override
     public int onStartCommand(final Intent intent, final int flags, final int startId) {
+        tryFg();
         if (intent != null && ACTION_START_SESSION.equals(intent.getAction()))
             startSession(intent);
         stopSelf(startId);
