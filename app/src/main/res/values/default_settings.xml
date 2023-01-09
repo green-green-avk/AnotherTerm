@@ -4,7 +4,7 @@
     <bool name="terminal_font_default_fromfiles">false</bool>
     <integer name="terminal_font_default_size_sp">8</integer><!-- [sp] -->
     <integer name="terminal_selection_pad_size_dp">256</integer><!-- [dp] -->
-    <integer name="terminal_popup_opacity">25</integer><!-- [%] -->
+    <integer name="terminal_popup_opacity">50</integer><!-- [%] -->
     <integer name="terminal_key_height_dp">32</integer><!-- [dp] -->
     <bool name="terminal_key_repeat">true</bool>
     <integer name="terminal_key_repeat_delay">1000</integer><!-- [ms] -->
