@@ -18,14 +18,6 @@ android {
         targetCompatibility JavaVersion.VERSION_1_8
     }
 
-    // TODO: Find some library side approach...
-    // * Gradle + AGP looks crappy when used in even a bit irregular way...
-    // https://stackoverflow.com/questions/44731997/android-gradle-packagingoptions-pickfirst-and-exclude-not-working
-    packagingOptions {
-        exclude 'org/bouncycastle/pqc/**'
-        exclude 'org/bouncycastle/x509/**'
-    }
-
     defaultConfig {
         applicationId namespace
         minSdk 14
@@ -63,6 +55,15 @@ android {
         variant.resValue 'string', 'applicationId', variant.applicationId
         variant.buildConfigField 'int', 'TARGET_SDK_VERSION',
                 "${variant.mergedFlavor.targetSdkVersion.apiLevel}"
+    }
+
+    // TODO: Find some library side approach...
+    // * Gradle + AGP looks crappy when used in even a bit irregular way...
+    // https://stackoverflow.com/questions/44731997/android-gradle-packagingoptions-pickfirst-and-exclude-not-working
+    packagingOptions {
+        resources {
+            excludes += ['org/bouncycastle/pqc/**', 'org/bouncycastle/x509/**']
+        }
     }
 
     buildTypes {
