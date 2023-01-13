@@ -312,6 +312,7 @@ public final class TermKeyMapEditorActivity extends AppCompatActivity {
 
     private void save(@NonNull final String name) {
         TermKeyMapManager.instance.set(name, keyMap);
+        setNeedSave(false);
         Toast.makeText(this, R.string.msg_saved, Toast.LENGTH_SHORT).show();
     }
 
@@ -340,14 +341,9 @@ public final class TermKeyMapEditorActivity extends AppCompatActivity {
                     Toast.LENGTH_SHORT).show();
         } else {
             if (TermKeyMapManager.instance.containsCustom(name)) {
-                UiUtils.confirm(this, getString(R.string.prompt_overwrite),
-                        () -> {
-                            save(name);
-                            setNeedSave(false);
-                        });
+                UiUtils.confirm(this, getString(R.string.prompt_overwrite), () -> save(name));
             } else {
                 save(name);
-                setNeedSave(false);
             }
         }
     }
