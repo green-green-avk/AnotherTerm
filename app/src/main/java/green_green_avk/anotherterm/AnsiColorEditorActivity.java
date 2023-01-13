@@ -56,7 +56,8 @@ public final class AnsiColorEditorActivity extends AppCompatActivity {
         setNeedSave(isNew || !originalColorMap.dataEquals(colorMap));
     }
 
-    ParameterViewBinder binder = new ParameterViewBinder(this::updateNeedSave);
+    private final ParameterViewBinder binder =
+            new ParameterViewBinder(this::updateNeedSave);
 
     private void bind(@NonNull final ColorPickerPopupView view,
                       @NonNull final ValueProvider<Integer> provider,
@@ -204,10 +205,7 @@ public final class AnsiColorEditorActivity extends AppCompatActivity {
                     Toast.LENGTH_SHORT).show();
         } else {
             if (manager.containsCustom(name)) {
-                UiUtils.confirm(this, getString(R.string.prompt_overwrite),
-                        () -> {
-                            save(name);
-                        });
+                UiUtils.confirm(this, getString(R.string.prompt_overwrite), () -> save(name));
             } else {
                 save(name);
             }
