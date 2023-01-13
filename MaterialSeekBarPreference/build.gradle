@@ -5,7 +5,7 @@ plugins {
 android {
     namespace 'com.pavelsikun.seekbarpreference'
 
-    compileSdk 31
+    compileSdk 33
 
     defaultConfig {
         minSdk 14
@@ -19,9 +19,7 @@ android {
 }
 
 dependencies {
-    implementation('androidx.appcompat:appcompat:1.4.2') {
-        because 'Unable to use 1.5.x: the problem is similar to https://stackoverflow.com/questions/69817925/problem-duplicate-class-androidx-lifecycle-viewmodel-found-in-modules'
-    }
+    implementation 'androidx.appcompat:appcompat:1.6.0'
     implementation 'androidx.preference:preference:1.2.0'
 }
 

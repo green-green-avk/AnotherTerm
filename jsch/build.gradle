@@ -9,7 +9,7 @@ ext {
 android {
     namespace 'com.jcraft.jsch'
 
-    compileSdk 31
+    compileSdk 33
 
     defaultConfig {
         minSdk 14
