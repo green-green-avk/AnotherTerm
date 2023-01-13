@@ -109,7 +109,6 @@ public final class AnsiColorEditorActivity extends AppCompatActivity {
             isNew = savedInstanceState.getBoolean(IS_NEW_KEY, isNew);
             originalColorMap = (AnsiColorProfile.Editable) savedInstanceState.get(ORIG_DATA_KEY);
             colorMap = (AnsiColorProfile.Editable) savedInstanceState.get(DATA_KEY);
-            updateNeedSave();
         } else {
             if (getIntent().getData() != null) {
                 isNew = true;
@@ -128,6 +127,7 @@ public final class AnsiColorEditorActivity extends AppCompatActivity {
             }
             colorMap = originalColorMap.clone();
         }
+        updateNeedSave();
 
         setName(name);
 
@@ -174,6 +174,7 @@ public final class AnsiColorEditorActivity extends AppCompatActivity {
     private void save(@NonNull final String name) {
         manager.set(name, colorMap);
         originalColorMap.set(colorMap);
+        isNew = false;
         updateNeedSave();
         Toast.makeText(this, R.string.msg_saved, Toast.LENGTH_SHORT).show();
     }
