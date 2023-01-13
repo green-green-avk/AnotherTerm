@@ -10,7 +10,7 @@ ext {
 android {
     namespace 'green_green_avk.anotherterm'
 
-    compileSdk 31
+    compileSdk 33
     ndkVersion '21.4.7075529'
 
     compileOptions {
@@ -135,9 +135,7 @@ android {
 }
 
 dependencies {
-    implementation('androidx.appcompat:appcompat:1.4.2') {
-        because 'Unable to use 1.5.x: the problem is similar to https://stackoverflow.com/questions/69817925/problem-duplicate-class-androidx-lifecycle-viewmodel-found-in-modules'
-    }
+    implementation 'androidx.appcompat:appcompat:1.6.0'
     implementation 'androidx.vectordrawable:vectordrawable:1.1.0'
     implementation 'me.saket:better-link-movement-method:2.2.0'
     implementation 'androidx.preference:preference:1.2.0'
@@ -148,9 +146,9 @@ dependencies {
     implementation project(path: ':MaterialSeekBarPreference')
 
     implementation 'commons-io:commons-io:2.11.0'
-    implementation 'org.apache.commons:commons-text:1.9'
+    implementation 'org.apache.commons:commons-text:1.10.0'
     implementation 'org.apache.commons:commons-collections4:4.4'
-    implementation 'org.apache.httpcomponents:httpcore:4.4.15'
+    implementation 'org.apache.httpcomponents:httpcore:4.4.16'
 
     implementation project(path: ':PtyProcess')
     implementation 'com.github.felHR85:UsbSerial:6.1.0'

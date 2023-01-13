@@ -5,7 +5,7 @@ plugins {
 android {
     namespace 'green_green_avk.telnetclient'
 
-    compileSdk 31
+    compileSdk 33
 
     defaultConfig {
         minSdk 14
