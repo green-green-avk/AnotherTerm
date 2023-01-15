@@ -5,6 +5,7 @@ import android.content.res.TypedArray;
 import android.graphics.Color;
 import android.os.Build;
 import android.util.AttributeSet;
+import android.view.InflateException;
 import android.widget.FrameLayout;
 
 import androidx.annotation.ColorInt;
@@ -12,6 +13,7 @@ import androidx.annotation.LayoutRes;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
+import androidx.core.content.res.ResourcesCompat;
 
 import java.util.LinkedList;
 import java.util.List;
@@ -23,7 +25,7 @@ public final class ColorPickerView extends FrameLayout
     @ColorInt
     private int color = Color.WHITE;
     @LayoutRes
-    private int layout = R.layout.ccp_color_picker_view_vertical;
+    private int layout = ResourcesCompat.ID_NULL;
     private boolean hasAlpha = true;
 
     public interface OnValueChanged {
@@ -60,6 +62,8 @@ public final class ColorPickerView extends FrameLayout
                 defStyleAttr, defStyleRes);
         try {
             layout = a.getResourceId(R.styleable.ColorPickerView_layout, layout);
+            if (layout == ResourcesCompat.ID_NULL)
+                throw new InflateException("`layout' attribute is missing");
             hasAlpha = a.getBoolean(R.styleable.ColorPickerView_hasAlpha, hasAlpha);
         } finally {
             a.recycle();
