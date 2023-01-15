@@ -247,6 +247,6 @@ public final class HwKeyMapEditorFragment extends Fragment {
             return true;
         });
         d.show();
-        DialogUtils.wrapLeakageSafe(d, null);
+        DialogUtils.wrapLeakageSafe(view, d, null);
     }
 }
