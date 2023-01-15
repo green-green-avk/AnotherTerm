@@ -31,7 +31,6 @@ import android.graphics.drawable.Drawable;
 import android.inputmethodservice.Keyboard;
 import android.os.Build;
 import android.util.DisplayMetrics;
-import android.util.Log;
 import android.util.SparseArray;
 import android.util.TypedValue;
 import android.util.Xml;
@@ -177,7 +176,7 @@ public class ExtKeyboard {
             this.parent = parent;
         }
 
-        public Row(@NonNull final Resources res, final @NonNull ExtKeyboard parent,
+        public Row(@NonNull final Resources res, @NonNull final ExtKeyboard parent,
                    @NonNull final XmlResourceParser parser) {
             this.parent = parent;
             TypedArray a = res.obtainAttributes(Xml.asAttributeSet(parser),
@@ -287,7 +286,7 @@ public class ExtKeyboard {
 
         public boolean showBothLabels = false;
 
-        private final static int[][] KEY_DRAW_STATES = {
+        private static final int[][] KEY_DRAW_STATES = {
                 {},
                 {android.R.attr.state_pressed},
                 {android.R.attr.state_checked},
@@ -707,7 +706,7 @@ public class ExtKeyboard {
         row.rowEdgeFlags = EDGE_TOP | EDGE_BOTTOM;
         final int maxColumns = columns == -1 ? Integer.MAX_VALUE : columns;
         for (int i = 0; i < characters.length(); i++) {
-            char c = characters.charAt(i);
+            final char c = characters.charAt(i);
             if (column >= maxColumns
                     || x + mDefaultWidth + horizontalPadding > mDisplayWidth) {
                 x = 0;
@@ -751,7 +750,7 @@ public class ExtKeyboard {
             }
             if (totalGap + totalWidth > newWidth) {
                 int x = 0;
-                float scaleFactor = (float) (newWidth - totalGap) / totalWidth;
+                final float scaleFactor = (float) (newWidth - totalGap) / totalWidth;
                 for (int keyIndex = 0; keyIndex < numKeys; ++keyIndex) {
                     final Key key = row.mKeys.get(keyIndex);
                     key.width *= scaleFactor;
@@ -921,31 +920,38 @@ public class ExtKeyboard {
             int event;
             while ((event = parser.next()) != XmlResourceParser.END_DOCUMENT) {
                 if (event == XmlResourceParser.START_TAG) {
-                    String tag = parser.getName();
-                    if (TAG_ROW.equals(tag)) {
-                        inRow = true;
-                        x = 0;
-                        currentRow = createRowFromXml(res, parser);
-                        rows.add(currentRow);
-                        if (currentRow.mode != 0 &&
-                                currentRow.mode != mConfiguration.keyboardMode) {
-                            skipToEndOfRow(parser);
-                            inRow = false;
-                        }
-                    } else if (TAG_KEY.equals(tag)) {
-                        if (!inRow) throw new XmlPullParserException("A <Key> is not in a <Row>");
-                        inKey = true;
-                        key = createKeyFromXml(res, currentRow, x, y, parser);
-                    } else if (TAG_ALT.equals(tag)) {
-                        if (!inKey) throw new XmlPullParserException("An <Alt> is not in a <Key>");
-                        if (key.type == Key.LED)
-                            throw new InflateException("Alt functions of LED");
-                        inAlt = true;
-                        key.addFunctionFromXml(res, parser);
-                    } else if (TAG_KEYBOARD.equals(tag)) {
-                        parseKeyboardAttributes(res, parser);
-                    } else {
-                        throw new XmlPullParserException("Unexpected tag <" + tag + ">");
+                    final String tag = parser.getName();
+                    switch (tag) {
+                        case TAG_ROW:
+                            inRow = true;
+                            x = 0;
+                            currentRow = createRowFromXml(res, parser);
+                            rows.add(currentRow);
+                            if (currentRow.mode != 0 &&
+                                    currentRow.mode != mConfiguration.keyboardMode) {
+                                skipToEndOfRow(parser);
+                                inRow = false;
+                            }
+                            break;
+                        case TAG_KEY:
+                            if (!inRow)
+                                throw new XmlPullParserException("A <Key> is not in a <Row>");
+                            inKey = true;
+                            key = createKeyFromXml(res, currentRow, x, y, parser);
+                            break;
+                        case TAG_ALT:
+                            if (!inKey)
+                                throw new XmlPullParserException("An <Alt> is not in a <Key>");
+                            if (key.type == Key.LED)
+                                throw new InflateException("Alt functions of LED");
+                            inAlt = true;
+                            key.addFunctionFromXml(res, parser);
+                            break;
+                        case TAG_KEYBOARD:
+                            parseKeyboardAttributes(res, parser);
+                            break;
+                        default:
+                            throw new XmlPullParserException("Unexpected tag <" + tag + ">");
                     }
                 } else if (event == XmlResourceParser.END_TAG) {
                     if (inAlt) {
@@ -967,8 +973,7 @@ public class ExtKeyboard {
                 }
             }
         } catch (final Exception e) {
-            Log.e(TAG, "Parse error:" + e);
-            e.printStackTrace();
+            throw new InflateException(e);
         }
         mTotalHeight = y - mDefaultVerticalGap;
     }
