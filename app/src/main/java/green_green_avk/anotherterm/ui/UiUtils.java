@@ -80,7 +80,8 @@ public final class UiUtils {
 
     @NonNull
     public static String brief(@NonNull final Context ctx, @NonNull final String v, final int n) {
-        return v.length() < n ? v : ctx.getString(R.string.msg_s___, v.substring(0, n));
+        return v.length() < n ? v :
+                ctx.getString(R.string.msg_s___, v.substring(0, n));
     }
 
     @NonNull
@@ -92,17 +93,20 @@ public final class UiUtils {
 
     public static void toScratchpad(@NonNull final Context ctx, @Nullable final String v) {
         if (v == null) {
-            Toast.makeText(ctx, R.string.msg_nothing_to_save, Toast.LENGTH_SHORT).show();
+            Toast.makeText(ctx, R.string.msg_nothing_to_save,
+                    Toast.LENGTH_SHORT).show();
             return;
         }
         try {
             _toScratchpad(ctx, v);
         } catch (final IOException e) {
             Toast.makeText(ctx,
-                    ctx.getString(R.string.msg_scratchpad_malfunction_s, e.getLocalizedMessage()),
+                    ctx.getString(R.string.msg_scratchpad_malfunction_s,
+                            e.getLocalizedMessage()),
                     Toast.LENGTH_SHORT).show();
         }
-        Toast.makeText(ctx, R.string.msg_saved_to_scratchpad, Toast.LENGTH_SHORT).show();
+        Toast.makeText(ctx, R.string.msg_saved_to_scratchpad,
+                Toast.LENGTH_SHORT).show();
     }
 
     /**
@@ -121,20 +125,24 @@ public final class UiUtils {
      */
     public static void share(@NonNull final Activity ctx, @NonNull final Uri uri) {
         final String type = ctx.getContentResolver().getType(uri);
-        ShareCompat.IntentBuilder.from(ctx).setType(type != null ? type : "text/plain")
-                .setStream(uri).startChooser();
+        ShareCompat.IntentBuilder.from(ctx)
+                .setType(type != null ? type : "text/plain").setStream(uri).startChooser();
     }
 
     @NonNull
     private static ClipData.Item firstItemFromClipboard(@NonNull final Context ctx) {
-        final ClipboardManager clipboard = (ClipboardManager) ctx.getSystemService(Context.CLIPBOARD_SERVICE);
-        if (clipboard == null) throw new IllegalStateException("Can't get ClipboardManager");
-        if (!clipboard.hasPrimaryClip()) throw new IllegalStateException("Clipboard is empty");
+        final ClipboardManager clipboard =
+                (ClipboardManager) ctx.getSystemService(Context.CLIPBOARD_SERVICE);
+        if (clipboard == null)
+            throw new IllegalStateException("Can't get ClipboardManager");
+        if (!clipboard.hasPrimaryClip())
+            throw new IllegalStateException("Clipboard is empty");
         final ClipData clipData = clipboard.getPrimaryClip();
         if (clipData == null || clipData.getItemCount() < 1)
             throw new IllegalStateException("Clipboard is empty");
         final ClipData.Item clipItem = clipData.getItemAt(0);
-        if (clipItem == null) throw new IllegalStateException("Clipboard is empty");
+        if (clipItem == null)
+            throw new IllegalStateException("Clipboard is empty");
         return clipItem;
     }
 
@@ -142,7 +150,8 @@ public final class UiUtils {
     public static Uri uriFromClipboard(@NonNull final Context ctx) {
         final ClipData.Item clipItem = firstItemFromClipboard(ctx);
         Uri uri = clipItem.getUri();
-        if (uri == null) uri = Uri.parse(clipItem.coerceToText(ctx).toString());
+        if (uri == null)
+            uri = Uri.parse(clipItem.coerceToText(ctx).toString());
         return uri;
     }
 
@@ -154,16 +163,20 @@ public final class UiUtils {
 
     public static void uriToClipboard(@NonNull final Context ctx, @NonNull final Uri uri,
                                       @NonNull final String title) {
-        final ClipboardManager clipboard = (ClipboardManager) ctx.getSystemService(Context.CLIPBOARD_SERVICE);
-        if (clipboard == null) throw new IllegalStateException("Can't get ClipboardManager");
+        final ClipboardManager clipboard =
+                (ClipboardManager) ctx.getSystemService(Context.CLIPBOARD_SERVICE);
+        if (clipboard == null)
+            throw new IllegalStateException("Can't get ClipboardManager");
         try {
             clipboard.setPrimaryClip(new ClipData(title,
-                    new String[]{ClipDescription.MIMETYPE_TEXT_PLAIN, ClipDescription.MIMETYPE_TEXT_URILIST},
+                    new String[]{ClipDescription.MIMETYPE_TEXT_PLAIN,
+                            ClipDescription.MIMETYPE_TEXT_URILIST},
                     new ClipData.Item(uri.toString(), null, uri)));
         } catch (final Throwable e) {
             if (e instanceof AndroidException || e.getCause() instanceof AndroidException) {
                 // TODO: workaround
-                Toast.makeText(ctx, R.string.msg_too_large_to_copy_to_clipboard, Toast.LENGTH_SHORT).show();
+                Toast.makeText(ctx, R.string.msg_too_large_to_copy_to_clipboard,
+                        Toast.LENGTH_SHORT).show();
                 return;
             }
             throw e;
@@ -172,13 +185,16 @@ public final class UiUtils {
 
     public static void toClipboard(@NonNull final Context ctx, @NonNull final Uri uri,
                                    @NonNull final String title) {
-        final ClipboardManager clipboard = (ClipboardManager) ctx.getSystemService(Context.CLIPBOARD_SERVICE);
-        if (clipboard == null) throw new IllegalStateException("Can't get ClipboardManager");
+        final ClipboardManager clipboard =
+                (ClipboardManager) ctx.getSystemService(Context.CLIPBOARD_SERVICE);
+        if (clipboard == null)
+            throw new IllegalStateException("Can't get ClipboardManager");
         final String type = ctx.getContentResolver().getType(uri);
         clipboard.setPrimaryClip(new ClipData(title,
                 new String[]{type != null ? type : "text/plain"},
                 new ClipData.Item(uri)));
-        Toast.makeText(ctx, R.string.msg_copied_to_clipboard, Toast.LENGTH_SHORT).show();
+        Toast.makeText(ctx, R.string.msg_copied_to_clipboard,
+                Toast.LENGTH_SHORT).show();
     }
 
     private static boolean canMarshall(@NonNull final Context ctx, @NonNull final String v) {
@@ -187,50 +203,59 @@ public final class UiUtils {
         return limit >= max || v.length() / 512 < limit; // [KiB]
     }
 
-    private static void toClipboard_wa(@NonNull final Context ctx, @NonNull final String v,
-                                       @NonNull final String title) {
+    private static void toClipboardViaScratchpad(@NonNull final Context ctx,
+                                                 @NonNull final String v,
+                                                 @NonNull final String title) {
         try {
             toClipboard(ctx, _toScratchpad(ctx, v), title);
-            Toast.makeText(ctx, R.string.msg_via_scratchpad, Toast.LENGTH_SHORT).show();
+            Toast.makeText(ctx, R.string.msg_via_scratchpad,
+                    Toast.LENGTH_SHORT).show();
         } catch (final IOException e) {
             Toast.makeText(ctx,
-                    ctx.getString(R.string.msg_scratchpad_malfunction_s, e.getLocalizedMessage()),
+                    ctx.getString(R.string.msg_scratchpad_malfunction_s,
+                            e.getLocalizedMessage()),
                     Toast.LENGTH_SHORT).show();
         }
     }
 
     public static void toClipboard(@NonNull final Context ctx, @Nullable final String v) {
-        final ClipboardManager clipboard =
-                (ClipboardManager) ctx.getSystemService(Context.CLIPBOARD_SERVICE);
-        if (clipboard == null) return;
         if (v == null) {
-            Toast.makeText(ctx, R.string.msg_nothing_to_copy_to_clipboard, Toast.LENGTH_SHORT).show();
+            Toast.makeText(ctx, R.string.msg_nothing_to_copy_to_clipboard,
+                    Toast.LENGTH_SHORT).show();
             return;
         }
+        final ClipboardManager clipboard =
+                (ClipboardManager) ctx.getSystemService(Context.CLIPBOARD_SERVICE);
+        if (clipboard == null)
+            return;
         final String title = brief(ctx, v, 16);
         if (!canMarshall(ctx, v)) {
-            toClipboard_wa(ctx, v, title);
+            toClipboardViaScratchpad(ctx, v, title);
             return;
         }
         try {
             clipboard.setPrimaryClip(ClipData.newPlainText(title, v));
         } catch (final Throwable e) {
             if (e instanceof AndroidException || e.getCause() instanceof AndroidException) {
-                toClipboard_wa(ctx, v, title);
+                toClipboardViaScratchpad(ctx, v, title);
                 return;
             }
             throw e;
         }
-        Toast.makeText(ctx, R.string.msg_copied_to_clipboard, Toast.LENGTH_SHORT).show();
+        Toast.makeText(ctx, R.string.msg_copied_to_clipboard,
+                Toast.LENGTH_SHORT).show();
     }
 
-    private static void sharePlainText_wa(@NonNull final Activity ctx, @NonNull final String v) {
+    private static void sharePlainTextViaScratchpad(@NonNull final Activity ctx,
+                                                    @NonNull final String v) {
         try {
             share(ctx, _toScratchpad(ctx, v));
-            Toast.makeText(ctx, R.string.msg_via_scratchpad, Toast.LENGTH_SHORT).show();
+            Toast.makeText(ctx, R.string.msg_via_scratchpad,
+                    Toast.LENGTH_SHORT).show();
         } catch (final IOException e) {
             Toast.makeText(ctx,
-                    ctx.getString(R.string.msg_scratchpad_malfunction_s, e.getLocalizedMessage()),
+                    ctx.getString(R.string.msg_scratchpad_malfunction_s,
+                            e.getLocalizedMessage()),
                     Toast.LENGTH_SHORT).show();
         }
     }
@@ -241,14 +266,15 @@ public final class UiUtils {
             return;
         }
         if (!canMarshall(ctx, v)) {
-            sharePlainText_wa(ctx, v);
+            sharePlainTextViaScratchpad(ctx, v);
             return;
         }
         try {
-            ShareCompat.IntentBuilder.from(ctx).setType("text/plain").setText(v).startChooser();
+            ShareCompat.IntentBuilder.from(ctx)
+                    .setType("text/plain").setText(v).startChooser();
         } catch (final Throwable e) {
             if (e instanceof AndroidException || e.getCause() instanceof AndroidException) {
-                sharePlainText_wa(ctx, v);
+                sharePlainTextViaScratchpad(ctx, v);
                 return;
             }
             throw e;
@@ -291,7 +317,8 @@ public final class UiUtils {
 
             @Override
             public View next() {
-                if (v == null) throw new NoSuchElementException();
+                if (v == null)
+                    throw new NoSuchElementException();
                 final View r = v;
                 if (v instanceof ViewGroup) {
                     v = ((ViewGroup) v).getChildAt(0);
@@ -319,11 +346,13 @@ public final class UiUtils {
     }
 
     public static void enableAnimation(@NonNull final View root) {
-        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.JELLY_BEAN) return;
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.JELLY_BEAN)
+            return;
         if (root instanceof ViewGroup) {
             final LayoutTransition lt = ((ViewGroup) root).getLayoutTransition();
-            if (lt != null)
+            if (lt != null) {
                 lt.enableTransitionType(LayoutTransition.CHANGING);
+            }
             for (int i = 0; i < ((ViewGroup) root).getChildCount(); ++i) {
                 final View v = ((ViewGroup) root).getChildAt(i);
                 enableAnimation(v);
@@ -364,8 +393,7 @@ public final class UiUtils {
         final Context ctx = view.getContext();
         final Resources rr = ctx.getResources();
         final int radius = rr.getDimensionPixelSize(R.dimen.uiConfirmationPopupRadius);
-        final ConfirmationPopupViewWrapper wrapper =
-                new ConfirmationPopupViewWrapper(view);
+        final ConfirmationPopupViewWrapper wrapper = new ConfirmationPopupViewWrapper(view);
         wrapper.setPopupRadius(radius);
         wrapper.setPointerBackgroundDrawable(requireDrawable(ctx,
                 R.drawable.bg_confirm_circle));

@@ -87,7 +87,7 @@ public abstract class BackendModule {
         }
 
         @NonNull
-        public Map<String, ?> getDefaultParameters() {
+        public Map<String, Object> getDefaultParameters() {
             return Collections.emptyMap();
         }
 
@@ -202,9 +202,9 @@ public abstract class BackendModule {
         }
 
         @NonNull
-        public Map<String, ?> fromUri(@NonNull final Uri uri) {
+        public Map<String, Object> fromUri(@NonNull final Uri uri) {
             if (uri.isOpaque()) throw new ParametersUriParseException();
-            final Map<String, String> params = new HashMap<>();
+            final Map<String, Object> params = new HashMap<>();
             for (final String k : uri.getQueryParameterNames()) {
                 // TODO: '+' decoding issue before Jelly Bean
                 if (!k.isEmpty() && k.charAt(0) != '!') // Private parameters: no spoofing

@@ -147,7 +147,7 @@ public final class BackendsList {
     }
 
     @NonNull
-    public static Map<String, ?> getDefaultParameters(final String type) {
+    public static Map<String, Object> getDefaultParameters(final String type) {
         final int id = getId(type);
         return get(id).meta.getDefaultParameters();
     }
@@ -168,12 +168,12 @@ public final class BackendsList {
     }
 
     @NonNull
-    public static Map<String, ?> fromUri(@NonNull final Uri uri) {
+    public static Map<String, Object> fromUri(@NonNull final Uri uri) {
         final String scheme = uri.getScheme();
         if (scheme == null) throw new BackendModule.ParametersUriParseException();
         final int id = getIdByScheme(scheme);
         if (id < 0) throw new BackendModule.ParametersUriParseException();
-        final Map<String, Object> params = (Map<String, Object>) get(id).meta.fromUri(uri);
+        final Map<String, Object> params = get(id).meta.fromUri(uri);
         params.put("type", get(id).typeStr);
         return params;
     }

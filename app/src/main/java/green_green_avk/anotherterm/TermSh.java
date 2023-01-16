@@ -1759,7 +1759,7 @@ public final class TermSh {
                                                     " [Busy]" : "")));
                                 break;
                             }
-                            final Map<String, ?> params;
+                            final Map<String, Object> params;
                             try {
                                 params = shellCmd.args.length - ap.position > 0
                                         ? UartModule.meta.fromUri(Uri.parse(
@@ -1768,11 +1768,11 @@ public final class TermSh {
                             } catch (final BackendModule.ParametersUriParseException e) {
                                 throw new ArgsException(e.getMessage());
                             }
-                            ((Map<String, Object>) params).put("insecure",
+                            params.put("insecure",
                                     opts.containsKey("insecure"));
                             final String adapter = (String) opts.get("adapter");
                             if (adapter != null)
-                                ((Map<String, Object>) params).put("adapter", adapter);
+                                params.put("adapter", adapter);
                             final BackendModule be = new UartModule();
                             be.setContext(ui.ctx);
                             be.setOnMessageListener(new BackendModule.OnMessageListener() {
@@ -2055,8 +2055,9 @@ public final class TermSh {
                     }
                     shellCmd.exit(exitStatus);
                 } catch (final InterruptedException | SecurityException | IOException |
-                        ParseException | ArgsException | ShellSecurityException | ShellUiException |
-                        BinaryGetOpts.ParseException | ActivityNotFoundException e) {
+                               ParseException | ArgsException | ShellSecurityException |
+                               ShellUiException | BinaryGetOpts.ParseException |
+                               ActivityNotFoundException e) {
                     try {
                         if (e instanceof ArgsException) {
                             printHelp(ui.ctx.getString(R.string.desc_termsh_help),

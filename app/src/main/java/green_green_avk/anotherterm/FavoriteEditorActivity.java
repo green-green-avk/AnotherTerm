@@ -282,7 +282,7 @@ public final class FavoriteEditorActivity extends ExtAppCompatActivity {
     }
 
     @NonNull
-    private Map<String, ?> getDefaultPreferences() {
+    private Map<String, Object> getDefaultPreferences() {
         final String type = BackendsList.get(mTypeW.getSelectedItemPosition()).typeStr;
         return BackendsList.getDefaultParameters(type);
     }
@@ -304,7 +304,7 @@ public final class FavoriteEditorActivity extends ExtAppCompatActivity {
         mPrefs.setPreferencesMeta(BackendsList.get(id).meta.getParametersMeta());
         mPrefs.addBranch(mCurrMSL);
         mPrefs.setDefaultPreferences(getDefaultPreferences());
-        final Map<String, ?> values = new HashMap<>(mPrefsSt.get());
+        final Map<String, Object> values = new HashMap<>(mPrefsSt.get());
         values.keySet().retainAll(mPrefs.getChangedFields());
         mPrefs.setPreferences(values);
     }
