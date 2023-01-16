@@ -2109,7 +2109,7 @@ public class ConsoleScreenView extends ScrollableView
                                 strFragRight, strBottom,
                                 bgPaint);
                     }
-                    if (!charAttrs.invisible && charAttrs.fgColor != charAttrs.bgColor &&
+                    if (!charAttrs.invisible && fgPaint.getColor() != bgPaint.getColor() &&
                             _draw_run.length > 0 && !isAllSpaces(_draw_run)) {
                         fgPaint.setTextScaleX(1F);
                         if (_draw_run.glyphWidth > 1)
