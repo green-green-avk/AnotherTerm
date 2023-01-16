@@ -11,7 +11,7 @@ public final class Compat {
     }
 
     /**
-     * https://stackoverflow.com/questions/27460960/bug-when-using-characterbuffers-in-android
+     * <a href="https://stackoverflow.com/questions/27460960/bug-when-using-characterbuffers-in-android">https://stackoverflow.com/questions/27460960/bug-when-using-characterbuffers-in-android</a>
      * but without adding a Java 6 module.
      */
     @NonNull

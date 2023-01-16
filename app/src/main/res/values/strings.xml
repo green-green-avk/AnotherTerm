@@ -146,9 +146,7 @@
         Alas! The maximum allowed clipboard transaction size is reached.
         A workaround is to be implemented…
     </string>
-    <string name="msg_too_large_to_web_search">
-        The text is too large for Web search.
-    </string>
+    <string name="msg_too_large_to_web_search">The text is too large for Web search.</string>
     <string name="profile_title_s_q_not_defined_here_q">%s (not defined here)</string>
     <string name="profile_title_anonymous">Anonymous</string>
     <string name="profile_title_default">Default</string>

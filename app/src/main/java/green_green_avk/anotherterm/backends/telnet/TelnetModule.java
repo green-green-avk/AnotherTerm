@@ -31,7 +31,7 @@ public final class TelnetModule extends BackendModule {
     public static final Meta meta = new Meta(TelnetModule.class, "telnet") {
         @Override
         @NonNull
-        public Map<String, ?> fromUri(@NonNull final Uri uri) {
+        public Map<String, Object> fromUri(@NonNull final Uri uri) {
             if (uri.isOpaque()) throw new ParametersUriParseException();
             final Map<String, Object> params = new HashMap<>();
             for (final String k : uri.getQueryParameterNames()) {

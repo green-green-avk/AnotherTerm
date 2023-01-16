@@ -62,7 +62,7 @@ public final class UartModule extends BackendModule {
 
         @Override
         @NonNull
-        public Map<String, ?> fromUri(@NonNull final Uri uri) {
+        public Map<String, Object> fromUri(@NonNull final Uri uri) {
             if (uri.isOpaque())
                 throw new ParametersUriParseException();
             final Map<String, Object> params = new HashMap<>();

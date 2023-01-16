@@ -127,7 +127,7 @@ public final class SshModule extends BackendModule {
 
         @Override
         @NonNull
-        public Map<String, ?> getDefaultParameters() {
+        public Map<String, Object> getDefaultParameters() {
             final Map<String, Object> r = new HashMap<>();
             r.put("jsch.cfg.kex", JSch.getConfig("kex"));
             r.put("jsch.cfg.server_host_key", JSch.getConfig("server_host_key"));
@@ -146,7 +146,7 @@ public final class SshModule extends BackendModule {
 
         @Override
         @NonNull
-        public Map<String, ?> fromUri(@NonNull final Uri uri) {
+        public Map<String, Object> fromUri(@NonNull final Uri uri) {
             if (uri.isOpaque())
                 throw new ParametersUriParseException();
             final Map<String, Object> params = new HashMap<>();
