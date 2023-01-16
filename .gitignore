@@ -1,7 +1,7 @@
 *.iml
 .cxx
 .gradle
-/local.properties
+local.properties
 /.idea/caches
 /.idea/codeStyles
 /.idea/dictionaries
