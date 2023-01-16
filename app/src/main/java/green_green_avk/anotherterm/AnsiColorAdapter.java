@@ -103,7 +103,7 @@ public final class AnsiColorAdapter extends ProfileAdapter<AnsiColorProfile> {
 
         @Override
         public int getOpacity() {
-            return PixelFormat.OPAQUE;
+            return profile.isOpaque() ? PixelFormat.OPAQUE : PixelFormat.TRANSLUCENT;
         }
     }
 
