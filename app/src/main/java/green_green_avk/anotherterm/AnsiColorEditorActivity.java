@@ -62,7 +62,7 @@ public final class AnsiColorEditorActivity extends AppCompatActivity {
     private void bind(@NonNull final ColorPickerPopupView view,
                       @NonNull final ValueProvider<Integer> provider,
                       @NonNull final ValueConsumer<? super Integer> consumer) {
-        view.setHasAlpha(false);
+        view.setHasAlpha(true);
         binder.bind(view, provider, consumer);
     }
 

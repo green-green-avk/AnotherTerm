@@ -22,6 +22,8 @@ public interface AnsiColorProfile {
     @ColorInt
     int getBgColor(@NonNull ConsoleScreenCharAttrs attrs, boolean screenInverse);
 
+    boolean isOpaque();
+
     interface Editable extends AnsiColorProfile, Cloneable, Serializable {
         @NonNull
         Editable clone();

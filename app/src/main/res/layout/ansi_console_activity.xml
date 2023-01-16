@@ -110,6 +110,7 @@
     </LinearLayout>
 
     <FrameLayout
+        android:id="@+id/screen_container"
         android:layout_width="match_parent"
         android:layout_height="0dp"
         android:layout_weight="1">
@@ -117,7 +118,8 @@
         <green_green_avk.anotherterm.ui.ConsoleScreenView
             android:id="@+id/screen"
             android:layout_width="match_parent"
-            android:layout_height="match_parent" />
+            android:layout_height="match_parent"
+            android:background="@null" />
 
         <green_green_avk.anotherterm.ui.ScreenMouseView
             android:id="@+id/mouse"

@@ -102,7 +102,7 @@ public final class AnsiColorManager extends SimpleProfileManager<AnsiColorProfil
         if (colorProfile instanceof ConsoleScreenCharAttrs.TabularColorProfile) {
             final SharedPreferences.Editor ed = sp.edit();
             ed.putString(name, serialize(
-                    ((ConsoleScreenCharAttrs.TabularColorProfile) colorProfile).basic));
+                    ((ConsoleScreenCharAttrs.TabularColorProfile) colorProfile).getRawBasic()));
             ed.apply();
         } else {
             throw new UnsupportedOperationException("Unsupported AnsiColorProfile implementation");
@@ -138,8 +138,8 @@ public final class AnsiColorManager extends SimpleProfileManager<AnsiColorProfil
             if (path.size() == 2) {
                 switch (path.get(0)) {
                     case "v1":
-                        ((ConsoleScreenCharAttrs.TabularColorProfile) out).basic =
-                                parse(path.get(1));
+                        ((ConsoleScreenCharAttrs.TabularColorProfile) out)
+                                .setRawBasic(parse(path.get(1)));
                         return;
                 }
             }
@@ -151,8 +151,8 @@ public final class AnsiColorManager extends SimpleProfileManager<AnsiColorProfil
     public static Uri toUri(@NonNull final AnsiColorProfile.Editable colorProfile) {
         final String serialized;
         if (colorProfile instanceof ConsoleScreenCharAttrs.TabularColorProfile) {
-            serialized =
-                    serialize(((ConsoleScreenCharAttrs.TabularColorProfile) colorProfile).basic);
+            serialized = serialize(((ConsoleScreenCharAttrs.TabularColorProfile) colorProfile)
+                    .getRawBasic());
         } else {
             throw new UnsupportedOperationException("Unsupported AnsiColorProfile implementation");
         }

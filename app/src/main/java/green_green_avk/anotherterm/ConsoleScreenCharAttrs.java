@@ -63,9 +63,29 @@ public final class ConsoleScreenCharAttrs {
 
     public static class TabularColorProfile implements AnsiColorProfile.Editable {
         @NonNull
-        public int[] basic = DEF_BASIC_COLORS;
+        private int[] basic = DEF_BASIC_COLORS;
         @NonNull
-        public int[] _8bit = DEF_8BIT_COLORS;
+        private int[] _8bit = DEF_8BIT_COLORS;
+
+        @NonNull
+        int[] getRawBasic() {
+            return basic;
+        }
+
+        void setRawBasic(@NonNull final int[] v) {
+            basic = v;
+            invalidate();
+        }
+
+        @NonNull
+        int[] getRaw8bit() {
+            return _8bit;
+        }
+
+        void setRaw8bit(@NonNull final int[] v) {
+            _8bit = v;
+            invalidate();
+        }
 
         public TabularColorProfile() {
         }
@@ -95,6 +115,7 @@ public final class ConsoleScreenCharAttrs {
                         basic, 0, basic.length);
                 System.arraycopy(((TabularColorProfile) that)._8bit, 0,
                         _8bit, 0, _8bit.length);
+                invalidate();
                 return;
             }
             throw new IllegalArgumentException("Wrong type");
@@ -162,6 +183,41 @@ public final class ConsoleScreenCharAttrs {
             return getColor(attrs.bgColor, false, false, false);
         }
 
+        private boolean dirty = true;
+        private boolean isOpaque = false;
+
+        private void update() {
+            if (dirty) {
+                dirty = false;
+                opacityEnd:
+                {
+                    for (final int c : basic) {
+                        if ((c & 0xFF000000) != 0xFF000000) {
+                            isOpaque = false;
+                            break opacityEnd;
+                        }
+                    }
+                    for (final int c : _8bit) {
+                        if ((c & 0xFF000000) != 0xFF000000) {
+                            isOpaque = false;
+                            break opacityEnd;
+                        }
+                    }
+                    isOpaque = true;
+                }
+            }
+        }
+
+        private void invalidate() {
+            dirty = true;
+        }
+
+        @Override
+        public boolean isOpaque() {
+            update();
+            return isOpaque;
+        }
+
         @Override
         public int getDefaultFgNormal() {
             return basic[24];
@@ -170,6 +226,7 @@ public final class ConsoleScreenCharAttrs {
         @Override
         public void setDefaultFgNormal(final int color) {
             basic[24] = color;
+            invalidate();
         }
 
         @Override
@@ -180,6 +237,7 @@ public final class ConsoleScreenCharAttrs {
         @Override
         public void setDefaultFgBold(final int color) {
             basic[25] = color;
+            invalidate();
         }
 
         @Override
@@ -190,6 +248,7 @@ public final class ConsoleScreenCharAttrs {
         @Override
         public void setDefaultFgFaint(final int color) {
             basic[26] = color;
+            invalidate();
         }
 
         @Override
@@ -200,6 +259,7 @@ public final class ConsoleScreenCharAttrs {
         @Override
         public void setDefaultBg(final int color) {
             basic[27] = color;
+            invalidate();
         }
 
         @Override
@@ -210,6 +270,7 @@ public final class ConsoleScreenCharAttrs {
         @Override
         public void setBasicNormal(final int idx, final int color) {
             basic[idx & 0x07] = color;
+            invalidate();
         }
 
         @Override
@@ -220,6 +281,7 @@ public final class ConsoleScreenCharAttrs {
         @Override
         public void setBasicBold(final int idx, final int color) {
             basic[idx & 0x07 | 0x08] = color;
+            invalidate();
         }
 
         @Override
@@ -230,6 +292,7 @@ public final class ConsoleScreenCharAttrs {
         @Override
         public void setBasicFaint(final int idx, final int color) {
             basic[idx & 0x07 | 0x10] = color;
+            invalidate();
         }
 
         @Override
@@ -240,6 +303,7 @@ public final class ConsoleScreenCharAttrs {
         @Override
         public void set8bit(final int idx, final int color) {
             _8bit[idx & 0xFF] = color;
+            invalidate();
         }
     }
 
