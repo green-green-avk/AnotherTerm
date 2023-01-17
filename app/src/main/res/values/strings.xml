@@ -143,10 +143,7 @@
     <string name="msg_cannot_parse_uri">Cannot parse URI</string>
     <string name="msg_cannot_access_clipboard">Cannot access clipboard</string>
     <string name="msg_nothing_to_copy_to_clipboard">Nothing to copy to clipboard</string>
-    <string name="msg_too_large_to_copy_to_clipboard">
-        Alas! The maximum allowed clipboard transaction size is reached.
-        A workaround is to be implemented…
-    </string>
+    <string name="msg_too_large_to_copy_to_clipboard">Too large to copy to clipboard.</string>
     <string name="msg_too_large_to_web_search">The text is too large for Web search.</string>
     <string name="profile_title_s_q_not_defined_here_q">%s (not defined here)</string>
     <string name="profile_title_anonymous">Anonymous</string>

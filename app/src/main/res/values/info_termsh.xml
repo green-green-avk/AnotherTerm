@@ -40,6 +40,16 @@ Display notification, <i>stdin</i> will be used if no message argument provided.
 </dd><br/>
 
 <dt><p><code>
+clipboard-copy [&lt;string&gt;]
+</code></p></dt>
+<dd>
+Copy to clipboard (only when the user is interacting with the current session UI).<br/>
+If no <code>&lt;string&gt;</code> is provided, the <i>stdin</i> is used.
+<p><em>The <a href=\"info:/shell_perm_clipboard-copy\"><code>clipboard-copy</code></a>
+permission must be granted.</em></p>
+</dd><br/>
+
+<dt><p><code>
 uri [--] &lt;file&gt;<br/>
 uri [-m|--mime &lt;mime&gt;] [-n|--name &lt;name&gt;] [-s|--size &lt;size&gt;]<br/>
 uri -c|--close-stream [--] &lt;URI&gt;<br/>
@@ -309,7 +319,8 @@ request-permission &lt;name&gt; &lt;message&gt;
 <ul type=\"none\">
 <li><code>&lt;name&gt;</code> &#x2014; can be:
 <a href=\"info:/shell_perm_favmgmt\"><code>favmgmt</code></a>,
-<a href=\"info:/shell_perm_pluginexec\"><code>pluginexec</code></a>.</li>
+<a href=\"info:/shell_perm_pluginexec\"><code>pluginexec</code></a>,
+<a href=\"info:/shell_perm_clipboard-copy\"><code>clipboard-copy</code></a>.</li>
 <li><code>&lt;message&gt;</code> &#x2014; to show.</li>
 </ul>
 <p>Return codes:</p>
