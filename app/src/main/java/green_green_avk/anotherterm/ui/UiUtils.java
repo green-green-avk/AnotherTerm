@@ -226,8 +226,11 @@ public final class UiUtils {
         }
         final ClipboardManager clipboard =
                 (ClipboardManager) ctx.getSystemService(Context.CLIPBOARD_SERVICE);
-        if (clipboard == null)
+        if (clipboard == null) {
+            Toast.makeText(ctx, R.string.msg_cannot_access_clipboard,
+                    Toast.LENGTH_SHORT).show();
             return;
+        }
         final String title = brief(ctx, v, 16);
         if (!canMarshall(ctx, v)) {
             toClipboardViaScratchpad(ctx, v, title);
