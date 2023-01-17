@@ -148,6 +148,7 @@ public final class LocalModule extends BackendModule {
 
         public static final long PERM_FAVMGMT = 1;
         public static final long PERM_PLUGINEXEC = 2;
+        public static final long PERM_CLIPBOARD_COPY = 4;
         public static final Map<String, PermMeta> permByName = new HashMap<>();
 
         static {
@@ -155,6 +156,8 @@ public final class LocalModule extends BackendModule {
                     R.string.label_favorites_management));
             permByName.put("pluginexec", new PermMeta(PERM_PLUGINEXEC,
                     R.string.label_plugins_execution));
+            permByName.put("clipboard-copy", new PermMeta(PERM_CLIPBOARD_COPY,
+                    R.string.label_copy_to_clipboard));
         }
 
         public volatile long permissions = 0;
@@ -446,9 +449,11 @@ public final class LocalModule extends BackendModule {
     @Keep
     @ExportedUIMethod(titleRes = R.string.action_session_permissions, order = 2)
     @ExportedUIMethodFlags(values = {
-            SessionData.PERM_FAVMGMT, SessionData.PERM_PLUGINEXEC
+            SessionData.PERM_FAVMGMT, SessionData.PERM_PLUGINEXEC,
+            SessionData.PERM_CLIPBOARD_COPY
     }, titleRes = {
-            R.string.label_favorites_management, R.string.label_plugins_execution
+            R.string.label_favorites_management, R.string.label_plugins_execution,
+            R.string.label_copy_to_clipboard
     })
     public long changePermissions(final long permissions, final long mask) {
         synchronized (sessionData) {

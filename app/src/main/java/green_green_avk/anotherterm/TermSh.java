@@ -84,6 +84,7 @@ import green_green_avk.anotherterm.utils.BinaryGetOpts;
 import green_green_avk.anotherterm.utils.BlockingSync;
 import green_green_avk.anotherterm.utils.ChrootedFile;
 import green_green_avk.anotherterm.utils.IntentUtils;
+import green_green_avk.anotherterm.utils.LimitedInputStream;
 import green_green_avk.anotherterm.utils.MimeType;
 import green_green_avk.anotherterm.utils.Misc;
 import green_green_avk.anotherterm.utils.PreferenceStorage;
@@ -1203,6 +1204,44 @@ public final class TermSh {
                                     throw new ParseException("Bad arguments");
                             }
                             ui.postUserNotification(msg, id);
+                            break;
+                        }
+                        case "clipboard-copy": {
+                            shellCmd.requirePerms(LocalModule.SessionData.PERM_CLIPBOARD_COPY);
+                            if (!shellCmd.getGui().hasUi())
+                                break;
+                            final String value;
+                            switch (shellCmd.args.length) {
+                                case 1: {
+                                    final int limit = 1024 * 1024;
+                                    final LimitedInputStream limiter =
+                                            new LimitedInputStream(shellCmd.stdIn, limit);
+                                    final InputStreamReader reader =
+                                            new InputStreamReader(limiter, Misc.UTF8);
+                                    final StringBuilder sb = new StringBuilder();
+                                    final char[] buf = new char[2048];
+                                    int len;
+                                    while ((len = reader.read(buf)) >= 0) {
+                                        sb.append(buf, 0, len);
+                                    }
+                                    if (limiter.isLimitHit()) {
+                                        shellCmd.getGui().showToast(ui.ctx.getString(
+                                                R.string.msg_too_large_to_copy_to_clipboard));
+                                        value = null;
+                                    } else {
+                                        value = sb.toString();
+                                    }
+                                    break;
+                                }
+                                case 2:
+                                    value = Misc.fromUTF8(shellCmd.args[1]);
+                                    break;
+                                default:
+                                    throw new ParseException("Bad arguments");
+                            }
+                            if (value != null && shellCmd.getGui().hasUi())
+                                ui.runOnUiThread(() ->
+                                        UiUtils.toClipboard(ui.ctx, value));
                             break;
                         }
                         case "uri": {

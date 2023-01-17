@@ -22,6 +22,12 @@
         in the Plugins settings can be run independently
         of this permission state.</p>
     ]]></string>
+    <string name="label_copy_to_clipboard">Copy to clipboard</string>
+    <string name="desc_copy_to_clipboard"><![CDATA[
+        <p>Grants <b>termsh</b> an ability to write to the Android clipboard.</p>
+        <p>It can be performed only when the user is interacting with the current session UI
+        and silently ignored otherwise.</p>
+    ]]></string>
 
     <string name="label_fav_shareable">
         Show in &#x00AB;share with&#x00BB; / &#x00AB;open in&#x00BB; chooser dialog

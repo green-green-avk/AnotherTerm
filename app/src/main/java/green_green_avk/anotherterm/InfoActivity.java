@@ -45,6 +45,7 @@ public final class InfoActivity extends AppCompatActivity {
         res.put("/fav_token", new Source(R.string.desc_fav_token_help, Source.Type.XML));
         res.put("/shell_perm_favmgmt", new Source(R.string.desc_favorites_management, Source.Type.XML));
         res.put("/shell_perm_pluginexec", new Source(R.string.desc_plugins_execution, Source.Type.XML));
+        res.put("/shell_perm_clipboard-copy", new Source(R.string.desc_copy_to_clipboard, Source.Type.XML));
         res.put("/shell_env_man", new Source(R.string.desc_shell_env_help, Source.Type.XML));
         res.put("/termsh_man", new Source(R.string.desc_termsh_help, Source.Type.XML));
         res.put("/help", new Source(R.string.desc_main_help, Source.Type.XML));
@@ -84,7 +85,7 @@ public final class InfoActivity extends AppCompatActivity {
                                         true);
                                 return;
                             } catch (final PackageManager.NameNotFoundException |
-                                    Resources.NotFoundException e) {
+                                           Resources.NotFoundException e) {
                                 return;
                             }
                             final String strType = uri.getFragment();

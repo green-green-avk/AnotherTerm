@@ -97,6 +97,33 @@
 
         </TableRow>
 
+        <TableRow
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:divider="@drawable/bg_padding2"
+            android:showDividers="middle">
+
+            <CheckBox
+                android:id="@+id/f_perm_clipboard_copy"
+                android:layout_width="140sp"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="@dimen/text_margin"
+                android:layout_marginRight="@dimen/text_margin"
+                android:checked="false"
+                android:tag="perm_clipboard-copy"
+                android:text="@string/label_copy_to_clipboard" />
+
+            <green_green_avk.anotherterm.ui.HtmlTextView
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="@dimen/text_margin"
+                android:layout_marginRight="@dimen/text_margin"
+                android:layout_weight="1"
+                android:textStyle="italic"
+                app:xmlText="@string/desc_copy_to_clipboard" />
+
+        </TableRow>
+
     </TableLayout>
 
     <LinearLayout
