@@ -34,8 +34,9 @@ public abstract class ProfileManager<T> {
 
         @NonNull
         public String getTitle(@NonNull final Context ctx) {
-            if (title instanceof Integer)
+            if (title instanceof Integer) {
                 return ctx.getString((Integer) title);
+            }
             return title.toString();
         }
 
@@ -46,8 +47,9 @@ public abstract class ProfileManager<T> {
 
         @Override
         public boolean equals(@Nullable final Object obj) {
-            if (obj instanceof Meta)
+            if (obj instanceof Meta) {
                 return isBuiltIn == ((Meta) obj).isBuiltIn && name.equals(((Meta) obj).name);
+            }
             return super.equals(obj);
         }
     }
@@ -82,8 +84,9 @@ public abstract class ProfileManager<T> {
 
     @NonNull
     public T get(@NonNull final Meta meta) {
-        if (meta instanceof BuiltIn)
+        if (meta instanceof BuiltIn) {
             return ((BuiltIn<T>) meta).data;
+        }
         return get(meta.name);
     }
 

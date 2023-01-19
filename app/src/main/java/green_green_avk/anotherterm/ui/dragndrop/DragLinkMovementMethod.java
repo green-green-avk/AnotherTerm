@@ -17,8 +17,8 @@ public final class DragLinkMovementMethod {
     @NonNull
     public static MovementMethod getInstance() {
         if (instance == null)
-            instance = Build.VERSION.SDK_INT >= 16 ?
-                    new FixedLinkMovementMethod() : new LegacyLinkMovementMethod();
+            instance = Build.VERSION.SDK_INT < Build.VERSION_CODES.JELLY_BEAN ?
+                    new LegacyLinkMovementMethod() : new FixedLinkMovementMethod();
         return instance;
     }
 

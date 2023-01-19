@@ -217,12 +217,12 @@ public final class PtyProcess extends Process {
     @NonNull
     public static PtyProcess execve(@NonNull final String filename, final String[] args,
                                     final Map<String, String> env) {
-        if (env == null) return execve(filename, args, (String[]) null);
+        if (env == null)
+            return execve(filename, args, (String[]) null);
         final String[] _env = new String[env.size()];
         int i = 0;
         for (final Map.Entry<String, String> elt : env.entrySet()) {
-            _env[i] = elt.getKey() + "=" + elt.getValue();
-            ++i;
+            _env[i++] = elt.getKey() + "=" + elt.getValue();
         }
         return execve(filename, args, _env);
     }
@@ -244,7 +244,8 @@ public final class PtyProcess extends Process {
     }
 
     private static final String shPath = "/system/bin/sh";
-    private static final String shLoginArg = Build.VERSION.SDK_INT < 16 ? null : "-l";
+    private static final String shLoginArg =
+            Build.VERSION.SDK_INT < Build.VERSION_CODES.JELLY_BEAN ? null : "-l";
 
     @NonNull
     public static PtyProcess system(@Nullable final String command,
@@ -277,14 +278,16 @@ public final class PtyProcess extends Process {
     @Override
     public int waitFor() throws InterruptedException {
         final int r = waitForExit(0);
-        if (r == IS_EINTR) throw new InterruptedException();
+        if (r == IS_EINTR)
+            throw new InterruptedException();
         return r;
     }
 
     @Override
     public int exitValue() {
         final int r = waitForExit(WNOHANG);
-        if (r == IS_RUNNING) throw new IllegalThreadStateException("The process is still running");
+        if (r == IS_RUNNING)
+            throw new IllegalThreadStateException("The process is still running");
         return r;
     }
 
@@ -292,7 +295,7 @@ public final class PtyProcess extends Process {
     @Keep
     public native void destroy();
 
-    @IntDef(flag = true, value = {WNOHANG})
+    @IntDef(flag = true, value = WNOHANG)
     @Retention(SOURCE)
     public @interface WaitForExitOptions {
     }
@@ -301,7 +304,7 @@ public final class PtyProcess extends Process {
     public native int waitForExit(@WaitForExitOptions int options);
 
     @Keep
-    public boolean waitForPtyEof(@IntRange(from = -1) int millis) throws IOException {
+    public boolean waitForPtyEof(@IntRange(from = -1) final int millis) throws IOException {
         return pollForEof(getPtm(), millis);
     }
 
@@ -454,7 +457,8 @@ public final class PtyProcess extends Process {
         return isatty(pfd.getFd());
     }
 
-    public static void getSize(final OutputStream s, @NonNull int[] result) throws IOException {
+    public static void getSize(final OutputStream s, @NonNull final int[] result)
+            throws IOException {
         if (s instanceof PfdFileOutputStream) {
             getSize(((PfdFileOutputStream) s).pfd.getFd(), result);
             return;
@@ -466,7 +470,8 @@ public final class PtyProcess extends Process {
     public static String getPathByFd(final int fd) throws IOException {
         // See https://github.com/green-green-avk/AnotherTerm/issues/7
         final String pp = pathByFd(fd);
-        if (pp == null) throw new IOException("Failed getting path by fd " + fd);
+        if (pp == null)
+            throw new IOException("Failed getting path by fd " + fd);
         return pp;
     }
 
@@ -475,7 +480,7 @@ public final class PtyProcess extends Process {
     public static native boolean pollForEof(int fd, @IntRange(from = -1) int millis)
             throws IOException;
 
-    public static boolean pollForEof(int fd) throws IOException {
+    public static boolean pollForEof(final int fd) throws IOException {
         return pollForEof(fd, -1);
     }
 

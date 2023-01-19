@@ -117,7 +117,7 @@ public final class SharedPreferencesSet {
     @MainThread
     public void remove(@NonNull final String key) {
         final boolean r = keys.remove(key);
-        if (Build.VERSION.SDK_INT >= 24) {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
             ctx.deleteSharedPreferences(getName(key));
         } else {
             final SharedPreferences.Editor e = peek(key).edit();

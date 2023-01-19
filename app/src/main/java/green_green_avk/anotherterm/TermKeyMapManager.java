@@ -77,7 +77,7 @@ public final class TermKeyMapManager extends BaseProfileManager<TermKeyMapRules>
             @NonNull
             public Iterator<Meta> iterator() {
                 return new Iterator<Meta>() {
-                    final Iterator<String> i = maps.enumerate().iterator();
+                    private final Iterator<String> i = maps.enumerate().iterator();
 
                     @Override
                     public boolean hasNext() {
@@ -105,8 +105,9 @@ public final class TermKeyMapManager extends BaseProfileManager<TermKeyMapRules>
 
     @NonNull
     public TermKeyMapRules.Editable getForEdit(@Nullable final String name) {
-        if (isBuiltIn(name))
+        if (isBuiltIn(name)) {
             return TermKeyMapRulesParser.getNew();
+        }
         final PreferenceStorage ps = new PreferenceStorage();
         ps.load(maps.peek(name));
         return TermKeyMapRulesParser.fromSP(ps.get());
@@ -116,8 +117,9 @@ public final class TermKeyMapManager extends BaseProfileManager<TermKeyMapRules>
     @Nullable
     public Meta getMeta(@Nullable final String name) {
         final BuiltIn<? extends TermKeyMapRules> b = getBuiltIn(name);
-        if (b != null)
+        if (b != null) {
             return b;
+        }
         return new Meta(name, name, false);
     }
 
@@ -125,8 +127,9 @@ public final class TermKeyMapManager extends BaseProfileManager<TermKeyMapRules>
     @Nullable
     public Meta getMeta(@NonNull final TermKeyMapRules rules) {
         final BuiltIn<? extends TermKeyMapRules> b = getBuiltIn(rules);
-        if (b != null)
+        if (b != null) {
             return b;
+        }
         return meta.get(rules);
     }
 
@@ -134,11 +137,13 @@ public final class TermKeyMapManager extends BaseProfileManager<TermKeyMapRules>
     @NonNull
     public TermKeyMapRules get(@Nullable final String name) {
         final BuiltIn<? extends TermKeyMapRules> b = getBuiltIn(name);
-        if (b != null)
+        if (b != null) {
             return b.data;
+        }
         final TermKeyMapRules r = cache.get(name);
-        if (r != null)
+        if (r != null) {
             return r;
+        }
         final TermKeyMap km = defaultKeyMap.copy().append(getForEdit(name));
         cache.put(name, km);
         meta.put(km, new Meta(name, name, false));
@@ -150,8 +155,9 @@ public final class TermKeyMapManager extends BaseProfileManager<TermKeyMapRules>
         ps.putAll(TermKeyMapRulesParser.toSP(rules));
         ps.save(maps.get(name));
         final TermKeyMap r = cache.get(name);
-        if (r != null)
+        if (r != null) {
             r.reinit(defaultKeyMap).append(rules);
+        }
         execOnChangeListeners();
     }
 

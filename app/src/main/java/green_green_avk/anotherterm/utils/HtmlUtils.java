@@ -1,7 +1,6 @@
 package green_green_avk.anotherterm.utils;
 
-import static android.os.Build.VERSION.SDK_INT;
-
+import android.os.Build;
 import android.text.Html;
 import android.text.Spanned;
 
@@ -39,16 +38,16 @@ public final class HtmlUtils {
 
     @Nullable
     public static String toHtml(@Nullable final CharSequence text) {
-        if (text == null) return null;
+        if (text == null)
+            return null;
         if (text instanceof Spanned) {
             return Html.toHtml((Spanned) text);
         }
-        if (SDK_INT >= 16) {
-            return Html.escapeHtml(text);
-        } else {
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.JELLY_BEAN) {
             final StringBuilder out = new StringBuilder();
             withinStyle(out, text, 0, text.length());
             return out.toString();
         }
+        return Html.escapeHtml(text);
     }
 }

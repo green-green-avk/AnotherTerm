@@ -36,8 +36,9 @@ public class WeakHandler {
         dst.arg2 = src.arg2;
         dst.replyTo = src.replyTo;
         dst.setData(src.peekData());
-        if (Build.VERSION.SDK_INT >= 21)
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
             dst.sendingUid = src.sendingUid;
+        }
     }
 
     private static final class HandlerWrapper extends Handler {

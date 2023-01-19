@@ -75,7 +75,9 @@ public class EquiLinearLayout extends LinearLayout {
     private void shrinkChildrenVertical(final int height) {
         final int cc = getChildCount();
         final View[] ca = new View[cc];
-        for (int i = 0; i < cc; ++i) ca[i] = getChildAt(i);
+        for (int i = 0; i < cc; ++i) {
+            ca[i] = getChildAt(i);
+        }
         Arrays.sort(ca, (o1, o2) ->
                 Integer.compare(o1.getMeasuredHeight(), o2.getMeasuredHeight()));
         int s = Math.max(0, height - getPaddingTop() - getPaddingBottom());
@@ -84,10 +86,14 @@ public class EquiLinearLayout extends LinearLayout {
             final int m = s / n;
             final int v = c.getMeasuredHeight();
             if (v > m) {
-                c.measure(MeasureSpec.makeMeasureSpec(c.getMeasuredWidth(), MeasureSpec.EXACTLY),
-                        MeasureSpec.makeMeasureSpec(m, MeasureSpec.EXACTLY));
+                c.measure(MeasureSpec.makeMeasureSpec(c.getMeasuredWidth(),
+                                MeasureSpec.EXACTLY),
+                        MeasureSpec.makeMeasureSpec(m,
+                                MeasureSpec.EXACTLY));
                 s -= m;
-            } else s -= v;
+            } else {
+                s -= v;
+            }
             --n;
         }
     }
@@ -137,7 +143,9 @@ public class EquiLinearLayout extends LinearLayout {
     private void shrinkChildrenHorizontal(final int width) {
         final int cc = getChildCount();
         final View[] ca = new View[cc];
-        for (int i = 0; i < cc; ++i) ca[i] = getChildAt(i);
+        for (int i = 0; i < cc; ++i) {
+            ca[i] = getChildAt(i);
+        }
         Arrays.sort(ca, (o1, o2) ->
                 Integer.compare(o1.getMeasuredWidth(), o2.getMeasuredWidth()));
         int s = Math.max(0, width - getPaddingLeft() - getPaddingRight());
@@ -146,10 +154,14 @@ public class EquiLinearLayout extends LinearLayout {
             final int m = s / n;
             final int v = c.getMeasuredWidth();
             if (v > m) {
-                c.measure(MeasureSpec.makeMeasureSpec(m, MeasureSpec.EXACTLY),
-                        MeasureSpec.makeMeasureSpec(c.getMeasuredHeight(), MeasureSpec.EXACTLY));
+                c.measure(MeasureSpec.makeMeasureSpec(m,
+                                MeasureSpec.EXACTLY),
+                        MeasureSpec.makeMeasureSpec(c.getMeasuredHeight(),
+                                MeasureSpec.EXACTLY));
                 s -= m;
-            } else s -= v;
+            } else {
+                s -= v;
+            }
             --n;
         }
     }

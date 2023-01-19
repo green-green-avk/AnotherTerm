@@ -52,7 +52,8 @@ public class TelnetClient {
 
     protected static final ByteBuffer eraseLine = ByteBuffer.wrap(new byte[]{0x1B, '[', '1', 'K'});
 
-    protected static int indexOf(@NonNull final byte[] buf, final int start, int end, byte v) {
+    protected static int indexOf(@NonNull final byte[] buf,
+                                 final int start, int end, final byte v) {
         if (end > buf.length || end < 0)
             end = buf.length;
         if (start > end || start < 0)
@@ -64,7 +65,8 @@ public class TelnetClient {
         return -1;
     }
 
-    protected static int indexOf(@NonNull final ByteBuffer buf, int start, int end, final byte v) {
+    protected static int indexOf(@NonNull final ByteBuffer buf,
+                                 int start, final int end, final byte v) {
         if (buf.hasArray()) {
             if (start < 0)
                 start = buf.position();

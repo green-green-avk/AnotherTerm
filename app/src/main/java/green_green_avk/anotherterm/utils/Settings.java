@@ -53,7 +53,9 @@ public abstract class Settings {
         final Field[] ff = getClass().getFields();
         for (final Field f : ff) {
             final Param a = f.getAnnotation(Param.class);
-            if (a == null) continue;
+            if (a == null) {
+                continue;
+            }
             Object v;
             try {
                 v = f.get(this);
@@ -85,7 +87,9 @@ public abstract class Settings {
                 } catch (final ClassCastException e) {
                     editor.putBoolean(f.getName(), (boolean) v);
                 }
-            } else continue;
+            } else {
+                continue;
+            }
             try {
                 f.set(this, v);
             } catch (final IllegalAccessException ignored) {
@@ -102,7 +106,9 @@ public abstract class Settings {
         } catch (final NoSuchFieldException e) {
             throw new NoSuchElementException();
         }
-        if (f.getAnnotation(Param.class) == null) return null;
+        if (f.getAnnotation(Param.class) == null) {
+            return null;
+        }
         try {
             return f.get(this);
         } catch (final IllegalAccessException e) {
@@ -117,7 +123,9 @@ public abstract class Settings {
         } catch (final NoSuchFieldException e) {
             throw new NoSuchElementException();
         }
-        if (f.getAnnotation(Param.class) == null) throw new NoSuchElementException();
+        if (f.getAnnotation(Param.class) == null) {
+            throw new NoSuchElementException();
+        }
         try {
             f.set(this, v);
         } catch (final IllegalAccessException e) {
@@ -133,17 +141,23 @@ public abstract class Settings {
         } catch (final NoSuchFieldException e) {
             throw new NoSuchElementException();
         }
-        if (f.getAnnotation(Param.class) == null) throw new NoSuchElementException();
+        if (f.getAnnotation(Param.class) == null) {
+            throw new NoSuchElementException();
+        }
         final Object v;
         final Class<?> c = f.getType();
         try {
             if (c.equals(String.class)) {
                 v = sp.getString(k, (String) dv);
             } else if (c.equals(Integer.TYPE)) {
-                if (dv == null) throw new ClassCastException();
+                if (dv == null) {
+                    throw new ClassCastException();
+                }
                 v = sp.getInt(k, (int) dv);
             } else if (c.equals(Boolean.TYPE)) {
-                if (dv == null) throw new ClassCastException();
+                if (dv == null) {
+                    throw new ClassCastException();
+                }
                 v = sp.getBoolean(k, (boolean) dv);
             } else {
                 throw new UnsupportedOperationException();
@@ -161,8 +175,9 @@ public abstract class Settings {
     public final void fill(@NonNull final Map<String, ?> map) {
         final Field[] ff = getClass().getFields();
         for (final Field f : ff) {
-            if (map.containsKey(f.getName()))
+            if (map.containsKey(f.getName())) {
                 set(f.getName(), map.get(f.getName()));
+            }
         }
     }
 }

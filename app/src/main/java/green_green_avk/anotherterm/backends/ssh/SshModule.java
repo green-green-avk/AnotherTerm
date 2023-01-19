@@ -1091,8 +1091,8 @@ public final class SshModule extends BackendModule {
     }
 
     /**
-     * SSH "signal" <code>SSH_MSG_CHANNEL_REQUEST</code>.
-     * https://www.rfc-editor.org/rfc/rfc4254.html#section-6.9
+     * SSH "signal" {@code SSH_MSG_CHANNEL_REQUEST}.
+     * <a href="https://www.rfc-editor.org/rfc/rfc4254.html#section-6.9">RFC4254 - 6.9</a>
      */
     @Keep
     @ExportedUIMethodOnThread(before = true)

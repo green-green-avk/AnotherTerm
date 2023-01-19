@@ -574,7 +574,7 @@ public class ConsoleScreenView extends ScrollableView
         paddingMarkupPaint.setStyle(Paint.Style.STROKE);
         paddingMarkupPaint.setAlpha(paddingMarkupAlpha);
         paddingMarkupPaint.setPathEffect(new DashPathEffect(new float[]{10, 20}, 0));
-        if (Build.VERSION.SDK_INT >= 21) {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
             // At least, devices with Android 4.4.2 can have monospace font width glitches with these settings.
             fgPaint.setHinting(Paint.HINTING_ON);
             fgPaint.setFlags(fgPaint.getFlags()
@@ -2103,8 +2103,8 @@ public class ConsoleScreenView extends ScrollableView
                     applyCharAttrs();
                     final float strFragRight = getBufferDrawPosXF(i + sr);
                     if (sr > 0) {
-                        // background is only for non-zero length glyphs
-                        // see https://en.wikipedia.org/wiki/Combining_character
+                        // Draw background for non-zero length glyphs only.
+                        // See https://en.wikipedia.org/wiki/Combining_character
                         canvas.drawRect(strFragLeft, strTop,
                                 strFragRight, strBottom,
                                 bgPaint);

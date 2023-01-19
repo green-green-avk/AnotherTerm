@@ -1,4 +1,5 @@
 package green_green_avk.anotherterm.ui;
+
 /*
  * Copyright (C) 2008-2009 Google Inc.
  *
@@ -847,7 +848,8 @@ public class ExtKeyboard {
                 bmp = Bitmap.createBitmap(
                         (int) (width * dpi / dm.xdpi),
                         (int) (height * dpi / dm.ydpi),
-                        Build.VERSION.SDK_INT < 23 ? Bitmap.Config.ARGB_8888 : Bitmap.Config.ALPHA_8
+                        Build.VERSION.SDK_INT < Build.VERSION_CODES.M ?
+                                Bitmap.Config.ARGB_8888 : Bitmap.Config.ALPHA_8
                 );
                 canvas = new Canvas(bmp);
                 canvas.scale((float) bmp.getWidth() / width, (float) bmp.getHeight() / height);

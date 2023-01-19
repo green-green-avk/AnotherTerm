@@ -58,8 +58,9 @@ public abstract class SimpleProfileManager<T> extends BaseProfileManager<T> {
     @Nullable
     public Meta getMeta(@Nullable final String name) {
         final BuiltIn<? extends T> b = getBuiltIn(name);
-        if (b != null)
+        if (b != null) {
             return b;
+        }
         return new Meta(name, name, false);
     }
 
@@ -67,8 +68,9 @@ public abstract class SimpleProfileManager<T> extends BaseProfileManager<T> {
     @Nullable
     public Meta getMeta(@NonNull final T data) {
         final BuiltIn<? extends T> b = getBuiltIn(data);
-        if (b != null)
+        if (b != null) {
             return b;
+        }
         return meta.get(data);
     }
 
@@ -76,8 +78,9 @@ public abstract class SimpleProfileManager<T> extends BaseProfileManager<T> {
     @NonNull
     public T get(@Nullable final String name) {
         final BuiltIn<? extends T> b = getBuiltIn(name);
-        if (b != null)
+        if (b != null) {
             return b.data;
+        }
         assert name != null;
         final T c = onLoad(name);
         if (c != null) {

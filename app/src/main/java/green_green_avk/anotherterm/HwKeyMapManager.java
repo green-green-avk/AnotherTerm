@@ -89,7 +89,7 @@ public final class HwKeyMapManager {
     }
 
     public static boolean isExternal(@NonNull final KeyEvent event) {
-        if (Build.VERSION.SDK_INT >= 29) {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
             final InputDevice dev = event.getDevice();
             return dev != null && dev.isExternal();
         }

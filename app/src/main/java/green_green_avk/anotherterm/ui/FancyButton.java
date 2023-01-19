@@ -12,18 +12,22 @@ import android.util.AttributeSet;
 import android.util.DisplayMetrics;
 import android.view.MotionEvent;
 
+import androidx.annotation.Nullable;
 import androidx.appcompat.content.res.AppCompatResources;
 
 import green_green_avk.anotherterm.R;
 
 public class FancyButton extends androidx.appcompat.widget.AppCompatImageButton {
     protected float mTouchMaskDpi = 10;
+    @Nullable
     protected Bitmap mTouchMask = null;
+    @Nullable
     protected Drawable mTouchMaskSrc = null;
 
     public FancyButton(final Context context, final AttributeSet attrs) {
         super(context, attrs);
-        init(context, attrs, R.attr.fancyButtonStyle, R.style.AppFancyButtonStyle);
+        init(context, attrs, R.attr.fancyButtonStyle,
+                R.style.AppFancyButtonStyle);
     }
 
     public FancyButton(final Context context, final AttributeSet attrs, final int defStyleAttr) {
@@ -33,13 +37,14 @@ public class FancyButton extends androidx.appcompat.widget.AppCompatImageButton 
 
     protected void init(final Context context, final AttributeSet attrs,
                         final int defStyleAttr, final int defStyleRes) {
-        final TypedArray a = context.obtainStyledAttributes(
-                attrs, R.styleable.FancyButton, defStyleAttr, defStyleRes);
+        final TypedArray a =
+                context.obtainStyledAttributes(attrs, R.styleable.FancyButton,
+                        defStyleAttr, defStyleRes);
         try {
-//            mTouchMaskSrc = a.getDrawable(R.styleable.FancyButton_touchMask);
             mTouchMaskSrc = AppCompatResources.getDrawable(context,
                     a.getResourceId(R.styleable.FancyButton_touchMask, 0));
-            mTouchMaskDpi = a.getFloat(R.styleable.FancyButton_touchMaskDpi, mTouchMaskDpi);
+            mTouchMaskDpi = a.getFloat(R.styleable.FancyButton_touchMaskDpi,
+                    mTouchMaskDpi);
         } finally {
             a.recycle();
         }
@@ -51,14 +56,16 @@ public class FancyButton extends androidx.appcompat.widget.AppCompatImageButton 
         setTouchMask(mTouchMaskSrc);
     }
 
+    @Nullable
     public Drawable getTouchMask() {
         return mTouchMaskSrc;
     }
 
-    public void setTouchMask(final Drawable drawable) {
+    public void setTouchMask(@Nullable final Drawable drawable) {
         mTouchMaskSrc = drawable;
         if (drawable != null) {
-            if (getWidth() <= 0 || getHeight() <= 0) return;
+            if (getWidth() <= 0 || getHeight() <= 0)
+                return;
             // TODO: Optimize for bitmaps & colors
             final DisplayMetrics dm = getContext().getResources().getDisplayMetrics();
             // https://issuetracker.google.com/issues/36940792
@@ -68,7 +75,8 @@ public class FancyButton extends androidx.appcompat.widget.AppCompatImageButton 
             mTouchMask = Bitmap.createBitmap(
                     (int) (getWidth() * mTouchMaskDpi / dm.xdpi),
                     (int) (getHeight() * mTouchMaskDpi / dm.ydpi),
-                    Build.VERSION.SDK_INT < 23 ? Bitmap.Config.ARGB_8888 : Bitmap.Config.ALPHA_8
+                    Build.VERSION.SDK_INT < Build.VERSION_CODES.M ?
+                            Bitmap.Config.ARGB_8888 : Bitmap.Config.ALPHA_8
             );
             final Canvas cv = new Canvas(mTouchMask);
             final Rect bb = drawable.copyBounds();
@@ -81,8 +89,10 @@ public class FancyButton extends androidx.appcompat.widget.AppCompatImageButton 
     }
 
     protected boolean isHit(int x, int y) {
-        if (mTouchMask == null) return true;
-        if (x < 0 || y < 0 || x >= getWidth() || y >= getHeight()) return false;
+        if (mTouchMask == null)
+            return true;
+        if (x < 0 || y < 0 || x >= getWidth() || y >= getHeight())
+            return false;
         x = x * mTouchMask.getWidth() / getWidth();
         y = y * mTouchMask.getHeight() / getHeight();
         return Color.alpha(mTouchMask.getPixel(x, y)) != 0;
@@ -90,11 +100,13 @@ public class FancyButton extends androidx.appcompat.widget.AppCompatImageButton 
 
     @Override
     public boolean dispatchTouchEvent(final MotionEvent event) {
-        return isHit((int) event.getX(), (int) event.getY()) && super.dispatchTouchEvent(event);
+        return isHit((int) event.getX(), (int) event.getY()) &&
+                super.dispatchTouchEvent(event);
     }
 
     @Override
     public boolean dispatchGenericMotionEvent(final MotionEvent event) {
-        return isHit((int) event.getX(), (int) event.getY()) && super.dispatchGenericMotionEvent(event);
+        return isHit((int) event.getX(), (int) event.getY()) &&
+                super.dispatchGenericMotionEvent(event);
     }
 }
