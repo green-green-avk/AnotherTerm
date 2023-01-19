@@ -85,6 +85,8 @@ import java.nio.CharBuffer;
  * <p>http://www.unicode.org/unicode/reports/tr11/</p>
  */
 public final class Unicode {
+    private Unicode() {
+    }
 
     /**
      * sorted list of non-overlapping intervals of non-spacing characters
@@ -276,7 +278,7 @@ public final class Unicode {
     }
 
     /**
-     * See : http://www.cl.cam.ac.uk/%7Emgk25/ucs/wcwidth.c
+     * See <a href="http://www.cl.cam.ac.uk/%7Emgk25/ucs/wcwidth.c">wcwidth.c</a>
      * <p>
      * The following two functions define the column width of an ISO 10646
      * character as follows:

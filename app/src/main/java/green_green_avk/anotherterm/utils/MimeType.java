@@ -20,7 +20,9 @@ public final class MimeType {
     @NonNull
     public MimeType set(@NonNull final String v) {
         final int delim = v.indexOf('/');
-        if (delim < 0) throw new IllegalArgumentException("Not a mime");
+        if (delim < 0) {
+            throw new IllegalArgumentException("Not a mime");
+        }
         major = v.substring(0, delim).trim().toLowerCase(Locale.ROOT);
         minor = v.substring(delim + 1).trim().toLowerCase(Locale.ROOT);
         isSet = true;
@@ -29,11 +31,12 @@ public final class MimeType {
 
     @NonNull
     public MimeType quietSet(@Nullable final String v) {
-        if (v != null)
+        if (v != null) {
             try {
                 return set(v);
             } catch (final IllegalArgumentException ignored) {
             }
+        }
         major = "*";
         minor = "*";
         isSet = true;
@@ -50,17 +53,20 @@ public final class MimeType {
 
     @NonNull
     public MimeType merge(@NonNull final String v) {
-        if (isSet) return merge(new MimeType().set(v));
+        if (isSet) {
+            return merge(new MimeType().set(v));
+        }
         return set(v);
     }
 
     @NonNull
     public MimeType quietMerge(@Nullable final String v) {
-        if (v != null)
+        if (v != null) {
             try {
                 return merge(v);
             } catch (final IllegalArgumentException ignored) {
             }
+        }
         major = "*";
         minor = "*";
         isSet = true;

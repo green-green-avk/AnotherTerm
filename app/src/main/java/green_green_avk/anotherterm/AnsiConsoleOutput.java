@@ -92,26 +92,30 @@ public final class AnsiConsoleOutput {
 
     @NonNull
     private String fixC1(@NonNull final String v) {
-        if (_vt52 || !_8BitMode)
+        if (_vt52 || !_8BitMode) {
             return v;
+        }
         int p;
         p = v.indexOf('\u001B');
-        if (p < 0 || p + 1 == v.length())
+        if (p < 0 || p + 1 == v.length()) {
             return v;
+        }
         final StringBuilder sb = new StringBuilder(v.length());
         int pp = 0;
         do {
             sb.append(v, pp, p);
             p++;
-            if (p >= v.length())
+            if (p >= v.length()) {
                 return sb.append('\u001B').toString();
+            }
             final char c = v.charAt(p);
             if (c >= 0x40 && c < 0x60) {
                 sb.append((char) (c + 0x40));
                 p++;
                 pp = p;
-            } else
+            } else {
                 pp = p - 1;
+            }
             p = v.indexOf('\u001B', p);
         } while (p >= 0);
         return sb.append(v, pp, v.length()).toString();
@@ -143,7 +147,9 @@ public final class AnsiConsoleOutput {
     }
 
     public void feed(final int code, final boolean shift, final boolean alt, final boolean ctrl) {
-        if (code == ExtKeyboard.KEYCODE_NONE) return;
+        if (code == ExtKeyboard.KEYCODE_NONE) {
+            return;
+        }
         if (code < 0) {
             char c = (char) -code;
             if (c < 0x80) {
@@ -167,7 +173,9 @@ public final class AnsiConsoleOutput {
             return;
         }
         final String r = getKeySeq(code, shift, alt, ctrl);
-        if (r != null) feed(r);
+        if (r != null) {
+            feed(r);
+        }
     }
 
     public void feedEsc(@NonNull final String v) {
@@ -193,19 +201,33 @@ public final class AnsiConsoleOutput {
     }
 
     public void vScroll(int rows) {
-        if (rows == 0) return;
-        if (rows < 0) while (rows++ < 0)
-            feed(TermKeyMap.KEYCODE_APP_SCROLL_UP, false, false, false);
-        else while (rows-- > 0)
-            feed(TermKeyMap.KEYCODE_APP_SCROLL_DOWN, false, false, false);
+        if (rows == 0) {
+            return;
+        }
+        if (rows < 0) {
+            while (rows++ < 0) {
+                feed(TermKeyMap.KEYCODE_APP_SCROLL_UP, false, false, false);
+            }
+        } else {
+            while (rows-- > 0) {
+                feed(TermKeyMap.KEYCODE_APP_SCROLL_DOWN, false, false, false);
+            }
+        }
     }
 
     public void hScroll(int cols) {
-        if (cols == 0) return;
-        if (cols < 0) while (cols++ < 0)
-            feed(TermKeyMap.KEYCODE_APP_SCROLL_LEFT, false, false, false);
-        else while (cols-- > 0)
-            feed(TermKeyMap.KEYCODE_APP_SCROLL_RIGHT, false, false, false);
+        if (cols == 0) {
+            return;
+        }
+        if (cols < 0) {
+            while (cols++ < 0) {
+                feed(TermKeyMap.KEYCODE_APP_SCROLL_LEFT, false, false, false);
+            }
+        } else {
+            while (cols-- > 0) {
+                feed(TermKeyMap.KEYCODE_APP_SCROLL_RIGHT, false, false, false);
+            }
+        }
     }
 
     public boolean isMouseSupported() {
@@ -220,14 +242,13 @@ public final class AnsiConsoleOutput {
     }
 
     public void setMouseFocus(final boolean v) {
-        if (v == mHasMouseFocus)
+        if (v == mHasMouseFocus) {
             return;
+        }
         mHasMouseFocus = v;
-        if (mouseFocusInOut && !_vt52)
-            if (v)
-                feed(csi() + "I");
-            else
-                feed(csi() + "O");
+        if (mouseFocusInOut && !_vt52) {
+            feed(csi() + (v ? "I" : "O"));
+        }
     }
 
     public enum MouseEventType {PRESS, RELEASE, MOVE, VSCROLL}
@@ -244,21 +265,26 @@ public final class AnsiConsoleOutput {
     public void feed(@NonNull final MouseEventType type,
                      final int buttons, final int x, final int y,
                      final boolean shift, final boolean alt, final boolean ctrl) {
-        if (!isMouseSupported())
+        if (!isMouseSupported()) {
             return;
-        if (mouseTracking == MouseTracking.X10 && type != MouseEventType.PRESS)
+        }
+        if (mouseTracking == MouseTracking.X10 && type != MouseEventType.PRESS) {
             return;
+        }
         final boolean wheel = type == MouseEventType.VSCROLL;
-        if (wheel && buttons == 0)
+        if (wheel && buttons == 0) {
             return;
+        }
         final int code;
         if (type == MouseEventType.MOVE) {
             if ((mouseTracking != MouseTracking.BUTTON_EVENT || buttons == 0)
-                    && mouseTracking != MouseTracking.ANY_EVENT)
+                    && mouseTracking != MouseTracking.ANY_EVENT) {
                 return;
+            }
             code = 32;
-        } else
+        } else {
             code = 0;
+        }
         final int button =
                 ((mouseProtocol == MouseProtocol.NORMAL || mouseProtocol == MouseProtocol.URXVT)
                         && type == MouseEventType.RELEASE) ? 3 :
@@ -274,8 +300,9 @@ public final class AnsiConsoleOutput {
         byte[] out;
         switch (mouseProtocol) {
             case NORMAL: {
-                if (x < 0 || x > 222 || y < 0 || y > 222)
+                if (x < 0 || x > 222 || y < 0 || y > 222) {
                     return;
+                }
                 out = ArrayUtils.addAll((csi() + "M").getBytes(charset), // or ASCII?
                         (byte) (code + button + modifiers + 32),
                         (byte) (x + 33), (byte) (y + 33));
@@ -314,12 +341,16 @@ public final class AnsiConsoleOutput {
             default:
                 return;
         }
-        if (wheel) out = Misc.repeat(out, Math.min(Math.abs(buttons), 32));
+        if (wheel) {
+            out = Misc.repeat(out, Math.min(Math.abs(buttons), 32));
+        }
         feed(out);
     }
 
     private static int utf8Encode(@NonNull final byte[] buf, final int p, final int v) {
-        if (v < 0 || v > 2047) throw new IllegalArgumentException();
+        if (v < 0 || v > 2047) {
+            throw new IllegalArgumentException();
+        }
         if (v < 128) {
             buf[p] = (byte) v;
             return 1;

@@ -477,7 +477,7 @@ public abstract class ExtKeyboardView extends View /*implements View.OnClickList
             return s;
         }
 
-        protected void removeAt(final int pos) {
+        private void removeAt(final int pos) {
             final KeyTouchState s = map.valueAt(pos);
             if (s != null) {
                 s.popup.hide();
@@ -622,7 +622,8 @@ public abstract class ExtKeyboardView extends View /*implements View.OnClickList
                 ((mKeyboard == null) ? 0 : mKeyboard.getHeight());
     }
 
-    protected static int getDefaultSize(int desiredSize, final int measureSpec, final int layoutSize) {
+    protected static int getDefaultSize(int desiredSize, final int measureSpec,
+                                        final int layoutSize) {
         final int specMode = MeasureSpec.getMode(measureSpec);
         final int specSize = MeasureSpec.getSize(measureSpec);
         if (layoutSize >= 0)
@@ -644,17 +645,22 @@ public abstract class ExtKeyboardView extends View /*implements View.OnClickList
     @Override
     public void onMeasure(final int widthMeasureSpec, final int heightMeasureSpec) {
         if (mHidden) {
-            if (Build.VERSION.SDK_INT >= 28) setMeasuredDimension(
-                    getDefaultSize(getDesiredWidth(), widthMeasureSpec, getLayoutParams().width),
-                    1 // for API >= 28 must have nonzero size to be focusable
-            );
-            else
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
+                setMeasuredDimension(
+                        getDefaultSize(getDesiredWidth(), widthMeasureSpec,
+                                getLayoutParams().width),
+                        1 // for API >= 28 must have nonzero size to be focusable
+                );
+            } else {
                 setMeasuredDimension(0, 0);
+            }
             return;
         }
         setMeasuredDimension(
-                getDefaultSize(getDesiredWidth(), widthMeasureSpec, getLayoutParams().width),
-                getDefaultSize(getDesiredHeight(), heightMeasureSpec, getLayoutParams().height)
+                getDefaultSize(getDesiredWidth(), widthMeasureSpec,
+                        getLayoutParams().width),
+                getDefaultSize(getDesiredHeight(), heightMeasureSpec,
+                        getLayoutParams().height)
         );
     }
 
@@ -687,7 +693,9 @@ public abstract class ExtKeyboardView extends View /*implements View.OnClickList
     protected void onDraw(final Canvas canvas) {
         super.onDraw(canvas);
         if (mHidden) {
-            if (Build.VERSION.SDK_INT >= 28) getBackground().draw(canvas); // nonzero size
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
+                getBackground().draw(canvas); // nonzero size
+            }
             return;
         }
         if (!mDirtyRect.isEmpty() || mBuffer == null) {

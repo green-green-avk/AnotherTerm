@@ -81,7 +81,9 @@ public final class AnsiConsoleInput implements BytesSink {
             @Override
             public void onScroll(@NonNull final ConsoleScreenBuffer buf,
                                  final int from, final int to, final int n) {
-                if (buf == currScrBuf) dispatchOnBufferScroll(from, to, n);
+                if (buf == currScrBuf) {
+                    dispatchOnBufferScroll(from, to, n);
+                }
             }
         };
         mainScrBuf = new ConsoleScreenBuffer(80, 24, 10000);
@@ -93,20 +95,23 @@ public final class AnsiConsoleInput implements BytesSink {
     }
 
     private void sendBack(@NonNull final String v) {
-        if (consoleOutput != null)
+        if (consoleOutput != null) {
             consoleOutput.feed(v);
+        }
     }
 
     private void sendBackCsi(@NonNull final String v) {
-        if (consoleOutput != null)
+        if (consoleOutput != null) {
             consoleOutput.feed(consoleOutput.csi() + v);
+        }
     }
 
     private void sendBackOscSt(@NonNull final String v) {
-        if (consoleOutput != null)
+        if (consoleOutput != null) {
             consoleOutput.feed(consoleOutput.osc() +
                     v.replaceAll("[\\x00-\\x1F\\x7F-\\x9F]", " ")
                     + consoleOutput.st());
+        }
     }
 
     public int getComplianceLevel() {
@@ -121,14 +126,16 @@ public final class AnsiConsoleInput implements BytesSink {
     public void setComplianceLevel(final int level) {
         complianceLevel = level;
         mInputTokenizer.vt52Mode = level == 0;
-        if (consoleOutput != null)
+        if (consoleOutput != null) {
             consoleOutput.setVt52(mInputTokenizer.vt52Mode);
+        }
         if (level > 1) {
             set8BitMode(true);
         } else {
             set8BitMode(false);
-            if (consoleOutput != null)
+            if (consoleOutput != null) {
                 consoleOutput.set8BitMode(false);
+            }
         }
     }
 
@@ -137,8 +144,9 @@ public final class AnsiConsoleInput implements BytesSink {
     }
 
     public void set8BitOutput(final boolean v) {
-        if (complianceLevel > 1 && consoleOutput != null)
+        if (complianceLevel > 1 && consoleOutput != null) {
             consoleOutput.set8BitMode(v);
+        }
     }
 
     public void setCharset(@NonNull final Charset ch) {
@@ -171,13 +179,15 @@ public final class AnsiConsoleInput implements BytesSink {
     }
 
     public void invalidateSink() {
-        for (final OnInvalidateSink h : mOnInvalidateSink)
+        for (final OnInvalidateSink h : mOnInvalidateSink) {
             h.onInvalidateSink(null);
+        }
     }
 
     private void invalidateSinkResize(final int cols, final int rows) {
-        for (final OnInvalidateSink h : mOnInvalidateSink)
+        for (final OnInvalidateSink h : mOnInvalidateSink) {
             h.onInvalidateSinkResize(cols, rows);
+        }
     }
 
     public interface OnBufferScroll {
@@ -227,9 +237,12 @@ public final class AnsiConsoleInput implements BytesSink {
         w = mainScrBuf.getWidth();
         h = mainScrBuf.getHeight();
         altScrBuf.resize(w, h, h);
-        if (w == ow && h == oh) return;
-        if (backendModule != null)
+        if (w == ow && h == oh) {
+            return;
+        }
+        if (backendModule != null) {
             backendModule.resize(w, h, w * 16, h * 16);
+        }
         invalidateSinkResize(w, h);
     }
 
@@ -253,7 +266,9 @@ public final class AnsiConsoleInput implements BytesSink {
     }
 
     private void popWindowTitle() {
-        if (!windowTitles.isEmpty()) setWindowTitle(windowTitles.pop());
+        if (!windowTitles.isEmpty()) {
+            setWindowTitle(windowTitles.pop());
+        }
     }
 
     private int zao(final int v) {
@@ -284,7 +299,9 @@ public final class AnsiConsoleInput implements BytesSink {
     }
 
     private void tab(int v) {
-        if (v == 0) return;
+        if (v == 0) {
+            return;
+        }
         int pos = currScrBuf.getPosX();
         final int d;
         final NavigableSet<Integer> tt;
@@ -363,31 +380,37 @@ public final class AnsiConsoleInput implements BytesSink {
     private void putText(@NonNull final CharSequence v) {
         currScrBuf.setCurrentAttrs(mCurrAttrs);
         final DecTerminalCharsets.Table table;
-        if (mInputTokenizer.vt52Mode)
+        if (mInputTokenizer.vt52Mode) {
             table = vt52GraphMode ? DecTerminalCharsets.vt52Graphics : null;
-        else
+        } else {
             table = decGxCharsets[decGlCharset];
+        }
         final CharSequence text = DecTerminalCharsets.translate(v, table);
-        if (text.length() <= 0)
+        if (text.length() <= 0) {
             return;
+        }
         final char[] ls = Unicode.getLastSymbol(text);
-        if (ls != null)
+        if (ls != null) {
             lastSymbol = ls;
-        if (insertMode)
+        }
+        if (insertMode) {
             currScrBuf.insertChars(text);
-        else
+        } else {
             currScrBuf.setChars(text);
+        }
     }
 
     @Override
     public void feed(@NonNull final ByteBuffer v) {
-        if (v.remaining() == 0) return;
+        if (v.remaining() == 0) {
+            return;
+        }
         mInputBuf.bind(v);
         try {
             while (mStrConv.ready()) {
                 mInputTokenizer.tokenize(mStrConv);
                 for (final InputTokenizer.Token t : mInputTokenizer) {
-//                    Log.v("CtrlSeq/Note", t.type + ": " + t.value.toString());
+//                  Log.v("CtrlSeq/Note", t.type + ": " + t.value.toString());
                     if (mInputTokenizer.vt52Mode) {
                         switch (t.type) {
                             case ESC:
@@ -439,21 +462,24 @@ public final class AnsiConsoleInput implements BytesSink {
                                         sendBack("\u001B/Z");
                                         break;
                                     case '=':
-                                        if (consoleOutput != null)
+                                        if (consoleOutput != null) {
                                             consoleOutput.appNumKeys = true;
+                                        }
                                         break;
                                     case '>':
-                                        if (consoleOutput != null)
+                                        if (consoleOutput != null) {
                                             consoleOutput.appNumKeys = false;
+                                        }
                                         break;
                                     case '<':
                                         setComplianceLevel(defaultComplianceLevel);
                                         break;
                                     default:
-                                        if (LOG_UNKNOWN_ESC)
+                                        if (LOG_UNKNOWN_ESC) {
                                             Log.w("CtrlSeq", "ESC: " +
                                                     Compat.subSequence(t.value,
                                                             1, t.value.remaining()));
+                                        }
                                 }
                                 break;
                             case CTL: {
@@ -490,8 +516,9 @@ public final class AnsiConsoleInput implements BytesSink {
                                         ri();
                                         break;
                                     default:
-                                        if (LOG_UNKNOWN_ESC)
+                                        if (LOG_UNKNOWN_ESC) {
                                             Log.w("CtrlSeq", "CTL: " + (int) ctl);
+                                        }
                                 }
                                 break;
                             }
@@ -517,8 +544,9 @@ public final class AnsiConsoleInput implements BytesSink {
                                 }
                                 break;
                             }
-                            if (LOG_UNKNOWN_ESC)
+                            if (LOG_UNKNOWN_ESC) {
                                 Log.w("CtrlSeq", "OSC: " + osc.body);
+                            }
                             break;
                         }
                         case CSI:
@@ -560,12 +588,14 @@ public final class AnsiConsoleInput implements BytesSink {
                                     restoreCursor();
                                     break;
                                 case '>':
-                                    if (consoleOutput != null)
+                                    if (consoleOutput != null) {
                                         consoleOutput.appNumKeys = false;
+                                    }
                                     break;
                                 case '=':
-                                    if (consoleOutput != null)
+                                    if (consoleOutput != null) {
                                         consoleOutput.appNumKeys = true;
+                                    }
                                     break;
                                 case '(':
                                     setDecCharset(0, t.value.charAt(2));
@@ -594,10 +624,11 @@ public final class AnsiConsoleInput implements BytesSink {
                                     }
                                     break;
                                 default:
-                                    if (LOG_UNKNOWN_ESC)
+                                    if (LOG_UNKNOWN_ESC) {
                                         Log.w("CtrlSeq", "ESC: " +
                                                 Compat.subSequence(t.value,
                                                         1, t.value.remaining()));
+                                    }
                             }
                             break;
                         case CTL: {
@@ -640,8 +671,9 @@ public final class AnsiConsoleInput implements BytesSink {
                                     ri();
                                     break;
                                 default:
-                                    if (LOG_UNKNOWN_ESC)
+                                    if (LOG_UNKNOWN_ESC) {
                                         Log.w("CtrlSeq", "CTL: " + (int) ctl);
+                                    }
                             }
                             break;
                         }
@@ -653,24 +685,27 @@ public final class AnsiConsoleInput implements BytesSink {
                 }
             }
         } catch (final IOException e) {
-            if (BuildConfig.DEBUG)
+            if (BuildConfig.DEBUG) {
                 Log.e("-", "Strange IO error", e);
+            }
         } finally {
             mInputBuf.release();
         }
     }
 
     private void parseCsi(@NonNull final EscCsi csi) {
-        if (csi.suffix.isEmpty())
+        if (csi.suffix.isEmpty()) {
             switch (csi.prefix) {
                 case 0:
                     switch (csi.type) {
                         case 'c':
                             sendBackCsi("?62;1c"); // TODO: VT220/132cols yet...
-//                        Log.i("CtrlSeq", "Terminal type request");
+//                          Log.i("CtrlSeq", "Terminal type request");
                             return;
                         case 'n':
-                            if (csi.args.length == 0) break;
+                            if (csi.args.length == 0) {
+                                break;
+                            }
                             switch (csi.args[0]) {
                                 case "5":
                                     sendBackCsi("0n"); // Terminal OK
@@ -868,9 +903,10 @@ public final class AnsiConsoleInput implements BytesSink {
                                             aa.bgColor.type = ConsoleScreenCharAttrs.Color.Type.BASIC;
                                             break;
                                         }
-                                        if (LOG_UNKNOWN_ESC)
+                                        if (LOG_UNKNOWN_ESC) {
                                             Log.w("CtrlSeq", "Attr: " + a +
                                                     " in " + csi.body);
+                                        }
                                 }
                             }
                             return;
@@ -912,13 +948,14 @@ public final class AnsiConsoleInput implements BytesSink {
                             return;
                         }
                         case 'b':
-                            if (lastSymbol != null)
+                            if (lastSymbol != null) {
                                 putText(CharBuffer.wrap(Misc.repeat(lastSymbol,
                                         MathUtils.clamp(csi.getIntArg(0, 1),
                                                 1, 4096))));
+                            }
                             return;
                         case 'q': { // DECLL
-                            for (int i = 0; i < csi.args.length; ++i)
+                            for (int i = 0; i < csi.args.length; ++i) {
                                 switch (csi.getIntArg(i, 0)) {
                                     case 0:
                                         numLed = false;
@@ -944,6 +981,7 @@ public final class AnsiConsoleInput implements BytesSink {
                                         scrollLed = false;
                                         break;
                                 }
+                            }
                             return;
                         }
                         case 'r':
@@ -960,13 +998,16 @@ public final class AnsiConsoleInput implements BytesSink {
                             restoreCursor();
                             return;
                         case 't':
-                            if (csi.args.length == 2) break;
+                            if (csi.args.length == 2) {
+                                break;
+                            }
                             switch (csi.getIntArg(0, 0)) {
                                 case 11:
-                                    if (consoleOutput == null || consoleOutput.hasMouseFocus())
+                                    if (consoleOutput == null || consoleOutput.hasMouseFocus()) {
                                         sendBackCsi("1t");
-                                    else
+                                    } else {
                                         sendBackCsi("2t");
+                                    }
                                     return;
                                 case 21:
                                     sendBackOscSt("l" + (currScrBuf.windowTitle != null ?
@@ -994,7 +1035,9 @@ public final class AnsiConsoleInput implements BytesSink {
                 case '?':
                     switch (csi.type) {
                         case 'n':
-                            if (csi.args.length == 0) break;
+                            if (csi.args.length == 0) {
+                                break;
+                            }
                             switch (csi.args[0]) {
                                 case "6":
                                     sendBackCsi((currScrBuf.getPosY() + 1) + ";" +
@@ -1006,7 +1049,9 @@ public final class AnsiConsoleInput implements BytesSink {
                         case 'l': {
                             for (int i = 0; i < csi.args.length; i++) {
                                 final int opt = csi.getIntArg(i, -1);
-                                if (opt < 0) break;
+                                if (opt < 0) {
+                                    break;
+                                }
                                 if (opt == 2 && csi.type == 'l') {
                                     setComplianceLevel(0); // VT52
                                     return;
@@ -1018,7 +1063,9 @@ public final class AnsiConsoleInput implements BytesSink {
                         case 'r': {
                             for (int i = 0; i < csi.args.length; i++) {
                                 final int opt = csi.getIntArg(i, -1);
-                                if (opt < 0) break;
+                                if (opt < 0) {
+                                    break;
+                                }
                                 decPrivateMode.restore(opt);
                             }
                             return;
@@ -1026,7 +1073,9 @@ public final class AnsiConsoleInput implements BytesSink {
                         case 's': {
                             for (int i = 0; i < csi.args.length; i++) {
                                 final int opt = csi.getIntArg(i, -1);
-                                if (opt < 0) break;
+                                if (opt < 0) {
+                                    break;
+                                }
                                 decPrivateMode.save(opt);
                             }
                             return;
@@ -1034,27 +1083,31 @@ public final class AnsiConsoleInput implements BytesSink {
                     }
                     break;
             }
+        }
         if ("\"".equals(csi.suffix))
             switch (csi.prefix) {
                 case 0:
                     switch (csi.type) {
                         case 'p':
                             final int level = csi.getIntArg(0, 62);
-                            if (level < 61 || level > 65)
+                            if (level < 61 || level > 65) {
                                 break;
+                            }
                             setComplianceLevel(level - 60);
                             if (csi.args.length >= 2) {
                                 final int _8BitOutput = csi.getIntArg(1, 1);
-                                if (_8BitOutput >= 0 && _8BitOutput <= 2)
+                                if (_8BitOutput >= 0 && _8BitOutput <= 2) {
                                     set8BitOutput(_8BitOutput != 1);
+                                }
                             }
                             return;
                     }
                     break;
             }
-        if (LOG_UNKNOWN_ESC)
+        if (LOG_UNKNOWN_ESC) {
             Log.w("CtrlSeq", "ESC[" + ((csi.prefix == 0) ? "" : csi.prefix) +
                     csi.body + csi.suffix + csi.type);
+        }
     }
 
     private int parseColors(@NonNull final EscCsi csi, final int i, final boolean isFg) {
@@ -1069,27 +1122,31 @@ public final class AnsiConsoleInput implements BytesSink {
     // See https://en.wikipedia.org/wiki/ANSI_escape_code#8-bit
     private int parseColors(@NonNull final String[] args, int i, final boolean isFg,
                             final boolean isITU) {
-        if (args.length == i)
+        if (args.length == i) {
             return i;
+        }
         final int color;
         final ConsoleScreenCharAttrs.Color.Type colorType;
         switch (EscCsi.getIntArg(args, i, 0)) {
             case 2: // TrueColor
-                if (args.length - i < (isITU ? 5 : 4))
+                if (args.length - i < (isITU ? 5 : 4)) {
                     return i;
+                }
                 i++;
-                if (isITU)
+                if (isITU) {
                     i++; // https://en.wikipedia.org/wiki/ANSI_escape_code#24-bit
+                }
                 color = Color.rgb(
                         EscCsi.getIntArg(args, i++, 0),
                         EscCsi.getIntArg(args, i++, 0),
                         EscCsi.getIntArg(args, i++, 0)
-                ); // Bad taste but valid in Java.
+                );
                 colorType = ConsoleScreenCharAttrs.Color.Type.TRUE;
                 break;
             case 3: // CMY
-                if (!isITU || args.length - i < 5)
+                if (!isITU || args.length - i < 5) {
                     return i;
+                }
                 i += 2;
                 color = ColorUtils.CMYToRGB(
                         EscCsi.getIntArg(args, i++, 0),
@@ -1099,8 +1156,9 @@ public final class AnsiConsoleInput implements BytesSink {
                 colorType = ConsoleScreenCharAttrs.Color.Type.TRUE;
                 break;
             case 4: // CMYK
-                if (!isITU || args.length - i < 6)
+                if (!isITU || args.length - i < 6) {
                     return i;
+                }
                 i += 2;
                 color = ColorUtils.CMYKToRGB(
                         EscCsi.getIntArg(args, i++, 0),
@@ -1111,12 +1169,14 @@ public final class AnsiConsoleInput implements BytesSink {
                 colorType = ConsoleScreenCharAttrs.Color.Type.TRUE;
                 break;
             case 5: // 256
-                if (args.length - i < 2)
+                if (args.length - i < 2) {
                     return i;
+                }
                 i++;
                 final int c = EscCsi.getIntArg(args, i++, 0);
-                if ((c & ~0xFF) != 0)
+                if ((c & ~0xFF) != 0) {
                     return i - 2;
+                }
                 color = c;
                 colorType = ConsoleScreenCharAttrs.Color.Type._8BIT;
                 break;
@@ -1140,8 +1200,9 @@ public final class AnsiConsoleInput implements BytesSink {
         private void apply(final int opt, final boolean value) {
             switch (opt) {
                 case 1:
-                    if (consoleOutput != null)
+                    if (consoleOutput != null) {
                         consoleOutput.appCursorKeys = value;
+                    }
                     return;
                 case 3: // DECCOLM
                     currScrBuf.setCurrentAttrs(mCurrAttrs);
@@ -1161,71 +1222,83 @@ public final class AnsiConsoleInput implements BytesSink {
                     altScrBuf.wrap = value;
                     return;
                 case 8:
-                    if (consoleOutput != null)
+                    if (consoleOutput != null) {
                         consoleOutput.keyAutorepeat = value;
+                    }
                     return;
                 case 9:
-                    if (consoleOutput != null)
+                    if (consoleOutput != null) {
                         consoleOutput.mouseTracking = value ?
                                 AnsiConsoleOutput.MouseTracking.X10
                                 : AnsiConsoleOutput.MouseTracking.NONE;
+                    }
                     return;
                 case 25:
                     cursorVisibility = value;
                     return;
                 case 66:
-                    if (consoleOutput != null)
+                    if (consoleOutput != null) {
                         consoleOutput.appNumKeys = value;
+                    }
                     return;
                 case 67:
-                    if (consoleOutput != null)
+                    if (consoleOutput != null) {
                         consoleOutput.appDECBKM = value;
+                    }
                     return;
                 case 1000:
-                    if (consoleOutput != null)
+                    if (consoleOutput != null) {
                         consoleOutput.mouseTracking = value ?
                                 AnsiConsoleOutput.MouseTracking.X11
                                 : AnsiConsoleOutput.MouseTracking.NONE;
+                    }
                     return;
                 case 1001:
-                    if (consoleOutput != null)
+                    if (consoleOutput != null) {
                         consoleOutput.mouseTracking = value ?
                                 AnsiConsoleOutput.MouseTracking.HIGHLIGHT
                                 : AnsiConsoleOutput.MouseTracking.NONE;
+                    }
                     return;
                 case 1002:
-                    if (consoleOutput != null)
+                    if (consoleOutput != null) {
                         consoleOutput.mouseTracking = value ?
                                 AnsiConsoleOutput.MouseTracking.BUTTON_EVENT
                                 : AnsiConsoleOutput.MouseTracking.NONE;
+                    }
                     return;
                 case 1003:
-                    if (consoleOutput != null)
+                    if (consoleOutput != null) {
                         consoleOutput.mouseTracking = value ?
                                 AnsiConsoleOutput.MouseTracking.ANY_EVENT
                                 : AnsiConsoleOutput.MouseTracking.NONE;
+                    }
                     return;
                 case 1004:
-                    if (consoleOutput != null)
+                    if (consoleOutput != null) {
                         consoleOutput.mouseFocusInOut = value;
+                    }
                     return;
                 case 1005:
-                    if (consoleOutput != null)
+                    if (consoleOutput != null) {
                         consoleOutput.mouseProtocol = value ?
                                 AnsiConsoleOutput.MouseProtocol.UTF8
                                 : AnsiConsoleOutput.MouseProtocol.NORMAL;
+                    }
                     return;
                 case 1006:
-                    if (consoleOutput != null)
+                    if (consoleOutput != null) {
                         consoleOutput.mouseProtocol = value ?
                                 AnsiConsoleOutput.MouseProtocol.SGR
                                 : AnsiConsoleOutput.MouseProtocol.NORMAL;
+                    }
                     return;
                 case 1015:
-                    if (consoleOutput != null)
+                    if (consoleOutput != null) {
                         consoleOutput.mouseProtocol = value ?
                                 AnsiConsoleOutput.MouseProtocol.URXVT
                                 : AnsiConsoleOutput.MouseProtocol.NORMAL;
+                    }
                     return;
                 case 47:
                 case 1047:
@@ -1264,12 +1337,14 @@ public final class AnsiConsoleInput implements BytesSink {
                     currScrBuf.getCurrentAttrs(mCurrAttrs);
                     return;
                 case 2004:
-                    if (consoleOutput != null)
+                    if (consoleOutput != null) {
                         consoleOutput.bracketedPasteMode = value;
+                    }
                     return;
             }
-            if (LOG_UNKNOWN_ESC)
+            if (LOG_UNKNOWN_ESC) {
                 Log.w("CtrlSeq", "DecPrivateMode: " + opt + " = " + value);
+            }
         }
 
         public void set(final int opt, final boolean value) {
@@ -1279,13 +1354,17 @@ public final class AnsiConsoleInput implements BytesSink {
 
         public void save(final int opt) {
             final int i = current.indexOfKey(opt);
-            if (i < 0) return;
+            if (i < 0) {
+                return;
+            }
             saved.put(opt, current.valueAt(i));
         }
 
         public void restore(final int opt) {
             final int i = saved.indexOfKey(opt);
-            if (i < 0) return;
+            if (i < 0) {
+                return;
+            }
             final boolean v = saved.valueAt(i);
             current.put(opt, v);
             apply(opt, v);

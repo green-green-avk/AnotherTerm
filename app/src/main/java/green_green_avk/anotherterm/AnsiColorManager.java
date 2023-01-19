@@ -57,7 +57,7 @@ public final class AnsiColorManager extends SimpleProfileManager<AnsiColorProfil
             @NonNull
             public Iterator<Meta> iterator() {
                 return new Iterator<Meta>() {
-                    final Iterator<String> i = sp.getAll().keySet().iterator();
+                    private final Iterator<String> i = sp.getAll().keySet().iterator();
 
                     @Override
                     public boolean hasNext() {
@@ -87,8 +87,9 @@ public final class AnsiColorManager extends SimpleProfileManager<AnsiColorProfil
     public AnsiColorProfile.Editable getForEdit(@NonNull final String name) {
         final AnsiColorProfile.Editable data = (AnsiColorProfile.Editable) get(name);
         final Meta meta = getMeta(data);
-        if (meta != null && meta.isBuiltIn)
+        if (meta != null && meta.isBuiltIn) {
             return data.clone();
+        }
         return data;
     }
 

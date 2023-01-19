@@ -282,8 +282,9 @@ public final class LocalModule extends BackendModule {
         env.put(BuildConfig.SHELL_SESSION_TOKEN_VAR, Long.toHexString(sessionToken).toUpperCase());
         env.put("TERM", terminalString);
         env.put("DATA_DIR", context.getApplicationInfo().dataDir);
-        if (Build.VERSION.SDK_INT >= 24)
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
             env.put("PROTECTED_DATA_DIR", context.getApplicationInfo().deviceProtectedDataDir);
+        }
         final File extDataDir = context.getExternalFilesDir(null);
         if (extDataDir != null) {
             env.put("EXTERNAL_DATA_DIR", extDataDir.getAbsolutePath());
@@ -298,8 +299,9 @@ public final class LocalModule extends BackendModule {
         env.put("MY_DEVICE_ABIS", TextUtils.join(" ", Misc.getAbis()));
         env.put("MY_ANDROID_SDK", Integer.toString(Build.VERSION.SDK_INT));
         // Input URIs
-        for (final Map.Entry<String, String> ei : envInput.entrySet())
+        for (final Map.Entry<String, String> ei : envInput.entrySet()) {
             env.put("INPUT_" + ei.getKey(), ei.getValue());
+        }
         // ==========
         synchronized (connectionLock) {
             final PtyProcess p = PtyProcess.system(execute, env);
@@ -422,7 +424,7 @@ public final class LocalModule extends BackendModule {
     /**
      * If the terminal is in a mode when it does not intercept some control bytes,
      * the functions below can be used to send appropriate signals to the foreground process group.
-     * https://www.win.tue.nl/~aeb/linux/lk/lk-10.html
+     * <a href="https://www.win.tue.nl/~aeb/linux/lk/lk-10.html">The Linux kernel - 10. Processes</a>
      */
     @Keep
     @ExportedUIMethod(titleRes = R.string.action_send_signal,

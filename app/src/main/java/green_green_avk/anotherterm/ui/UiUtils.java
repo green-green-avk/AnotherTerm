@@ -413,7 +413,7 @@ public final class UiUtils {
     }
 
     public static void showContextMenuOnBottom(@NonNull final View v) {
-        if (Build.VERSION.SDK_INT < 24) {
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.N) {
             v.showContextMenu();
         } else {
             v.showContextMenu(0, v.getHeight());
@@ -495,23 +495,22 @@ public final class UiUtils {
 
     @NonNull
     public static MovementMethod getFixedLinkMovementMethod() {
-        if (Build.VERSION.SDK_INT >= 16)
-            // https://issuetracker.google.com/issues/37068143
-            // https://stackoverflow.com/questions/22810147/error-when-selecting-text-from-textview-java-lang-indexoutofboundsexception-se
-            // https://stackoverflow.com/questions/33821008/illegalargumentexception-while-selecting-text-in-android-textview/34072449
-            // Spotted:
-            // Android 8.1 (SDK 27)
-            // java.lang.IndexOutOfBoundsException:
-            //   at android.text.SpannableStringInternal.checkRange (SpannableStringInternal.java:442)
-            // ...
-            // Android 6.0 (SDK 23)
-            // java.lang.IllegalArgumentException:
-            //   at android.text.method.WordIterator.checkOffsetIsValid (WordIterator.java:380)
-            // ...
-            // Mitigated by 'me.saket:better-link-movement-method:2.2.0'.
-            return BetterLinkMovementMethod.getInstance();
-        else
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.JELLY_BEAN)
             return LinkMovementMethod.getInstance();
+        // https://issuetracker.google.com/issues/37068143
+        // https://stackoverflow.com/questions/22810147/error-when-selecting-text-from-textview-java-lang-indexoutofboundsexception-se
+        // https://stackoverflow.com/questions/33821008/illegalargumentexception-while-selecting-text-in-android-textview/34072449
+        // Spotted:
+        // Android 8.1 (SDK 27)
+        // java.lang.IndexOutOfBoundsException:
+        //   at android.text.SpannableStringInternal.checkRange (SpannableStringInternal.java:442)
+        // ...
+        // Android 6.0 (SDK 23)
+        // java.lang.IllegalArgumentException:
+        //   at android.text.method.WordIterator.checkOffsetIsValid (WordIterator.java:380)
+        // ...
+        // Mitigated by 'me.saket:better-link-movement-method:2.2.0'.
+        return BetterLinkMovementMethod.getInstance();
     }
 
     public static void setBackgroundAlpha(@Nullable final Drawable drawable,

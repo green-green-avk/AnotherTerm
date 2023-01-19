@@ -190,7 +190,8 @@ public final class Misc {
         buf = new byte[(q.size() - 1) * buf.length + off];
         off = 0;
         for (final byte[] b : q) {
-            System.arraycopy(b, 0, buf, off, Math.min(b.length, buf.length - off));
+            System.arraycopy(b, 0, buf, off,
+                    Math.min(b.length, buf.length - off));
             off += b.length;
         }
         return buf;

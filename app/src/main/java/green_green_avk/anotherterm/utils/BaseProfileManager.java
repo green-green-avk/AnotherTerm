@@ -23,17 +23,18 @@ public abstract class BaseProfileManager<T> extends ProfileManager<T> {
         @NonNull
         public Iterator<Meta> iterator() {
             return new Iterator<Meta>() {
-                int i = 0;
-                final Iterator<? extends Meta>[] ii = new Iterator[]{
+                private int i = 0;
+                private final Iterator<? extends Meta>[] ii = new Iterator[]{
                         enumerateBuiltIn().iterator(),
                         enumerateCustom().iterator()
                 };
 
                 @Override
                 public boolean hasNext() {
-                    while (i < ii.length) {
-                        if (ii[i].hasNext()) return true;
-                        ++i;
+                    for (; i < ii.length; i++) {
+                        if (ii[i].hasNext()) {
+                            return true;
+                        }
                     }
                     return false;
                 }

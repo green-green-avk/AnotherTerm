@@ -595,53 +595,57 @@ public final class TermSh {
 
             @NonNull
             private ExchangeableFds getExchangeableFds() throws IOException {
-                if (Build.VERSION.SDK_INT < 28)
+                if (Build.VERSION.SDK_INT < Build.VERSION_CODES.P) {
                     return new ExchangeableFds(new FileDescriptor[]{
                             ((FileInputStream) stdIn).getFD(),
                             ((FileOutputStream) stdOut).getFD(),
                             ((FileOutputStream) stdErr).getFD()
                     }, null);
-                else {
-                    // ... avc: denied { read write } for
-                    // comm=4173796E635461736B202332 path="/dev/pts/0" dev="devpts" ino=3
-                    // scontext=u:r:untrusted_app:s0:c136,c256,c512,c768
-                    // tcontext=u:object_r:untrusted_app_all_devpts:s0:c135,c256,c512,c768
-                    // tclass=chr_file permissive=0
-                    // Google cares about our health!
-                    final Object[] streams = new Object[]{stdIn, stdOut, stdErr};
-                    final ParcelFileDescriptor[] toClose = new ParcelFileDescriptor[streams.length];
-                    final FileDescriptor[] wfds = new FileDescriptor[streams.length];
-                    for (int i = 0; i < streams.length; i++) {
-                        if (streams[i] instanceof PtyProcess.InterruptableFileInputStream) {
-                            final PtyProcess.InterruptableFileInputStream s =
-                                    (PtyProcess.InterruptableFileInputStream) streams[i];
-                            if (PtyProcess.isatty(s.pfd)) {
-                                toClose[i] = wrapInputAsPipe(s);
-                                wfds[i] = toClose[i].getFileDescriptor();
-                            } else {
-                                toClose[i] = null;
-                                wfds[i] = s.getFD();
-                            }
-                        } else if (streams[i] instanceof PtyProcess.PfdFileOutputStream) {
-                            final PtyProcess.PfdFileOutputStream s =
-                                    (PtyProcess.PfdFileOutputStream) streams[i];
-                            if (PtyProcess.isatty(s.pfd)) {
-                                toClose[i] = wrapOutputAsPipe(s);
-                                wfds[i] = toClose[i].getFileDescriptor();
-                            } else {
-                                toClose[i] = null;
-                                wfds[i] = s.getFD();
-                            }
-                        } else throw new ClassCastException();
+                }
+                // ... avc: denied { read write } for
+                // comm=4173796E635461736B202332 path="/dev/pts/0" dev="devpts" ino=3
+                // scontext=u:r:untrusted_app:s0:c136,c256,c512,c768
+                // tcontext=u:object_r:untrusted_app_all_devpts:s0:c135,c256,c512,c768
+                // tclass=chr_file permissive=0
+                // Google cares about our health!
+                final Object[] streams = new Object[]{stdIn, stdOut, stdErr};
+                final ParcelFileDescriptor[] toClose = new ParcelFileDescriptor[streams.length];
+                final FileDescriptor[] wfds = new FileDescriptor[streams.length];
+                for (int i = 0; i < streams.length; i++) {
+                    if (streams[i] instanceof PtyProcess.InterruptableFileInputStream) {
+                        final PtyProcess.InterruptableFileInputStream s =
+                                (PtyProcess.InterruptableFileInputStream) streams[i];
+                        if (PtyProcess.isatty(s.pfd)) {
+                            toClose[i] = wrapInputAsPipe(s);
+                            wfds[i] = toClose[i].getFileDescriptor();
+                        } else {
+                            toClose[i] = null;
+                            wfds[i] = s.getFD();
+                        }
+                    } else if (streams[i] instanceof PtyProcess.PfdFileOutputStream) {
+                        final PtyProcess.PfdFileOutputStream s =
+                                (PtyProcess.PfdFileOutputStream) streams[i];
+                        if (PtyProcess.isatty(s.pfd)) {
+                            toClose[i] = wrapOutputAsPipe(s);
+                            wfds[i] = toClose[i].getFileDescriptor();
+                        } else {
+                            toClose[i] = null;
+                            wfds[i] = s.getFD();
+                        }
+                    } else {
+                        throw new ClassCastException();
                     }
-                    return new ExchangeableFds(wfds, () -> {
-                        for (final ParcelFileDescriptor pfd : toClose)
+                }
+                return new ExchangeableFds(wfds, () -> {
+                    for (final ParcelFileDescriptor pfd : toClose) {
+                        if (pfd != null) {
                             try {
-                                if (pfd != null) pfd.close();
+                                pfd.close();
                             } catch (final IOException ignored) {
                             }
-                    });
-                }
+                        }
+                    }
+                });
             }
 
             private static long parseShellSessionToken(@NonNull final InputStream is)
@@ -656,6 +660,7 @@ public final class TermSh {
                 /*
                  * It seems socket_read() contains a bug with exception throwing, see:
                  * https://android.googlesource.com/platform/frameworks/base/+/master/core/jni/android_net_LocalSocketImpl.cpp
+                 * https://issuetracker.google.com/u/0/issues/156599236
                  */
                 /*
                 Possible W/A:
@@ -664,13 +669,16 @@ public final class TermSh {
                 final int argc = r != 1 ? -1 : argc_b[0];
                 */
                 final int argc = is.read();
-                if (argc <= 0) return NOARGS;
+                if (argc <= 0) {
+                    return NOARGS;
+                }
                 final byte[][] args = new byte[argc][];
                 final DataInputStream dis = new DataInputStream(is);
                 for (int i = 0; i < argc; ++i) {
                     final int l = dis.readInt();
-                    if (l < 0 || l > ARGLEN_MAX)
+                    if (l < 0 || l > ARGLEN_MAX) {
                         throw new ParseException("Arguments parse error");
+                    }
                     args[i] = new byte[l];
                     dis.readFully(args[i]);
                 }
