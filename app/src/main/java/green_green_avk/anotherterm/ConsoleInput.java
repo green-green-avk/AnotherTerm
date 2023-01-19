@@ -499,7 +499,9 @@ public final class ConsoleInput implements BytesSink {
                                 putText(t.value);
                                 break;
                             default:
-                                Log.e("CtrlSeq", "Bad token type: " + t.type);
+                                if (LOG_UNKNOWN_ESC) {
+                                    Log.e("CtrlSeq", "Bad token type: " + t.type);
+                                }
                         }
                         continue;
                     }
