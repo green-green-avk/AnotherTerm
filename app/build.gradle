@@ -148,7 +148,10 @@ dependencies {
     implementation 'commons-io:commons-io:2.11.0'
     //noinspection GradleDependency
     implementation('org.apache.commons:commons-text:1.9') {
-        because '1.10.0: `java.util.stream` does not exist in API < 24.'
+        because '''1.10.0:
+`java.util.stream` does not exist in API < 24.
+Some desugaring is required... postponed for better times.
+See <https://developer.android.com/studio/write/java8-support#library-desugaring>'''
     }
     implementation 'org.apache.commons:commons-collections4:4.4'
     implementation 'org.apache.httpcomponents:httpcore:4.4.16'
