@@ -8,6 +8,7 @@ import androidx.annotation.Nullable;
 import java.util.AbstractSet;
 import java.util.Iterator;
 import java.util.Map;
+import java.util.NoSuchElementException;
 import java.util.Set;
 
 public abstract class BaseProfileManager<T> extends ProfileManager<T> {
@@ -39,8 +40,12 @@ public abstract class BaseProfileManager<T> extends ProfileManager<T> {
 
                 @Override
                 public Meta next() {
-                    if (hasNext()) return ii[i].next();
-                    return null;
+                    for (; i < ii.length; i++) {
+                        if (ii[i].hasNext()) {
+                            return ii[i].next();
+                        }
+                    }
+                    throw new NoSuchElementException();
                 }
             };
         }
@@ -82,6 +87,11 @@ public abstract class BaseProfileManager<T> extends ProfileManager<T> {
     @NonNull
     public String getTitle(@Nullable final String name, @NonNull final Context ctx) {
         final BuiltIn<? extends T> b = getBuiltIn(name);
-        return b == null ? name : b.getTitle(ctx);
+        if (b == null) {
+            assert name != null;
+            return name;
+        } else {
+            return b.getTitle(ctx);
+        }
     }
 }
