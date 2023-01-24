@@ -149,6 +149,8 @@ public final class Session implements Configuration {
     private Proxy proxy = null;
     private UserInfo userinfo;
 
+    private int connectTimeout = 60000;
+
     private String hostKeyAlias = null;
     private int serverAliveInterval = 0;
     private int serverAliveCountMax = 1;
@@ -193,10 +195,11 @@ public final class Session implements Configuration {
     }
 
     public void connect() throws JSchException {
-        connect(timeout);
+        connect(connectTimeout);
     }
 
     public void connect(final int connectTimeout) throws JSchException {
+        checkTimeoutValue(connectTimeout);
         if (isConnected) {
             throw new JSchException("session is already connected");
         }
@@ -247,9 +250,7 @@ public final class Session implements Configuration {
                 }
             }
 
-            if (connectTimeout > 0 && socket != null) {
-                socket.setSoTimeout(connectTimeout);
-            }
+            setTimeout(connectTimeout);
 
             isConnected = true;
 
@@ -524,9 +525,7 @@ public final class Session implements Configuration {
                         + " for methods '" + smethods + "'");
             }
 
-            if (socket != null && (connectTimeout > 0 || timeout > 0)) {
-                socket.setSoTimeout(timeout);
-            }
+            setTimeout(serverAliveInterval);
 
             isAuthed = true;
 
@@ -1519,7 +1518,7 @@ public final class Session implements Configuration {
 
     /*synchronized*/ void write(final Packet packet, final Channel c, int length)
             throws Exception {
-        final long t = getTimeout();
+        final long t = timeout;
         while (true) {
             if (in_kex) {
                 if (t > 0L && (System.currentTimeMillis() - kex_start_time) > t) {
@@ -1613,7 +1612,7 @@ public final class Session implements Configuration {
 
     void write(final Packet packet) throws Exception {
         // System.err.println("in_kex="+in_kex+" "+(packet.buffer.getCommand()));
-        final long t = getTimeout();
+        final long t = timeout;
         while (in_kex) {
             if (t > 0L &&
                     (System.currentTimeMillis() - kex_start_time) > t &&
@@ -2742,24 +2741,22 @@ public final class Session implements Configuration {
         return isConnected;
     }
 
-    public int getTimeout() {
-        return timeout;
+    private void checkTimeoutValue(final int timeout) throws JSchException {
+        if (timeout < 0) {
+            throw new JSchException("Invalid timeout value");
+        }
     }
 
-    public void setTimeout(final int timeout) throws JSchException {
-        if (socket == null) {
-            if (timeout < 0) {
-                throw new JSchException("invalid timeout value");
+    private void setTimeout(final int timeout) throws JSchException {
+        if (socket != null) {
+            try {
+                socket.setSoTimeout(timeout);
+            } catch (final Exception e) {
+                throw new JSchException(e.toString(), e);
             }
             this.timeout = timeout;
-            return;
         }
-        try {
-            socket.setSoTimeout(timeout);
-            this.timeout = timeout;
-        } catch (final Exception e) {
-            throw new JSchException(e.toString(), e);
-        }
+        // TODO: Current Proxy implementation looks weird: refactor.
     }
 
     public String getServerVersion() {
@@ -2833,21 +2830,23 @@ public final class Session implements Configuration {
     }
 
     /**
-     * Sets the interval to send a keep-alive message.  If zero is
-     * specified, any keep-alive message must not be sent.  The default interval
-     * is zero.
+     * Sets the interval to send keep-alive messages.
+     * <p>
+     * Never by default.
      *
-     * @param interval the specified interval, in milliseconds.
+     * @param interval in milliseconds, {@code 0} - never.
      * @see #getServerAliveInterval()
      */
     public void setServerAliveInterval(final int interval) throws JSchException {
+        checkTimeoutValue(interval);
         setTimeout(interval);
         this.serverAliveInterval = interval;
     }
 
     /**
-     * Returns setting for the interval to send a keep-alive message.
+     * Returns the interval to send keep-alive messages.
      *
+     * @return the interval, in milliseconds.
      * @see #setServerAliveInterval(int)
      */
     public int getServerAliveInterval() {
@@ -2870,6 +2869,7 @@ public final class Session implements Configuration {
     /**
      * Returns setting for the threshold to send keep-alive messages.
      *
+     * @return the specified count
      * @see #setServerAliveCountMax(int)
      */
     public int getServerAliveCountMax() {
@@ -3122,7 +3122,9 @@ public final class Session implements Configuration {
         value = config.getValue("ServerAliveInterval");
         if (value != null) {
             try {
-                this.setServerAliveInterval(Integer.parseInt(value));
+                final int v = Integer.parseInt(value);
+                checkTimeoutValue(v);
+                this.serverAliveInterval = v;
             } catch (final NumberFormatException ignored) {
             }
         }
@@ -3130,7 +3132,9 @@ public final class Session implements Configuration {
         value = config.getValue("ConnectTimeout");
         if (value != null) {
             try {
-                setTimeout(Integer.parseInt(value));
+                final int v = Integer.parseInt(value);
+                checkTimeoutValue(v);
+                this.connectTimeout = v;
             } catch (final NumberFormatException ignored) {
             }
         }

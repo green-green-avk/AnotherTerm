@@ -368,7 +368,7 @@ final class Util {
 
     static Socket createSocket(final String host, final int port, final int timeout)
             throws JSchException {
-        if (timeout == 0) {
+        if (timeout <= 0) {
             try {
                 return new Socket(host, port);
             } catch (final Exception e) {
