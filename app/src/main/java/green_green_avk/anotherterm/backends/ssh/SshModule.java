@@ -259,6 +259,9 @@ public final class SshModule extends BackendModule {
                 fromJSchBoolOpt(JSch.getConfig("enable_server_sig_algs"));
         private boolean preferKeyAuth = false;
         private Uri authKeyUri = null;
+        /**
+         * [s]
+         */
         private int keepaliveInterval = 0;
         private boolean preferCompression = false;
 
@@ -958,7 +961,7 @@ public final class SshModule extends BackendModule {
                     s.setConfig("PreferredAuthentications", sshSessionSt.preferKeyAuth
                             ? "none,publickey,password,keyboard-interactive"
                             : "none,password,publickey,keyboard-interactive");
-                    s.setServerAliveInterval(sshSessionSt.keepaliveInterval);
+                    s.setServerAliveInterval(sshSessionSt.keepaliveInterval * 1000);
                     s.setServerAliveCountMax(10);
                     s.setX11Host(sshSessionSt.x11Host);
                     s.setX11Port(6000 + sshSessionSt.x11Port);
