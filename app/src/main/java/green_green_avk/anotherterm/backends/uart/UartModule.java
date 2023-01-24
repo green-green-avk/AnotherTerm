@@ -23,9 +23,9 @@ import java.util.Set;
 import green_green_avk.anotherterm.R;
 import green_green_avk.anotherterm.backends.BackendException;
 import green_green_avk.anotherterm.backends.BackendModule;
+import green_green_avk.anotherterm.utils.ConstBiDiMapping;
 import green_green_avk.anotherterm.utils.LogMessage;
 import green_green_avk.anotherterm.utils.ResultException;
-import green_green_avk.anotherterm.utils.SimpleBiDirHashMap;
 
 public final class UartModule extends BackendModule {
 
@@ -124,14 +124,14 @@ public final class UartModule extends BackendModule {
 
 //    private enum FlowControl {OFF, XON_XOFF, RTS_CTS}
 
-    private static final SimpleBiDirHashMap<String, Integer> dataBitsOpts
-            = new SimpleBiDirHashMap<>();
-    private static final SimpleBiDirHashMap<String, Integer> stopBitsOpts
-            = new SimpleBiDirHashMap<>();
-    private static final SimpleBiDirHashMap<String, Integer> parityOpts
-            = new SimpleBiDirHashMap<>();
-    private static final SimpleBiDirHashMap<String, Integer> flowControlOpts
-            = new SimpleBiDirHashMap<>();
+    private static final ConstBiDiMapping<String, Integer> dataBitsOpts =
+            new ConstBiDiMapping<>();
+    private static final ConstBiDiMapping<String, Integer> stopBitsOpts =
+            new ConstBiDiMapping<>();
+    private static final ConstBiDiMapping<String, Integer> parityOpts =
+            new ConstBiDiMapping<>();
+    private static final ConstBiDiMapping<String, Integer> flowControlOpts =
+            new ConstBiDiMapping<>();
 
     static {
         dataBitsOpts.put("-", OPT_PRESERVE);
@@ -182,10 +182,10 @@ public final class UartModule extends BackendModule {
     public void setParameters(@NonNull final Map<String, ?> params) {
         final ParametersWrapper pp = new ParametersWrapper(params);
         baudrate = pp.getInt("baudrate", baudrate);
-        dataBits = pp.getFromMap("databits", dataBitsOpts, dataBits);
-        stopBits = pp.getFromMap("stopbits", stopBitsOpts, stopBits);
-        parity = pp.getFromMap("parity", parityOpts, parity);
-        flowControl = pp.getFromMap("flowcontrol", flowControlOpts, flowControl);
+        dataBits = pp.getFromMap("databits", dataBitsOpts.fw, dataBits);
+        stopBits = pp.getFromMap("stopbits", stopBitsOpts.fw, stopBits);
+        parity = pp.getFromMap("parity", parityOpts.fw, parity);
+        flowControl = pp.getFromMap("flowcontrol", flowControlOpts.fw, flowControl);
         insecure = pp.getBoolean("insecure", insecure);
         adapter = pp.getString("adapter", adapter);
         if (adapter.isEmpty())
