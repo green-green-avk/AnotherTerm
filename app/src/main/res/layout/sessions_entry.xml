@@ -13,12 +13,12 @@
         android:id="@+id/thumbnail"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:background="@drawable/bg_screen1"
         android:contentDescription="@null"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintVertical_bias="1"
+        tools:background="@drawable/bg_screen1"
         tools:srcCompat="@drawable/ic_thumbnail_empty" />
 
     <LinearLayout

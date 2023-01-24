@@ -86,6 +86,13 @@ public final class SessionsAdapter extends RecyclerView.Adapter<SessionsAdapter.
         } else {
             thumbnailView.setImageResource(R.drawable.ic_thumbnail_empty);
         }
+        if (session instanceof AnsiSession &&
+                ((AnsiSession) session).uiState.background != null) {
+            thumbnailView.setBackgroundDrawable(((AnsiSession) session).uiState.background
+                    .getDrawable());
+        } else {
+            thumbnailView.setBackgroundResource(R.drawable.bg_screen1);
+        }
         final TextView descriptionView = holder.itemView.findViewById(R.id.description);
         final TextView stateView = holder.itemView.findViewById(R.id.state);
         if (session instanceof AnsiSession) {

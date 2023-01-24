@@ -142,6 +142,7 @@ dependencies {
     implementation 'androidx.asynclayoutinflater:asynclayoutinflater:1.0.0'
     implementation 'androidx.constraintlayout:constraintlayout:2.1.4'
     implementation 'com.google.android.flexbox:flexbox:3.0.0'
+    implementation project(path: ':PngChunkExtractor')
     implementation project(path: ':CompatColorPicker')
     implementation project(path: ':MaterialSeekBarPreference')
 

@@ -25,6 +25,7 @@ public final class AnsiSession extends Session {
         public float fontSizeDp = 0F; // Invariant for resolution switching
         public int screenOrientation = ActivityInfo.SCREEN_ORIENTATION_UNSPECIFIED;
         public boolean keepScreenOn = false;
+        public BackgroundProfile background = null;
     }
 
     public static final class Properties {

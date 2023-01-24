@@ -1,6 +1,7 @@
 include ':app'
 include ':CompatColorPicker'
 include ':MaterialSeekBarPreference'
+include ':PngChunkExtractor'
 include ':PtyProcess'
 include ':bluetoothspp'
 include ':TelnetClient'

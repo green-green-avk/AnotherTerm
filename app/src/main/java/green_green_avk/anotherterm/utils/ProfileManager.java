@@ -69,6 +69,12 @@ public abstract class ProfileManager<T> {
             super(name, title, true, order);
             this.data = data;
         }
+
+        public BuiltIn(final String name, @NonNull final CharSequence title, @NonNull final T data,
+                       final int order) {
+            super(name, title, true, order);
+            this.data = data;
+        }
     }
 
     public abstract boolean containsCustom(@NonNull String name);
@@ -76,9 +82,15 @@ public abstract class ProfileManager<T> {
     @NonNull
     public abstract Set<? extends Meta> enumerate();
 
+    /**
+     * @return a live unmodifiable set
+     */
     @NonNull
     public abstract Set<BuiltIn<? extends T>> enumerateBuiltIn();
 
+    /**
+     * @return a live unmodifiable set
+     */
     @NonNull
     public abstract Set<? extends Meta> enumerateCustom();
 

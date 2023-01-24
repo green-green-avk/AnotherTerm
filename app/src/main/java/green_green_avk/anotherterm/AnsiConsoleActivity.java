@@ -302,6 +302,8 @@ public final class AnsiConsoleActivity extends ConsoleActivity
         mCsv.onStateChange = this;
 
         final AnsiColorManager colorManager = AnsiColorManagerUi.instance.getManager(this);
+        final BackgroundsManager backgroundsManager =
+                BackgroundsManagerUi.instance.getManager(this);
 
         if (isNew) {
             mCsv.setScreenSize(asSize(mSession.connectionParams.get("screen_cols")),
@@ -309,12 +311,19 @@ public final class AnsiConsoleActivity extends ConsoleActivity
             mCsv.setColorProfile(colorManager.get(Objects.toString(
                     mSession.connectionParams.get("colormap"), null)));
         }
+        if (mSession.uiState.background == null) {
+            mSession.uiState.background = backgroundsManager.get(Objects.toString(
+                    mSession.connectionParams.get("background"), null));
+        }
         mSession.uiState.csv.apply(mCsv);
         mSession.uiState.ckv.apply(mCkv);
-        if (mSession.uiState.mouseMode == AnsiSession.UiState.MouseMode.UNDEFINED)
+        if (mSession.uiState.mouseMode == AnsiSession.UiState.MouseMode.UNDEFINED) {
             setMouseMode("overlaid".equals(globalSettings.terminal_ansi_screen_mouse_default_mode));
-        else
+        } else {
             setMouseMode(mSession.uiState.mouseMode == AnsiSession.UiState.MouseMode.OVERLAID);
+        }
+        findViewById(R.id.screen_container)
+                .setBackgroundDrawable(mSession.uiState.background.getDrawable());
 
         colorManager.addOnChangeListener(updateColorProfile);
 
@@ -610,6 +619,8 @@ public final class AnsiConsoleActivity extends ConsoleActivity
                             R.string.label_term_compliance_ansi);
             popupView.<TextView>findViewById(R.id.charset)
                     .setText(mSession.output.getCharset().name());
+            BackgroundsManagerUi.instance.renderIn(popupView.findViewById(R.id.background),
+                    mSession.uiState.background);
             AnsiColorManagerUi.instance.renderIn(popupView.findViewById(R.id.colormap),
                     mCsv.getColorProfile());
             popupView.<TextView>findViewById(R.id.keymap)
@@ -844,6 +855,18 @@ public final class AnsiConsoleActivity extends ConsoleActivity
                     refreshMenuPopup();
                     dialog.dismiss();
                 }).setCancelable(true).show(), null);
+    }
+
+    public void onMenuBackground(final View view) {
+        if (mSession == null)
+            return;
+        BackgroundsManagerUi.instance.showList(this, meta -> {
+            final BackgroundProfile background =
+                    BackgroundsManagerUi.instance.getManager(this).get(meta);
+            findViewById(R.id.screen_container).setBackgroundDrawable(background.getDrawable());
+            mSession.uiState.background = background;
+            refreshMenuPopup();
+        }, mSession.uiState.background);
     }
 
     public void onMenuColorMap(final View view) {

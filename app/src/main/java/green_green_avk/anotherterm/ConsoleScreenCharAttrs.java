@@ -39,7 +39,7 @@ public final class ConsoleScreenCharAttrs {
             android.graphics.Color.rgb(0xCC, 0xCC, 0xCC),
             android.graphics.Color.rgb(0xFF, 0xFF, 0xFF),
             android.graphics.Color.rgb(0x77, 0x77, 0x77),
-            android.graphics.Color.rgb(0x00, 0x00, 0x00)
+            android.graphics.Color.argb(0xC0, 0x00, 0x00, 0x00)
     };
     public static final int BASIC_COLORS_NUM = DEF_BASIC_COLORS.length;
 

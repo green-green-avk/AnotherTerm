@@ -89,6 +89,9 @@ public final class SharedPreferencesSet {
         }
     }
 
+    /**
+     * @return a live unmodifiable set
+     */
     @NonNull
     @MainThread
     public Set<String> enumerate() {

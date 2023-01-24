@@ -10,8 +10,6 @@ public final class TermKeyMapManagerUi extends ProfileManagerUi<TermKeyMapRules>
     private TermKeyMapManagerUi() {
     }
 
-    public static final TermKeyMapManagerUi instance = new TermKeyMapManagerUi();
-
     @Override
     @NonNull
     public TermKeyMapManager getManager(@NonNull final Context ctx) {
@@ -28,4 +26,6 @@ public final class TermKeyMapManagerUi extends ProfileManagerUi<TermKeyMapRules>
     public void startEditor(@NonNull final Context ctx) {
         TermKeyMapEditorActivity.start(ctx, null);
     }
+
+    public static final TermKeyMapManagerUi instance = new TermKeyMapManagerUi();
 }
