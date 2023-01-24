@@ -135,6 +135,7 @@
     <string name="label_in_memory_saved_passwords">In-memory</string>
     <string name="label_key_map">Key Map</string>
     <string name="label_color_map">Color Map</string>
+    <string name="label_background">Background</string>
     <string name="label_host_keys">Host Keys</string>
     <string name="unit_ms" translatable="false">ms</string>
     <string name="unit_sp" translatable="false">sp</string>
@@ -148,6 +149,7 @@
     <string name="profile_title_s_q_not_defined_here_q">%s (not defined here)</string>
     <string name="profile_title_anonymous">Anonymous</string>
     <string name="profile_title_default">Default</string>
+    <string name="profile_title_builtin">Built-in</string>
     <string name="title_shell_of_s">%s Shell</string>
     <string name="title_shell_of_s_script_notification_">%s Shell: script notification:</string>
     <string name="title_about">About</string>

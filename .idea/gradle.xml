@@ -13,6 +13,7 @@
             <option value="$PROJECT_DIR$" />
             <option value="$PROJECT_DIR$/CompatColorPicker" />
             <option value="$PROJECT_DIR$/MaterialSeekBarPreference" />
+            <option value="$PROJECT_DIR$/PngChunkExtractor" />
             <option value="$PROJECT_DIR$/PtyProcess" />
             <option value="$PROJECT_DIR$/TelnetClient" />
             <option value="$PROJECT_DIR$/USBCameraWorkaround" />

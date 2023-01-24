@@ -36,6 +36,7 @@ import green_green_avk.anotherterm.ui.ViewValueListener;
 import green_green_avk.anotherterm.utils.Misc;
 import green_green_avk.anotherterm.utils.PreferenceStorage;
 import green_green_avk.anotherterm.utils.PreferenceUiWrapper;
+import green_green_avk.anotherterm.utils.ProfileManager;
 import green_green_avk.anotherterm.utils.RawPreferenceUiWrapper;
 import green_green_avk.anotherterm.whatsnew.WhatsNewDialog;
 
@@ -58,6 +59,7 @@ public final class FavoriteEditorActivity extends ExtAppCompatActivity {
     private CompoundButton mWakeLockROD;
     private Spinner mTermCompliance;
     private Spinner mCharsetW;
+    private Spinner mBackgroundW;
     private Spinner mColorMapW;
     private Spinner mKeyMapW;
     private Spinner mTypeW;
@@ -266,6 +268,7 @@ public final class FavoriteEditorActivity extends ExtAppCompatActivity {
         ps.put("term_compliance", TERM_COMPLIANCE_KEYS
                 .get(mTermCompliance.getSelectedItemPosition()));
         ps.put("charset", C.charsetList.get(mCharsetW.getSelectedItemPosition()));
+        ps.put("background", ((ProfileManager.Meta) mBackgroundW.getSelectedItem()).name);
         ps.put("colormap", ((AnsiColorManager.Meta) mColorMapW.getSelectedItem()).name);
         ps.put("keymap", ((TermKeyMapManager.Meta) mKeyMapW.getSelectedItem()).name);
         ps.put("screen_cols", getSize(mScrColsW));
@@ -387,6 +390,21 @@ public final class FavoriteEditorActivity extends ExtAppCompatActivity {
             final int pos = C.charsetList.indexOf(charset.toString());
             if (pos >= 0)
                 mCharsetW.setSelection(pos);
+        }
+        final Object background = mPrefsSt.get("background");
+        if (background != null) {
+            final String backgroundName = background.toString();
+            int pos = BackgroundsAdapter.getSelf(mBackgroundW.getAdapter())
+                    .getPosition(backgroundName);
+            if (pos < 0) {
+                BackgroundsAdapter.getSelf(mBackgroundW.getAdapter())
+                        .setZeroEntry(new BackgroundsManager.Meta(backgroundName,
+                                getString(R.string.profile_title_s_q_not_defined_here_q,
+                                        backgroundName),
+                                false));
+                pos = 0;
+            }
+            mBackgroundW.setSelection(pos);
         }
         final Object colorMap = mPrefsSt.get("colormap");
         if (colorMap != null) {
@@ -546,6 +564,7 @@ public final class FavoriteEditorActivity extends ExtAppCompatActivity {
 
         mTermCompliance = findViewById(R.id.fav_term_compliance);
         mCharsetW = findViewById(R.id.fav_charset);
+        mBackgroundW = findViewById(R.id.fav_background);
         mColorMapW = findViewById(R.id.fav_colormap);
         mKeyMapW = findViewById(R.id.fav_keymap);
         mTypeW = findViewById(R.id.fav_type);
@@ -555,6 +574,7 @@ public final class FavoriteEditorActivity extends ExtAppCompatActivity {
 
         mTermCompliance.setSaveEnabled(false);
         mCharsetW.setSaveEnabled(false);
+        mBackgroundW.setSaveEnabled(false);
         mColorMapW.setSaveEnabled(false);
         mKeyMapW.setSaveEnabled(false);
         mTypeW.setSaveEnabled(false);
@@ -591,6 +611,7 @@ public final class FavoriteEditorActivity extends ExtAppCompatActivity {
 
         lNeedSaveDelayed.adoptView(mTermCompliance);
         lNeedSaveDelayed.adoptView(mCharsetW);
+        lNeedSaveDelayed.adoptView(mBackgroundW);
         lNeedSaveDelayed.adoptView(mColorMapW);
         lNeedSaveDelayed.adoptView(mKeyMapW);
 
@@ -632,6 +653,14 @@ public final class FavoriteEditorActivity extends ExtAppCompatActivity {
         aCharset.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
         mCharsetW.setAdapter(aCharset);
         mCharsetW.setSelection(C.charsetList.indexOf(Charset.defaultCharset().name()));
+
+        mBackgroundW.setAdapter(new BackgroundsAdapter(this)
+                .setIncludeBuiltIns(true)
+                .setItemLayoutRes(R.layout.profile_manager_spinner_entry)
+                .setDropDownItemLayoutRes(R.layout.profile_manager_spinner_entry)
+                .getAdapter());
+        mBackgroundW.setSelection(BackgroundsAdapter.getSelf(mBackgroundW.getAdapter())
+                .getPosition((String) null));
 
         mColorMapW.setAdapter(new AnsiColorAdapter(this)
                 .setIncludeBuiltIns(true)

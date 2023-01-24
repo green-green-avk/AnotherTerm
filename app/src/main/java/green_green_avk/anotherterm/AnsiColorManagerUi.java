@@ -11,8 +11,6 @@ public final class AnsiColorManagerUi extends ProfileManagerUi<AnsiColorProfile>
     private AnsiColorManagerUi() {
     }
 
-    public static final AnsiColorManagerUi instance = new AnsiColorManagerUi();
-
     @Override
     @NonNull
     public AnsiColorManager getManager(@NonNull final Context ctx) {
@@ -29,4 +27,6 @@ public final class AnsiColorManagerUi extends ProfileManagerUi<AnsiColorProfile>
     public void startEditor(@NonNull final Context ctx) {
         AnsiColorEditorActivity.start(ctx, null);
     }
+
+    public static final AnsiColorManagerUi instance = new AnsiColorManagerUi();
 }

@@ -3,6 +3,7 @@ package green_green_avk.anotherterm.utils;
 import android.content.Context;
 import android.content.ContextWrapper;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.content.pm.ResolveInfo;
 import android.net.Uri;
@@ -31,6 +32,7 @@ import java.io.OutputStream;
 import java.lang.ref.WeakReference;
 import java.nio.CharBuffer;
 import java.nio.charset.Charset;
+import java.util.AbstractSet;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashSet;
@@ -292,6 +294,27 @@ public final class Misc {
             public Integer next() {
                 if (!hasNext()) throw new NoSuchElementException();
                 return o.keyAt(i++);
+            }
+        };
+    }
+
+    @NonNull
+    public static Set<String> getLiveKeySet(@NonNull final SharedPreferences sp) {
+        return new AbstractSet<String>() {
+            @Override
+            @NonNull
+            public Iterator<String> iterator() {
+                return sp.getAll().keySet().iterator();
+            }
+
+            @Override
+            public int size() {
+                return sp.getAll().size();
+            }
+
+            @Override
+            public boolean contains(@Nullable final Object o) {
+                return o instanceof String && sp.contains((String) o);
             }
         };
     }

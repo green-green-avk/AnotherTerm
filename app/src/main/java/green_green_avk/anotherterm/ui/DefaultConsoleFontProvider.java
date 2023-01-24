@@ -9,8 +9,6 @@ public final class DefaultConsoleFontProvider implements FontProvider {
     private DefaultConsoleFontProvider() {
     }
 
-    private static final DefaultConsoleFontProvider instance = new DefaultConsoleFontProvider();
-
     @NonNull
     public static DefaultConsoleFontProvider getInstance() {
         return instance;
@@ -42,4 +40,6 @@ public final class DefaultConsoleFontProvider implements FontProvider {
     public void populatePaint(@NonNull final Paint out, final int style) {
         out.setTypeface(typefaces[style]);
     }
+
+    private static final DefaultConsoleFontProvider instance = new DefaultConsoleFontProvider();
 }

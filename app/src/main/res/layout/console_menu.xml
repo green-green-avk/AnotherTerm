@@ -199,6 +199,31 @@
                         android:layout_width="wrap_content"
                         android:layout_height="match_parent"
                         android:adjustViewBounds="true"
+                        app:srcCompat="@drawable/ic_background"
+                        app:tint="@color/colorPrimaryDark" />
+
+                    <FrameLayout
+                        android:id="@+id/background"
+                        style="@android:style/Widget.Holo.Light.Spinner"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:focusable="true"
+                        android:onClick="onMenuBackground" />
+
+                </androidx.appcompat.widget.LinearLayoutCompat>
+
+                <androidx.appcompat.widget.LinearLayoutCompat
+                    android:layout_width="wrap_content"
+                    android:layout_height="@dimen/uiOptionSize"
+                    android:baselineAligned="false"
+                    android:gravity="center_vertical"
+                    android:orientation="horizontal">
+
+                    <ImageView
+                        android:layout_width="wrap_content"
+                        android:layout_height="match_parent"
+                        android:adjustViewBounds="true"
                         app:srcCompat="@drawable/ic_palette"
                         app:tint="@color/colorPrimaryDark" />
 

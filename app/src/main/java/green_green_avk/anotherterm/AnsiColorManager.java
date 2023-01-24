@@ -7,13 +7,13 @@ import android.net.Uri;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
-import java.util.AbstractSet;
 import java.util.Collections;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Locale;
 import java.util.Set;
 
+import green_green_avk.anotherterm.utils.MappedViewSet;
+import green_green_avk.anotherterm.utils.Misc;
 import green_green_avk.anotherterm.utils.SimpleProfileManager;
 
 public final class AnsiColorManager extends SimpleProfileManager<AnsiColorProfile> {
@@ -24,6 +24,13 @@ public final class AnsiColorManager extends SimpleProfileManager<AnsiColorProfil
         final Context ac = ctx.getApplicationContext();
         sp = ac.getSharedPreferences(ac.getPackageName() + ".colors." + name,
                 Context.MODE_PRIVATE);
+        customEnumerator = new MappedViewSet<>(Misc.getLiveKeySet(sp),
+                this::getMeta,
+                meta -> {
+                    if (meta.isBuiltIn)
+                        throw new IllegalArgumentException();
+                    return meta.name;
+                });
     }
 
     @Override
@@ -49,33 +56,13 @@ public final class AnsiColorManager extends SimpleProfileManager<AnsiColorProfil
         }
     }
 
+    @NonNull
+    private final Set<? extends Meta> customEnumerator;
+
     @Override
     @NonNull
     public Set<? extends Meta> enumerateCustom() {
-        return new AbstractSet<Meta>() {
-            @Override
-            @NonNull
-            public Iterator<Meta> iterator() {
-                return new Iterator<Meta>() {
-                    private final Iterator<String> i = sp.getAll().keySet().iterator();
-
-                    @Override
-                    public boolean hasNext() {
-                        return i.hasNext();
-                    }
-
-                    @Override
-                    public Meta next() {
-                        return getMeta(i.next());
-                    }
-                };
-            }
-
-            @Override
-            public int size() {
-                return sp.getAll().size();
-            }
-        };
+        return customEnumerator;
     }
 
     @Override

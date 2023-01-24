@@ -6,24 +6,21 @@ import android.content.Context;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
-import java.util.AbstractSet;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
 import java.util.WeakHashMap;
 
 import green_green_avk.anotherterm.utils.BaseProfileManager;
+import green_green_avk.anotherterm.utils.MappedViewSet;
 import green_green_avk.anotherterm.utils.PreferenceStorage;
 import green_green_avk.anotherterm.utils.SharedPreferencesSet;
 
 public final class TermKeyMapManager extends BaseProfileManager<TermKeyMapRules> {
     private TermKeyMapManager() {
     }
-
-    public static final TermKeyMapManager instance = new TermKeyMapManager();
 
     public static final TermKeyMap defaultKeyMap = new TermKeyMap();
 
@@ -69,33 +66,19 @@ public final class TermKeyMapManager extends BaseProfileManager<TermKeyMapRules>
         return builtIns;
     }
 
+    private final Set<? extends Meta> customEnumerator =
+            new MappedViewSet<>(maps.enumerate(),
+                    this::getMeta,
+                    meta -> {
+                        if (meta.isBuiltIn)
+                            throw new IllegalArgumentException();
+                        return meta.name;
+                    });
+
     @Override
     @NonNull
     public Set<? extends Meta> enumerateCustom() {
-        return new AbstractSet<Meta>() {
-            @Override
-            @NonNull
-            public Iterator<Meta> iterator() {
-                return new Iterator<Meta>() {
-                    private final Iterator<String> i = maps.enumerate().iterator();
-
-                    @Override
-                    public boolean hasNext() {
-                        return i.hasNext();
-                    }
-
-                    @Override
-                    public Meta next() {
-                        return getMeta(i.next());
-                    }
-                };
-            }
-
-            @Override
-            public int size() {
-                return maps.enumerate().size();
-            }
-        };
+        return customEnumerator;
     }
 
     @Override
@@ -180,4 +163,6 @@ public final class TermKeyMapManager extends BaseProfileManager<TermKeyMapRules>
         maps.copy(from, to);
         execOnChangeListeners();
     }
+
+    public static final TermKeyMapManager instance = new TermKeyMapManager();
 }

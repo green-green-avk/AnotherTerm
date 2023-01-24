@@ -232,6 +232,17 @@ public abstract class ProfileAdapter<T> extends UniAdapter {
         return null;
     }
 
+    /**
+     * Returns an entry title.
+     *
+     * @param meta a profile meta info
+     * @return the title or {@code null} for none
+     */
+    @Nullable
+    protected CharSequence onGetTitle(@NonNull final ProfileManager.Meta meta) {
+        return meta.getTitle(context);
+    }
+
     @Override
     @NonNull
     protected View onCreateView(@NonNull final ViewGroup parent, final int type) {
@@ -280,8 +291,11 @@ public abstract class ProfileAdapter<T> extends UniAdapter {
             editView = view.findViewById(R.id.edit);
         }
 
-        nameView.setText(meta.getTitle(view.getContext()));
-        nameView.setTypeface(null, meta.isBuiltIn ? Typeface.ITALIC : Typeface.NORMAL);
+        if (nameView != null) {
+            final CharSequence title = onGetTitle(meta);
+            nameView.setText(title != null ? title : "");
+            nameView.setTypeface(null, meta.isBuiltIn ? Typeface.ITALIC : Typeface.NORMAL);
+        }
 
         if (previewView != null) {
             final Drawable preview = onGetPreview(meta);

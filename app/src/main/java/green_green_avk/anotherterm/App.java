@@ -105,6 +105,7 @@ public final class App extends Application {
     public ScratchpadManager scratchpadManager = null;
 
     public AnsiColorManager ansiColorManager = null;
+    public BackgroundsManager backgroundDrawableManager = null;
 
     // Turned out, it's supposed that any obfuscated fields are reflection unreachable...
     // Must be kept in order to prevent its unexpected early finalization.
@@ -128,6 +129,7 @@ public final class App extends Application {
         FavoritesManager.init(this);
         scratchpadManager = new ScratchpadManager(this, "scratchpad");
         ansiColorManager = new AnsiColorManager(this, "ansi");
+        backgroundDrawableManager = new BackgroundsManager(this);
         termSh = new TermSh(this);
         libUsbManager = new LibUsbManager(this);
     }

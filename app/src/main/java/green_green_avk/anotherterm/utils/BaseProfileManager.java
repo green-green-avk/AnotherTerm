@@ -5,10 +5,7 @@ import android.content.Context;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
-import java.util.AbstractSet;
-import java.util.Iterator;
 import java.util.Map;
-import java.util.NoSuchElementException;
 import java.util.Set;
 
 public abstract class BaseProfileManager<T> extends ProfileManager<T> {
@@ -18,48 +15,14 @@ public abstract class BaseProfileManager<T> extends ProfileManager<T> {
     @NonNull
     protected abstract BuiltIn<? extends T> onGetDefaultBuiltIn();
 
-    private final Set<? extends Meta> enumerator = new AbstractSet<Meta>() {
-        @Override
-        @NonNull
-        public Iterator<Meta> iterator() {
-            return new Iterator<Meta>() {
-                private int i = 0;
-                private final Iterator<? extends Meta>[] ii = new Iterator[]{
-                        enumerateBuiltIn().iterator(),
-                        enumerateCustom().iterator()
-                };
-
-                @Override
-                public boolean hasNext() {
-                    for (; i < ii.length; i++) {
-                        if (ii[i].hasNext()) {
-                            return true;
-                        }
-                    }
-                    return false;
-                }
-
-                @Override
-                public Meta next() {
-                    for (; i < ii.length; i++) {
-                        if (ii[i].hasNext()) {
-                            return ii[i].next();
-                        }
-                    }
-                    throw new NoSuchElementException();
-                }
-            };
-        }
-
-        @Override
-        public int size() {
-            return enumerateBuiltIn().size() + enumerateCustom().size();
-        }
-    };
+    private Set<? extends Meta> enumerator = null; // Subclasses must be initialized before
 
     @Override
     @NonNull
     public Set<? extends Meta> enumerate() {
+        if (enumerator == null) {
+            enumerator = new CollectionsViewSet<>(enumerateBuiltIn(), enumerateCustom());
+        }
         return enumerator;
     }
 
