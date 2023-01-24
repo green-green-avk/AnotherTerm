@@ -87,6 +87,9 @@ public final class TelnetModule extends BackendModule {
     private int port = 23;
     private String username;
     private String terminalString = "xterm";
+    /**
+     * [s]
+     */
     private int keepaliveInterval = 0;
 
     @Override
@@ -178,7 +181,7 @@ public final class TelnetModule extends BackendModule {
     public void connect() {
         try {
             ttoh.update(terminalString);
-            tc.setKeepAliveInterval(keepaliveInterval);
+            tc.setKeepAliveInterval(keepaliveInterval * 1000L);
             tc.connect(hostname, port);
         } catch (final TelnetClientException e) {
             throw new BackendException(e);

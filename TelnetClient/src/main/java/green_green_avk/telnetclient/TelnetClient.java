@@ -558,13 +558,27 @@ public class TelnetClient {
         }
     }
 
-    protected int keepAliveInterval = 0;
+    protected long keepAliveInterval = 0;
 
-    public int getKeepAliveInterval() {
+    /**
+     * Returns the interval to send keep-alive messages.
+     *
+     * @return the interval, in milliseconds.
+     * @see #setKeepAliveInterval(long)
+     */
+    public long getKeepAliveInterval() {
         return keepAliveInterval;
     }
 
-    public void setKeepAliveInterval(final int interval) {
+    /**
+     * Sets the interval to send keep-alive messages.
+     * <p>
+     * Never by default.
+     *
+     * @param interval in milliseconds, {@code 0} - never.
+     * @see #getKeepAliveInterval()
+     */
+    public void setKeepAliveInterval(final long interval) {
         keepAliveInterval = interval;
         applyKeepAlive();
     }
@@ -580,7 +594,7 @@ public class TelnetClient {
             if (keepAliveInterval > 0) {
                 keepAliveTask = new KeepAliveTask();
                 keepAliveTimer.schedule(keepAliveTask,
-                        (long) keepAliveInterval * 1000, (long) keepAliveInterval * 1000);
+                        keepAliveInterval, keepAliveInterval);
             }
         }
     }
