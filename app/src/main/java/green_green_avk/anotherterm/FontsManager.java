@@ -54,11 +54,7 @@ public final class FontsManager {
     private static final List<FontFileObserver> fontFileObservers = new ArrayList<>(6);
 
     private static final class FontFileObserver extends FileObserver {
-        public FontFileObserver(final String path) {
-            super(path);
-        }
-
-        public FontFileObserver(final String path, final int mask) {
+        public FontFileObserver(@NonNull final String path, final int mask) {
             super(path, mask);
         }
 
@@ -225,10 +221,10 @@ public final class FontsManager {
         return true;
     }
 
-    public static void setPaint(@NonNull final Paint paint, @NonNull final Typeface[] tfs,
-                                final int style) {
-        paint.setFakeBoldText(false);
-        paint.setTextSkewX(0);
+    public static void populatePaint(@NonNull final Paint out, @NonNull final Typeface[] tfs,
+                                     final int style) {
+        out.setFakeBoldText(false);
+        out.setTextSkewX(0);
         Typeface tf = tfs[style];
         if (tf == null)
             tf = FontsManager.defaultConsoleTypefaces[style];
@@ -236,24 +232,24 @@ public final class FontsManager {
             tf = FontsManager.defaultTypefaces[style];
         switch (style) {
             case Typeface.NORMAL:
-                paint.setTypeface(tf);
+                out.setTypeface(tf);
                 break;
             case Typeface.BOLD:
-                paint.setTypeface(tf);
+                out.setTypeface(tf);
                 if (tf == tfs[0] || !tf.isBold())
-                    paint.setFakeBoldText(true);
+                    out.setFakeBoldText(true);
                 break;
             case Typeface.ITALIC:
-                paint.setTypeface(tf);
+                out.setTypeface(tf);
                 if (tf == tfs[0] || !tf.isItalic())
-                    paint.setTextSkewX(-0.25F);
+                    out.setTextSkewX(-0.25F);
                 break;
             case Typeface.BOLD_ITALIC:
-                paint.setTypeface(tf);
+                out.setTypeface(tf);
                 if (tf == tfs[2] || !tf.isBold())
-                    paint.setFakeBoldText(true);
+                    out.setFakeBoldText(true);
                 if (tf == tfs[1] || !tf.isItalic())
-                    paint.setTextSkewX(-0.25F);
+                    out.setTextSkewX(-0.25F);
                 break;
         }
     }

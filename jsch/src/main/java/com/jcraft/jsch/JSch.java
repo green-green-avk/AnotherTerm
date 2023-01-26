@@ -746,8 +746,9 @@ public class JSch {
                 continue;
             if (identityRepository instanceof LocalIdentityRepository) {
                 ((LocalIdentityRepository) identityRepository).remove(identity);
-            } else
+            } else {
                 identityRepository.remove(identity.getPublicKeyBlob());
+            }
         }
     }
 
@@ -835,7 +836,7 @@ public class JSch {
     }
 
     /**
-     * Sets the logger
+     * Sets the logger.
      *
      * @param logger logger or {@code null} if no logging
      *               should take place
@@ -849,7 +850,7 @@ public class JSch {
     }
 
     /**
-     * Returns  a logger to be used for this particular instance of JSch
+     * Returns  a logger to be used for this particular instance of JSch.
      *
      * @return The logger that is used by this instance. If no particular
      * logger has been set, the statically set logger is returned.
@@ -862,7 +863,7 @@ public class JSch {
     }
 
     /**
-     * Sets a logger to be used for this particular instance of JSch
+     * Sets a logger to be used for this particular instance of JSch.
      *
      * @param logger The logger to be used or {@code null} if
      *               the statically set logger should be used

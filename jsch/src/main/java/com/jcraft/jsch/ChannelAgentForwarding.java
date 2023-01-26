@@ -30,6 +30,7 @@ EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 package com.jcraft.jsch;
 
 import java.io.IOException;
+import java.util.Arrays;
 import java.util.List;
 
 final class ChannelAgentForwarding extends Channel {
@@ -164,7 +165,7 @@ final class ChannelAgentForwarding extends Channel {
                 for (final Identity _identity : identities) {
                     if (_identity.getPublicKeyBlob() == null)
                         continue;
-                    if (!Util.array_equals(blob, _identity.getPublicKeyBlob())) {
+                    if (!Arrays.equals(blob, _identity.getPublicKeyBlob())) {
                         continue;
                     }
                     if (_identity.isEncrypted()) {

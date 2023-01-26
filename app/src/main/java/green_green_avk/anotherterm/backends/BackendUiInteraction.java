@@ -68,7 +68,7 @@ public interface BackendUiInteraction {
         @NonNull
         public final CharSequence label;
         @NonNull
-        public CustomFieldAction action;
+        public final CustomFieldAction action;
 
         public CustomFieldOpts(@NonNull final CharSequence label,
                                @NonNull final CustomFieldAction action) {

@@ -11,7 +11,7 @@
     app:flexDirection="row"
     app:flexWrap="wrap">
 
-    <LinearLayout
+    <androidx.appcompat.widget.LinearLayoutCompat
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:orientation="horizontal">
@@ -35,7 +35,7 @@
             android:textIsSelectable="true"
             tools:text="rsa-xxx" />
 
-    </LinearLayout>
+    </androidx.appcompat.widget.LinearLayoutCompat>
 
     <TextView
         android:id="@+id/f_fingerprint"
@@ -51,14 +51,15 @@
         android:layout_height="wrap_content"
         app:layout_flexGrow="1" />
 
-    <ImageButton
-        android:id="@+id/b_menu"
-        style="@style/AppWidget.EditorToolbar.ImageButton"
-        android:layout_width="@dimen/kbd_key_size"
-        android:layout_height="@dimen/kbd_key_size"
-        android:contentDescription="@string/action_menu"
-        android:longClickable="false"
-        app:srcCompat="@drawable/ic_menu"
-        app:tint="@color/colorMiddle" />
+    <green_green_avk.anotherterm.ui.ConfirmingImageButton
+        android:id="@+id/action_delete"
+        style="@style/AppWidget.Editor.ImageButton"
+        android:layout_width="@dimen/smallUiOptionSize"
+        android:layout_height="wrap_content"
+        android:adjustViewBounds="true"
+        android:contentDescription="@string/action_delete"
+        app:confirmationMessage="@string/action_delete"
+        app:srcCompat="@drawable/ic_delete"
+        app:tint="@color/colorImportantDark" />
 
 </com.google.android.flexbox.FlexboxLayout>

@@ -773,10 +773,10 @@ public abstract class ExtKeyboardView extends View /*implements View.OnClickList
         if (keyFcn.label != null) {
             if (keyFcn.label.length() < 2) {
                 paint.setTextSize(mKeyTextSize);
-                fontProvider.setPaint(paint, Typeface.BOLD);
+                fontProvider.populatePaint(paint, Typeface.BOLD);
             } else {
                 paint.setTextSize(mLabelTextSize);
-                fontProvider.setPaint(paint, Typeface.NORMAL);
+                fontProvider.populatePaint(paint, Typeface.NORMAL);
             }
 
             final float labelX = (float) (key.width - padding.left - padding.right) / 2
@@ -862,7 +862,7 @@ public abstract class ExtKeyboardView extends View /*implements View.OnClickList
                 mPaint.setAlpha(255);
                 mPaint.setStyle(Paint.Style.FILL);
                 mPaint.setTextSize(mBaseTextSize);
-                fontProvider.setPaint(mPaint, Typeface.BOLD);
+                fontProvider.populatePaint(mPaint, Typeface.BOLD);
                 mFontHeight = mPaint.getFontSpacing();
             }
 

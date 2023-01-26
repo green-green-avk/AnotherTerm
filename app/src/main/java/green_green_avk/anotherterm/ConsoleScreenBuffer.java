@@ -111,7 +111,7 @@ public final class ConsoleScreenBuffer {
             while (n > 0) {
                 if (i >= attrs.length)
                     break;
-                i += 1 + (attrs[i] >> 7 & 1);
+                i += 1 + (attrs[i] >>> 7 & 1);
                 n--;
             }
             return i;
@@ -123,7 +123,7 @@ public final class ConsoleScreenBuffer {
             while (n > 0) {
                 if (i >= attrs.length)
                     return i + (n) * getAttrsLength(defAttrs);
-                i += 1 + (attrs[i] >> 7 & 1);
+                i += 1 + (attrs[i] >>> 7 & 1);
                 n--;
             }
             return i;
@@ -133,7 +133,7 @@ public final class ConsoleScreenBuffer {
                                                int n) {
             int i = start;
             while (n > 0) {
-                final int d = 1 + (attrs[i] >> 7 & 1);
+                final int d = 1 + (attrs[i] >>> 7 & 1);
                 if (i + d >= attrs.length || attrs[i + d] == 0xC0) // Exclude last no-op attribute.
                     break;
                 i += d;
@@ -150,7 +150,7 @@ public final class ConsoleScreenBuffer {
                                      final int v) {
             if ((v & 0x80) == 0x80) {
                 attrs[start] = (char) v;
-                attrs[start + 1] = (char) (v >> 16);
+                attrs[start + 1] = (char) (v >>> 16);
                 if ((end - start & 1) != 0) {
                     attrs[end - 1] = 0xC0; // Mark as no-op if long attribute does not fit.
                     Misc.repeatFill(attrs, start, end - 1, 2);
@@ -398,13 +398,13 @@ public final class ConsoleScreenBuffer {
     public static void decodeColor(@NonNull final ConsoleScreenCharAttrs.Color out, final int v) {
         if ((v & 0x80) != 0) {
             out.type = ConsoleScreenCharAttrs.Color.Type.TRUE;
-            out.value = v >> 8 | 0xFF000000;
+            out.value = v >>> 8 | 0xFF000000;
         } else if ((v & 0x40) != 0) {
             out.type = ConsoleScreenCharAttrs.Color.Type._8BIT;
-            out.value = v >> 8 & 0xFF;
+            out.value = v >>> 8 & 0xFF;
         } else {
             out.type = ConsoleScreenCharAttrs.Color.Type.BASIC;
-            out.value = v >> 8 & 0xFF;
+            out.value = v >>> 8 & 0xFF;
         }
     }
 

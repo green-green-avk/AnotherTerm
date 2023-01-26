@@ -29,7 +29,7 @@ EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 package com.jcraft.jsch;
 
-import androidx.annotation.NonNull;
+import org.jetbrains.annotations.NotNull;
 
 import java.util.Arrays;
 import java.util.List;
@@ -60,7 +60,7 @@ public abstract class KeyExchange {
             "lang.s2c"
     };
 
-    @NonNull
+    @NotNull
     static String getAlgorithmNameByProposalIndex(final int index) {
         if (index < 0 || index >= PROPOSAL_NAMES.length)
             return "";
@@ -126,7 +126,7 @@ public abstract class KeyExchange {
         return key_alg_name;
     }
 
-    protected static boolean isAEAD(@NonNull final String cipherClassName) {
+    protected static boolean isAEAD(@NotNull final String cipherClassName) {
         try {
             final Class<? extends Cipher> c =
                     Class.forName(cipherClassName).asSubclass(Cipher.class);
@@ -136,10 +136,10 @@ public abstract class KeyExchange {
         }
     }
 
-    protected static boolean guess(@NonNull final String[] out, final int what,
-                                   @NonNull final List<String>[] sProps,
-                                   @NonNull final List<String>[] cProps,
-                                   @NonNull final Util.Predicate<? super String> filter) {
+    protected static boolean guess(@NotNull final String[] out, final int what,
+                                   @NotNull final List<String>[] sProps,
+                                   @NotNull final List<String>[] cProps,
+                                   @NotNull final Util.Predicate<? super String> filter) {
         for (final String cProp : cProps[what]) {
             if (filter.test(cProp) && sProps[what].contains(cProp)) {
                 out[what] = cProp;
@@ -150,9 +150,9 @@ public abstract class KeyExchange {
         return false;
     }
 
-    protected static void guess(@NonNull final String[] out, final int what,
-                                @NonNull final List<String>[] sProps,
-                                @NonNull final List<String>[] cProps)
+    protected static void guess(@NotNull final String[] out, final int what,
+                                @NotNull final List<String>[] sProps,
+                                @NotNull final List<String>[] cProps)
             throws JSchAlgoNegoFailException {
         if (guess(out, what, sProps, cProps, name -> true))
             return;
@@ -164,9 +164,9 @@ public abstract class KeyExchange {
      * Guess or get the first server option if nothing matches
      * (or {@code null} if there is nothing in {@code sProps[what]}).
      */
-    protected static void guessOrServerFirst(@NonNull final String[] out, final int what,
-                                             @NonNull final List<String>[] sProps,
-                                             @NonNull final List<String>[] cProps) {
+    protected static void guessOrServerFirst(@NotNull final String[] out, final int what,
+                                             @NotNull final List<String>[] sProps,
+                                             @NotNull final List<String>[] cProps) {
         if (guess(out, what, sProps, cProps, name -> true))
             return;
         out[what] = sProps[what].isEmpty() ? null : sProps[what].get(0);
@@ -175,10 +175,10 @@ public abstract class KeyExchange {
     /**
      * If there is no matched MAC, prioritize AEAD ciphers.
      */
-    protected static void guess(@NonNull final String[] out, final int cipher, final int mac,
-                                @NonNull final List<String>[] sProps,
-                                @NonNull final List<String>[] cProps,
-                                @NonNull final Configuration cfg)
+    protected static void guess(@NotNull final String[] out, final int cipher, final int mac,
+                                @NotNull final List<String>[] sProps,
+                                @NotNull final List<String>[] cProps,
+                                @NotNull final Configuration cfg)
             throws JSchAlgoNegoFailException {
         final boolean hasMac =
                 guess(out, mac, sProps, cProps, name -> true);
@@ -198,9 +198,9 @@ public abstract class KeyExchange {
      * <p>
      * For example: empty MAC fields and AEAD ciphers works pretty well with the OpenSSH server.
      */
-    @NonNull
-    protected static String[] guess(@NonNull final Session session,
-                                    @NonNull final byte[] I_S, @NonNull final byte[] I_C)
+    @NotNull
+    protected static String[] guess(@NotNull final Session session,
+                                    @NotNull final byte[] I_S, @NotNull final byte[] I_C)
             throws Exception {
         final Buffer sb = new Buffer(I_S);
         sb.setOffSet(17);

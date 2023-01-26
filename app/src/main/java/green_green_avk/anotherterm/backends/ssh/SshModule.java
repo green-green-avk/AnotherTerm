@@ -290,6 +290,8 @@ public final class SshModule extends BackendModule {
 
         @Override
         public boolean equals(@Nullable final Object obj) {
+            if (this == obj)
+                return true;
             if (!(obj instanceof PortMapping))
                 return false;
             final PortMapping o = (PortMapping) obj;
@@ -613,13 +615,13 @@ public final class SshModule extends BackendModule {
         }
 
         @Override
-        public void erase(final CharSequence v) {
+        public void erase(@Nullable final CharSequence v) {
             if (v != null)
                 ui.erase(v);
         }
 
         @Override
-        public void erase(final CharSequence[] v) {
+        public void erase(@Nullable final CharSequence[] v) {
             if (v != null)
                 for (final CharSequence c : v)
                     erase(c);
@@ -801,10 +803,9 @@ public final class SshModule extends BackendModule {
     private void onPublicKeyAuth() {
         final SshSessionSt st = sshSessionSt;
         final JSch jsch = st.jsch; // JSch instance is per-session
-
-        if (!jsch.getIdentityRepository().getIdentities().isEmpty())
+        if (!jsch.getIdentityRepository().getIdentities().isEmpty()) {
             return;
-
+        }
         byte[] key = null;
         final Uri uri = st.authKeyUri;
         String reason = null;

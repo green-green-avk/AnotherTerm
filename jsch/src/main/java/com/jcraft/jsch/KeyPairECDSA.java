@@ -63,11 +63,11 @@ final class KeyPairECDSA extends KeyPair {
         if (pubkey != null) {
             final byte[] name = new byte[8];
             System.arraycopy(pubkey, 11, name, 0, 8);
-            if (Util.array_equals(name, Util.str2byte("nistp384"))) {
+            if (Arrays.equals(name, Util.str2byte("nistp384"))) {
                 key_size = 384;
                 this.name = name;
             }
-            if (Util.array_equals(name, Util.str2byte("nistp521"))) {
+            if (Arrays.equals(name, Util.str2byte("nistp521"))) {
                 key_size = 521;
                 this.name = name;
             }
@@ -295,7 +295,7 @@ final class KeyPairECDSA extends KeyPair {
             index += length;
 
             for (int i = 0; i < oids.length; i++) {
-                if (Util.array_equals(oids[i], oid_array)) {
+                if (Arrays.equals(oids[i], oid_array)) {
                     name = Util.str2byte(names[i]);
                     break;
                 }

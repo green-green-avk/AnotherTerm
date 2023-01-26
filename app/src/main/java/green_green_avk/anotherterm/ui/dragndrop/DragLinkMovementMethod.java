@@ -26,7 +26,7 @@ public final class DragLinkMovementMethod {
     }
 
     private static final class LegacyLinkMovementMethod extends LinkMovementMethod {
-        final DragMovementMethodDelegate delegate = new DragMovementMethodDelegate();
+        private final DragMovementMethodDelegate delegate = new DragMovementMethodDelegate();
 
         @Override
         public boolean onTouchEvent(final TextView widget, final Spannable buffer,
@@ -37,7 +37,7 @@ public final class DragLinkMovementMethod {
     }
 
     private static final class FixedLinkMovementMethod extends BetterLinkMovementMethod {
-        final DragMovementMethodDelegate delegate = new DragMovementMethodDelegate();
+        private final DragMovementMethodDelegate delegate = new DragMovementMethodDelegate();
 
         @Override
         public boolean onTouchEvent(final TextView widget, final Spannable buffer,

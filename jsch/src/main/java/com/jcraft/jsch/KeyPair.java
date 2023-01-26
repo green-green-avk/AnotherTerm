@@ -167,7 +167,7 @@ public abstract class KeyPair {
         if (encoded != plain)
             Util.bzero(plain);
         final byte[] iv = _iv[0];
-        final byte[] prv = Util.toBase64(encoded, 0, encoded.length, true);
+        final byte[] prv = Util.toBase64(encoded, true);
 
         try {
             out.write(getBegin());
@@ -228,7 +228,7 @@ public abstract class KeyPair {
      */
     public void writePublicKey(final OutputStream out, final String comment) {
         final byte[] pubblob = getPublicKeyBlob();
-        final byte[] pub = Util.toBase64(pubblob, 0, pubblob.length, true);
+        final byte[] pub = Util.toBase64(pubblob, true);
         try {
             out.write(getKeyTypeName());
             out.write(space);
@@ -263,7 +263,7 @@ public abstract class KeyPair {
      */
     public void writeSECSHPublicKey(final OutputStream out, final String comment) {
         final byte[] pubblob = getPublicKeyBlob();
-        final byte[] pub = Util.toBase64(pubblob, 0, pubblob.length, true);
+        final byte[] pub = Util.toBase64(pubblob, true);
         try {
             out.write(Util.str2byte("---- BEGIN SSH2 PUBLIC KEY ----"));
             out.write(cr);
@@ -931,7 +931,7 @@ public abstract class KeyPair {
             }
             // OPENSSH V1 PRIVATE KEY
             else if (data != null &&
-                    Util.array_equals(AUTH_MAGIC, Arrays.copyOfRange(data, 0, AUTH_MAGIC.length))) {
+                    Arrays.equals(AUTH_MAGIC, Arrays.copyOfRange(data, 0, AUTH_MAGIC.length))) {
 
                 vendor = VENDOR_OPENSSH_V1;
                 final Buffer buffer = new Buffer(data);

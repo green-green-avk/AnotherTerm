@@ -31,10 +31,14 @@ public abstract class ProfileAdapter<T> extends UniAdapter {
                                  @Nullable ContextMenu.ContextMenuInfo menuInfo);
     }
 
-    private ProfileManager.Meta[] mSortedDataIndex;
+    @Nullable
+    private ProfileManager.Meta[] mSortedIndex = null;
+    @Nullable
     private String mMarkedName = null;
     private boolean mEditorEnabled = false;
+    @Nullable
     private OnClickListener mOnClick = null;
+    @Nullable
     private OnCreateContextMenuListener mOnCreateContextMenuListener = null;
     private boolean includeBuiltIns = false;
     @LayoutRes
@@ -44,6 +48,7 @@ public abstract class ProfileAdapter<T> extends UniAdapter {
     @NonNull
     protected final Context context;
 
+    @Nullable
     private ProfileManager.Meta zeroEntry = null;
 
     @NonNull
@@ -51,15 +56,14 @@ public abstract class ProfileAdapter<T> extends UniAdapter {
 
     public abstract void startEditor(@Nullable String name);
 
-    private boolean isSortIndexReady = false;
-    private final Runnable updateSortIndex = () -> {
-        isSortIndexReady = false;
+    protected final Runnable updateSortedIndex = () -> {
+        mSortedIndex = null;
         notifyDataSetChanged();
     };
 
     public ProfileAdapter(@NonNull final Context context) {
         this.context = context;
-        getManager().addOnChangeListener(updateSortIndex);
+        getManager().addOnChangeListener(updateSortedIndex);
     }
 
     public void setZeroEntry(final ProfileManager.Meta entry) {
@@ -85,22 +89,16 @@ public abstract class ProfileAdapter<T> extends UniAdapter {
                 }
             };
 
-    private void rebuildSortIndex() {
-        if (isSortIndexReady)
-            return;
-        final Set<? extends ProfileManager.Meta> m;
-        if (includeBuiltIns)
-            m = getManager().enumerate();
-        else
-            m = getManager().enumerateCustom();
-        final ProfileManager.Meta[] keys = m.toArray(new ProfileManager.Meta[0]);
-        Arrays.sort(keys, defaultSortOrder);
-        mSortedDataIndex = keys;
-        isSortIndexReady = true;
-    }
-
-    public void updateSortIndex() {
-        updateSortIndex.run();
+    @NonNull
+    private ProfileManager.Meta[] getSortedIndex() {
+        if (mSortedIndex == null) {
+            final Set<? extends ProfileManager.Meta> m = includeBuiltIns ?
+                    getManager().enumerate() : getManager().enumerateCustom();
+            final ProfileManager.Meta[] keys = m.toArray(new ProfileManager.Meta[0]);
+            Arrays.sort(keys, defaultSortOrder);
+            mSortedIndex = keys;
+        }
+        return mSortedIndex;
     }
 
     @NonNull
@@ -110,23 +108,23 @@ public abstract class ProfileAdapter<T> extends UniAdapter {
 
     @NonNull
     public ProfileManager.Meta getMeta(final int i) {
-        rebuildSortIndex();
         if (zeroEntry != null) {
-            if (i == 0)
-                return zeroEntry;
-            return mSortedDataIndex[i - 1];
+            return i == 0 ? zeroEntry : getSortedIndex()[i - 1];
         }
-        return mSortedDataIndex[i];
+        return getSortedIndex()[i];
     }
 
     public int getPosition(final String name) {
-        rebuildSortIndex();
         final ProfileManager.Meta m = getManager().getMeta(name);
-        if (zeroEntry != null && zeroEntry.equals(m))
+        if (zeroEntry != null && zeroEntry.equals(m)) {
             return 0;
-        for (int i = 0; i < mSortedDataIndex.length; ++i)
-            if (mSortedDataIndex[i].equals(m))
+        }
+        final ProfileManager.Meta[] sortedIndex = getSortedIndex();
+        for (int i = 0; i < sortedIndex.length; ++i) {
+            if (sortedIndex[i].equals(m)) {
                 return i + (zeroEntry != null ? 1 : 0);
+            }
+        }
         return -1;
     }
 
@@ -145,7 +143,7 @@ public abstract class ProfileAdapter<T> extends UniAdapter {
     @ReturnThis
     public ProfileAdapter<T> setIncludeBuiltIns(final boolean v) {
         includeBuiltIns = v;
-        updateSortIndex.run();
+        updateSortedIndex.run();
         return this;
     }
 
@@ -175,14 +173,13 @@ public abstract class ProfileAdapter<T> extends UniAdapter {
     }
 
     @Override
-    public int onGetCount() {
-        rebuildSortIndex();
-        return mSortedDataIndex.length + (zeroEntry != null ? 1 : 0);
+    protected int onGetCount() {
+        return getSortedIndex().length + (zeroEntry != null ? 1 : 0);
     }
 
     @Override
     @NonNull
-    public Object onGetItem(final int position) {
+    protected Object onGetItem(final int position) {
         return getMeta(position);
     }
 

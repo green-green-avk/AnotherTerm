@@ -625,7 +625,7 @@ public class ExtKeyboard {
                     final KeyFcn fcn = new KeyFcn();
                     fcn.code = code;
                     fcn.modifiers = modifiers & 0xFFFF;
-                    fcn.modifiersMask = modifiers >> 16;
+                    fcn.modifiersMask = modifiers >>> 16;
                     fcn.label = label;
                     fcn.icon = icon;
                     fcn.text = text;
@@ -736,7 +736,7 @@ public class ExtKeyboard {
                 }
                 fcn.code = code;
                 fcn.modifiers = modifiers & 0xFFFF;
-                fcn.modifiersMask = modifiers >> 16;
+                fcn.modifiersMask = modifiers >>> 16;
                 fcn.label = label;
                 fcn.icon = icon;
                 fcn.text = text;

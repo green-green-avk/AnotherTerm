@@ -48,10 +48,12 @@ public final class ScratchpadManager {
         }
 
         @Override
-        public boolean equals(final Object o) {
-            if (this == o) return true;
-            if (o == null || getClass() != o.getClass()) return false;
-            return name.equals(((Entry) o).name);
+        public boolean equals(@Nullable final Object obj) {
+            if (this == obj)
+                return true;
+            if (obj instanceof Entry)
+                return name.equals(((Entry) obj).name);
+            return false;
         }
     }
 

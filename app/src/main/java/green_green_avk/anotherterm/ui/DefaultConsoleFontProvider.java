@@ -24,7 +24,7 @@ public final class DefaultConsoleFontProvider implements FontProvider {
     };
 
     @Override
-    public void setPaint(@NonNull final Paint paint, final int style) {
-        paint.setTypeface(typefaces[style]);
+    public void populatePaint(@NonNull final Paint out, final int style) {
+        out.setTypeface(typefaces[style]);
     }
 }

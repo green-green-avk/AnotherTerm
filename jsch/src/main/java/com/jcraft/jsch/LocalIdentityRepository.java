@@ -30,6 +30,7 @@ EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 package com.jcraft.jsch;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Iterator;
 import java.util.List;
 import java.util.ListIterator;
@@ -71,7 +72,7 @@ final class LocalIdentityRepository implements IdentityRepository {
             while (it.hasNext()) {
                 final Identity id = it.next();
                 final byte[] blob2 = id.getPublicKeyBlob();
-                if (blob2 != null && Util.array_equals(blob1, blob2)) {
+                if (blob2 != null && Arrays.equals(blob1, blob2)) {
                     if (!identity.isEncrypted() && id.isEncrypted()) {
                         it.remove();
                     } else {
@@ -110,7 +111,7 @@ final class LocalIdentityRepository implements IdentityRepository {
         while (it.hasNext()) {
             final Identity id = it.next();
             final byte[] ib = id.getPublicKeyBlob();
-            if (ib == null || !Util.array_equals(blob, ib))
+            if (ib == null || !Arrays.equals(blob, ib))
                 continue;
             it.remove();
             id.clear();
@@ -141,7 +142,7 @@ final class LocalIdentityRepository implements IdentityRepository {
             for (int ii = it.nextIndex(); ii < identities.size(); ii++) {
                 final Identity id2 = identities.get(ii);
                 final byte[] blob2 = id2.getPublicKeyBlob();
-                if (Util.array_equals(blob2, blob1) &&
+                if (Arrays.equals(blob2, blob1) &&
                         id2.isEncrypted() == id1.isEncrypted()) {
                     it.remove();
                     break;

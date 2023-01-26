@@ -40,20 +40,19 @@
     <string name="msg_server_requests_key_identification_s"><![CDATA[
         <p>Server requests key identification:</p>
         <p>%s</p>
-        <p>Please, choose one manually:</p>]]>
-    </string>
+        <p>Please, choose one manually:</p>
+    ]]></string>
     <string name="msg_unable_to_load_associated_key__s"><![CDATA[Unable to load associated key:
     <br/>%s]]></string>
     <string name="msg_desc_obj_selected_key">&lt;selected key&gt;</string>
-    <string name="msg_desc_obj_cannot_obtain_fingerprint">&lt;cannot obtain fingerprint&gt;</string>
+    <string name="msg_desc_obj_cannot_obtain_fingerprint"><i>&lt;cannot obtain fingerprint&gt;</i></string>
     <string name="msg_ssh_remote_identity_new_ask_proceed"><![CDATA[
         The authenticity of host %1$s can\'t be established.\
         %2$s key fingerprint is\
         %3$s.\
         \
         Are you sure you want to continue connecting?
-    ]]>
-    </string>
+    ]]></string>
     <string name="msg_ssh_remote_identity_changed"><![CDATA[
         WARNING: REMOTE HOST IDENTIFICATION HAS CHANGED!\
         IT IS POSSIBLE THAT SOMEONE IS DOING SOMETHING NASTY!\

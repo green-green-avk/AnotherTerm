@@ -37,6 +37,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Iterator;
 import java.util.List;
 
@@ -314,7 +315,7 @@ final class KnownHosts implements HostKeyRepository {
         synchronized (pool) {
             for (final HostKey _hk : pool) {
                 if (_hk.isMatched(host) && _hk.type == hk.type) {
-                    if (Util.array_equals(_hk.key, key)) {
+                    if (Arrays.equals(_hk.key, key)) {
                         return OK;
                     }
                     result = CHANGED;
@@ -452,7 +453,7 @@ final class KnownHosts implements HostKeyRepository {
                 if (host == null ||
                         (hk.isMatched(host) &&
                                 (type == null || (hk.getType().equals(type) &&
-                                        (key == null || Util.array_equals(key, hk.key)))))) {
+                                        (key == null || Arrays.equals(key, hk.key)))))) {
                     final String hosts = hk.getHost();
                     if (host == null || hosts.equals(host) ||
                             ((hk instanceof HashedHostKey) &&
@@ -616,7 +617,7 @@ final class KnownHosts implements HostKeyRepository {
                     hmacsha1.update(foo, 0, foo.length);
                     final byte[] bar = new byte[hmacsha1.getBlockSize()];
                     hmacsha1.doFinal(bar, 0);
-                    return Util.array_equals(hash, bar);
+                    return Arrays.equals(hash, bar);
                 }
             } catch (final Exception e) {
                 jsch.getInstanceLogger().log(Logger.ERROR,
@@ -654,8 +655,8 @@ final class KnownHosts implements HostKeyRepository {
                 hash = null;
                 return;
             }
-            host = HASH_MAGIC + Util.byte2str(Util.toBase64(salt, 0, salt.length, true)) +
-                    HASH_DELIM + Util.byte2str(Util.toBase64(hash, 0, hash.length, true));
+            host = HASH_MAGIC + Util.byte2str(Util.toBase64(salt, true)) +
+                    HASH_DELIM + Util.byte2str(Util.toBase64(hash, true));
             hashed = true;
         }
     }

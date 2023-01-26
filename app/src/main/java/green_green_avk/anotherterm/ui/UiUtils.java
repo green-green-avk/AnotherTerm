@@ -412,22 +412,6 @@ public final class UiUtils {
         wrapper.setOnHide(tooltip::hide);
     }
 
-    public static void showContextMenuOnBottom(@NonNull final View v) {
-        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.N) {
-            v.showContextMenu();
-        } else {
-            v.showContextMenu(0, v.getHeight());
-        }
-    }
-
-    public static void setShowContextMenuOnClick(@NonNull final View v) {
-        v.setOnLongClickListener(v1 -> {
-            showContextMenuOnBottom(v1);
-            return true;
-        });
-        v.setOnClickListener(UiUtils::showContextMenuOnBottom);
-    }
-
     /**
      * @param out     [x, y] in the activity window
      * @param refView refers a window

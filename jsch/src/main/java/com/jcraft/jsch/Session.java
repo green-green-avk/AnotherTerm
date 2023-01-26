@@ -829,13 +829,6 @@ public final class Session implements Configuration {
         boolean insert = false;
         if (("ask".equals(shkc) || "yes".equals(shkc)) &&
                 i == HostKeyRepository.CHANGED) {
-            String file;
-            synchronized (hkr) {
-                file = hkr.getKnownHostsRepositoryID();
-            }
-            if (file == null) {
-                file = "known_hosts";
-            }
 
             boolean b = false;
 

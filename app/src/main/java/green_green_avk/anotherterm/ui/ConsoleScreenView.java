@@ -208,7 +208,8 @@ public class ConsoleScreenView extends ScrollableView
             if (searchHint == null) {
                 final Spannable s = new SpannableString(getContext().getResources()
                         .getText(R.string.hint_text_to_search___));
-                s.setSpan(new InlineImageSpan(getContext(), R.drawable.ic_mglass).useTextColor(),
+                s.setSpan(new InlineImageSpan(getContext(), R.drawable.ic_mglass)
+                                .useTextColor(),
                         0, s.length(), Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
                 searchHint = s;
             }
@@ -249,47 +250,47 @@ public class ConsoleScreenView extends ScrollableView
             cv.findViewById(R.id.b_close)
                     .setOnClickListener(v -> setSelectionMode(false));
             wSelMode.setOnClickListener(v -> {
-                if (getSelectionModeIsExpr()) setSelectionModeIsExpr(false);
-                else {
-                    if (getSelectionIsRect()) setSelectionModeIsExpr(true);
+                if (getSelectionModeIsExpr()) {
+                    setSelectionModeIsExpr(false);
+                } else {
+                    if (getSelectionIsRect()) {
+                        setSelectionModeIsExpr(true);
+                    }
                     setSelectionIsRect(!getSelectionIsRect());
                     onSelectionChanged();
                 }
                 refresh();
             });
-            cv.findViewById(R.id.b_select_all)
-                    .setOnClickListener(v -> {
-                        setSelectionMode(true);
-                        setSelectionModeIsExpr(false);
-                        selectAll();
-                        setSelectionIsRect(false);
-                        onSelectionChanged();
-                        invalidateSelectionUi(false);
-                    });
-            cv.findViewById(R.id.b_copy)
-                    .setOnClickListener(v -> UiUtils.toClipboard(getContext(), getSelectedText()));
-            cv.findViewById(R.id.b_put)
-                    .setOnClickListener(v -> {
-                        if (consoleInput == null || consoleInput.consoleOutput == null) return;
-                        final String s = getSelectedText();
-                        if (s != null) consoleInput.consoleOutput.paste(s);
-                    });
-            cv.findViewById(R.id.b_web)
-                    .setOnClickListener(v -> {
-                        final String s = getSelectedText();
-                        if (s == null) {
-                            Toast.makeText(getContext(), R.string.msg_nothing_to_search,
-                                    Toast.LENGTH_SHORT).show();
-                            return;
-                        }
-                        UiUtils.tryWebSearch(getContext(), s);
-                    });
-            cv.findViewById(R.id.b_share)
-                    .setOnClickListener(v ->
-                            UiUtils.sharePlainText((Activity) getContext(), getSelectedText()));
-            cv.findViewById(R.id.b_scratchpad)
-                    .setOnClickListener(v ->
-                            UiUtils.toScratchpad(getContext(), getSelectedText()));
+            cv.findViewById(R.id.b_select_all).setOnClickListener(v -> {
+                setSelectionMode(true);
+                setSelectionModeIsExpr(false);
+                selectAll();
+                setSelectionIsRect(false);
+                onSelectionChanged();
+                invalidateSelectionUi(false);
+            });
+            cv.findViewById(R.id.b_copy).setOnClickListener(v ->
+                    UiUtils.toClipboard(getContext(), getSelectedText()));
+            cv.findViewById(R.id.b_put).setOnClickListener(v -> {
+                if (consoleInput == null || consoleInput.consoleOutput == null)
+                    return;
+                final String s = getSelectedText();
+                if (s != null)
+                    consoleInput.consoleOutput.paste(s);
+            });
+            cv.findViewById(R.id.b_web).setOnClickListener(v -> {
+                final String s = getSelectedText();
+                if (s == null) {
+                    Toast.makeText(getContext(), R.string.msg_nothing_to_search,
+                            Toast.LENGTH_SHORT).show();
+                    return;
+                }
+                UiUtils.tryWebSearch(getContext(), s);
+            });
+            cv.findViewById(R.id.b_share).setOnClickListener(v ->
+                    UiUtils.sharePlainText((Activity) getContext(), getSelectedText()));
+            cv.findViewById(R.id.b_scratchpad).setOnClickListener(v ->
+                    UiUtils.toScratchpad(getContext(), getSelectedText()));
             wSearch.setOnClickListener(v -> {
                 final EditText et = new AppCompatEditText(getContext());
                 et.setInputType(InputType.TYPE_TEXT_FLAG_MULTI_LINE
@@ -302,8 +303,7 @@ public class ConsoleScreenView extends ScrollableView
                         .setView(et)
                         .setPositiveButton(android.R.string.ok, (dialog, which) ->
                                 setSearchPattern(et.getText()))
-                        .setNegativeButton(android.R.string.cancel, (dialog, which) -> {
-                        })
+                        .setNegativeButton(android.R.string.cancel, null)
                         .show();
             });
             final CharsFinder.BufferView bufferView = new CharsFinder.BufferView() {
@@ -342,56 +342,57 @@ public class ConsoleScreenView extends ScrollableView
                     return consoleInput.currScrBuf.getHeight();
                 }
             };
-            cv.findViewById(R.id.b_case)
-                    .setOnClickListener(v -> {
-                        searchCaseI = !searchCaseI;
-                        ((ImageView) v).setImageState(
-                                searchCaseI ? searchCaseIState : searchCaseSState, true);
-                    });
-            cv.findViewById(R.id.b_search_up)
-                    .setOnClickListener(v -> {
-                        if (consoleInput == null || selection == null) return;
-                        final String pattern = getSearchPattern();
-                        if (pattern.isEmpty()) {
-                            Toast.makeText(getContext(),
-                                    R.string.msg_search_field_is_empty,
-                                    Toast.LENGTH_SHORT).show();
-                            return;
-                        }
-                        final CharsFinder cf = new CharsFinder(bufferView, pattern, searchCaseI);
-                        final ConsoleScreenSelection s = selection.getDirect();
-                        final int i = consoleInput.currScrBuf
-                                .getCharIndex(s.first.y, s.first.x, 0, false);
-                        if (!(cf.setPos(i, s.first.y, false) && cf.searchUp())) {
-                            Toast.makeText(getContext(),
-                                    R.string.msg_search_top_reached,
-                                    Toast.LENGTH_SHORT).show();
-                            return;
-                        }
-                        selectSearchResult(cf);
-                    });
-            cv.findViewById(R.id.b_search_down)
-                    .setOnClickListener(v -> {
-                        if (consoleInput == null || selection == null) return;
-                        final String pattern = getSearchPattern();
-                        if (pattern.isEmpty()) {
-                            Toast.makeText(getContext(),
-                                    R.string.msg_search_field_is_empty,
-                                    Toast.LENGTH_SHORT).show();
-                            return;
-                        }
-                        final CharsFinder cf = new CharsFinder(bufferView, pattern, searchCaseI);
-                        final ConsoleScreenSelection s = selection.getDirect();
-                        final int i = consoleInput.currScrBuf
-                                .getCharIndex(s.last.y, s.last.x, 0, false);
-                        if (!(cf.setPos(i, s.last.y, true) && cf.searchDown())) {
-                            Toast.makeText(getContext(),
-                                    R.string.msg_search_bottom_reached,
-                                    Toast.LENGTH_SHORT).show();
-                            return;
-                        }
-                        selectSearchResult(cf);
-                    });
+            cv.findViewById(R.id.b_case).setOnClickListener(v -> {
+                searchCaseI = !searchCaseI;
+                ((ImageView) v).setImageState(
+                        searchCaseI ? searchCaseIState : searchCaseSState, true);
+            });
+            cv.findViewById(R.id.b_search_up).setOnClickListener(v -> {
+                if (consoleInput == null || selection == null)
+                    return;
+                final String pattern = getSearchPattern();
+                if (pattern.isEmpty()) {
+                    Toast.makeText(getContext(),
+                            R.string.msg_search_field_is_empty,
+                            Toast.LENGTH_SHORT).show();
+                    return;
+                }
+                final CharsFinder cf =
+                        new CharsFinder(bufferView, pattern, searchCaseI);
+                final ConsoleScreenSelection s = selection.getDirect();
+                final int i = consoleInput.currScrBuf
+                        .getCharIndex(s.first.y, s.first.x, 0, false);
+                if (!(cf.setPos(i, s.first.y, false) && cf.searchUp())) {
+                    Toast.makeText(getContext(),
+                            R.string.msg_search_top_reached,
+                            Toast.LENGTH_SHORT).show();
+                    return;
+                }
+                selectSearchResult(cf);
+            });
+            cv.findViewById(R.id.b_search_down).setOnClickListener(v -> {
+                if (consoleInput == null || selection == null)
+                    return;
+                final String pattern = getSearchPattern();
+                if (pattern.isEmpty()) {
+                    Toast.makeText(getContext(),
+                            R.string.msg_search_field_is_empty,
+                            Toast.LENGTH_SHORT).show();
+                    return;
+                }
+                final CharsFinder cf =
+                        new CharsFinder(bufferView, pattern, searchCaseI);
+                final ConsoleScreenSelection s = selection.getDirect();
+                final int i = consoleInput.currScrBuf
+                        .getCharIndex(s.last.y, s.last.x, 0, false);
+                if (!(cf.setPos(i, s.last.y, true) && cf.searchDown())) {
+                    Toast.makeText(getContext(),
+                            R.string.msg_search_bottom_reached,
+                            Toast.LENGTH_SHORT).show();
+                    return;
+                }
+                selectSearchResult(cf);
+            });
         }
 
         protected void selectSearchResult(@NonNull final CharsFinder cf) {
@@ -458,9 +459,12 @@ public class ConsoleScreenView extends ScrollableView
 
         protected void refresh() {
             final int[] st;
-            if (getSelectionModeIsExpr()) st = exprSelectionModeState;
-            else if (getSelectionIsRect()) st = rectSelectionModeState;
-            else st = linesSelectionModeState;
+            if (getSelectionModeIsExpr())
+                st = exprSelectionModeState;
+            else if (getSelectionIsRect())
+                st = rectSelectionModeState;
+            else
+                st = linesSelectionModeState;
             wSelMode.setImageState(st, true);
         }
 
@@ -590,9 +594,12 @@ public class ConsoleScreenView extends ScrollableView
     }
 
     protected void resizeBuffer(int cols, int rows) {
-        if (consoleInput == null) return;
-        if (cols <= 0 || !resizeBufferXOnUi) cols = consoleInput.currScrBuf.getWidth();
-        if (rows <= 0 || !resizeBufferYOnUi) rows = consoleInput.currScrBuf.getHeight();
+        if (consoleInput == null)
+            return;
+        if (cols <= 0 || !resizeBufferXOnUi)
+            cols = consoleInput.currScrBuf.getWidth();
+        if (rows <= 0 || !resizeBufferYOnUi)
+            rows = consoleInput.currScrBuf.getHeight();
         consoleInput.resize(cols, rows);
     }
 
@@ -696,7 +703,7 @@ public class ConsoleScreenView extends ScrollableView
     public float[] getCharSize(final float fontSize) {
         final float[] r = new float[2];
         final Paint p = new Paint();
-        fontProvider.setPaint(p, Typeface.NORMAL);
+        fontProvider.populatePaint(p, Typeface.NORMAL);
         p.setTextSize(fontSize);
         r[1] = p.getFontSpacing();
         r[0] = p.measureText("A");
@@ -810,8 +817,10 @@ public class ConsoleScreenView extends ScrollableView
     }
 
     protected void adjustSelectionPopup() {
-        if (selectionMode && !inGesture && mScroller.isFinished()) selectionPopup.show();
-        else selectionPopup.hide();
+        if (selectionMode && !inGesture && mScroller.isFinished())
+            selectionPopup.show();
+        else
+            selectionPopup.hide();
     }
 
     @CheckResult
@@ -822,7 +831,8 @@ public class ConsoleScreenView extends ScrollableView
     public void setSelectionMode(final boolean mode) {
         if (selectionMode == mode)
             return;
-        if (mode) setMouseMode(false);
+        if (mode)
+            setMouseMode(false);
         selectionMode = mode;
         if (mode) {
             if (selection == null) {
@@ -880,7 +890,8 @@ public class ConsoleScreenView extends ScrollableView
 
     public void selectAll() {
         if (consoleInput != null) {
-            if (selection == null) selection = new ConsoleScreenSelection();
+            if (selection == null)
+                selection = new ConsoleScreenSelection();
             selection.first.x = 0;
             selection.first.y = consoleInput.currScrBuf.getHeight()
                     - consoleInput.currScrBuf.getBufferHeight();
@@ -1042,9 +1053,9 @@ public class ConsoleScreenView extends ScrollableView
         }
     }
 
-    public void applyCharAttrs() {
+    protected void applyCharAttrs() {
         final boolean inverse = consoleInput != null && consoleInput.currScrBuf.screenInverse;
-        fontProvider.setPaint(fgPaint, (charAttrs.bold ? Typeface.BOLD : 0) |
+        fontProvider.populatePaint(fgPaint, (charAttrs.bold ? Typeface.BOLD : 0) |
                 (charAttrs.italic ? Typeface.ITALIC : 0));
         fgPaint.setColor(colorProfile.getFgColor(charAttrs, inverse));
         fgPaint.setUnderlineText(charAttrs.underline);
@@ -1137,10 +1148,12 @@ public class ConsoleScreenView extends ScrollableView
                 r = consoleInput.currScrBuf.getChars(0, y,
                         consoleInput.currScrBuf.getWidth(), v);
                 if (consoleInput.currScrBuf.isLineWrapped(y)) {
-                    if (r < 0) return null;
+                    if (r < 0)
+                        return null;
                     sb.append(v);
                 } else {
-                    if (r >= 0) sb.append(v.toString().replaceAll(" *$", ""));
+                    if (r >= 0)
+                        sb.append(v.toString().replaceAll(" *$", ""));
                     sb.append('\n');
                 }
             }
@@ -1164,8 +1177,9 @@ public class ConsoleScreenView extends ScrollableView
     @CheckResult
     @Nullable
     public Bitmap makeThumbnail(int w, int h) {
-        if (getWidth() <= 0 || getHeight() <= 0)
+        if (getWidth() <= 0 || getHeight() <= 0) {
             return null;
+        }
         final float s = Math.min((float) w / getWidth(), (float) h / getHeight());
         w = Math.max((int) (getWidth() * s), 1);
         h = Math.max((int) (getHeight() * s), 1);
@@ -1855,8 +1869,10 @@ public class ConsoleScreenView extends ScrollableView
         }
 
         private void onScroll() {
-            if (popupH.isShowing()) refreshH();
-            if (popupV.isShowing()) refreshV();
+            if (popupH.isShowing())
+                refreshH();
+            if (popupV.isShowing())
+                refreshV();
         }
 
         private final int[] mWindowCoords = new int[2];
@@ -1997,8 +2013,8 @@ public class ConsoleScreenView extends ScrollableView
                         s.last.y
                 ), selectionPaint);
             }
-            if (selectionWrappedLineMarker != null && !selection.isRectangular)
-                for (int j = _draw_textRect.top; j < _draw_textRect.bottom; j++)
+            if (selectionWrappedLineMarker != null && !selection.isRectangular) {
+                for (int j = _draw_textRect.top; j < _draw_textRect.bottom; j++) {
                     if (consoleInput.currScrBuf.isLineWrapped(j)) {
                         final int x = getWidth();
                         final int y = (int) getBufferDrawPosYF(j + 0.5F);
@@ -2010,6 +2026,8 @@ public class ConsoleScreenView extends ScrollableView
                         selectionWrappedLineMarker.draw(canvas);
                         canvas.restore();
                     }
+                }
+            }
             if (selectionMarker != null) {
                 if (selectionMarkerPtr != null) {
                     drawMarker(canvas, selectionMarkerPtr,
@@ -2060,7 +2078,10 @@ public class ConsoleScreenView extends ScrollableView
 
     protected final boolean isAllSpaces(@NonNull final ConsoleScreenBuffer.BufferRun s) {
         final int end = s.start + s.length;
-        for (int i = s.start; i < end; ++i) if (s.text[i] != ' ') return false;
+        for (int i = s.start; i < end; ++i) {
+            if (s.text[i] != ' ')
+                return false;
+        }
         return true;
     }
 
@@ -2069,90 +2090,96 @@ public class ConsoleScreenView extends ScrollableView
             new ConsoleScreenBuffer.BufferRun();
 
     protected void drawContent(@NonNull final Canvas canvas) {
-        if (consoleInput != null) {
-//            canvas.drawColor(charAttrs.bgColor);
-            boolean _hasVisibleBlinking = false;
-            final float vDivBuf = getBufferDrawPosYF(0) - 1;
-            final float vDivBottom = getBufferDrawPosYF(consoleInput.currScrBuf.getHeight()) - 1;
-            final float hDiv = getBufferDrawPosXF(consoleInput.currScrBuf.getWidth()) - 1;
-            getBufferTextRect(0, 0, getWidth(), getHeight(), _draw_textRect);
-            for (int j = _draw_textRect.top; j < _draw_textRect.bottom; j++) {
-                final float strTop = getBufferDrawPosYF(j);
-                final float strBottom = getBufferDrawPosYF(j + 1)
-                        + 1; // fix for old phones rendering glitch
-                int i = _draw_textRect.left;
-                i -= consoleInput.currScrBuf.initCharsRun(i, j, _draw_run);
-                while (i < _draw_textRect.right) {
-                    final float strFragLeft = getBufferDrawPosXF(i);
-                    final int sr =
-                            consoleInput.currScrBuf.getCharsRun(i, j, _draw_textRect.right,
-                                    _draw_run);
-                    if (sr < 0) {
-                        ConsoleScreenBuffer.decodeFgAttrs(charAttrs,
-                                consoleInput.currScrBuf.defaultFgAttrs);
-                        ConsoleScreenBuffer.decodeBgAttrs(charAttrs,
-                                consoleInput.currScrBuf.defaultBgAttrs);
-                        applyCharAttrs();
-                        canvas.drawRect(strFragLeft, strTop,
-                                getWidth(), strBottom,
-                                bgPaint);
-                        break;
-                    }
-                    ConsoleScreenBuffer.decodeFgAttrs(charAttrs, _draw_run.fgAttrs);
-                    ConsoleScreenBuffer.decodeBgAttrs(charAttrs, _draw_run.bgAttrs);
-                    applyCharAttrs();
-                    final float strFragRight = getBufferDrawPosXF(i + sr);
-                    if (sr > 0) {
-                        // Draw background for non-zero length glyphs only.
-                        // See https://en.wikipedia.org/wiki/Combining_character
-                        canvas.drawRect(strFragLeft, strTop,
-                                strFragRight, strBottom,
-                                bgPaint);
-                    }
-                    if (!charAttrs.invisible && fgPaint.getColor() != bgPaint.getColor() &&
-                            _draw_run.length > 0 && !isAllSpaces(_draw_run)) {
-                        fgPaint.setTextScaleX(1F);
-                        if (_draw_run.glyphWidth > 1)
-                            fgPaint.setTextScaleX(
-                                    mFontWidth * sr /
-                                            fgPaint.measureText(_draw_run.text,
-                                                    _draw_run.start, _draw_run.length)
-                            );
-                        _hasVisibleBlinking |= charAttrs.blinking;
-                        if (!charAttrs.blinking || mBlinkState)
-                            canvas.drawText(_draw_run.text,
-                                    _draw_run.start, _draw_run.length,
-                                    strFragLeft, strTop - fgPaint.ascent(), fgPaint);
-                    }
-                    i += sr;
-                }
-                _draw_run.init();
-            }
-            hasVisibleBlinking = _hasVisibleBlinking;
-            if (paddingMarkup != null) {
-                if (vDivBottom < getHeight())
-                    drawDrawable(canvas, paddingMarkup,
-                            0, (int) vDivBottom,
-                            getWidth(), getHeight());
-                if (hDiv < getWidth())
-                    drawDrawable(canvas, paddingMarkup, (int) hDiv, 0,
-                            getWidth(), Math.min(getHeight(), (int) vDivBottom));
-            }
-            canvas.drawLine(0, vDivBottom, getWidth(), vDivBottom,
-                    paddingMarkupPaint);
-            canvas.drawLine(0, vDivBuf, getWidth(), vDivBuf,
-                    paddingMarkupPaint);
-            canvas.drawLine(hDiv, 0, hDiv, getHeight(),
-                    paddingMarkupPaint);
+        if (consoleInput == null) {
+            return;
         }
+        boolean _hasVisibleBlinking = false;
+        final float vDivBuf = getBufferDrawPosYF(0) - 1;
+        final float vDivBottom = getBufferDrawPosYF(consoleInput.currScrBuf.getHeight()) - 1;
+        final float hDiv = getBufferDrawPosXF(consoleInput.currScrBuf.getWidth()) - 1;
+        getBufferTextRect(0, 0, getWidth(), getHeight(), _draw_textRect);
+        for (int j = _draw_textRect.top; j < _draw_textRect.bottom; j++) {
+            final float strTop = getBufferDrawPosYF(j);
+            final float strBottom = getBufferDrawPosYF(j + 1)
+                    + 1; // fix for old phones rendering glitch
+            int i = _draw_textRect.left;
+            i -= consoleInput.currScrBuf.initCharsRun(i, j, _draw_run);
+            while (i < _draw_textRect.right) {
+                final float strFragLeft = getBufferDrawPosXF(i);
+                final int sr =
+                        consoleInput.currScrBuf.getCharsRun(i, j,
+                                _draw_textRect.right,
+                                _draw_run);
+                if (sr < 0) {
+                    ConsoleScreenBuffer.decodeFgAttrs(charAttrs,
+                            consoleInput.currScrBuf.defaultFgAttrs);
+                    ConsoleScreenBuffer.decodeBgAttrs(charAttrs,
+                            consoleInput.currScrBuf.defaultBgAttrs);
+                    applyCharAttrs();
+                    canvas.drawRect(strFragLeft, strTop,
+                            getWidth(), strBottom,
+                            bgPaint);
+                    break;
+                }
+                ConsoleScreenBuffer.decodeFgAttrs(charAttrs, _draw_run.fgAttrs);
+                ConsoleScreenBuffer.decodeBgAttrs(charAttrs, _draw_run.bgAttrs);
+                applyCharAttrs();
+                final float strFragRight = getBufferDrawPosXF(i + sr);
+                if (sr > 0) {
+                    // Draw background for non-zero length glyphs only.
+                    // See https://en.wikipedia.org/wiki/Combining_character
+                    canvas.drawRect(strFragLeft, strTop,
+                            strFragRight, strBottom,
+                            bgPaint);
+                }
+                if (!charAttrs.invisible && fgPaint.getColor() != bgPaint.getColor() &&
+                        _draw_run.length > 0 && !isAllSpaces(_draw_run)) {
+                    fgPaint.setTextScaleX(1F);
+                    if (_draw_run.glyphWidth > 1) {
+                        fgPaint.setTextScaleX(
+                                mFontWidth * sr /
+                                        fgPaint.measureText(_draw_run.text,
+                                                _draw_run.start, _draw_run.length)
+                        );
+                    }
+                    _hasVisibleBlinking |= charAttrs.blinking;
+                    if (!charAttrs.blinking || mBlinkState) {
+                        canvas.drawText(_draw_run.text,
+                                _draw_run.start, _draw_run.length,
+                                strFragLeft, strTop - fgPaint.ascent(), fgPaint);
+                    }
+                }
+                i += sr;
+            }
+            _draw_run.init();
+        }
+        hasVisibleBlinking = _hasVisibleBlinking;
+        if (paddingMarkup != null) {
+            if (vDivBottom < getHeight()) {
+                drawDrawable(canvas, paddingMarkup,
+                        0, (int) vDivBottom,
+                        getWidth(), getHeight());
+            }
+            if (hDiv < getWidth()) {
+                drawDrawable(canvas, paddingMarkup, (int) hDiv, 0,
+                        getWidth(), Math.min(getHeight(), (int) vDivBottom));
+            }
+        }
+        canvas.drawLine(0, vDivBottom, getWidth(), vDivBottom,
+                paddingMarkupPaint);
+        canvas.drawLine(0, vDivBuf, getWidth(), vDivBuf,
+                paddingMarkupPaint);
+        canvas.drawLine(hDiv, 0, hDiv, getHeight(),
+                paddingMarkupPaint);
     }
 
     protected final void drawDrawable(@NonNull final Canvas canvas,
                                       @Nullable final Drawable drawable,
                                       final int left, final int top,
                                       final int right, final int bottom) {
-        if (drawable == null)
+        if (drawable == null) {
             return;
+        }
         int xOff = 0;
         int yOff = 0;
         int xSize = 0;

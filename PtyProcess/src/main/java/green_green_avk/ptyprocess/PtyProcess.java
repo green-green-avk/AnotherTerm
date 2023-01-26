@@ -18,7 +18,9 @@ import java.io.FileDescriptor;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
+import java.lang.annotation.Target;
 import java.nio.ByteBuffer;
 import java.util.Map;
 
@@ -314,8 +316,9 @@ public final class PtyProcess extends Process {
     @Keep
     public native void destroy();
 
-    @IntDef(flag = true, value = WNOHANG)
     @Retention(SOURCE)
+    @Target(ElementType.PARAMETER)
+    @IntDef(flag = true, value = WNOHANG)
     public @interface WaitForExitOptions {
     }
 

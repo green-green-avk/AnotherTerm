@@ -123,17 +123,14 @@ public class HostKey {
         return Util.byte2str(Util.toBase64(key, 0, key.length, true));
     }
 
-    public String getFingerPrint(final JSch jsch) {
+    public String getFingerPrint() {
         final HASH hash;
         try {
             final String _c = JSch.getConfig("FingerprintHash").toLowerCase();
             final Class<? extends HASH> c =
-                    Class.forName(JSch.getConfig(_c))
-                            .asSubclass(HASH.class);
+                    Class.forName(JSch.getConfig(_c)).asSubclass(HASH.class);
             hash = c.getDeclaredConstructor().newInstance();
         } catch (final Exception e) {
-            jsch.getInstanceLogger().log(Logger.FATAL,
-                    "Unable to load the fingerprint hash class", e);
             throw new JSchErrorException("Unable to load the fingerprint hash class", e);
         }
         try {
