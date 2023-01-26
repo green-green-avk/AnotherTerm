@@ -188,11 +188,11 @@
 
                 </LinearLayout>
 
-                <LinearLayout
+                <androidx.appcompat.widget.LinearLayoutCompat
                     android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
+                    android:layout_height="@dimen/uiOptionSize"
+                    android:baselineAligned="false"
                     android:gravity="center_vertical"
-                    android:minHeight="@dimen/uiOptionSize"
                     android:orientation="horizontal">
 
                     <ImageView
@@ -202,17 +202,16 @@
                         app:srcCompat="@drawable/ic_palette"
                         app:tint="@color/colorPrimaryDark" />
 
-                    <TextView
+                    <FrameLayout
                         android:id="@+id/colormap"
                         style="@android:style/Widget.Holo.Light.Spinner"
                         android:layout_width="0dp"
                         android:layout_height="wrap_content"
                         android:layout_weight="1"
                         android:focusable="true"
-                        android:onClick="onMenuColorMap"
-                        tools:text="Text" />
+                        android:onClick="onMenuColorMap" />
 
-                </LinearLayout>
+                </androidx.appcompat.widget.LinearLayoutCompat>
 
                 <LinearLayout
                     android:layout_width="wrap_content"

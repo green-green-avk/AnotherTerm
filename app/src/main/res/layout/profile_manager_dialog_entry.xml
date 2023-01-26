@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/entry"
@@ -7,9 +7,7 @@
     android:layout_height="wrap_content"
     android:background="@drawable/bg_grid_btn"
     android:focusable="true"
-    android:gravity="center_vertical"
-    android:minHeight="@dimen/entry_height"
-    android:orientation="horizontal">
+    android:minHeight="@dimen/entry_height">
 
     <ImageView
         android:id="@+id/mark"
@@ -17,13 +15,35 @@
         android:layout_height="wrap_content"
         android:contentDescription="@string/mark_active"
         android:padding="@dimen/text_padding"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toStartOf="@id/preview"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
         app:srcCompat="@drawable/ic_check" />
+
+    <ImageView
+        android:id="@+id/preview"
+        android:layout_width="wrap_content"
+        android:layout_height="0dp"
+        android:layout_marginEnd="@dimen/field_margin_2x"
+        android:adjustViewBounds="true"
+        android:contentDescription="@null"
+        android:scaleType="fitXY"
+        app:layout_constrainedWidth="true"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toStartOf="@id/name"
+        app:layout_constraintStart_toEndOf="@id/mark"
+        app:layout_constraintTop_toTopOf="parent"
+        tools:srcCompat="@drawable/ic_mark_error_image" />
 
     <TextView
         android:id="@+id/name"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:layout_weight="1"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toStartOf="@id/edit"
+        app:layout_constraintStart_toEndOf="@id/preview"
+        app:layout_constraintTop_toTopOf="parent"
         tools:text="Title" />
 
     <ImageView
@@ -39,6 +59,10 @@
         android:nextFocusDown="@id/entry"
         android:nextFocusForward="@id/entry"
         android:padding="@dimen/text_padding"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toEndOf="@id/name"
+        app:layout_constraintTop_toTopOf="parent"
         app:srcCompat="@drawable/ic_edit_new" />
 
-</LinearLayout>
+</androidx.constraintlayout.widget.ConstraintLayout>

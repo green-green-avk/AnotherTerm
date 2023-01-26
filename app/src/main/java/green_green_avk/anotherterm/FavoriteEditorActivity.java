@@ -635,8 +635,8 @@ public final class FavoriteEditorActivity extends ExtAppCompatActivity {
 
         mColorMapW.setAdapter(new AnsiColorAdapter(this)
                 .setIncludeBuiltIns(true)
-                .setItemLayoutRes(android.R.layout.simple_spinner_item)
-                .setDropDownItemLayoutRes(android.R.layout.simple_spinner_dropdown_item)
+                .setItemLayoutRes(R.layout.profile_manager_spinner_entry)
+                .setDropDownItemLayoutRes(R.layout.profile_manager_spinner_entry)
                 .getAdapter());
         mColorMapW.setSelection(AnsiColorAdapter.getSelf(mColorMapW.getAdapter())
                 .getPosition((String) null));

@@ -2,6 +2,7 @@ package green_green_avk.anotherterm.ui;
 
 import android.content.Context;
 import android.graphics.Typeface;
+import android.graphics.drawable.Drawable;
 import android.view.ContextMenu;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -220,6 +221,17 @@ public abstract class ProfileAdapter<T> extends UniAdapter {
         return getMeta(position);
     }
 
+    /**
+     * Returns an entry preview image.
+     *
+     * @param meta a profile meta info
+     * @return the image or {@code null} for none
+     */
+    @Nullable
+    protected Drawable onGetPreview(@NonNull final ProfileManager.Meta meta) {
+        return null;
+    }
+
     @Override
     @NonNull
     protected View onCreateView(@NonNull final ViewGroup parent, final int type) {
@@ -253,20 +265,33 @@ public abstract class ProfileAdapter<T> extends UniAdapter {
         }
 
         final TextView nameView;
+        final ImageView previewView;
         final View markView;
         final View editView;
         if (view instanceof TextView) {
             nameView = (TextView) view;
+            previewView = null;
             markView = null;
             editView = null;
         } else {
             nameView = view.findViewById(R.id.name);
+            previewView = view.findViewById(R.id.preview);
             markView = view.findViewById(R.id.mark);
             editView = view.findViewById(R.id.edit);
         }
 
         nameView.setText(meta.getTitle(view.getContext()));
         nameView.setTypeface(null, meta.isBuiltIn ? Typeface.ITALIC : Typeface.NORMAL);
+
+        if (previewView != null) {
+            final Drawable preview = onGetPreview(meta);
+            if (preview != null) {
+                previewView.setImageDrawable(preview);
+                previewView.setVisibility(View.VISIBLE);
+            } else {
+                previewView.setVisibility(View.GONE);
+            }
+        }
 
         if (markView != null) {
             markView.setVisibility(mMarkedName == null ? View.GONE :

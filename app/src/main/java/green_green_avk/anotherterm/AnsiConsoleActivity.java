@@ -610,9 +610,8 @@ public final class AnsiConsoleActivity extends ConsoleActivity
                             R.string.label_term_compliance_ansi);
             popupView.<TextView>findViewById(R.id.charset)
                     .setText(mSession.output.getCharset().name());
-            popupView.<TextView>findViewById(R.id.colormap)
-                    .setText(AnsiColorManagerUi.instance.getTitle(this,
-                            mCsv.getColorProfile()));
+            AnsiColorManagerUi.instance.renderIn(popupView.findViewById(R.id.colormap),
+                    mCsv.getColorProfile());
             popupView.<TextView>findViewById(R.id.keymap)
                     .setText(TermKeyMapManagerUi.instance.getTitle(this,
                             mSession.output.getKeyMap()));
