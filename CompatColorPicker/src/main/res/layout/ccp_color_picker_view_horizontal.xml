@@ -1,12 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
 <androidx.appcompat.widget.LinearLayoutCompat xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="@drawable/ccp_bg_checkers"
-    android:orientation="horizontal"
-    tools:viewBindingIgnore="true">
+    android:orientation="horizontal">
 
     <name.green_green_avk.compatcolorpicker.ColorPickerWheelView
         android:id="@+id/color_hs"

@@ -68,11 +68,11 @@ public final class Password implements ErasableCharSequence {
     }
 
     @Override
-    public boolean equals(final Object o) {
-        if (this == o)
+    public boolean equals(@Nullable final Object obj) {
+        if (this == obj)
             return true;
-        if (o instanceof Password)
-            return Arrays.equals(data, ((Password) o).data);
+        if (obj instanceof Password)
+            return Arrays.equals(data, ((Password) obj).data);
         return false;
     }
 

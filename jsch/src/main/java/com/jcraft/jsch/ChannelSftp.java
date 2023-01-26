@@ -39,6 +39,7 @@ import java.io.PipedInputStream;
 import java.io.PipedOutputStream;
 import java.nio.charset.Charset;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -1700,7 +1701,7 @@ public final class ChannelSftp extends ChannelSession {
                     if (pattern == null) {
                         find = true;
                     } else if (!pattern_has_wildcard) {
-                        find = Util.array_equals(pattern, filename);
+                        find = Arrays.equals(pattern, filename);
                     } else {
                         byte[] _filename = filename;
                         if (!fEncoding_is_utf8) {

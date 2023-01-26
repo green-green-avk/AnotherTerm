@@ -9,7 +9,7 @@ import java.util.Arrays;
 public final class ConsoleScreenCharAttrs {
     private static final int[] DEF_BASIC_COLORS = new int[]{
             // Normal
-            android.graphics.Color.rgb(0, 0, 0),
+            android.graphics.Color.rgb(0x00, 0x00, 0x00),
             android.graphics.Color.rgb(0xEE, 0x33, 0x33),
             android.graphics.Color.rgb(0x33, 0xCC, 0x33),
             android.graphics.Color.rgb(0xCC, 0xAA, 0x33),
@@ -39,7 +39,7 @@ public final class ConsoleScreenCharAttrs {
             android.graphics.Color.rgb(0xCC, 0xCC, 0xCC),
             android.graphics.Color.rgb(0xFF, 0xFF, 0xFF),
             android.graphics.Color.rgb(0x77, 0x77, 0x77),
-            android.graphics.Color.rgb(0, 0, 0)
+            android.graphics.Color.rgb(0x00, 0x00, 0x00)
     };
     public static final int BASIC_COLORS_NUM = DEF_BASIC_COLORS.length;
 

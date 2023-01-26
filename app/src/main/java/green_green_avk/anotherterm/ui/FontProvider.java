@@ -5,5 +5,5 @@ import android.graphics.Paint;
 import androidx.annotation.NonNull;
 
 public interface FontProvider {
-    void setPaint(@NonNull Paint paint, int style);
+    void populatePaint(@NonNull Paint out, int style);
 }

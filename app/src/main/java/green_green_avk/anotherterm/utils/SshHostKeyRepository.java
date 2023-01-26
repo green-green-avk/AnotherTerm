@@ -18,7 +18,6 @@ import java.util.HashSet;
 import java.util.Set;
 
 public final class SshHostKeyRepository implements HostKeyRepository {
-
     public static final class Exception extends RuntimeException {
         public Exception(final Throwable e) {
             super(e);
@@ -29,6 +28,7 @@ public final class SshHostKeyRepository implements HostKeyRepository {
         }
     }
 
+    @NonNull
     private final SharedPreferences sp;
 
     public SshHostKeyRepository(@NonNull final Context ctx) {
@@ -65,8 +65,9 @@ public final class SshHostKeyRepository implements HostKeyRepository {
     @Override
     public int check(@NonNull final String host, @NonNull final byte[] bytes) {
         final Set<String> keys = sp.getStringSet(host, Collections.emptySet());
-        if (keys.isEmpty())
+        if (keys.isEmpty()) {
             return NOT_INCLUDED;
+        }
         for (final String ent : keys) {
             final SshHostKey k = parseKey(host, ent);
             if (Arrays.equals(k.getRawKey(), bytes)) {
@@ -83,8 +84,9 @@ public final class SshHostKeyRepository implements HostKeyRepository {
         final Set<SshHostKey> r = new HashSet<>();
         for (final String ent : keys) {
             final SshHostKey k = parseKey(host, ent);
-            if (keyType == null || keyType.equals(k.getType()))
+            if (keyType == null || keyType.equals(k.getType())) {
                 r.add(k);
+            }
         }
         return r;
     }

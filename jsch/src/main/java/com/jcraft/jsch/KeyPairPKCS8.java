@@ -31,6 +31,7 @@ package com.jcraft.jsch;
 
 import java.math.BigInteger;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 final class KeyPairPKCS8 extends KeyPair {
@@ -141,13 +142,13 @@ final class KeyPairPKCS8 extends KeyPair {
             final byte[] _data = privateKey.getContent();
 
             final KeyPair _kpair;
-            if (Util.array_equals(privateKeyAlgorithmID, rsaEncryption)) {
+            if (Arrays.equals(privateKeyAlgorithmID, rsaEncryption)) {
                 _kpair = new KeyPairRSA(jsch);
                 _kpair.copy(this);
                 if (_kpair.parse(_data)) {
                     kpair = _kpair;
                 }
-            } else if (Util.array_equals(privateKeyAlgorithmID, dsaEncryption)) {
+            } else if (Arrays.equals(privateKeyAlgorithmID, dsaEncryption)) {
                 asn1 = new ASN1(_data);
                 if (values.isEmpty()) {  // embedded DSA parameters format
           /*
@@ -301,7 +302,7 @@ or
             final byte[] iv;
             final byte[] encryptfuncid;
 
-            if (Util.array_equals(pbesid, pbes2)) {
+            if (Arrays.equals(pbesid, pbes2)) {
                 contents = pbesparam.getContents();
                 final ASN1 pbkdf = contents[0];
                 final ASN1 encryptfunc = contents[1];
@@ -316,7 +317,7 @@ or
                 contents = encryptfunc.getContents();
                 encryptfuncid = contents[0].getContent();
                 iv = contents[1].getContent();
-            } else if (Util.array_equals(pbesid, pbeWithMD5AndDESCBC)) {
+            } else if (Arrays.equals(pbesid, pbeWithMD5AndDESCBC)) {
                 // not supported
                 return false;
             } else {
@@ -360,11 +361,11 @@ or
         Cipher cipher = null;
         String name = null;
         try {
-            if (Util.array_equals(id, aes128cbc)) {
+            if (Arrays.equals(id, aes128cbc)) {
                 name = "aes128-cbc";
-            } else if (Util.array_equals(id, aes192cbc)) {
+            } else if (Arrays.equals(id, aes192cbc)) {
                 name = "aes192-cbc";
-            } else if (Util.array_equals(id, aes256cbc)) {
+            } else if (Arrays.equals(id, aes256cbc)) {
                 name = "aes256-cbc";
             }
             final Class<? extends Cipher> c =

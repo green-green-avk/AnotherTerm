@@ -31,6 +31,7 @@ package com.jcraft.jsch;
 
 import java.io.IOException;
 import java.net.Socket;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -233,7 +234,8 @@ System.err.println("");
                 return;
 
             final byte[] bar = new byte[dlen];
-            System.arraycopy(foo, s + 12 + plen + ((-plen) & 3), bar, 0, dlen);
+            System.arraycopy(foo, s + 12 + plen + ((-plen) & 3),
+                    bar, 0, dlen);
             final byte[] faked_cookie;
 
             synchronized (faked_cookie_pool) {
@@ -253,9 +255,10 @@ for(int i=0; i<bar.length; i++){
 System.err.println("");
       */
 
-            if (equals(bar, faked_cookie)) {
+            if (Arrays.equals(bar, faked_cookie)) {
                 if (cookie != null)
-                    System.arraycopy(cookie, 0, foo, s + 12 + plen + ((-plen) & 3), dlen);
+                    System.arraycopy(cookie, 0,
+                            foo, s + 12 + plen + ((-plen) & 3), dlen);
             } else {
                 //System.err.println("wrong cookie");
                 thread = null;
@@ -269,13 +272,5 @@ System.err.println("");
             return;
         }
         io.put(foo, s, l);
-    }
-
-    private static boolean equals(final byte[] foo, final byte[] bar) {
-        if (foo == null || bar == null || foo.length != bar.length) return false;
-        for (int i = 0; i < foo.length; i++) {
-            if (foo[i] != bar[i]) return false;
-        }
-        return true;
     }
 }

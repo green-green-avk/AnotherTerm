@@ -47,10 +47,13 @@ public abstract class ProfileManager<T> {
 
         @Override
         public boolean equals(@Nullable final Object obj) {
+            if (this == obj) {
+                return true;
+            }
             if (obj instanceof Meta) {
                 return isBuiltIn == ((Meta) obj).isBuiltIn && name.equals(((Meta) obj).name);
             }
-            return super.equals(obj);
+            return false;
         }
     }
 

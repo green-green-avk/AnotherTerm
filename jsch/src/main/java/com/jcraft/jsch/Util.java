@@ -29,6 +29,8 @@ EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 package com.jcraft.jsch;
 
+import org.jetbrains.annotations.NotNull;
+
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
@@ -65,7 +67,8 @@ final class Util {
         return 0;
     }
 
-    static byte[] fromBase64(final byte[] buf, final int start, final int length)
+    @NotNull
+    static byte[] fromBase64(@NotNull final byte[] buf, final int start, final int length)
             throws JSchException {
         try {
             final byte[] foo = new byte[length];
@@ -92,7 +95,13 @@ final class Util {
         }
     }
 
-    static byte[] toBase64(final byte[] buf, final int start, final int length,
+    @NotNull
+    static byte[] toBase64(@NotNull final byte[] buf, final boolean include_pad) {
+        return toBase64(buf, 0, buf.length, include_pad);
+    }
+
+    @NotNull
+    static byte[] toBase64(@NotNull final byte[] buf, final int start, final int length,
                            final boolean include_pad) {
 
         final byte[] tmp = new byte[length * 2];
@@ -357,10 +366,6 @@ final class Util {
         }
     }
 
-    static boolean array_equals(final byte[] foo, final byte[] bar) {
-        return Arrays.equals(foo, bar);
-    }
-
     static Socket createSocket(final String host, final int port, final int timeout)
             throws JSchException {
         if (timeout <= 0) {
@@ -370,15 +375,13 @@ final class Util {
                 throw new JSchException(e.toString(), e);
             }
         }
-        final String _host = host;
-        final int _port = port;
         final Socket[] sockp = new Socket[1];
         final Exception[] ee = new Exception[1];
         String message = "";
-        Thread tmp = new Thread(() -> {
+        final Thread tmp = new Thread(() -> {
             sockp[0] = null;
             try {
-                sockp[0] = new Socket(_host, _port);
+                sockp[0] = new Socket(host, port);
             } catch (final Exception e) {
                 ee[0] = e;
                 if (sockp[0] != null && sockp[0].isConnected()) {
@@ -405,7 +408,6 @@ final class Util {
                 message = ee[0].toString();
             }
             tmp.interrupt();
-            tmp = null;
             throw new JSchException(message, ee[0]);
         }
     }
@@ -442,6 +444,15 @@ final class Util {
         Arrays.fill(v, (char) 0);
     }
 
+    /**
+     * Extracts an array from a buffer.
+     * <p>
+     * Move semantics.
+     *
+     * @param v    to extract an array from
+     * @param wipe to wipe unused data afterwards
+     * @return an extracted array
+     */
     static byte[] toArray(final ByteBuffer v, final boolean wipe) {
         if (v == null)
             return null;

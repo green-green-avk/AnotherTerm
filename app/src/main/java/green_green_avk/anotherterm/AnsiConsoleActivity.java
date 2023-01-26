@@ -433,8 +433,8 @@ public final class AnsiConsoleActivity extends ConsoleActivity
 
     @NonNull
     private PopupWindow createMenuPopup() {
-        @SuppressLint("InflateParams") final View popupView =
-                LayoutInflater.from(this).inflate(R.layout.console_menu, null);
+        @SuppressLint("InflateParams") final View popupView = LayoutInflater.from(this)
+                .inflate(R.layout.console_menu, null);
         popupView.setLayoutParams(new ViewGroup.LayoutParams(
                 ViewGroup.LayoutParams.WRAP_CONTENT,
                 ViewGroup.LayoutParams.WRAP_CONTENT));

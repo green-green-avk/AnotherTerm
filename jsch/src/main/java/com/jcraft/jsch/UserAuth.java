@@ -29,7 +29,7 @@ EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 package com.jcraft.jsch;
 
-import androidx.annotation.NonNull;
+import org.jetbrains.annotations.NotNull;
 
 public abstract class UserAuth {
     protected static final int SSH_MSG_USERAUTH_REQUEST = 50;
@@ -54,7 +54,7 @@ public abstract class UserAuth {
     }
 
     protected final void reportPasswordState(final int result,
-                                             final String id, @NonNull final byte[] password) {
+                                             final String id, @NotNull final byte[] password) {
         if (userinfo != null) {
             userinfo.onAuthResult(result, id, () -> Util.byte2char(password));
         }

@@ -63,7 +63,7 @@ public final class CustomFontsFragment extends Fragment {
             final boolean canBeRemoved = FontsManager.getConsoleFontFiles()[position].exists();
             final boolean isCorrect = FontsManager.isExists(typefaces, position) || !canBeRemoved;
             if (isCorrect) {
-                FontsManager.setPaint(wSample.getPaint(), typefaces, position);
+                FontsManager.populatePaint(wSample.getPaint(), typefaces, position);
                 wSample.setTextColor(holder.itemView.getResources().getColor(R.color.colorPrimaryDark));
                 wSample.setText(R.string.sample_text);
             } else {

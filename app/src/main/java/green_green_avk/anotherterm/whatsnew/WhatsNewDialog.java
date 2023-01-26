@@ -74,7 +74,7 @@ public final class WhatsNewDialog {
     private static final class Adapter extends RecyclerView.Adapter<ViewHolder> {
         private final int num;
 
-        public Adapter(final int num) {
+        private Adapter(final int num) {
             this.num = num;
         }
 
@@ -88,7 +88,8 @@ public final class WhatsNewDialog {
         @Override
         public void onBindViewHolder(@NonNull final ViewHolder holder, final int position) {
             final HtmlTextView v = (HtmlTextView) holder.itemView;
-            v.setXmlText(v.getContext().getString(Info.news[Info.news.length - position - 1].pageId));
+            v.setXmlText(v.getContext()
+                    .getString(Info.news[Info.news.length - position - 1].pageId));
         }
 
         @Override
@@ -98,18 +99,22 @@ public final class WhatsNewDialog {
     }
 
     private static final class ViewHolder extends RecyclerView.ViewHolder {
-        public ViewHolder(@NonNull final View itemView) {
+        private ViewHolder(@NonNull final View itemView) {
             super(itemView);
         }
     }
 
     public static void show(@NonNull final Context ctx, final int num) {
-        final View v = LayoutInflater.from(ctx).inflate(R.layout.whats_new_dialog, null);
+        final View v = LayoutInflater.from(ctx)
+                .inflate(R.layout.whats_new_dialog, null);
         final RecyclerView list = v.findViewById(R.id.list);
         list.setAdapter(new Adapter(num));
-        DialogUtils.wrapLeakageSafe(new AlertDialog.Builder(ctx).setView(v).setCancelable(false)
+        DialogUtils.wrapLeakageSafe(new AlertDialog.Builder(ctx)
+                .setView(v)
+                .setCancelable(false)
                 .setPositiveButton(android.R.string.ok,
-                        (dialog, which) -> setSeen(ctx)).show(), null);
+                        (dialog, which) -> setSeen(ctx))
+                .show(), null);
     }
 
     public static void showUnseen(@NonNull final Context ctx) {
