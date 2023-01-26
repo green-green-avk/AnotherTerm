@@ -7,7 +7,6 @@ import android.text.Spanned;
 import android.text.style.StyleSpan;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.ListView;
 import android.widget.PopupWindow;
 
 import androidx.annotation.NonNull;
@@ -15,6 +14,8 @@ import androidx.annotation.Nullable;
 import androidx.annotation.StringRes;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.content.res.AppCompatResources;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
 
 import green_green_avk.anotherterm.R;
 import green_green_avk.anotherterm.utils.ProfileManager;
@@ -133,7 +134,8 @@ public abstract class ProfileManagerUi<T> {
                     android.R.drawable.dialog_holo_light_frame));
             d.setFocusable(true);
             d.setAnimationStyle(android.R.style.Animation_Dialog);
-            final ListView v = new ListView(ctx);
+            final RecyclerView v = new RecyclerView(ctx);
+            v.setLayoutManager(new LinearLayoutManager(ctx));
             final ProfileAdapter<T> a = createAdapter(ctx)
                     .setIncludeBuiltIns(true)
                     .setItemLayoutRes(R.layout.profile_manager_dialog_entry)
@@ -144,7 +146,7 @@ public abstract class ProfileManagerUi<T> {
                     })
                     .setMarked(name)
                     .setEditorEnabled(true);
-            v.setAdapter(a.getAdapter());
+            v.setAdapter(a.getRecyclerAdapter());
             v.setFocusable(false);
             d.setContentView(v);
             d.showAsDropDown((View) parent);
@@ -153,7 +155,8 @@ public abstract class ProfileManagerUi<T> {
         if (parent instanceof Context) {
             final Context ctx = (Context) parent;
             final AlertDialog d = new AlertDialog.Builder(ctx).create();
-            final ListView v = new ListView(ctx);
+            final RecyclerView v = new RecyclerView(ctx);
+            v.setLayoutManager(new LinearLayoutManager(ctx));
             final ProfileAdapter<T> a = createAdapter(ctx)
                     .setIncludeBuiltIns(true)
                     .setItemLayoutRes(R.layout.profile_manager_dialog_entry)
@@ -164,7 +167,7 @@ public abstract class ProfileManagerUi<T> {
                     })
                     .setMarked(name)
                     .setEditorEnabled(true);
-            v.setAdapter(a.getAdapter());
+            v.setAdapter(a.getRecyclerAdapter());
             v.setFocusable(false);
             d.setView(v);
             d.show();
