@@ -27,6 +27,7 @@
         android:layout_height="0dp"
         android:layout_marginEnd="@dimen/field_margin_2x"
         android:adjustViewBounds="true"
+        android:background="@drawable/bg_small_checkers"
         android:contentDescription="@null"
         android:scaleType="fitXY"
         app:layout_constrainedWidth="true"
