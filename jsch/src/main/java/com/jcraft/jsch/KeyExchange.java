@@ -277,7 +277,7 @@ public abstract class KeyExchange {
             throw new JSchErrorException("Unable to load the fingerprint hash class", e);
         }
         try {
-            return Util.getFingerPrint(hash, getHostKey(), true, false);
+            return Util.getFingerPrint(hash, getHostKey());
         } catch (final JSchException e) {
             throw new JSchErrorException(e);
         }

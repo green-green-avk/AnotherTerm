@@ -137,7 +137,7 @@ public class HostKey {
             throw new JSchErrorException("Unable to load the fingerprint hash class", e);
         }
         try {
-            return Util.getFingerPrint(hash, key, false, true);
+            return Util.getFingerPrint(hash, key);
         } catch (final JSchException e) {
             throw new JSchErrorException(e);
         }

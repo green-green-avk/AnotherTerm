@@ -329,32 +329,27 @@ final class Util {
     }
 
     private static final String[] chars = {
-            "0", "1", "2", "3", "4", "5", "6", "7", "8", "9", "a", "b", "c", "d", "e", "f"
+            "0", "1", "2", "3", "4", "5", "6", "7", "8", "9", "A", "B", "C", "D", "E", "F"
     };
 
-    static String getFingerPrint(final HASH hash, final byte[] data,
-                                 final boolean include_prefix, final boolean force_hex)
+    static String getFingerPrint(final HASH hash, final byte[] data)
             throws JSchException {
         try {
             hash.init();
             hash.update(data, 0, data.length);
             final byte[] foo = hash.digest();
             final StringBuilder sb = new StringBuilder();
-            if (include_prefix) {
-                sb.append(hash.name());
-                sb.append(":");
-            }
-            if (force_hex || hash.name().equals("MD5")) {
-                for (int i = 0; i < foo.length; i++) {
-                    final int bar = foo[i] & 0xff;
-                    sb.append(chars[(bar >>> 4) & 0xf]);
-                    sb.append(chars[(bar) & 0xf]);
-                    if (i + 1 < foo.length)
-                        sb.append(":");
+            sb.append(hash.name());
+            if ("MD5".equals(hash.name())) {
+                for (final byte bar : foo) {
+                    sb.append(":");
+                    sb.append(chars[(bar >>> 4) & 0xF]);
+                    sb.append(chars[bar & 0xF]);
                 }
             } else {
+                sb.append(":");
                 final byte[] b64str = toBase64(foo, 0, foo.length, false);
-                sb.append(byte2str(b64str, 0, b64str.length));
+                sb.append(byte2str(b64str));
             }
             return sb.toString();
         } catch (final Exception e) {

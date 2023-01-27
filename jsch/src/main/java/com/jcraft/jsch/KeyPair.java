@@ -335,7 +335,7 @@ public abstract class KeyPair {
         if (kblob == null)
             return null;
         try {
-            return Util.getFingerPrint(hash, kblob, false, true);
+            return Util.getFingerPrint(hash, kblob);
         } catch (final JSchException e) {
             throw new JSchErrorException(e);
         }
