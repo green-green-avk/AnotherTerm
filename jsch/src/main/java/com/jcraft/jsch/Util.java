@@ -57,41 +57,48 @@ final class Util {
 
     static final Charset UTF8 = Charset.forName("UTF8");
 
-    private static final byte[] b64 = Util.str2byte("ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/=");
+    private static final byte[] b64 =
+            Util.str2byte("ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/");
+    private static final byte[] b64rev = new byte[128];
 
-    private static byte val(final byte foo) {
-        if (foo == '=') return 0;
-        for (int j = 0; j < b64.length; j++) {
-            if (foo == b64[j]) return (byte) j;
+    static {
+        Arrays.fill(b64rev, (byte) -1);
+        for (byte i = 0; i < b64.length; i++) {
+            b64rev[b64[i]] = i;
         }
-        return 0;
+    }
+
+    private static byte b64rev(final byte v) throws JSchException {
+        final byte r = b64rev[v];
+        if (r < 0)
+            throw new JSchException("fromBase64(): invalid input char");
+        return r;
     }
 
     @NotNull
     static byte[] fromBase64(@NotNull final byte[] buf, final int start, final int length)
             throws JSchException {
         try {
-            final byte[] foo = new byte[length];
+            final byte[] r = new byte[length * 3 / 4];
+            final int end = start + length;
             int j = 0;
-            for (int i = start; i < start + length; i += 4) {
-                foo[j] = (byte) ((val(buf[i]) << 2) | ((val(buf[i + 1]) & 0x30) >>> 4));
-                if (buf[i + 2] == (byte) '=') {
-                    j++;
+            for (int i = start; i < end; i += 4) {
+                r[j] = (byte) ((b64rev(buf[i]) << 2) | ((b64rev(buf[i + 1]) & 0x30) >>> 4));
+                if (i + 2 >= end || buf[i + 2] == (byte) '=') {
                     break;
                 }
-                foo[j + 1] = (byte) (((val(buf[i + 1]) & 0x0f) << 4) | ((val(buf[i + 2]) & 0x3c) >>> 2));
-                if (buf[i + 3] == (byte) '=') {
-                    j += 2;
+                r[j + 1] = (byte) (((b64rev(buf[i + 1]) & 0x0f) << 4) |
+                        ((b64rev(buf[i + 2]) & 0x3c) >>> 2));
+                if (i + 3 >= end || buf[i + 3] == (byte) '=') {
                     break;
                 }
-                foo[j + 2] = (byte) (((val(buf[i + 2]) & 0x03) << 6) | (val(buf[i + 3]) & 0x3f));
+                r[j + 2] = (byte) (((b64rev(buf[i + 2]) & 0x03) << 6) |
+                        (b64rev(buf[i + 3]) & 0x3f));
                 j += 3;
             }
-            final byte[] bar = new byte[j];
-            System.arraycopy(foo, 0, bar, 0, j);
-            return bar;
+            return r;
         } catch (final ArrayIndexOutOfBoundsException e) {
-            throw new JSchException("fromBase64: invalid base64 data", e);
+            throw new JSchException("fromBase64(): malformed input");
         }
     }
 
@@ -103,49 +110,37 @@ final class Util {
     @NotNull
     static byte[] toBase64(@NotNull final byte[] buf, final int start, final int length,
                            final boolean include_pad) {
+        final byte[] r = new byte[include_pad ? (length + 2) / 3 * 4 : (length * 4 + 2) / 3];
+        int i, j;
 
-        final byte[] tmp = new byte[length * 2];
-        int i, j, k;
-
-        int foo = (length / 3) * 3 + start;
+        final int end = start + length - 2;
         i = 0;
-        for (j = start; j < foo; j += 3) {
-            k = (buf[j] >>> 2) & 0x3f;
-            tmp[i++] = b64[k];
-            k = (buf[j] & 0x03) << 4 | (buf[j + 1] >>> 4) & 0x0f;
-            tmp[i++] = b64[k];
-            k = (buf[j + 1] & 0x0f) << 2 | (buf[j + 2] >>> 6) & 0x03;
-            tmp[i++] = b64[k];
-            k = buf[j + 2] & 0x3f;
-            tmp[i++] = b64[k];
+        for (j = start; j < end; j += 3) {
+            r[i++] = b64[(buf[j] >>> 2) & 0x3f];
+            r[i++] = b64[(buf[j] & 0x03) << 4 | (buf[j + 1] >>> 4) & 0x0f];
+            r[i++] = b64[(buf[j + 1] & 0x0f) << 2 | (buf[j + 2] >>> 6) & 0x03];
+            r[i++] = b64[buf[j + 2] & 0x3f];
         }
 
-        foo = (start + length) - foo;
-        if (foo == 1) {
-            k = (buf[j] >>> 2) & 0x3f;
-            tmp[i++] = b64[k];
-            k = ((buf[j] & 0x03) << 4) & 0x3f;
-            tmp[i++] = b64[k];
-            if (include_pad) {
-                tmp[i++] = (byte) '=';
-                tmp[i++] = (byte) '=';
-            }
-        } else if (foo == 2) {
-            k = (buf[j] >>> 2) & 0x3f;
-            tmp[i++] = b64[k];
-            k = (buf[j] & 0x03) << 4 | (buf[j + 1] >>> 4) & 0x0f;
-            tmp[i++] = b64[k];
-            k = ((buf[j + 1] & 0x0f) << 2) & 0x3f;
-            tmp[i++] = b64[k];
-            if (include_pad) {
-                tmp[i++] = (byte) '=';
-            }
+        switch (end + 2 - j) {
+            case 1:
+                r[i++] = b64[(buf[j] >>> 2) & 0x3f];
+                r[i++] = b64[((buf[j] & 0x03) << 4) & 0x3f];
+                if (include_pad) {
+                    r[i++] = (byte) '=';
+                    r[i] = (byte) '=';
+                }
+                break;
+            case 2:
+                r[i++] = b64[(buf[j] >>> 2) & 0x3f];
+                r[i++] = b64[(buf[j] & 0x03) << 4 | (buf[j + 1] >>> 4) & 0x0f];
+                r[i++] = b64[((buf[j + 1] & 0x0f) << 2) & 0x3f];
+                if (include_pad) {
+                    r[i] = (byte) '=';
+                }
+                break;
         }
-        final byte[] bar = new byte[i];
-        System.arraycopy(tmp, 0, bar, 0, i);
-        return bar;
-
-//    return sun.misc.BASE64Encoder().encode(buf);
+        return r;
     }
 
     static String[] split(final String foo, final String split) {
