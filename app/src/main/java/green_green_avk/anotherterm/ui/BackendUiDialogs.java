@@ -19,7 +19,6 @@ import android.view.inputmethod.EditorInfo;
 import android.widget.Button;
 import android.widget.CompoundButton;
 import android.widget.EditText;
-import android.widget.LinearLayout;
 import android.widget.ScrollView;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -32,6 +31,7 @@ import androidx.appcompat.widget.AppCompatButton;
 import androidx.appcompat.widget.AppCompatCheckBox;
 import androidx.appcompat.widget.AppCompatEditText;
 import androidx.appcompat.widget.AppCompatTextView;
+import androidx.appcompat.widget.LinearLayoutCompat;
 import androidx.core.widget.ImageViewCompat;
 import androidx.recyclerview.widget.LinearLayoutManager;
 
@@ -82,6 +82,7 @@ public class BackendUiDialogs implements BackendUiInteraction,
     @UiThread
     private void showPrompt(@NonNull final Dialog d) {
         d.show();
+        UiUtils.setMessageTextSelectable(d, true);
         promptDialog = new WeakReference<>(d);
         dialogs.add(d);
     }
@@ -288,8 +289,14 @@ public class BackendUiDialogs implements BackendUiInteraction,
                 } else if (fieldOpts.action instanceof CustomTextInputAction) {
                     final CustomTextInputAction action =
                             (CustomTextInputAction) fieldOpts.action;
-                    final TextView fieldLabelView = new AppCompatTextView(ctx);
-                    fieldLabelView.setText(fieldOpts.label);
+                    if (fieldOpts.label.length() > 0) {
+                        final TextView fieldLabelView = new AppCompatTextView(ctx);
+                        fieldLabelView.setText(fieldOpts.label);
+                        container.addView(fieldLabelView, new ViewGroup.LayoutParams(
+                                ViewGroup.LayoutParams.MATCH_PARENT,
+                                ViewGroup.LayoutParams.WRAP_CONTENT
+                        ));
+                    }
                     final EditText fieldView = new AppCompatEditText(ctx);
                     fieldView.setContentDescription(fieldOpts.label);
                     fieldView.setInputType(InputType.TYPE_CLASS_TEXT |
@@ -298,16 +305,15 @@ public class BackendUiDialogs implements BackendUiInteraction,
                                     InputType.TYPE_TEXT_VARIATION_VISIBLE_PASSWORD));
                     fieldView.setText(action.onInit());
                     fields.add(makeValueField(fieldOpts, fieldView::getText));
-                    container.addView(fieldLabelView, new ViewGroup.LayoutParams(
-                            ViewGroup.LayoutParams.MATCH_PARENT,
-                            ViewGroup.LayoutParams.WRAP_CONTENT
-                    ));
                     container.addView(fieldView, new ViewGroup.LayoutParams(
                             ViewGroup.LayoutParams.MATCH_PARENT,
                             ViewGroup.LayoutParams.WRAP_CONTENT
                     ));
                 } else if (fieldOpts.action == CustomFieldAction.label) {
-                    final TextView fieldLabelView = new AppCompatTextView(ctx);
+                    final TextView fieldLabelView = new AppCompatTextView(ctx, null,
+                            android.R.attr.textAppearanceMedium);
+                    fieldLabelView.setTextIsSelectable(true);
+                    fieldLabelView.setMovementMethod(UiUtils.getFixedLinkMovementMethod());
                     fieldLabelView.setText(fieldOpts.label);
                     container.addView(fieldLabelView, new ViewGroup.LayoutParams(
                             ViewGroup.LayoutParams.MATCH_PARENT,
@@ -331,8 +337,8 @@ public class BackendUiDialogs implements BackendUiInteraction,
                     if (ctx == null)
                         return;
                     final CustomFieldsBuilder customFields = new CustomFieldsBuilder();
-                    final LinearLayout container = new LinearLayout(ctx);
-                    container.setOrientation(LinearLayout.VERTICAL);
+                    final LinearLayoutCompat container = new LinearLayoutCompat(ctx);
+                    container.setOrientation(LinearLayoutCompat.VERTICAL);
                     final ScrollView scroller = new ScrollView(ctx);
                     scroller.setVerticalFadingEdgeEnabled(true);
                     final ViewGroup.MarginLayoutParams containerLp =
@@ -400,8 +406,8 @@ public class BackendUiDialogs implements BackendUiInteraction,
                     if (ctx == null)
                         return;
                     final CustomFieldsBuilder customFields = new CustomFieldsBuilder();
-                    final LinearLayout container = new LinearLayout(ctx);
-                    container.setOrientation(LinearLayout.VERTICAL);
+                    final LinearLayoutCompat container = new LinearLayoutCompat(ctx);
+                    container.setOrientation(LinearLayoutCompat.VERTICAL);
                     container.setLayoutParams(new ViewGroup.LayoutParams(
                             ViewGroup.LayoutParams.MATCH_PARENT,
                             ViewGroup.LayoutParams.WRAP_CONTENT
