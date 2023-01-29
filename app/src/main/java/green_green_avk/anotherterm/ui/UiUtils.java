@@ -2,6 +2,7 @@ package green_green_avk.anotherterm.ui;
 
 import android.animation.LayoutTransition;
 import android.app.Activity;
+import android.app.Dialog;
 import android.app.SearchManager;
 import android.content.ActivityNotFoundException;
 import android.content.ClipData;
@@ -32,6 +33,7 @@ import android.widget.Toast;
 
 import androidx.annotation.ColorInt;
 import androidx.annotation.DrawableRes;
+import androidx.annotation.IdRes;
 import androidx.annotation.IntRange;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -520,5 +522,30 @@ public final class UiUtils {
         final int end = Math.max(selStart, selEnd);
         Selection.setSelection(editable, end);
         editable.replace(start, end, replacement);
+    }
+
+    public interface WithView<T extends View> {
+        void withView(@NonNull T view);
+    }
+
+    public static <T extends View> void withView(@NonNull final Dialog dialog,
+                                                 @IdRes final int id,
+                                                 @NonNull final WithView<T> action) {
+        final T view = dialog.findViewById(id);
+        if (view != null) {
+            action.withView(view);
+        }
+    }
+
+    public static void withMessageView(@NonNull final Dialog dialog,
+                                       @NonNull final WithView<? extends TextView> action) {
+        withView(dialog, android.R.id.message, action);
+    }
+
+    public static void setMessageTextSelectable(@NonNull final Dialog dialog, final boolean v) {
+        withMessageView(dialog, (final TextView view) -> {
+            view.setTextIsSelectable(v);
+            view.setMovementMethod(getFixedLinkMovementMethod());
+        });
     }
 }
