@@ -323,24 +323,6 @@ public abstract class KeyPair {
         fos.close();
     }
 
-    /**
-     * Returns the finger-print of the public key.
-     *
-     * @return finger print
-     */
-    public String getFingerPrint() {
-        if (hash == null)
-            hash = genHash();
-        final byte[] kblob = getPublicKeyBlob();
-        if (kblob == null)
-            return null;
-        try {
-            return Util.getFingerPrint(hash, kblob);
-        } catch (final JSchException e) {
-            throw new JSchErrorException(e);
-        }
-    }
-
     private byte[] encrypt(final byte[] plain, final byte[][] _iv, final byte[] passphrase) {
         if (passphrase == null) return plain;
 

@@ -119,25 +119,8 @@ public class HostKey {
         return UNKNOWN;
     }
 
-    public String getKey() {
-        return Util.byte2str(Util.toBase64(key, 0, key.length, true));
-    }
-
-    public String getFingerPrint() {
-        final HASH hash;
-        try {
-            final String _c = JSch.getConfig("FingerprintHash").toLowerCase();
-            final Class<? extends HASH> c =
-                    Class.forName(JSch.getConfig(_c)).asSubclass(HASH.class);
-            hash = c.getDeclaredConstructor().newInstance();
-        } catch (final Exception e) {
-            throw new JSchErrorException("Unable to load the fingerprint hash class", e);
-        }
-        try {
-            return Util.getFingerPrint(hash, key);
-        } catch (final JSchException e) {
-            throw new JSchErrorException(e);
-        }
+    public byte[] getKey() {
+        return key;
     }
 
     public String getComment() {

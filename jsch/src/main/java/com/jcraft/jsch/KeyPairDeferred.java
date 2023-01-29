@@ -144,11 +144,6 @@ final class KeyPairDeferred extends KeyPair {
     }
 
     @Override
-    public String getFingerPrint() {
-        return requireDecrypted(delegate).getFingerPrint();
-    }
-
-    @Override
     public boolean isEncrypted() {
         return delegate != null ? delegate.isEncrypted() : super.isEncrypted();
     }

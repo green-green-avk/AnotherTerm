@@ -15,6 +15,7 @@ import java.util.Arrays;
 import java.util.Comparator;
 
 import green_green_avk.anotherterm.R;
+import green_green_avk.anotherterm.backends.ssh.SshModule;
 import green_green_avk.anotherterm.utils.SshHostKey;
 import green_green_avk.anotherterm.utils.SshHostKeyRepository;
 
@@ -57,7 +58,7 @@ public class SshHostKeyRepositoryView extends RecyclerView {
         @NonNull
         private static String getFingerPrintSortKey(@Nullable final SshHostKey key) {
             try {
-                return key.getFingerPrint();
+                return SshModule.getFingerprints(key.getKey());
             } catch (final RuntimeException e) {
                 return "";
             }
@@ -100,7 +101,7 @@ public class SshHostKeyRepositoryView extends RecyclerView {
             typeView.setText(key.getType());
             CharSequence fp;
             try {
-                fp = key.getFingerPrint();
+                fp = SshModule.getFingerprints(key.getKey());
             } catch (final RuntimeException e) {
                 fp = holder.itemView.getContext()
                         .getText(R.string.msg_desc_obj_cannot_obtain_fingerprint);

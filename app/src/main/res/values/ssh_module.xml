@@ -36,20 +36,24 @@
     <string name="label_port_forwarding_local_">Local:</string>
     <string name="label_port_forwarding_remote_">Remote:</string>
     <string name="choose">Choose</string>
-    <string name="msg_server_requests_key_identification">Server requests key identification</string>
-    <string name="msg_server_requests_key_identification_s"><![CDATA[
-        <p>Server requests key identification:</p>
-        <p>%s</p>
+    <string name="msg_s_requests_key_identification">%1$s requests key identification</string>
+    <string name="msg_s_requests_key_identification_s"><![CDATA[
+        <p>%1$s requests key identification:</p>
+        <p>%2$s</p>
         <p>Please, choose one manually:</p>
     ]]></string>
     <string name="msg_unable_to_load_associated_key__s"><![CDATA[Unable to load associated key:
     <br/>%s]]></string>
     <string name="msg_desc_obj_selected_key">&lt;selected key&gt;</string>
     <string name="msg_desc_obj_cannot_obtain_fingerprint"><i>&lt;cannot obtain fingerprint&gt;</i></string>
+    <string name="msg_ssh_remote_identity_usages"><![CDATA[
+        Already used by:\
+        %1$s
+    ]]></string>
     <string name="msg_ssh_remote_identity_new_ask_proceed"><![CDATA[
         The authenticity of host %1$s can\'t be established.\
         %2$s key fingerprint is\
-        %3$s.\
+        %3$s\
         \
         Are you sure you want to continue connecting?
     ]]></string>
@@ -59,7 +63,7 @@
         Someone could be eavesdropping on you right now (man-in-the-middle attack)!\
         It is also possible that the %2$s host key has just been changed.\
         The fingerprint for the %2$s key sent by the remote host %1$s is\
-        %3$s.\
+        %3$s\
         Please contact your system administrator.
     ]]></string>
     <string name="msg_ssh_remote_identity_changed_ask_proceed"><![CDATA[
@@ -68,7 +72,7 @@
         Someone could be eavesdropping on you right now (man-in-the-middle attack)!\
         It is also possible that the %2$s host key has just been changed.\
         The fingerprint for the %2$s key sent by the remote host %1$s is\
-        %3$s.\
+        %3$s\
         Please contact your system administrator.\
         \
         Do you want to delete the old key and insert the new one?
