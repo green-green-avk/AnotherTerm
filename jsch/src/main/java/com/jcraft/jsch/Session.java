@@ -219,7 +219,7 @@ public final class Session implements Configuration {
 
         if (getLogger().isEnabled(Logger.DEBUG)) {
             getLogger().log(Logger.DEBUG,
-                    "Connecting to " + host + " port " + port);
+                    "Connecting to " + host + ":" + port);
         }
 
         try {
@@ -532,7 +532,7 @@ public final class Session implements Configuration {
             synchronized (lock) {
                 if (isConnected) {
                     connectThread = new Thread(this::run);
-                    connectThread.setName("Connect thread " + host + " session");
+                    connectThread.setName("Connect thread " + host + ":" + port + " session");
                     if (daemon_thread) {
                         connectThread.setDaemon(daemon_thread);
                     }
@@ -689,13 +689,7 @@ public final class Session implements Configuration {
             }
 
             final HostKeyRepository hkr = getHostKeyRepository();
-            String chost = host;
-            if (hostKeyAlias != null) {
-                chost = hostKeyAlias;
-            }
-            if (hostKeyAlias == null && port != 22) {
-                chost = ("[" + chost + "]:" + port);
-            }
+            final String chost = hostKeyAlias != null ? hostKeyAlias : host + ":" + port;
             final HostKey[] hks = hkr.getHostKey(chost, null);
             if (hks != null && hks.length > 0) {
                 final List<String> pref_shks = new ArrayList<>();
@@ -794,23 +788,15 @@ public final class Session implements Configuration {
         }
     }
 
-    private void checkHost(String chost, final int port, final KeyExchange kex)
+    private void checkHost(final String host, final int port, final KeyExchange kex)
             throws JSchException {
         final String shkc = getConfig("StrictHostKeyChecking");
 
-        if (hostKeyAlias != null) {
-            chost = hostKeyAlias;
-        }
-
-        //System.err.println("shkc: "+shkc);
+        final String hostPort = host + ":" + port;
+        final String chost = hostKeyAlias != null ? hostKeyAlias : hostPort;
 
         final byte[] K_S = kex.getHostKey();
         final String key_type = kex.getKeyType();
-        final String key_fprint = kex.getFingerPrint();
-
-        if (hostKeyAlias == null && port != 22) {
-            chost = ("[" + chost + "]:" + port);
-        }
 
         final HostKeyRepository hkr = getHostKeyRepository();
 
@@ -836,11 +822,11 @@ public final class Session implements Configuration {
                 if ("ask".equals(shkc)) {
                     b = userinfo.promptYesNo(null,
                             UserInfo.Message.REMOTE_IDENTITY_CHANGED_ASK_PROCEED,
-                            chost, key_type, key_fprint);
+                            chost, key_type, K_S);
                 } else {  // shkc.equals("yes")
                     userinfo.showMessage(null,
                             UserInfo.Message.REMOTE_IDENTITY_CHANGED,
-                            chost, key_type, key_fprint);
+                            chost, key_type, K_S);
                 }
             }
 
@@ -859,22 +845,25 @@ public final class Session implements Configuration {
         if (("ask".equals(shkc) || "yes".equals(shkc)) &&
                 (i != HostKeyRepository.OK) && !insert) {
             if ("yes".equals(shkc)) {
-                throw new JSchException("reject HostKey: " + host);
+                throw new JSchException("reject HostKey: " + hostPort);
             }
             if (userinfo != null) {
                 final boolean foo = userinfo.promptYesNo(null,
                         UserInfo.Message.REMOTE_IDENTITY_NEW_ASK_PROCEED,
-                        host, key_type, key_fprint);
+                        hostPort, key_type, K_S);
                 if (!foo) {
-                    throw new JSchException("reject HostKey: " + host);
+                    throw new JSchException("reject HostKey: " + hostPort);
                 }
                 insert = true;
             } else {
-                if (i == HostKeyRepository.NOT_INCLUDED)
-                    throw new JSchException("UnknownHostKey: " + host + ". " +
-                            key_type + " key fingerprint is " + key_fprint);
-                else
-                    throw new JSchException("HostKey has been changed: " + host);
+                if (i == HostKeyRepository.NOT_INCLUDED) {
+                    throw new JSchException("UnknownHostKey: " + hostPort + ". " +
+                            key_type + " key MD5 fingerprint is " +
+                            Fingerprints.prettyPrintSemicolon(
+                                    Fingerprints.get(K_S, "md5", null)));
+                } else {
+                    throw new JSchException("HostKey has been changed: " + hostPort);
+                }
             }
         }
 
@@ -884,22 +873,20 @@ public final class Session implements Configuration {
         }
 
         if (i == HostKeyRepository.OK) {
-            final HostKey[] keys =
-                    hkr.getHostKey(chost, kex.getKeyAlgorithmName());
-            final String _key = Util.byte2str(Util.toBase64(K_S, 0, K_S.length, true));
+            final HostKey[] keys = hkr.getHostKey(chost, kex.getKeyAlgorithmName());
             for (final HostKey key : keys) {
-                if (key.getKey().equals(_key) &&
+                if (Arrays.equals(key.getKey(), K_S) &&
                         "@revoked".equals(key.getMarker())) {
                     if (userinfo != null) {
-                        userinfo.showMessage(host,
+                        userinfo.showMessage(chost,
                                 UserInfo.Message.REMOTE_IDENTITY_KEY_REVOKED,
-                                host, key_type);
+                                hostPort, key_type);
                     }
                     if (getLogger().isEnabled(Logger.DEBUG)) {
                         getLogger().log(Logger.DEBUG,
-                                "Host '" + host + "' has provided revoked key.");
+                                "Host '" + hostPort + "' has provided revoked key.");
                     }
-                    throw new JSchException("revoked HostKey: " + host);
+                    throw new JSchException("revoked HostKey: " + hostPort);
                 }
             }
         }
@@ -907,13 +894,13 @@ public final class Session implements Configuration {
         if (i == HostKeyRepository.OK &&
                 getLogger().isEnabled(Logger.DEBUG)) {
             getLogger().log(Logger.DEBUG,
-                    "Host '" + host + "' is known and matches the " + key_type + " host key");
+                    "Host '" + hostPort + "' is known and matches the " + key_type + " host key");
         }
 
         if (insert &&
                 getLogger().isEnabled(Logger.WARN)) {
             getLogger().log(Logger.WARN,
-                    "Permanently added '" + host + "' (" + key_type + ") to the list of known hosts.");
+                    "Permanently added '" + hostPort + "' (" + key_type + ") to the list of known hosts.");
         }
 
         if (insert) {
@@ -1925,7 +1912,7 @@ public final class Session implements Configuration {
                             channel.init();
 
                             final Thread tmp = new Thread(channel::run);
-                            tmp.setName("Channel " + ctyp + " " + host);
+                            tmp.setName("Channel " + ctyp + " " + host + ":" + port);
                             if (daemon_thread) {
                                 tmp.setDaemon(daemon_thread);
                             }
@@ -2008,7 +1995,7 @@ public final class Session implements Configuration {
         //Thread.dumpStack();
         if (getLogger().isEnabled(Logger.INFO)) {
             getLogger().log(Logger.INFO,
-                    "Disconnecting from " + host + " port " + port);
+                    "Disconnecting from " + host + ":" + port);
         }
     /*
     for(int i=0; i<Channel.pool.size(); i++){
@@ -2166,7 +2153,7 @@ public final class Session implements Configuration {
                 socketPath, ssf);
         pw.setConnectTimeout(connectTimeout);
         final Thread tmp = new Thread(pw::run);
-        tmp.setName("PortWatcher Thread for " + host);
+        tmp.setName("PortWatcher Thread for " + host + ":" + port);
         if (daemon_thread) {
             tmp.setDaemon(daemon_thread);
         }
@@ -3067,7 +3054,6 @@ public final class Session implements Configuration {
         checkConfig(config, "HashKnownHosts");
         checkConfig(config, "PreferredAuthentications");
         checkConfig(config, "PubkeyAcceptedAlgorithms");
-        checkConfig(config, "FingerprintHash");
         checkConfig(config, "MaxAuthTries");
         checkConfig(config, "ClearAllForwardings");
 

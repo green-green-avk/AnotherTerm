@@ -38,15 +38,15 @@ public interface UserInfo {
          */
         int SIMPLE_MESSAGE = 0;
         /**
-         * Args: String remoteHost, String hostKeyType, String hostKeyFingerprint
+         * Args: String remoteHost, String hostKeyType, byte[] hostKeyData
          */
         int REMOTE_IDENTITY_NEW_ASK_PROCEED = 1;
         /**
-         * Args: String remoteHost, String hostKeyType, String hostKeyFingerprint
+         * Args: String remoteHost, String hostKeyType, byte[] hostKeyData
          */
         int REMOTE_IDENTITY_CHANGED = 2;
         /**
-         * Args: String remoteHost, String hostKeyType, String hostKeyFingerprint
+         * Args: String remoteHost, String hostKeyType, byte[] hostKeyData
          */
         int REMOTE_IDENTITY_CHANGED_ASK_PROCEED = 3;
         /**

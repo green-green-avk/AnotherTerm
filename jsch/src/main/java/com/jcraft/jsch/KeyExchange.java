@@ -264,25 +264,6 @@ public abstract class KeyExchange {
         return guess;
     }
 
-    public String getFingerPrint() {
-        final HASH hash;
-        try {
-            final String _c = session.getConfig("FingerprintHash").toLowerCase();
-            final Class<? extends HASH> c =
-                    Class.forName(session.getConfig(_c)).asSubclass(HASH.class);
-            hash = c.getDeclaredConstructor().newInstance();
-        } catch (final Exception e) {
-            session.getLogger().log(Logger.FATAL,
-                    "Unable to load the fingerprint hash class", e);
-            throw new JSchErrorException("Unable to load the fingerprint hash class", e);
-        }
-        try {
-            return Util.getFingerPrint(hash, getHostKey());
-        } catch (final JSchException e) {
-            throw new JSchErrorException(e);
-        }
-    }
-
     byte[] getK() {
         return K;
     }

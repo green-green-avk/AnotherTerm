@@ -29,7 +29,7 @@ EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 package com.jcraft.jsch;
 
-public interface HASH {
+public interface HASH extends JSchAlgorithm {
     void init() throws Exception;
 
     int getBlockSize();

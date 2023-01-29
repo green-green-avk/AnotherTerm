@@ -1,17 +1,15 @@
 package green_green_avk.anotherterm.utils;
 
-import android.util.Base64;
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 
 import com.jcraft.jsch.HostKey;
 import com.jcraft.jsch.JSchException;
 
 public final class SshHostKey extends HostKey {
-    public SshHostKey(final String host, final String type, final String key,
-                      final String comment) throws JSchException {
-        super(host, name2type(type), Base64.decode(key, Base64.DEFAULT), comment);
-    }
-
-    public byte[] getRawKey() {
-        return key;
+    public SshHostKey(@NonNull final String host, @NonNull final String type,
+                      @NonNull final byte[] key,
+                      @Nullable final String comment) throws JSchException {
+        super(host, name2type(type), key, comment);
     }
 }

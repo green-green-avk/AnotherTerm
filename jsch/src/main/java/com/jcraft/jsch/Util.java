@@ -332,32 +332,18 @@ final class Util {
         return foo;
     }
 
-    private static final String[] chars = {
-            "0", "1", "2", "3", "4", "5", "6", "7", "8", "9", "A", "B", "C", "D", "E", "F"
-    };
-
-    static String getFingerPrint(final HASH hash, final byte[] data)
-            throws JSchException {
+    @NotNull
+    static <T extends JSchAlgorithm> T getAlgorithm(@NotNull final String name,
+                                                    @NotNull final Class<T> type,
+                                                    @NotNull final Configuration from)
+            throws JSchNotImplementedException {
         try {
-            hash.init();
-            hash.update(data, 0, data.length);
-            final byte[] foo = hash.digest();
-            final StringBuilder sb = new StringBuilder();
-            sb.append(hash.name());
-            if ("MD5".equals(hash.name())) {
-                for (final byte bar : foo) {
-                    sb.append(":");
-                    sb.append(chars[(bar >>> 4) & 0xF]);
-                    sb.append(chars[bar & 0xF]);
-                }
-            } else {
-                sb.append(":");
-                final byte[] b64str = toBase64(foo, 0, foo.length, false);
-                sb.append(byte2str(b64str));
-            }
-            return sb.toString();
+            final Class<? extends T> c =
+                    Class.forName(from.getConfig(name)).asSubclass(type);
+            return c.getDeclaredConstructor().newInstance();
         } catch (final Exception e) {
-            throw new JSchException("Error getting fingerprint", e);
+            throw new JSchNotImplementedException("Unable to load the " +
+                    name + " " + type.getSimpleName() + " class", e);
         }
     }
 

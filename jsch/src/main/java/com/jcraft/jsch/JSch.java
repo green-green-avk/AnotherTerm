@@ -224,8 +224,6 @@ public class JSch {
         config.put("PreferredAuthentications", Util.getEnvProperty("jsch.preferred_authentications", "publickey,keyboard-interactive,password"));
         config.put("PubkeyAcceptedAlgorithms", Util.getEnvProperty("jsch.client_pubkey", "ecdsa-sha2-nistp256,ecdsa-sha2-nistp384,ecdsa-sha2-nistp521,ssh-ed25519,rsa-sha2-512,rsa-sha2-256,ssh-rsa"));
 
-        config.put("FingerprintHash", Util.getEnvProperty("jsch.fingerprint_hash", "sha256"));
-
         config.put("MaxAuthTries", Util.getEnvProperty("jsch.max_auth_tries", "6"));
         config.put("ClearAllForwardings", "no");
     }

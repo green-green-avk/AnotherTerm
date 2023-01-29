@@ -519,8 +519,7 @@ final class KnownHosts implements HostKeyRepository {
         out.write(space);
         out.write(Util.str2byte(type));
         out.write(space);
-        out.write(Util.str2byte(hk.getKey()));
-
+        out.write(Util.toBase64(hk.getKey(), true));
         if (comment != null) {
             out.write(space);
             out.write(Util.str2byte(comment));

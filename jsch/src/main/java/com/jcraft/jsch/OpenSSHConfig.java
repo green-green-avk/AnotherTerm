@@ -51,7 +51,7 @@ import java.util.Set;
  *   <li>Port</li>
  *   <li>PreferredAuthentications</li>
  *   <li>PubkeyAcceptedAlgorithms</li>
- *   <li>FingerprintHash</li>
+ *   <li>FingerprintHash (removed and no-op)</li>
  *   <li>IdentityFile</li>
  *   <li>NumberOfPasswordPrompts</li>
  *   <li>ConnectTimeout</li>

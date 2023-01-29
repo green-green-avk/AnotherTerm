@@ -5,6 +5,7 @@ import android.content.Intent;
 import android.net.Uri;
 import android.os.Build;
 import android.text.Html;
+import android.util.Base64;
 import android.util.Log;
 
 import androidx.annotation.Keep;
@@ -14,6 +15,7 @@ import androidx.annotation.Nullable;
 import com.jcraft.jsch.Channel;
 import com.jcraft.jsch.ChannelExec;
 import com.jcraft.jsch.ChannelShell;
+import com.jcraft.jsch.Fingerprints;
 import com.jcraft.jsch.JSch;
 import com.jcraft.jsch.JSchErrorException;
 import com.jcraft.jsch.JSchException;
@@ -569,6 +571,26 @@ public final class SshModule extends BackendModule {
         }
     };
 
+    @NonNull
+    public static String getFingerprints(@NonNull final byte[] data) {
+        return "SHA256: " + Base64.encodeToString(
+                Fingerprints.get(data, "sha256", null),
+                Base64.NO_WRAP)
+                + "\nMD5: " + Fingerprints.prettyPrintSemicolon(
+                Fingerprints.get(data, "md5", null));
+    }
+
+    @NonNull
+    private CharSequence getHostKeyUsagesText(@NonNull final byte[] data) {
+        final SshHostKeyRepository repo = new SshHostKeyRepository(sshSessionSt.context);
+        final Set<String> hosts = repo.getUsages(data);
+        if (hosts.isEmpty())
+            return "";
+        return "\n" +
+                sshSessionSt.context.getString(R.string.msg_ssh_remote_identity_usages,
+                        String.join(",\n", hosts));
+    }
+
     private interface UserInfoKi extends UserInfo, UIKeyboardInteractive {
     }
 
@@ -593,19 +615,25 @@ public final class SshModule extends BackendModule {
                     case Message.REMOTE_IDENTITY_NEW_ASK_PROCEED:
                         return sshSessionSt.context.getString(
                                 R.string.msg_ssh_remote_identity_new_ask_proceed,
-                                args);
+                                args[0], args[1],
+                                getFingerprints((byte[]) args[2]) +
+                                        getHostKeyUsagesText((byte[]) args[2]));
                     case Message.REMOTE_IDENTITY_CHANGED:
                         return sshSessionSt.context.getString(
                                 R.string.msg_ssh_remote_identity_changed,
-                                args);
+                                args[0], args[1],
+                                getFingerprints((byte[]) args[2]) +
+                                        getHostKeyUsagesText((byte[]) args[2]));
                     case Message.REMOTE_IDENTITY_CHANGED_ASK_PROCEED:
                         return sshSessionSt.context.getString(
                                 R.string.msg_ssh_remote_identity_changed_ask_proceed,
-                                args);
+                                args[0], args[1],
+                                getFingerprints((byte[]) args[2]) +
+                                        getHostKeyUsagesText((byte[]) args[2]));
                     case Message.REMOTE_IDENTITY_KEY_REVOKED:
                         return sshSessionSt.context.getString(
                                 R.string.msg_ssh_remote_identity_key_revoked,
-                                args);
+                                args[0], args[1]);
                     default:
                         throw new BackendException("Incoherent message from SSH library...");
                 }
@@ -850,10 +878,14 @@ public final class SshModule extends BackendModule {
                 try {
                     final String message = reason != null ?
                             st.context.getString(
-                                    R.string.msg_server_requests_key_identification_s,
+                                    R.string.msg_s_requests_key_identification_s,
+                                    "ssh://" +
+                                            st.username + "@" + st.hostname + ":" + st.port,
                                     reason) :
                             st.context.getString(
-                                    R.string.msg_server_requests_key_identification);
+                                    R.string.msg_s_requests_key_identification,
+                                    "ssh://" +
+                                            st.username + "@" + st.hostname + ":" + st.port);
                     key = st.ui.promptContent(Html.fromHtml(message),
                             "*/*", CERT_FILE_SIZE_MAX);
                     if (key == null) {
