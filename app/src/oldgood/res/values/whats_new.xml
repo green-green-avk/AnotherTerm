@@ -1,14 +1,3 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="news_IV_dev20" formatted="false"><![CDATA[
-<h5>Changes in <kbd>MkIV-dev20</kbd></h5>
-<p>This (<kbd>oldgood</kbd>) flavor has
-<code>android.permission.CAMERA</code> permission added
-as long as it must be granted in order to
-connect to any <code>USB_CLASS_VIDEO</code> device since Android&#xA0;9:
-<a href=\"https://developer.android.com/reference/android/hardware/usb/UsbManager.html#requestPermission(android.hardware.usb.UsbDevice,%20android.app.PendingIntent)\">https://developer.android.com/reference/android/hardware/usb/UsbManager.html#requestPermission(android.hardware.usb.UsbDevice,%20android.app.PendingIntent)</a>…</p>
-<p>…and has been added.</p>
-<p>See
-<a href=\"https://github.com/green-green-avk/AnotherTerm/issues/29\">issue&#xA0;#29</a></p>
-]]></string>
 </resources>

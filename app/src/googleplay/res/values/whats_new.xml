@@ -1,8 +1,3 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="news_IV_dev26"><![CDATA[
-<h5>Changes in <kbd>MkIV-dev26</kbd></h5>
-<p>The <b>Google&#xA0;Play</b> releases target <b>Android&#xA0;12</b> from now on.</p>
-<p>Feel free to <a href=\"https://github.com/green-green-avk/AnotherTerm/issues\">post bugs</a>.</p>
-]]></string>
 </resources>
