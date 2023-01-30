@@ -137,8 +137,8 @@ public class ConsoleScreenView extends ScrollableView
     @NonNull
     protected FontProvider fontProvider = DefaultConsoleFontProvider.getInstance();
     protected float mFontSize = 16F; // px
-    protected float mFontWidth;
-    protected float mFontHeight;
+    protected final FontProvider.MonospaceMetrics mFontMetrics =
+            new FontProvider.MonospaceMetrics();
     protected int keyHeightDp = 0;
     protected int popupOpacity = 0x44;
     protected float selectionPadSize = 200; // px
@@ -700,14 +700,10 @@ public class ConsoleScreenView extends ScrollableView
 
     @CheckResult
     @NonNull
-    public float[] getCharSize(final float fontSize) {
-        final float[] r = new float[2];
-        final Paint p = new Paint();
-        fontProvider.populatePaint(p, Typeface.NORMAL);
-        p.setTextSize(fontSize);
-        r[1] = p.getFontSpacing();
-        r[0] = p.measureText("A");
-        return r;
+    public FontProvider.MonospaceMetrics getGlyphSize(final float fontSize) {
+        final FontProvider.MonospaceMetrics out = new FontProvider.MonospaceMetrics();
+        fontProvider.getGlyphSize(out, fontSize);
+        return out;
     }
 
     @NonNull
@@ -725,11 +721,9 @@ public class ConsoleScreenView extends ScrollableView
     }
 
     protected void applyFont() {
-        final float[] charSize = getCharSize(mFontSize);
-        mFontHeight = charSize[1];
-        mFontWidth = charSize[0];
+        fontProvider.getGlyphSize(mFontMetrics, mFontSize);
         fgPaint.setTextSize(mFontSize);
-        setScrollScale(mFontWidth, mFontHeight);
+        setScrollScale(mFontMetrics.width, mFontMetrics.height);
     }
 
     protected void _setFont(@NonNull final FontProvider fp) {
@@ -947,10 +941,10 @@ public class ConsoleScreenView extends ScrollableView
     protected void getBufferDrawRect(final int left, final int top,
                                      final int right, final int bottom,
                                      @NonNull final Rect rect) {
-        rect.left = (int) ((left - scrollPosition.x) * mFontWidth);
-        rect.top = (int) ((top - scrollPosition.y) * mFontHeight);
-        rect.right = (int) ((right - scrollPosition.x) * mFontWidth);
-        rect.bottom = (int) ((bottom - scrollPosition.y) * mFontHeight);
+        rect.left = (int) ((left - scrollPosition.x) * mFontMetrics.width);
+        rect.top = (int) ((top - scrollPosition.y) * mFontMetrics.height);
+        rect.right = (int) ((right - scrollPosition.x) * mFontMetrics.width);
+        rect.bottom = (int) ((bottom - scrollPosition.y) * mFontMetrics.height);
     }
 
     protected Rect getBufferTextRect(final int left, final int top,
@@ -963,10 +957,10 @@ public class ConsoleScreenView extends ScrollableView
     protected void getBufferTextRect(final int left, final int top,
                                      final int right, final int bottom,
                                      @NonNull final Rect rect) {
-        rect.left = (int) Math.floor(left / mFontWidth + scrollPosition.x);
-        rect.top = (int) Math.floor(top / mFontHeight + scrollPosition.y);
-        rect.right = (int) Math.ceil(right / mFontWidth + scrollPosition.x);
-        rect.bottom = (int) Math.ceil(bottom / mFontHeight + scrollPosition.y);
+        rect.left = (int) Math.floor(left / mFontMetrics.width + scrollPosition.x);
+        rect.top = (int) Math.floor(top / mFontMetrics.height + scrollPosition.y);
+        rect.right = (int) Math.ceil(right / mFontMetrics.width + scrollPosition.x);
+        rect.bottom = (int) Math.ceil(bottom / mFontMetrics.height + scrollPosition.y);
     }
 
     protected Rect getBufferDrawRectInc(@NonNull final Point first, @NonNull final Point last) {
@@ -981,19 +975,19 @@ public class ConsoleScreenView extends ScrollableView
     }
 
     protected float getBufferDrawPosXF(final float x) {
-        return (x - scrollPosition.x) * mFontWidth;
+        return (x - scrollPosition.x) * mFontMetrics.width;
     }
 
     protected float getBufferDrawPosYF(final float y) {
-        return (y - scrollPosition.y) * mFontHeight;
+        return (y - scrollPosition.y) * mFontMetrics.height;
     }
 
     protected float getBufferTextPosXF(final float x) {
-        return x / mFontWidth + scrollPosition.x;
+        return x / mFontMetrics.width + scrollPosition.x;
     }
 
     protected float getBufferTextPosYF(final float y) {
-        return y / mFontHeight + scrollPosition.y;
+        return y / mFontMetrics.height + scrollPosition.y;
     }
 
     protected void getBufferTextPosF(final float x, final float y, @NonNull final PointF r) {
@@ -1016,12 +1010,12 @@ public class ConsoleScreenView extends ScrollableView
 
     @CheckResult
     public int getCols() {
-        return (int) (getWidth() / mFontWidth);
+        return (int) (getWidth() / mFontMetrics.width);
     }
 
     @CheckResult
     public int getRows() {
-        return (int) (getHeight() / mFontHeight);
+        return (int) (getHeight() / mFontMetrics.height);
     }
 
     @CheckResult
@@ -2031,7 +2025,7 @@ public class ConsoleScreenView extends ScrollableView
             if (selectionMarker != null) {
                 if (selectionMarkerPtr != null) {
                     drawMarker(canvas, selectionMarkerPtr,
-                            selectionMarker, mFontHeight * 3);
+                            selectionMarker, mFontMetrics.height * 3);
                 }
             } else if (!inGesture) {
                 if (selectionMarkerPad != null) {
@@ -2132,12 +2126,31 @@ public class ConsoleScreenView extends ScrollableView
                             strFragRight, strBottom,
                             bgPaint);
                 }
+                i += sr;
+            }
+        }
+        for (int j = _draw_textRect.top; j < _draw_textRect.bottom; j++) {
+            final float strTop = getBufferDrawPosYF(j);
+            int i = _draw_textRect.left;
+            i -= consoleInput.currScrBuf.initCharsRun(i, j, _draw_run);
+            while (i < _draw_textRect.right) {
+                final float strFragLeft = getBufferDrawPosXF(i);
+                final int sr =
+                        consoleInput.currScrBuf.getCharsRun(i, j,
+                                _draw_textRect.right,
+                                _draw_run);
+                if (sr < 0) {
+                    break;
+                }
+                ConsoleScreenBuffer.decodeFgAttrs(charAttrs, _draw_run.fgAttrs);
+                ConsoleScreenBuffer.decodeBgAttrs(charAttrs, _draw_run.bgAttrs);
+                applyCharAttrs();
                 if (!charAttrs.invisible && fgPaint.getColor() != bgPaint.getColor() &&
                         _draw_run.length > 0 && !isAllSpaces(_draw_run)) {
                     fgPaint.setTextScaleX(1F);
                     if (_draw_run.glyphWidth > 1) {
                         fgPaint.setTextScaleX(
-                                mFontWidth * sr /
+                                mFontMetrics.width * sr /
                                         fgPaint.measureText(_draw_run.text,
                                                 _draw_run.start, _draw_run.length)
                         );
@@ -2146,13 +2159,13 @@ public class ConsoleScreenView extends ScrollableView
                     if (!charAttrs.blinking || mBlinkState) {
                         canvas.drawText(_draw_run.text,
                                 _draw_run.start, _draw_run.length,
-                                strFragLeft, strTop - fgPaint.ascent(), fgPaint);
+                                strFragLeft, strTop - mFontMetrics.ascent, fgPaint);
                     }
                 }
                 i += sr;
             }
-            _draw_run.init();
         }
+        _draw_run.init();
         hasVisibleBlinking = _hasVisibleBlinking;
         if (paddingMarkup != null) {
             if (vDivBottom < getHeight()) {
@@ -2188,11 +2201,11 @@ public class ConsoleScreenView extends ScrollableView
             final BitmapDrawable d = (BitmapDrawable) drawable;
             if (d.getTileModeX() != Shader.TileMode.CLAMP) {
                 xSize = d.getIntrinsicWidth() * 2;
-                xOff = (int) (scrollPosition.x * mFontWidth) % xSize;
+                xOff = (int) (scrollPosition.x * mFontMetrics.width) % xSize;
             }
             if (d.getTileModeY() != Shader.TileMode.CLAMP) {
                 ySize = d.getIntrinsicHeight() * 2;
-                yOff = (int) (scrollPosition.y * mFontHeight) % ySize;
+                yOff = (int) (scrollPosition.y * mFontMetrics.height) % ySize;
             }
         }
         canvas.save();

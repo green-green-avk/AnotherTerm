@@ -23,6 +23,21 @@ public final class DefaultConsoleFontProvider implements FontProvider {
             Typeface.create(Typeface.MONOSPACE, Typeface.BOLD_ITALIC)
     };
 
+    public static void getGlyphSizeDefault(@NonNull final MonospaceMetrics out,
+                                           @NonNull final Paint paint) {
+        out.width = paint.measureText("A");
+        out.height = paint.getFontSpacing();
+        out.ascent = (paint.descent() + paint.ascent() - out.height) / 2;
+    }
+
+    @Override
+    public void getGlyphSize(@NonNull final MonospaceMetrics out, final float fontSize) {
+        final Paint p = new Paint();
+        populatePaint(p, Typeface.NORMAL);
+        p.setTextSize(fontSize);
+        getGlyphSizeDefault(out, p);
+    }
+
     @Override
     public void populatePaint(@NonNull final Paint out, final int style) {
         out.setTypeface(typefaces[style]);
