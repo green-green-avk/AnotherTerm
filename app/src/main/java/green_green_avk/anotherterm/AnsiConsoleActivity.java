@@ -177,13 +177,13 @@ public final class AnsiConsoleActivity extends ConsoleActivity
             float fsY = Float.POSITIVE_INFINITY;
             final float base = 100F; // A reasonable value for the test.
             if (!mCsv.resizeBufferXOnUi || !mCsv.resizeBufferYOnUi) {
-                final float[] charSize = mCsv.getCharSize(base);
+                final FontProvider.MonospaceMetrics charSize = mCsv.getGlyphSize(base);
                 if (!mCsv.resizeBufferXOnUi) {
-                    fsX = base * width / charSize[0] /
+                    fsX = base * width / charSize.width /
                             mSession.input.currScrBuf.getWidth();
                 }
                 if (!mCsv.resizeBufferYOnUi) {
-                    fsY = base * height / charSize[1] /
+                    fsY = base * height / charSize.height /
                             mSession.input.currScrBuf.getHeight();
                 }
                 mCsv.setFontSize(clampFontSize(Math.min(fsX, fsY)));
