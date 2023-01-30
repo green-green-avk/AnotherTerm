@@ -1,27 +1,3 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="news_IIIv51"><![CDATA[
-<h5>Changes in <kbd>MkIIIv51</kbd></h5>
-<p>This (<kbd>redist</kbd>) flavor has
-<a href=\"https://developer.android.com/training/data-storage/use-cases#opt-out-in-production-app\"><code>android:requestLegacyExternalStorage="true"</code></a>
-declaration added from now on.</p>
-<p>See
-<a href=\"https://github.com/green-green-avk/AnotherTerm/issues/19\">issue&#xA0;#19</a></p>
-]]></string>
-    <string name="news_IIIv53" formatted="false"><![CDATA[
-<h5>Changes in <kbd>MkIIIv53</kbd></h5>
-<p>This (<kbd>redist</kbd>) flavor has
-<code>android.permission.CAMERA</code> permission added
-as long as it must be granted in order to
-connect to any <code>USB_CLASS_VIDEO</code> device since Android&#xA0;9:
-<a href=\"https://developer.android.com/reference/android/hardware/usb/UsbManager.html#requestPermission(android.hardware.usb.UsbDevice,%20android.app.PendingIntent)\">https://developer.android.com/reference/android/hardware/usb/UsbManager.html#requestPermission(android.hardware.usb.UsbDevice,%20android.app.PendingIntent)</a>…</p>
-<p>…and has been added.</p>
-<p>See
-<a href=\"https://github.com/green-green-avk/AnotherTerm/issues/29\">issue&#xA0;#29</a></p>
-]]></string>
-    <string name="news_IIIv59"><![CDATA[
-<h5>Changes in <kbd>MkIIIv59</kbd></h5>
-<p>This (<kbd>redist</kbd>) flavor targets <b>Android&#xA0;12</b> from now on.</p>
-<p>Feel free to <a href=\"https://github.com/green-green-avk/AnotherTerm/issues\">post bugs</a>.</p>
-]]></string>
 </resources>

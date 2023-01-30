@@ -1,14 +1,4 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="title_whats_new">What\'s new</string>
-    <string name="news_IIIv57"><![CDATA[
-<h5>Changes in <kbd>MkIIIv57</kbd></h5>
-<ul>
-<li>
-<a href=\"info:/share_input\">Content sharing, viewing and editing with Another&#xA0;Term</a>
-&#x2014;
-Temporary URI permissions lifetime is properly managed now.
-</li>
-</ul>
-]]></string>
 </resources>
