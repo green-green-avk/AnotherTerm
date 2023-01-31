@@ -639,7 +639,7 @@ public final class FavoriteEditorActivity extends ExtAppCompatActivity {
                 .setDropDownItemLayoutRes(android.R.layout.simple_spinner_dropdown_item)
                 .getAdapter());
         mColorMapW.setSelection(AnsiColorAdapter.getSelf(mColorMapW.getAdapter())
-                .getPosition(null));
+                .getPosition((String) null));
 
         mKeyMapW.setAdapter(new TermKeyMapAdapter(this)
                 .setIncludeBuiltIns(true)
@@ -647,7 +647,7 @@ public final class FavoriteEditorActivity extends ExtAppCompatActivity {
                 .setDropDownItemLayoutRes(android.R.layout.simple_spinner_dropdown_item)
                 .getAdapter());
         mKeyMapW.setSelection(TermKeyMapAdapter.getSelf(mKeyMapW.getAdapter())
-                .getPosition(null));
+                .getPosition((String) null));
 
         if (savedInstanceState != null) {
             Collections.addAll(mPrefs.getChangedFields(),

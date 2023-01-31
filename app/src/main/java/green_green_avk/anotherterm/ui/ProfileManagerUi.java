@@ -6,6 +6,7 @@ import android.text.SpannableString;
 import android.text.Spanned;
 import android.text.style.StyleSpan;
 import android.view.View;
+import android.view.ViewGroup;
 import android.widget.ListView;
 import android.widget.PopupWindow;
 
@@ -34,6 +35,13 @@ public abstract class ProfileManagerUi<T> {
         return v;
     }
 
+    /**
+     * For weird cases when you prefer to use a custom view instead of any sort of
+     * {@link android.widget.Spinner}.
+     *
+     * @param ctx  a context to use
+     * @param data a profile to retrieve a title for
+     */
     @NonNull
     public Spanned getTitle(@NonNull final Context ctx,
                             @NonNull final T data) {
@@ -45,6 +53,45 @@ public abstract class ProfileManagerUi<T> {
             v.setSpan(new StyleSpan(Typeface.ITALIC), 0, v.length(),
                     Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
         return v;
+    }
+
+    /**
+     * For weird cases when you prefer to use a custom view instead of any sort of
+     * {@link android.widget.Spinner}.
+     *
+     * @param where a container to update
+     * @param meta  what to place
+     */
+    public void renderIn(@NonNull final ViewGroup where,
+                         @Nullable final ProfileManager.Meta meta) {
+        if (meta == null) {
+            where.removeAllViews();
+            return;
+        }
+        final ProfileAdapter<T> adapter = this.createAdapter(where.getContext())
+                .setDropDownItemLayoutRes(R.layout.profile_manager_spinner_entry);
+        final View target;
+        if (where.getChildCount() > 0) {
+            target = where.getChildAt(0);
+        } else {
+            target = adapter.createEntryFor(where);
+            where.addView(target);
+        }
+        adapter.bindEntryTo(target, meta);
+    }
+
+    /**
+     * For weird cases when you prefer to use a custom view instead of any sort of
+     * {@link android.widget.Spinner}.
+     *
+     * @param where   a container to update
+     * @param profile what to place
+     */
+    public void renderIn(@NonNull final ViewGroup where,
+                         @Nullable final T profile) {
+        final ProfileManager.Meta meta = profile != null ?
+                this.getManager(where.getContext()).getMeta(profile) : null;
+        renderIn(where, meta);
     }
 
     public interface Dismissible {

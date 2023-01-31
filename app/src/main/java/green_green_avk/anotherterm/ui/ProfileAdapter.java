@@ -85,9 +85,15 @@ public abstract class ProfileAdapter<T> extends UniAdapter {
                     if (o1.order > o2.order)
                         return 1;
                     // TODO: optimize
-                    return o1.getTitle(context).compareTo(o2.getTitle(context));
+                    return o1.getTitle(context).toString()
+                            .compareTo(o2.getTitle(context).toString());
                 }
             };
+
+    @NonNull
+    protected Comparator<ProfileManager.Meta> onGetSortOrder() {
+        return defaultSortOrder;
+    }
 
     @NonNull
     private ProfileManager.Meta[] getSortedIndex() {
@@ -95,33 +101,39 @@ public abstract class ProfileAdapter<T> extends UniAdapter {
             final Set<? extends ProfileManager.Meta> m = includeBuiltIns ?
                     getManager().enumerate() : getManager().enumerateCustom();
             final ProfileManager.Meta[] keys = m.toArray(new ProfileManager.Meta[0]);
-            Arrays.sort(keys, defaultSortOrder);
+            Arrays.sort(keys, onGetSortOrder());
             mSortedIndex = keys;
         }
         return mSortedIndex;
     }
 
     @NonNull
-    public String getName(final int i) {
+    public final String getName(final int i) {
         return getMeta(i).name;
     }
 
     @NonNull
-    public ProfileManager.Meta getMeta(final int i) {
+    public final ProfileManager.Meta getMeta(final int i) {
         if (zeroEntry != null) {
             return i == 0 ? zeroEntry : getSortedIndex()[i - 1];
         }
         return getSortedIndex()[i];
     }
 
-    public int getPosition(final String name) {
-        final ProfileManager.Meta m = getManager().getMeta(name);
-        if (zeroEntry != null && zeroEntry.equals(m)) {
+    public final int getPosition(@Nullable final String name) {
+        final ProfileManager.Meta meta = getManager().getMeta(name);
+        if (meta == null)
+            return -1;
+        return getPosition(meta);
+    }
+
+    public final int getPosition(@NonNull final ProfileManager.Meta meta) {
+        if (meta.equals(zeroEntry)) {
             return 0;
         }
         final ProfileManager.Meta[] sortedIndex = getSortedIndex();
         for (int i = 0; i < sortedIndex.length; ++i) {
-            if (sortedIndex[i].equals(m)) {
+            if (sortedIndex[i].equals(meta)) {
                 return i + (zeroEntry != null ? 1 : 0);
             }
         }
@@ -172,6 +184,31 @@ public abstract class ProfileAdapter<T> extends UniAdapter {
         return this;
     }
 
+    /**
+     * For weird cases when you prefer to use a custom view instead of any sort of
+     * {@link android.widget.Spinner}.
+     *
+     * @param parent to inflate into
+     * @return a view to add into the {@code parent} and bind
+     * @see #bindEntryTo(View, ProfileManager.Meta)
+     */
+    @NonNull
+    public View createEntryFor(@NonNull final ViewGroup parent) {
+        return onCreateDropDownView(parent, DEFAULT_TYPE);
+    }
+
+    /**
+     * For weird cases when you prefer to use a custom view instead of any sort of
+     * {@link android.widget.Spinner}.
+     *
+     * @param view to bind
+     * @param meta to bind
+     * @see #createEntryFor(ViewGroup)
+     */
+    public void bindEntryTo(@NonNull final View view, @NonNull final ProfileManager.Meta meta) {
+        onBind(view, meta);
+    }
+
     @Override
     protected int onGetCount() {
         return getSortedIndex().length + (zeroEntry != null ? 1 : 0);
@@ -179,7 +216,7 @@ public abstract class ProfileAdapter<T> extends UniAdapter {
 
     @Override
     @NonNull
-    protected Object onGetItem(final int position) {
+    protected ProfileManager.Meta onGetItem(final int position) {
         return getMeta(position);
     }
 
@@ -202,8 +239,10 @@ public abstract class ProfileAdapter<T> extends UniAdapter {
 
     @Override
     protected void onBind(@NonNull final View view, final int position) {
-        final ProfileManager.Meta meta = getMeta(position);
+        onBind(view, getMeta(position));
+    }
 
+    protected void onBind(@NonNull final View view, @NonNull final ProfileManager.Meta meta) {
         if (mOnClick != null) {
             view.setOnClickListener(v -> mOnClick.onClick(meta));
         }

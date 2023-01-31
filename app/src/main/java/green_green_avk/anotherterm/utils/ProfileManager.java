@@ -33,7 +33,10 @@ public abstract class ProfileManager<T> {
         }
 
         @NonNull
-        public String getTitle(@NonNull final Context ctx) {
+        public CharSequence getTitle(@NonNull final Context ctx) {
+            if (title instanceof CharSequence) {
+                return (CharSequence) title;
+            }
             if (title instanceof Integer) {
                 return ctx.getString((Integer) title);
             }
