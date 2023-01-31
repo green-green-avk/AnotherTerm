@@ -12,6 +12,8 @@ import androidx.annotation.Nullable;
 import androidx.recyclerview.widget.RecyclerView;
 
 public abstract class UniAdapter {
+    public static final int DEFAULT_TYPE = 0;
+
     @SuppressLint("NotifyDataSetChanged")
     protected final void notifyDataSetChanged() {
         if (adapter != null)
@@ -58,7 +60,7 @@ public abstract class UniAdapter {
     }
 
     protected int onGetType(final int position) {
-        return 0;
+        return DEFAULT_TYPE;
     }
 
     protected final boolean onHasStableIds() {

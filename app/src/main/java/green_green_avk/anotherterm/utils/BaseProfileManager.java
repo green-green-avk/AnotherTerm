@@ -86,7 +86,7 @@ public abstract class BaseProfileManager<T> extends ProfileManager<T> {
     }
 
     @NonNull
-    public String getTitle(@Nullable final String name, @NonNull final Context ctx) {
+    public CharSequence getTitle(@Nullable final String name, @NonNull final Context ctx) {
         final BuiltIn<? extends T> b = getBuiltIn(name);
         if (b == null) {
             assert name != null;
