@@ -5,6 +5,7 @@ plugins {
 
 ext {
     versionCodeMain = 127
+    actionExtrasInfo = 'name.green_green_avk.extras.INFO'
 }
 
 android {
@@ -35,6 +36,9 @@ android {
 
         def SHELL_SESSION_TOKEN_VAR = 'SHELL_SESSION_TOKEN'
         buildConfigField 'String', 'SHELL_SESSION_TOKEN_VAR', "\"$SHELL_SESSION_TOKEN_VAR\""
+
+        manifestPlaceholders += [actionExtrasInfo: actionExtrasInfo]
+        buildConfigField 'String', 'ACTION_EXTRAS_INFO', "\"$actionExtrasInfo\""
 
         externalNativeBuild {
             cmake {
