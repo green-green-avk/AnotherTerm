@@ -61,7 +61,7 @@ to access the Android environment and own API to create them as separate APKs.</
 <li>starting extra shell channels on a running SSH session.</li>
 </ul></li>
 <li>No MoSH, sorry.</li>
-<li>Builtin screen keyboard and mouse.</li>
+<li>Built-in screen keyboard and mouse.</li>
 <li>Hardware buttons mapping.</li>
 <li>Different charsets and customizable key mapping support.</li>
 </ul>

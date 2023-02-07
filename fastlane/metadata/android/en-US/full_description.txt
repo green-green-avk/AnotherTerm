@@ -6,7 +6,7 @@
 <li>Shell tool to interact with the Android environment.</li>
 <li>Minimal Wayland composer (Xwayland support) <i>(experimental)</i>.</li>
 <li>Supported SSH features: zlib compression, port forwarding, password and public key authentication.</li>
-<li>Builtin screen keyboard and mouse.</li>
+<li>Built-in screen keyboard and mouse.</li>
 <li>Hardware buttons mapping.</li>
 <li>Different charsets and customizable key mapping support.</li></ul>
 <p>For further details, please refer to the <a href='https://green-green-avk.github.io/AnotherTerm-docs/' target='_blank'>documentation</a>.</p>

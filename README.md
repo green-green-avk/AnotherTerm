@@ -59,7 +59,7 @@ Local PTY, USB and Bluetooth serial ports, SSH and Telnet terminal client for An
 
 * No MoSH, sorry.
 
-* Builtin screen keyboard and mouse.
+* Built-in screen keyboard and mouse.
 
 * Hardware buttons mapping.
 
