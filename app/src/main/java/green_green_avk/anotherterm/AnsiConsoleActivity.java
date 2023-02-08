@@ -87,6 +87,7 @@ public final class AnsiConsoleActivity extends ConsoleActivity
     private AnsiSession mSession = null;
     private int screenOrientation = ActivityInfo.SCREEN_ORIENTATION_UNSPECIFIED;
     private boolean autoFitTerminal = false;
+    private View mCsvBg = null;
     private ConsoleScreenView mCsv = null;
     private ConsoleKeyboardView mCkv = null;
     private ScreenMouseView mSmv = null;
@@ -223,6 +224,7 @@ public final class AnsiConsoleActivity extends ConsoleActivity
 
         setContentView(R.layout.ansi_console_activity);
 
+        mCsvBg = findViewById(R.id.screen_container);
         mCsv = findViewById(R.id.screen);
         mCkv = findViewById(R.id.keyboard);
         mSmv = findViewById(R.id.mouse);
@@ -322,8 +324,11 @@ public final class AnsiConsoleActivity extends ConsoleActivity
         } else {
             setMouseMode(mSession.uiState.mouseMode == AnsiSession.UiState.MouseMode.OVERLAID);
         }
-        findViewById(R.id.screen_container)
-                .setBackgroundDrawable(mSession.uiState.background.getDrawable());
+        try {
+            mCsvBg.setBackgroundDrawable(mSession.uiState.background.getDrawable());
+        } catch (final Exception e) {
+            mCsvBg.setBackgroundResource(R.drawable.bg_term_screen_blank);
+        }
 
         colorManager.addOnChangeListener(updateColorProfile);
 
@@ -863,7 +868,11 @@ public final class AnsiConsoleActivity extends ConsoleActivity
         BackgroundsManagerUi.instance.showList(this, meta -> {
             final BackgroundProfile background =
                     BackgroundsManagerUi.instance.getManager(this).get(meta);
-            findViewById(R.id.screen_container).setBackgroundDrawable(background.getDrawable());
+            try {
+                mCsvBg.setBackgroundDrawable(background.getDrawable());
+            } catch (final Exception e) {
+                mCsvBg.setBackgroundResource(R.drawable.bg_term_screen_blank);
+            }
             mSession.uiState.background = background;
             refreshMenuPopup();
         }, mSession.uiState.background);

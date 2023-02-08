@@ -7,7 +7,7 @@ import androidx.annotation.Nullable;
 
 public interface BackgroundProfile {
     @NonNull
-    Drawable getDrawable();
+    Drawable getDrawable() throws Exception;
 
     /**
      * Profiles should not have any presentation attributes but it is an exception.
