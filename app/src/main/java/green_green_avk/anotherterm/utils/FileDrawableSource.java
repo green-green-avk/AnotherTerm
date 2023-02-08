@@ -16,11 +16,12 @@ import java.net.URLEncoder;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
+import java.util.concurrent.Callable;
 
 import green_green_avk.anotherterm.ui.drawables.CompoundDrawable;
 import name.green_green_avk.pngchunkextractor.PngChunkExtractor;
 
-public final class FileDrawableSource extends FileResourceSource<Drawable> {
+public final class FileDrawableSource extends FileResourceSource<Callable<Drawable>> {
     @NonNull
     private final File dataDir;
     @NonNull
@@ -29,18 +30,23 @@ public final class FileDrawableSource extends FileResourceSource<Drawable> {
     public FileDrawableSource(@NonNull final Context ctx, @NonNull final String name) {
         dataDir = new File(ctx.getApplicationInfo().dataDir);
         resDir = new File(dataDir, name);
-        cache = new SubCache<>(DrawableCache.instance, itemKey ->
-                new File(resDir, itemKey.toString()));
+        cache = new SubCache<Callable<Drawable>>(DrawableCache.instance) {
+            @Override
+            @NonNull
+            protected Object onMapKey(@NonNull final Object itemKey) {
+                return new File(resDir, itemKey.toString());
+            }
+        };
         updateObservers();
     }
 
     private static final FileFilter filter = pathname -> !pathname.isDirectory();
 
-    private final Cache<Drawable> cache;
+    private final Cache<Callable<Drawable>> cache;
 
     @Override
     @NonNull
-    protected Cache<Drawable> getCache() {
+    protected Cache<Callable<Drawable>> getCache() {
         return cache;
     }
 
@@ -80,7 +86,7 @@ public final class FileDrawableSource extends FileResourceSource<Drawable> {
 
     @Override
     @NonNull
-    protected Drawable onDecode(@NonNull final InputStream in) throws IOException {
+    protected Callable<Drawable> onDecode(@NonNull final InputStream in) throws IOException {
         final Drawable[] compoundDrawable = new Drawable[1];
         final PngChunkExtractor extractor = new PngChunkExtractor(
                 new PngChunkExtractor.Callbacks() {
@@ -102,7 +108,8 @@ public final class FileDrawableSource extends FileResourceSource<Drawable> {
         final Drawable drawable =
                 Drawable.createFromStream(extractor.getStream(), null);
         extractor.getStream().skip(Long.MAX_VALUE);
-        return compoundDrawable[0] != null ? compoundDrawable[0] : drawable;
+        final Drawable r = compoundDrawable[0] != null ? compoundDrawable[0] : drawable;
+        return () -> CompoundDrawable.copy(r);
     }
 
     private void updateObservers() {

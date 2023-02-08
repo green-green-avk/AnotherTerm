@@ -3,7 +3,6 @@ package green_green_avk.anotherterm.utils;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
-import java.io.IOException;
 import java.util.Set;
 
 public abstract class DynamicResourceSource<T> {
@@ -11,7 +10,7 @@ public abstract class DynamicResourceSource<T> {
     protected abstract Cache<T> getCache();
 
     @NonNull
-    protected abstract T onLoad(@NonNull Object key) throws IOException;
+    protected abstract T onLoad(@NonNull Object key) throws Exception;
 
     public void invalidate(@NonNull final Object key) {
         getCache().remove(key);
@@ -21,7 +20,7 @@ public abstract class DynamicResourceSource<T> {
     public abstract Set<?> enumerate();
 
     @NonNull
-    public T get(@NonNull final Object key) throws IOException {
+    public T get(@NonNull final Object key) throws Exception {
         T v = getCache().get(key);
         if (v != null) {
             return v;

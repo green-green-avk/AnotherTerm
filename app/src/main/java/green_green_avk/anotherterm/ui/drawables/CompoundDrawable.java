@@ -2,7 +2,6 @@ package green_green_avk.anotherterm.ui.drawables;
 
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
-import android.graphics.BlendMode;
 import android.graphics.Canvas;
 import android.graphics.ColorFilter;
 import android.graphics.NinePatch;
@@ -10,24 +9,25 @@ import android.graphics.PixelFormat;
 import android.graphics.PorterDuff;
 import android.graphics.PorterDuffXfermode;
 import android.graphics.Rect;
-import android.graphics.RenderNode;
 import android.graphics.Shader;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
 import android.graphics.drawable.LayerDrawable;
 import android.graphics.drawable.NinePatchDrawable;
-import android.os.Build;
 import android.util.DisplayMetrics;
+import android.util.Log;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.annotation.RequiresApi;
 import androidx.appcompat.graphics.drawable.DrawableWrapperCompat;
+
+import org.jetbrains.annotations.Contract;
 
 import java.io.DataInputStream;
 import java.io.EOFException;
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.LinkedList;
 import java.util.List;
@@ -49,7 +49,15 @@ public final class CompoundDrawable {
         }
 
         /**
-         * Legacy. No actual multiplication layer separation.
+         * No actual multiplication layer separation at the moment.
+         * <p>
+         * Because {@link Canvas#saveLayer} does not support
+         * {@link BitmapDrawable}'s {@link android.graphics.Paint#setXfermode}.
+         * Possibly only the {@link Canvas#drawRect}
+         * with its paint's shader of type {@link android.graphics.BitmapShader}
+         * is not supported.
+         * <p>
+         * To be decided to use the {@link Shader} subclasses with a complete redesign.
          */
         private static final class LegacyProductDrawable extends ProductDrawable {
             @NonNull
@@ -70,6 +78,12 @@ public final class CompoundDrawable {
             }
 
             @Override
+            @NonNull
+            public List<? extends Drawable> getChildren() {
+                return drawables;
+            }
+
+            @Override
             protected void onBoundsChange(final Rect bounds) {
                 super.onBoundsChange(bounds);
                 for (final Drawable drawable : drawables) {
@@ -81,62 +95,6 @@ public final class CompoundDrawable {
             public void draw(@NonNull final Canvas canvas) {
                 for (final Drawable drawable : drawables) {
                     drawable.draw(canvas);
-                }
-            }
-        }
-
-        /**
-         * How it ought to be.
-         */
-        @RequiresApi(api = Build.VERSION_CODES.Q)
-        private static final class RenderNodeProductDrawable extends ProductDrawable {
-            @NonNull
-            private final List<? extends Drawable> drawables;
-            private final RenderNode node = new RenderNode(this.getClass().getName());
-
-            private RenderNodeProductDrawable(@NonNull final Collection<? extends Drawable> drawables) {
-                this.drawables = new LinkedList<>(drawables);
-                for (final Drawable drawable : this.drawables.subList(1, this.drawables.size())) {
-                    final Drawable wrapped = getWrapped(drawable);
-                    if (wrapped instanceof BitmapDrawable) {
-                        ((BitmapDrawable) wrapped).getPaint().setBlendMode(BlendMode.MULTIPLY);
-                    } else if (wrapped instanceof NinePatchDrawable) {
-                        ((NinePatchDrawable) wrapped).getPaint().setBlendMode(BlendMode.MULTIPLY);
-                    }
-                }
-                if (this.drawables.size() > 1) {
-                    node.setHasOverlappingRendering(true);
-                }
-            }
-
-            @Override
-            protected void onBoundsChange(final Rect bounds) {
-                node.discardDisplayList();
-                super.onBoundsChange(bounds);
-                for (final Drawable drawable : drawables) {
-                    drawable.setBounds(bounds);
-                }
-            }
-
-            @Override
-            public void draw(@NonNull final Canvas canvas) {
-                if (canvas.isHardwareAccelerated()) {
-                    if (!node.hasDisplayList()) {
-                        node.setPosition(getBounds());
-                        for (final Drawable drawable : drawables) {
-                            final Canvas nodeCanvas = node.beginRecording();
-                            try {
-                                drawable.draw(nodeCanvas);
-                            } finally {
-                                node.endRecording();
-                            }
-                        }
-                    }
-                    canvas.drawRenderNode(node);
-                } else { // Fallback
-                    for (final Drawable drawable : drawables) {
-                        drawable.draw(canvas);
-                    }
                 }
             }
         }
@@ -155,10 +113,11 @@ public final class CompoundDrawable {
         }
 
         @NonNull
+        public abstract List<? extends Drawable> getChildren();
+
+        @NonNull
         public static ProductDrawable create(@NonNull final Collection<? extends Drawable> drawables) {
-            return Build.VERSION.SDK_INT >= Build.VERSION_CODES.S ?
-                    new RenderNodeProductDrawable(drawables) :
-                    new LegacyProductDrawable(drawables);
+            return new LegacyProductDrawable(drawables);
         }
     }
 
@@ -181,16 +140,22 @@ public final class CompoundDrawable {
     private static final class ExtNinePatchDrawable extends NinePatchDrawable {
         @NonNull
         private final Bitmap bitmap;
+        private final Rect sourcePadding;
 
         public ExtNinePatchDrawable(@NonNull final Bitmap bitmap, final byte[] chunk,
                                     final Rect padding, final String srcName) {
             super(bitmap, chunk, padding, srcName);
             this.bitmap = bitmap;
+            this.sourcePadding = padding; // Similar to the constructor: not a copy
         }
 
         @NonNull
         public Bitmap getBitmap() {
             return bitmap;
+        }
+
+        public Rect getSourcePadding() {
+            return sourcePadding;
         }
     }
 
@@ -302,5 +267,62 @@ public final class CompoundDrawable {
             r.add(ProductDrawable.create(pd));
         }
         return new LayerDrawable(r.toArray(new Drawable[0]));
+    }
+
+    /**
+     * Copies a {@link CompoundDrawable#create(InputStream)} result for each use
+     * withholding underlying bitmaps from copying.
+     *
+     * @param drawable to copy
+     * @return a new instance
+     */
+    @Contract("null -> null; !null -> !null")
+    @Nullable
+    public static Drawable copy(@Nullable final Drawable drawable) {
+        if (drawable == null) {
+            return null;
+        }
+        if (drawable instanceof BitmapDrawable) {
+            final BitmapDrawable from = (BitmapDrawable) drawable;
+            final BitmapDrawable to = new BitmapDrawable(from.getBitmap());
+            to.setTileModeXY(from.getTileModeX(), from.getTileModeY());
+            to.setFilterBitmap(from.getPaint().isFilterBitmap());
+            return to;
+        }
+        if (drawable instanceof ExtNinePatchDrawable) {
+            final ExtNinePatchDrawable from = (ExtNinePatchDrawable) drawable;
+            final ExtNinePatchDrawable to = new ExtNinePatchDrawable(from.getBitmap(),
+                    from.getBitmap().getNinePatchChunk(), from.getSourcePadding(), null);
+            to.setFilterBitmap(from.getPaint().isFilterBitmap());
+            return to;
+        }
+        if (drawable instanceof AdvancedScaleDrawable) {
+            final AdvancedScaleDrawable from = (AdvancedScaleDrawable) drawable;
+            final AdvancedScaleDrawable to = new AdvancedScaleDrawable(copy(from.getDrawable()));
+            to.left.set(from.left);
+            to.top.set(from.top);
+            to.right.set(from.right);
+            to.bottom.set(from.bottom);
+            return to;
+        }
+        if (drawable instanceof ProductDrawable) {
+            final ProductDrawable from = (ProductDrawable) drawable;
+            final List<Drawable> children = new ArrayList<>(from.getChildren().size());
+            for (final Drawable child : from.getChildren()) {
+                children.add(copy(child));
+            }
+            return ProductDrawable.create(children);
+        }
+        if (drawable instanceof LayerDrawable) {
+            final LayerDrawable from = (LayerDrawable) drawable;
+            final Drawable[] children = new Drawable[from.getNumberOfLayers()];
+            for (int i = 0; i < children.length; i++) {
+                children[i] = copy(from.getDrawable(i));
+            }
+            return new LayerDrawable(children);
+        }
+        Log.e(CompoundDrawable.class.getSimpleName(),
+                "Unable to copy " + drawable.getClass().getName());
+        return drawable.mutate();
     }
 }

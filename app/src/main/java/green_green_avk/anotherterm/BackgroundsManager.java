@@ -21,9 +21,9 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.WeakHashMap;
+import java.util.concurrent.Callable;
 
 import green_green_avk.anotherterm.ui.InlineImageSpan;
-import green_green_avk.anotherterm.ui.UiUtils;
 import green_green_avk.anotherterm.utils.CollectionsViewSet;
 import green_green_avk.anotherterm.utils.FileDrawableSource;
 import green_green_avk.anotherterm.utils.PackageDrawableSource;
@@ -45,14 +45,14 @@ public final class BackgroundsManager extends ProfileManager<BackgroundProfile> 
         final Set<?> keys = localSource.enumerate();
         localSet.clear();
         for (final Object key : keys) {
-            final Drawable data;
+            final Callable<Drawable> data;
             try {
                 data = localSource.get(key);
             } catch (final Exception e) {
                 continue;
             }
             localSet.add(new BuiltIn<>(" " + key, key.toString(),
-                    new SimpleBackgroundProfile(data), 0x10));
+                    new SourceBackgroundProfile(data), 0x10));
         }
     }
 
@@ -60,7 +60,7 @@ public final class BackgroundsManager extends ProfileManager<BackgroundProfile> 
         final Set<?> keys = remoteSource.enumerate();
         remoteSet.clear();
         for (final Object key : keys) {
-            final Drawable data;
+            final Callable<Drawable> data;
             try {
                 data = remoteSource.get(key);
             } catch (final Exception e) {
@@ -84,7 +84,7 @@ public final class BackgroundsManager extends ProfileManager<BackgroundProfile> 
                 title = key.toString();
             }
             remoteSet.add(new BuiltIn<>(" " + key, title,
-                    new SimpleBackgroundProfile(data), 0x20));
+                    new SourceBackgroundProfile(data), 0x20));
         }
     }
 
@@ -178,15 +178,15 @@ public final class BackgroundsManager extends ProfileManager<BackgroundProfile> 
 
     public BackgroundsManager(@NonNull final Context ctx) {
         context = ctx;
-        defaultSet.add(new BuiltIn<>("", R.string.profile_title_builtin, new SimpleBackgroundProfile(
-                UiUtils.requireDrawable(ctx, R.drawable.bg_term_screen_blank)),
-                0));
-        defaultSet.add(new BuiltIn<>(" lines", R.string.profile_title_builtin, new SimpleBackgroundProfile(
-                UiUtils.requireDrawable(ctx, R.drawable.bg_term_screen_lines)),
-                1));
-        defaultSet.add(new BuiltIn<>(" lines_fade", R.string.profile_title_builtin, new SimpleBackgroundProfile(
-                UiUtils.requireDrawable(ctx, R.drawable.bg_term_screen_lines_fade)),
-                2));
+        defaultSet.add(new BuiltIn<>("", R.string.profile_title_builtin,
+                new LocalBackgroundProfile(ctx,
+                        R.drawable.bg_term_screen_blank), 0));
+        defaultSet.add(new BuiltIn<>(" lines", R.string.profile_title_builtin,
+                new LocalBackgroundProfile(ctx,
+                        R.drawable.bg_term_screen_lines), 1));
+        defaultSet.add(new BuiltIn<>(" lines_fade", R.string.profile_title_builtin,
+                new LocalBackgroundProfile(ctx,
+                        R.drawable.bg_term_screen_lines_fade), 2));
         localSource = new FileDrawableSource(ctx, "backgrounds");
         localSource.setOnChanged(() -> {
             reloadLocalSource();

@@ -26,6 +26,10 @@ public final class UiDimens {
             this.onChanged = onChanged;
         }
 
+        public void set(@NonNull final Length length) {
+            set(length.value, length.units);
+        }
+
         public void set(final float value, @NonNull final Units units) {
             this.value = value;
             this.units = units;
