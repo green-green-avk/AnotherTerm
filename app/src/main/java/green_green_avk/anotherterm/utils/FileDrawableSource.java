@@ -5,6 +5,7 @@ import android.graphics.drawable.Drawable;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.arch.core.util.Function;
 
 import java.io.ByteArrayInputStream;
 import java.io.File;
@@ -16,12 +17,12 @@ import java.net.URLEncoder;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
-import java.util.concurrent.Callable;
 
 import green_green_avk.anotherterm.ui.drawables.CompoundDrawable;
 import name.green_green_avk.pngchunkextractor.PngChunkExtractor;
 
-public final class FileDrawableSource extends FileResourceSource<Callable<Drawable>> {
+public final class FileDrawableSource
+        extends FileResourceSource<Function<? super Context, ? extends Drawable>> {
     @NonNull
     private final File dataDir;
     @NonNull
@@ -30,7 +31,8 @@ public final class FileDrawableSource extends FileResourceSource<Callable<Drawab
     public FileDrawableSource(@NonNull final Context ctx, @NonNull final String name) {
         dataDir = new File(ctx.getApplicationInfo().dataDir);
         resDir = new File(dataDir, name);
-        cache = new SubCache<Callable<Drawable>>(DrawableCache.instance) {
+        cache = new SubCache<Function<? super Context, ? extends Drawable>>(
+                DrawableCache.instance) {
             @Override
             @NonNull
             protected Object onMapKey(@NonNull final Object itemKey) {
@@ -42,11 +44,11 @@ public final class FileDrawableSource extends FileResourceSource<Callable<Drawab
 
     private static final FileFilter filter = pathname -> !pathname.isDirectory();
 
-    private final Cache<Callable<Drawable>> cache;
+    private final Cache<Function<? super Context, ? extends Drawable>> cache;
 
     @Override
     @NonNull
-    protected Cache<Callable<Drawable>> getCache() {
+    protected Cache<Function<? super Context, ? extends Drawable>> getCache() {
         return cache;
     }
 
@@ -91,7 +93,8 @@ public final class FileDrawableSource extends FileResourceSource<Callable<Drawab
 
     @Override
     @NonNull
-    protected Callable<Drawable> onDecode(@NonNull final InputStream in) throws IOException {
+    protected Function<? super Context, ? extends Drawable> onDecode(@NonNull final InputStream in)
+            throws IOException {
         final Drawable[] compoundDrawable = new Drawable[1];
         final PngChunkExtractor extractor = new PngChunkExtractor(
                 new PngChunkExtractor.Callbacks() {
@@ -114,7 +117,7 @@ public final class FileDrawableSource extends FileResourceSource<Callable<Drawab
                 Drawable.createFromStream(extractor.getStream(), null);
         extractor.getStream().skip(Long.MAX_VALUE);
         final Drawable r = compoundDrawable[0] != null ? compoundDrawable[0] : drawable;
-        return () -> CompoundDrawable.copy(r);
+        return (ctx) -> CompoundDrawable.copy(r);
     }
 
     private void updateObservers() {

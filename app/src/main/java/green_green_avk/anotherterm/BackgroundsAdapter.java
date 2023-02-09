@@ -41,12 +41,12 @@ public final class BackgroundsAdapter extends ProfileAdapter<BackgroundProfile> 
     @Nullable
     protected Drawable onGetPreview(@NonNull final ProfileManager.Meta meta) {
         final BackgroundProfile profile = getManager().get(meta);
-        final Drawable preview = profile.getPreviewDrawable();
+        final Drawable preview = profile.getPreviewDrawable(context);
         if (preview != null) {
             return preview;
         }
         try {
-            return new SquarePreviewDrawable(profile.getDrawable());
+            return new SquarePreviewDrawable(profile.getDrawable(context));
         } catch (final Exception e) {
             return null;
         }
@@ -56,7 +56,7 @@ public final class BackgroundsAdapter extends ProfileAdapter<BackgroundProfile> 
     @Nullable
     protected CharSequence onGetTitle(@NonNull final ProfileManager.Meta meta) {
         final BackgroundProfile profile = getManager().get(meta);
-        final CharSequence title = profile.getTitle();
+        final CharSequence title = profile.getTitle(context);
         return title != null ? title : super.onGetTitle(meta);
     }
 
