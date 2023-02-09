@@ -1,10 +1,12 @@
 package green_green_avk.anotherterm.utils;
 
+import android.content.Context;
 import android.graphics.drawable.Drawable;
 
-import java.util.concurrent.Callable;
+import androidx.arch.core.util.Function;
 
-public final class DrawableCache extends SoftRefCache<Callable<Drawable>> {
+public final class DrawableCache
+        extends SoftRefCache<Function<? super Context, ? extends Drawable>> {
     private DrawableCache() {
     }
 

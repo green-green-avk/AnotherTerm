@@ -1,15 +1,14 @@
 package green_green_avk.anotherterm.utils;
 
 import android.content.Context;
-import android.content.pm.PackageManager;
 import android.content.res.Resources;
 import android.graphics.drawable.Drawable;
 
 import androidx.annotation.NonNull;
+import androidx.arch.core.util.Function;
 
-import java.util.concurrent.Callable;
-
-public final class PackageDrawableSource extends PackageResourceSource<Callable<Drawable>> {
+public final class PackageDrawableSource
+        extends PackageResourceSource<Function<? super Context, ? extends Drawable>> {
     public PackageDrawableSource(@NonNull final Context context,
                                  @NonNull final Enumerator enumerator) {
         super(context, enumerator);
@@ -17,20 +16,20 @@ public final class PackageDrawableSource extends PackageResourceSource<Callable<
 
     @Override
     @NonNull
-    protected Callable<Drawable> onLoad(@NonNull final Object key) throws Exception {
+    protected Function<? super Context, ? extends Drawable> onLoad(@NonNull final Object key)
+            throws Exception {
         if (!(key instanceof Key))
             throw new Resources.NotFoundException(key.toString());
-        final PackageManager pm = context.getPackageManager();
         // Touching it for the enumeration purpose only
-        final Drawable t = pm.getDrawable(
+        final Drawable t = context.getPackageManager().getDrawable(
                 ((Key) key).packageName,
                 ((Key) key).resourceId,
                 ((Key) key).applicationInfo
         );
         if (t == null)
             throw new Resources.NotFoundException(key.toString());
-        return () -> {
-            final Drawable r = pm.getDrawable(
+        return (ctx) -> {
+            final Drawable r = ctx.getPackageManager().getDrawable(
                     ((Key) key).packageName,
                     ((Key) key).resourceId,
                     ((Key) key).applicationInfo

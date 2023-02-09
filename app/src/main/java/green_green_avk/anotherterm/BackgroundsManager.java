@@ -14,6 +14,7 @@ import android.text.Spanned;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.arch.core.util.Function;
 import androidx.core.content.res.ResourcesCompat;
 
 import java.util.Collections;
@@ -21,7 +22,6 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.WeakHashMap;
-import java.util.concurrent.Callable;
 
 import green_green_avk.anotherterm.ui.InlineImageSpan;
 import green_green_avk.anotherterm.utils.CollectionsViewSet;
@@ -45,7 +45,7 @@ public final class BackgroundsManager extends ProfileManager<BackgroundProfile> 
         final Set<?> keys = localSource.enumerate();
         localSet.clear();
         for (final Object key : keys) {
-            final Callable<Drawable> data;
+            final Function<? super Context, ? extends Drawable> data;
             try {
                 data = localSource.get(key);
             } catch (final Exception e) {
@@ -60,7 +60,7 @@ public final class BackgroundsManager extends ProfileManager<BackgroundProfile> 
         final Set<?> keys = remoteSource.enumerate();
         remoteSet.clear();
         for (final Object key : keys) {
-            final Callable<Drawable> data;
+            final Function<? super Context, ? extends Drawable> data;
             try {
                 data = remoteSource.get(key);
             } catch (final Exception e) {
@@ -177,13 +177,13 @@ public final class BackgroundsManager extends ProfileManager<BackgroundProfile> 
     public BackgroundsManager(@NonNull final Context ctx) {
         context = ctx;
         defaultSet.add(new BuiltIn<>("", R.string.profile_title_builtin,
-                new LocalBackgroundProfile(ctx,
+                new LocalBackgroundProfile(
                         R.drawable.bg_term_screen_blank), 0));
         defaultSet.add(new BuiltIn<>(" lines", R.string.profile_title_builtin,
-                new LocalBackgroundProfile(ctx,
+                new LocalBackgroundProfile(
                         R.drawable.bg_term_screen_lines), 1));
         defaultSet.add(new BuiltIn<>(" lines_fade", R.string.profile_title_builtin,
-                new LocalBackgroundProfile(ctx,
+                new LocalBackgroundProfile(
                         R.drawable.bg_term_screen_lines_fade), 2));
         localSource = new FileDrawableSource(ctx, "backgrounds");
         localSource.setOnChanged(() -> {

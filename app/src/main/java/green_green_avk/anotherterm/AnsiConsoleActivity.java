@@ -325,7 +325,7 @@ public final class AnsiConsoleActivity extends ConsoleActivity
             setMouseMode(mSession.uiState.mouseMode == AnsiSession.UiState.MouseMode.OVERLAID);
         }
         try {
-            mCsvBg.setBackgroundDrawable(mSession.uiState.background.getDrawable());
+            mCsvBg.setBackgroundDrawable(mSession.uiState.background.getDrawable(this));
         } catch (final Exception e) {
             mCsvBg.setBackgroundResource(R.drawable.bg_term_screen_blank);
         }
@@ -869,7 +869,7 @@ public final class AnsiConsoleActivity extends ConsoleActivity
             final BackgroundProfile background =
                     BackgroundsManagerUi.instance.getManager(this).get(meta);
             try {
-                mCsvBg.setBackgroundDrawable(background.getDrawable());
+                mCsvBg.setBackgroundDrawable(background.getDrawable(this));
             } catch (final Exception e) {
                 mCsvBg.setBackgroundResource(R.drawable.bg_term_screen_blank);
             }

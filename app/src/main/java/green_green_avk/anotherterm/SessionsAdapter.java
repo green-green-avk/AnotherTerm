@@ -90,7 +90,7 @@ public final class SessionsAdapter extends RecyclerView.Adapter<SessionsAdapter.
                 ((AnsiSession) session).uiState.background != null) {
             try {
                 thumbnailView.setBackgroundDrawable(((AnsiSession) session).uiState.background
-                        .getDrawable());
+                        .getDrawable(holder.itemView.getContext()));
             } catch (final Exception e) {
                 thumbnailView.setBackgroundResource(R.drawable.bg_screen1);
             }

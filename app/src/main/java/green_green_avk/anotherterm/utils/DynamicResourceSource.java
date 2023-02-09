@@ -5,6 +5,12 @@ import androidx.annotation.Nullable;
 
 import java.util.Set;
 
+/**
+ * A common way to load resources from different sources.
+ *
+ * @param <T> can be a resource itself or some provider to get for
+ *            a particular {@link android.content.Context}, etc.
+ */
 public abstract class DynamicResourceSource<T> {
     @NonNull
     protected abstract Cache<T> getCache();
