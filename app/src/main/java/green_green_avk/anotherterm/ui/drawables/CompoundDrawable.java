@@ -122,15 +122,15 @@ public final class CompoundDrawable {
     }
 
     public static class ParseException extends RuntimeException {
-        public ParseException(@NonNull final String message) {
+        private ParseException(@NonNull final String message) {
             super(message);
         }
 
-        public ParseException(@NonNull final String message, @NonNull final Throwable cause) {
+        private ParseException(@NonNull final String message, @NonNull final Throwable cause) {
             super(message, cause);
         }
 
-        public ParseException(@NonNull final Throwable cause) {
+        private ParseException(@NonNull final Throwable cause) {
             super(cause);
         }
     }
