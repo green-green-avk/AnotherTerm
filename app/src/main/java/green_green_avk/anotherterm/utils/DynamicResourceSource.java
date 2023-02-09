@@ -38,8 +38,9 @@ public abstract class DynamicResourceSource<T> {
     private OnChanged onChanged = null;
 
     protected final void callOnChanged() {
-        if (onChanged != null)
+        if (onChanged != null) {
             onChanged.onChanged();
+        }
     }
 
     public void setOnChanged(@Nullable final OnChanged v) {

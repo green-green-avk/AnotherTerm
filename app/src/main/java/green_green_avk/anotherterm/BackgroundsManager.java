@@ -115,8 +115,8 @@ public final class BackgroundsManager extends ProfileManager<BackgroundProfile> 
                             continue;
                         final Resources resources;
                         try {
-                            resources =
-                                    pm.getResourcesForApplication(pkg.activityInfo.applicationInfo);
+                            resources = pm
+                                    .getResourcesForApplication(pkg.activityInfo.applicationInfo);
                         } catch (final PackageManager.NameNotFoundException e) {
                             continue;
                         }
@@ -255,5 +255,6 @@ public final class BackgroundsManager extends ProfileManager<BackgroundProfile> 
 
     @Override
     public void remove(@NonNull final String name) {
+        // Not editable
     }
 }
