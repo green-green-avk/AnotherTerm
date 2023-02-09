@@ -7,7 +7,6 @@ import android.graphics.drawable.Drawable;
 
 import androidx.annotation.NonNull;
 
-import java.io.FileNotFoundException;
 import java.util.concurrent.Callable;
 
 public final class PackageDrawableSource extends PackageResourceSource<Callable<Drawable>> {
@@ -20,7 +19,7 @@ public final class PackageDrawableSource extends PackageResourceSource<Callable<
     @NonNull
     protected Callable<Drawable> onLoad(@NonNull final Object key) throws Exception {
         if (!(key instanceof Key))
-            throw new FileNotFoundException(key.toString());
+            throw new Resources.NotFoundException(key.toString());
         final PackageManager pm = context.getPackageManager();
         // Touching it for the enumeration purpose only
         final Drawable t = pm.getDrawable(
@@ -37,7 +36,7 @@ public final class PackageDrawableSource extends PackageResourceSource<Callable<
                     ((Key) key).applicationInfo
             );
             if (r == null)
-                throw new FileNotFoundException(key.toString());
+                throw new Resources.NotFoundException(key.toString());
             return r;
         };
     }
