@@ -1,5 +1,6 @@
 package green_green_avk.anotherterm.ui.drawables;
 
+import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
@@ -227,6 +228,18 @@ public final class CompoundDrawable {
         return r;
     }
 
+    /**
+     * A way to load something fancy packaged into a PNG.
+     * <p>
+     * It does not set the target density
+     * as it is supposed to be used with {@link #copy(Context, Drawable)}.
+     *
+     * @param source to decode
+     * @return the resulting drawable
+     * @throws IOException
+     * @throws ParseException
+     * @see #copy(Context, Drawable)
+     */
     @NonNull
     public static LayerDrawable create(@NonNull final InputStream source)
             throws IOException {
@@ -270,21 +283,24 @@ public final class CompoundDrawable {
     }
 
     /**
-     * Copies a {@link CompoundDrawable#create(InputStream)} result for each use
+     * Copies a {@link CompoundDrawable#create(InputStream)} result
+     * to bind with each particular view
      * withholding underlying bitmaps from copying.
      *
+     * @param ctx      to get for
      * @param drawable to copy
      * @return a new instance
      */
-    @Contract("null -> null; !null -> !null")
+    @Contract("_, null -> null; _, !null -> !null")
     @Nullable
-    public static Drawable copy(@Nullable final Drawable drawable) {
+    public static Drawable copy(@NonNull final Context ctx, @Nullable final Drawable drawable) {
         if (drawable == null) {
             return null;
         }
         if (drawable instanceof BitmapDrawable) {
             final BitmapDrawable from = (BitmapDrawable) drawable;
             final BitmapDrawable to = new BitmapDrawable(from.getBitmap());
+            to.setTargetDensity(ctx.getResources().getDisplayMetrics());
             to.setTileModeXY(from.getTileModeX(), from.getTileModeY());
             to.setFilterBitmap(from.getPaint().isFilterBitmap());
             return to;
@@ -293,12 +309,14 @@ public final class CompoundDrawable {
             final ExtNinePatchDrawable from = (ExtNinePatchDrawable) drawable;
             final ExtNinePatchDrawable to = new ExtNinePatchDrawable(from.getBitmap(),
                     from.getBitmap().getNinePatchChunk(), from.getSourcePadding(), null);
+            to.setTargetDensity(ctx.getResources().getDisplayMetrics());
             to.setFilterBitmap(from.getPaint().isFilterBitmap());
             return to;
         }
         if (drawable instanceof AdvancedScaleDrawable) {
             final AdvancedScaleDrawable from = (AdvancedScaleDrawable) drawable;
-            final AdvancedScaleDrawable to = new AdvancedScaleDrawable(copy(from.getDrawable()));
+            final AdvancedScaleDrawable to =
+                    new AdvancedScaleDrawable(copy(ctx, from.getDrawable()));
             to.left.set(from.left);
             to.top.set(from.top);
             to.right.set(from.right);
@@ -309,7 +327,7 @@ public final class CompoundDrawable {
             final ProductDrawable from = (ProductDrawable) drawable;
             final List<Drawable> children = new ArrayList<>(from.getChildren().size());
             for (final Drawable child : from.getChildren()) {
-                children.add(copy(child));
+                children.add(copy(ctx, child));
             }
             return ProductDrawable.create(children);
         }
@@ -317,7 +335,7 @@ public final class CompoundDrawable {
             final LayerDrawable from = (LayerDrawable) drawable;
             final Drawable[] children = new Drawable[from.getNumberOfLayers()];
             for (int i = 0; i < children.length; i++) {
-                children[i] = copy(from.getDrawable(i));
+                children[i] = copy(ctx, from.getDrawable(i));
             }
             return new LayerDrawable(children);
         }

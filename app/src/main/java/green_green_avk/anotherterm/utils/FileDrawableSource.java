@@ -117,7 +117,7 @@ public final class FileDrawableSource
                 Drawable.createFromStream(extractor.getStream(), null);
         extractor.getStream().skip(Long.MAX_VALUE);
         final Drawable r = compoundDrawable[0] != null ? compoundDrawable[0] : drawable;
-        return (ctx) -> CompoundDrawable.copy(r);
+        return (ctx) -> CompoundDrawable.copy(ctx, r);
     }
 
     private void updateObservers() {
