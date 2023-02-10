@@ -3,14 +3,12 @@ package green_green_avk.anotherterm.ui.drawables;
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
-import android.graphics.Canvas;
-import android.graphics.ColorFilter;
 import android.graphics.NinePatch;
-import android.graphics.PixelFormat;
 import android.graphics.PorterDuff;
 import android.graphics.PorterDuffXfermode;
 import android.graphics.Rect;
 import android.graphics.Shader;
+import android.graphics.Xfermode;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
 import android.graphics.drawable.LayerDrawable;
@@ -20,7 +18,6 @@ import android.util.Log;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.appcompat.graphics.drawable.DrawableWrapperCompat;
 
 import org.jetbrains.annotations.Contract;
 
@@ -28,8 +25,6 @@ import java.io.DataInputStream;
 import java.io.EOFException;
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.ArrayList;
-import java.util.Collection;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -38,88 +33,6 @@ import green_green_avk.anotherterm.utils.LimitedInputStream;
 
 public final class CompoundDrawable {
     private CompoundDrawable() {
-    }
-
-    private abstract static class ProductDrawable extends Drawable {
-        @Nullable
-        private static <T extends Drawable> T getWrapped(@NonNull Drawable drawable) {
-            while (drawable instanceof DrawableWrapperCompat) {
-                drawable = ((DrawableWrapperCompat) drawable).getDrawable();
-            }
-            return (T) drawable;
-        }
-
-        /**
-         * No actual multiplication layer separation at the moment.
-         * <p>
-         * Because {@link Canvas#saveLayer} does not support
-         * {@link BitmapDrawable}'s {@link android.graphics.Paint#setXfermode}.
-         * Possibly only the {@link Canvas#drawRect}
-         * with its paint's shader of type {@link android.graphics.BitmapShader}
-         * is not supported.
-         * <p>
-         * To be decided to use the {@link Shader} subclasses with a complete redesign.
-         */
-        private static final class LegacyProductDrawable extends ProductDrawable {
-            @NonNull
-            private final List<? extends Drawable> drawables;
-
-            private LegacyProductDrawable(@NonNull final Collection<? extends Drawable> drawables) {
-                this.drawables = new LinkedList<>(drawables);
-                for (final Drawable drawable : this.drawables.subList(1, this.drawables.size())) {
-                    final Drawable wrapped = getWrapped(drawable);
-                    if (wrapped instanceof BitmapDrawable) {
-                        ((BitmapDrawable) wrapped).getPaint()
-                                .setXfermode(new PorterDuffXfermode(PorterDuff.Mode.MULTIPLY));
-                    } else if (wrapped instanceof NinePatchDrawable) {
-                        ((NinePatchDrawable) wrapped).getPaint()
-                                .setXfermode(new PorterDuffXfermode(PorterDuff.Mode.MULTIPLY));
-                    }
-                }
-            }
-
-            @Override
-            @NonNull
-            public List<? extends Drawable> getChildren() {
-                return drawables;
-            }
-
-            @Override
-            protected void onBoundsChange(final Rect bounds) {
-                super.onBoundsChange(bounds);
-                for (final Drawable drawable : drawables) {
-                    drawable.setBounds(bounds);
-                }
-            }
-
-            @Override
-            public void draw(@NonNull final Canvas canvas) {
-                for (final Drawable drawable : drawables) {
-                    drawable.draw(canvas);
-                }
-            }
-        }
-
-        @Override
-        public void setAlpha(final int alpha) {
-        }
-
-        @Override
-        public void setColorFilter(@Nullable final ColorFilter colorFilter) {
-        }
-
-        @Override
-        public int getOpacity() {
-            return PixelFormat.TRANSLUCENT;
-        }
-
-        @NonNull
-        public abstract List<? extends Drawable> getChildren();
-
-        @NonNull
-        public static ProductDrawable create(@NonNull final Collection<? extends Drawable> drawables) {
-            return new LegacyProductDrawable(drawables);
-        }
     }
 
     public static class ParseException extends RuntimeException {
@@ -170,18 +83,7 @@ public final class CompoundDrawable {
         final byte[] np = bitmap.getNinePatchChunk();
         if (np != null && NinePatch.isNinePatchChunk(np))
             return new ExtNinePatchDrawable(bitmap, np, padding, null);
-        return new BitmapDrawable(bitmap);
-    }
-
-    @NonNull
-    private static BitmapDrawable loadTexture(@NonNull final InputStream source) {
-        final Bitmap bitmap = BitmapFactory.decodeStream(source, null, null);
-        if (bitmap == null)
-            throw new ParseException(MSG_BAD_IMAGE);
-        bitmap.setDensity(DisplayMetrics.DENSITY_DEFAULT);
-        final BitmapDrawable r = new BitmapDrawable(bitmap);
-        r.setTileModeXY(Shader.TileMode.REPEAT, Shader.TileMode.REPEAT);
-        return r;
+        return new BitmapTextureDrawable(bitmap);
     }
 
     private static void setDensity(@NonNull final Drawable drawable, final int density) {
@@ -192,7 +94,48 @@ public final class CompoundDrawable {
         }
     }
 
-    private static final int F_FILTER_BITMAP = 1;
+    private static void setXfermode(@NonNull final Drawable drawable,
+                                    @Nullable final Xfermode xfermode) {
+        if (drawable instanceof BitmapDrawable) {
+            ((BitmapDrawable) drawable).getPaint().setXfermode(xfermode);
+        } else if (drawable instanceof BitmapTextureDrawable) {
+            ((BitmapTextureDrawable) drawable).setXfermode(xfermode);
+        } else if (drawable instanceof ExtNinePatchDrawable) {
+            ((ExtNinePatchDrawable) drawable).getPaint().setXfermode(xfermode);
+        }
+    }
+
+    private static final PorterDuffXfermode[] F_XFERMODE = new PorterDuffXfermode[]{
+            new PorterDuffXfermode(PorterDuff.Mode.CLEAR),
+            new PorterDuffXfermode(PorterDuff.Mode.SRC),
+            new PorterDuffXfermode(PorterDuff.Mode.DST),
+            new PorterDuffXfermode(PorterDuff.Mode.SRC_OVER),
+            new PorterDuffXfermode(PorterDuff.Mode.DST_OVER),
+            new PorterDuffXfermode(PorterDuff.Mode.SRC_IN),
+            new PorterDuffXfermode(PorterDuff.Mode.DST_IN),
+            new PorterDuffXfermode(PorterDuff.Mode.SRC_OUT),
+            new PorterDuffXfermode(PorterDuff.Mode.DST_OUT),
+            new PorterDuffXfermode(PorterDuff.Mode.SRC_ATOP),
+            new PorterDuffXfermode(PorterDuff.Mode.DST_ATOP),
+            new PorterDuffXfermode(PorterDuff.Mode.XOR),
+            new PorterDuffXfermode(PorterDuff.Mode.ADD),
+            new PorterDuffXfermode(PorterDuff.Mode.MULTIPLY),
+            new PorterDuffXfermode(PorterDuff.Mode.SCREEN),
+            new PorterDuffXfermode(PorterDuff.Mode.OVERLAY),
+            new PorterDuffXfermode(PorterDuff.Mode.DARKEN),
+            new PorterDuffXfermode(PorterDuff.Mode.LIGHTEN)
+    };
+    private static final int F_XFERMODE_MASK = 0x1F;
+    private static final int F_FILTER_BITMAP = 0x80;
+
+    private static final int F_AXIS_SHIFT = 4;
+    private static final int F_AXIS_TILE_MODE_MASK = 7;
+    private static final Shader.TileMode[] F_AXIS_TILE_MODE = new Shader.TileMode[]{
+            Shader.TileMode.CLAMP,
+            Shader.TileMode.REPEAT,
+            Shader.TileMode.MIRROR
+    };
+    private static final int F_AXIS_TILE_EXT = 8; // TODO: Implement in future.
 
     private static boolean is(final int v, final int what) {
         return (v & what) == what;
@@ -211,8 +154,58 @@ public final class CompoundDrawable {
                 return UiDimens.Length.Units.PARENT_MIN_DIM;
             case 4:
                 return UiDimens.Length.Units.PARENT_MAX_DIM;
+            case 5:
+                return UiDimens.Length.Units.DP;
+            case 6:
+                return UiDimens.Length.Units.SP;
             default:
                 throw new ParseException(MSG_BAD_UNITS);
+        }
+    }
+
+    private static final String MSG_BAD_XFERMODE = "Bad xfer mode";
+
+    private static PorterDuffXfermode parseXfermode(final byte v) {
+        try {
+            return F_XFERMODE[v & F_XFERMODE_MASK];
+        } catch (final IndexOutOfBoundsException e) {
+            throw new ParseException(MSG_BAD_XFERMODE);
+        }
+    }
+
+    private static final String MSG_BAD_TILE_MODE = "Bad tile mode";
+
+    @NonNull
+    private static Shader.TileMode parseTileModeX(final byte v) {
+        try {
+            return F_AXIS_TILE_MODE[v & F_AXIS_TILE_MODE_MASK];
+        } catch (final IndexOutOfBoundsException e) {
+            throw new ParseException(MSG_BAD_TILE_MODE);
+        }
+    }
+
+    private static void checkTileExtX(final byte v) {
+        if (is(v, F_AXIS_TILE_EXT))
+            throw new ParseException("Not implemented yet");
+    }
+
+    @NonNull
+    private static Shader.TileMode parseTileModeY(final byte v) {
+        return parseTileModeX((byte) (v >>> F_AXIS_SHIFT));
+    }
+
+    private static void checkTileExtY(final byte v) {
+        checkTileExtX((byte) (v >>> F_AXIS_SHIFT));
+    }
+
+    private static void parseLength(@NonNull final UiDimens.Length out,
+                                    @NonNull final DataInputStream data)
+            throws IOException {
+        while (true) {
+            final byte u = data.readByte();
+            if (u == 0)
+                return;
+            out.add(data.readFloat(), parseUnits(u));
         }
     }
 
@@ -221,12 +214,14 @@ public final class CompoundDrawable {
                                                            @NonNull final DataInputStream data)
             throws IOException {
         final AdvancedScaleDrawable r = new AdvancedScaleDrawable(drawable);
-        r.left.set(data.readFloat(), parseUnits(data.readByte()));
-        r.top.set(data.readFloat(), parseUnits(data.readByte()));
-        r.right.set(data.readFloat(), parseUnits(data.readByte()));
-        r.bottom.set(data.readFloat(), parseUnits(data.readByte()));
+        parseLength(r.left, data);
+        parseLength(r.top, data);
+        parseLength(r.right, data);
+        parseLength(r.bottom, data);
         return r;
     }
+
+    private static final int TAG_INLINE_LAYER = 1; // Inlined images: no pool
 
     /**
      * A way to load something fancy packaged into a PNG.
@@ -249,35 +244,45 @@ public final class CompoundDrawable {
             throw new ParseException("Unsupported format version");
         final List<Drawable> r = new LinkedList<>();
         while (true) {
-            int blobLen;
+            final byte tagType;
             try {
-                blobLen = data.readInt();
+                tagType = data.readByte();
             } catch (final EOFException e) {
                 break;
             }
-            final Collection<Drawable> pd = new LinkedList<>();
-            if (blobLen > 0) {
-                final LimitedInputStream subStream =
-                        new LimitedInputStream(data, blobLen);
-                final Drawable drawable = loadNinePatch(subStream);
-                subStream.skip(Long.MAX_VALUE);
-                setDensity(drawable, data.readShort() & 0xFFFF);
-                final byte flags = data.readByte();
-                drawable.setFilterBitmap(is(flags, F_FILTER_BITMAP));
-                pd.add(wrapWithPlacement(drawable, data));
+            switch (tagType) {
+                case TAG_INLINE_LAYER: {
+                    final int imageBlobLen = data.readInt();
+                    if (imageBlobLen > 0) {
+                        final LimitedInputStream subStream =
+                                new LimitedInputStream(data, imageBlobLen);
+                        final Drawable drawable = loadNinePatch(subStream);
+                        subStream.skip(Long.MAX_VALUE);
+                        if (drawable instanceof BitmapTextureDrawable) {
+                            final byte texFlags = data.readByte();
+                            ((BitmapTextureDrawable) drawable).setTileModeXY(
+                                    parseTileModeX(texFlags),
+                                    parseTileModeY(texFlags)
+                            );
+                            checkTileExtX(texFlags);
+                            checkTileExtY(texFlags);
+                            parseLength(((BitmapTextureDrawable) drawable).tileSizeX, data);
+                            parseLength(((BitmapTextureDrawable) drawable).tileSizeY, data);
+                            parseLength(((BitmapTextureDrawable) drawable).tileOffsetX, data);
+                            parseLength(((BitmapTextureDrawable) drawable).tileOffsetY, data);
+                        } else if (drawable instanceof ExtNinePatchDrawable) {
+                            setDensity(drawable, data.readShort() & 0x7FFF);
+                        }
+                        final byte flags = data.readByte();
+                        setXfermode(drawable, parseXfermode(flags));
+                        drawable.setFilterBitmap(is(flags, F_FILTER_BITMAP));
+                        r.add(wrapWithPlacement(drawable, data));
+                    }
+                    break;
+                }
+                default:
+                    throw new ParseException("Unknown tag type");
             }
-            blobLen = data.readInt();
-            if (blobLen > 0) {
-                final LimitedInputStream subStream =
-                        new LimitedInputStream(data, blobLen);
-                final Drawable drawable = loadTexture(subStream);
-                subStream.skip(Long.MAX_VALUE);
-                setDensity(drawable, data.readShort() & 0xFFFF);
-                final byte flags = data.readByte();
-                drawable.setFilterBitmap(is(flags, F_FILTER_BITMAP));
-                pd.add(wrapWithPlacement(drawable, data));
-            }
-            r.add(ProductDrawable.create(pd));
         }
         return new LayerDrawable(r.toArray(new Drawable[0]));
     }
@@ -285,7 +290,8 @@ public final class CompoundDrawable {
     /**
      * Copies a {@link CompoundDrawable#create(InputStream)} result
      * to bind with each particular view
-     * withholding underlying bitmaps from copying.
+     * withholding underlying bitmaps from copying
+     * and populating them with the context parameters.
      *
      * @param ctx      to get for
      * @param drawable to copy
@@ -306,6 +312,19 @@ public final class CompoundDrawable {
             to.setFilterBitmap(from.getPaint().isFilterBitmap());
             return to;
         }
+        if (drawable instanceof BitmapTextureDrawable) {
+            final BitmapTextureDrawable from = (BitmapTextureDrawable) drawable;
+            final BitmapTextureDrawable to = new BitmapTextureDrawable(from.getBitmap());
+            to.setMetrics(ctx.getResources().getDisplayMetrics());
+            to.setXfermode(from.getXfermode());
+            to.setTileModeXY(from.getTileModeX(), from.getTileModeY());
+            to.tileSizeX.set(from.tileSizeX);
+            to.tileSizeY.set(from.tileSizeY);
+            to.tileOffsetX.set(from.tileOffsetX);
+            to.tileOffsetY.set(from.tileOffsetY);
+            to.setFilterBitmap(from.isFilterBitmap());
+            return to;
+        }
         if (drawable instanceof ExtNinePatchDrawable) {
             final ExtNinePatchDrawable from = (ExtNinePatchDrawable) drawable;
             final ExtNinePatchDrawable to = new ExtNinePatchDrawable(from.getBitmap(),
@@ -319,19 +338,12 @@ public final class CompoundDrawable {
             final AdvancedScaleDrawable from = (AdvancedScaleDrawable) drawable;
             final AdvancedScaleDrawable to =
                     new AdvancedScaleDrawable(copy(ctx, from.getDrawable()));
+            to.setMetrics(ctx.getResources().getDisplayMetrics());
             to.left.set(from.left);
             to.top.set(from.top);
             to.right.set(from.right);
             to.bottom.set(from.bottom);
             return to;
-        }
-        if (drawable instanceof ProductDrawable) {
-            final ProductDrawable from = (ProductDrawable) drawable;
-            final List<Drawable> children = new ArrayList<>(from.getChildren().size());
-            for (final Drawable child : from.getChildren()) {
-                children.add(copy(ctx, child));
-            }
-            return ProductDrawable.create(children);
         }
         if (drawable instanceof LayerDrawable) {
             final LayerDrawable from = (LayerDrawable) drawable;
