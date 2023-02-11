@@ -49,7 +49,16 @@ public abstract class DynamicResourceSource<T> {
         }
     }
 
-    public void setOnChanged(@Nullable final OnChanged v) {
+    public final void setOnChanged(@Nullable final OnChanged v) {
         onChanged = v;
+    }
+
+    public void recycle() {
+    }
+
+    @Override
+    protected void finalize() throws Throwable {
+        recycle();
+        super.finalize();
     }
 }

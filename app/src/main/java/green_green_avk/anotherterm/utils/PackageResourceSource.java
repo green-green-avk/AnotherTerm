@@ -1,11 +1,17 @@
 package green_green_avk.anotherterm.utils;
 
+import android.content.BroadcastReceiver;
 import android.content.Context;
+import android.content.Intent;
+import android.content.IntentFilter;
 import android.content.pm.ApplicationInfo;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
+import java.lang.ref.WeakReference;
+import java.util.HashSet;
+import java.util.Iterator;
 import java.util.Objects;
 import java.util.Set;
 
@@ -49,10 +55,6 @@ public abstract class PackageResourceSource<T> extends DynamicResourceSource<T> 
     public interface Enumerator {
         @NonNull
         Set<Key> onEnumerate();
-
-        void onRegister(@NonNull Runnable listener);
-
-        void onUnregister(@NonNull Runnable listener);
     }
 
     @NonNull
@@ -60,32 +62,79 @@ public abstract class PackageResourceSource<T> extends DynamicResourceSource<T> 
     @NonNull
     private final Enumerator enumerator;
 
+    private static final class PackageWatcher<T> extends BroadcastReceiver {
+        @NonNull
+        private final WeakReference<PackageResourceSource<T>> source;
+
+        private PackageWatcher(@NonNull final PackageResourceSource<T> source) {
+            this.source = new WeakReference<>(source);
+        }
+
+        private final Set<String> trackedPackages = new HashSet<>();
+        private final Set<Key> trackedKeys = new HashSet<>();
+
+        @Override
+        public void onReceive(final Context context, final Intent intent) {
+            final PackageResourceSource<T> source = this.source.get();
+            if (source == null)
+                return;
+            final String packageName = intent.getData().getSchemeSpecificPart();
+            boolean isChanged = false;
+            if (trackedPackages.remove(packageName)) {
+                final Iterator<Key> it = trackedKeys.iterator();
+                while (it.hasNext()) {
+                    final Key key = it.next();
+                    if (key.packageName.equals(packageName)) {
+                        it.remove();
+                        source.invalidate(key);
+                        isChanged = true;
+                    }
+                }
+            }
+            if (Intent.ACTION_PACKAGE_ADDED.equals(intent.getAction())) {
+                isChanged |= source.updateKeys();
+            }
+            if (isChanged) {
+                source.callOnChanged();
+            }
+        }
+    }
+
+    private final PackageWatcher<T> watcher = new PackageWatcher<>(this);
+
+    private boolean updateKeys() {
+        boolean r = false;
+        final Set<Key> keys = enumerator.onEnumerate();
+        for (final Key key : keys) {
+            watcher.trackedPackages.add(key.packageName);
+            r |= watcher.trackedKeys.add(key);
+        }
+        return r;
+    }
+
     protected PackageResourceSource(@NonNull final Context context,
                                     @NonNull final Enumerator enumerator) {
         this.context = context;
         this.enumerator = enumerator;
-    }
 
-    @Override
-    @NonNull
-    protected Cache<T> getCache() {
-        return Caches.noCache();
+        final IntentFilter intentFilter =
+                new IntentFilter(Intent.ACTION_PACKAGE_ADDED);
+        intentFilter.addAction(Intent.ACTION_PACKAGE_REMOVED);
+        intentFilter.addDataScheme("package");
+        context.registerReceiver(watcher, intentFilter);
+
+        updateKeys();
     }
 
     @Override
     @NonNull
     public Set<Key> enumerate() {
-        return enumerator.onEnumerate();
+        return watcher.trackedKeys;
     }
 
-    private final Runnable callOnChanged = this::callOnChanged;
-
     @Override
-    public void setOnChanged(@Nullable final OnChanged v) {
-        if (v != null)
-            enumerator.onRegister(callOnChanged);
-        else
-            enumerator.onUnregister(callOnChanged);
-        super.setOnChanged(v);
+    public void recycle() {
+        context.unregisterReceiver(watcher);
+        super.recycle();
     }
 }

@@ -7,7 +7,6 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.arch.core.util.Function;
 
-import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.FileFilter;
 import java.io.IOException;
@@ -19,7 +18,6 @@ import java.util.HashSet;
 import java.util.Set;
 
 import green_green_avk.anotherterm.ui.drawables.CompoundDrawable;
-import name.green_green_avk.pngchunkextractor.PngChunkExtractor;
 
 public final class FileDrawableSource
         extends FileResourceSource<Function<? super Context, ? extends Drawable>> {
@@ -95,28 +93,7 @@ public final class FileDrawableSource
     @NonNull
     protected Function<? super Context, ? extends Drawable> onDecode(@NonNull final InputStream in)
             throws IOException {
-        final Drawable[] compoundDrawable = new Drawable[1];
-        final PngChunkExtractor extractor = new PngChunkExtractor(
-                new PngChunkExtractor.Callbacks() {
-                    @Override
-                    public boolean filter(final int chunkType) {
-                        return chunkType == 0x74684267;
-                    }
-
-                    @Override
-                    public void process(final int chunkType, @NonNull final byte[] data) {
-                        try {
-                            compoundDrawable[0] =
-                                    CompoundDrawable.create(new ByteArrayInputStream(data));
-                        } catch (final IOException e) {
-                            throw new RuntimeException(e);
-                        }
-                    }
-                }, in);
-        final Drawable drawable =
-                Drawable.createFromStream(extractor.getStream(), null);
-        extractor.getStream().skip(Long.MAX_VALUE);
-        final Drawable r = compoundDrawable[0] != null ? compoundDrawable[0] : drawable;
+        final Drawable r = CompoundDrawable.fromPng(in);
         return (ctx) -> CompoundDrawable.copy(ctx, r);
     }
 

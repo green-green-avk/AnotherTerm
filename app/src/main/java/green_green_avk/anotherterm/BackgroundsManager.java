@@ -1,9 +1,7 @@
 package green_green_avk.anotherterm;
 
-import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
-import android.content.IntentFilter;
 import android.content.pm.PackageManager;
 import android.content.pm.ResolveInfo;
 import android.content.res.Resources;
@@ -21,7 +19,6 @@ import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
-import java.util.WeakHashMap;
 
 import green_green_avk.anotherterm.ui.InlineImageSpan;
 import green_green_avk.anotherterm.utils.CollectionsViewSet;
@@ -139,39 +136,6 @@ public final class BackgroundsManager extends ProfileManager<BackgroundProfile> 
                     }
                     return r;
                 }
-
-                private final Set<Runnable> listeners =
-                        Collections.newSetFromMap(new WeakHashMap<>());
-                private final BroadcastReceiver packagesChangeReceiver = new BroadcastReceiver() {
-                    @Override
-                    public void onReceive(final Context context, final Intent intent) {
-                        for (final Runnable listener : listeners)
-                            listener.run();
-                    }
-                };
-
-                @Override
-                public void onRegister(@NonNull final Runnable listener) {
-                    listeners.add(listener);
-                    final IntentFilter intentFilter =
-                            new IntentFilter(Intent.ACTION_PACKAGE_ADDED);
-                    intentFilter.addAction(Intent.ACTION_PACKAGE_REMOVED);
-                    intentFilter.addDataScheme("package");
-                    context.registerReceiver(packagesChangeReceiver, intentFilter);
-                }
-
-                @Override
-                public void onUnregister(@NonNull final Runnable listener) {
-                    listeners.remove(listener);
-                    if (listeners.isEmpty())
-                        context.unregisterReceiver(packagesChangeReceiver);
-                }
-
-                @Override
-                protected void finalize() throws Throwable {
-                    context.unregisterReceiver(packagesChangeReceiver);
-                    super.finalize();
-                }
             };
 
     public BackgroundsManager(@NonNull final Context ctx) {
@@ -256,5 +220,12 @@ public final class BackgroundsManager extends ProfileManager<BackgroundProfile> 
     @Override
     public void remove(@NonNull final String name) {
         // Not editable
+    }
+
+    @Override
+    protected void finalize() throws Throwable {
+        remoteSource.recycle();
+        localSource.recycle();
+        super.finalize();
     }
 }
