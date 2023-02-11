@@ -21,6 +21,7 @@ import androidx.annotation.Nullable;
 
 import org.jetbrains.annotations.Contract;
 
+import java.io.ByteArrayInputStream;
 import java.io.DataInputStream;
 import java.io.EOFException;
 import java.io.IOException;
@@ -30,6 +31,7 @@ import java.util.List;
 
 import green_green_avk.anotherterm.ui.UiDimens;
 import green_green_avk.anotherterm.utils.LimitedInputStream;
+import name.green_green_avk.pngchunkextractor.PngChunkExtractor;
 
 public final class CompoundDrawable {
     private CompoundDrawable() {
@@ -224,12 +226,12 @@ public final class CompoundDrawable {
     private static final int TAG_INLINE_LAYER = 1; // Inlined images: no pool
 
     /**
-     * A way to load something fancy packaged into a PNG.
+     * Loads something fancy packaged into a PNG chunk.
      * <p>
      * It does not set the target density
      * as it is supposed to be used with {@link #copy(Context, Drawable)}.
      *
-     * @param source to decode
+     * @param source a PNG chunk stream to decode
      * @return the resulting drawable
      * @throws IOException
      * @throws ParseException
@@ -285,6 +287,46 @@ public final class CompoundDrawable {
             }
         }
         return new LayerDrawable(r.toArray(new Drawable[0]));
+    }
+
+    /**
+     * Loads from a PNG container.
+     * <p>
+     * It does not set the target density
+     * as it is supposed to be used with {@link #copy(Context, Drawable)}.
+     *
+     * @param source a container stream
+     * @return the resulting drawable (or just the PNG nothing wrapped)
+     * @throws IOException
+     * @see #copy(Context, Drawable)
+     */
+    @NonNull
+    public static Drawable fromPng(@NonNull final InputStream source)
+            throws IOException {
+        final Drawable[] compoundDrawable = new Drawable[1];
+        final PngChunkExtractor extractor = new PngChunkExtractor(
+                new PngChunkExtractor.Callbacks() {
+                    @Override
+                    public boolean filter(final int chunkType) {
+                        return chunkType == 0x74684267;
+                    }
+
+                    @Override
+                    public void process(final int chunkType, @NonNull final byte[] data) {
+                        try {
+                            compoundDrawable[0] =
+                                    CompoundDrawable.create(new ByteArrayInputStream(data));
+                        } catch (final IOException e) {
+                            throw new RuntimeException(e);
+                        }
+                    }
+                }, source);
+        final Drawable drawable =
+                Drawable.createFromStream(extractor.getStream(), null);
+        extractor.getStream().skip(Long.MAX_VALUE);
+        if (extractor.getException() != null)
+            throw extractor.getException();
+        return compoundDrawable[0] != null ? compoundDrawable[0] : drawable;
     }
 
     /**
