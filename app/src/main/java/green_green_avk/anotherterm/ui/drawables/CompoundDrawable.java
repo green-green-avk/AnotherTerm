@@ -301,6 +301,7 @@ public final class CompoundDrawable {
             final BitmapDrawable from = (BitmapDrawable) drawable;
             final BitmapDrawable to = new BitmapDrawable(from.getBitmap());
             to.setTargetDensity(ctx.getResources().getDisplayMetrics());
+            to.getPaint().setXfermode(from.getPaint().getXfermode());
             to.setTileModeXY(from.getTileModeX(), from.getTileModeY());
             to.setFilterBitmap(from.getPaint().isFilterBitmap());
             return to;
@@ -310,6 +311,7 @@ public final class CompoundDrawable {
             final ExtNinePatchDrawable to = new ExtNinePatchDrawable(from.getBitmap(),
                     from.getBitmap().getNinePatchChunk(), from.getSourcePadding(), null);
             to.setTargetDensity(ctx.getResources().getDisplayMetrics());
+            to.getPaint().setXfermode(from.getPaint().getXfermode());
             to.setFilterBitmap(from.getPaint().isFilterBitmap());
             return to;
         }
