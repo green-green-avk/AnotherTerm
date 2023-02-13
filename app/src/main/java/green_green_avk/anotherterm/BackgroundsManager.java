@@ -16,12 +16,15 @@ import androidx.arch.core.util.Function;
 import androidx.core.content.res.ResourcesCompat;
 
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 import green_green_avk.anotherterm.ui.InlineImageSpan;
 import green_green_avk.anotherterm.utils.CollectionsViewSet;
+import green_green_avk.anotherterm.utils.DynamicResourceSource;
 import green_green_avk.anotherterm.utils.FileDrawableSource;
 import green_green_avk.anotherterm.utils.PackageDrawableSource;
 import green_green_avk.anotherterm.utils.PackageResourceSource;
@@ -33,56 +36,66 @@ public final class BackgroundsManager extends ProfileManager<BackgroundProfile> 
     private final FileDrawableSource localSource;
     @NonNull
     private final PackageDrawableSource remoteSource;
-    private final Set<BuiltIn<BackgroundProfile>> localSet = new HashSet<>();
-    private final Set<BuiltIn<BackgroundProfile>> remoteSet = new HashSet<>();
+    private final Map<Object, BuiltIn<BackgroundProfile>> localMap = new HashMap<>();
+    private final Map<Object, BuiltIn<BackgroundProfile>> remoteMap = new HashMap<>();
     @NonNull
     private final Set<BuiltIn<? extends BackgroundProfile>> builtIns;
 
     private void reloadLocalSource() {
         final Set<?> keys = localSource.enumerate();
-        localSet.clear();
+        localMap.clear();
         for (final Object key : keys) {
-            final Function<? super Context, ? extends Drawable> data;
-            try {
-                data = localSource.get(key);
-            } catch (final Exception e) {
-                continue;
-            }
-            localSet.add(new BuiltIn<>(" " + key, key.toString(),
-                    new SourceBackgroundProfile(data), 0x10));
+            reloadLocalSource(key);
         }
+    }
+
+    private void reloadLocalSource(@NonNull final Object key) {
+        final Function<? super Context, ? extends Drawable> data;
+        try {
+            data = localSource.get(key);
+        } catch (final Exception e) {
+            localMap.remove(key);
+            return;
+        }
+        localMap.put(key, new BuiltIn<>(" " + key, key.toString(),
+                new SourceBackgroundProfile(data), 0x10));
     }
 
     private void reloadRemoteSource() {
         final Set<?> keys = remoteSource.enumerate();
-        remoteSet.clear();
+        remoteMap.clear();
         for (final Object key : keys) {
-            final Function<? super Context, ? extends Drawable> data;
-            try {
-                data = remoteSource.get(key);
-            } catch (final Exception e) {
-                continue;
-            }
-            final CharSequence title;
-            if (key instanceof PackageResourceSource.Key &&
-                    ((PackageResourceSource.Key) key).applicationInfo != null) {
-                final PackageManager pm = context.getPackageManager();
-                final CharSequence label =
-                        ((PackageResourceSource.Key) key).applicationInfo.loadLabel(pm);
-                final Drawable icon =
-                        ((PackageResourceSource.Key) key).applicationInfo.loadIcon(pm);
-                final SpannableStringBuilder builder =
-                        new SpannableStringBuilder();
-                builder.append('X').setSpan(new InlineImageSpan(icon),
-                        0, builder.length(), Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
-                builder.append(' ').append(label);
-                title = builder;
-            } else {
-                title = key.toString();
-            }
-            remoteSet.add(new BuiltIn<>(" " + key, title,
-                    new SourceBackgroundProfile(data), 0x20));
+            reloadRemoteSource(key);
         }
+    }
+
+    private void reloadRemoteSource(@NonNull final Object key) {
+        final Function<? super Context, ? extends Drawable> data;
+        try {
+            data = remoteSource.get(key);
+        } catch (final Exception e) {
+            remoteMap.remove(key);
+            return;
+        }
+        final CharSequence title;
+        if (key instanceof PackageResourceSource.Key &&
+                ((PackageResourceSource.Key) key).applicationInfo != null) {
+            final PackageManager pm = context.getPackageManager();
+            final CharSequence label =
+                    ((PackageResourceSource.Key) key).applicationInfo.loadLabel(pm);
+            final Drawable icon =
+                    ((PackageResourceSource.Key) key).applicationInfo.loadIcon(pm);
+            final SpannableStringBuilder builder =
+                    new SpannableStringBuilder();
+            builder.append('X').setSpan(new InlineImageSpan(icon),
+                    0, builder.length(), Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
+            builder.append(' ').append(label);
+            title = builder;
+        } else {
+            title = key.toString();
+        }
+        remoteMap.put(key, new BuiltIn<>(" " + key, title,
+                new SourceBackgroundProfile(data), 0x20));
     }
 
     @NonNull
@@ -92,10 +105,11 @@ public final class BackgroundsManager extends ProfileManager<BackgroundProfile> 
             new PackageResourceSource.Enumerator() {
                 @Override
                 @NonNull
-                public Set<PackageResourceSource.Key> onEnumerate() {
+                public Set<PackageResourceSource.Key> onEnumerate(@Nullable final String packageName) {
                     final PackageManager pm = context.getPackageManager();
                     final List<ResolveInfo> pkgs = pm.queryIntentActivities(
-                            new Intent(BuildConfig.ACTION_EXTRAS_INFO),
+                            new Intent(BuildConfig.ACTION_EXTRAS_INFO)
+                                    .setPackage(packageName),
                             PackageManager.GET_META_DATA
                     );
                     if (pkgs == null)
@@ -150,16 +164,30 @@ public final class BackgroundsManager extends ProfileManager<BackgroundProfile> 
                 new LocalBackgroundProfile(
                         R.drawable.bg_term_screen_lines_fade), 2));
         localSource = new FileDrawableSource(ctx, "backgrounds");
-        localSource.setOnChanged(() -> {
-            reloadLocalSource();
-            execOnChangeListeners();
+        localSource.setOnChanged(new DynamicResourceSource.OnChanged() {
+            @Override
+            public void onChanged() {
+                execOnChangeListeners();
+            }
+
+            @Override
+            public void onChanged(@NonNull final Object key) {
+                reloadLocalSource(key);
+            }
         });
         remoteSource = new PackageDrawableSource(ctx, remoteEnumerator);
-        remoteSource.setOnChanged(() -> {
-            reloadRemoteSource();
-            execOnChangeListeners();
+        remoteSource.setOnChanged(new DynamicResourceSource.OnChanged() {
+            @Override
+            public void onChanged() {
+                execOnChangeListeners();
+            }
+
+            @Override
+            public void onChanged(@NonNull final Object key) {
+                reloadRemoteSource(key);
+            }
         });
-        builtIns = new CollectionsViewSet<>(defaultSet, localSet, remoteSet);
+        builtIns = new CollectionsViewSet<>(defaultSet, localMap.values(), remoteMap.values());
         reloadLocalSource();
         reloadRemoteSource();
     }

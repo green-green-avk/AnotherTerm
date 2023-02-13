@@ -78,13 +78,8 @@ public final class PackageDrawableSource
     @NonNull
     protected Function<? super Context, ? extends Drawable> onLoad(@NonNull final Object key)
             throws Exception {
-        if (!(key instanceof Key))
+        if (!(key instanceof Key) || !enumerate().contains(key))
             throw new Resources.NotFoundException(key.toString());
-        final Function<? super Context, ? extends Drawable> r = load(context, (Key) key);
-        // Touching it for the enumeration purpose only...
-        // ... or not to touch?
-        // TODO: Decide.
-        // r.apply(context);
-        return r;
+        return load(context, (Key) key);
     }
 }
