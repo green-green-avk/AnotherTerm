@@ -11,9 +11,9 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.ArrayList;
-import java.util.Collection;
+import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Map;
 import java.util.Set;
 
 public abstract class FileResourceSource<T> extends DynamicResourceSource<T> {
@@ -44,44 +44,54 @@ public abstract class FileResourceSource<T> extends DynamicResourceSource<T> {
     };
 
     private final class ManagedFileObserver extends FileObserver {
-        private final File dir;
+        private final File target;
 
-        public ManagedFileObserver(@NonNull final String path, final int mask) {
-            super(path, mask);
-            dir = new File(path);
+        public ManagedFileObserver(@NonNull final File path, final int mask) {
+            super(path.getPath(), mask);
+            target = path;
         }
 
         @Override
         public void onEvent(final int event, @Nullable final String path) {
-            if ((event & FileObserver.ALL_EVENTS) != 0 && path != null) {
+            if ((event & FileObserver.ALL_EVENTS) != 0) {
+                switch (event) {
+                    case FileObserver.DELETE_SELF:
+                    case FileObserver.MOVE_SELF:
+                        mainHandler.post(() -> removeFileObserver(target));
+                        break;
+                }
                 mainHandler.removeCallbacks(updateManaged);
                 synchronized (updateSetLock) {
-                    updateSet.add(new File(dir, path));
+                    updateSet.add(path != null ? new File(target, path) : target);
                 }
                 mainHandler.post(updateManaged);
             }
         }
     }
 
-    private final Collection<ManagedFileObserver> fileObservers = new ArrayList<>();
+    private final Map<File, ManagedFileObserver> fileObservers = new HashMap<>();
 
-    protected final void clearFileObservers() {
-        for (final ManagedFileObserver fo : fileObservers)
+    protected final void removeFileObserver(@NonNull final File file) {
+        final ManagedFileObserver fo = fileObservers.remove(file);
+        if (fo != null) {
             fo.stopWatching();
-        fileObservers.clear();
+        }
     }
 
     protected final void addFileObserver(@NonNull final File file) {
-        final ManagedFileObserver fo = new ManagedFileObserver(file.getPath(),
-                FileObserver.ATTRIB |
+        if (fileObservers.containsKey(file)) {
+            return;
+        }
+        final ManagedFileObserver fo = new ManagedFileObserver(file,
+                FileObserver.ATTRIB | FileObserver.DELETE_SELF | FileObserver.MOVE_SELF |
                         (file.isDirectory() ?
                                 FileObserver.CREATE | FileObserver.DELETE |
                                         FileObserver.MOVED_FROM | FileObserver.MOVED_TO :
                                 FileObserver.CLOSE_WRITE
                         )
         );
-        fileObservers.add(fo);
         fo.startWatching();
+        fileObservers.put(file, fo);
     }
 
     protected abstract void onManagedFilesChanged(@NonNull Set<? extends File> changed);

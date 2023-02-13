@@ -38,6 +38,8 @@ public abstract class DynamicResourceSource<T> {
 
     public interface OnChanged {
         void onChanged();
+
+        void onChanged(@NonNull Object key);
     }
 
     @Nullable
@@ -46,6 +48,12 @@ public abstract class DynamicResourceSource<T> {
     protected final void callOnChanged() {
         if (onChanged != null) {
             onChanged.onChanged();
+        }
+    }
+
+    protected final void callOnChanged(@NonNull final Object key) {
+        if (onChanged != null) {
+            onChanged.onChanged(key);
         }
     }
 

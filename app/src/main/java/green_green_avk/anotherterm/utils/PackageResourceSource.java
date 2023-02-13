@@ -54,7 +54,7 @@ public abstract class PackageResourceSource<T> extends DynamicResourceSource<T> 
 
     public interface Enumerator {
         @NonNull
-        Set<Key> onEnumerate();
+        Set<Key> onEnumerate(@Nullable String packageName);
     }
 
     @NonNull
@@ -76,9 +76,11 @@ public abstract class PackageResourceSource<T> extends DynamicResourceSource<T> 
         @Override
         public void onReceive(final Context context, final Intent intent) {
             final PackageResourceSource<T> source = this.source.get();
-            if (source == null)
+            if (source == null) {
                 return;
+            }
             final String packageName = intent.getData().getSchemeSpecificPart();
+            final boolean isRemoved = Intent.ACTION_PACKAGE_REMOVED.equals(intent.getAction());
             boolean isChanged = false;
             if (trackedPackages.remove(packageName)) {
                 final Iterator<Key> it = trackedKeys.iterator();
@@ -88,11 +90,14 @@ public abstract class PackageResourceSource<T> extends DynamicResourceSource<T> 
                         it.remove();
                         source.invalidate(key);
                         isChanged = true;
+                        if (isRemoved) {
+                            source.callOnChanged(key);
+                        }
                     }
                 }
             }
-            if (Intent.ACTION_PACKAGE_ADDED.equals(intent.getAction())) {
-                isChanged |= source.updateKeys();
+            if (!isRemoved) {
+                isChanged |= source.updateKeys(packageName);
             }
             if (isChanged) {
                 source.callOnChanged();
@@ -102,12 +107,15 @@ public abstract class PackageResourceSource<T> extends DynamicResourceSource<T> 
 
     private final PackageWatcher<T> watcher = new PackageWatcher<>(this);
 
-    private boolean updateKeys() {
+    private boolean updateKeys(@Nullable final String packageName) {
         boolean r = false;
-        final Set<Key> keys = enumerator.onEnumerate();
+        final Set<Key> keys = enumerator.onEnumerate(packageName);
         for (final Key key : keys) {
             watcher.trackedPackages.add(key.packageName);
-            r |= watcher.trackedKeys.add(key);
+            if (watcher.trackedKeys.add(key)) {
+                r = true;
+                callOnChanged(key);
+            }
         }
         return r;
     }
@@ -123,7 +131,8 @@ public abstract class PackageResourceSource<T> extends DynamicResourceSource<T> 
         intentFilter.addDataScheme("package");
         context.registerReceiver(watcher, intentFilter);
 
-        updateKeys();
+        updateKeys(null);
+        callOnChanged();
     }
 
     @Override

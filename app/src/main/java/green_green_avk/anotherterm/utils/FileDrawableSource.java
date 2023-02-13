@@ -98,7 +98,6 @@ public final class FileDrawableSource
     }
 
     private void updateObservers() {
-        clearFileObservers();
         if (!resDir.isDirectory()) {
             addFileObserver(dataDir);
             return;
@@ -115,10 +114,18 @@ public final class FileDrawableSource
 
     @Override
     protected void onManagedFilesChanged(@NonNull final Set<? extends File> changed) {
+        boolean isChanged = false;
         for (final File file : changed) {
-            invalidate(toKey(file));
+            if (resDir.equals(file.getParentFile())) {
+                final Object key = toKey(file);
+                invalidate(key);
+                isChanged = true;
+                callOnChanged(key);
+            }
         }
         updateObservers();
-        callOnChanged();
+        if (isChanged) {
+            callOnChanged();
+        }
     }
 }
