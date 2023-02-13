@@ -34,7 +34,7 @@ public final class FileDrawableSource extends FileResourceSource<Callable<Drawab
             @Override
             @NonNull
             protected Object onMapKey(@NonNull final Object itemKey) {
-                return new File(resDir, itemKey.toString());
+                return fromKey(itemKey);
             }
         };
         updateObservers();
@@ -60,6 +60,11 @@ public final class FileDrawableSource extends FileResourceSource<Callable<Drawab
     }
 
     @NonNull
+    private File fromKey(@NonNull final Object key) {
+        return new File(resDir, URLEncoder.encode(key.toString()));
+    }
+
+    @NonNull
     private Object toKey(@NonNull final File path) {
         return URLDecoder.decode(path.getName());
     }
@@ -81,7 +86,7 @@ public final class FileDrawableSource extends FileResourceSource<Callable<Drawab
     @Override
     @NonNull
     protected File onPath(@NonNull final Object key) {
-        return new File(resDir, URLEncoder.encode(key.toString()));
+        return fromKey(key);
     }
 
     @Override
