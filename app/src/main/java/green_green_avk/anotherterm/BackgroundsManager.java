@@ -155,9 +155,7 @@ public final class BackgroundsManager extends ProfileManager<BackgroundProfile> 
                     listeners.add(listener);
                     final IntentFilter intentFilter =
                             new IntentFilter(Intent.ACTION_PACKAGE_ADDED);
-                    intentFilter.addAction(Intent.ACTION_PACKAGE_REPLACED);
                     intentFilter.addAction(Intent.ACTION_PACKAGE_REMOVED);
-                    intentFilter.addAction(Intent.ACTION_PACKAGE_FULLY_REMOVED);
                     intentFilter.addDataScheme("package");
                     context.registerReceiver(packagesChangeReceiver, intentFilter);
                 }

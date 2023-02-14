@@ -100,9 +100,7 @@ public final class PluginsManager {
     public static void registerOnChanged(@NonNull final OnChanged l) {
         onChanged.add(l);
         final IntentFilter intentFilter = new IntentFilter(Intent.ACTION_PACKAGE_ADDED);
-        intentFilter.addAction(Intent.ACTION_PACKAGE_REPLACED);
         intentFilter.addAction(Intent.ACTION_PACKAGE_REMOVED);
-        intentFilter.addAction(Intent.ACTION_PACKAGE_FULLY_REMOVED);
         intentFilter.addDataScheme("package");
         ctx.registerReceiver(packagesChangeReceiver, intentFilter);
         trustedPluginsPrefs.registerOnSharedPreferenceChangeListener(onSettingsChanged);
