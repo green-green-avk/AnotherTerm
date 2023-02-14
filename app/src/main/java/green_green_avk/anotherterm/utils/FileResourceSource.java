@@ -46,9 +46,9 @@ public abstract class FileResourceSource<T> extends DynamicResourceSource<T> {
     private final class ManagedFileObserver extends FileObserver {
         private final File target;
 
-        public ManagedFileObserver(@NonNull final File path, final int mask) {
-            super(path.getPath(), mask);
-            target = path;
+        public ManagedFileObserver(@NonNull final File file, final int mask) {
+            super(file.getPath(), mask);
+            target = file;
         }
 
         @Override
@@ -84,11 +84,9 @@ public abstract class FileResourceSource<T> extends DynamicResourceSource<T> {
         }
         final ManagedFileObserver fo = new ManagedFileObserver(file,
                 FileObserver.ATTRIB | FileObserver.DELETE_SELF | FileObserver.MOVE_SELF |
-                        (file.isDirectory() ?
-                                FileObserver.CREATE | FileObserver.DELETE |
-                                        FileObserver.MOVED_FROM | FileObserver.MOVED_TO :
-                                FileObserver.CLOSE_WRITE
-                        )
+                        FileObserver.CREATE | FileObserver.DELETE |
+                        FileObserver.MOVED_FROM | FileObserver.MOVED_TO |
+                        FileObserver.CLOSE_WRITE
         );
         fo.startWatching();
         fileObservers.put(file, fo);

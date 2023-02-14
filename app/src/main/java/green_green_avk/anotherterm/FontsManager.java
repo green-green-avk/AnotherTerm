@@ -14,8 +14,6 @@ import androidx.annotation.Nullable;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
 
 import green_green_avk.ptyprocess.PtyProcess;
 
@@ -51,55 +49,52 @@ public final class FontsManager {
     public static Typeface[] consoleTypefaces = defaultTypefaces;
 
     private static boolean trackFontFiles = false;
-    private static final List<FontFileObserver> fontFileObservers = new ArrayList<>(6);
+    private static FontDirObserver dataDirObserver = null;
+    private static FontDirObserver consoleFontDirObserver = null;
 
-    private static final class FontFileObserver extends FileObserver {
-        public FontFileObserver(@NonNull final String path, final int mask) {
-            super(path, mask);
+    private static final class FontDirObserver extends FileObserver {
+        @NonNull
+        private final File target;
+
+        public FontDirObserver(@NonNull final File file) {
+            this(file,
+                    FileObserver.ATTRIB | FileObserver.DELETE_SELF | FileObserver.MOVE_SELF |
+                            FileObserver.CREATE | FileObserver.DELETE |
+                            FileObserver.MOVED_FROM | FileObserver.MOVED_TO |
+                            FileObserver.CLOSE_WRITE
+            );
+        }
+
+        public FontDirObserver(@NonNull final File file, final int mask) {
+            super(file.getPath(), mask);
+            target = file;
         }
 
         @Override
         public void onEvent(final int event, @Nullable final String path) {
             if ((event & FileObserver.ALL_EVENTS) != 0) {
-                mainHandler.removeCallbacks(refreshFromFs);
-                mainHandler.post(refreshFromFs);
+                final File file = path != null ? new File(target, path) : target;
+                if (consoleFontDir.equals(file) || consoleFontDir.equals(file.getParentFile())) {
+                    mainHandler.removeCallbacks(refreshFromFs);
+                    mainHandler.post(refreshFromFs);
+                }
             }
         }
     }
 
-    private static void clearFontFileObservers() {
-        for (final FontFileObserver fo : fontFileObservers)
-            fo.stopWatching();
-        fontFileObservers.clear();
-    }
-
-    private static void addFontFileObserver(@NonNull final File f) {
-        final FontFileObserver fo = new FontFileObserver(f.getPath(),
-                FileObserver.ATTRIB |
-                        (f.isDirectory() ?
-                                FileObserver.CREATE | FileObserver.DELETE |
-                                        FileObserver.MOVED_FROM | FileObserver.MOVED_TO :
-                                FileObserver.CLOSE_WRITE
-                        )
-        );
-        fontFileObservers.add(fo);
-        fo.startWatching();
-    }
-
     private static final Runnable refreshFromFs = () -> {
         try {
-            clearFontFileObservers();
             if (!trackFontFiles)
                 return;
-            addFontFileObserver(dataDir);
-            consoleFontDir.mkdirs();
             if (!consoleFontDir.isDirectory()) {
+                dataDirObserver.startWatching();
+                consoleFontDirObserver.stopWatching();
                 consoleTypefaces = defaultConsoleTypefaces;
+                consoleFontDir.mkdirs();
                 return;
             }
-            addFontFileObserver(consoleFontDir);
-            for (final File f : consoleFontFiles)
-                addFontFileObserver(f);
+            consoleFontDirObserver.startWatching();
+            dataDirObserver.stopWatching();
             final Typeface[] tfs = loadFromFilesFb(consoleFontFiles);
             if (tfs[0] == null) {
                 consoleTypefaces = defaultConsoleTypefaces;
@@ -124,6 +119,8 @@ public final class FontsManager {
                 new File(consoleFontDir, ITALIC_FONT_NAME),
                 new File(consoleFontDir, BOLD_ITALIC_FONT_NAME)
         };
+        dataDirObserver = new FontDirObserver(dataDir);
+        consoleFontDirObserver = new FontDirObserver(consoleFontDir);
     }
 
     private static void setFromDefaultAsset() {
@@ -138,7 +135,8 @@ public final class FontsManager {
                 setFromDefaultAsset();
         } else {
             trackFontFiles = false;
-            clearFontFileObservers();
+            dataDirObserver.stopWatching();
+            consoleFontDirObserver.stopWatching();
             setFromDefaultAsset();
         }
     }
