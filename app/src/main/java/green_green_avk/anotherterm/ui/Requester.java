@@ -17,7 +17,7 @@ public abstract class Requester {
         return (int) UUID.randomUUID().getLeastSignificantBits() & 0xFFFF;
     }
 
-    protected static abstract class UiFragment extends Fragment {
+    protected abstract static class UiFragment extends Fragment {
         private static final String TAG = "UiFragment";
 
         @Override

@@ -16,11 +16,11 @@ public abstract class DragSpan {
     public int flags;
 
     @NonNull
-    public abstract View.DragShadowBuilder getDragShadow(@NonNull View view);
+    public abstract View.DragShadowBuilder getDragShadowBuilder(@NonNull View stylingView);
 
-    public boolean startDragAndDrop(@NonNull final View view) {
-        return ViewCompat.startDragAndDrop(view, getData(),
-                getDragShadow(view),
+    public boolean startDragAndDrop(@NonNull final View stylingView) {
+        return ViewCompat.startDragAndDrop(stylingView, getData(),
+                getDragShadowBuilder(stylingView),
                 myLocalState, flags);
     }
 }

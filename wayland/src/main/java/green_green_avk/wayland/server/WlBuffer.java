@@ -48,7 +48,7 @@ public final class WlBuffer extends wl_buffer {
             }
         }, () -> {
             valid = false;
-            pool.removeBuffer(WlBuffer.this);
+            pool.removeBuffer(this);
         });
         return this;
     }

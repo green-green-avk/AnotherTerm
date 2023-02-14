@@ -530,8 +530,8 @@ final class Util {
     }
 
     static String checkTilde(final String str) {
-        if (str.startsWith("~"))
-            return str.replace("~", getHomeDir());
+        if (!str.isEmpty() && str.charAt(0) == '~')
+            return getHomeDir() + str.substring(1);
         return str;
     }
 

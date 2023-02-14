@@ -4,7 +4,8 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
 public abstract class SubCache<T> implements Cache<T> {
-    protected abstract @NonNull Object onMapKey(@NonNull Object itemKey);
+    @NonNull
+    protected abstract Object onMapKey(@NonNull Object itemKey);
 
     @NonNull
     private final Cache<T> base;

@@ -58,9 +58,9 @@ public class WlClient {
 
     public void returnCallback(@NonNull final WlInterface.NewId callback) {
         final WlInterface<wl_callback.Requests, wl_callback.Events> cb = new wl_callback();
-        addResource(WlResource.make(WlClient.this, cb, callback.id,
+        addResource(WlResource.make(this, cb, callback.id,
                 null, null));
-        cb.events.done(WlClient.this.display.nextSerial());
+        cb.events.done(this.display.nextSerial());
         removeResourceAndNotify(cb.id);
     }
 

@@ -100,7 +100,7 @@ public final class WlMarshalling {
     }
 
     @NonNull
-    public static ByteBuffer makeRPC(@NonNull final List<FileDescriptor> fds,
+    public static ByteBuffer makeRPC(@NonNull final List<? super FileDescriptor> fds,
                                      @NonNull final WlInterface object,
                                      @NonNull final Method method,
                                      @NonNull final Object[] args) {
@@ -131,7 +131,7 @@ public final class WlMarshalling {
                     putString(dos, args[i]);
                 } else if (type == int[].class) {
                     final int[] v = (int[]) args[i];
-                    dos.writeInt((int) be32(v.length * 4));
+                    dos.writeInt((int) be32(v.length * 4L));
                     for (final int ve : v)
                         dos.writeInt((int) be32(ve));
                 } else if (type == float.class || type == double.class) {
@@ -139,7 +139,7 @@ public final class WlMarshalling {
                 } else {
                     final long v;
                     if (args[i] instanceof Long) v = (long) args[i];
-                    else v = (long) (int) args[i];
+                    else v = (int) args[i];
                     dos.writeInt((int) be32(v));
                 }
                 i++;
@@ -157,7 +157,7 @@ public final class WlMarshalling {
     }
 
     @NonNull
-    private static WlInterface getObject(@NonNull final SparseArray<WlInterface> objects,
+    private static WlInterface getObject(@NonNull final SparseArray<? extends WlInterface> objects,
                                          final int id)
             throws ParseException {
         final WlInterface object;
@@ -255,9 +255,9 @@ public final class WlMarshalling {
                         buffer.getInt(); // Just in case
                     args[i] = a;
                 } else if (type == float.class || type == double.class) {
-                    args[i] = ((float) (((long) buffer.getInt()) & 0xFFFFFFFFL)) / 256;
+                    args[i] = ((float) (buffer.getInt() & 0xFFFFFFFFL)) / 256;
                 } else if (type == long.class) {
-                    args[i] = ((long) buffer.getInt()) & 0xFFFFFFFFL;
+                    args[i] = buffer.getInt() & 0xFFFFFFFFL;
                 } else {
                     args[i] = buffer.getInt();
                 }

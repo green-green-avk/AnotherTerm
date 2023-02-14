@@ -82,7 +82,7 @@ public final class PluginsManager {
         }
     };
 
-    public static abstract class OnChanged {
+    public abstract static class OnChanged {
         public abstract void onPackagesChanged(@NonNull final List<PackageInfo> plugins);
 
         public abstract void onSettingsChanged();

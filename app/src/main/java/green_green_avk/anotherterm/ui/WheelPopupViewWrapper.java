@@ -48,7 +48,7 @@ public abstract class WheelPopupViewWrapper {
     private final ExtPopupWindow window;
     private final Point windowPos = new Point(0, 0);
     private final ViewGroup contentViewWrapper;
-    protected final PointF downPos = new PointF(0F, 0F);
+    protected final PointF downPos = new PointF(0f, 0f);
 
     private void calcPos() {
         ownerView.getLocationInWindow(viewPos);

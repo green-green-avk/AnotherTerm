@@ -179,7 +179,7 @@ public final class GlGraphicsCompositorView extends TextureView implements Graph
     }
 
     @Override
-    protected void onSizeChanged(int w, int h, int oldw, int oldh) {
+    protected void onSizeChanged(final int w, final int h, final int oldw, final int oldh) {
         super.onSizeChanged(w, h, oldw, oldh);
         if (compositor == null) return;
 //        if (BuildConfig.DEBUG)

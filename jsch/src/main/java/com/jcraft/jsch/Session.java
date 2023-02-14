@@ -160,7 +160,7 @@ public final class Session implements Configuration {
     private volatile String[] serverSigAlgs = null;
     private volatile boolean sshBugSigType74 = false;
 
-    protected boolean daemon_thread = false;
+    boolean daemon_thread = false;
 
     private long kex_start_time = 0L;
 
@@ -2370,21 +2370,21 @@ public final class Session implements Configuration {
         final String org = conf;
         final Forwarding f = new Forwarding();
         try {
-            if (conf.lastIndexOf(":") == -1)
+            if (conf.lastIndexOf(':') == -1)
                 throw new JSchException("parseForwarding: " + org);
             try {
-                f.hostport = Integer.parseInt(conf.substring(conf.lastIndexOf(":") + 1));
-                conf = conf.substring(0, conf.lastIndexOf(":"));
-                if (conf.lastIndexOf(":") == -1)
+                f.hostport = Integer.parseInt(conf.substring(conf.lastIndexOf(':') + 1));
+                conf = conf.substring(0, conf.lastIndexOf(':'));
+                if (conf.lastIndexOf(':') == -1)
                     throw new JSchException("parseForwarding: " + org);
-                f.host = conf.substring(conf.lastIndexOf(":") + 1);
+                f.host = conf.substring(conf.lastIndexOf(':') + 1);
             } catch (final NumberFormatException e) {
-                f.socketPath = conf.substring(conf.lastIndexOf(":") + 1);
+                f.socketPath = conf.substring(conf.lastIndexOf(':') + 1);
             }
-            conf = conf.substring(0, conf.lastIndexOf(":"));
-            if (conf.lastIndexOf(":") != -1) {
-                f.port = Integer.parseInt(conf.substring(conf.lastIndexOf(":") + 1));
-                conf = conf.substring(0, conf.lastIndexOf(":"));
+            conf = conf.substring(0, conf.lastIndexOf(':'));
+            if (conf.lastIndexOf(':') != -1) {
+                f.port = Integer.parseInt(conf.substring(conf.lastIndexOf(':') + 1));
+                conf = conf.substring(0, conf.lastIndexOf(':'));
                 if (conf.isEmpty() || "*".equals(conf)) conf = "0.0.0.0";
                 if ("localhost".equals(conf)) conf = "127.0.0.1";
                 f.bind_address = conf;

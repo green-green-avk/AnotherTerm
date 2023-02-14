@@ -64,11 +64,11 @@ public abstract class ScrollableView extends GestureView {
     }
 
     private float toFloatX(final int v) {
-        return (float) v / scrollScale.x;
+        return v / scrollScale.x;
     }
 
     private float toFloatY(final int v) {
-        return (float) v / scrollScale.y;
+        return v / scrollScale.y;
     }
 
     private int toIntX(final float v) {

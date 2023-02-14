@@ -340,22 +340,22 @@ public class wl_shm extends WlInterface<wl_shm.Requests, wl_shm.Events> {
             /**
              * 2 plane YCbCr Cr:Cb format, 2x2 subsampled Cr:Cb plane
              */
-            public static final int nv12 = 0x3231564e;
+            public static final int nv12 = 0x3231564E;
 
             /**
              * 2 plane YCbCr Cb:Cr format, 2x2 subsampled Cb:Cr plane
              */
-            public static final int nv21 = 0x3132564e;
+            public static final int nv21 = 0x3132564E;
 
             /**
              * 2 plane YCbCr Cr:Cb format, 2x1 subsampled Cr:Cb plane
              */
-            public static final int nv16 = 0x3631564e;
+            public static final int nv16 = 0x3631564E;
 
             /**
              * 2 plane YCbCr Cb:Cr format, 2x1 subsampled Cb:Cr plane
              */
-            public static final int nv61 = 0x3136564e;
+            public static final int nv61 = 0x3136564E;
 
             /**
              * 3 plane YCbCr format, 4x4 subsampled Cb (1) and Cr (2) planes

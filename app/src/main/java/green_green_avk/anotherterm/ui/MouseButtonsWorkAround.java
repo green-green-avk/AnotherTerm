@@ -52,11 +52,12 @@ public final class MouseButtonsWorkAround {
         final MotionEvent.PointerCoords[] pc = {new MotionEvent.PointerCoords()};
         pc[0].x = x;
         pc[0].y = y;
-        pc[0].pressure = 1.0f;
-        pc[0].size = 1.0f;
+        pc[0].pressure = 1f;
+        pc[0].size = 1f;
         pc[0].setAxisValue(MotionEvent.AXIS_VSCROLL, vScroll);
-        return MotionEvent.obtain(ts, ts, action, 1, pp, pc, 0, buttons,
-                1.0f, 1.0f, 0, 0, source, 0);
+        return MotionEvent.obtain(ts, ts, action,
+                1, pp, pc, 0, buttons,
+                1f, 1f, 0, 0, source, 0);
     }
 
     private boolean fixEvent(@NonNull final MotionEvent event, final int action) {

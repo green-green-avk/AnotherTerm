@@ -1235,7 +1235,7 @@ public final class ConsoleScreenBuffer {
      * @param startX  of area to paste over
      * @param endX    of area to paste over
      * @param buf     to paste
-     *                (its {@link CharBuffer#position} will be incremented by <tt>bufLen</tt>)
+     *                (its {@link CharBuffer#position} will be incremented by {@code bufLen})
      * @param bufLen  how many chars to insert
      * @param bufDX   difference in columns between the substitution and the initial area
      *                (purely for speed up)

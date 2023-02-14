@@ -34,12 +34,15 @@ public final class LinksProvider extends ContentProvider {
     private String contentFilename = null;
     private String contentFmt = null;
 
+    @NonNull
     public static Uri getHtmlWithLink(@NonNull final Uri uri, @NonNull final String desc) {
         return getHtmlWithLink(uri.toString(), desc);
     }
 
+    @NonNull
     public static Uri getHtmlWithLink(@NonNull final String link, @NonNull final String desc) {
-        if (instance == null) return null;
+        if (instance == null)
+            throw new IllegalStateException("Links Provider is not ready");
         return Uri.parse("content://" + instance.authority + "/html/" + Uri.encode(link) +
                 "?desc=" + Uri.encode(desc));
     }
@@ -62,8 +65,8 @@ public final class LinksProvider extends ContentProvider {
     }
 
     @Override
-    public int delete(@NonNull final Uri uri, final String selection,
-                      final String[] selectionArgs) {
+    public int delete(@NonNull final Uri uri,
+                      @Nullable final String selection, @Nullable final String[] selectionArgs) {
         throw new UnsupportedOperationException("Not supported");
     }
 
@@ -80,7 +83,8 @@ public final class LinksProvider extends ContentProvider {
     }
 
     @Override
-    public Uri insert(@NonNull final Uri uri, final ContentValues values) {
+    @Nullable
+    public Uri insert(@NonNull final Uri uri, @Nullable final ContentValues values) {
         throw new UnsupportedOperationException("Not supported");
     }
 
@@ -97,8 +101,7 @@ public final class LinksProvider extends ContentProvider {
             name = uri.getQueryParameter(key);
         } catch (final UnsupportedOperationException ignored) {
         }
-        if (name == null) name = def;
-        return name;
+        return name != null ? name : def;
     }
 
     @NonNull
@@ -109,7 +112,8 @@ public final class LinksProvider extends ContentProvider {
     @NonNull
     private byte[] buildContent(@NonNull final Uri uri, @NonNull final String desc) {
         return String.format(Locale.getDefault(), contentFmt,
-                TextUtils.htmlEncode(getArg("name", uri, "-")), TextUtils.htmlEncode(desc),
+                TextUtils.htmlEncode(getArg("name", uri, "-")),
+                TextUtils.htmlEncode(desc),
                 uri, TextUtils.htmlEncode(uri.toString())).getBytes(Misc.UTF8);
     }
 
@@ -135,8 +139,10 @@ public final class LinksProvider extends ContentProvider {
     }
 
     @Override
-    public Cursor query(@NonNull final Uri uri, final String[] projection, final String selection,
-                        final String[] selectionArgs, final String sortOrder) {
+    @Nullable
+    public Cursor query(@NonNull final Uri uri, @Nullable final String[] projection,
+                        @Nullable final String selection, @Nullable final String[] selectionArgs,
+                        @Nullable final String sortOrder) {
 //        Log.d("QUERY", String.format(Locale.ROOT, "[%s] {%s}", uri, Arrays.toString(projection)));
         switch (matcher.match(uri)) {
             case CODE_LINK_HTML: {
@@ -158,8 +164,8 @@ public final class LinksProvider extends ContentProvider {
     }
 
     @Override
-    public int update(@NonNull final Uri uri, final ContentValues values, final String selection,
-                      String[] selectionArgs) {
+    public int update(@NonNull final Uri uri, @Nullable final ContentValues values,
+                      @Nullable final String selection, @Nullable final String[] selectionArgs) {
         throw new UnsupportedOperationException("Not supported");
     }
 }

@@ -84,7 +84,7 @@ public class TelnetClient {
     }
 
     public static int uv(final byte v) {
-        return (int) v & 0xFF;
+        return v & 0xFF;
     }
 
     public static byte[] escape(@Nullable final byte[] value) {

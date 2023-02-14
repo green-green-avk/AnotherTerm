@@ -96,12 +96,14 @@ public final class StreamProvider extends ContentProvider {
 
     private static int getId(@NonNull final Uri uri) {
         final String id = uri.getLastPathSegment();
-        if (id == null) throw new NumberFormatException("null");
+        if (id == null)
+            throw new NumberFormatException("null");
         return Integer.parseInt(id);
     }
 
     private static void checkState() {
-        if (instance == null) throw new IllegalStateException("Stream Provider is not ready");
+        if (instance == null)
+            throw new IllegalStateException("Stream Provider is not ready");
     }
 
     @NonNull
@@ -148,8 +150,8 @@ public final class StreamProvider extends ContentProvider {
     }
 
     @Override
-    public int delete(@NonNull final Uri uri, final String selection,
-                      final String[] selectionArgs) {
+    public int delete(@NonNull final Uri uri,
+                      @Nullable final String selection, @Nullable final String[] selectionArgs) {
         throw new UnsupportedOperationException("Not supported");
     }
 
@@ -173,8 +175,9 @@ public final class StreamProvider extends ContentProvider {
         }
     }
 
+    @Nullable
     @Override
-    public Uri insert(@NonNull final Uri uri, final ContentValues values) {
+    public Uri insert(@NonNull final Uri uri, @Nullable final ContentValues values) {
         throw new UnsupportedOperationException("Not supported");
     }
 
@@ -224,9 +227,11 @@ public final class StreamProvider extends ContentProvider {
         return super.openFile(uri, mode);
     }
 
+    @Nullable
     @Override
-    public Cursor query(@NonNull final Uri uri, final String[] projection, final String selection,
-                        final String[] selectionArgs, final String sortOrder) {
+    public Cursor query(@NonNull final Uri uri, @Nullable final String[] projection,
+                        @Nullable final String selection, @Nullable final String[] selectionArgs,
+                        @Nullable final String sortOrder) {
         final int id;
         final Stream is;
         try {
@@ -256,8 +261,8 @@ public final class StreamProvider extends ContentProvider {
     }
 
     @Override
-    public int update(@NonNull final Uri uri, final ContentValues values, final String selection,
-                      String[] selectionArgs) {
+    public int update(@NonNull final Uri uri, @Nullable final ContentValues values,
+                      @Nullable final String selection, @Nullable final String[] selectionArgs) {
         throw new UnsupportedOperationException("Not supported");
     }
 }

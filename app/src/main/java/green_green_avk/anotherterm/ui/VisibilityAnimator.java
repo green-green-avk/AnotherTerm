@@ -21,11 +21,11 @@ public final class VisibilityAnimator {
     public void setVisibility(final int s) {
         if (state == s) return;
         if (s == View.VISIBLE) {
-            view.setAlpha(0F);
+            view.setAlpha(0f);
             view.animate().alpha(alpha).setListener(null);
             view.setVisibility(s);
         } else {
-            view.animate().alpha(0F).setListener(new AnimatorListenerAdapter() {
+            view.animate().alpha(0f).setListener(new AnimatorListenerAdapter() {
                 @Override
                 public void onAnimationEnd(final Animator animation) {
                     super.onAnimationEnd(animation);

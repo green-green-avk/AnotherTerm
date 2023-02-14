@@ -362,7 +362,7 @@ public final class ConsoleService extends Service {
         }
     }
 
-    public static abstract class Listener {
+    public abstract static class Listener {
         protected void onSessionsListChange() {
         }
 

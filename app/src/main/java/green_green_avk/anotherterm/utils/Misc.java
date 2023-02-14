@@ -224,7 +224,7 @@ public final class Misc {
     }
 
     @NonNull
-    public static <T> Iterable<T> getValuesIterable(@NonNull final SparseArray<T> o) {
+    public static <T> Iterable<T> getValuesIterable(@NonNull final SparseArray<? extends T> o) {
         return () -> new Iterator<T>() {
             private int i = 0;
 

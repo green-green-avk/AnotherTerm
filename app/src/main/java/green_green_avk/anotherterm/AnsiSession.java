@@ -22,7 +22,7 @@ public final class AnsiSession extends Session {
         public final ConsoleScreenView.State csv = new ConsoleScreenView.State();
         public final AnsiConsoleKeyboardView.State ckv = new AnsiConsoleKeyboardView.State();
         public MouseMode mouseMode = MouseMode.UNDEFINED;
-        public float fontSizeDp = 0F; // Invariant for resolution switching
+        public float fontSizeDp = 0f; // Invariant for resolution switching
         public int screenOrientation = ActivityInfo.SCREEN_ORIENTATION_UNSPECIFIED;
         public boolean keepScreenOn = false;
         public BackgroundProfile background = null;

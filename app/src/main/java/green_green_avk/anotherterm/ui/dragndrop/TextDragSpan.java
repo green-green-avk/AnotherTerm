@@ -35,8 +35,8 @@ public class TextDragSpan extends DragSpan {
 
     @Override
     @NonNull
-    public View.DragShadowBuilder getDragShadow(@NonNull final View view) {
-        return new DragShadowBuilder(view);
+    public View.DragShadowBuilder getDragShadowBuilder(@NonNull final View stylingView) {
+        return new DragShadowBuilder(stylingView);
     }
 
     protected class DragShadowBuilder extends View.DragShadowBuilder {
@@ -44,19 +44,20 @@ public class TextDragSpan extends DragSpan {
         protected final Drawable bgDrawable;
         protected final Rect padding = new Rect();
 
-        public DragShadowBuilder(@NonNull final View view) {
-            super(view);
-            final TextView tv = (TextView) view;
+        public DragShadowBuilder(@NonNull final View stylingView) {
+            super(stylingView);
+            final TextView tv = (TextView) stylingView;
             paint = new Paint();
             paint.setTextSize(tv.getTextSize());
             paint.setColor(tv.getCurrentTextColor());
-            bgDrawable = UiUtils.requireDrawable(view.getContext(), R.drawable.bg_frame2);
+            bgDrawable = UiUtils.requireDrawable(stylingView.getContext(),
+                    R.drawable.bg_frame2);
             bgDrawable.getPadding(padding);
         }
 
         @Override
-        public void onProvideShadowMetrics(final Point outShadowSize,
-                                           final Point outShadowTouchPoint) {
+        public void onProvideShadowMetrics(@NonNull final Point outShadowSize,
+                                           @NonNull final Point outShadowTouchPoint) {
             final float w = paint.measureText(text, 0, text.length())
                     + padding.left + padding.right;
             final float h = paint.descent() - paint.ascent()
@@ -66,7 +67,7 @@ public class TextDragSpan extends DragSpan {
         }
 
         @Override
-        public void onDrawShadow(final Canvas canvas) {
+        public void onDrawShadow(@NonNull final Canvas canvas) {
             bgDrawable.setBounds(0, 0, canvas.getWidth(), canvas.getHeight());
             bgDrawable.draw(canvas);
             canvas.drawText(text, 0, text.length(),

@@ -176,7 +176,7 @@ public final class AnsiConsoleActivity extends ConsoleActivity
             final int height = mCsv.getHeight();
             float fsX = Float.POSITIVE_INFINITY;
             float fsY = Float.POSITIVE_INFINITY;
-            final float base = 100F; // A reasonable value for the test.
+            final float base = 100f; // A reasonable value for the test.
             if (!mCsv.resizeBufferXOnUi || !mCsv.resizeBufferYOnUi) {
                 final FontProvider.MonospaceMetrics charSize = mCsv.getGlyphSize(base);
                 if (!mCsv.resizeBufferXOnUi) {
@@ -243,12 +243,12 @@ public final class AnsiConsoleActivity extends ConsoleActivity
 
         wConnecting = findViewById(R.id.connecting);
 
-        final boolean isNew = mSession.uiState.fontSizeDp == 0F;
+        final boolean isNew = mSession.uiState.fontSizeDp == 0f;
         if (isNew) {
             autoFitTerminal =
                     Misc.toBoolean(mSession.connectionParams.get("font_size_auto"));
         } else {
-            autoFitTerminal = mSession.uiState.fontSizeDp < 0F;
+            autoFitTerminal = mSession.uiState.fontSizeDp < 0f;
         }
 
         final FontProvider fp = new ConsoleFontProvider();
@@ -390,7 +390,7 @@ public final class AnsiConsoleActivity extends ConsoleActivity
     protected void onPause() {
         mSession.output.setMouseFocus(false);
         ((BackendUiInteractionActivityCtx) mSession.backend.wrapped.getUi()).setActivity(null);
-        mSession.uiState.fontSizeDp = autoFitTerminal ? -1F : (mCsv.getFontSize() /
+        mSession.uiState.fontSizeDp = autoFitTerminal ? -1f : (mCsv.getFontSize() /
                 getResources().getDisplayMetrics().density);
         mSession.uiState.csv.save(mCsv);
         mSession.uiState.ckv.save(mCkv);
@@ -724,8 +724,8 @@ public final class AnsiConsoleActivity extends ConsoleActivity
 
     @Override
     public void onScroll(@NonNull final ScrollableView scrollableView) {
-        mScrollHomeVA.setVisibility(scrollableView.scrollPosition.y + 0.1F <
-                Math.min(0F, scrollableView.getBottomScrollLimit()) ?
+        mScrollHomeVA.setVisibility(scrollableView.scrollPosition.y + 0.1f <
+                Math.min(0f, scrollableView.getBottomScrollLimit()) ?
                 View.VISIBLE : View.INVISIBLE);
     }
 
@@ -1115,7 +1115,7 @@ public final class AnsiConsoleActivity extends ConsoleActivity
     }
 
     public void onScrollHome(final View v) {
-        mCsv.doScrollTo(0F, 0F, scrollableView ->
-                scrollableView.doScrollToImmediate(0F, 0F));
+        mCsv.doScrollTo(0f, 0f, scrollableView ->
+                scrollableView.doScrollToImmediate(0f, 0f));
     }
 }

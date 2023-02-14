@@ -41,12 +41,12 @@ public final class CharsFinder {
     }
 
     public CharsFinder(@NonNull final BufferView buffer,
-                       @NonNull final String pattern, boolean noCase) {
+                       @NonNull final String pattern, final boolean noCase) {
         this.buffer = buffer;
         setPattern(pattern, noCase);
     }
 
-    public void setPattern(@NonNull final String pattern, boolean noCase) {
+    public void setPattern(@NonNull final String pattern, final boolean noCase) {
         this.pattern = noCase ? pattern.toLowerCase() : pattern;
         this.noCase = noCase;
     }

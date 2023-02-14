@@ -116,9 +116,8 @@ public final class BackgroundsManager extends ProfileManager<BackgroundProfile> 
                         return Collections.emptySet();
                     final Set<PackageResourceSource.Key> r = new HashSet<>();
                     for (final ResolveInfo pkg : pkgs) {
-                        if (pkg.activityInfo == null)
-                            continue;
-                        if (pkg.activityInfo.applicationInfo.metaData == null)
+                        if (pkg.activityInfo == null ||
+                                pkg.activityInfo.applicationInfo.metaData == null)
                             continue;
                         final int extrasId = pkg.activityInfo.applicationInfo.metaData
                                 .getInt("background-extras");

@@ -701,7 +701,7 @@ public class ExtKeyboard {
             try {
                 final int code = a.getInt(
                         R.styleable.ExtKeyboard_Key_code,
-                        functions.size() > 0 ? functions.get(0).code : KEYCODE_NONE);
+                        functions.isEmpty() ? KEYCODE_NONE : functions.get(0).code);
                 final int modifiers = a.getInt(
                         R.styleable.ExtKeyboard_Key_modifiers, 0);
                 final Drawable icon = a.getDrawable(
@@ -1000,7 +1000,7 @@ public class ExtKeyboard {
 
     /* Fast but unusual way to implement it */
     protected final class KeyMap {
-        private static final float dpi = 40F;
+        private static final float dpi = 40f;
         private Bitmap bmp = null;
         private int width = 0;
         private int height = 0;

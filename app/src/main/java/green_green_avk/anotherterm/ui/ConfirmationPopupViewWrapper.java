@@ -28,7 +28,7 @@ public final class ConfirmationPopupViewWrapper extends WheelPopupViewWrapper {
     private Runnable onConfirmListener = null;
 
     private final class PopupView extends View {
-        private final PointF pointerPosition = new PointF(0F, 0F);
+        private final PointF pointerPosition = new PointF(0f, 0f);
 
         public PopupView(final Context context) {
             super(context);
@@ -97,14 +97,14 @@ public final class ConfirmationPopupViewWrapper extends WheelPopupViewWrapper {
         protected void onDraw(final Canvas canvas) {
             super.onDraw(canvas);
             if (pointerDrawable != null) {
-                final float r = Math.min(getR(), 1F);
+                final float r = Math.min(getR(), 1f);
                 final int xC = getPopupRefX();
                 final int yC = getPopupRefY();
                 final int xOff = Math.round(r * xC);
                 final int yOff = Math.round(r * yC);
                 pointerDrawable.setBounds(xC - xOff, yC - yOff,
                         xC + xOff, yC + yOff);
-                pointerDrawable.setState(r >= 1F ? ATTRS_HIGHLIGHT : ATTRS_NONE);
+                pointerDrawable.setState(r >= 1f ? ATTRS_HIGHLIGHT : ATTRS_NONE);
                 pointerDrawable.draw(canvas);
             }
         }
@@ -122,7 +122,7 @@ public final class ConfirmationPopupViewWrapper extends WheelPopupViewWrapper {
     @Override
     protected boolean onGestureEnd(@NonNull final MotionEvent event) {
         if (event.getAction() == MotionEvent.ACTION_UP &&
-                popupView.getR() >= 1F && onConfirmListener != null)
+                popupView.getR() >= 1f && onConfirmListener != null)
             onConfirmListener.run();
         return true;
     }

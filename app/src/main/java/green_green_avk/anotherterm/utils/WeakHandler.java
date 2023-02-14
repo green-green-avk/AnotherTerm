@@ -43,7 +43,7 @@ public class WeakHandler {
 
     private static final class HandlerWrapper extends Handler {
         @NonNull
-        final private WeakReference<WeakHandler> that;
+        private final WeakReference<WeakHandler> that;
 
         private HandlerWrapper(final WeakHandler that) {
             super();

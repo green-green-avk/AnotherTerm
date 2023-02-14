@@ -631,8 +631,8 @@ public final class WlTermServer {
 
         private void onResize(final int width, final int height) {
             final DisplayMetrics dm = ctx.getResources().getDisplayMetrics();
-            final int pw = (int) (((float) width) / dm.xdpi * 25.4f);
-            final int ph = (int) (((float) height) / dm.ydpi * 25.4f);
+            final int pw = (int) (width / dm.xdpi * 25.4f);
+            final int ph = (int) (height / dm.ydpi * 25.4f);
             events.geometry(0, 0, pw, ph,
                     wl_output.Enums.Subpixel.none,
                     "Lindon inc.", "Palantir v1",

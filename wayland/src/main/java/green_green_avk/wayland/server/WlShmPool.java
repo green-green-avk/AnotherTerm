@@ -52,14 +52,14 @@ public final class WlShmPool extends wl_shm_pool {
     }
 
     private void tryCloseFd() {
-        if (fd != null && fdExpired && size == newSize && buffers.size() == 0) {
+        if (fd != null && fdExpired && size == newSize && buffers.isEmpty()) {
             mmap.close(fd);
             fd = null;
         }
     }
 
     private void tryUnmap() {
-        if (fdExpired && refsCount == 0 && buffers.size() == 0) {
+        if (fdExpired && refsCount == 0 && buffers.isEmpty()) {
             if (mem != null) {
                 mmap.munmap(mem);
                 mem = null;
