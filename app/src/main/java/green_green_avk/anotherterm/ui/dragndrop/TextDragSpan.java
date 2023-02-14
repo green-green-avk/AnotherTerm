@@ -51,7 +51,7 @@ public class TextDragSpan extends DragSpan {
             paint.setTextSize(tv.getTextSize());
             paint.setColor(tv.getCurrentTextColor());
             bgDrawable = UiUtils.requireDrawable(stylingView.getContext(),
-                    R.drawable.bg_frame2);
+                    R.drawable.bg_dragndrop_frame);
             bgDrawable.getPadding(padding);
         }
 
