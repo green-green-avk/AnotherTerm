@@ -13,6 +13,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.net.URLDecoder;
 import java.net.URLEncoder;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
@@ -69,15 +70,19 @@ public final class FileDrawableSource
         return URLDecoder.decode(path.getName());
     }
 
+    private final Set<File> trackedFiles = new HashSet<>();
+
     @Override
     @NonNull
     public Set<Object> enumerate() {
         final File[] list = enumerateFiles();
+        trackedFiles.clear();
         if (list == null) {
             return Collections.emptySet();
         }
         final Set<Object> r = new HashSet<>();
         for (final File file : list) {
+            trackedFiles.add(file);
             r.add(toKey(file));
         }
         return r;
@@ -100,27 +105,39 @@ public final class FileDrawableSource
     private void updateObservers() {
         if (!resDir.isDirectory()) {
             addFileObserver(dataDir);
+            removeFileObserver(resDir);
             return;
         }
         addFileObserver(resDir);
-        final File[] list = enumerateFiles();
-        if (list == null) {
-            return;
-        }
-        for (final File file : list) {
-            addFileObserver(file);
-        }
+        removeFileObserver(dataDir);
     }
 
     @Override
     protected void onManagedFilesChanged(@NonNull final Set<? extends File> changed) {
         boolean isChanged = false;
-        for (final File file : changed) {
-            if (resDir.equals(file.getParentFile())) {
+        if (changed.contains(resDir)) {
+            final File[] list = enumerateFiles();
+            if (list != null) {
+                trackedFiles.addAll(Arrays.asList(list));
+            }
+            for (final File file : trackedFiles) {
                 final Object key = toKey(file);
                 invalidate(key);
                 isChanged = true;
                 callOnChanged(key);
+            }
+            if (list == null) {
+                trackedFiles.clear();
+            }
+        } else {
+            for (final File file : changed) {
+                if (resDir.equals(file.getParentFile()) && filter.accept(file)) {
+                    trackedFiles.add(file);
+                    final Object key = toKey(file);
+                    invalidate(key);
+                    isChanged = true;
+                    callOnChanged(key);
+                }
             }
         }
         updateObservers();
