@@ -129,7 +129,7 @@ public class OpenSSHConfig implements ConfigRepository {
 
         while ((l = br.readLine()) != null) {
             l = l.trim();
-            if (l.isEmpty() || l.startsWith("#"))
+            if (l.isEmpty() || l.charAt(0) == '#')
                 continue;
 
             final String[] key_value = l.split("[= \t]", 2);

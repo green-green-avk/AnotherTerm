@@ -379,13 +379,12 @@ public class ScreenMouseView extends ScrollableView {
         }
     }
 
+    // We can't assign actionButton: Google is against it yet...
     @CheckResult
     @NonNull
     protected static MotionEvent obtainEvent(final float x, final float y, final int action,
                                              final int buttons, final int actionButton,
                                              final int vScroll) {
-        // ActionButton can be set only by means of hack using reflections; I prefer to avoid it.
-        // TODO: or not to do?.. Hack...
         final long ts = SystemClock.uptimeMillis();
         final MotionEvent.PointerProperties[] pp = {new MotionEvent.PointerProperties()};
         pp[0].id = 0;
@@ -393,11 +392,12 @@ public class ScreenMouseView extends ScrollableView {
         final MotionEvent.PointerCoords[] pc = {new MotionEvent.PointerCoords()};
         pc[0].x = x;
         pc[0].y = y;
-        pc[0].pressure = 1.0f;
-        pc[0].size = 1.0f;
+        pc[0].pressure = 1f;
+        pc[0].size = 1f;
         pc[0].setAxisValue(MotionEvent.AXIS_VSCROLL, vScroll);
-        return MotionEvent.obtain(ts, ts, action, 1, pp, pc, 0, buttons,
-                1.0f, 1.0f, 0, 0, InputDevice.SOURCE_MOUSE, 0);
+        return MotionEvent.obtain(ts, ts, action,
+                1, pp, pc, 0, buttons,
+                1f, 1f, 0, 0, InputDevice.SOURCE_MOUSE, 0);
     }
 
     @CheckResult

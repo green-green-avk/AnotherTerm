@@ -117,7 +117,7 @@ class AgentProxy {
 
         for (int i = 0; i < count; i++) {
             final byte[] blob = buffer.getString();
-            String comment = Util.byte2str(buffer.getString());
+            final String comment = Util.byte2str(buffer.getString());
             identities.add(new AgentIdentity(this, blob, comment));
         }
 

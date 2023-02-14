@@ -89,7 +89,7 @@ public final class ConfirmationTooltip {
         gPos[1] += lPos[1];
         final int cX = gView.getWidth() / 2;
         final int cY = gView.getHeight() / 2;
-        final int off = Math.round(offset * 0.707F);
+        final int off = Math.round(offset * 0.707f);
         if (gPos[0] < cX) {
             position.x = lPos[0] + off;
         } else {

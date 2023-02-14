@@ -38,7 +38,7 @@ import green_green_avk.anotherterm.utils.Misc;
 
 public abstract class BackendModule {
 
-    public static abstract class DisconnectionReason {
+    public abstract static class DisconnectionReason {
         public static final int NONE = 0;
         public static final int PROCESS_EXIT = 1;
     }
@@ -129,7 +129,7 @@ public abstract class BackendModule {
         public static final int ADAPTER_ALREADY_IN_USE = 1; // in use by us
         public static final int ADAPTER_BUSY = 2; // by someone else
 
-        public static abstract class Requirement {
+        public abstract static class Requirement {
             @DrawableRes
             public final int icon;
             @StringRes
@@ -374,7 +374,7 @@ public abstract class BackendModule {
     @NonNull
     public abstract OutputStream getOutputStream();
 
-    public static abstract class StateMessage {
+    public abstract static class StateMessage {
         @NonNull
         public final String message;
 

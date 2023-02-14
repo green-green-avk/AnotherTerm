@@ -240,14 +240,14 @@ public final class FontsManager {
             case Typeface.ITALIC:
                 out.setTypeface(tf);
                 if (tf == tfs[0] || !tf.isItalic())
-                    out.setTextSkewX(-0.25F);
+                    out.setTextSkewX(-0.25f);
                 break;
             case Typeface.BOLD_ITALIC:
                 out.setTypeface(tf);
                 if (tf == tfs[2] || !tf.isBold())
                     out.setFakeBoldText(true);
                 if (tf == tfs[1] || !tf.isItalic())
-                    out.setTextSkewX(-0.25F);
+                    out.setTextSkewX(-0.25f);
                 break;
         }
     }

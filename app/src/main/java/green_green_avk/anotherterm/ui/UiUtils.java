@@ -118,8 +118,14 @@ public final class UiUtils {
                                 @NonNull final String description) {
         // https://stackoverflow.com/questions/29907030/sharing-text-plain-string-via-bluetooth-converts-data-into-html
         // So, via ContentProvider...
-        ShareCompat.IntentBuilder.from(ctx).setType("text/html")
-                .setStream(LinksProvider.getHtmlWithLink(uri, description)).startChooser();
+        final Uri htmlUri;
+        try {
+            htmlUri = LinksProvider.getHtmlWithLink(uri, description);
+        } catch (final IllegalStateException e) {
+            return; // Just bailing out
+        }
+        new ShareCompat.IntentBuilder(ctx)
+                .setType("text/html").setStream(htmlUri).startChooser();
     }
 
     /**
@@ -127,7 +133,7 @@ public final class UiUtils {
      */
     public static void share(@NonNull final Activity ctx, @NonNull final Uri uri) {
         final String type = ctx.getContentResolver().getType(uri);
-        ShareCompat.IntentBuilder.from(ctx)
+        new ShareCompat.IntentBuilder(ctx)
                 .setType(type != null ? type : "text/plain").setStream(uri).startChooser();
     }
 
@@ -263,7 +269,7 @@ public final class UiUtils {
             return;
         }
         try {
-            ShareCompat.IntentBuilder.from(ctx)
+            new ShareCompat.IntentBuilder(ctx)
                     .setType("text/plain").setText(v).startChooser();
         } catch (final Throwable e) {
             if (e instanceof AndroidException || e.getCause() instanceof AndroidException) {

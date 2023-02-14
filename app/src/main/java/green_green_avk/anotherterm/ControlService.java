@@ -101,7 +101,7 @@ public final class ControlService extends Service {
                 .build();
         try {
             startForeground(FG_ID, n);
-        } catch (final Exception e) {
+        } catch (final Exception ignored) {
         }
     }
 

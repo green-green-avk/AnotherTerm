@@ -12,7 +12,7 @@ public class TerminalTypeTelnetOptionHandler extends TelnetClient.OptionHandler 
     public static final int ID = 24;
 
     protected static final byte[] WILL = msgWill(ID);
-    protected static final byte SEND = (byte) 1;
+    protected static final byte SEND = 1;
     protected static final byte[] IS = {0};
 
     protected boolean nSent = false;

@@ -1465,7 +1465,7 @@ public final class ChannelSftp extends ChannelSession {
                     final int length_of_data = buf.getInt();
                     rest_length -= 4;
 
-                    /**
+                    /*
                      Since sftp protocol version 6, "end-of-file" has been defined,
 
                      byte   SSH_FXP_DATA

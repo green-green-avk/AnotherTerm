@@ -137,7 +137,7 @@ public class ConsoleScreenView extends ScrollableView
     protected AnsiColorProfile colorProfile = ConsoleScreenCharAttrs.DEFAULT_COLOR_PROFILE;
     @NonNull
     protected FontProvider fontProvider = DefaultConsoleFontProvider.getInstance();
-    protected float mFontSize = 16F; // px
+    protected float mFontSize = 16f; // px
     protected final FontProvider.MonospaceMetrics mFontMetrics =
             new FontProvider.MonospaceMetrics();
     protected int keyHeightDp = 0;
@@ -157,7 +157,7 @@ public class ConsoleScreenView extends ScrollableView
     public boolean resizeBufferYOnUi = true;
 
     // Visible part of the history buffer to stick to the scroll position it
-    protected float scrollFollowHistoryThreshold = 0.5F;
+    protected float scrollFollowHistoryThreshold = 0.5f;
 
     public OnStateChange onStateChange = null;
 
@@ -680,7 +680,7 @@ public class ConsoleScreenView extends ScrollableView
     @Override
     @CheckResult
     public float getTopScrollLimit() {
-        return (consoleInput == null) ? 0F : Math.min(
+        return (consoleInput == null) ? 0f : Math.min(
                 consoleInput.currScrBuf.getHeight() - getRows(),
                 -consoleInput.currScrBuf.getScrollableHeight());
     }
@@ -688,7 +688,7 @@ public class ConsoleScreenView extends ScrollableView
     @Override
     @CheckResult
     public float getBottomScrollLimit() {
-        return (consoleInput == null) ? 0F : Math.max(
+        return (consoleInput == null) ? 0f : Math.max(
                 consoleInput.currScrBuf.getHeight() - getRows(),
                 -consoleInput.currScrBuf.getScrollableHeight());
     }
@@ -696,9 +696,9 @@ public class ConsoleScreenView extends ScrollableView
     @Override
     @CheckResult
     public float getRightScrollLimit() {
-        return (consoleInput == null) ? 0F : Math.max(
+        return (consoleInput == null) ? 0f : Math.max(
                 consoleInput.currScrBuf.getWidth() - getCols(),
-                0F);
+                0f);
     }
 
     @CheckResult
@@ -1295,16 +1295,16 @@ public class ConsoleScreenView extends ScrollableView
     }
 
     protected static class SubGesture {
-        protected float x = 0F;
-        protected float y = 0F;
-        protected float dx = 0F;
-        protected float dy = 0F;
+        protected float x = 0f;
+        protected float y = 0f;
+        protected float dx = 0f;
+        protected float dy = 0f;
 
         protected void init(@NonNull final MotionEvent event) {
             x = event.getX();
             y = event.getY();
-            dx = 0F;
-            dy = 0F;
+            dx = 0f;
+            dy = 0f;
         }
 
         protected void onMove(@NonNull final MotionEvent event) {
@@ -1777,9 +1777,9 @@ public class ConsoleScreenView extends ScrollableView
                 scrollPtWithBuffer(selectionMarkerExpr, from, to, n);
             }
         }
-        if (scrollFollowHistoryThreshold > 0F
-                && scrollPosition.y < Math.min((float) -getRows() * scrollFollowHistoryThreshold,
-                getBottomScrollLimit() - 0.5F)) {
+        if (scrollFollowHistoryThreshold > 0f
+                && scrollPosition.y < Math.min(-getRows() * scrollFollowHistoryThreshold,
+                getBottomScrollLimit() - 0.5f)) {
             scrollPtWithBuffer(scrollPosition, from, to, n);
             invalidateScroll();
         }
@@ -2052,7 +2052,7 @@ public class ConsoleScreenView extends ScrollableView
                 for (int j = _draw_textRect.top; j < _draw_textRect.bottom; j++) {
                     if (consoleInput.currScrBuf.isLineWrapped(j)) {
                         final int x = getWidth();
-                        final int y = (int) getBufferDrawPosYF(j + 0.5F);
+                        final int y = (int) getBufferDrawPosYF(j + 0.5f);
                         final int sx = selectionWrappedLineMarker.getIntrinsicWidth();
                         final int sy = selectionWrappedLineMarker.getIntrinsicHeight();
                         canvas.save();
@@ -2224,7 +2224,7 @@ public class ConsoleScreenView extends ScrollableView
                 applyCharAttrs();
                 if (!charAttrs.invisible && fgPaint.getColor() != bgPaint.getColor() &&
                         _draw_run.length > 0 && !isAllSpaces(_draw_run)) {
-                    fgPaint.setTextScaleX(1F);
+                    fgPaint.setTextScaleX(1f);
                     if (_draw_run.glyphWidth > 1) {
                         fgPaint.setTextScaleX(
                                 mFontMetrics.width * sr /

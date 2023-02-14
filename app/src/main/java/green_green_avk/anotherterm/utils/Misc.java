@@ -225,7 +225,7 @@ public final class Misc {
 
     // Some sugar if boxing is affordable
     @NonNull
-    public static Iterable<Integer> getKeysIterable(@NonNull final SparseArray o) {
+    public static Iterable<Integer> getKeysIterable(@NonNull final SparseArray<?> o) {
         return () -> new Iterator<Integer>() {
             private int i = 0;
 

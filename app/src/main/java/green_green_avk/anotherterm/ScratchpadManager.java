@@ -175,7 +175,7 @@ public final class ScratchpadManager {
 
     @NonNull
     public String put(@NonNull final String content) throws IOException {
-        String name = UUID.randomUUID().toString() + ".txt";
+        final String name = UUID.randomUUID().toString() + ".txt";
         put(name, content);
         return name;
     }
