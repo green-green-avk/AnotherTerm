@@ -5,7 +5,8 @@ import static com.jcraft.jsch.Session.SSH_MSG_CHANNEL_OPEN;
 /**
  * Extension of {@link ChannelDirectTCPIP} to support socket forwarding.
  * <p>
- * https://raw.githubusercontent.com/openssh/openssh-portable/master/PROTOCOL
+ * See
+ * <a href="https://raw.githubusercontent.com/openssh/openssh-portable/master/PROTOCOL">direct-streamlocal@openssh.com</a>
  */
 public final class ChannelDirectStreamLocal extends ChannelDirectTCPIP {
 

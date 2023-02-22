@@ -130,16 +130,13 @@ public final class EventBasedBackendModuleWrapper {
                                           @NonNull final Listener listener) {
         wrapped = module;
         this.listener = listener;
-        wrapped.setOnMessageListener(new BackendModule.OnMessageListener() {
-            @Override
-            public void onMessage(@NonNull final Object msg) {
-                if (msg instanceof Throwable)
-                    sendEvent(MSG_ERROR, msg);
-                else if (msg instanceof String)
-                    sendEvent(MSG_MESSAGE, msg);
-                else if (msg instanceof BackendModule.DisconnectStateMessage)
-                    sendEvent(MSG_DISCONNECTED, msg);
-            }
+        wrapped.setOnMessageListener(msg -> {
+            if (msg instanceof Throwable)
+                sendEvent(MSG_ERROR, msg);
+            else if (msg instanceof String)
+                sendEvent(MSG_MESSAGE, msg);
+            else if (msg instanceof BackendModule.DisconnectStateMessage)
+                sendEvent(MSG_DISCONNECTED, msg);
         });
         wrapped.setOutputStream(new OutputStream() {
             @Override

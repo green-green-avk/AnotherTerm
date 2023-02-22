@@ -410,7 +410,7 @@ public final class AnsiConsoleInput implements BytesSink {
             while (mStrConv.ready()) {
                 mInputTokenizer.tokenize(mStrConv);
                 for (final InputTokenizer.Token t : mInputTokenizer) {
-//                  Log.v("CtrlSeq/Note", t.type + ": " + t.value.toString());
+//                    Log.d("CtrlSeq/Note", t.type + ": " + t.value.toString());
                     if (mInputTokenizer.vt52Mode) {
                         switch (t.type) {
                             case ESC:
@@ -700,7 +700,7 @@ public final class AnsiConsoleInput implements BytesSink {
                     switch (csi.type) {
                         case 'c':
                             sendBackCsi("?62;1c"); // TODO: VT220/132cols yet...
-//                          Log.i("CtrlSeq", "Terminal type request");
+//                            Log.d("CtrlSeq", "Terminal type request");
                             return;
                         case 'n':
                             if (csi.args.length == 0) {
