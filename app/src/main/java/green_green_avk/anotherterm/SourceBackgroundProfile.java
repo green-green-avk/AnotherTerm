@@ -10,7 +10,7 @@ import green_green_avk.anotherterm.ui.drawables.BackgroundDrawable;
 
 public final class SourceBackgroundProfile implements BackgroundProfile {
     @NonNull
-    final Function<? super Context, ? extends Drawable> provider;
+    private final Function<? super Context, ? extends Drawable> provider;
 
     public SourceBackgroundProfile(@NonNull final Function<? super Context, ? extends Drawable> provider) {
         this.provider = provider;

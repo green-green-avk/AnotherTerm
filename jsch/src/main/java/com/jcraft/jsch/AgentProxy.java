@@ -127,10 +127,13 @@ class AgentProxy {
     synchronized byte[] sign(final byte[] blob, final byte[] data, final String alg) {
         int flags = 0x0;
         if (alg != null) {
-            if (alg.equals("rsa-sha2-256")) {
-                flags = SSH_AGENT_RSA_SHA2_256;
-            } else if (alg.equals("rsa-sha2-512")) {
-                flags = SSH_AGENT_RSA_SHA2_512;
+            switch (alg) {
+                case "rsa-sha2-256":
+                    flags = SSH_AGENT_RSA_SHA2_256;
+                    break;
+                case "rsa-sha2-512":
+                    flags = SSH_AGENT_RSA_SHA2_512;
+                    break;
             }
         }
 

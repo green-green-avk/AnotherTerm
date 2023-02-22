@@ -11,7 +11,7 @@ import green_green_avk.anotherterm.ui.drawables.BackgroundDrawable;
 
 public final class LocalBackgroundProfile implements BackgroundProfile {
     @DrawableRes
-    final int drawableId;
+    private final int drawableId;
 
     public LocalBackgroundProfile(final int drawableId) {
         this.drawableId = drawableId;

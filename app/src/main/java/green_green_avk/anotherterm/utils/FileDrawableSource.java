@@ -27,9 +27,9 @@ public final class FileDrawableSource
     @NonNull
     private final File resDir;
 
-    public FileDrawableSource(@NonNull final Context ctx, @NonNull final String name) {
+    public FileDrawableSource(@NonNull final Context ctx, @NonNull final String dirName) {
         dataDir = new File(ctx.getApplicationInfo().dataDir);
-        resDir = new File(dataDir, name);
+        resDir = new File(dataDir, dirName);
         cache = new SubCache<Function<? super Context, ? extends Drawable>>(
                 DrawableCache.instance) {
             @Override

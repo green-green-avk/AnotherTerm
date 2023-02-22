@@ -121,7 +121,7 @@ public class ProxyHTTP implements Proxy {
             }
 
             final String response = sb.toString();
-            String reason = "Unknow reason";
+            String reason = "Unknown reason";
             int code = -1;
             try {
                 foo = response.indexOf(' ');
