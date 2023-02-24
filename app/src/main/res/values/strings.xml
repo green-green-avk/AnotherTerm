@@ -40,6 +40,9 @@
     <string name="hint_host">host</string>
     <string name="hint_port">port</string>
 
+    <string name="msg_connection_closed_by_server">Connection closed by server</string>
+    <string name="msg_connection_closed_by_client">Connection closed by client</string>
+
     <string name="msg_password_for_host_s">Password for host %s</string>
     <string name="msg_password_for_host_change_s_s">Password for host %1$s must be changed: %2$s</string>
     <string name="msg_passphrase_for_key_s">Passphrase for key %s</string>

@@ -6,14 +6,17 @@ import androidx.annotation.Nullable;
 import java.nio.ByteBuffer;
 import java.nio.charset.Charset;
 
-// https://tools.ietf.org/html/rfc1091
-
+/**
+ * <a href="https://tools.ietf.org/html/rfc1091">RFC1091</a>
+ */
 public class TerminalTypeTelnetOptionHandler extends TelnetClient.OptionHandler {
     public static final int ID = 24;
 
     protected static final byte[] WILL = msgWill(ID);
     protected static final byte SEND = 1;
     protected static final byte[] IS = {0};
+
+    protected static final Charset ASCII = Charset.forName("ASCII");
 
     protected boolean nSent = false;
     protected boolean enabled = false;
@@ -27,8 +30,8 @@ public class TerminalTypeTelnetOptionHandler extends TelnetClient.OptionHandler 
     }
 
     protected static byte[] encode(@Nullable final String value) {
-        if (value == null) return encode("UNKNOWN");
-        return msgSub(ID, IS, value.getBytes(Charset.forName("ASCII")));
+        return msgSub(ID, IS,
+                (value != null ? value : "UNKNOWN").getBytes(ASCII));
     }
 
     public void update(@Nullable final String value) {
@@ -52,8 +55,10 @@ public class TerminalTypeTelnetOptionHandler extends TelnetClient.OptionHandler 
     @Override
     protected void onDo(final int id) {
         enabled = true;
-        if (nSent) nSent = false;
-        else sendRaw(WILL);
+        if (nSent)
+            nSent = false;
+        else
+            sendRaw(WILL);
     }
 
     @Override

@@ -1,7 +1,8 @@
 package green_green_avk.telnetclient;
 
-// https://tools.ietf.org/html/rfc858
-
+/**
+ * <a href="https://tools.ietf.org/html/rfc858">RFC858</a>
+ */
 public class SuppressGATelnetOptionHandler extends TelnetClient.OptionHandler {
     public static final int ID = 3;
 
@@ -26,13 +27,17 @@ public class SuppressGATelnetOptionHandler extends TelnetClient.OptionHandler {
 
     @Override
     protected void onWill(final int id) {
-        if (dSent) dSent = false;
-        else sendRaw(DO);
+        if (dSent)
+            dSent = false;
+        else
+            sendRaw(DO);
     }
 
     @Override
     protected void onDo(final int id) {
-        if (wSent) wSent = false;
-        else sendRaw(WILL);
+        if (wSent)
+            wSent = false;
+        else
+            sendRaw(WILL);
     }
 }

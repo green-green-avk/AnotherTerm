@@ -1,7 +1,8 @@
 package green_green_avk.telnetclient;
 
-// https://tools.ietf.org/html/rfc857
-
+/**
+ * <a href="https://tools.ietf.org/html/rfc857">RFC857</a>
+ */
 public class EchoTelnetOptionHandler extends TelnetClient.OptionHandler {
     public static final int ID = 1;
 
