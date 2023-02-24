@@ -9,19 +9,23 @@ import androidx.annotation.Nullable;
 import org.apache.commons.lang3.StringUtils;
 
 import java.io.OutputStream;
+import java.net.Proxy;
 import java.net.URLEncoder;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 
+import green_green_avk.anotherterm.R;
 import green_green_avk.anotherterm.backends.BackendException;
 import green_green_avk.anotherterm.backends.BackendModule;
 import green_green_avk.anotherterm.utils.LogMessage;
 import green_green_avk.telnetclient.EchoTelnetOptionHandler;
 import green_green_avk.telnetclient.SuppressGATelnetOptionHandler;
 import green_green_avk.telnetclient.TelnetClient;
+import green_green_avk.telnetclient.TelnetClientEOFException;
 import green_green_avk.telnetclient.TelnetClientException;
+import green_green_avk.telnetclient.TelnetClientInterruptedException;
 import green_green_avk.telnetclient.TerminalTypeTelnetOptionHandler;
 import green_green_avk.telnetclient.WindowSizeTelnetOptionHandler;
 
@@ -32,7 +36,8 @@ public final class TelnetModule extends BackendModule {
         @Override
         @NonNull
         public Map<String, Object> fromUri(@NonNull final Uri uri) {
-            if (uri.isOpaque()) throw new ParametersUriParseException();
+            if (uri.isOpaque())
+                throw new ParametersUriParseException();
             final Map<String, Object> params = new HashMap<>();
             for (final String k : uri.getQueryParameterNames()) {
                 // TODO: '+' decoding issue before Jelly Bean
@@ -42,7 +47,8 @@ public final class TelnetModule extends BackendModule {
             if (hostname != null) {
                 params.put("hostname", hostname);
                 final String username = uri.getUserInfo();
-                if (username != null) params.put("username", username);
+                if (username != null)
+                    params.put("username", username);
                 final int port = uri.getPort();
                 if (port >= 0) params.put("port", port);
             }
@@ -74,7 +80,8 @@ public final class TelnetModule extends BackendModule {
                         break;
                     default: {
                         final Object o = params.get(k);
-                        if (o == null) break;
+                        if (o == null)
+                            break;
                         b.appendQueryParameter(k, o.toString());
                     }
                 }
@@ -96,7 +103,8 @@ public final class TelnetModule extends BackendModule {
     public void setParameters(@NonNull final Map<String, ?> params) {
         final ParametersWrapper pp = new ParametersWrapper(params);
         hostname = pp.getString("hostname", null);
-        if (hostname == null) throw new BackendException("`hostname' is not defined");
+        if (hostname == null)
+            throw new BackendException("`hostname' is not defined");
 
         port = pp.getInt("port", port);
 
@@ -110,7 +118,6 @@ public final class TelnetModule extends BackendModule {
     private final OutputStream mOS_get = new OutputStream() {
         @Override
         public void write(final int b) {
-            if (tc == null) return;
             try {
                 tc.send((byte) b);
             } catch (final TelnetClientException e) {
@@ -120,7 +127,6 @@ public final class TelnetModule extends BackendModule {
 
         @Override
         public void write(final byte[] b, final int off, final int len) {
-            if (tc == null) return;
             try {
                 tc.send(b, off, off + len);
             } catch (final TelnetClientException e) {
@@ -130,7 +136,6 @@ public final class TelnetModule extends BackendModule {
 
         @Override
         public void write(final byte[] b) {
-            if (tc == null) return;
             try {
                 tc.send(b);
             } catch (final TelnetClientException e) {
@@ -152,12 +157,15 @@ public final class TelnetModule extends BackendModule {
 
     @Override
     public void setOnMessageListener(@Nullable final OnMessageListener l) {
-        if (l == null) tc.setOnErrorListener(null);
-        else tc.setOnErrorListener(new TelnetClient.OnErrorListener() {
-            @Override
-            public void onError(final Throwable e) {
+        tc.setOnErrorListener(l == null ? null : e -> {
+            if (e instanceof TelnetClientEOFException)
+                l.onMessage(new BackendModule.DisconnectStateMessage(
+                        context.getString(R.string.msg_connection_closed_by_server)));
+            else if (e instanceof TelnetClientInterruptedException)
+                l.onMessage(new BackendModule.DisconnectStateMessage(
+                        context.getString(R.string.msg_connection_closed_by_client)));
+            else
                 l.onMessage(e);
-            }
         });
     }
 
@@ -182,11 +190,12 @@ public final class TelnetModule extends BackendModule {
         try {
             ttoh.update(terminalString);
             tc.setKeepAliveInterval(keepaliveInterval * 1000L);
-            tc.connect(hostname, port);
+            tc.connect(hostname, port, 5000, Proxy.NO_PROXY);
         } catch (final TelnetClientException e) {
             throw new BackendException(e);
         }
-        if (isAcquireWakeLockOnConnect()) acquireWakeLock();
+        if (isAcquireWakeLockOnConnect())
+            acquireWakeLock();
     }
 
     @Override
@@ -196,7 +205,8 @@ public final class TelnetModule extends BackendModule {
         } catch (final TelnetClientException e) {
             throw new BackendException(e);
         } finally {
-            if (isReleaseWakeLockOnDisconnect()) releaseWakeLock();
+            if (isReleaseWakeLockOnDisconnect())
+                releaseWakeLock();
         }
     }
 

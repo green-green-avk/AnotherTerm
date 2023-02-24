@@ -6,6 +6,8 @@ import androidx.annotation.Nullable;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.net.InetSocketAddress;
+import java.net.Proxy;
 import java.net.Socket;
 import java.nio.BufferUnderflowException;
 import java.nio.ByteBuffer;
@@ -24,8 +26,10 @@ import java.util.WeakHashMap;
 // No Android dependencies are required.
 
 public class TelnetClient {
+    public static final class Cmd {
+        private Cmd() {
+        }
 
-    public static class Cmd {
         public static final byte SE = (byte) 240;
         public static final byte NOP = (byte) 241;
         public static final byte DM = (byte) 242;
@@ -50,7 +54,8 @@ public class TelnetClient {
 
     protected static final ByteBuffer eraseChar = ByteBuffer.wrap(new byte[]{8});
 
-    protected static final ByteBuffer eraseLine = ByteBuffer.wrap(new byte[]{0x1B, '[', '1', 'K'});
+    protected static final ByteBuffer eraseLine =
+            ByteBuffer.wrap(new byte[]{0x1B, '[', '1', 'K'});
 
     protected static int indexOf(@NonNull final byte[] buf,
                                  final int start, int end, final byte v) {
@@ -66,21 +71,15 @@ public class TelnetClient {
     }
 
     protected static int indexOf(@NonNull final ByteBuffer buf,
-                                 int start, final int end, final byte v) {
+                                 final int start, final int end, final byte v) {
         if (buf.hasArray()) {
-            if (start < 0)
-                start = buf.position();
             final int r = indexOf(buf.array(),
-                    start + buf.arrayOffset(),
-                    end < 0 || end > buf.limit() ? buf.limit() : end,
+                    buf.arrayOffset() + (start < 0 ? buf.position() : start),
+                    buf.arrayOffset() + (end < 0 || end > buf.limit() ? buf.limit() : end),
                     v);
-            if (r < 0)
-                return r;
-            else
-                return r - buf.arrayOffset();
-        } else {
-            throw new UnsupportedOperationException();
+            return r < 0 ? r : r - buf.arrayOffset();
         }
+        throw new UnsupportedOperationException();
     }
 
     public static int uv(final byte v) {
@@ -158,11 +157,7 @@ public class TelnetClient {
         protected TelnetClient client = null;
 
         protected void sendRaw(final byte... v) {
-            try {
-                client.sendRaw(v);
-            } catch (final TelnetClientException e) {
-                client.reportError(e);
-            }
+            client.sendRaw(v);
         }
 
         protected int id() {
@@ -193,12 +188,13 @@ public class TelnetClient {
         }
     }
 
-    protected final OptionHandler defaultOptionHamdler = new OptionHandler();
+    protected final OptionHandler defaultOptionHandler = new OptionHandler();
 
     protected final OptionHandler[] optionHandlers = new OptionHandler[256];
 
     {
-        for (int i = 0; i < optionHandlers.length; ++i) setOptionHandler(i, defaultOptionHamdler);
+        for (int i = 0; i < optionHandlers.length; ++i)
+            setOptionHandler(i, defaultOptionHandler);
     }
 
     public OptionHandler getOptionHandler(final int id) {
@@ -209,12 +205,13 @@ public class TelnetClient {
     // and should not live longer than it.
     public void setOptionHandler(final int id, @Nullable final OptionHandler handler) {
         synchronized (optionsLock) {
-            if (optionHandlers[id] == handler) return;
+            if (optionHandlers[id] == handler)
+                return;
             if (optionHandlers[id] != null) {
                 if (isConnected())
                     optionHandlers[id].onRemove(id);
             }
-            optionHandlers[id] = handler != null ? handler : defaultOptionHamdler;
+            optionHandlers[id] = handler != null ? handler : defaultOptionHandler;
             optionHandlers[id].client = this;
             if (isConnected())
                 optionHandlers[id].onInit(id);
@@ -253,8 +250,8 @@ public class TelnetClient {
         public Type type;
     }
 
-    public static class Markup extends ArrayList<Mark> {
-        protected Markup() {
+    public static final class Markup extends ArrayList<Mark> {
+        private Markup() {
             super(64);
         }
     }
@@ -283,23 +280,25 @@ public class TelnetClient {
             marks.add(mark);
         }
 
-        public void release(@NonNull final Iterable<Mark> marks) {
-            for (final Mark m : marks) release(m);
+        public void release(@NonNull final Iterable<? extends Mark> marks) {
+            for (final Mark m : marks)
+                release(m);
         }
     }
 
-    protected final ByteBuffer inputBuffer = ByteBuffer.wrap(new byte[8192]); // TODO: Or direct?
+    protected final ByteBuffer inputBuffer = ByteBuffer.wrap(new byte[8192]);
     protected boolean hasLeftovers = false;
     protected final Markup markup = new Markup();
     protected final MarkPool markPool = new MarkPool();
     protected volatile Socket socket = null;
+    protected boolean isOwnedSocket = true;
     protected volatile InputStream inputSocketStream = null;
     protected volatile OutputStream outputSocketStream = null;
     protected volatile boolean mIsConnected = false;
     protected Thread readerThread = null;
 
     public interface OnErrorListener {
-        void onError(Throwable e);
+        void onError(@NonNull Throwable e);
     }
 
     protected OutputStream outputStream = null;
@@ -319,65 +318,130 @@ public class TelnetClient {
 
     protected void reportError(@NonNull final Throwable e) {
         synchronized (dataToUserLock) {
-            if (onErrorListener != null) onErrorListener.onError(e);
+            if (onErrorListener != null)
+                onErrorListener.onError(e);
         }
     }
 
     public boolean isConnected() {
-        if (!mIsConnected) return false;
-        final Socket s = socket;
-        return s != null && !s.isClosed();
+        return mIsConnected;
     }
 
-    public void connect(final String addr, final int port) {
+    protected void initConnection() {
+        readerThread = new Thread(reader);
+        readerThread.setDaemon(true);
+        readerThread.start();
+        synchronized (optionsLock) {
+            for (int i = 0; i < optionHandlers.length; ++i) {
+                final OptionHandler oh = optionHandlers[i];
+                if (oh != null)
+                    oh.onInit(i);
+            }
+        }
+        startKeepAlive();
+        mIsConnected = true;
+    }
+
+    /**
+     * Uses an already connected socket.
+     *
+     * @param connectedSocket to use
+     * @param adopt           the provided socket will not be closed on {@link #disconnect()}
+     *                        if {@code false}.
+     */
+    public void connect(@NonNull final Socket connectedSocket, final boolean adopt) {
         synchronized (connectionLock) {
-            if (mIsConnected) disconnect();
+            if (mIsConnected)
+                tearDownConnection();
+            isOwnedSocket = adopt;
+            socket = connectedSocket;
             try {
-                socket = new Socket(addr, port);
                 inputSocketStream = socket.getInputStream();
                 outputSocketStream = socket.getOutputStream();
-            } catch (final IOException | IllegalArgumentException | SecurityException e) {
-                disconnect();
-                throw new TelnetClientException(e);
+            } catch (final IOException e) {
+                tearDownConnection();
+                throw new TelnetClientConnectionException(e);
             }
-            readerThread = new Thread(reader);
-            readerThread.setDaemon(true);
-            readerThread.start();
-            synchronized (optionsLock) {
-                for (int i = 0; i < optionHandlers.length; ++i) {
-                    final OptionHandler oh = optionHandlers[i];
-                    if (oh != null) oh.onInit(i);
-                }
-            }
-            startKeepAlive();
-            mIsConnected = true;
+            initConnection();
         }
     }
 
-    public void disconnect() {
+    /**
+     * Connects.
+     *
+     * @param hostname destination hostname ({@code null} for loopback)
+     * @param port     destination port
+     * @param timeout  connect timeout in milliseconds ({@code 0} for no timeout)
+     * @param proxy    a proxy server to use
+     */
+    public void connect(@Nullable final String hostname, final int port,
+                        final int timeout, @NonNull final Proxy proxy) {
         synchronized (connectionLock) {
-            if (!mIsConnected) return;
-            mIsConnected = false;
-            stopKeepAlive();
-            if (socket != null)
+            if (mIsConnected)
+                tearDownConnection();
+            isOwnedSocket = true;
+            try {
+                socket = new Socket(proxy);
+                socket.connect(new InetSocketAddress(hostname, port), timeout);
+                inputSocketStream = socket.getInputStream();
+                outputSocketStream = socket.getOutputStream();
+            } catch (final IOException | IllegalArgumentException | SecurityException e) {
+                tearDownConnection();
+                throw new TelnetClientConnectionException(e);
+            }
+            initConnection();
+        }
+    }
+
+    protected void tearDownConnection() {
+        mIsConnected = false;
+        stopKeepAlive();
+        if (isOwnedSocket) {
+            final Socket s = socket;
+            if (s != null) {
                 try {
-                    socket.close();
+                    s.close();
                 } catch (final IOException ignored) {
                 }
-            socket = null;
-            inputSocketStream = null; // Discard remaining buffers after close
-            outputSocketStream = null;
-            try {
-                readerThread.join();
-            } catch (final InterruptedException ignored) {
+            }
+        } else {
+            final OutputStream oss = outputSocketStream;
+            if (oss != null) {
+                try {
+                    oss.flush();
+                } catch (final IOException ignored) {
+                }
+            }
+        }
+        socket = null;
+        inputSocketStream = null;
+        outputSocketStream = null;
+        if (readerThread != null) {
+            if (readerThread != Thread.currentThread()) {
+                try {
+                    readerThread.join();
+                } catch (final InterruptedException ignored) {
+                }
             }
             readerThread = null;
         }
     }
 
+    protected void killConnection() {
+        disconnect();
+    }
+
+    public void disconnect() {
+        synchronized (connectionLock) {
+            if (!mIsConnected)
+                return;
+            tearDownConnection();
+        }
+    }
+
     @Override
     protected void finalize() throws Throwable {
-        disconnect();
+        tearDownConnection();
         super.finalize();
     }
 
@@ -386,14 +450,16 @@ public class TelnetClient {
     }
 
     public void sendRaw(@NonNull final byte[] buf, final int start, final int end) {
-        if (start >= end) return;
+        if (start >= end)
+            return;
         synchronized (sendLock) {
             try {
                 final OutputStream oss = outputSocketStream;
                 if (oss != null)
                     oss.write(buf, start, end - start);
             } catch (final IOException e) {
-                throw new TelnetClientException(e);
+                killConnection();
+                throw new TelnetClientConnectionException(e);
             }
         }
     }
@@ -403,7 +469,8 @@ public class TelnetClient {
     }
 
     public void send(@NonNull final byte[] buf, final int start, final int end) {
-        for (final OnEventListener l : onEventListeners) l.onSend(buf);
+        for (final OnEventListener l : onEventListeners)
+            l.onSend(buf);
         int b = start;
         int e;
         synchronized (sendLock) {
@@ -420,7 +487,8 @@ public class TelnetClient {
     public void inject(@NonNull final byte[] buffer, final int start, final int end) {
         try {
             synchronized (dataToUserLock) {
-                if (outputStream != null) outputStream.write(buffer, start, end - start);
+                if (outputStream != null)
+                    outputStream.write(buffer, start, end - start);
             }
         } catch (final IOException e) {
             reportError(e);
@@ -428,72 +496,84 @@ public class TelnetClient {
     }
 
     public void inject(@NonNull final ByteBuffer buffer) {
-        inject(buffer.array(), buffer.arrayOffset() + buffer.position(), buffer.limit());
+        inject(buffer.array(),
+                buffer.arrayOffset() + buffer.position(),
+                buffer.arrayOffset() + buffer.limit());
     }
 
     protected final Runnable reader = () -> {
         while (true) {
             try {
                 final Markup mu = receive();
-                if (mu == null) return;
                 for (final Mark m : mu) {
                     if (m.type == Mark.Type.DATA) {
                         inject(m.buffer);
                     }
                 }
             } catch (final TelnetClientException e) {
-                if (mIsConnected) reportError(e);
+                reportError(e);
                 return;
             }
         }
     };
 
+    @NonNull
     protected Markup receive() {
         markPool.release(markup);
         markup.clear();
-        if (!hasLeftovers) inputBuffer.clear();
+        if (!hasLeftovers)
+            inputBuffer.clear();
+        else
+            inputBuffer.compact();
         hasLeftovers = false;
         final int len;
         final InputStream iss = inputSocketStream;
-        if (iss == null) return null;
+        if (iss == null) {
+            killConnection();
+            throw new TelnetClientInterruptedException();
+        }
         try {
             len = iss.read(inputBuffer.array(),
                     inputBuffer.arrayOffset() + inputBuffer.position(),
                     inputBuffer.limit() - inputBuffer.position());
         } catch (final IOException e) {
-            throw new TelnetClientException(e);
+            killConnection();
+            throw new TelnetClientConnectionException(e);
         }
-        if (len < 0) return null; // EOF
+        if (len < 0) {
+            killConnection();
+            throw new TelnetClientEOFException();
+        }
         inputBuffer.limit(inputBuffer.position() + len);
         while (true) {
-            if (inputBuffer.remaining() == 0) return markup;
-            final int pos = indexOf(inputBuffer, -1, -1, Cmd.IAC);
-            if (pos < 0) {
+            if (inputBuffer.remaining() == 0)
+                return markup;
+            final int escPos = indexOf(inputBuffer, -1, -1, Cmd.IAC);
+            if (escPos < 0) {
                 markup.add(markPool.obtain(inputBuffer, Mark.Type.DATA));
                 return markup;
             } else {
-                if (pos > inputBuffer.position()) {
+                if (escPos > inputBuffer.position()) {
                     final ByteBuffer b = inputBuffer.duplicate();
-                    b.limit(pos);
+                    b.limit(escPos);
                     markup.add(markPool.obtain(b, Mark.Type.DATA));
-                    inputBuffer.position(pos);
+                    inputBuffer.position(escPos);
                 }
-                final int e = parseEscape(inputBuffer);
-                if (e < 0) { // partial escape
+                final int escEnd = parseEscape(inputBuffer);
+                if (escEnd < 0) { // partial escape
                     if (inputBuffer.position() == 0 &&
                             inputBuffer.limit() == inputBuffer.capacity()) {
                         // too long escape
                         markup.add(markPool.obtain(inputBuffer, Mark.Type.DATA));
                         return markup;
                     }
-                    inputBuffer.compact();
                     hasLeftovers = true;
                     return markup;
                 }
                 final ByteBuffer b = inputBuffer.duplicate();
-                b.limit(e);
+                b.limit(escEnd);
                 markup.add(markPool.obtain(b, Mark.Type.ESCAPE));
-                inputBuffer.position(e);
+                inputBuffer.position(escEnd);
             }
         }
     }
@@ -515,32 +595,37 @@ public class TelnetClient {
                     case Cmd.DO: {
                         final int i = uv(buf.get());
                         final OptionHandler handler = optionHandlers[i];
-                        if (handler != null) handler.onDo(i);
+                        if (handler != null)
+                            handler.onDo(i);
                         return buf.position();
                     }
                     case Cmd.DONT: {
                         final int i = uv(buf.get());
                         final OptionHandler handler = optionHandlers[i];
-                        if (handler != null) handler.onDont(i);
+                        if (handler != null)
+                            handler.onDont(i);
                         return buf.position();
                     }
                     case Cmd.WILL: {
                         final int i = uv(buf.get());
                         final OptionHandler handler = optionHandlers[i];
-                        if (handler != null) handler.onWill(i);
+                        if (handler != null)
+                            handler.onWill(i);
                         return buf.position();
                     }
                     case Cmd.WONT: {
                         final int i = uv(buf.get());
                         final OptionHandler handler = optionHandlers[i];
-                        if (handler != null) handler.onWont(i);
+                        if (handler != null)
+                            handler.onWont(i);
                         return buf.position();
                     }
                     case Cmd.SB: {
                         int e = buf.position();
                         do {
                             e = indexOf(buf, e, -1, Cmd.IAC);
-                            if (e < 0) return -1;
+                            if (e < 0)
+                                return -1;
                         } while (buf.get(e + 1) != Cmd.SE);
                         final int i = uv(buf.get());
                         final OptionHandler handler = optionHandlers[i];
@@ -591,7 +676,8 @@ public class TelnetClient {
                 keepAliveTask.cancel();
                 keepAliveTask = null;
             }
-            if (keepAliveTimer == null) return;
+            if (keepAliveTimer == null)
+                return;
             keepAliveTimer.purge();
             if (keepAliveInterval > 0) {
                 keepAliveTask = new KeepAliveTask();
