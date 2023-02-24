@@ -31,6 +31,8 @@ import green_green_avk.anotherterm.utils.PackageResourceSource;
 import green_green_avk.anotherterm.utils.ProfileManager;
 
 public final class BackgroundsManager extends ProfileManager<BackgroundProfile> {
+    @NonNull
+    private final BuiltIn<BackgroundProfile> emptyBackground;
     private final Set<BuiltIn<BackgroundProfile>> defaultSet = new HashSet<>();
     @NonNull
     private final FileDrawableSource localSource;
@@ -120,7 +122,8 @@ public final class BackgroundsManager extends ProfileManager<BackgroundProfile> 
                                 pkg.activityInfo.applicationInfo.metaData == null)
                             continue;
                         final int extrasId = pkg.activityInfo.applicationInfo.metaData
-                                .getInt("background-extras");
+                                .getInt("background-extras",
+                                        ResourcesCompat.ID_NULL);
                         if (extrasId == ResourcesCompat.ID_NULL)
                             continue;
                         final Resources resources;
@@ -153,9 +156,10 @@ public final class BackgroundsManager extends ProfileManager<BackgroundProfile> 
 
     public BackgroundsManager(@NonNull final Context ctx) {
         context = ctx;
-        defaultSet.add(new BuiltIn<>("", R.string.profile_title_builtin,
+        emptyBackground = new BuiltIn<>("", R.string.profile_title_builtin,
                 new LocalBackgroundProfile(
-                        R.drawable.bg_term_screen_blank), 0));
+                        R.drawable.bg_term_screen_blank), 0);
+        defaultSet.add(emptyBackground);
         defaultSet.add(new BuiltIn<>(" lines", R.string.profile_title_builtin,
                 new LocalBackgroundProfile(
                         R.drawable.bg_term_screen_lines), 1));
@@ -241,7 +245,7 @@ public final class BackgroundsManager extends ProfileManager<BackgroundProfile> 
     public BackgroundProfile get(@Nullable final String name) {
         final Meta r = getMeta(name);
         return r instanceof BuiltIn ?
-                ((BuiltIn<? extends BackgroundProfile>) r).data : defaultSet.iterator().next().data;
+                ((BuiltIn<? extends BackgroundProfile>) r).data : emptyBackground.data;
     }
 
     @Override
