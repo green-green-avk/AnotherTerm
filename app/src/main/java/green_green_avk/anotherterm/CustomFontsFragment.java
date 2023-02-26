@@ -37,7 +37,7 @@ public final class CustomFontsFragment extends Fragment {
         private final Typeface[] typefaces = new Typeface[FONT_TYPES];
 
         public void refresh() {
-            FontsManager.loadFromFilesFb(typefaces, FontsManager.getConsoleFontFiles());
+            FontsManager.loadFromFiles(typefaces, FontsManager.getConsoleFontFiles());
             notifyItemRangeChanged(0, getItemCount());
         }
 
@@ -61,14 +61,17 @@ public final class CustomFontsFragment extends Fragment {
             final View wUnset = holder.itemView.findViewById(R.id.unset);
             final boolean canBeSet = typefaces[0] != null || position == 0;
             final boolean canBeRemoved = FontsManager.getConsoleFontFiles()[position].exists();
-            final boolean isCorrect = FontsManager.isExists(typefaces, position) || !canBeRemoved;
+            final boolean isCorrect =
+                    FontsManager.exists(typefaces, position) || !canBeRemoved;
             if (isCorrect) {
                 FontsManager.populatePaint(wSample.getPaint(), typefaces, position);
-                wSample.setTextColor(holder.itemView.getResources().getColor(R.color.colorPrimaryDark));
+                wSample.setTextColor(holder.itemView.getResources()
+                        .getColor(R.color.colorPrimaryDark));
                 wSample.setText(R.string.sample_text);
             } else {
                 wSample.setTypeface(null, position);
-                wSample.setTextColor(holder.itemView.getResources().getColor(R.color.colorHintWarning));
+                wSample.setTextColor(holder.itemView.getResources()
+                        .getColor(R.color.colorHintWarning));
                 wSample.setText(R.string.msg_not_a_valid_font);
             }
             wSet.setEnabled(canBeSet);
