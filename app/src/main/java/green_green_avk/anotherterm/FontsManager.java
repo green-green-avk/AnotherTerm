@@ -10,11 +10,11 @@ import android.os.Handler;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.annotation.Size;
 
 import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.IOException;
 
+import green_green_avk.anotherterm.ui.FontProvider;
 import green_green_avk.ptyprocess.PtyProcess;
 
 public final class FontsManager {
@@ -45,7 +45,11 @@ public final class FontsManager {
             Typeface.create(Typeface.MONOSPACE, Typeface.BOLD_ITALIC)
     };
 
+    @Size(4)
+    @NonNull
     public static Typeface[] defaultConsoleTypefaces = defaultTypefaces;
+    @Size(4)
+    @NonNull
     public static Typeface[] consoleTypefaces = defaultTypefaces;
 
     private static boolean trackFontFiles = false;
@@ -95,7 +99,7 @@ public final class FontsManager {
             }
             consoleFontDirObserver.startWatching();
             dataDirObserver.stopWatching();
-            final Typeface[] tfs = loadFromFilesFb(consoleFontFiles);
+            final Typeface[] tfs = loadFromFiles(consoleFontFiles);
             if (tfs[0] == null) {
                 consoleTypefaces = defaultConsoleTypefaces;
                 return;
@@ -109,7 +113,7 @@ public final class FontsManager {
 
     public static void init(@NonNull final Context ctx) {
         FontsManager.ctx = ctx.getApplicationContext();
-        defaultConsoleTypefaces = loadFromAsset("DejaVuSansMono", ".ttf");
+        defaultConsoleTypefaces = loadFromAssets("DejaVuSansMono", ".ttf");
         mainHandler = new Handler(ctx.getMainLooper());
         dataDir = new File(ctx.getApplicationInfo().dataDir);
         consoleFontDir = new File(dataDir, CONSOLE_FONT_DIRNAME);
@@ -141,38 +145,41 @@ public final class FontsManager {
         }
     }
 
-    public static void loadFromAsset(@NonNull final Typeface[] tfs,
-                                     @NonNull final String name, @NonNull final String ext) {
+    private static void fillFallbacks(@Size(4) @NonNull final Typeface[] tfs) {
+        if (tfs[0] == null)
+            return;
+        if (tfs[1] == null)
+            tfs[1] = tfs[0];
+        if (tfs[2] == null)
+            tfs[2] = tfs[0];
+        if (tfs[3] == null)
+            tfs[3] = tfs[2] != tfs[0] ? tfs[2] : tfs[1];
+    }
+
+    @Nullable
+    private static Typeface loadFromAsset(@NonNull final String path) {
         final AssetManager am = ctx.getApplicationContext().getAssets();
+        try {
+            final Typeface r = Typeface.createFromAsset(am, path);
+            return r != Typeface.DEFAULT ? r : null;
+        } catch (final Exception ignored) {
+        }
+        return null;
+    }
+
+    public static void loadFromAssets(@Size(4) @NonNull final Typeface[] tfs,
+                                      @NonNull final String name, @NonNull final String ext) {
         final String[] tns = {"-Regular", "-Bold", "-Italic", "-BoldItalic"};
         for (int i = 0; i < 4; ++i) {
-            tfs[i] = Typeface.createFromAsset(am, "fonts/" + name + tns[i] + ext);
+            tfs[i] = loadFromAsset("fonts/" + name + tns[i] + ext);
         }
+        fillFallbacks(tfs);
     }
 
     @NonNull
-    public static Typeface[] loadFromAsset(@NonNull final String name, @NonNull final String ext) {
+    public static Typeface[] loadFromAssets(@NonNull final String name, @NonNull final String ext) {
         final Typeface[] tfs = new Typeface[4];
-        loadFromAsset(tfs, name, ext);
-        return tfs;
-    }
-
-    private static void loadFromFiles(@NonNull final Typeface[] tfs, @NonNull final File[] files)
-            throws IOException {
-        for (int i = 0; i < 4; ++i) {
-            try {
-                tfs[i] = Typeface.createFromFile(files[i]);
-            } catch (final RuntimeException e) {
-                throw new FileNotFoundException(e.getMessage());
-            }
-        }
-    }
-
-    @NonNull
-    private static Typeface[] loadFromFiles(@NonNull final File[] files)
-            throws IOException {
-        final Typeface[] tfs = new Typeface[4];
-        loadFromFiles(tfs, files);
+        loadFromAssets(tfs, name, ext);
         return tfs;
     }
 
@@ -188,27 +195,23 @@ public final class FontsManager {
         return null;
     }
 
-    public static void loadFromFilesFb(@NonNull final Typeface[] tfs, @NonNull final File[] files) {
-        for (int i = 0; i < 4; ++i)
+    public static void loadFromFiles(@Size(4) @NonNull final Typeface[] tfs,
+                                     @Size(4) @NonNull final File[] files) {
+        for (int i = 0; i < 4; ++i) {
             tfs[i] = loadFromFile(files[i]);
-        if (tfs[0] == null)
-            return;
-        if (tfs[1] == null)
-            tfs[1] = tfs[0];
-        if (tfs[2] == null)
-            tfs[2] = tfs[0];
-        if (tfs[3] == null)
-            tfs[3] = tfs[2] != tfs[0] ? tfs[2] : tfs[1];
+        }
+        fillFallbacks(tfs);
     }
 
     @NonNull
-    public static Typeface[] loadFromFilesFb(@NonNull final File[] files) {
+    public static Typeface[] loadFromFiles(@Size(4) @NonNull final File[] files) {
         final Typeface[] tfs = new Typeface[4];
-        loadFromFilesFb(tfs, files);
+        loadFromFiles(tfs, files);
         return tfs;
     }
 
-    public static boolean isExists(@NonNull final Typeface[] tfs, final int style) {
+    public static boolean exists(@Size(4) @NonNull final Typeface[] tfs,
+                                 @FontProvider.Style final int style) {
         if (tfs[style] == null)
             return false;
         if (style > 0) {
@@ -219,8 +222,9 @@ public final class FontsManager {
         return true;
     }
 
-    public static void populatePaint(@NonNull final Paint out, @NonNull final Typeface[] tfs,
-                                     final int style) {
+    public static void populatePaint(@NonNull final Paint out,
+                                     @Size(4) @NonNull final Typeface[] tfs,
+                                     @FontProvider.Style final int style) {
         out.setFakeBoldText(false);
         out.setTextSkewX(0);
         Typeface tf = tfs[style];
