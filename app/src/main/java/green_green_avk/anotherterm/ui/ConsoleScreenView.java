@@ -621,12 +621,18 @@ public class ConsoleScreenView extends ScrollableView
      * Define fixed or variable (if dimension <= 0) screen size.
      */
     public void setScreenSize(int cols, int rows, final int bufferRows) {
+        if (consoleInput == null)
+            return;
         resizeBufferXOnUi = cols <= 0;
         resizeBufferYOnUi = rows <= 0;
         if (resizeBufferXOnUi)
             cols = getCols();
+        if (cols == 0) // Not laid out yet
+            cols = consoleInput.currScrBuf.getWidth();
         if (resizeBufferYOnUi)
             rows = getRows();
+        if (rows == 0) // Not laid out yet
+            rows = consoleInput.currScrBuf.getHeight();
         consoleInput.resize(cols, rows, bufferRows);
     }
 
