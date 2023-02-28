@@ -4,7 +4,7 @@ plugins {
 }
 
 ext {
-    versionCodeMain = 131
+    versionCodeMain = 132
     actionExtrasInfo = 'name.green_green_avk.extras.INFO'
 }
 
@@ -24,7 +24,7 @@ android {
         minSdk 14
         targetSdk 31
         versionCode versionCodeMain
-        versionName 'MkIV-dev40-dev'
+        versionName 'MkIV-dev40'
         vectorDrawables.useSupportLibrary = true
 
         resConfigs 'en'
