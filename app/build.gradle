@@ -5,7 +5,7 @@ plugins {
 
 ext {
     releaseVersionCode = 132
-    actionExtrasInfo = 'name.green_green_avk.extras.INFO'
+    actionExtrasInfo = 'name.retrofuturistic_corner.extras.INFO'
 }
 
 android {
