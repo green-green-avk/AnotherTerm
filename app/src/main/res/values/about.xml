@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
+    <string name="fullVersionName">@string/versionName</string>
 <string name="desc_about"><![CDATA[
 <h1>Links</h1>
 <ul>

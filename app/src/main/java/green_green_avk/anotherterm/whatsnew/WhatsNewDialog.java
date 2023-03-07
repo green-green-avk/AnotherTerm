@@ -39,7 +39,7 @@ public final class WhatsNewDialog {
     }
 
     private static void setVersion(@NonNull final SharedPreferences.Editor ed) {
-        ed.putInt("news_seen_v", BuildConfig.VERSION_CODE_MAIN);
+        ed.putInt("news_seen_v", BuildConfig.RELEASE_VERSION_CODE);
     }
 
     private static void setVersion(@NonNull final SharedPreferences ps) {
