@@ -4,7 +4,7 @@ plugins {
 }
 
 ext {
-    versionCodeMain = 132
+    releaseVersionCode = 132
     actionExtrasInfo = 'name.green_green_avk.extras.INFO'
 }
 
@@ -23,16 +23,16 @@ android {
         applicationId namespace
         minSdk 14
         targetSdk 31
-        versionCode versionCodeMain
+        versionCode releaseVersionCode
         versionName 'MkIV-dev41-dev'
         vectorDrawables.useSupportLibrary = true
 
         resConfigs 'en'
 
-        manifestPlaceholders += [namespace: namespace]
-
+        manifestPlaceholders += [namespace         : namespace,
+                                 releaseVersionCode: releaseVersionCode]
         buildConfigField 'String', 'NAMESPACE', "\"$namespace\""
-        buildConfigField 'int', 'VERSION_CODE_MAIN', "$versionCodeMain"
+        buildConfigField 'int', 'RELEASE_VERSION_CODE', "$releaseVersionCode"
 
         def SHELL_SESSION_TOKEN_VAR = 'SHELL_SESSION_TOKEN'
         buildConfigField 'String', 'SHELL_SESSION_TOKEN_VAR', "\"$SHELL_SESSION_TOKEN_VAR\""
@@ -96,9 +96,20 @@ android {
         }
     }
 
-    flavorDimensions 'compat'
+    flavorDimensions 'compat', 'versioning'
 
     productFlavors {
+        versioned {
+            dimension 'versioning'
+            // Standard versioning, see
+            // https://github.com/green-green-avk/AnotherTerm/issues/30
+        }
+        downgradable {
+            dimension 'versioning'
+            versionCode 90 // Fixed to enable painless downgradability
+            // The actual version code is provided by the application meta-data bundle
+            // entry named "releaseVersionCode" (see AndroidManifest.xml)
+        }
         googleplay {
             // Purely for Google Play publishing
             // (to comply with possible future app-bundle requirement)
@@ -106,20 +117,29 @@ android {
             externalNativeBuild.cmake.arguments '-DAPP_ID_SDK=\\"\\"'
         }
         redist {
-            // Redistributable downgradable all-in-one apk
+            // Redistributable all-in-one apk
+            // with extended permissions for better local terminal support
             dimension 'compat'
-            versionCode 90 // Fixed to enable downgradability
             applicationIdSuffix '.redist'
             externalNativeBuild.cmake.arguments "-DAPP_ID_SDK=\\\"${applicationIdSuffix}\\\""
         }
         oldgood {
-            // Redistributable downgradable all-in-one apk with target API 28
+            // Redistributable all-in-one apk with target API 28
+            // and extended permissions for better local terminal support
             dimension 'compat'
-            versionCode 90 // Fixed to enable downgradability
             applicationIdSuffix '.oldgood'
             targetSdk 28
             externalNativeBuild.cmake.arguments "-DAPP_ID_SDK=\\\"${applicationIdSuffix}\\\""
         }
+    }
+
+    variantFilter { variant ->
+        setIgnore(![
+                ['googleplay', 'versioned'],
+                ['redist', 'versioned'],
+                ['redist', 'downgradable'],
+                ['oldgood', 'downgradable']
+        ].contains(variant.flavors*.name))
     }
 
     sourceSets {
@@ -134,6 +154,24 @@ android {
         oldgood {
             java.srcDirs += ['src/sideload-extras/java']
             res.srcDirs += ['src/sideload-extras/res']
+        }
+        // https://developer.android.com/studio/build/build-variants#sourceset-build
+        // It could be either a single flavor or the full combination.
+        redistVersionedDebug {
+            java.srcDirs += ['src/redistDebug/java']
+            res.srcDirs += ['src/redistDebug/res']
+        }
+        redistDowngradableDebug {
+            java.srcDirs += ['src/redistDebug/java']
+            res.srcDirs += ['src/redistDebug/res']
+        }
+//        oldgoodVersionedDebug {
+//            java.srcDirs += ['src/oldgoodDebug/java']
+//            res.srcDirs += ['src/oldgoodDebug/res']
+//        }
+        oldgoodDowngradableDebug {
+            java.srcDirs += ['src/oldgoodDebug/java']
+            res.srcDirs += ['src/oldgoodDebug/res']
         }
     }
 }
