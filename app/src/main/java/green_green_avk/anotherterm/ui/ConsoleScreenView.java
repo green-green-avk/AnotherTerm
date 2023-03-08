@@ -1061,10 +1061,7 @@ public class ConsoleScreenView extends ScrollableView
         final boolean inverse = consoleInput != null && consoleInput.currScrBuf.screenInverse;
         fontProvider.populatePaint(fgPaint, (charAttrs.bold ? Typeface.BOLD : 0) |
                 (charAttrs.italic ? Typeface.ITALIC : 0));
-        int fgColor = colorProfile.getFgColor(charAttrs, inverse);
-        if (!CAN_RENDER_TRANSPARENT_TEXT)
-            fgColor |= 0xFF000000;
-        fgPaint.setColor(fgColor);
+        fgPaint.setColor(colorProfile.getFgColor(charAttrs, inverse));
         fgPaint.setUnderlineText(charAttrs.underline);
         fgPaint.setStrikeThruText(charAttrs.crossed);
 //        fgPaint.setShadowLayer(1, 0, 0, fgColor);
@@ -1915,35 +1912,16 @@ public class ConsoleScreenView extends ScrollableView
         terminalScrollbars.hide();
     }
 
-    /**
-     * Indicates if this device can make the underlying view visible through the text glyphs.
-     * <p>
-     * It depends on how fonts are rendered in
-     * the {@link PorterDuff.Mode#SRC} (or {@link PorterDuff.Mode#CLEAR}) modes.
-     *
-     * @see #drawText(Canvas, char[], int, int, float, float, Paint)
-     */
-    protected static final boolean CAN_RENDER_TRANSPARENT_TEXT =
-            Build.VERSION.SDK_INT >= Build.VERSION_CODES.P;
-
     private static final Xfermode XFER_SRC = new PorterDuffXfermode(PorterDuff.Mode.SRC);
-    private static final Xfermode XFER_CLEAR = new PorterDuffXfermode(PorterDuff.Mode.CLEAR);
-    private static final Xfermode XFER_SRC_OVER = new PorterDuffXfermode(PorterDuff.Mode.SRC_OVER);
+    private static final Xfermode XFER_DST_OUT = new PorterDuffXfermode(PorterDuff.Mode.DST_OUT);
 
     protected void updateLayerSettings() {
         if (isOpaque()) {
             setLayerType(LAYER_TYPE_NONE, null);
-            if (CAN_RENDER_TRANSPARENT_TEXT) {
-                fgPaint.setXfermode(null);
-            }
             bgPaint.setXfermode(null);
         } else {
             final Paint viewPaint = new Paint();
-            viewPaint.setXfermode(XFER_SRC_OVER);
             setLayerType(LAYER_TYPE_HARDWARE, viewPaint);
-            if (CAN_RENDER_TRANSPARENT_TEXT) {
-                fgPaint.setXfermode(XFER_SRC);
-            }
             bgPaint.setXfermode(XFER_SRC);
         }
     }
@@ -2117,40 +2095,21 @@ public class ConsoleScreenView extends ScrollableView
         }
     }
 
-    /**
-     * Not all the devices properly support {@link PorterDuff.Mode#SRC}
-     * by {@link Canvas#drawText(char[], int, int, float, float, Paint)}.
-     * <p>
-     * Known affected devices:<ul>
-     * <li>At least, many images from the Google Android Studio IDE (possibly all)
-     * <li>etc. <i>(aka "end of testing capability")</i>
-     * </ul>
-     * Known unaffected devices:<ul>
-     * <li>Samsung&nbsp;Note&nbsp;8 (SM-N950U1)
-     * <li>Google&nbsp;Pixel&nbsp;7
-     * <li>Galaxy&nbsp;Z&nbsp;Fold4 (SM-F936U) Android&nbsp;12 <i>(Samsung remote test lab)</i>
-     * <li>Galaxy&nbsp;Z&nbsp;Fold4 (SM-F936B) Android&nbsp;13 <i>(Samsung remote test lab)</i>
-     * <li>etc. <i>(aka "end of testing capability")</i>
-     * </ul>
-     */
-    private static final boolean NEED_DRAW_TEXT_XFER_SRC_WORKAROUND = true;
-
     protected void drawText(@NonNull final Canvas canvas, @NonNull final char[] text,
                             final int index, final int count, final float x, final float y,
                             @NonNull final Paint paint) {
-        if (NEED_DRAW_TEXT_XFER_SRC_WORKAROUND &&
-                paint.getXfermode() == XFER_SRC && paint.getAlpha() < 255) {
+        if (paint.getAlpha() < 255) {
+            final int color = paint.getColor();
             try {
-                paint.setXfermode(XFER_CLEAR);
-                canvas.drawText(text, index, count, x, y, paint);
-                paint.setXfermode(XFER_SRC_OVER);
+                paint.setXfermode(XFER_DST_OUT);
+                paint.setColor(Color.WHITE);
                 canvas.drawText(text, index, count, x, y, paint);
             } finally {
-                paint.setXfermode(XFER_SRC);
+                paint.setXfermode(null);
+                paint.setColor(color);
             }
-        } else {
-            canvas.drawText(text, index, count, x, y, paint);
         }
+        canvas.drawText(text, index, count, x, y, paint);
     }
 
     protected final boolean isAllSpaces(@NonNull final ConsoleScreenBuffer.BufferRun s) {
