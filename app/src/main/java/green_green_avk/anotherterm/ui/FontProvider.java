@@ -14,7 +14,8 @@ import java.lang.annotation.Target;
 public interface FontProvider {
     @Retention(RetentionPolicy.SOURCE)
     @Target({ElementType.PARAMETER, ElementType.METHOD, ElementType.FIELD})
-    @IntDef({Typeface.NORMAL, Typeface.BOLD, Typeface.ITALIC, Typeface.BOLD_ITALIC})
+    @IntDef(flag = true,
+            value = {Typeface.NORMAL, Typeface.BOLD, Typeface.ITALIC, Typeface.BOLD_ITALIC})
     @interface Style {
     }
 
