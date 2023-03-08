@@ -783,9 +783,9 @@ public class ConsoleScreenView extends ScrollableView
     }
 
     /**
-     * Follow the history buffer when condition meets
+     * Follow the history buffer when a condition is met.
      *
-     * @param v % of visible history buffer (v <= 0 - off)
+     * @param v the fraction of visible history buffer must exceed
      */
     public void setScrollFollowHistoryThreshold(final float v) {
         scrollFollowHistoryThreshold = v;
