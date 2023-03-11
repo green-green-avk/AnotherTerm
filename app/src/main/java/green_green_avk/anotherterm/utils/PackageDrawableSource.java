@@ -55,7 +55,7 @@ public final class PackageDrawableSource
                 };
             }
             case "raw": {
-                final Drawable r;
+                final CompoundDrawable r;
                 final InputStream stream = res.openRawResource(key.resourceId);
                 try {
                     r = CompoundDrawable.fromPng(stream);
@@ -67,7 +67,7 @@ public final class PackageDrawableSource
                     } catch (final IOException ignored) {
                     }
                 }
-                return (_ctx) -> CompoundDrawable.copy(_ctx, r);
+                return r.getFactory();
             }
             default:
                 throw new Resources.NotFoundException(key.toString());

@@ -1,6 +1,7 @@
 package green_green_avk.anotherterm.ui.drawables;
 
 import android.content.Context;
+import android.content.res.Resources;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.NinePatch;
@@ -18,6 +19,8 @@ import android.util.Log;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.appcompat.graphics.drawable.DrawableWrapperCompat;
+import androidx.arch.core.util.Function;
 
 import org.jetbrains.annotations.Contract;
 
@@ -33,10 +36,7 @@ import green_green_avk.anotherterm.ui.UiDimens;
 import green_green_avk.anotherterm.utils.LimitedInputStream;
 import name.green_green_avk.pngchunkextractor.PngChunkExtractor;
 
-public final class CompoundDrawable {
-    private CompoundDrawable() {
-    }
-
+public final class CompoundDrawable extends DrawableWrapperCompat {
     public static class ParseException extends RuntimeException {
         private ParseException(@NonNull final String message) {
             super(message);
@@ -238,7 +238,7 @@ public final class CompoundDrawable {
      * @see #copy(Context, Drawable)
      */
     @NonNull
-    public static LayerDrawable create(@NonNull final InputStream source)
+    public static CompoundDrawable create(@NonNull final InputStream source)
             throws IOException {
         final DataInputStream data = new DataInputStream(source);
         final int version = data.readByte();
@@ -286,7 +286,7 @@ public final class CompoundDrawable {
                     throw new ParseException("Unknown tag type");
             }
         }
-        return new LayerDrawable(r.toArray(new Drawable[0]));
+        return new CompoundDrawable(new LayerDrawable(r.toArray(new Drawable[0])));
     }
 
     /**
@@ -301,9 +301,9 @@ public final class CompoundDrawable {
      * @see #copy(Context, Drawable)
      */
     @NonNull
-    public static Drawable fromPng(@NonNull final InputStream source)
+    public static CompoundDrawable fromPng(@NonNull final InputStream source)
             throws IOException {
-        final Drawable[] compoundDrawable = new Drawable[1];
+        final CompoundDrawable[] compoundDrawable = new CompoundDrawable[1];
         final PngChunkExtractor extractor = new PngChunkExtractor(
                 new PngChunkExtractor.Callbacks() {
                     @Override
@@ -326,7 +326,7 @@ public final class CompoundDrawable {
         extractor.getStream().skip(Long.MAX_VALUE);
         if (extractor.getException() != null)
             throw extractor.getException();
-        return compoundDrawable[0] != null ? compoundDrawable[0] : drawable;
+        return compoundDrawable[0] != null ? compoundDrawable[0] : new CompoundDrawable(drawable);
     }
 
     /**
@@ -334,6 +334,16 @@ public final class CompoundDrawable {
      * to bind with each particular view
      * withholding underlying bitmaps from copying
      * and populating them with the context parameters.
+     * <p>
+     * The {@link #getFactory()} method result can be softly or weakly cached.
+     * <p>
+     * Note:
+     * {@link LayerDrawable.ConstantState#newDrawable(Resources)} / {@link LayerDrawable#mutate()}
+     * requires thorough testing on each API level...
+     * <p>
+     * See also description of {@code Drawable.clearMutated()} about drawable constant state.
+     * I have absolutely no idea on how Google sees
+     * the evolution of {@link Drawable.ConstantState} API.
      *
      * @param ctx      to get for
      * @param drawable to copy
@@ -395,8 +405,34 @@ public final class CompoundDrawable {
             }
             return new LayerDrawable(children);
         }
+        if (drawable instanceof CompoundDrawable) {
+            final CompoundDrawable from = (CompoundDrawable) drawable;
+            return new CompoundDrawable(copy(ctx, from.getDrawable()), from.factory);
+        }
         Log.e(CompoundDrawable.class.getSimpleName(),
-                "Unable to copy " + drawable.getClass().getName());
+                "Suspicious class: " + drawable.getClass().getName());
+        if (drawable.getConstantState() != null) {
+            return drawable.getConstantState().newDrawable(ctx.getResources()).mutate();
+        }
         return drawable.mutate();
+    }
+
+    @NonNull
+    private final Function<Context, CompoundDrawable> factory;
+
+    @NonNull
+    public Function<Context, CompoundDrawable> getFactory() {
+        return factory;
+    }
+
+    private CompoundDrawable(@NonNull final Drawable drawable,
+                             @NonNull final Function<Context, CompoundDrawable> factory) {
+        super(drawable);
+        this.factory = factory;
+    }
+
+    private CompoundDrawable(@NonNull final Drawable drawable) {
+        super(drawable);
+        this.factory = ctx -> (CompoundDrawable) copy(ctx, this);
     }
 }
