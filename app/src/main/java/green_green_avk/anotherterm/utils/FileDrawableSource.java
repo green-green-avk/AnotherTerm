@@ -98,8 +98,7 @@ public final class FileDrawableSource
     @NonNull
     protected Function<? super Context, ? extends Drawable> onDecode(@NonNull final InputStream in)
             throws IOException {
-        final Drawable r = CompoundDrawable.fromPng(in);
-        return (ctx) -> CompoundDrawable.copy(ctx, r);
+        return CompoundDrawable.fromPng(in).getFactory();
     }
 
     private void updateObservers() {
