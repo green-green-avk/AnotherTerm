@@ -3,13 +3,13 @@ plugins {
 }
 
 android {
-    namespace 'green_green_avk.usercertificateson'
+    namespace 'green_green_avk.relaxednetworksecurity'
 
     compileSdk 33
 
     defaultConfig {
         minSdk 14
-        targetSdk 32
+        targetSdk 33
     }
 }
 

@@ -211,9 +211,9 @@ See <https://developer.android.com/studio/write/java8-support#library-desugaring
     implementation 'com.github.green-green-avk:anothertermshellpluginutils:1.16'
     implementation 'com.github.green-green-avk:anothertermshellpluginutils-side-application:1.1'
 
+    implementation project(path: ':RelaxedNetworkSecurity')
+
     // Per-flavor
-    redistImplementation project(path: ':UserCertificatesEnabler')
-    oldgoodImplementation project(path: ':UserCertificatesEnabler')
     redistImplementation project(path: ':USBCameraWorkaround')
     oldgoodImplementation project(path: ':USBCameraWorkaround')
 }
