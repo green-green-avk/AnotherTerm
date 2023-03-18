@@ -15,9 +15,9 @@
             <option value="$PROJECT_DIR$/MaterialSeekBarPreference" />
             <option value="$PROJECT_DIR$/PngChunkExtractor" />
             <option value="$PROJECT_DIR$/PtyProcess" />
+            <option value="$PROJECT_DIR$/RelaxedNetworkSecurity" />
             <option value="$PROJECT_DIR$/TelnetClient" />
             <option value="$PROJECT_DIR$/USBCameraWorkaround" />
-            <option value="$PROJECT_DIR$/UserCertificatesEnabler" />
             <option value="$PROJECT_DIR$/app" />
             <option value="$PROJECT_DIR$/bluetoothspp" />
             <option value="$PROJECT_DIR$/jsch" />
