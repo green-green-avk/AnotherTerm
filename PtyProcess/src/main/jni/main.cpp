@@ -122,7 +122,7 @@ static char *const *getStrings(JNIEnv *const env, const jobjectArray array) {
 }
 
 static jobject JNICALL
-m_execve(JNIEnv *const env, const jobject jthis,
+m_execve(JNIEnv *const env, const jclass clazz,
          const jstring cmd_filename, const jobjectArray cmd_args, const jobjectArray cmd_env) {
     const char *const filename = env->GetStringUTFChars(cmd_filename, nullptr);
     if (env->ExceptionCheck() == JNI_TRUE) return nullptr;
@@ -312,7 +312,7 @@ static void JNICALL m_writeBuf(JNIEnv *const env, const jobject jthis,
     }
 }
 
-static jboolean JNICALL m_pollForEof(JNIEnv *const env, const jobject jthis,
+static jboolean JNICALL m_pollForEof(JNIEnv *const env, const jclass clazz,
                                      const jint fd, const jint millis) {
     if (env->ExceptionCheck() == JNI_TRUE) return JNI_TRUE;
     if (fd < 0) return JNI_TRUE;
@@ -340,7 +340,7 @@ static jboolean JNICALL m_pollForEof(JNIEnv *const env, const jobject jthis,
     return r == 0 ? JNI_FALSE : JNI_TRUE;
 }
 
-static jboolean JNICALL m_pollForRead(JNIEnv *const env, const jobject jthis,
+static jboolean JNICALL m_pollForRead(JNIEnv *const env, const jclass clazz,
                                       const jint fd, const jint intFd) {
     struct pollfd pfds[] = {
             {fd,    POLLIN, 0},
@@ -362,11 +362,11 @@ static jboolean JNICALL m_pollForRead(JNIEnv *const env, const jobject jthis,
     return (jboolean) ((pfds[0].revents & POLLIN) ? JNI_FALSE : JNI_TRUE);
 }
 
-static jboolean JNICALL m_isatty(JNIEnv *const env, const jobject jthis, const jint fd) {
+static jboolean JNICALL m_isatty(JNIEnv *const env, const jclass clazz, const jint fd) {
     return (jboolean) (isatty(fd) ? JNI_TRUE : JNI_FALSE);
 }
 
-static void JNICALL m_getSize(JNIEnv *const env, const jobject jthis,
+static void JNICALL m_getSize(JNIEnv *const env, const jclass clazz,
                               const jint fd, const jintArray result) {
     if (result == nullptr) {
         env->ThrowNew(g_illegalArgumentEC, "Result array must not be null");
@@ -396,11 +396,11 @@ static void JNICALL m_getSize(JNIEnv *const env, const jobject jthis,
     env->ReleasePrimitiveArrayCritical(result, res, 0);
 }
 
-static jlong JNICALL m_getArgMax(JNIEnv *const env, const jobject jthis) {
+static jlong JNICALL m_getArgMax(JNIEnv *const env, const jclass clazz) {
     return sysconf(_SC_ARG_MAX);
 }
 
-static jboolean JNICALL m_isSymlink(JNIEnv *const env, const jobject jthis, const jstring path) {
+static jboolean JNICALL m_isSymlink(JNIEnv *const env, const jclass clazz, const jstring path) {
     const char *const _path = env->GetStringUTFChars(path, nullptr);
     if (env->ExceptionCheck() == JNI_TRUE) return JNI_FALSE;
     struct stat st;
@@ -425,7 +425,7 @@ static int i_pathByFd(char *const realPath, const size_t realPathSize, const cha
 
 #define REALPATH_SIZE (PATH_MAX + 1)
 
-static jstring JNICALL m_pathByFd(JNIEnv *const env, const jobject jthis, const jint fd) {
+static jstring JNICALL m_pathByFd(JNIEnv *const env, const jclass clazz, const jint fd) {
     if (fd == -1) return nullptr;
     char procPath[64];
     sprintf(procPath, "/proc/self/fd/%u", fd);
@@ -490,23 +490,23 @@ static jstring JNICALL m_pathByFd(JNIEnv *const env, const jobject jthis, const 
     }
 }
 
-static void JNICALL m_shutdown(JNIEnv *const env, const jobject jthis,
+static void JNICALL m_shutdown(JNIEnv *const env, const jclass clazz,
                                const jint fd, const jint how) {
     if (shutdown(fd, how) != 0)
         env->ThrowNew(g_IOEC, strError("shutdown() failed"));
 }
 
-static jobject JNICALL m_asByteBuffer(JNIEnv *const env, const jobject jthis,
+static jobject JNICALL m_asByteBuffer(JNIEnv *const env, const jclass clazz,
                                       const jlong address, const jlong byteCount) {
     return env->NewDirectByteBuffer((void *) address, byteCount);
 }
 
-static jlong JNICALL m_getByteBufferAddress(JNIEnv *const env, const jobject jthis,
+static jlong JNICALL m_getByteBufferAddress(JNIEnv *const env, const jclass clazz,
                                             const jobject buffer) {
     return (jlong) env->GetDirectBufferAddress(buffer);
 }
 
-static jlong JNICALL m_mmap(JNIEnv *const env, const jobject jthis,
+static jlong JNICALL m_mmap(JNIEnv *const env, const jclass clazz,
                             const jlong address, const jlong byteCount,
                             const jint prot, const jint flags,
                             const jint fd, const jlong offset) {
@@ -516,7 +516,7 @@ static jlong JNICALL m_mmap(JNIEnv *const env, const jobject jthis,
     return (jlong) r;
 }
 
-static void JNICALL m_munmap(JNIEnv *const env, const jobject jthis,
+static void JNICALL m_munmap(JNIEnv *const env, const jclass clazz,
                              const jlong address, const jlong byteCount) {
     const int r = munmap((void *) address, byteCount);
     if (r != 0)
@@ -549,7 +549,7 @@ static const JNINativeMethod methodTable[] = {
 };
 
 extern "C"
-JNIEXPORT jint JNI_OnLoad(JavaVM *const vm, void *const reserved) {
+JNIEXPORT jint JNICALL JNI_OnLoad(JavaVM *const vm, void *const reserved) {
     JNIEnv *env;
     if (vm->GetEnv(reinterpret_cast<void **>(&env), REQ_JNI_VERSION) != JNI_OK) {
         return -1;
@@ -584,7 +584,7 @@ JNIEXPORT jint JNI_OnLoad(JavaVM *const vm, void *const reserved) {
 }
 
 extern "C"
-JNIEXPORT void JNI_OnUnload(JavaVM *const vm, void *const reserved) {
+JNIEXPORT void JNICALL JNI_OnUnload(JavaVM *const vm, void *const reserved) {
     JNIEnv *env;
     vm->GetEnv(reinterpret_cast<void **>(&env), REQ_JNI_VERSION);
 
