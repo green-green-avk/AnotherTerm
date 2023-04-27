@@ -20,6 +20,11 @@
 # hide the original source file name.
 #-renamesourcefileattribute SourceFile
 
+-keepclassmembers !abstract !interface **
+ extends green_green_avk.anotherterm.backends.BackendModule {
+    <init>();
+}
+
 -keep class com.felhr.** {
     *;
 }
