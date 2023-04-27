@@ -1,3 +1,7 @@
+-keepclassmembers !abstract !interface ** extends com.jcraft.jsch.Channel {
+    <init>();
+}
+
 -keep !abstract !interface
  com.jcraft.jsch.bc.**,
  com.jcraft.jsch.jce.**,
