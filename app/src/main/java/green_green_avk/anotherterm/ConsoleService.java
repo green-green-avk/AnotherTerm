@@ -35,13 +35,18 @@ import green_green_avk.anotherterm.utils.Misc;
 
 public final class ConsoleService extends Service {
 
-    public static class Exception extends RuntimeException {
-        public Exception(final String m) {
-            super(m);
+    public abstract static class Exception extends RuntimeException {
+        private Exception(final String message) {
+            super(message);
         }
     }
 
-    private static final String EMSG_NI_CONNTYPE = "This Connection type is not implemented yet";
+    public static final class BadBackendTypeException extends Exception {
+        private BadBackendTypeException() {
+            super("This connection type is not implemented yet");
+        }
+    }
+
     private static final int FG_ID = 1;
 
     private static AnsiSession.Properties.Condition parseCondition(@Nullable final Object v) {
@@ -129,7 +134,9 @@ public final class ConsoleService extends Service {
     public static BackendsList.Item getBackendByParams(@NonNull final Map<String, ?> cp) {
         final String type = (String) cp.get("type");
         final int id = BackendsList.getId(type);
-        if (id < 0) throw new Exception(EMSG_NI_CONNTYPE);
+        if (id < 0) {
+            throw new BadBackendTypeException();
+        }
         return BackendsList.get(id);
     }
 
@@ -141,9 +148,9 @@ public final class ConsoleService extends Service {
         try {
             tbe = klass.newInstance();
         } catch (final IllegalAccessException e) {
-            throw new Exception(EMSG_NI_CONNTYPE);
+            throw new Error(e);
         } catch (final InstantiationException e) {
-            throw new Exception(EMSG_NI_CONNTYPE);
+            throw new Error(e);
         }
         return tbe;
     }
