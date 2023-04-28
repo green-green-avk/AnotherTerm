@@ -7,7 +7,6 @@ import android.os.Build;
 import android.os.Handler;
 import android.os.Looper;
 import android.os.PowerManager;
-import android.util.Log;
 
 import androidx.annotation.CallSuper;
 import androidx.annotation.CheckResult;
@@ -259,18 +258,21 @@ public abstract class BackendModule {
     }
 
     @NonNull
-    static Meta getMeta(@NonNull final Class<?> klass, @NonNull final String defaultScheme) {
+    static Meta getMeta(@NonNull final Class<?> klass) {
         try {
             final Field f = klass.getField("meta");
             return (Meta) f.get(null);
-        } catch (final NoSuchFieldException ignored) {
-        } catch (final IllegalAccessException ignored) {
-        } catch (final NullPointerException ignored) {
-        } catch (final ClassCastException ignored) {
+        } catch (final NoSuchFieldException e) {
+            throw new Error(e);
+        } catch (final IllegalAccessException e) {
+            throw new Error(e);
+        } catch (final NullPointerException e) {
+            throw new Error(e);
+        } catch (final ClassCastException e) {
+            throw new Error(e);
         } catch (final SecurityException e) {
-            Log.e("Backend module", "Different class loaders", e);
+            throw new Error(e);
         }
-        return new Meta(klass, defaultScheme);
     }
 
     public Object callMethod(@NonNull final Method m, final Object... args) {

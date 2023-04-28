@@ -2,7 +2,6 @@ package green_green_avk.anotherterm.backends.telnet;
 
 import android.net.Uri;
 
-import androidx.annotation.Keep;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
@@ -31,7 +30,6 @@ import green_green_avk.telnetclient.WindowSizeTelnetOptionHandler;
 
 public final class TelnetModule extends BackendModule {
 
-    @Keep
     public static final Meta meta = new Meta(TelnetModule.class, "telnet") {
         @Override
         @NonNull
