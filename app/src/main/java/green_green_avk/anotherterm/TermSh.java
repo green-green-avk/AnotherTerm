@@ -796,7 +796,7 @@ public final class TermSh {
 
             private void requirePerms(final long perms) {
                 if (shellSessionData == null ||
-                        (shellSessionData.permissions &
+                        (shellSessionData.permissions.get() &
                                 perms) != perms) {
                     throw new ShellSecurityException();
                 }
@@ -1907,8 +1907,9 @@ public final class TermSh {
                             final String permStr = Misc.fromUTF8(shellCmd.args[1]);
                             final LocalModule.SessionData.PermMeta permMeta =
                                     LocalModule.SessionData.permByName.get(permStr);
-                            if (permMeta == null) throw new ParseException("No such permission");
-                            if ((shellCmd.shellSessionData.permissions & permMeta.bits)
+                            if (permMeta == null)
+                                throw new ParseException("No such permission");
+                            if ((shellCmd.shellSessionData.permissions.get() & permMeta.bits)
                                     == permMeta.bits) {
                                 exitStatus = 3;
                                 break;
@@ -1922,10 +1923,10 @@ public final class TermSh {
                                         ui.ctx.getString(
                                                 permMeta.titleRes
                                         ), prompt)))
-                                    synchronized (shellCmd.shellSessionData) {
-                                        shellCmd.shellSessionData.permissions |= permMeta.bits;
-                                    }
-                                else exitStatus = 2;
+                                    Misc.getAndUpdate(shellCmd.shellSessionData.permissions,
+                                            v -> v | permMeta.bits);
+                                else
+                                    exitStatus = 2;
                             } finally {
                                 shellCmd.setOnTerminate(null);
                             }
@@ -1938,10 +1939,10 @@ public final class TermSh {
                             final String permStr = Misc.fromUTF8(shellCmd.args[1]);
                             final LocalModule.SessionData.PermMeta permMeta =
                                     LocalModule.SessionData.permByName.get(permStr);
-                            if (permMeta == null) throw new ParseException("No such permission");
-                            synchronized (shellCmd.shellSessionData) {
-                                shellCmd.shellSessionData.permissions &= ~permMeta.bits;
-                            }
+                            if (permMeta == null)
+                                throw new ParseException("No such permission");
+                            Misc.getAndUpdate(shellCmd.shellSessionData.permissions,
+                                    v -> v & ~permMeta.bits);
                             break;
                         }
                         case "has-favorite": {

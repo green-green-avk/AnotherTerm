@@ -46,6 +46,8 @@ import java.util.Queue;
 import java.util.Set;
 import java.util.SortedMap;
 import java.util.SortedSet;
+import java.util.concurrent.atomic.AtomicLong;
+import java.util.function.LongUnaryOperator;
 
 import green_green_avk.anotherterm.App;
 import green_green_avk.anotherterm.BuildConfig;
@@ -417,6 +419,29 @@ public final class Misc {
         } else {
             new Handler(Looper.getMainLooper()).post(r);
         }
+    }
+
+    public interface LongUnaryOp {
+        long apply(long v);
+    }
+
+    /**
+     * A lightweight compat version of {@link AtomicLong#getAndUpdate(LongUnaryOperator)}.
+     * <p>
+     * <a href="https://developer.android.com/studio/write/java8-support#library-desugaring">Desugaring with additional lib / multidex</a>???
+     * I implore!
+     */
+    public static long getAndUpdate(@NonNull final AtomicLong v,
+                                    @NonNull final LongUnaryOp op) {
+        long prev, next;
+        do {
+            prev = v.get();
+            next = op.apply(prev);
+            if (prev == next) {
+                break;
+            }
+        } while (!v.compareAndSet(prev, next));
+        return prev;
     }
 
     public static void runOnThread(@NonNull final Runnable r) {

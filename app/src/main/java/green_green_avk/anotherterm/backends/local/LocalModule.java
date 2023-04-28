@@ -19,6 +19,7 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.atomic.AtomicLong;
 
 import green_green_avk.anotherterm.BuildConfig;
 import green_green_avk.anotherterm.R;
@@ -160,7 +161,7 @@ public final class LocalModule extends BackendModule {
                     R.string.label_copy_to_clipboard));
         }
 
-        public volatile long permissions = 0;
+        public final AtomicLong permissions = new AtomicLong(0);
 
         public BackendUiInteraction ui;
 
@@ -238,7 +239,7 @@ public final class LocalModule extends BackendModule {
         for (final Map.Entry<String, SessionData.PermMeta> m : SessionData.permByName.entrySet())
             if (pp.getBoolean("perm_" + m.getKey(), false))
                 _perms |= m.getValue().bits;
-        sessionData.permissions = _perms;
+        sessionData.permissions.set(_perms);
         envInput.clear();
         for (final Map.Entry<String, ?> p : params.entrySet())
             if (p.getKey() != null && p.getKey().startsWith(ENV_INPUT_PREFIX) &&
@@ -445,8 +446,8 @@ public final class LocalModule extends BackendModule {
     /**
      * Tools (only `termsh' now) for interaction with the Android environment are supposed to be
      * controlled on what they can do.
-     * TODO: Possibly, a listener to prevent the race condition
-     * but is it reasonable for a manual setting?
+     * <p>
+     * TODO: Reactive?
      */
     @Keep
     @ExportedUIMethod(titleRes = R.string.action_session_permissions, order = 2)
@@ -458,10 +459,7 @@ public final class LocalModule extends BackendModule {
             R.string.label_copy_to_clipboard
     })
     public long changePermissions(final long permissions, final long mask) {
-        synchronized (sessionData) {
-            final long r = sessionData.permissions;
-            sessionData.permissions = (permissions & mask) | (sessionData.permissions & ~mask);
-            return r;
-        }
+        return Misc.getAndUpdate(sessionData.permissions,
+                v -> (permissions & mask) | (v & ~mask));
     }
 }
