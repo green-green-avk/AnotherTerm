@@ -71,7 +71,7 @@ public final class BackendsList {
                      @LayoutRes final int settingsLayout, @StringRes final int title,
                      @DrawableRes final int icon) {
             this.impl = impl;
-            this.meta = BackendModule.getMeta(impl, typeStr);
+            this.meta = BackendModule.getMeta(impl);
             this.typeStr = typeStr;
             this.exportable = exportable;
             this.settingsLayout = settingsLayout;
@@ -88,30 +88,35 @@ public final class BackendsList {
         for (int i = 0; i < list.length; ++i) {
             mImpls.put(list[i].impl, i);
             mTypeStrs.put(list[i].typeStr, i);
-            for (final String scheme : list[i].meta.getUriSchemes()) mSchemes.put(scheme, i);
+            for (final String scheme : list[i].meta.getUriSchemes())
+                mSchemes.put(scheme, i);
         }
     }
 
     public static int getId(final Class<? extends BackendModule> v) {
         final Integer id = mImpls.get(v);
-        if (id == null) return -1;
+        if (id == null)
+            return -1;
         return id;
     }
 
     public static int getId(final String v) {
         final Integer id = mTypeStrs.get(v);
-        if (id == null) return -1;
+        if (id == null)
+            return -1;
         return id;
     }
 
     public static int getId(final Object v) {
-        if (v instanceof String) return getId((String) v);
+        if (v instanceof String)
+            return getId((String) v);
         return -1;
     }
 
     public static int getIdByScheme(final String scheme) {
         final Integer id = mSchemes.get(scheme);
-        if (id == null) return -1;
+        if (id == null)
+            return -1;
         return id;
     }
 
@@ -170,9 +175,11 @@ public final class BackendsList {
     @NonNull
     public static Map<String, Object> fromUri(@NonNull final Uri uri) {
         final String scheme = uri.getScheme();
-        if (scheme == null) throw new BackendModule.ParametersUriParseException();
+        if (scheme == null)
+            throw new BackendModule.ParametersUriParseException();
         final int id = getIdByScheme(scheme);
-        if (id < 0) throw new BackendModule.ParametersUriParseException();
+        if (id < 0)
+            throw new BackendModule.ParametersUriParseException();
         final Map<String, Object> params = get(id).meta.fromUri(uri);
         params.put("type", get(id).typeStr);
         return params;

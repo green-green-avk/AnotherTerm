@@ -5,7 +5,6 @@ import android.os.Environment;
 import android.os.ParcelFileDescriptor;
 import android.text.TextUtils;
 
-import androidx.annotation.Keep;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.StringRes;
@@ -32,7 +31,6 @@ import green_green_avk.ptyprocess.PtyProcess;
 
 public final class LocalModule extends BackendModule {
 
-    @Keep
     public static final Meta meta =
             new Meta(LocalModule.class, "local-terminal") {
                 @Override
@@ -427,7 +425,6 @@ public final class LocalModule extends BackendModule {
      * the functions below can be used to send appropriate signals to the foreground process group.
      * <a href="https://www.win.tue.nl/~aeb/linux/lk/lk-10.html">The Linux kernel - 10. Processes</a>
      */
-    @Keep
     @ExportedUIMethod(titleRes = R.string.action_send_signal,
             longTitleRes = R.string.action_send_signal_to_fg_pg, order = 1)
     public void sendSignal(@ExportedUIMethodIntEnum(values = {
@@ -449,7 +446,6 @@ public final class LocalModule extends BackendModule {
      * <p>
      * TODO: Reactive?
      */
-    @Keep
     @ExportedUIMethod(titleRes = R.string.action_session_permissions, order = 2)
     @ExportedUIMethodFlags(values = {
             SessionData.PERM_FAVMGMT, SessionData.PERM_PLUGINEXEC,

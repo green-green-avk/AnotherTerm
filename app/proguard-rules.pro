@@ -23,6 +23,15 @@
 -keepclassmembers !abstract !interface **
  extends green_green_avk.anotherterm.backends.BackendModule {
     <init>();
+    green_green_avk.anotherterm.backends.BackendModule$Meta meta;
+}
+
+-keepclassmembers, allowobfuscation class ** {
+    @green_green_avk.anotherterm.backends.BackendModule$ExportedUIMethod <methods>;
+}
+
+-keepclassmembers class ** {
+    @green_green_avk.anotherterm.utils.Settings$Param <fields>;
 }
 
 -keep class com.felhr.** {

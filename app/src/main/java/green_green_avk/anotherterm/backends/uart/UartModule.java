@@ -3,7 +3,6 @@ package green_green_avk.anotherterm.backends.uart;
 import android.content.Context;
 import android.net.Uri;
 
-import androidx.annotation.Keep;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
@@ -29,7 +28,6 @@ import green_green_avk.anotherterm.utils.ResultException;
 
 public final class UartModule extends BackendModule {
 
-    @Keep
     public static final Meta meta = new Meta(UartModule.class, "uart") {
         private final Collection<Requirement> btRequirements = new ArrayList<>();
 

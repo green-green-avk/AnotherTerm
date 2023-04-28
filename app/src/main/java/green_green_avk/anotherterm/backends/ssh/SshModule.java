@@ -8,7 +8,6 @@ import android.text.Html;
 import android.util.Base64;
 import android.util.Log;
 
-import androidx.annotation.Keep;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
@@ -119,7 +118,6 @@ public final class SshModule extends BackendModule {
         parametersMeta = Collections.unmodifiableMap(r);
     }
 
-    @Keep
     public static final Meta meta = new Meta(SshModule.class, "ssh") {
         @Override
         @NonNull
@@ -1098,7 +1096,6 @@ public final class SshModule extends BackendModule {
         return es != null ? new ProcessExitDisconnectionReason(es) : null;
     }
 
-    @Keep
     @ExportedUIMethod(titleRes = R.string.action_new_shell_in_this_ssh_session,
             longTitleRes = R.string.desc_new_shell_in_this_ssh_session,
             order = 1)
@@ -1109,7 +1106,6 @@ public final class SshModule extends BackendModule {
         return be;
     }
 
-    @Keep
     @ExportedUIMethod(titleRes = R.string.action_manage_portFw_in_this_ssh_session,
             longTitleRes = R.string.desc_manage_portFw_in_this_ssh_session,
             order = 2)
@@ -1127,7 +1123,6 @@ public final class SshModule extends BackendModule {
      * SSH "signal" {@code SSH_MSG_CHANNEL_REQUEST}.
      * <a href="https://www.rfc-editor.org/rfc/rfc4254.html#section-6.9">RFC4254 - 6.9</a>
      */
-    @Keep
     @ExportedUIMethodOnThread(before = true)
     @ExportedUIMethod(titleRes = R.string.action_send_signal,
             longTitleRes = R.string.action_send_signal_to_remote_process, order = 3)
