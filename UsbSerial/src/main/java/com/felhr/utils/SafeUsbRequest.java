@@ -5,15 +5,14 @@ import android.hardware.usb.UsbRequest;
 import java.lang.reflect.Field;
 import java.nio.ByteBuffer;
 
-
 public class SafeUsbRequest extends UsbRequest {
     static final String usbRqBufferField = "mBuffer";
     static final String usbRqLengthField = "mLength";
 
     @Override
-    public boolean queue(ByteBuffer buffer, int length) {
-        Field usbRequestBuffer;
-        Field usbRequestLength;
+    public boolean queue(final ByteBuffer buffer, final int length) {
+        final Field usbRequestBuffer;
+        final Field usbRequestLength;
         try {
             usbRequestBuffer = UsbRequest.class.getDeclaredField(usbRqBufferField);
             usbRequestLength = UsbRequest.class.getDeclaredField(usbRqLengthField);
@@ -21,7 +20,7 @@ public class SafeUsbRequest extends UsbRequest {
             usbRequestLength.setAccessible(true);
             usbRequestBuffer.set(this, buffer);
             usbRequestLength.set(this, length);
-        } catch (Exception e) {
+        } catch (final Exception e) {
             throw new RuntimeException(e);
         }
 

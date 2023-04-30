@@ -4,15 +4,13 @@ import android.util.Log;
 
 import com.felhr.utils.HexData;
 
-public class UsbSerialDebugger {
+public final class UsbSerialDebugger {
     private static final String CLASS_ID = UsbSerialDebugger.class.getSimpleName();
-    public static final String ENCODING = "UTF-8";
 
     private UsbSerialDebugger() {
-
     }
 
-    public static void printLogGet(byte[] src, boolean verbose) {
+    public static void printLogGet(final byte[] src, final boolean verbose) {
         if (!verbose) {
             Log.i(CLASS_ID, "Data obtained from write buffer: " + new String(src));
         } else {
@@ -22,7 +20,7 @@ public class UsbSerialDebugger {
         }
     }
 
-    public static void printLogPut(byte[] src, boolean verbose) {
+    public static void printLogPut(final byte[] src, final boolean verbose) {
         if (!verbose) {
             Log.i(CLASS_ID, "Data obtained pushed to write buffer: " + new String(src));
         } else {
@@ -32,7 +30,7 @@ public class UsbSerialDebugger {
         }
     }
 
-    public static void printReadLogGet(byte[] src, boolean verbose) {
+    public static void printReadLogGet(final byte[] src, final boolean verbose) {
         if (!verbose) {
             Log.i(CLASS_ID, "Data obtained from Read buffer: " + new String(src));
         } else {
@@ -42,7 +40,7 @@ public class UsbSerialDebugger {
         }
     }
 
-    public static void printReadLogPut(byte[] src, boolean verbose) {
+    public static void printReadLogPut(final byte[] src, final boolean verbose) {
         if (!verbose) {
             Log.i(CLASS_ID, "Data obtained pushed to read buffer: " + new String(src));
         } else {
@@ -51,6 +49,4 @@ public class UsbSerialDebugger {
             Log.i(CLASS_ID, "Number of bytes pushed from read buffer: " + src.length);
         }
     }
-
-
 }

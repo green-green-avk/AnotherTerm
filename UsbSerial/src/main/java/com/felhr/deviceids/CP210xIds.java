@@ -3,7 +3,10 @@ package com.felhr.deviceids;
 import static com.felhr.deviceids.Helpers.createDevice;
 import static com.felhr.deviceids.Helpers.createTable;
 
-public class CP210xIds {
+public final class CP210xIds {
+    private CP210xIds() {
+    }
+
     /* Different products and vendors of CP210x family
     // From current cp210x linux driver:
     https://github.com/torvalds/linux/blob/164c09978cebebd8b5fc198e9243777dbaecdfa0/drivers/usb/serial/cp210x.c
@@ -147,7 +150,7 @@ public class CP210xIds {
             createDevice(0x1908, 0x2311)    //serial of CMOS camera
     );
 
-    public static boolean isDeviceSupported(int vendorId, int productId) {
+    public static boolean isDeviceSupported(final int vendorId, final int productId) {
         return Helpers.exists(cp210xDevices, vendorId, productId);
     }
 }

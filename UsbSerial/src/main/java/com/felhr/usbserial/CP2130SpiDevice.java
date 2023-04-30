@@ -35,11 +35,12 @@ public class CP2130SpiDevice extends UsbSpiDevice {
 
     private int currentChannel;
 
-    public CP2130SpiDevice(UsbDevice device, UsbDeviceConnection connection) {
+    public CP2130SpiDevice(final UsbDevice device, final UsbDeviceConnection connection) {
         this(device, connection, -1);
     }
 
-    public CP2130SpiDevice(UsbDevice device, UsbDeviceConnection connection, int iface) {
+    public CP2130SpiDevice(final UsbDevice device, final UsbDeviceConnection connection,
+                           final int iface) {
         super(device, connection);
         mInterface = device.getInterface(iface >= 0 ? iface : 0);
         currentChannel = 0;
@@ -48,7 +49,7 @@ public class CP2130SpiDevice extends UsbSpiDevice {
 
     @Override
     public boolean connectSPI() {
-        boolean ret = openCP2130();
+        final boolean ret = openCP2130();
 
         if (!ret)
             return false;
@@ -69,8 +70,8 @@ public class CP2130SpiDevice extends UsbSpiDevice {
     }
 
     @Override
-    public void writeMOSI(byte[] buffer) {
-        byte[] buffCommand = new byte[buffer.length + 8];
+    public void writeMOSI(final byte[] buffer) {
+        final byte[] buffCommand = new byte[buffer.length + 8];
         buffCommand[0] = 0x00;
         buffCommand[1] = 0x00;
         buffCommand[2] = 0x01;
@@ -86,7 +87,7 @@ public class CP2130SpiDevice extends UsbSpiDevice {
     }
 
     @Override
-    public void setClock(int clockDivider) {
+    public void setClock(final int clockDivider) {
         switch (clockDivider) {
             case CLOCK_12MHz:
                 setSetSpiWord(currentChannel, CLOCK_12MHz);
@@ -116,8 +117,8 @@ public class CP2130SpiDevice extends UsbSpiDevice {
     }
 
     @Override
-    public void readMISO(int lengthBuffer) {
-        byte[] buffCommand = new byte[8];
+    public void readMISO(final int lengthBuffer) {
+        final byte[] buffCommand = new byte[8];
         buffCommand[0] = 0x00;
         buffCommand[1] = 0x00;
         buffCommand[2] = 0x00;
@@ -131,8 +132,8 @@ public class CP2130SpiDevice extends UsbSpiDevice {
     }
 
     @Override
-    public void writeRead(byte[] buffer, int lengthRead) {
-        byte[] buffCommand = new byte[8 + buffer.length];
+    public void writeRead(final byte[] buffer, final int lengthRead) {
+        final byte[] buffCommand = new byte[8 + buffer.length];
         buffCommand[0] = 0x00;
         buffCommand[1] = 0x00;
         buffCommand[2] = 0x02;
@@ -148,7 +149,7 @@ public class CP2130SpiDevice extends UsbSpiDevice {
     }
 
     @Override
-    public void selectSlave(int nSlave) {
+    public void selectSlave(final int nSlave) {
         if (nSlave > 10 || nSlave < 0) {
             Log.i(CLASS_ID, "selected slave must be in 0-10 range");
             return;
@@ -159,7 +160,7 @@ public class CP2130SpiDevice extends UsbSpiDevice {
 
     @Override
     public int getClockDivider() {
-        byte[] data = getSpiWord();
+        final byte[] data = getSpiWord();
         return data[currentChannel] & 0x07;
     }
 
@@ -179,9 +180,9 @@ public class CP2130SpiDevice extends UsbSpiDevice {
         }
 
         // Assign endpoints
-        int numberEndpoints = mInterface.getEndpointCount();
+        final int numberEndpoints = mInterface.getEndpointCount();
         for (int i = 0; i <= numberEndpoints - 1; i++) {
-            UsbEndpoint endpoint = mInterface.getEndpoint(i);
+            final UsbEndpoint endpoint = mInterface.getEndpoint(i);
             if (endpoint.getType() == UsbConstants.USB_ENDPOINT_XFER_BULK
                     && endpoint.getDirection() == UsbConstants.USB_DIR_IN) {
                 inEndpoint = endpoint;
@@ -193,8 +194,8 @@ public class CP2130SpiDevice extends UsbSpiDevice {
         return true;
     }
 
-    private void setSetSpiWord(int channel, int freq) {
-        byte[] payload = new byte[2];
+    private void setSetSpiWord(final int channel, final int freq) {
+        final byte[] payload = new byte[2];
 
         if (channel >= 0 && channel <= 10) {
             payload[0] = (byte) channel;
@@ -203,14 +204,14 @@ public class CP2130SpiDevice extends UsbSpiDevice {
             return;
         }
         payload[1] = (byte) (freq);
-        payload[1] = (byte) (payload[1] | (1 << 3)); // Push pull chip select pin mode
+        payload[1] |= (1 << 3); // Push pull chip select pin mode
 
         setControlCommandOut(SET_SPI_WORD, 0, 0, payload);
 
     }
 
-    private void setGpioChipSelect(int channel, boolean othersDisabled) {
-        byte[] payload = new byte[2];
+    private void setGpioChipSelect(final int channel, final boolean othersDisabled) {
+        final byte[] payload = new byte[2];
 
         if (channel >= 0 && channel <= 10) {
             payload[0] = (byte) channel;
@@ -219,7 +220,7 @@ public class CP2130SpiDevice extends UsbSpiDevice {
             return;
         }
 
-        byte control;
+        final byte control;
         if (othersDisabled)
             control = 0x02;
         else
@@ -227,7 +228,7 @@ public class CP2130SpiDevice extends UsbSpiDevice {
 
         payload[1] = control;
 
-        int ret = setControlCommandOut(SET_GPIO_CHIP_SELECT, 0x00, 0x00, payload);
+        final int ret = setControlCommandOut(SET_GPIO_CHIP_SELECT, 0x00, 0x00, payload);
 
         if (ret != -1)
             currentChannel = channel;
@@ -238,20 +239,22 @@ public class CP2130SpiDevice extends UsbSpiDevice {
         return setControlCommandIn(GET_SPI_WORD, 0x00, 0x00, 2);
     }
 
-    private int setControlCommandOut(int request, int value, int index, byte[] data) {
+    private int setControlCommandOut(final int request, final int value, final int index,
+                                     final byte[] data) {
         int dataLength = 0;
         if (data != null) {
             dataLength = data.length;
         }
-        int response = connection.controlTransfer(BM_REQ_HOST_2_DEVICE, request, value, mInterface.getId(), data, dataLength, USB_TIMEOUT);
-        Log.i(CLASS_ID, "Control Transfer Response: " + String.valueOf(response));
+        final int response = connection.controlTransfer(BM_REQ_HOST_2_DEVICE, request, value, mInterface.getId(), data, dataLength, USB_TIMEOUT);
+        Log.i(CLASS_ID, "Control Transfer Response: " + response);
         return response;
     }
 
-    private byte[] setControlCommandIn(int request, int value, int index, int length) {
-        byte[] data = new byte[length];
-        int response = connection.controlTransfer(BM_REQ_DEVICE_2_HOST, request, value, mInterface.getId(), data, length, USB_TIMEOUT);
-        Log.i(CLASS_ID, "Control Transfer Response: " + String.valueOf(response));
+    private byte[] setControlCommandIn(final int request, final int value, final int index,
+                                       final int length) {
+        final byte[] data = new byte[length];
+        final int response = connection.controlTransfer(BM_REQ_DEVICE_2_HOST, request, value, mInterface.getId(), data, length, USB_TIMEOUT);
+        Log.i(CLASS_ID, "Control Transfer Response: " + response);
         return data;
     }
 }

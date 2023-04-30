@@ -1,6 +1,5 @@
 package com.felhr.usbserial;
 
-
 public interface UsbSpiInterface {
     // Clock dividers;
     int DIVIDER_2 = 2;

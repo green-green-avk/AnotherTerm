@@ -45,7 +45,7 @@ public class BLED112SerialDevice extends UsbSerialDevice {
     private UsbEndpoint outEndpoint;
 
     @Deprecated
-    public BLED112SerialDevice(UsbDevice device, UsbDeviceConnection connection) {
+    public BLED112SerialDevice(final UsbDevice device, final UsbDeviceConnection connection) {
         super(device, connection);
         mInterface = device.getInterface(1); // BLED112 Interface 0: Communications | Interface 1: CDC Data
     }
@@ -63,9 +63,9 @@ public class BLED112SerialDevice extends UsbSerialDevice {
         }
 
         // Assign endpoints
-        int numberEndpoints = mInterface.getEndpointCount();
+        final int numberEndpoints = mInterface.getEndpointCount();
         for (int i = 0; i <= numberEndpoints - 1; i++) {
-            UsbEndpoint endpoint = mInterface.getEndpoint(i);
+            final UsbEndpoint endpoint = mInterface.getEndpoint(i);
             if (endpoint.getType() == UsbConstants.USB_ENDPOINT_XFER_BULK
                     && endpoint.getDirection() == UsbConstants.USB_DIR_IN) {
                 inEndpoint = endpoint;
@@ -79,7 +79,7 @@ public class BLED112SerialDevice extends UsbSerialDevice {
         setControlCommand(BLED112_SET_CONTROL_LINE_STATE, BLED112_DEFAULT_CONTROL_LINE, null);
 
         // Initialize UsbRequest
-        UsbRequest requestIN = new UsbRequest();
+        final UsbRequest requestIN = new UsbRequest();
         requestIN.initialize(connection, inEndpoint);
 
         // Pass references to the threads
@@ -107,8 +107,8 @@ public class BLED112SerialDevice extends UsbSerialDevice {
     }
 
     @Override
-    public void setBaudRate(int baudRate) {
-        byte[] data = getLineCoding();
+    public void setBaudRate(final int baudRate) {
+        final byte[] data = getLineCoding();
 
         data[3] = (byte) (baudRate & 0xff);
         data[2] = (byte) (baudRate >> 8 & 0xff);
@@ -119,8 +119,8 @@ public class BLED112SerialDevice extends UsbSerialDevice {
     }
 
     @Override
-    public void setDataBits(int dataBits) {
-        byte[] data = getLineCoding();
+    public void setDataBits(final int dataBits) {
+        final byte[] data = getLineCoding();
         switch (dataBits) {
             case UsbSerialInterface.DATA_BITS_5:
                 data[6] = 0x05;
@@ -141,8 +141,8 @@ public class BLED112SerialDevice extends UsbSerialDevice {
     }
 
     @Override
-    public void setStopBits(int stopBits) {
-        byte[] data = getLineCoding();
+    public void setStopBits(final int stopBits) {
+        final byte[] data = getLineCoding();
         switch (stopBits) {
             case UsbSerialInterface.STOP_BITS_1:
                 data[4] = 0x00;
@@ -161,8 +161,8 @@ public class BLED112SerialDevice extends UsbSerialDevice {
     }
 
     @Override
-    public void setParity(int parity) {
-        byte[] data = getLineCoding();
+    public void setParity(final int parity) {
+        final byte[] data = getLineCoding();
         switch (parity) {
             case UsbSerialInterface.PARITY_NONE:
                 data[5] = 0x00;
@@ -186,72 +186,70 @@ public class BLED112SerialDevice extends UsbSerialDevice {
     }
 
     @Override
-    public void setBreak(boolean state) {
+    public void setBreak(final boolean state) {
         //TODO
     }
 
     @Override
-    public void setRTS(boolean state) {
+    public void setRTS(final boolean state) {
         //TODO
     }
 
     @Override
-    public void setDTR(boolean state) {
+    public void setDTR(final boolean state) {
         //TODO
     }
 
     @Override
-    public void setFlowControl(int flowControl) {
+    public void setFlowControl(final int flowControl) {
         // TODO Auto-generated method stub
 
     }
 
     @Override
-    public void getCTS(UsbCTSCallback ctsCallback) {
+    public void getCTS(final UsbCTSCallback ctsCallback) {
         //TODO
     }
 
     @Override
-    public void getDSR(UsbDSRCallback dsrCallback) {
+    public void getDSR(final UsbDSRCallback dsrCallback) {
         //TODO
     }
 
     @Override
-    public void getBreak(UsbBreakCallback breakCallback) {
+    public void getBreak(final UsbBreakCallback breakCallback) {
         //TODO
     }
 
     @Override
-    public void getFrame(UsbFrameCallback frameCallback) {
+    public void getFrame(final UsbFrameCallback frameCallback) {
         //TODO
     }
 
     @Override
-    public void getOverrun(UsbOverrunCallback overrunCallback) {
+    public void getOverrun(final UsbOverrunCallback overrunCallback) {
         //TODO
     }
 
     @Override
-    public void getParity(UsbParityCallback parityCallback) {
+    public void getParity(final UsbParityCallback parityCallback) {
         //TODO
     }
 
-    private int setControlCommand(int request, int value, byte[] data) {
+    private int setControlCommand(final int request, final int value, final byte[] data) {
         int dataLength = 0;
         if (data != null) {
             dataLength = data.length;
         }
-        int response = connection.controlTransfer(BLED112_REQTYPE_HOST2DEVICE, request, value, 0, data, dataLength, USB_TIMEOUT);
-        Log.i(CLASS_ID, "Control Transfer Response: " + String.valueOf(response));
+        final int response = connection.controlTransfer(BLED112_REQTYPE_HOST2DEVICE, request, value, 0, data, dataLength, USB_TIMEOUT);
+        Log.i(CLASS_ID, "Control Transfer Response: " + response);
         return response;
     }
 
     private byte[] getLineCoding() {
-        byte[] data = new byte[7];
-        int response = connection.controlTransfer(BLED112_REQTYPE_DEVICE2HOST, BLED112_GET_LINE_CODING, 0, 0, data, data.length, USB_TIMEOUT);
-        Log.i(CLASS_ID, "Control Transfer Response: " + String.valueOf(response));
+        final byte[] data = new byte[7];
+        final int response = connection.controlTransfer(BLED112_REQTYPE_DEVICE2HOST, BLED112_GET_LINE_CODING, 0, 0, data, data.length, USB_TIMEOUT);
+        Log.i(CLASS_ID, "Control Transfer Response: " + response);
         return data;
     }
-
-
 }

@@ -37,11 +37,12 @@ public class PL2303SerialDevice extends UsbSerialDevice {
     private UsbEndpoint outEndpoint;
 
 
-    public PL2303SerialDevice(UsbDevice device, UsbDeviceConnection connection) {
+    public PL2303SerialDevice(final UsbDevice device, final UsbDeviceConnection connection) {
         this(device, connection, -1);
     }
 
-    public PL2303SerialDevice(UsbDevice device, UsbDeviceConnection connection, int iface) {
+    public PL2303SerialDevice(final UsbDevice device, final UsbDeviceConnection connection,
+                              final int iface) {
         super(device, connection);
 
         if (iface > 1) {
@@ -53,11 +54,11 @@ public class PL2303SerialDevice extends UsbSerialDevice {
 
     @Override
     public boolean open() {
-        boolean ret = openPL2303();
+        final boolean ret = openPL2303();
 
         if (ret) {
             // Initialize UsbRequest
-            UsbRequest requestIN = new SafeUsbRequest();
+            final UsbRequest requestIN = new SafeUsbRequest();
             requestIN.initialize(connection, inEndpoint);
 
             // Restart the working thread if it has been killed before and  get and claim interface
@@ -87,7 +88,7 @@ public class PL2303SerialDevice extends UsbSerialDevice {
 
     @Override
     public boolean syncOpen() {
-        boolean ret = openPL2303();
+        final boolean ret = openPL2303();
         if (ret) {
             setSyncParams(inEndpoint, outEndpoint);
             asyncMode = false;
@@ -111,8 +112,8 @@ public class PL2303SerialDevice extends UsbSerialDevice {
     }
 
     @Override
-    public void setBaudRate(int baudRate) {
-        byte[] tempBuffer = new byte[4];
+    public void setBaudRate(final int baudRate) {
+        final byte[] tempBuffer = new byte[4];
         tempBuffer[0] = (byte) (baudRate & 0xff);
         tempBuffer[1] = (byte) (baudRate >> 8 & 0xff);
         tempBuffer[2] = (byte) (baudRate >> 16 & 0xff);
@@ -128,7 +129,7 @@ public class PL2303SerialDevice extends UsbSerialDevice {
     }
 
     @Override
-    public void setDataBits(int dataBits) {
+    public void setDataBits(final int dataBits) {
         switch (dataBits) {
             case UsbSerialInterface.DATA_BITS_5:
                 if (defaultSetLine[6] != 0x05) {
@@ -155,13 +156,12 @@ public class PL2303SerialDevice extends UsbSerialDevice {
                 }
                 break;
             default:
-                return;
         }
 
     }
 
     @Override
-    public void setStopBits(int stopBits) {
+    public void setStopBits(final int stopBits) {
         switch (stopBits) {
             case UsbSerialInterface.STOP_BITS_1:
                 if (defaultSetLine[4] != 0x00) {
@@ -182,12 +182,11 @@ public class PL2303SerialDevice extends UsbSerialDevice {
                 }
                 break;
             default:
-                return;
         }
     }
 
     @Override
-    public void setParity(int parity) {
+    public void setParity(final int parity) {
         switch (parity) {
             case UsbSerialInterface.PARITY_NONE:
                 if (defaultSetLine[5] != 0x00) {
@@ -220,74 +219,72 @@ public class PL2303SerialDevice extends UsbSerialDevice {
                 }
                 break;
             default:
-                return;
         }
 
     }
 
     @Override
-    public void setFlowControl(int flowControl) {
+    public void setFlowControl(final int flowControl) {
         // TODO
-
     }
 
     @Override
-    public void setBreak(boolean state) {
+    public void setBreak(final boolean state) {
         //TODO
     }
 
     @Override
-    public void setRTS(boolean state) {
+    public void setRTS(final boolean state) {
         //TODO
     }
 
     @Override
-    public void setDTR(boolean state) {
+    public void setDTR(final boolean state) {
         //TODO
     }
 
     @Override
-    public void getCTS(UsbCTSCallback ctsCallback) {
+    public void getCTS(final UsbCTSCallback ctsCallback) {
         //TODO
     }
 
     @Override
-    public void getDSR(UsbDSRCallback dsrCallback) {
+    public void getDSR(final UsbDSRCallback dsrCallback) {
         //TODO
     }
 
     @Override
-    public void getBreak(UsbBreakCallback breakCallback) {
+    public void getBreak(final UsbBreakCallback breakCallback) {
         //TODO
     }
 
     @Override
-    public void getFrame(UsbFrameCallback frameCallback) {
+    public void getFrame(final UsbFrameCallback frameCallback) {
         //TODO
     }
 
     @Override
-    public void getOverrun(UsbOverrunCallback overrunCallback) {
+    public void getOverrun(final UsbOverrunCallback overrunCallback) {
         //TODO
     }
 
     @Override
-    public void getParity(UsbParityCallback parityCallback) {
+    public void getParity(final UsbParityCallback parityCallback) {
         //TODO
     }
 
     private boolean openPL2303() {
         if (connection.claimInterface(mInterface, true)) {
-            Log.i(CLASS_ID, "Interface succesfully claimed");
+            Log.i(CLASS_ID, "Interface successfully claimed");
         } else {
             Log.i(CLASS_ID, "Interface could not be claimed");
             return false;
         }
 
         // Assign endpoints
-        int numberEndpoints = mInterface.getEndpointCount();
+        final int numberEndpoints = mInterface.getEndpointCount();
         for (int i = 0; i <= numberEndpoints - 1; i++) {
-            UsbEndpoint endpoint = mInterface.getEndpoint(i);
+            final UsbEndpoint endpoint = mInterface.getEndpoint(i);
             if (endpoint.getType() == UsbConstants.USB_ENDPOINT_XFER_BULK
                     && endpoint.getDirection() == UsbConstants.USB_DIR_IN)
                 inEndpoint = endpoint;
@@ -297,7 +294,7 @@ public class PL2303SerialDevice extends UsbSerialDevice {
         }
 
         //Default Setup
-        byte[] buf = new byte[1];
+        final byte[] buf = new byte[1];
         //Specific vendor stuff that I barely understand but It is on linux drivers, So I trust :)
         if (setControlCommand(PL2303_REQTYPE_DEVICE2HOST_VENDOR, PL2303_VENDOR_WRITE_REQUEST, 0x8484, 0, buf) < 0)
             return false;
@@ -326,18 +323,15 @@ public class PL2303SerialDevice extends UsbSerialDevice {
             return false;
         if (setControlCommand(PL2303_REQTYPE_HOST2DEVICE, PL2303_SET_LINE_CODING, 0x0000, 0, defaultSetLine) < 0)
             return false;
-        if (setControlCommand(PL2303_REQTYPE_HOST2DEVICE_VENDOR, PL2303_VENDOR_WRITE_REQUEST, 0x0505, 0x1311, null) < 0)
-            return false;
-
-        return true;
+        return setControlCommand(PL2303_REQTYPE_HOST2DEVICE_VENDOR, PL2303_VENDOR_WRITE_REQUEST, 0x0505, 0x1311, null) >= 0;
     }
 
-    private int setControlCommand(int reqType, int request, int value, int index, byte[] data) {
+    private int setControlCommand(final int reqType, final int request, final int value, final int index, final byte[] data) {
         int dataLength = 0;
         if (data != null)
             dataLength = data.length;
-        int response = connection.controlTransfer(reqType, request, value, index, data, dataLength, USB_TIMEOUT);
-        Log.i(CLASS_ID, "Control Transfer Response: " + String.valueOf(response));
+        final int response = connection.controlTransfer(reqType, request, value, index, data, dataLength, USB_TIMEOUT);
+        Log.i(CLASS_ID, "Control Transfer Response: " + response);
         return response;
     }
 }

@@ -3,9 +3,8 @@ package com.felhr.deviceids;
 import static com.felhr.deviceids.Helpers.createDevice;
 import static com.felhr.deviceids.Helpers.createTable;
 
-public class CH34xIds {
+public final class CH34xIds {
     private CH34xIds() {
-
     }
 
     private static final long[] ch34xDevices = createTable(
@@ -15,7 +14,7 @@ public class CH34xIds {
             createDevice(0x1a86, 0x0445)
     );
 
-    public static boolean isDeviceSupported(int vendorId, int productId) {
+    public static boolean isDeviceSupported(final int vendorId, final int productId) {
         return Helpers.exists(ch34xDevices, vendorId, productId);
     }
 }

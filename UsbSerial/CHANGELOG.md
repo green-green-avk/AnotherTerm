@@ -3,6 +3,8 @@ CHANGELOG
 
 Derived release (Another Term) forked at <https://github.com/felHR85/UsbSerial/commit/7ad6c9f6880e93a29498e479d3e871d5b03d188b>
 --------------------------------------
+- Removed the [utility class for handling the common problem of split received information in some chipsets](https://github.com/felHR85/UsbSerial/blob/master/usbserial/src/main/java/com/felhr/utils/ProtocolBuffer.java)
+  as unused.
 ...
 
 Release 6.1.1 (planned in <https://github.com/felHR85/UsbSerial>)
@@ -17,7 +19,7 @@ Release 6.1.1 (planned in <https://github.com/felHR85/UsbSerial>)
 Release 6.1.0
 --------------------------------------
 - Added 1228800 and 2000000 baud rates to CH34xx driver.
-- Microchip pid/vid correclty determined.
+- Microchip pid/vid correctly determined.
 - FTDI sync method back to previous implementation.
 - setBreak method implemented in CP210x devices.
 - Added chunked stream methods.

@@ -54,18 +54,19 @@ public class CDCSerialDevice extends UsbSerialDevice {
 
     private int controlLineState = CDC_CONTROL_LINE_ON;
 
-    public CDCSerialDevice(UsbDevice device, UsbDeviceConnection connection) {
+    public CDCSerialDevice(final UsbDevice device, final UsbDeviceConnection connection) {
         this(device, connection, -1);
     }
 
-    public CDCSerialDevice(UsbDevice device, UsbDeviceConnection connection, int iface) {
+    public CDCSerialDevice(final UsbDevice device, final UsbDeviceConnection connection,
+                           final int iface) {
         super(device, connection);
         cdcControl = findFirstControl(device); // Not sure how to find the control interface for others.
         mInterface = device.getInterface(iface >= 0 ? iface : findFirstCDC(device));
     }
 
     @Override
-    public void setInitialBaudRate(int initialBaudRate) {
+    public void setInitialBaudRate(final int initialBaudRate) {
         this.initialBaudRate = initialBaudRate;
     }
 
@@ -76,11 +77,11 @@ public class CDCSerialDevice extends UsbSerialDevice {
 
     @Override
     public boolean open() {
-        boolean ret = openCDC();
+        final boolean ret = openCDC();
 
         if (ret) {
             // Initialize UsbRequest
-            UsbRequest requestIN = new SafeUsbRequest();
+            final UsbRequest requestIN = new SafeUsbRequest();
             requestIN.initialize(connection, inEndpoint);
 
             // Restart the working thread if it has been killed before and  get and claim interface
@@ -112,7 +113,7 @@ public class CDCSerialDevice extends UsbSerialDevice {
 
     @Override
     public boolean syncOpen() {
-        boolean ret = openCDC();
+        final boolean ret = openCDC();
         if (ret) {
             setSyncParams(inEndpoint, outEndpoint);
             asyncMode = false;
@@ -138,8 +139,8 @@ public class CDCSerialDevice extends UsbSerialDevice {
     }
 
     @Override
-    public void setBaudRate(int baudRate) {
-        byte[] data = getLineCoding();
+    public void setBaudRate(final int baudRate) {
+        final byte[] data = getLineCoding();
 
         data[0] = (byte) (baudRate & 0xff);
         data[1] = (byte) (baudRate >> 8 & 0xff);
@@ -150,8 +151,8 @@ public class CDCSerialDevice extends UsbSerialDevice {
     }
 
     @Override
-    public void setDataBits(int dataBits) {
-        byte[] data = getLineCoding();
+    public void setDataBits(final int dataBits) {
+        final byte[] data = getLineCoding();
         switch (dataBits) {
             case UsbSerialInterface.DATA_BITS_5:
                 data[6] = 0x05;
@@ -174,8 +175,8 @@ public class CDCSerialDevice extends UsbSerialDevice {
     }
 
     @Override
-    public void setStopBits(int stopBits) {
-        byte[] data = getLineCoding();
+    public void setStopBits(final int stopBits) {
+        final byte[] data = getLineCoding();
         switch (stopBits) {
             case UsbSerialInterface.STOP_BITS_1:
                 data[4] = 0x00;
@@ -196,8 +197,8 @@ public class CDCSerialDevice extends UsbSerialDevice {
     }
 
     @Override
-    public void setParity(int parity) {
-        byte[] data = getLineCoding();
+    public void setParity(final int parity) {
+        final byte[] data = getLineCoding();
         switch (parity) {
             case UsbSerialInterface.PARITY_NONE:
                 data[5] = 0x00;
@@ -223,18 +224,18 @@ public class CDCSerialDevice extends UsbSerialDevice {
     }
 
     @Override
-    public void setFlowControl(int flowControl) {
+    public void setFlowControl(final int flowControl) {
         // TODO Auto-generated method stub
 
     }
 
     @Override
-    public void setBreak(boolean state) {
+    public void setBreak(final boolean state) {
         //TODO
     }
 
     @Override
-    public void setRTS(boolean state) {
+    public void setRTS(final boolean state) {
         if (state)
             controlLineState |= CDC_SET_CONTROL_LINE_STATE_RTS;
         else
@@ -244,7 +245,7 @@ public class CDCSerialDevice extends UsbSerialDevice {
     }
 
     @Override
-    public void setDTR(boolean state) {
+    public void setDTR(final boolean state) {
         if (state)
             controlLineState |= CDC_SET_CONTROL_LINE_STATE_DTR;
         else
@@ -253,32 +254,32 @@ public class CDCSerialDevice extends UsbSerialDevice {
     }
 
     @Override
-    public void getCTS(UsbCTSCallback ctsCallback) {
+    public void getCTS(final UsbCTSCallback ctsCallback) {
         //TODO
     }
 
     @Override
-    public void getDSR(UsbDSRCallback dsrCallback) {
+    public void getDSR(final UsbDSRCallback dsrCallback) {
         //TODO
     }
 
     @Override
-    public void getBreak(UsbBreakCallback breakCallback) {
+    public void getBreak(final UsbBreakCallback breakCallback) {
         //TODO
     }
 
     @Override
-    public void getFrame(UsbFrameCallback frameCallback) {
+    public void getFrame(final UsbFrameCallback frameCallback) {
         //TODO
     }
 
     @Override
-    public void getOverrun(UsbOverrunCallback overrunCallback) {
+    public void getOverrun(final UsbOverrunCallback overrunCallback) {
         //TODO
     }
 
     @Override
-    public void getParity(UsbParityCallback parityCallback) {
+    public void getParity(final UsbParityCallback parityCallback) {
         //TODO
     }
 
@@ -291,9 +292,9 @@ public class CDCSerialDevice extends UsbSerialDevice {
         }
 
         // Assign endpoints
-        int numberEndpoints = mInterface.getEndpointCount();
+        final int numberEndpoints = mInterface.getEndpointCount();
         for (int i = 0; i <= numberEndpoints - 1; i++) {
-            UsbEndpoint endpoint = mInterface.getEndpoint(i);
+            final UsbEndpoint endpoint = mInterface.getEndpoint(i);
             if (endpoint.getType() == UsbConstants.USB_ENDPOINT_XFER_BULK
                     && endpoint.getDirection() == UsbConstants.USB_DIR_IN) {
                 inEndpoint = endpoint;
@@ -316,9 +317,9 @@ public class CDCSerialDevice extends UsbSerialDevice {
     }
 
     protected byte[] getInitialLineCoding() {
-        byte[] lineCoding;
+        final byte[] lineCoding;
 
-        int initialBaudRate = getInitialBaudRate();
+        final int initialBaudRate = getInitialBaudRate();
 
         if (initialBaudRate > 0) {
             lineCoding = CDC_DEFAULT_LINE_CODING.clone();
@@ -332,25 +333,25 @@ public class CDCSerialDevice extends UsbSerialDevice {
         return lineCoding;
     }
 
-    private int setControlCommand(int request, int value, byte[] data) {
+    private int setControlCommand(final int request, final int value, final byte[] data) {
         int dataLength = 0;
         if (data != null) {
             dataLength = data.length;
         }
-        int response = connection.controlTransfer(CDC_REQTYPE_HOST2DEVICE, request, value, cdcControl, data, dataLength, USB_TIMEOUT);
-        Log.i(CLASS_ID, "Control Transfer Response: " + String.valueOf(response));
+        final int response = connection.controlTransfer(CDC_REQTYPE_HOST2DEVICE, request, value, cdcControl, data, dataLength, USB_TIMEOUT);
+        Log.i(CLASS_ID, "Control Transfer Response: " + response);
         return response;
     }
 
     private byte[] getLineCoding() {
-        byte[] data = new byte[7];
-        int response = connection.controlTransfer(CDC_REQTYPE_DEVICE2HOST, CDC_GET_LINE_CODING, 0, cdcControl, data, data.length, USB_TIMEOUT);
-        Log.i(CLASS_ID, "Control Transfer Response: " + String.valueOf(response));
+        final byte[] data = new byte[7];
+        final int response = connection.controlTransfer(CDC_REQTYPE_DEVICE2HOST, CDC_GET_LINE_CODING, 0, cdcControl, data, data.length, USB_TIMEOUT);
+        Log.i(CLASS_ID, "Control Transfer Response: " + response);
         return data;
     }
 
-    private static int findFirstCDC(UsbDevice device) {
-        int interfaceCount = device.getInterfaceCount();
+    private static int findFirstCDC(final UsbDevice device) {
+        final int interfaceCount = device.getInterfaceCount();
 
         for (int iIndex = 0; iIndex < interfaceCount; ++iIndex) {
             if (device.getInterface(iIndex).getInterfaceClass() == UsbConstants.USB_CLASS_CDC_DATA) {
@@ -362,12 +363,12 @@ public class CDCSerialDevice extends UsbSerialDevice {
         return -1;
     }
 
-    private static int findFirstControl(UsbDevice device) {
-        int interfaceCount = device.getInterfaceCount();
+    private static int findFirstControl(final UsbDevice device) {
+        final int interfaceCount = device.getInterfaceCount();
 
         for (int iIndex = 0; iIndex < interfaceCount; ++iIndex) {
             if (device.getInterface(iIndex).getInterfaceClass() == UsbConstants.USB_CLASS_COMM) {
-                Log.i(CLASS_ID, "Using CDC control interface " + String.valueOf(iIndex));
+                Log.i(CLASS_ID, "Using CDC control interface " + iIndex);
                 return iIndex;
             }
         }
@@ -375,5 +376,4 @@ public class CDCSerialDevice extends UsbSerialDevice {
         Log.i(CLASS_ID, "There is no CDC control interface");
         return 0;
     }
-
 }
