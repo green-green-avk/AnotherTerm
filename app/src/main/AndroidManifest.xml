@@ -233,7 +233,7 @@
             android:exported="true"
             tools:ignore="ExportedService">
             <intent-filter>
-                <action android:name="green_green_avk.anotherterm.intent.action.START_SESSION" />
+                <action android:name="${namespace}.intent.action.START_SESSION" />
                 <category android:name="android.intent.category.DEFAULT" />
             </intent-filter>
         </service>

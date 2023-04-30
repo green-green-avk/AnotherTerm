@@ -20,11 +20,11 @@
         </p>
         <p>
         <b>Class:</b>
-        <clipboard>green_green_avk.anotherterm.ControlService</clipboard>
+        <clipboard>${namespace}.ControlService</clipboard>
         </p>
         <p>
         <b>Action:</b>
-        <clipboard>green_green_avk.anotherterm.intent.action.START_SESSION</clipboard>
+        <clipboard>${namespace}.intent.action.START_SESSION</clipboard>
         </p>
         <p>
         <b>Category:</b>
@@ -32,7 +32,7 @@
         </p>
         <p>
         <b>Extra:</b>
-        <clipboard>green_green_avk.anotherterm.intent.extra.FAV_TOKEN</clipboard><br/>
+        <clipboard>${namespace}.intent.extra.FAV_TOKEN</clipboard><br/>
         The value should be a <i>String</i> from the <i>\"token\"</i> field from
         the desired favorite settings.
         </p>

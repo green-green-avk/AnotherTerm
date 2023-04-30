@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="fullVersionName">@string/versionName</string>
-<string name="desc_about"><![CDATA[
+    <string name="desc_about"><![CDATA[
 <h1>Links</h1>
 <ul>
 <li><a href=\"https://green-green-avk.github.io/AnotherTerm-docs/\">Wiki</a></li>
@@ -10,10 +10,10 @@
 </ul>
 <h1>Highlights</h1>
 <ul>
-    <li>UART, SSH, Telnet and local PTY support in the same application;</li>
-    <li>Adequate screen input methods as long as a terminal requires specific keyboard
-    functions;</li>
-    <li>Ability to set fixed screen columns and/or rows numbers.</li>
+<li>UART, SSH, Telnet and local PTY support in the same application;</li>
+<li>Adequate screen input methods as long as a terminal requires specific keyboard
+functions;</li>
+<li>Ability to set fixed screen columns and/or rows numbers.</li>
 </ul>
 <h1>Features</h1>
 <ul>
@@ -69,40 +69,40 @@ to access the Android environment and own API to create them as separate APKs.</
 <h1>Credits</h1>
 <p>Thanks to:</p>
 <ul>
-    <li><a href=\"https://github.com/felHR85\">felHR85</a> and other contributors for
-    <a href=\"https://github.com/felHR85/UsbSerial\">UsbSerial</a> library
-    (<a href=\"https://github.com/felHR85/UsbSerial/blob/master/LICENSE\">license</a>);</li>
-    <li><a href=\"http://www.jcraft.com/\">JCraft</a> for their
-    <a href=\"http://www.jcraft.com/jsch/\">JSch</a> SSH library
-    (<a href=\"http://www.jcraft.com/jsch/LICENSE.txt\">license</a>);</li>
-    <li><a href=\"https://github.com/mwiede\">mwiede</a> and other contributors for
-    <a href=\"https://github.com/mwiede/jsch\">numerous JSch library improvements</a>
-    (<a href=\"https://github.com/mwiede/jsch/blob/master/LICENSE.txt\">JSch license</a> /
-    <a href=\"https://github.com/mwiede/jsch/blob/master/LICENSE.jBCrypt.txt\">jBCrypt license</a> /
-    <a href=\"https://github.com/mwiede/jsch/blob/master/LICENSE.JZlib.txt\">JZlib license</a>);</li>
-    <li><a href=\"https://www.bouncycastle.org/\">The Legion of the Bouncy Castle</a>
-    for some modern ciphers for old Androids
-    (<a href=\"https://www.bouncycastle.org/license.html\">license</a>);</li>
-    <li>The creators of the
-    <a href=\"https://www.fontsquirrel.com/fonts/dejavu-sans-mono\">DejaVu Sans Mono</a> font
-    (<a href=\"https://www.fontsquirrel.com/license/dejavu-sans-mono\">license</a>);</li>
-    <li>The authors of the
-    <a href=\"https://github.com/MrBIMC/MaterialSeekBarPreference\">MaterialSeekBarPreference</a>
-    widget
-    (<a href=\"https://github.com/MrBIMC/MaterialSeekBarPreference/blob/master/README.md#collaborators\">Apache 2 license</a>);</li>
-    <li>The author of the
-    <a href=\"https://github.com/saket/Better-Link-Movement-Method\">BetterLinkMovementMethod</a>
-    (<a href=\"https://github.com/saket/Better-Link-Movement-Method/blob/master/LICENSE.md\">license</a>);</li>
-    <li>The author of the
-    <a href=\"https://github.com/LikeTheSalad/android-stem\">Android Stem</a>
-    (<a href=\"https://github.com/LikeTheSalad/android-stem/blob/master/LICENSE.txt\">license</a>);</li>
-    <li><a href=\"https://github.com/dcendents/android-maven-gradle-plugin\">Android Maven Gradle Plugin</a>
-    (<a href=\"https://github.com/dcendents/android-maven-gradle-plugin/blob/develop/LICENSE\">license</a>);</li>
-    <li><a href=\"https://commons.apache.org/\">Apache Commons</a>
-    (<a href=\"http://www.apache.org/licenses/LICENSE-2.0.txt\">Apache 2 license</a>);</li>
-    <li><a href=\"https://source.android.com/\">The Android Open Source Project
-    (official Google Android API and support libraries)</a>
-    (<a href=\"http://www.apache.org/licenses/LICENSE-2.0.txt\">Apache 2 license</a>).</li>
+<li><a href=\"https://github.com/felHR85\">felHR85</a> and other contributors for
+<a href=\"https://github.com/felHR85/UsbSerial\">UsbSerial</a> library
+(<a href=\"https://github.com/felHR85/UsbSerial/blob/master/LICENSE\">license</a>);</li>
+<li><a href=\"http://www.jcraft.com/\">JCraft</a> for their
+<a href=\"http://www.jcraft.com/jsch/\">JSch</a> SSH library
+(<a href=\"http://www.jcraft.com/jsch/LICENSE.txt\">license</a>);</li>
+<li><a href=\"https://github.com/mwiede\">mwiede</a> and other contributors for
+<a href=\"https://github.com/mwiede/jsch\">numerous JSch library improvements</a>
+(<a href=\"https://github.com/mwiede/jsch/blob/master/LICENSE.txt\">JSch license</a> /
+<a href=\"https://github.com/mwiede/jsch/blob/master/LICENSE.jBCrypt.txt\">jBCrypt license</a> /
+<a href=\"https://github.com/mwiede/jsch/blob/master/LICENSE.JZlib.txt\">JZlib license</a>);</li>
+<li><a href=\"https://www.bouncycastle.org/\">The Legion of the Bouncy Castle</a>
+for some modern ciphers for old Androids
+(<a href=\"https://www.bouncycastle.org/license.html\">license</a>);</li>
+<li>The creators of the
+<a href=\"https://www.fontsquirrel.com/fonts/dejavu-sans-mono\">DejaVu Sans Mono</a> font
+(<a href=\"https://www.fontsquirrel.com/license/dejavu-sans-mono\">license</a>);</li>
+<li>The authors of the
+<a href=\"https://github.com/MrBIMC/MaterialSeekBarPreference\">MaterialSeekBarPreference</a>
+widget
+(<a href=\"https://github.com/MrBIMC/MaterialSeekBarPreference/blob/master/README.md#collaborators\">Apache 2 license</a>);</li>
+<li>The author of the
+<a href=\"https://github.com/saket/Better-Link-Movement-Method\">BetterLinkMovementMethod</a>
+(<a href=\"https://github.com/saket/Better-Link-Movement-Method/blob/master/LICENSE.md\">license</a>);</li>
+<li>The author of the
+<a href=\"https://github.com/LikeTheSalad/android-stem\">Android Stem</a>
+(<a href=\"https://github.com/LikeTheSalad/android-stem/blob/master/LICENSE.txt\">license</a>);</li>
+<li><a href=\"https://github.com/dcendents/android-maven-gradle-plugin\">Android Maven Gradle Plugin</a>
+(<a href=\"https://github.com/dcendents/android-maven-gradle-plugin/blob/develop/LICENSE\">license</a>);</li>
+<li><a href=\"https://commons.apache.org/\">Apache Commons</a>
+(<a href=\"http://www.apache.org/licenses/LICENSE-2.0.txt\">Apache 2 license</a>);</li>
+<li><a href=\"https://source.android.com/\">The Android Open Source Project
+(official Google Android API and support libraries)</a>
+(<a href=\"http://www.apache.org/licenses/LICENSE-2.0.txt\">Apache 2 license</a>).</li>
 </ul>
 <h1>Cryptography usage note</h1>
 <p>The only part of this application that touches on cryptography is the SSH client used to
