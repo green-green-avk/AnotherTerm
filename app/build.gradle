@@ -201,7 +201,7 @@ See <https://developer.android.com/studio/write/java8-support#library-desugaring
     implementation 'org.apache.httpcomponents:httpcore:4.4.16'
 
     implementation project(path: ':PtyProcess')
-    implementation 'com.github.felHR85:UsbSerial:6.1.0'
+    implementation project(path: ':UsbSerial')
     implementation project(path: ':bluetoothspp')
     implementation project(path: ':jsch')
     implementation project(path: ':TelnetClient')

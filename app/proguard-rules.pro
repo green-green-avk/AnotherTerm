@@ -34,10 +34,6 @@
     @green_green_avk.anotherterm.utils.Settings$Param <fields>;
 }
 
--keep class com.felhr.** {
-    *;
-}
-
 -keep class green_green_avk.anotherterm.wlterm.protocol.** {
     *;
 }
