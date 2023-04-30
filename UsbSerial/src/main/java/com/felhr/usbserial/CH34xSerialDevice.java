@@ -100,11 +100,12 @@ public class CH34xSerialDevice extends UsbSerialDevice {
     private boolean dsrState = false;
 
 
-    public CH34xSerialDevice(UsbDevice device, UsbDeviceConnection connection) {
+    public CH34xSerialDevice(final UsbDevice device, final UsbDeviceConnection connection) {
         super(device, connection);
     }
 
-    public CH34xSerialDevice(UsbDevice device, UsbDeviceConnection connection, int iface) {
+    public CH34xSerialDevice(final UsbDevice device, final UsbDeviceConnection connection,
+                             final int iface) {
         super(device, connection);
         rtsCtsEnabled = false;
         dtrDsrEnabled = false;
@@ -113,10 +114,10 @@ public class CH34xSerialDevice extends UsbSerialDevice {
 
     @Override
     public boolean open() {
-        boolean ret = openCH34X();
+        final boolean ret = openCH34X();
         if (ret) {
             // Initialize UsbRequest
-            UsbRequest requestIN = new SafeUsbRequest();
+            final UsbRequest requestIN = new SafeUsbRequest();
             requestIN.initialize(connection, inEndpoint);
 
             // Restart the working thread if it has been killed before and  get and claim interface
@@ -150,7 +151,7 @@ public class CH34xSerialDevice extends UsbSerialDevice {
 
     @Override
     public boolean syncOpen() {
-        boolean ret = openCH34X();
+        final boolean ret = openCH34X();
         if (ret) {
             // Create Flow control thread but it will only be started if necessary
             createFlowControlThread();
@@ -177,93 +178,93 @@ public class CH34xSerialDevice extends UsbSerialDevice {
     }
 
     @Override
-    public void setBaudRate(int baudRate) {
+    public void setBaudRate(final int baudRate) {
         if (baudRate <= 300) {
-            int ret = setBaudRate(CH34X_300_1312, CH34X_300_0f2c); //300
+            final int ret = setBaudRate(CH34X_300_1312, CH34X_300_0f2c); //300
             if (ret == -1)
                 Log.i(CLASS_ID, "SetBaudRate failed!");
-        } else if (baudRate > 300 && baudRate <= 600) {
-            int ret = setBaudRate(CH34X_600_1312, CH34X_600_0f2c); //600
+        } else if (baudRate <= 600) {
+            final int ret = setBaudRate(CH34X_600_1312, CH34X_600_0f2c); //600
             if (ret == -1)
                 Log.i(CLASS_ID, "SetBaudRate failed!");
 
-        } else if (baudRate > 600 && baudRate <= 1200) {
-            int ret = setBaudRate(CH34X_1200_1312, CH34X_1200_0f2c); //1200
+        } else if (baudRate <= 1200) {
+            final int ret = setBaudRate(CH34X_1200_1312, CH34X_1200_0f2c); //1200
             if (ret == -1)
                 Log.i(CLASS_ID, "SetBaudRate failed!");
-        } else if (baudRate > 1200 && baudRate <= 2400) {
-            int ret = setBaudRate(CH34X_2400_1312, CH34X_2400_0f2c); //2400
+        } else if (baudRate <= 2400) {
+            final int ret = setBaudRate(CH34X_2400_1312, CH34X_2400_0f2c); //2400
             if (ret == -1)
                 Log.i(CLASS_ID, "SetBaudRate failed!");
-        } else if (baudRate > 2400 && baudRate <= 4800) {
-            int ret = setBaudRate(CH34X_4800_1312, CH34X_4800_0f2c); //4800
+        } else if (baudRate <= 4800) {
+            final int ret = setBaudRate(CH34X_4800_1312, CH34X_4800_0f2c); //4800
             if (ret == -1)
                 Log.i(CLASS_ID, "SetBaudRate failed!");
-        } else if (baudRate > 4800 && baudRate <= 9600) {
-            int ret = setBaudRate(CH34X_9600_1312, CH34X_9600_0f2c); //9600
+        } else if (baudRate <= 9600) {
+            final int ret = setBaudRate(CH34X_9600_1312, CH34X_9600_0f2c); //9600
             if (ret == -1)
                 Log.i(CLASS_ID, "SetBaudRate failed!");
-        } else if (baudRate > 9600 && baudRate <= 19200) {
-            int ret = setBaudRate(CH34X_19200_1312, CH34X_19200_0f2c_rest); //19200
+        } else if (baudRate <= 19200) {
+            final int ret = setBaudRate(CH34X_19200_1312, CH34X_19200_0f2c_rest); //19200
             if (ret == -1)
                 Log.i(CLASS_ID, "SetBaudRate failed!");
-        } else if (baudRate > 19200 && baudRate <= 38400) {
-            int ret = setBaudRate(CH34X_38400_1312, CH34X_19200_0f2c_rest); //38400
+        } else if (baudRate <= 38400) {
+            final int ret = setBaudRate(CH34X_38400_1312, CH34X_19200_0f2c_rest); //38400
             if (ret == -1)
                 Log.i(CLASS_ID, "SetBaudRate failed!");
-        } else if (baudRate > 38400 && baudRate <= 57600) {
-            int ret = setBaudRate(CH34X_57600_1312, CH34X_19200_0f2c_rest); //57600
+        } else if (baudRate <= 57600) {
+            final int ret = setBaudRate(CH34X_57600_1312, CH34X_19200_0f2c_rest); //57600
             if (ret == -1)
                 Log.i(CLASS_ID, "SetBaudRate failed!");
-        } else if (baudRate > 57600 && baudRate <= 115200) //115200
+        } else if (baudRate <= 115200) //115200
         {
-            int ret = setBaudRate(CH34X_115200_1312, CH34X_19200_0f2c_rest);
+            final int ret = setBaudRate(CH34X_115200_1312, CH34X_19200_0f2c_rest);
             if (ret == -1)
                 Log.i(CLASS_ID, "SetBaudRate failed!");
-        } else if (baudRate > 115200 && baudRate <= 230400) //230400
+        } else if (baudRate <= 230400) //230400
         {
-            int ret = setBaudRate(CH34X_230400_1312, CH34X_19200_0f2c_rest);
+            final int ret = setBaudRate(CH34X_230400_1312, CH34X_19200_0f2c_rest);
             if (ret == -1)
                 Log.i(CLASS_ID, "SetBaudRate failed!");
-        } else if (baudRate > 230400 && baudRate <= 460800) //460800
+        } else if (baudRate <= 460800) //460800
         {
-            int ret = setBaudRate(CH34X_460800_1312, CH34X_19200_0f2c_rest);
+            final int ret = setBaudRate(CH34X_460800_1312, CH34X_19200_0f2c_rest);
             if (ret == -1)
                 Log.i(CLASS_ID, "SetBaudRate failed!");
-        } else if (baudRate > 460800 && baudRate <= 921600) {
-            int ret = setBaudRate(CH34X_921600_1312, CH34X_19200_0f2c_rest);
+        } else if (baudRate <= 921600) {
+            final int ret = setBaudRate(CH34X_921600_1312, CH34X_19200_0f2c_rest);
             if (ret == -1)
                 Log.i(CLASS_ID, "SetBaudRate failed!");
-        } else if (baudRate > 921600 && baudRate <= 1228800) {
-            int ret = setBaudRate(CH34X_1228800_1312, CH34X_1228800_0f2c);
+        } else if (baudRate <= 1228800) {
+            final int ret = setBaudRate(CH34X_1228800_1312, CH34X_1228800_0f2c);
             if (ret == -1)
                 Log.i(CLASS_ID, "SetBaudRate failed!");
-        } else if (baudRate > 1228800 && baudRate <= 2000000) {
-            int ret = setBaudRate(CH34X_2000000_1312, CH34X_2000000_0f2c);
+        } else if (baudRate <= 2000000) {
+            final int ret = setBaudRate(CH34X_2000000_1312, CH34X_2000000_0f2c);
             if (ret == -1)
                 Log.i(CLASS_ID, "SetBaudRate failed!");
         }
     }
 
     @Override
-    public void setDataBits(int dataBits) {
+    public void setDataBits(final int dataBits) {
         // TODO Auto-generated method stub
 
     }
 
     @Override
-    public void setStopBits(int stopBits) {
+    public void setStopBits(final int stopBits) {
         // TODO Auto-generated method stub
 
     }
 
     @Override
-    public void setBreak(boolean state) {
+    public void setBreak(final boolean state) {
         //TODO Auto-generated method stub
     }
 
     @Override
-    public void setParity(int parity) {
+    public void setParity(final int parity) {
         switch (parity) {
             case UsbSerialInterface.PARITY_NONE:
                 setCh340xParity(CH34X_PARITY_NONE);
@@ -286,7 +287,7 @@ public class CH34xSerialDevice extends UsbSerialDevice {
     }
 
     @Override
-    public void setFlowControl(int flowControl) {
+    public void setFlowControl(final int flowControl) {
         switch (flowControl) {
             case UsbSerialInterface.FLOW_CONTROL_OFF:
                 rtsCtsEnabled = false;
@@ -313,44 +314,44 @@ public class CH34xSerialDevice extends UsbSerialDevice {
     }
 
     @Override
-    public void setRTS(boolean state) {
+    public void setRTS(final boolean state) {
         rts = state;
         writeHandshakeByte();
     }
 
     @Override
-    public void setDTR(boolean state) {
+    public void setDTR(final boolean state) {
         dtr = state;
         writeHandshakeByte();
     }
 
     @Override
-    public void getCTS(UsbCTSCallback ctsCallback) {
+    public void getCTS(final UsbCTSCallback ctsCallback) {
         this.ctsCallback = ctsCallback;
     }
 
     @Override
-    public void getDSR(UsbDSRCallback dsrCallback) {
+    public void getDSR(final UsbDSRCallback dsrCallback) {
         this.dsrCallback = dsrCallback;
     }
 
     @Override
-    public void getBreak(UsbBreakCallback breakCallback) {
+    public void getBreak(final UsbBreakCallback breakCallback) {
         //TODO
     }
 
     @Override
-    public void getFrame(UsbFrameCallback frameCallback) {
+    public void getFrame(final UsbFrameCallback frameCallback) {
         //TODO
     }
 
     @Override
-    public void getOverrun(UsbOverrunCallback overrunCallback) {
+    public void getOverrun(final UsbOverrunCallback overrunCallback) {
         //TODO
     }
 
     @Override
-    public void getParity(UsbParityCallback parityCallback) {
+    public void getParity(final UsbParityCallback parityCallback) {
         //TODO
     }
 
@@ -363,9 +364,9 @@ public class CH34xSerialDevice extends UsbSerialDevice {
         }
 
         // Assign endpoints
-        int numberEndpoints = mInterface.getEndpointCount();
+        final int numberEndpoints = mInterface.getEndpointCount();
         for (int i = 0; i <= numberEndpoints - 1; i++) {
-            UsbEndpoint endpoint = mInterface.getEndpoint(i);
+            final UsbEndpoint endpoint = mInterface.getEndpoint(i);
             if (endpoint.getType() == UsbConstants.USB_ENDPOINT_XFER_BULK
                     && endpoint.getDirection() == UsbConstants.USB_DIR_IN) {
                 inEndpoint = endpoint;
@@ -432,7 +433,7 @@ public class CH34xSerialDevice extends UsbSerialDevice {
         return 0;
     }
 
-    private int setBaudRate(int index1312, int index0f2c) {
+    private int setBaudRate(final int index1312, final int index0f2c) {
         if (setControlCommandOut(CH341_REQ_WRITE_REG, 0x1312, index1312, null) < 0)
             return -1;
         if (setControlCommandOut(CH341_REQ_WRITE_REG, 0x0f2c, index0f2c, null) < 0)
@@ -444,7 +445,7 @@ public class CH34xSerialDevice extends UsbSerialDevice {
         return 0;
     }
 
-    private int setCh340xParity(int indexParity) {
+    private int setCh340xParity(final int indexParity) {
         if (setControlCommandOut(CH341_REQ_WRITE_REG, 0x2518, indexParity, null) < 0)
             return -1;
         if (checkState("set_parity", 0x95, 0x0706, new int[]{0x9f, 0xee}) == -1)
@@ -454,7 +455,7 @@ public class CH34xSerialDevice extends UsbSerialDevice {
         return 0;
     }
 
-    private int setCh340xFlow(int flowControl) {
+    private int setCh340xFlow(final int flowControl) {
         if (checkState("set_flow_control", 0x95, 0x0706, new int[]{0x9f, 0xee}) == -1)
             return -1;
         if (setControlCommandOut(CH341_REQ_WRITE_REG, 0x2727, flowControl, null) == -1)
@@ -462,9 +463,9 @@ public class CH34xSerialDevice extends UsbSerialDevice {
         return 0;
     }
 
-    private int checkState(String msg, int request, int value, int[] expected) {
-        byte[] buffer = new byte[expected.length];
-        int ret = setControlCommandIn(request, value, 0, buffer);
+    private int checkState(final String msg, final int request, final int value, final int[] expected) {
+        final byte[] buffer = new byte[expected.length];
+        final int ret = setControlCommandIn(request, value, 0, buffer);
 
         if (ret != expected.length) {
             Log.i(CLASS_ID, ("Expected " + expected.length + " bytes, but get " + ret + " [" + msg + "]"));
@@ -475,39 +476,31 @@ public class CH34xSerialDevice extends UsbSerialDevice {
     }
 
     private boolean checkCTS() {
-        byte[] buffer = new byte[2];
-        int ret = setControlCommandIn(CH341_REQ_READ_REG, 0x0706, 0, buffer);
+        final byte[] buffer = new byte[2];
+        final int ret = setControlCommandIn(CH341_REQ_READ_REG, 0x0706, 0, buffer);
 
         if (ret != 2) {
             Log.i(CLASS_ID, ("Expected " + "2" + " bytes, but get " + ret));
             return false;
         }
 
-        if ((buffer[0] & 0x01) == 0x00) //CTS ON
-        {
-            return true;
-        } else // CTS OFF
-        {
-            return false;
-        }
+        //CTS ON
+        // CTS OFF
+        return (buffer[0] & 0x01) == 0x00;
     }
 
     private boolean checkDSR() {
-        byte[] buffer = new byte[2];
-        int ret = setControlCommandIn(CH341_REQ_READ_REG, 0x0706, 0, buffer);
+        final byte[] buffer = new byte[2];
+        final int ret = setControlCommandIn(CH341_REQ_READ_REG, 0x0706, 0, buffer);
 
         if (ret != 2) {
             Log.i(CLASS_ID, ("Expected " + "2" + " bytes, but get " + ret));
             return false;
         }
 
-        if ((buffer[0] & 0x02) == 0x00) //DSR ON
-        {
-            return true;
-        } else // DSR OFF
-        {
-            return false;
-        }
+        //DSR ON
+        // DSR OFF
+        return (buffer[0] & 0x02) == 0x00;
     }
 
     private int writeHandshakeByte() {
@@ -518,23 +511,23 @@ public class CH34xSerialDevice extends UsbSerialDevice {
         return 0;
     }
 
-    private int setControlCommandOut(int request, int value, int index, byte[] data) {
+    private int setControlCommandOut(final int request, final int value, final int index, final byte[] data) {
         int dataLength = 0;
         if (data != null) {
             dataLength = data.length;
         }
-        int response = connection.controlTransfer(REQTYPE_HOST_TO_DEVICE, request, value, index, data, dataLength, USB_TIMEOUT);
-        Log.i(CLASS_ID, "Control Transfer Response: " + String.valueOf(response));
+        final int response = connection.controlTransfer(REQTYPE_HOST_TO_DEVICE, request, value, index, data, dataLength, USB_TIMEOUT);
+        Log.i(CLASS_ID, "Control Transfer Response: " + response);
         return response;
     }
 
-    private int setControlCommandIn(int request, int value, int index, byte[] data) {
+    private int setControlCommandIn(final int request, final int value, final int index, final byte[] data) {
         int dataLength = 0;
         if (data != null) {
             dataLength = data.length;
         }
-        int response = connection.controlTransfer(REQTYPE_HOST_FROM_DEVICE, request, value, index, data, dataLength, USB_TIMEOUT);
-        Log.i(CLASS_ID, "Control Transfer Response: " + String.valueOf(response));
+        final int response = connection.controlTransfer(REQTYPE_HOST_FROM_DEVICE, request, value, index, data, dataLength, USB_TIMEOUT);
+        Log.i(CLASS_ID, "Control Transfer Response: " + response);
         return response;
     }
 
@@ -555,14 +548,14 @@ public class CH34xSerialDevice extends UsbSerialDevice {
     }
 
     private class FlowControlThread extends AbstractWorkerThread {
-        private final long time = 100; // 100ms
+        private static final long time = 100; // 100ms
 
         @Override
         public void doRun() {
             if (!firstTime) {
                 // Check CTS status
                 if (rtsCtsEnabled) {
-                    boolean cts = pollForCTS();
+                    final boolean cts = pollForCTS();
                     if (ctsState != cts) {
                         ctsState = !ctsState;
                         if (ctsCallback != null)
@@ -572,7 +565,7 @@ public class CH34xSerialDevice extends UsbSerialDevice {
 
                 // Check DSR status
                 if (dtrDsrEnabled) {
-                    boolean dsr = pollForDSR();
+                    final boolean dsr = pollForDSR();
                     if (dsrState != dsr) {
                         dsrState = !dsrState;
                         if (dsrCallback != null)
@@ -594,7 +587,7 @@ public class CH34xSerialDevice extends UsbSerialDevice {
             synchronized (this) {
                 try {
                     wait(time);
-                } catch (InterruptedException e) {
+                } catch (final InterruptedException e) {
                     e.printStackTrace();
                 }
             }
@@ -606,7 +599,7 @@ public class CH34xSerialDevice extends UsbSerialDevice {
             synchronized (this) {
                 try {
                     wait(time);
-                } catch (InterruptedException e) {
+                } catch (final InterruptedException e) {
                     e.printStackTrace();
                 }
             }

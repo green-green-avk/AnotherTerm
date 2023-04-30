@@ -22,19 +22,22 @@ public abstract class UsbSpiDevice implements UsbSpiInterface {
     private UsbEndpoint inEndpoint;
     private UsbEndpoint outEndpoint;
 
-    public UsbSpiDevice(UsbDevice device, UsbDeviceConnection connection) {
+    public UsbSpiDevice(final UsbDevice device, final UsbDeviceConnection connection) {
         this.device = device;
         this.connection = connection;
         this.serialBuffer = new SerialBuffer(false);
     }
 
-    public static UsbSpiDevice createUsbSerialDevice(UsbDevice device, UsbDeviceConnection connection) {
+    public static UsbSpiDevice createUsbSerialDevice(final UsbDevice device,
+                                                     final UsbDeviceConnection connection) {
         return createUsbSerialDevice(device, connection, -1);
     }
 
-    public static UsbSpiDevice createUsbSerialDevice(UsbDevice device, UsbDeviceConnection connection, int iface) {
-        int vid = device.getVendorId();
-        int pid = device.getProductId();
+    public static UsbSpiDevice createUsbSerialDevice(final UsbDevice device,
+                                                     final UsbDeviceConnection connection,
+                                                     final int iface) {
+        final int vid = device.getVendorId();
+        final int pid = device.getProductId();
 
         if (CP2130Ids.isDeviceSupported(vid, pid))
             return new CP2130SpiDevice(device, connection, iface);
@@ -62,7 +65,7 @@ public abstract class UsbSpiDevice implements UsbSpiInterface {
     public abstract void selectSlave(int nSlave);
 
     @Override
-    public void setMISOCallback(UsbMISOCallback misoCallback) {
+    public void setMISOCallback(final UsbMISOCallback misoCallback) {
         readThread.setCallback(misoCallback);
     }
 
@@ -80,12 +83,12 @@ public abstract class UsbSpiDevice implements UsbSpiInterface {
 
         @Override
         public void doRun() {
-            byte[] data = serialBuffer.getWriteBuffer();
+            final byte[] data = serialBuffer.getWriteBuffer();
             if (data.length > 0)
                 connection.bulkTransfer(outEndpoint, data, data.length, USB_TIMEOUT);
         }
 
-        public void setUsbEndpoint(UsbEndpoint outEndpoint) {
+        public void setUsbEndpoint(final UsbEndpoint outEndpoint) {
             this.outEndpoint = outEndpoint;
         }
     }
@@ -94,38 +97,36 @@ public abstract class UsbSpiDevice implements UsbSpiInterface {
         private UsbMISOCallback misoCallback;
         private UsbEndpoint inEndpoint;
 
-        public void setCallback(UsbMISOCallback misoCallback) {
+        public void setCallback(final UsbMISOCallback misoCallback) {
             this.misoCallback = misoCallback;
         }
 
         @Override
         public void doRun() {
-            byte[] dataReceived = null;
-            int numberBytes;
-            if (inEndpoint != null)
+            final int numberBytes;
+            if (inEndpoint != null) {
                 numberBytes = connection.bulkTransfer(inEndpoint, serialBuffer.getBufferCompatible(),
                         SerialBuffer.DEFAULT_READ_BUFFER_SIZE, 0);
-            else
+            } else {
                 numberBytes = 0;
-
-            if (numberBytes > 0) {
-                dataReceived = serialBuffer.getDataReceivedCompatible(numberBytes);
-                onReceivedData(dataReceived);
             }
 
+            if (numberBytes > 0) {
+                onReceivedData(serialBuffer.getDataReceivedCompatible(numberBytes));
+            }
         }
 
-        public void setUsbEndpoint(UsbEndpoint inEndpoint) {
+        public void setUsbEndpoint(final UsbEndpoint inEndpoint) {
             this.inEndpoint = inEndpoint;
         }
 
-        private void onReceivedData(byte[] data) {
+        private void onReceivedData(final byte[] data) {
             if (misoCallback != null)
                 misoCallback.onReceivedData(data);
         }
     }
 
-    protected void setThreadsParams(UsbEndpoint inEndpoint, UsbEndpoint outEndpoint) {
+    protected void setThreadsParams(final UsbEndpoint inEndpoint, final UsbEndpoint outEndpoint) {
         if (writeThread != null)
             writeThread.setUsbEndpoint(outEndpoint);
 

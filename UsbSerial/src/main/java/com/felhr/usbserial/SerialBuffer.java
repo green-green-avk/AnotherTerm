@@ -15,7 +15,7 @@ public class SerialBuffer {
     private byte[] readBufferCompatible; // Read buffer for android < 4.2
     private boolean debugging = false;
 
-    public SerialBuffer(boolean version) {
+    public SerialBuffer(final boolean version) {
         writeBuffer = new SynchronizedBuffer();
         if (version) {
             readBuffer = ByteBuffer.allocate(DEFAULT_READ_BUFFER_SIZE);
@@ -28,7 +28,7 @@ public class SerialBuffer {
     /*
      * Print debug messages
      */
-    public void debug(boolean value) {
+    public void debug(final boolean value) {
         debugging = value;
     }
 
@@ -41,7 +41,7 @@ public class SerialBuffer {
 
     public byte[] getDataReceived() {
         synchronized (this) {
-            byte[] dst = new byte[readBuffer.position()];
+            final byte[] dst = new byte[readBuffer.position()];
             readBuffer.position(0);
             readBuffer.get(dst, 0, dst.length);
             if (debugging)
@@ -60,7 +60,7 @@ public class SerialBuffer {
         return writeBuffer.get();
     }
 
-    public void putWriteBuffer(byte[] data) {
+    public void putWriteBuffer(final byte[] data) {
         writeBuffer.put(data);
     }
 
@@ -69,7 +69,7 @@ public class SerialBuffer {
         return readBufferCompatible;
     }
 
-    public byte[] getDataReceivedCompatible(int numberBytes) {
+    public byte[] getDataReceivedCompatible(final int numberBytes) {
         return Arrays.copyOfRange(readBufferCompatible, 0, numberBytes);
     }
 
@@ -80,7 +80,7 @@ public class SerialBuffer {
             this.buffer = new Buffer();
         }
 
-        synchronized void put(byte[] src) {
+        synchronized void put(final byte[] src) {
             if (src == null || src.length == 0) return;
 
             if (debugging)
@@ -94,18 +94,18 @@ public class SerialBuffer {
             if (buffer.size() == 0) {
                 try {
                     wait();
-                } catch (InterruptedException e) {
+                } catch (final InterruptedException e) {
                     e.printStackTrace();
                     Thread.currentThread().interrupt();
                 }
             }
-            byte[] dst;
+            final byte[] dst;
             if (buffer.size() <= MAX_BULK_BUFFER) {
                 dst = buffer.readByteArray();
             } else {
                 try {
                     dst = buffer.readByteArray(MAX_BULK_BUFFER);
-                } catch (EOFException e) {
+                } catch (final EOFException e) {
                     e.printStackTrace();
                     return new byte[0];
                 }
@@ -117,5 +117,4 @@ public class SerialBuffer {
             return dst;
         }
     }
-
 }

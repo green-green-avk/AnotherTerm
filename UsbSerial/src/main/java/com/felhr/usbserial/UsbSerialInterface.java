@@ -109,5 +109,4 @@ public interface UsbSerialInterface {
     interface UsbReadCallback {
         void onReceivedData(byte[] data);
     }
-
 }

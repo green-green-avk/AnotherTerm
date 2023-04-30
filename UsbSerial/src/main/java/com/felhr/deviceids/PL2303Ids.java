@@ -3,9 +3,8 @@ package com.felhr.deviceids;
 import static com.felhr.deviceids.Helpers.createDevice;
 import static com.felhr.deviceids.Helpers.createTable;
 
-public class PL2303Ids {
+public final class PL2303Ids {
     private PL2303Ids() {
-
     }
 
     private static final long[] pl2303Devices = createTable(
@@ -68,7 +67,7 @@ public class PL2303Ids {
             createDevice(0x0557, 0x2008)
     );
 
-    public static boolean isDeviceSupported(int vendorId, int productId) {
+    public static boolean isDeviceSupported(final int vendorId, final int productId) {
         return Helpers.exists(pl2303Devices, vendorId, productId);
     }
 }

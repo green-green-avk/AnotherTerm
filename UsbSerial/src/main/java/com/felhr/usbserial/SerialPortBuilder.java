@@ -10,29 +10,34 @@ import android.hardware.usb.UsbDevice;
 import android.hardware.usb.UsbDeviceConnection;
 import android.hardware.usb.UsbManager;
 
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+
 import com.annimon.stream.Stream;
 import com.felhr.utils.Utils;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import java.util.concurrent.ArrayBlockingQueue;
 
-public class SerialPortBuilder {
+public final class SerialPortBuilder {
     private static final String ACTION_USB_PERMISSION = "com.felhr.usbserial.USB_PERMISSION";
     private static final int MODE_START = 0;
     private static final int MODE_OPEN = 1;
 
-    private static SerialPortBuilder SerialPortBuilder;
+    @Nullable
+    private static SerialPortBuilder serialPortBuilder;
 
     private List<UsbDeviceStatus> devices;
     private List<UsbSerialDevice> serialDevices = new ArrayList<>();
 
-    private final ArrayBlockingQueue<PendingUsbPermission> queuedPermissions = new ArrayBlockingQueue<>(100);
+    private final ArrayBlockingQueue<PendingUsbPermission> queuedPermissions =
+            new ArrayBlockingQueue<>(100);
     private volatile boolean processingPermission = false;
     private PendingUsbPermission currentPendingPermission;
 
     private UsbManager usbManager;
+    @NonNull
     private final SerialPortCallback serialPortCallback;
 
     private int baudRate, dataBits, stopBits, parity, flowControl;
@@ -40,79 +45,76 @@ public class SerialPortBuilder {
 
     private boolean broadcastRegistered = false;
 
-    private SerialPortBuilder(SerialPortCallback serialPortCallback) {
+    private SerialPortBuilder(@NonNull final SerialPortCallback serialPortCallback) {
         this.serialPortCallback = serialPortCallback;
     }
 
-
-    public static SerialPortBuilder createSerialPortBuilder(SerialPortCallback serialPortCallback) {
-        if (SerialPortBuilder == null) {
-            SerialPortBuilder = new SerialPortBuilder(serialPortCallback);
-            return SerialPortBuilder;
-        } else {
-            return SerialPortBuilder;
+    public static void configureInstance(@NonNull final SerialPortCallback serialPortCallback) {
+        if (serialPortBuilder != null) {
+            throw new IllegalStateException("The instance is already configured");
         }
+        serialPortBuilder = new SerialPortBuilder(serialPortCallback);
     }
 
+    @NonNull
+    public static SerialPortBuilder getInstance() {
+        if (serialPortBuilder == null) {
+            throw new IllegalStateException("The instance is not configured yet");
+        }
+        return serialPortBuilder;
+    }
 
-    public List<UsbDevice> getPossibleSerialPorts(Context context) {
+    public List<UsbDevice> getPossibleSerialPorts(final Context context) {
 
         usbManager = (UsbManager) context.getSystemService(Context.USB_SERVICE);
 
-        HashMap<String, UsbDevice> allDevices = usbManager.getDeviceList();
-        List<UsbDevice> devices = Stream.of(allDevices.values())
+        return Stream.of(usbManager.getDeviceList().values())
                 .filter(UsbSerialDevice::isSupported)
                 .toList();
-
-        return devices;
     }
 
-    public boolean getSerialPorts(Context context) {
+    public boolean getSerialPorts(final Context context) {
 
         initReceiver(context);
 
-        if (devices == null || devices.size() == 0) { // Not previous devices detected
+        if (devices == null || devices.isEmpty()) { // No previous devices detected
             devices = Stream.of(getPossibleSerialPorts(context))
                     .map(UsbDeviceStatus::new)
                     .toList();
 
-            if (devices.size() == 0)
+            if (devices.isEmpty())
                 return false;
 
-            for (UsbDeviceStatus deviceStatus : devices) {
+            for (final UsbDeviceStatus deviceStatus : devices) {
                 queuedPermissions.add(createUsbPermission(context, deviceStatus));
-            }
-
-            if (!processingPermission) {
-                launchPermission();
             }
 
         } else { // Previous devices detected and maybe pending permissions intent launched
 
-            List<UsbDeviceStatus> newDevices = Stream.of(getPossibleSerialPorts(context))
+            final List<UsbDeviceStatus> newDevices = Stream.of(getPossibleSerialPorts(context))
                     .map(UsbDeviceStatus::new)
                     .filter(p -> !devices.contains(p))
                     .toList();
 
-            if (newDevices.size() == 0)
+            if (newDevices.isEmpty())
                 return false;
 
-            for (UsbDeviceStatus deviceStatus : newDevices) {
+            for (final UsbDeviceStatus deviceStatus : newDevices) {
                 queuedPermissions.add(createUsbPermission(context, deviceStatus));
             }
 
             devices.addAll(newDevices);
+        }
 
-            if (!processingPermission) {
-                launchPermission();
-            }
+        if (!processingPermission) {
+            launchPermission();
         }
 
         return true;
     }
 
-    public boolean openSerialPorts(Context context, int baudRate, int dataBits,
-                                   int stopBits, int parity, int flowControl) {
+    public boolean openSerialPorts(final Context context, final int baudRate, final int dataBits,
+                                   final int stopBits, final int parity, final int flowControl) {
         this.baudRate = baudRate;
         this.dataBits = dataBits;
         this.stopBits = stopBits;
@@ -122,19 +124,19 @@ public class SerialPortBuilder {
         return getSerialPorts(context);
     }
 
-    public boolean disconnectDevice(UsbSerialDevice usbSerialDevice) {
+    public boolean disconnectDevice(final UsbSerialDevice usbSerialDevice) {
         usbSerialDevice.syncClose();
         serialDevices = Utils.removeIf(serialDevices, p -> usbSerialDevice.getDeviceId() == p.getDeviceId());
         return true;
     }
 
-    public boolean disconnectDevice(UsbDevice usbDevice) {
-        List<UsbSerialDevice> devices = Stream.of(serialDevices)
+    public boolean disconnectDevice(final UsbDevice usbDevice) {
+        final List<UsbSerialDevice> devices = Stream.of(serialDevices)
                 .filter(p -> usbDevice.getDeviceId() == p.getDeviceId())
                 .toList();
 
         int removedDevices = 0;
-        for (UsbSerialDevice device : devices) {
+        for (final UsbSerialDevice device : devices) {
             device.syncClose();
             serialDevices = Utils.removeIf(serialDevices, p -> usbDevice.getDeviceId() == p.getDeviceId());
             removedDevices++;
@@ -143,16 +145,18 @@ public class SerialPortBuilder {
         return removedDevices == devices.size();
     }
 
-    public void unregisterListeners(Context context) {
+    public void unregisterListeners(final Context context) {
         if (broadcastRegistered) {
             context.unregisterReceiver(usbReceiver);
             broadcastRegistered = false;
         }
     }
 
-    private PendingUsbPermission createUsbPermission(Context context, UsbDeviceStatus usbDeviceStatus) {
-        PendingIntent mPendingIntent = PendingIntent.getBroadcast(context, 0, new Intent(ACTION_USB_PERMISSION), 0);
-        PendingUsbPermission pendingUsbPermission = new PendingUsbPermission();
+    private PendingUsbPermission createUsbPermission(final Context context,
+                                                     final UsbDeviceStatus usbDeviceStatus) {
+        final PendingIntent mPendingIntent = PendingIntent.getBroadcast(context, 0,
+                new Intent(ACTION_USB_PERMISSION), PendingIntent.FLAG_MUTABLE);
+        final PendingUsbPermission pendingUsbPermission = new PendingUsbPermission();
         pendingUsbPermission.pendingIntent = mPendingIntent;
         pendingUsbPermission.usbDeviceStatus = usbDeviceStatus;
         return pendingUsbPermission;
@@ -165,29 +169,30 @@ public class SerialPortBuilder {
             currentPendingPermission = queuedPermissions.take();
             usbManager.requestPermission(currentPendingPermission.usbDeviceStatus.usbDevice,
                     currentPendingPermission.pendingIntent);
-        } catch (InterruptedException e) {
+        } catch (final InterruptedException e) {
             e.printStackTrace();
             processingPermission = false;
         }
     }
 
-    private void initReceiver(Context context) {
+    private void initReceiver(final Context context) {
         if (!broadcastRegistered) {
-            IntentFilter filter = new IntentFilter();
+            final IntentFilter filter = new IntentFilter();
             filter.addAction(ACTION_USB_PERMISSION);
             context.registerReceiver(usbReceiver, filter);
             broadcastRegistered = true;
         }
     }
 
-    private void createAllPorts(UsbDeviceStatus usbDeviceStatus) {
-        int interfaceCount = usbDeviceStatus.usbDevice.getInterfaceCount();
+    private void createAllPorts(final UsbDeviceStatus usbDeviceStatus) {
+        final int interfaceCount = usbDeviceStatus.usbDevice.getInterfaceCount();
         for (int i = 0; i <= interfaceCount - 1; i++) {
             if (usbDeviceStatus.usbDeviceConnection == null) {
-                usbDeviceStatus.usbDeviceConnection = usbManager.openDevice(usbDeviceStatus.usbDevice);
+                usbDeviceStatus.usbDeviceConnection =
+                        usbManager.openDevice(usbDeviceStatus.usbDevice);
             }
 
-            UsbSerialDevice usbSerialDevice = UsbSerialDevice.createUsbSerialDevice(
+            final UsbSerialDevice usbSerialDevice = UsbSerialDevice.createUsbSerialDevice(
                     usbDeviceStatus.usbDevice,
                     usbDeviceStatus.usbDeviceConnection,
                     i);
@@ -198,34 +203,23 @@ public class SerialPortBuilder {
 
     private final BroadcastReceiver usbReceiver = new BroadcastReceiver() {
         @Override
-        public void onReceive(Context context, Intent intent) {
+        public void onReceive(final Context context, final Intent intent) {
             if (intent.getAction().equals(ACTION_USB_PERMISSION)) {
-                boolean granted = intent.getExtras().getBoolean(UsbManager.EXTRA_PERMISSION_GRANTED);
-                InitSerialPortThread initSerialPortThread;
+                final boolean granted =
+                        intent.getExtras().getBoolean(UsbManager.EXTRA_PERMISSION_GRANTED);
+                final InitSerialPortThread initSerialPortThread;
                 if (granted) {
                     createAllPorts(currentPendingPermission.usbDeviceStatus);
-                    if (queuedPermissions.size() > 0) {
-                        launchPermission();
-                    } else {
-                        processingPermission = false;
-                        if (mode == MODE_START) {
-                            serialPortCallback.onSerialPortsDetected(serialDevices);
-                        } else {
-                            initSerialPortThread = new InitSerialPortThread(serialDevices);
-                            initSerialPortThread.start();
-                        }
-                    }
+                }
+                if (!queuedPermissions.isEmpty()) {
+                    launchPermission();
                 } else {
-                    if (queuedPermissions.size() > 0) {
-                        launchPermission();
+                    processingPermission = false;
+                    if (mode == MODE_START) {
+                        serialPortCallback.onSerialPortsDetected(serialDevices);
                     } else {
-                        processingPermission = false;
-                        if (mode == MODE_START) {
-                            serialPortCallback.onSerialPortsDetected(serialDevices);
-                        } else {
-                            initSerialPortThread = new InitSerialPortThread(serialDevices);
-                            initSerialPortThread.start();
-                        }
+                        initSerialPortThread = new InitSerialPortThread(serialDevices);
+                        initSerialPortThread.start();
                     }
                 }
             }
@@ -234,16 +228,16 @@ public class SerialPortBuilder {
 
     private class InitSerialPortThread extends Thread {
 
-        private final List<UsbSerialDevice> usbSerialDevices;
+        private final List<? extends UsbSerialDevice> usbSerialDevices;
 
-        public InitSerialPortThread(List<UsbSerialDevice> usbSerialDevices) {
+        public InitSerialPortThread(final List<? extends UsbSerialDevice> usbSerialDevices) {
             this.usbSerialDevices = usbSerialDevices;
         }
 
         @Override
         public void run() {
             int n = 1;
-            for (UsbSerialDevice usbSerialDevice : usbSerialDevices) {
+            for (final UsbSerialDevice usbSerialDevice : usbSerialDevices) {
                 if (!usbSerialDevice.isOpen) {
                     if (usbSerialDevice.syncOpen()) {
                         usbSerialDevice.setBaudRate(baudRate);
@@ -251,7 +245,7 @@ public class SerialPortBuilder {
                         usbSerialDevice.setStopBits(stopBits);
                         usbSerialDevice.setParity(parity);
                         usbSerialDevice.setFlowControl(flowControl);
-                        usbSerialDevice.setPortName(UsbSerialDevice.COM_PORT + String.valueOf(n));
+                        usbSerialDevice.setPortName(UsbSerialDevice.COM_PORT + n);
                         n++;
                     }
                 }
@@ -260,23 +254,24 @@ public class SerialPortBuilder {
         }
     }
 
-    private class UsbDeviceStatus {
+    private static class UsbDeviceStatus {
         public UsbDevice usbDevice;
         public UsbDeviceConnection usbDeviceConnection;
         public boolean open;
 
-        public UsbDeviceStatus(UsbDevice usbDevice) {
+        public UsbDeviceStatus(final UsbDevice usbDevice) {
             this.usbDevice = usbDevice;
         }
 
         @Override
-        public boolean equals(Object obj) {
-            UsbDeviceStatus usbDeviceStatus = (UsbDeviceStatus) obj;
-            return usbDeviceStatus.usbDevice.getDeviceId() == usbDevice.getDeviceId();
+        public boolean equals(final Object obj) {
+            if (!(obj instanceof UsbDeviceStatus))
+                return false;
+            return ((UsbDeviceStatus) obj).usbDevice.getDeviceId() == usbDevice.getDeviceId();
         }
     }
 
-    private class PendingUsbPermission {
+    private static class PendingUsbPermission {
         public PendingIntent pendingIntent;
         public UsbDeviceStatus usbDeviceStatus;
     }

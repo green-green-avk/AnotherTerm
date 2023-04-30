@@ -7,22 +7,22 @@ public class SerialOutputStream extends OutputStream {
 
     protected final UsbSerialInterface device;
 
-    public SerialOutputStream(UsbSerialInterface device) {
+    public SerialOutputStream(final UsbSerialInterface device) {
         this.device = device;
     }
 
     @Override
-    public void write(int b) {
+    public void write(final int b) {
         device.syncWrite(new byte[]{(byte) b}, timeout);
     }
 
     @Override
-    public void write(byte[] b) {
+    public void write(final byte[] b) {
         device.syncWrite(b, timeout);
     }
 
     @Override
-    public void write(byte b[], int off, int len) {
+    public void write(final byte[] b, final int off, final int len) {
         if (off < 0) {
             throw new IndexOutOfBoundsException("Offset must be >= 0");
         }
@@ -43,7 +43,7 @@ public class SerialOutputStream extends OutputStream {
         device.syncWrite(b, off, len, timeout);
     }
 
-    public void setTimeout(int timeout) {
+    public void setTimeout(final int timeout) {
         this.timeout = timeout;
     }
 }

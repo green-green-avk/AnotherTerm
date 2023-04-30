@@ -3,7 +3,10 @@ package com.felhr.deviceids;
 import static com.felhr.deviceids.Helpers.createDevice;
 import static com.felhr.deviceids.Helpers.createTable;
 
-public class XdcVcpIds {
+public final class XdcVcpIds {
+    private XdcVcpIds() {
+    }
+
     /*
      * Werner Wolfrum (w.wolfrum@wolfrum-elektronik.de)
      */
@@ -16,7 +19,7 @@ public class XdcVcpIds {
             createDevice(0x0483, 0x5740) //CC3D (STM)
     );
 
-    public static boolean isDeviceSupported(int vendorId, int productId) {
+    public static boolean isDeviceSupported(final int vendorId, final int productId) {
         return Helpers.exists(xdcvcpDevices, vendorId, productId);
     }
 }

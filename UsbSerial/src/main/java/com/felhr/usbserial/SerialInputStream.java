@@ -14,14 +14,14 @@ public class SerialInputStream extends InputStream {
 
     protected final UsbSerialInterface device;
 
-    public SerialInputStream(UsbSerialInterface device) {
+    public SerialInputStream(final UsbSerialInterface device) {
         this.device = device;
         this.buffer = new byte[maxBufferSize];
         this.pointer = 0;
         this.bufferSize = -1;
     }
 
-    public SerialInputStream(UsbSerialInterface device, int maxBufferSize) {
+    public SerialInputStream(final UsbSerialInterface device, final int maxBufferSize) {
         this.device = device;
         this.maxBufferSize = maxBufferSize;
         this.buffer = new byte[this.maxBufferSize];
@@ -31,11 +31,11 @@ public class SerialInputStream extends InputStream {
 
     @Override
     public int read() {
-        int value = checkFromBuffer();
+        final int value = checkFromBuffer();
         if (value >= 0)
             return value;
 
-        int ret = device.syncRead(buffer, timeout);
+        final int ret = device.syncRead(buffer, timeout);
         if (ret >= 0) {
             bufferSize = ret;
             return buffer[pointer++] & 0xff;
@@ -45,12 +45,12 @@ public class SerialInputStream extends InputStream {
     }
 
     @Override
-    public int read(byte[] b) {
+    public int read(final byte[] b) {
         return device.syncRead(b, timeout);
     }
 
     @Override
-    public int read(byte b[], int off, int len) {
+    public int read(final byte[] b, final int off, final int len) {
         if (off < 0) {
             throw new IndexOutOfBoundsException("Offset must be >= 0");
         }
@@ -78,7 +78,7 @@ public class SerialInputStream extends InputStream {
             return 0;
     }
 
-    public void setTimeout(int timeout) {
+    public void setTimeout(final int timeout) {
         this.timeout = timeout;
     }
 
