@@ -3,7 +3,7 @@
     <string name="desc_local_param_execute"><![CDATA[
         <p>If the field is empty, <code>/system/bin/sh -l</code> will be executed;<br/>
         <code>/system/bin/sh -l -c &lt;command&gt;</code> otherwise.<br/>
-        <b>Note:</b> except Android&#160;4.0.X where <code>sh</code> has no
+        <b>Note:</b> except Android&#xA0;4.0.X where <code>sh</code> has no
         <code>-l</code> option.</p>
     ]]></string>
 

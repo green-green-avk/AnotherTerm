@@ -31,6 +31,7 @@ android {
 
         manifestPlaceholders += [namespace         : namespace,
                                  releaseVersionCode: releaseVersionCode]
+        resValue 'string', 'namespace', android.namespace
         buildConfigField 'String', 'NAMESPACE', "\"$namespace\""
         buildConfigField 'int', 'RELEASE_VERSION_CODE', "$releaseVersionCode"
 
@@ -58,7 +59,7 @@ android {
         variant.resValue 'string', 'versionName', variant.versionName
         variant.resValue 'string', 'applicationId', variant.applicationId
         variant.buildConfigField 'int', 'TARGET_SDK_VERSION',
-                "${variant.mergedFlavor.targetSdkVersion.apiLevel}"
+                "$variant.mergedFlavor.targetSdkVersion.apiLevel"
     }
 
     // TODO: Find some library-side approach...
