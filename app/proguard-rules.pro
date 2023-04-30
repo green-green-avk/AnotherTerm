@@ -34,10 +34,6 @@
     @green_green_avk.anotherterm.utils.Settings$Param <fields>;
 }
 
--keep class com.felhr.** {
-    *;
-}
-
 #-dontshrink
 #-dontoptimize
 #-dontobfuscate

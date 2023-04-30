@@ -18,6 +18,7 @@
             <option value="$PROJECT_DIR$/RelaxedNetworkSecurity" />
             <option value="$PROJECT_DIR$/TelnetClient" />
             <option value="$PROJECT_DIR$/USBCameraWorkaround" />
+            <option value="$PROJECT_DIR$/UsbSerial" />
             <option value="$PROJECT_DIR$/app" />
             <option value="$PROJECT_DIR$/bluetoothspp" />
             <option value="$PROJECT_DIR$/jsch" />
