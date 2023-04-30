@@ -681,21 +681,13 @@ public class FTDISerialDevice extends UsbSerialDevice {
 
     // https://stackoverflow.com/questions/47303802/how-is-androids-string-usbdevice-getversion-encoded-from-word-bcddevice
     private short getBcdDevice() {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB_MR2) {
-            final byte[] descriptors = connection.getRawDescriptors();
-            return (short) ((descriptors[13] << 8) + descriptors[12]);
-        } else {
-            return -1;
-        }
+        final byte[] descriptors = connection.getRawDescriptors();
+        return (short) ((descriptors[13] << 8) + descriptors[12]);
     }
 
     private byte getISerialNumber() {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB_MR2) {
-            final byte[] descriptors = connection.getRawDescriptors();
-            return descriptors[16];
-        } else {
-            return -1;
-        }
+        final byte[] descriptors = connection.getRawDescriptors();
+        return descriptors[16];
     }
 
     private boolean isBaudTolerated(final long speed, final long target) {
