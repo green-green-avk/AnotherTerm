@@ -9,6 +9,7 @@ import android.content.IntentFilter;
 import android.hardware.usb.UsbDevice;
 import android.hardware.usb.UsbDeviceConnection;
 import android.hardware.usb.UsbManager;
+import android.util.Log;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -169,8 +170,9 @@ public final class SerialPortBuilder {
             currentPendingPermission = queuedPermissions.take();
             usbManager.requestPermission(currentPendingPermission.usbDeviceStatus.usbDevice,
                     currentPendingPermission.pendingIntent);
-        } catch (final InterruptedException e) {
-            e.printStackTrace();
+        } catch (final Exception e) {
+            // TODO: Proper error reporting
+            Log.e("USB_SERIAL_PERM", "Getting permission failed", e);
             processingPermission = false;
         }
     }
