@@ -332,12 +332,12 @@ public abstract class UsbSerialDevice implements UsbSerialInterface {
 
                 // FTDI devices reserves two first bytes of an IN endpoint with info about
                 // modem and Line.
-                if (isFTDIDevice()) {
-                    ((FTDISerialDevice) usbSerialDevice).ftdiUtilities.checkModemStatus(data); //Check the Modem status
+                if (isFTDIDevice()) { // TODO: Move into the implementation class
+                    ((FTDISerialDevice) usbSerialDevice).checkModemStatus(data); //Check the Modem status
                     serialBuffer.clearReadBuffer();
 
                     if (data.length > 2) {
-                        onReceivedData(FTDISerialDevice.adaptArray(data));
+                        onReceivedData(((FTDISerialDevice) usbSerialDevice).adaptArray(data));
                     }
                 } else {
                     // Clear buffer, execute the callback
@@ -411,11 +411,11 @@ public abstract class UsbSerialDevice implements UsbSerialInterface {
 
                 // FTDI devices reserve two first bytes of an IN endpoint with info about
                 // modem and Line.
-                if (isFTDIDevice()) {
-                    ((FTDISerialDevice) usbSerialDevice).ftdiUtilities.checkModemStatus(dataReceived);
+                if (isFTDIDevice()) { // TODO: Move into the implementation class
+                    ((FTDISerialDevice) usbSerialDevice).checkModemStatus(dataReceived);
 
                     if (dataReceived.length > 2) {
-                        onReceivedData(FTDISerialDevice.adaptArray(dataReceived));
+                        onReceivedData(((FTDISerialDevice) usbSerialDevice).adaptArray(dataReceived));
                     }
                 } else {
                     onReceivedData(dataReceived);
