@@ -588,7 +588,7 @@ public class CH34xSerialDevice extends UsbSerialDevice {
                 try {
                     wait(time);
                 } catch (final InterruptedException e) {
-                    e.printStackTrace();
+                    Thread.currentThread().interrupt();
                 }
             }
 
@@ -600,7 +600,7 @@ public class CH34xSerialDevice extends UsbSerialDevice {
                 try {
                     wait(time);
                 } catch (final InterruptedException e) {
-                    e.printStackTrace();
+                    Thread.currentThread().interrupt();
                 }
             }
 

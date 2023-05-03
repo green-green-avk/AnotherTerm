@@ -446,7 +446,7 @@ public class CP2102SerialDevice extends UsbSerialDevice {
                 try {
                     wait(time);
                 } catch (final InterruptedException e) {
-                    e.printStackTrace();
+                    Thread.currentThread().interrupt();
                 }
             }
 

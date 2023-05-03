@@ -95,7 +95,6 @@ public class SerialBuffer {
                 try {
                     wait();
                 } catch (final InterruptedException e) {
-                    e.printStackTrace();
                     Thread.currentThread().interrupt();
                 }
             }
@@ -106,8 +105,7 @@ public class SerialBuffer {
                 try {
                     dst = buffer.readByteArray(MAX_BULK_BUFFER);
                 } catch (final EOFException e) {
-                    e.printStackTrace();
-                    return new byte[0];
+                    throw new Error(e);
                 }
             }
 
