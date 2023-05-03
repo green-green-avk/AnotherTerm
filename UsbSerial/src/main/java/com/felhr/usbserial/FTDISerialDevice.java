@@ -6,10 +6,7 @@ import android.hardware.usb.UsbDeviceConnection;
 import android.hardware.usb.UsbEndpoint;
 import android.hardware.usb.UsbInterface;
 import android.hardware.usb.UsbRequest;
-import android.os.Build;
 import android.util.Log;
-
-import androidx.annotation.RequiresApi;
 
 import com.felhr.utils.SafeUsbRequest;
 
@@ -92,8 +89,11 @@ public class FTDISerialDevice extends UsbSerialDevice {
     private final UsbInterface mInterface;
     private UsbEndpoint inEndpoint;
     private UsbEndpoint outEndpoint;
-
-    public final FTDIUtilities ftdiUtilities;
+    // TODO: implement properly
+    //  https://github.com/felHR85/UsbSerial/pull/356
+    //  `UsbEndpoint.getMaxPacketSize()` solution
+    //  is to be verified
+    private int inPacketSize = 64;
 
     private UsbSerialInterface.UsbParityCallback parityCallback;
     private UsbSerialInterface.UsbFrameCallback frameCallback;
@@ -107,7 +107,6 @@ public class FTDISerialDevice extends UsbSerialDevice {
     public FTDISerialDevice(final UsbDevice device, final UsbDeviceConnection connection,
                             final int iface) {
         super(device, connection);
-        ftdiUtilities = new FTDIUtilities();
         rtsCtsEnabled = false;
         dtrDsrEnabled = false;
         ctsState = true;
@@ -426,257 +425,149 @@ public class FTDISerialDevice extends UsbSerialDevice {
         return response;
     }
 
+    // Copy data without FTDI headers
+    private void copyData(final byte[] src, final byte[] dst) {
+        int srcPos = 2, dstPos = 0;
+        while (srcPos <= src.length - inPacketSize + 2) {
+            System.arraycopy(src, srcPos, dst, dstPos, inPacketSize - 2);
+            srcPos += inPacketSize;
+            dstPos += inPacketSize - 2;
+        }
+        final int remaining = src.length - srcPos;
+        if (remaining > 0) {
+            System.arraycopy(src, srcPos, dst, dstPos, remaining);
+        }
+    }
+
     // Special treatment needed to FTDI devices
-    static byte[] adaptArray(final byte[] ftdiData) {
-        final int length = ftdiData.length;
-        if (length > 64) {
-            int n = 1;
-            int p = 64;
-            // Precalculate length without FTDI headers
-            while (p < length) {
-                n++;
-                p = n * 64;
-            }
-            final int realLength = length - n * 2;
-            final byte[] data = new byte[realLength];
-            copyData(ftdiData, data);
-            return data;
-        } else if (length == 2) { // special case optimization that returns the same instance.
+    byte[] adaptArray(final byte[] ftdiData) {
+        return adaptArray(ftdiData, ftdiData.length);
+    }
+
+    // Special treatment needed to FTDI devices
+    byte[] adaptArray(final byte[] ftdiData, final int length) {
+        if (length <= 2) {
             return EMPTY_BYTE_ARRAY;
-        } else {
+        }
+        if (length <= inPacketSize) {
             return Arrays.copyOfRange(ftdiData, 2, length);
         }
+        final int dataLength = length -
+                length / inPacketSize * 2 - Math.min(2, length % inPacketSize);
+        final byte[] data = new byte[dataLength];
+        copyData(ftdiData, data);
+        return data;
     }
 
-    // Copy data without FTDI headers
-    private static void copyData(final byte[] src, final byte[] dst) {
-        int srcPos = 2, dstPos = 0;
-        while (srcPos - 2 <= src.length - 64) {
-            System.arraycopy(src, srcPos, dst, dstPos, 62);
-            srcPos += 64;
-            dstPos += 62;
-        }
-        final int remaining = src.length - srcPos + 2;
-        if (remaining > 0) {
-            System.arraycopy(src, srcPos, dst, dstPos, remaining - 2);
-        }
-    }
+    void checkModemStatus(final byte[] data) {
+        if (data.length < 2) // Safeguard for zero length arrays
+            return;
 
-    public class FTDIUtilities {
-        // Special treatment needed to FTDI devices
-        public byte[] adaptArray(final byte[] ftdiData) {
-            final int length = ftdiData.length;
-            if (length > 64) {
-                int n = 1;
-                int p = 64;
-                // Precalculate length without FTDI headers
-                while (p < length) {
-                    n++;
-                    p = n * 64;
-                }
-                final int realLength = length - n * 2;
-                final byte[] data = new byte[realLength];
-                copyData(ftdiData, data);
-                return data;
-            } else {
-                return Arrays.copyOfRange(ftdiData, 2, length);
-            }
-        }
+        final boolean cts = (data[0] & 0x10) == 0x10;
+        final boolean dsr = (data[0] & 0x20) == 0x20;
 
-        public void checkModemStatus(final byte[] data) {
-            if (data.length == 0) // Safeguard for zero length arrays
-                return;
+        if (firstTime) // First modem status received
+        {
+            ctsState = cts;
+            dsrState = dsr;
 
-            final boolean cts = (data[0] & 0x10) == 0x10;
-            final boolean dsr = (data[0] & 0x20) == 0x20;
-
-            if (firstTime) // First modem status received
-            {
-                ctsState = cts;
-                dsrState = dsr;
-
-                if (rtsCtsEnabled && ctsCallback != null)
-                    ctsCallback.onCTSChanged(ctsState);
-
-                if (dtrDsrEnabled && dsrCallback != null)
-                    dsrCallback.onDSRChanged(dsrState);
-
-                firstTime = false;
-                return;
-            }
-
-            if (rtsCtsEnabled &&
-                    cts != ctsState && ctsCallback != null) //CTS
-            {
-                ctsState = !ctsState;
+            if (rtsCtsEnabled && ctsCallback != null)
                 ctsCallback.onCTSChanged(ctsState);
-            }
 
-            if (dtrDsrEnabled &&
-                    dsr != dsrState && dsrCallback != null) //DSR
-            {
-                dsrState = !dsrState;
+            if (dtrDsrEnabled && dsrCallback != null)
                 dsrCallback.onDSRChanged(dsrState);
-            }
 
-            if (parityCallback != null) // Parity error checking
-            {
-                if ((data[1] & 0x04) == 0x04) {
-                    parityCallback.onParityError();
-                }
-            }
+            firstTime = false;
+            return;
+        }
 
-            if (frameCallback != null) // Frame error checking
-            {
-                if ((data[1] & 0x08) == 0x08) {
-                    frameCallback.onFramingError();
-                }
-            }
+        if (rtsCtsEnabled &&
+                cts != ctsState && ctsCallback != null) //CTS
+        {
+            ctsState = !ctsState;
+            ctsCallback.onCTSChanged(ctsState);
+        }
 
-            if (overrunCallback != null) // Overrun error checking
-            {
-                if ((data[1] & 0x02) == 0x02) {
-                    overrunCallback.onOverrunError();
-                }
-            }
+        if (dtrDsrEnabled &&
+                dsr != dsrState && dsrCallback != null) //DSR
+        {
+            dsrState = !dsrState;
+            dsrCallback.onDSRChanged(dsrState);
+        }
 
-            if (breakCallback != null) // Break interrupt checking
-            {
-                if ((data[1] & 0x10) == 0x10) {
-                    breakCallback.onBreakInterrupt();
-                }
+        if (parityCallback != null) // Parity error checking
+        {
+            if ((data[1] & 0x04) == 0x04) {
+                parityCallback.onParityError();
+            }
+        }
+
+        if (frameCallback != null) // Frame error checking
+        {
+            if ((data[1] & 0x08) == 0x08) {
+                frameCallback.onFramingError();
+            }
+        }
+
+        if (overrunCallback != null) // Overrun error checking
+        {
+            if ((data[1] & 0x02) == 0x02) {
+                overrunCallback.onOverrunError();
+            }
+        }
+
+        if (breakCallback != null) // Break interrupt checking
+        {
+            if ((data[1] & 0x10) == 0x10) {
+                breakCallback.onBreakInterrupt();
             }
         }
     }
 
     @Override
     public int syncRead(final byte[] buffer, final int timeout) {
-        final long beginTime = System.currentTimeMillis();
-        final long stopTime = beginTime + timeout;
-
-        if (asyncMode) {
-            return -1;
-        }
-
-        if (buffer == null) {
-            return 0;
-        }
-
-        int n = buffer.length / 62;
-        if (buffer.length % 62 != 0) {
-            n++;
-        }
-
-        final byte[] tempBuffer = new byte[buffer.length + n * 2];
-
-        int readen = 0;
-
-        do {
-            int timeLeft = 0;
-            if (timeout > 0) {
-                timeLeft = (int) (stopTime - System.currentTimeMillis());
-                if (timeLeft <= 0) {
-                    break;
-                }
-            }
-
-            final int numberBytes = connection.bulkTransfer(inEndpoint, tempBuffer, tempBuffer.length, timeLeft);
-
-            if (numberBytes > 2) { // Data received
-                final byte[] newBuffer = this.ftdiUtilities.adaptArray(tempBuffer);
-                System.arraycopy(newBuffer, 0, buffer, 0, buffer.length);
-
-                int p = numberBytes / 64;
-                if (numberBytes % 64 != 0) {
-                    p++;
-                }
-                readen = numberBytes - p * 2;
-            }
-        } while (readen <= 0);
-
-        return readen;
+        return syncRead(buffer, 0, buffer.length, timeout);
     }
 
     @Override
     public int syncRead(final byte[] buffer, final int offset, final int length, final int timeout) {
-
-        final long beginTime = System.currentTimeMillis();
-        final long stopTime = beginTime + timeout;
+        final long stopTime = timeout + System.currentTimeMillis();
 
         if (asyncMode) {
             return -1;
         }
 
-        if (buffer == null) {
+        if (buffer == null || length == 0) {
             return 0;
         }
 
-        int n = length / 62;
-        if (length % 62 != 0) {
-            n++;
-        }
+        final int n = length / (inPacketSize - 2) + 1;
 
         final byte[] tempBuffer = new byte[length + n * 2];
 
-        int readen = 0;
-
-        do {
-            int timeLeft = 0;
+        while (true) {
+            final int timeLeft;
             if (timeout > 0) {
                 timeLeft = (int) (stopTime - System.currentTimeMillis());
                 if (timeLeft <= 0) {
-                    break;
+                    return 0;
                 }
+            } else {
+                timeLeft = 0;
             }
 
-            final int numberBytes = connection.bulkTransfer(inEndpoint, tempBuffer, tempBuffer.length, timeLeft);
-
-            if (numberBytes > 2) { // Data received
-                final byte[] newBuffer = this.ftdiUtilities.adaptArray(tempBuffer);
-                System.arraycopy(newBuffer, 0, buffer, offset, length);
-
-                int p = numberBytes / 64;
-                if (numberBytes % 64 != 0) {
-                    p++;
-                }
-                readen = numberBytes - p * 2;
+            final int r = connection.bulkTransfer(inEndpoint, tempBuffer, tempBuffer.length,
+                    timeLeft);
+            if (r < 0) {
+                return -1;
             }
-        } while (readen <= 0);
+            final byte[] newBuffer = adaptArray(tempBuffer, r);
 
-        return readen;
-    }
-
-    private static final byte[] skip = new byte[2];
-
-    /**
-     * This method avoids creation of garbage by reusing the same
-     * array instance for skipping header bytes and running
-     * {@link UsbDeviceConnection#bulkTransfer(UsbEndpoint, byte[], int, int, int)}
-     * directly.
-     */
-    @RequiresApi(api = Build.VERSION_CODES.JELLY_BEAN_MR2)
-    private int readSyncJelly(final byte[] buffer, final int timeout, final long stopTime) {
-        int read = 0;
-        do {
-            int timeLeft = 0;
-            if (timeout > 0) {
-                timeLeft = (int) (stopTime - System.currentTimeMillis());
-                if (timeLeft <= 0) {
-                    break;
-                }
+            if (newBuffer.length != 0) { // Data received
+                System.arraycopy(newBuffer, 0, buffer, offset, newBuffer.length);
+                return newBuffer.length;
             }
-
-
-            int numberBytes = connection.bulkTransfer(inEndpoint, skip, skip.length, timeLeft);
-
-            if (numberBytes > 2) // Data received
-            {
-                numberBytes = connection.bulkTransfer(inEndpoint, buffer, read, 62, timeLeft);
-                read += numberBytes;
-            }
-        } while (read <= 0);
-
-        return read;
+        }
     }
 
     // https://stackoverflow.com/questions/47303802/how-is-androids-string-usbdevice-getversion-encoded-from-word-bcddevice
