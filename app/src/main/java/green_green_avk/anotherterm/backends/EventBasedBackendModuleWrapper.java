@@ -38,6 +38,7 @@ public final class EventBasedBackendModuleWrapper {
     private volatile boolean isStopping = false;
     private volatile boolean isConnected = false;
     private volatile boolean isConnecting = false;
+    @NonNull
     private final Listener listener;
 
     private final Object readLock = new Object();
@@ -45,7 +46,6 @@ public final class EventBasedBackendModuleWrapper {
     private final Handler handler = new Handler(Looper.myLooper()) {
         @Override
         public void handleMessage(@NonNull final Message msg) {
-            if (listener == null) return;
             switch (msg.what) {
                 case MSG_KILL_SERV:
                     destroy();
@@ -150,7 +150,8 @@ public final class EventBasedBackendModuleWrapper {
                     sendEvent(MSG_READ, b);
                     try {
                         readLock.wait();
-                    } catch (final InterruptedException ignored) {
+                    } catch (final InterruptedException e) {
+                        Thread.currentThread().interrupt();
                     }
                 }
             }
