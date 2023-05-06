@@ -12,7 +12,7 @@ android {
     namespace 'green_green_avk.anotherterm'
 
     compileSdk 33
-    ndkVersion '21.4.7075529'
+    ndkVersion '23.2.8568313'
 
     compileOptions {
         sourceCompatibility JavaVersion.VERSION_1_8
@@ -44,7 +44,7 @@ android {
         externalNativeBuild {
             cmake {
                 cppFlags "-DSHELL_SESSION_TOKEN_VAR=\\\"$SHELL_SESSION_TOKEN_VAR\\\""
-                arguments "-DAPP_ID_BASE=\\\"${applicationId}\\\""
+                arguments "-DAPP_ID_BASE=$applicationId"
             }
         }
     }
@@ -80,7 +80,7 @@ android {
                     'proguard-rules-debug.pro'
             externalNativeBuild {
                 cmake {
-                    arguments "-DAPP_ID_TYPE=\\\"${applicationIdSuffix}\\\""
+                    arguments "-DAPP_ID_TYPE=$applicationIdSuffix"
                 }
             }
         }
@@ -91,7 +91,7 @@ android {
             ndk.debugSymbolLevel 'FULL'
             externalNativeBuild {
                 cmake {
-                    arguments '-DAPP_ID_TYPE=\\"\\"'
+                    arguments '-DAPP_ID_TYPE='
                 }
             }
         }
@@ -115,14 +115,14 @@ android {
             // Purely for Google Play publishing
             // (to comply with possible future app-bundle requirement)
             dimension 'compat'
-            externalNativeBuild.cmake.arguments '-DAPP_ID_SDK=\\"\\"'
+            externalNativeBuild.cmake.arguments '-DAPP_ID_SDK='
         }
         redist {
             // Redistributable all-in-one apk
             // with extended permissions for better local terminal support
             dimension 'compat'
             applicationIdSuffix '.redist'
-            externalNativeBuild.cmake.arguments "-DAPP_ID_SDK=\\\"${applicationIdSuffix}\\\""
+            externalNativeBuild.cmake.arguments "-DAPP_ID_SDK=$applicationIdSuffix"
         }
         oldgood {
             // Redistributable all-in-one apk with target API 28
@@ -130,7 +130,7 @@ android {
             dimension 'compat'
             applicationIdSuffix '.oldgood'
             targetSdk 28
-            externalNativeBuild.cmake.arguments "-DAPP_ID_SDK=\\\"${applicationIdSuffix}\\\""
+            externalNativeBuild.cmake.arguments "-DAPP_ID_SDK=$applicationIdSuffix"
         }
     }
 
