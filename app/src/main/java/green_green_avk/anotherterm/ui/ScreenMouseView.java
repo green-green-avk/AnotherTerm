@@ -368,10 +368,10 @@ public class ScreenMouseView extends ScrollableView {
     private boolean dispatchBypassEvent(@NonNull final View view,
                                         @NonNull final MotionEvent event,
                                         final boolean force) {
-        view.getRootView().getLocationOnScreen(_bypassRootLoc);
-        final float x = event.getRawX() - _bypassRootLoc[0];
-        final float y = event.getRawY() - _bypassRootLoc[1];
         if (force || view.getGlobalVisibleRect(_bypassVisible, _bypassOffset)) {
+            view.getRootView().getLocationOnScreen(_bypassRootLoc);
+            final float x = event.getRawX() - _bypassRootLoc[0];
+            final float y = event.getRawY() - _bypassRootLoc[1];
             if (force || _bypassVisible.contains((int) x, (int) y)) {
                 final MotionEvent tEvent = MotionEvent.obtain(event);
                 try {
