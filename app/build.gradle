@@ -27,7 +27,7 @@ android {
         versionName 'MkIIIv78-dev'
         vectorDrawables.useSupportLibrary = true
 
-        resConfigs 'en'
+        resourceConfigurations += ['en']
 
         manifestPlaceholders += [namespace         : namespace,
                                  releaseVersionCode: releaseVersionCode]
