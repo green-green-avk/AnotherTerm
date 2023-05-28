@@ -10,6 +10,7 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
 import java.io.IOException;
+import java.io.InterruptedIOException;
 import java.io.OutputStream;
 import java.lang.reflect.Method;
 import java.nio.ByteBuffer;
@@ -71,10 +72,12 @@ public final class EventBasedBackendModuleWrapper {
                     break;
                 case MSG_READ:
                     synchronized (readLock) {
+                        final ByteBuffer buf = (ByteBuffer) msg.obj;
                         try {
-                            listener.onRead((ByteBuffer) msg.obj);
+                            listener.onRead(buf);
                         } finally {
-                            readLock.notify();
+                            buf.position(buf.limit());
+                            readLock.notifyAll();
                         }
                     }
                     break;
@@ -145,29 +148,31 @@ public final class EventBasedBackendModuleWrapper {
                 super.close();
             }
 
-            private void _write(@NonNull final ByteBuffer b) {
+            private void _write(@NonNull final ByteBuffer b) throws InterruptedIOException {
                 synchronized (readLock) {
                     sendEvent(MSG_READ, b);
                     try {
-                        readLock.wait();
+                        while (b.remaining() > 0)
+                            readLock.wait();
                     } catch (final InterruptedException e) {
-                        Thread.currentThread().interrupt();
+                        throw new InterruptedIOException();
                     }
                 }
             }
 
             @Override
-            public void write(final int b) {
+            public void write(final int b) throws InterruptedIOException {
                 _write(ByteBuffer.wrap(new byte[]{(byte) b}));
             }
 
             @Override
-            public void write(@NonNull final byte[] b, final int off, final int len) {
+            public void write(@NonNull final byte[] b, final int off, final int len)
+                    throws InterruptedIOException {
                 _write(ByteBuffer.wrap(b, off, len));
             }
 
             @Override
-            public void write(@NonNull final byte[] b) {
+            public void write(@NonNull final byte[] b) throws InterruptedIOException {
                 _write(ByteBuffer.wrap(b));
             }
         });
