@@ -5,7 +5,8 @@ public final class BlockingSync<T> {
     private boolean mIsSet = false;
 
     public synchronized T get() throws InterruptedException {
-        if (!mIsSet) wait();
+        while (!mIsSet)
+            wait();
         return mValue;
     }
 
@@ -15,12 +16,14 @@ public final class BlockingSync<T> {
 
     public synchronized void set(final T value) {
         mValue = value;
-        if (!mIsSet) notifyAll();
+        if (!mIsSet)
+            notifyAll();
         mIsSet = true;
     }
 
     public synchronized void setIfIsNotSet(final T value) {
-        if (!isSet()) set(value);
+        if (!isSet())
+            set(value);
     }
 
     public synchronized void clear() {
