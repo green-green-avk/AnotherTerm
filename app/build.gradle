@@ -27,7 +27,7 @@ android {
         versionName 'MkIV-dev45-dev'
         vectorDrawables.useSupportLibrary = true
 
-        resConfigs 'en'
+        resourceConfigurations += ['en']
 
         manifestPlaceholders += [namespace         : namespace,
                                  releaseVersionCode: releaseVersionCode]
