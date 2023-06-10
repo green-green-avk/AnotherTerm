@@ -36,7 +36,6 @@ import green_green_avk.anotherterm.ui.ViewValueListener;
 import green_green_avk.anotherterm.utils.Misc;
 import green_green_avk.anotherterm.utils.PreferenceStorage;
 import green_green_avk.anotherterm.utils.PreferenceUiWrapper;
-import green_green_avk.anotherterm.utils.ProfileManager;
 import green_green_avk.anotherterm.utils.RawPreferenceUiWrapper;
 import green_green_avk.anotherterm.whatsnew.WhatsNewDialog;
 
@@ -268,7 +267,7 @@ public final class FavoriteEditorActivity extends ExtAppCompatActivity {
         ps.put("term_compliance", TERM_COMPLIANCE_KEYS
                 .get(mTermCompliance.getSelectedItemPosition()));
         ps.put("charset", C.charsetList.get(mCharsetW.getSelectedItemPosition()));
-        ps.put("background", ((ProfileManager.Meta) mBackgroundW.getSelectedItem()).name);
+        ps.put("background", ((BackgroundsManager.Meta) mBackgroundW.getSelectedItem()).name);
         ps.put("colormap", ((AnsiColorManager.Meta) mColorMapW.getSelectedItem()).name);
         ps.put("keymap", ((TermKeyMapManager.Meta) mKeyMapW.getSelectedItem()).name);
         ps.put("screen_cols", getSize(mScrColsW));

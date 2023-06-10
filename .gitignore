@@ -11,6 +11,8 @@ local.properties
 /.idea/assetWizardSettings.xml
 /.idea/deploymentTargetDropDown.xml
 /.idea/misc.xml
+/.idea/jarRepositories.xml
+/.idea/shelf/
 .DS_Store
 .directory
 /build

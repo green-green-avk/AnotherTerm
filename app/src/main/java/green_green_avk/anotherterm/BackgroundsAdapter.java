@@ -12,7 +12,6 @@ import androidx.recyclerview.widget.RecyclerView;
 import green_green_avk.anotherterm.ui.ProfileAdapter;
 import green_green_avk.anotherterm.ui.UniAdapter;
 import green_green_avk.anotherterm.ui.drawables.SquarePreviewDrawable;
-import green_green_avk.anotherterm.utils.ProfileManager;
 
 public final class BackgroundsAdapter extends ProfileAdapter<BackgroundProfile> {
     public BackgroundsAdapter(@NonNull final Context context) {
@@ -39,7 +38,7 @@ public final class BackgroundsAdapter extends ProfileAdapter<BackgroundProfile> 
 
     @Override
     @Nullable
-    protected Drawable onGetPreview(@NonNull final ProfileManager.Meta meta) {
+    protected Drawable onGetPreview(@NonNull final BackgroundsManager.Meta meta) {
         final BackgroundProfile profile = getManager().get(meta);
         final Drawable preview = profile.getPreviewDrawable(context);
         if (preview != null) {
@@ -54,7 +53,7 @@ public final class BackgroundsAdapter extends ProfileAdapter<BackgroundProfile> 
 
     @Override
     @Nullable
-    protected CharSequence onGetTitle(@NonNull final ProfileManager.Meta meta) {
+    protected CharSequence onGetTitle(@NonNull final BackgroundsManager.Meta meta) {
         final BackgroundProfile profile = getManager().get(meta);
         final CharSequence title = profile.getTitle(context);
         return title != null ? title : super.onGetTitle(meta);

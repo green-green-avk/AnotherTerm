@@ -78,7 +78,6 @@ import green_green_avk.anotherterm.ui.UiUtils;
 import green_green_avk.anotherterm.ui.VisibilityAnimator;
 import green_green_avk.anotherterm.utils.LogMessage;
 import green_green_avk.anotherterm.utils.Misc;
-import green_green_avk.anotherterm.utils.ProfileManager;
 
 public final class AnsiConsoleActivity extends ConsoleActivity
         implements ConsoleInput.OnInvalidateSink, ScrollableView.OnScroll,
@@ -198,7 +197,7 @@ public final class AnsiConsoleActivity extends ConsoleActivity
         if (getLifecycle().getCurrentState() == Lifecycle.State.DESTROYED)
             return;
         final AnsiColorManager manager = AnsiColorManagerUi.instance.getManager(this);
-        final ProfileManager.Meta meta = manager.getMeta(mCsv.getColorProfile());
+        final AnsiColorManager.Meta meta = manager.getMeta(mCsv.getColorProfile());
         mCsv.setColorProfile(meta != null ? manager.get(meta) : manager.get((String) null));
     };
 
