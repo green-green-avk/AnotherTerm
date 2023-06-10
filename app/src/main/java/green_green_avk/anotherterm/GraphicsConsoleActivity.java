@@ -55,7 +55,8 @@ public final class GraphicsConsoleActivity extends ConsoleActivity {
     private final ConsoleService.Listener sessionsListener = new ConsoleService.Listener() {
         @Override
         protected void onSessionChange(final int key) {
-            if (key != mSessionKey) return;
+            if (key != mSessionKey)
+                return;
             if (ConsoleService.isSessionTerminated(mSessionKey)) {
                 finish();
                 return;

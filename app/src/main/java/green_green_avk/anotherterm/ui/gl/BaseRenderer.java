@@ -1,5 +1,18 @@
 package green_green_avk.anotherterm.ui.gl;
 
+import static javax.microedition.khronos.egl.EGL10.EGL_ALPHA_SIZE;
+import static javax.microedition.khronos.egl.EGL10.EGL_BLUE_SIZE;
+import static javax.microedition.khronos.egl.EGL10.EGL_DEFAULT_DISPLAY;
+import static javax.microedition.khronos.egl.EGL10.EGL_DEPTH_SIZE;
+import static javax.microedition.khronos.egl.EGL10.EGL_GREEN_SIZE;
+import static javax.microedition.khronos.egl.EGL10.EGL_NONE;
+import static javax.microedition.khronos.egl.EGL10.EGL_NO_CONTEXT;
+import static javax.microedition.khronos.egl.EGL10.EGL_NO_SURFACE;
+import static javax.microedition.khronos.egl.EGL10.EGL_RED_SIZE;
+import static javax.microedition.khronos.egl.EGL10.EGL_RENDERABLE_TYPE;
+import static javax.microedition.khronos.egl.EGL10.EGL_STENCIL_SIZE;
+import static javax.microedition.khronos.egl.EGL10.EGL_SUCCESS;
+
 import android.graphics.Point;
 import android.graphics.SurfaceTexture;
 import android.opengl.GLES20;
@@ -14,19 +27,6 @@ import javax.microedition.khronos.egl.EGLConfig;
 import javax.microedition.khronos.egl.EGLContext;
 import javax.microedition.khronos.egl.EGLDisplay;
 import javax.microedition.khronos.egl.EGLSurface;
-
-import static javax.microedition.khronos.egl.EGL10.EGL_ALPHA_SIZE;
-import static javax.microedition.khronos.egl.EGL10.EGL_BLUE_SIZE;
-import static javax.microedition.khronos.egl.EGL10.EGL_DEFAULT_DISPLAY;
-import static javax.microedition.khronos.egl.EGL10.EGL_DEPTH_SIZE;
-import static javax.microedition.khronos.egl.EGL10.EGL_GREEN_SIZE;
-import static javax.microedition.khronos.egl.EGL10.EGL_NONE;
-import static javax.microedition.khronos.egl.EGL10.EGL_NO_CONTEXT;
-import static javax.microedition.khronos.egl.EGL10.EGL_NO_SURFACE;
-import static javax.microedition.khronos.egl.EGL10.EGL_RED_SIZE;
-import static javax.microedition.khronos.egl.EGL10.EGL_RENDERABLE_TYPE;
-import static javax.microedition.khronos.egl.EGL10.EGL_STENCIL_SIZE;
-import static javax.microedition.khronos.egl.EGL10.EGL_SUCCESS;
 
 public abstract class BaseRenderer implements TextureView.SurfaceTextureListener {
     public static final int EGL_CONTEXT_CLIENT_VERSION = 0x3098;
@@ -67,7 +67,8 @@ public abstract class BaseRenderer implements TextureView.SurfaceTextureListener
         final int[] configsCount = new int[]{0};
         final EGLConfig[] configs = new EGLConfig[]{null};
         egl.eglChooseConfig(eglDisplay, config, configs, 1, configsCount);
-        if (configs[0] == null) throw new RendererException("No good GL config found");
+        if (configs[0] == null)
+            throw new RendererException("No good GL config found");
         return configs[0];
     }
 

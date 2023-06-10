@@ -18,13 +18,16 @@ public final class GlProgram {
     }
 
     public void attach(@NonNull final GlShader shader) {
-        if (id == 0) id = GLES20.glCreateProgram();
-        if (id == 0) throw new RendererException("Error allocating program");
+        if (id == 0)
+            id = GLES20.glCreateProgram();
+        if (id == 0)
+            throw new RendererException("Error allocating program");
         GLES20.glAttachShader(id, shader.getId());
     }
 
     public void link() {
-        if (id == 0) throw new RendererException("Error linking empty program");
+        if (id == 0)
+            throw new RendererException("Error linking empty program");
         GLES20.glLinkProgram(id);
         final int[] r = new int[]{0};
         GLES20.glGetProgramiv(id, GLES20.GL_LINK_STATUS, r, 0);
@@ -49,7 +52,8 @@ public final class GlProgram {
     }
 
     public void delete() {
-        if (id != 0) GLES20.glDeleteProgram(id);
+        if (id != 0)
+            GLES20.glDeleteProgram(id);
         id = 0;
     }
 }

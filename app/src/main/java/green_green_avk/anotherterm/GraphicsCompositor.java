@@ -136,7 +136,8 @@ public final class GraphicsCompositor {
         @Override
         public void feed(final int code, final boolean shift,
                          final boolean alt, final boolean ctrl) {
-            if (code == 0) return;
+            if (code == 0)
+                return;
             if (ctrl)
                 feed(KeyEvent.KEYCODE_CTRL_LEFT, true);
             if (alt)
@@ -159,11 +160,14 @@ public final class GraphicsCompositor {
 
         @Override
         public void feed(final int code, final boolean pressed) {
-            if (code < 0) return;
+            if (code < 0)
+                return;
             final Surface s = keyboardFocus;
-            if (s == null) return;
+            if (s == null)
+                return;
             final SurfaceSource ss = s.source;
-            if (ss == null) return;
+            if (ss == null)
+                return;
             ss.onKeyEvent(SystemClock.uptimeMillis(), code, pressed);
         }
 
@@ -174,11 +178,14 @@ public final class GraphicsCompositor {
                 return;
             }
             final Surface s = keyboardFocus;
-            if (s == null) return;
+            if (s == null)
+                return;
             final SurfaceSource ss = s.source;
-            if (ss == null) return;
+            if (ss == null)
+                return;
             final KeyEvent[] events = keyCharacterMap.getEvents(v.toCharArray());
-            if (events == null) return;
+            if (events == null)
+                return;
             for (final KeyEvent event : events) {
                 switch (event.getAction()) {
                     case MotionEvent.ACTION_DOWN:
@@ -369,7 +376,8 @@ public final class GraphicsCompositor {
     public void onKeyboardFocusChange(@Nullable final Surface focus) {
         synchronized (treeLock) {
             final Surface oldFocus = keyboardFocus;
-            if (oldFocus == focus) return;
+            if (oldFocus == focus)
+                return;
             if (oldFocus != null)
                 oldFocus.source.onKeyEvent(false);
             keyboardFocus = focus;

@@ -973,7 +973,8 @@ public final class WlTermServer {
 
             @Override
             public void set_buffer_scale(final int scale) {
-                if (scale < 1) return;
+                if (scale < 1)
+                    return;
                 WlSurfaceImpl.this.scale = scale;
             }
 

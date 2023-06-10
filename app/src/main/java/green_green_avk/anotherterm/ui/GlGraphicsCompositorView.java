@@ -71,7 +71,8 @@ public final class GlGraphicsCompositorView extends TextureView implements Graph
 
     @Override
     public void unsetCompositor() {
-        if (compositor == null) return;
+        if (compositor == null)
+            return;
         compositor.setSink(null);
         this.compositor = null;
     }
@@ -97,9 +98,11 @@ public final class GlGraphicsCompositorView extends TextureView implements Graph
 
     @Override
     public boolean onTouchEvent(final MotionEvent event) {
-        if (compositor == null) return true;
+        if (compositor == null)
+            return true;
         final GraphicsCompositor.Surface root = compositor.root;
-        if (root == null) return true;
+        if (root == null)
+            return true;
         if (!ScreenMouseView.isMouseEvent(event)) {
             final int action = event.getActionMasked();
             switch (action) {
@@ -156,10 +159,13 @@ public final class GlGraphicsCompositorView extends TextureView implements Graph
 
     @Override
     public boolean onGenericMotionEvent(final MotionEvent event) {
-        if ((event.getSource() & InputDevice.SOURCE_MOUSE) == 0) return true;
-        if (compositor == null) return true;
+        if ((event.getSource() & InputDevice.SOURCE_MOUSE) == 0)
+            return true;
+        if (compositor == null)
+            return true;
         final GraphicsCompositor.Surface root = compositor.root;
-        if (root == null) return true;
+        if (root == null)
+            return true;
         final int action = event.getAction();
         switch (action) {
             case MotionEvent.ACTION_HOVER_MOVE:
@@ -167,13 +173,14 @@ public final class GlGraphicsCompositorView extends TextureView implements Graph
                 root.onPointerButtonEvent(event.getEventTime(), pointerPos.x, pointerPos.y,
                         0, action);
                 break;
-            case MotionEvent.ACTION_SCROLL:
+            case MotionEvent.ACTION_SCROLL: {
                 final float vScroll = event.getAxisValue(MotionEvent.AXIS_VSCROLL);
                 pointerPosSet(event.getX(), event.getY());
                 if (vScroll != 0)
                     root.onPointerAxisEvent(event.getEventTime(), pointerPos.x, pointerPos.y,
                             MotionEvent.AXIS_VSCROLL, vScroll);
                 break;
+            }
         }
         return true;
     }
@@ -181,7 +188,8 @@ public final class GlGraphicsCompositorView extends TextureView implements Graph
     @Override
     protected void onSizeChanged(final int w, final int h, final int oldw, final int oldh) {
         super.onSizeChanged(w, h, oldw, oldh);
-        if (compositor == null) return;
+        if (compositor == null)
+            return;
 //        if (BuildConfig.DEBUG)
 //            Log.i("WlDraw", "* Resize: " + w + "x" + h);
         compositor.onResize(w, h);
@@ -364,9 +372,11 @@ public final class GlGraphicsCompositorView extends TextureView implements Graph
 
             private void onDraw() {
                 final GraphicsCompositor compositor = renderer.view.compositor;
-                if (compositor == null) return;
+                if (compositor == null)
+                    return;
                 final GraphicsCompositor.Surface surface = compositor.root;
-                if (surface == null) return;
+                if (surface == null)
+                    return;
                 onDrawSurface(surface, 0, 0);
                 final GraphicsCompositor.Surface pointer = compositor.pointer;
                 if (pointer != null)
@@ -377,7 +387,8 @@ public final class GlGraphicsCompositorView extends TextureView implements Graph
                                        final float x, final float y) {
                 synchronized (surface) {
                     try {
-                        if (surface.buffer == null) return;
+                        if (surface.buffer == null)
+                            return;
                         if (surface.stride != surface.width * 4)
                             throw new IllegalArgumentException("We can't this stride: " +
                                     surface.stride + " / " + surface.width);

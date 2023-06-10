@@ -15,7 +15,6 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import green_green_avk.anotherterm.ui.ProfileAdapter;
 import green_green_avk.anotherterm.ui.UniAdapter;
-import green_green_avk.anotherterm.utils.ProfileManager;
 
 public final class AnsiColorAdapter extends ProfileAdapter<AnsiColorProfile> {
     public AnsiColorAdapter(@NonNull final Context context) {
@@ -109,7 +108,7 @@ public final class AnsiColorAdapter extends ProfileAdapter<AnsiColorProfile> {
 
     @Override
     @Nullable
-    protected Drawable onGetPreview(@NonNull final ProfileManager.Meta meta) {
+    protected Drawable onGetPreview(@NonNull final AnsiColorManager.Meta meta) {
         final AnsiColorProfile profile = getManager().get(meta);
         if (profile instanceof AnsiColorProfile.Editable)
             return new EditablePreviewDrawable((AnsiColorProfile.Editable) profile);

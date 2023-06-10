@@ -32,7 +32,8 @@ public final class GlTexture {
     }
 
     public void bind(final int slot) {
-        if (!_isInit) return;
+        if (!_isInit)
+            return;
         GLES20.glActiveTexture(slot);
         GLES20.glBindTexture(GLES20.GL_TEXTURE_2D, id[0]);
     }
@@ -106,7 +107,8 @@ public final class GlTexture {
                        final int fromXOffset, final int fromYOffset, final int bufferWidth,
                        final int xOffset, final int yOffset, final int width, final int height,
                        final int format, final int type, final int alignment) {
-        if (!_isSet) return;
+        if (!_isSet)
+            return;
         if (alignment > 0) {
             GLES20.glGetIntegerv(GLES20.GL_UNPACK_ALIGNMENT, oldAlignment, 0);
             try {

@@ -16,8 +16,10 @@ public final class GlShader {
     }
 
     public void set(final int type, @NonNull final String src) {
-        if (id == 0) id = GLES20.glCreateShader(type);
-        if (id == 0) throw new RendererException("Error allocating shader of type " + type);
+        if (id == 0)
+            id = GLES20.glCreateShader(type);
+        if (id == 0)
+            throw new RendererException("Error allocating shader of type " + type);
         GLES20.glShaderSource(id, src);
         GLES20.glCompileShader(id);
         final int[] r = new int[]{0};
@@ -31,7 +33,8 @@ public final class GlShader {
     }
 
     public void delete() {
-        if (id != 0) GLES20.glDeleteShader(id);
+        if (id != 0)
+            GLES20.glDeleteShader(id);
         id = 0;
     }
 }
