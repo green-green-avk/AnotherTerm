@@ -206,6 +206,7 @@ See <https://developer.android.com/studio/write/java8-support#library-desugaring
     implementation project(path: ':jsch')
     implementation project(path: ':TelnetClient')
     implementation project(path: ':wayland')
+    implementation project(path: ':wayland-xdg_shell')
 
     implementation 'com.github.green-green-avk:libusbmanager:1.10'
 

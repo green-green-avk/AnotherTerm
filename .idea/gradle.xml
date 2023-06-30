@@ -23,6 +23,7 @@
             <option value="$PROJECT_DIR$/bluetoothspp" />
             <option value="$PROJECT_DIR$/jsch" />
             <option value="$PROJECT_DIR$/wayland" />
+            <option value="$PROJECT_DIR$/wayland-xdg_shell" />
           </set>
         </option>
       </GradleProjectSettings>

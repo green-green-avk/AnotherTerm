@@ -34,7 +34,7 @@ import green_green_avk.wayland.protocol_core.WlInterface;
 /**
  * core global object
  * <p>
- * The core global object.  This is a special singleton object.  It
+ * The core global object. This is a special singleton object. It
  * is used for internal Wayland protocol features.
  */
 public class wl_display extends WlInterface<wl_display.Requests, wl_display.Events> {
@@ -46,7 +46,7 @@ public class wl_display extends WlInterface<wl_display.Requests, wl_display.Even
          * asynchronous roundtrip
          * <p>
          * The sync request asks the server to emit the 'done' event
-         * on the returned wl_callback object.  Since requests are
+         * on the returned {@code wl_callback} object. Since requests are
          * handled in-order and events are delivered in-order, this can
          * be used as a barrier to ensure all previous requests and the
          * resulting events have been handled.
@@ -55,7 +55,7 @@ public class wl_display extends WlInterface<wl_display.Requests, wl_display.Even
          * compositor after the callback is fired and as such the client must not
          * attempt to use it after that point.
          * <p>
-         * The callback_data passed in the callback is the event serial.
+         * The {@code callback_data} passed in the callback is the event serial.
          *
          * @param callback callback object for the sync request
          */
@@ -70,9 +70,9 @@ public class wl_display extends WlInterface<wl_display.Requests, wl_display.Even
          * compositor.
          * <p>
          * It should be noted that the server side resources consumed in
-         * response to a get_registry request can only be released when the
+         * response to a {@code get_registry} request can only be released when the
          * client disconnects, not when the client side proxy is destroyed.
-         * Therefore, clients should invoke get_registry as infrequently as
+         * Therefore, clients should invoke {@code get_registry} as infrequently as
          * possible to avoid wasting memory.
          *
          * @param registry global registry object
@@ -87,11 +87,11 @@ public class wl_display extends WlInterface<wl_display.Requests, wl_display.Even
          * fatal error event
          * <p>
          * The error event is sent out when a fatal (non-recoverable)
-         * error has occurred.  The object_id argument is the object
+         * error has occurred. The {@code object_id} argument is the object
          * where the error occurred, most often in response to a request
-         * to that object.  The code identifies the error and is defined
-         * by the object interface.  As such, each interface defines its
-         * own set of error codes.  The message is a brief description
+         * to that object. The code identifies the error and is defined
+         * by the object interface. As such, each interface defines its
+         * own set of error codes. The message is a brief description
          * of the error, for (debugging) convenience.
          *
          * @param object_id object where the error occurred
@@ -105,10 +105,10 @@ public class wl_display extends WlInterface<wl_display.Requests, wl_display.Even
          * acknowledge object ID deletion
          * <p>
          * This event is used internally by the object ID management
-         * logic.  When a client deletes an object, the server will send
-         * this event to acknowledge that it has seen the delete request.
-         * When the client receives this event, it will know that it can
-         * safely reuse the object ID.
+         * logic. When a client deletes an object that it had created,
+         * the server will send this event to acknowledge that it has
+         * seen the delete request. When the client receives this event,
+         * it will know that it can safely reuse the object ID.
          *
          * @param id deleted object ID
          */
@@ -133,7 +133,7 @@ public class wl_display extends WlInterface<wl_display.Requests, wl_display.Even
             public static final int invalid_object = 0;
 
             /**
-             * method doesn't exist on the specified interface
+             * method doesn't exist on the specified interface or malformed request
              */
             public static final int invalid_method = 1;
 
@@ -141,6 +141,11 @@ public class wl_display extends WlInterface<wl_display.Requests, wl_display.Even
              * server is out of memory
              */
             public static final int no_memory = 2;
+
+            /**
+             * implementation error in compositor
+             */
+            public static final int implementation = 3;
         }
     }
 }

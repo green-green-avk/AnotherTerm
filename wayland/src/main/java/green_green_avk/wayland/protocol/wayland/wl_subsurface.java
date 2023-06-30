@@ -32,37 +32,37 @@ import androidx.annotation.NonNull;
 import green_green_avk.wayland.protocol_core.WlInterface;
 
 /**
- * sub-surface interface to a wl_surface
+ * sub-surface interface to a {@code wl_surface}
  * <p>
- * An additional interface to a wl_surface object, which has been
+ * An additional interface to a {@code wl_surface} object, which has been
  * made a sub-surface. A sub-surface has one parent surface. A
  * sub-surface's size and position are not limited to that of the parent.
  * Particularly, a sub-surface is not automatically clipped to its
  * parent's area.
  * <p>
- * A sub-surface becomes mapped, when a non-NULL wl_buffer is applied
+ * A sub-surface becomes mapped, when a non-NULL {@code wl_buffer} is applied
  * and the parent surface is mapped. The order of which one happens
  * first is irrelevant. A sub-surface is hidden if the parent becomes
- * hidden, or if a NULL wl_buffer is applied. These rules apply
+ * hidden, or if a NULL {@code wl_buffer} is applied. These rules apply
  * recursively through the tree of surfaces.
  * <p>
- * The behaviour of a wl_surface.commit request on a sub-surface
+ * The behaviour of a {@code wl_surface.commit} request on a sub-surface
  * depends on the sub-surface's mode. The possible modes are
  * synchronized and desynchronized, see methods
- * wl_subsurface.set_sync and wl_subsurface.set_desync. Synchronized
- * mode caches the wl_surface state to be applied when the parent's
+ * {@code wl_subsurface.set_sync} and {@code wl_subsurface.set_desync}. Synchronized
+ * mode caches the {@code wl_surface} state to be applied when the parent's
  * state gets applied, and desynchronized mode applies the pending
- * wl_surface state directly. A sub-surface is initially in the
+ * {@code wl_surface} state directly. A sub-surface is initially in the
  * synchronized mode.
  * <p>
- * Sub-surfaces have also other kind of state, which is managed by
- * wl_subsurface requests, as opposed to wl_surface requests. This
+ * Sub-surfaces also have another kind of state, which is managed by
+ * {@code wl_subsurface} requests, as opposed to {@code wl_surface} requests. This
  * state includes the sub-surface position relative to the parent
- * surface (wl_subsurface.set_position), and the stacking order of
- * the parent and its sub-surfaces (wl_subsurface.place_above and
- * .place_below). This state is applied when the parent surface's
- * wl_surface state is applied, regardless of the sub-surface's mode.
- * As the exception, set_sync and set_desync are effective immediately.
+ * surface ({@code wl_subsurface.set_position}), and the stacking order of
+ * the parent and its sub-surfaces ({@code wl_subsurface.place_above} and
+ * .{@code place_below}). This state is applied when the parent surface's
+ * {@code wl_surface} state is applied, regardless of the sub-surface's mode.
+ * As the exception, {@code set_sync} and {@code set_desync} are effective immediately.
  * <p>
  * The main surface can be thought to be always in desynchronized mode,
  * since it does not have a parent in the sub-surfaces sense.
@@ -74,14 +74,14 @@ import green_green_avk.wayland.protocol_core.WlInterface;
  * synchronized mode, and then assume that all its child and grand-child
  * sub-surfaces are synchronized, too, without explicitly setting them.
  * <p>
- * If the wl_surface associated with the wl_subsurface is destroyed, the
- * wl_subsurface object becomes inert. Note, that destroying either object
+ * If the {@code wl_surface} associated with the {@code wl_subsurface} is destroyed, the
+ * {@code wl_subsurface} object becomes inert. Note, that destroying either object
  * takes effect immediately. If you need to synchronize the removal
  * of a sub-surface to the parent surface update, unmap the sub-surface
- * first by attaching a NULL wl_buffer, update parent, and then destroy
+ * first by attaching a NULL {@code wl_buffer}, update parent, and then destroy
  * the sub-surface.
  * <p>
- * If the parent wl_surface object is destroyed, the sub-surface is
+ * If the parent {@code wl_surface} object is destroyed, the sub-surface is
  * unmapped.
  */
 public class wl_subsurface extends WlInterface<wl_subsurface.Requests, wl_subsurface.Events> {
@@ -92,11 +92,11 @@ public class wl_subsurface extends WlInterface<wl_subsurface.Requests, wl_subsur
         /**
          * remove sub-surface interface
          * <p>
-         * The sub-surface interface is removed from the wl_surface object
+         * The sub-surface interface is removed from the {@code wl_surface} object
          * that was turned into a sub-surface with a
-         * wl_subcompositor.get_subsurface request. The wl_surface's association
-         * to the parent is deleted, and the wl_surface loses its role as
-         * a sub-surface. The wl_surface is unmapped immediately.
+         * {@code wl_subcompositor.get_subsurface} request. The {@code wl_surfac}e's association
+         * to the parent is deleted, and the {@code wl_surface} loses its role as
+         * a sub-surface. The {@code wl_surface} is unmapped immediately.
          */
         @IMethod(0)
         @IDtor
@@ -114,9 +114,9 @@ public class wl_subsurface extends WlInterface<wl_subsurface.Requests, wl_subsur
          * The scheduled coordinates will take effect whenever the state of the
          * parent surface is applied. When this happens depends on whether the
          * parent surface is in synchronized mode or not. See
-         * wl_subsurface.set_sync and wl_subsurface.set_desync for details.
+         * {@code wl_subsurface.set_sync} and {@code wl_subsurface.set_desync} for details.
          * <p>
-         * If more than one set_position request is invoked by the client before
+         * If more than one {@code set_position} request is invoked by the client before
          * the commit of the parent surface, the position of a new request always
          * replaces the scheduled position from any previous request.
          * <p>
@@ -141,8 +141,8 @@ public class wl_subsurface extends WlInterface<wl_subsurface.Requests, wl_subsur
          * applied immediately to a pending state. The final pending state is
          * copied to the active state the next time the state of the parent
          * surface is applied. When this happens depends on whether the parent
-         * surface is in synchronized mode or not. See wl_subsurface.set_sync and
-         * wl_subsurface.set_desync for details.
+         * surface is in synchronized mode or not. See {@code wl_subsurface.set_sync} and
+         * {@code wl_subsurface.set_desync} for details.
          * <p>
          * A new sub-surface is initially added as the top-most in the stack
          * of its siblings and parent.
@@ -156,7 +156,7 @@ public class wl_subsurface extends WlInterface<wl_subsurface.Requests, wl_subsur
          * restack the sub-surface
          * <p>
          * The sub-surface is placed just below the reference surface.
-         * See wl_subsurface.place_above.
+         * See {@code wl_subsurface.place_above}.
          *
          * @param sibling the reference surface
          */
@@ -169,7 +169,7 @@ public class wl_subsurface extends WlInterface<wl_subsurface.Requests, wl_subsur
          * Change the commit behaviour of the sub-surface to synchronized
          * mode, also described as the parent dependent mode.
          * <p>
-         * In synchronized mode, wl_surface.commit on a sub-surface will
+         * In synchronized mode, {@code wl_surface.commit} on a sub-surface will
          * accumulate the committed state in a cache, but the state will
          * not be applied and hence will not change the compositor output.
          * The cached state is applied to the sub-surface immediately after
@@ -178,7 +178,7 @@ public class wl_subsurface extends WlInterface<wl_subsurface.Requests, wl_subsur
          * Applying the cached state will invalidate the cache, so further
          * parent surface commits do not (re-)apply old state.
          * <p>
-         * See wl_subsurface for the recursive effect of this mode.
+         * See {@code wl_subsurface} for the recursive effect of this mode.
          */
         @IMethod(4)
         void set_sync();
@@ -189,22 +189,22 @@ public class wl_subsurface extends WlInterface<wl_subsurface.Requests, wl_subsur
          * Change the commit behaviour of the sub-surface to desynchronized
          * mode, also described as independent or freely running mode.
          * <p>
-         * In desynchronized mode, wl_surface.commit on a sub-surface will
+         * In desynchronized mode, {@code wl_surface.commit} on a sub-surface will
          * apply the pending state directly, without caching, as happens
-         * normally with a wl_surface. Calling wl_surface.commit on the
-         * parent surface has no effect on the sub-surface's wl_surface
+         * normally with a {@code wl_surface}. Calling {@code wl_surface.commit} on the
+         * parent surface has no effect on the sub-surface's {@code wl_surface}
          * state. This mode allows a sub-surface to be updated on its own.
          * <p>
-         * If cached state exists when wl_surface.commit is called in
+         * If cached state exists when {@code wl_surface.commit} is called in
          * desynchronized mode, the pending state is added to the cached
          * state, and applied as a whole. This invalidates the cache.
          * <p>
          * Note: even if a sub-surface is set to desynchronized, a parent
          * sub-surface may override it to behave as synchronized. For details,
-         * see wl_subsurface.
+         * see {@code wl_subsurface}.
          * <p>
          * If a surface's parent surface behaves as desynchronized, then
-         * the cached state is applied on set_desync.
+         * the cached state is applied on {@code set_desync}.
          */
         @IMethod(5)
         void set_desync();

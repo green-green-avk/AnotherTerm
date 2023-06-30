@@ -61,6 +61,10 @@ import green_green_avk.wayland.protocol.wayland.wl_shell_surface;
 import green_green_avk.wayland.protocol.wayland.wl_shm;
 import green_green_avk.wayland.protocol.wayland.wl_surface;
 import green_green_avk.wayland.protocol.wayland.wl_touch;
+import green_green_avk.wayland.protocol.xdg_shell.xdg_positioner;
+import green_green_avk.wayland.protocol.xdg_shell.xdg_surface;
+import green_green_avk.wayland.protocol.xdg_shell.xdg_toplevel;
+import green_green_avk.wayland.protocol.xdg_shell.xdg_wm_base;
 import green_green_avk.wayland.protocol_core.WlInterface;
 import green_green_avk.wayland.protocol_core.WlMarshalling;
 import green_green_avk.wayland.server.WlBuffer;
@@ -918,6 +922,13 @@ public final class WlTermServer {
     }
 
     private interface WlSurfaceRole {
+        default boolean onBeforeAttach(final boolean hasBuffer) {
+            return true;
+        }
+
+        default boolean onBeforeCommit() {
+            return true;
+        }
     }
 
     private final class WlSurfaceImpl extends wl_surface {
@@ -925,6 +936,7 @@ public final class WlTermServer {
         private final WlClientImpl wlClient;
         @Nullable
         private WlSurfaceRole wlRole = null;
+        private boolean hasPendingAttach = false;
         @Nullable
         private WlBuffer wlBuffer = null;
         private final Point wlBufferOrigin = new Point();
@@ -947,16 +959,30 @@ public final class WlTermServer {
             onDestroy = () -> {
                 if (wlRole instanceof WlInterface) {
                     final WlInterface role = (WlInterface) wlRole;
-                    wlClient.removeResourceAndNotify(role.id);
+                    wlClient.removeResource(role.id);
                     role.destroy();
                 }
-                if (surface == wlClient.compositor.root)
-                    wlClient.compositor.setRoot(null);
-                if (surface == wlClient.compositor.pointer)
-                    wlClient.compositor.pointer = null;
-                if (surface != null)
-                    surface.clean();
+                unmap();
             };
+        }
+
+        private void unmap() {
+            if (surface == wlClient.compositor.root)
+                wlClient.compositor.setRoot(null);
+            if (surface == wlClient.compositor.pointer)
+                wlClient.compositor.pointer = null;
+            if (surface != null) {
+                surface.clean();
+                surface = null;
+            }
+        }
+
+        private void mapAsRoot() {
+            if (surface == null) {
+                surface = wlClient.compositor.createSurface();
+                surface.source = eventsHandler;
+                wlClient.compositor.setRoot(surface);
+            }
         }
 
         private final class RequestsImpl implements Requests {
@@ -968,8 +994,11 @@ public final class WlTermServer {
 
             @Override
             public void attach(@Nullable final wl_buffer buffer, final int x, final int y) {
+                if (wlRole != null && !wlRole.onBeforeAttach(buffer != null))
+                    return;
                 wlBuffer = (WlBuffer) buffer;
                 wlBufferOrigin.offset(x, y);
+                hasPendingAttach = true;
             }
 
             @Override
@@ -998,6 +1027,9 @@ public final class WlTermServer {
 
             @Override
             public void commit() {
+                if (wlRole != null && !wlRole.onBeforeCommit())
+                    return;
+                hasPendingAttach = false;
                 if (surface != null && wlBuffer != null) {
                     currentTransform.setTranslate(wlBufferOrigin.x, wlBufferOrigin.y);
                     currentTransform.preScale(1f / scale, 1f / scale);
@@ -1056,6 +1088,11 @@ public final class WlTermServer {
             public void damage_buffer(final int x, final int y,
                                       final int width, final int height) {
                 wlBufferDamage.op(x, y, x + width, y + height, Region.Op.UNION);
+            }
+
+            @Override
+            public void offset(final int x, final int y) {
+                wlBufferOrigin.offset(x, y);
             }
         }
     }
@@ -1200,9 +1237,7 @@ public final class WlTermServer {
             @Override
             public void set_toplevel() {
                 role = new TopLevelRole();
-                wlSurface.surface = wlSurface.wlClient.compositor.createSurface();
-                wlSurface.surface.source = wlSurface.eventsHandler;
-                wlSurface.wlClient.compositor.setRoot(wlSurface.surface);
+                wlSurface.mapAsRoot();
             }
 
             @Override
@@ -1279,6 +1314,263 @@ public final class WlTermServer {
         bind(@NonNull final WlClient client, @NonNull final WlInterface.NewId newId)
                 throws BindException {
             return WlResource.make(client, new WlShellImpl((WlClientImpl) client), newId.id);
+        }
+    }
+
+    private interface XdgSurfaceRole {
+    }
+
+    private final class XdgToplevelImpl extends xdg_toplevel implements XdgSurfaceRole {
+        @NonNull
+        private final XdgSurfaceImpl surface;
+        @Nullable
+        private String title = null;
+        @Nullable
+        private String appId = null;
+
+        private XdgToplevelImpl(@NonNull final XdgSurfaceImpl surface) {
+            this.surface = surface;
+            callbacks = new RequestsImpl();
+            surface.role = this;
+            this.surface.wlSurface.mapAsRoot();
+        }
+
+        private final class RequestsImpl implements Requests {
+            @Override
+            public void destroy() {
+                surface.role = null;
+                surface.wlSurface.wlClient.removeResourceAndNotify(id);
+                XdgToplevelImpl.this.destroy();
+                surface.wlSurface.unmap();
+            }
+
+            @Override
+            public void set_parent(@Nullable final xdg_toplevel parent) {
+                surface.wlSurface.wlClient.returnNotImplemented(null);
+            }
+
+            @Override
+            public void set_title(@NonNull final String title) {
+                XdgToplevelImpl.this.title = title;
+            }
+
+            @Override
+            public void set_app_id(@NonNull final String app_id) {
+                XdgToplevelImpl.this.appId = app_id;
+            }
+
+            @Override
+            public void show_window_menu(@NonNull final wl_seat seat, final long serial,
+                                         final int x, final int y) {
+                surface.wlSurface.wlClient.returnNotImplemented(null);
+            }
+
+            @Override
+            public void move(@NonNull final wl_seat seat, final long serial) {
+                surface.wlSurface.wlClient.returnNotImplemented(null);
+            }
+
+            @Override
+            public void resize(@NonNull final wl_seat seat, final long serial, final long edges) {
+                surface.wlSurface.wlClient.returnNotImplemented(null);
+            }
+
+            @Override
+            public void set_max_size(final int width, final int height) {
+                surface.wlSurface.wlClient.returnNotImplemented(null);
+            }
+
+            @Override
+            public void set_min_size(final int width, final int height) {
+                surface.wlSurface.wlClient.returnNotImplemented(null);
+            }
+
+            @Override
+            public void set_maximized() {
+                surface.wlSurface.wlClient.returnNotImplemented(null);
+            }
+
+            @Override
+            public void unset_maximized() {
+                surface.wlSurface.wlClient.returnNotImplemented(null);
+            }
+
+            @Override
+            public void set_fullscreen(@Nullable final wl_output output) {
+                surface.wlSurface.wlClient.returnNotImplemented(null);
+            }
+
+            @Override
+            public void unset_fullscreen() {
+                surface.wlSurface.wlClient.returnNotImplemented(null);
+            }
+
+            @Override
+            public void set_minimized() {
+                surface.wlSurface.wlClient.returnNotImplemented(null);
+            }
+        }
+    }
+
+    private final class XdgSurfaceImpl extends xdg_surface implements WlSurfaceRole {
+        @NonNull
+        private final WlSurfaceImpl wlSurface;
+        @Nullable
+        private XdgSurfaceRole role = null;
+        private boolean isConfigured = false;
+        private boolean inAckConfigure = false;
+        private int ackConfigureSerial;
+
+        private XdgSurfaceImpl(@NonNull final WlSurfaceImpl wlSurface) {
+            this.wlSurface = wlSurface;
+            callbacks = new RequestsImpl();
+            onDestroy = () -> {
+                // In case of destroying without check, just do it.
+                if (role instanceof WlInterface) {
+                    final WlInterface _role = (WlInterface) role;
+                    this.wlSurface.wlClient.removeResource(_role.id);
+                    _role.destroy();
+                }
+            };
+            this.wlSurface.wlRole = this;
+        }
+
+        private final class RequestsImpl implements Requests {
+            @Override
+            public void destroy() {
+                if (role != null) {
+                    wlSurface.wlClient.returnError(XdgSurfaceImpl.this,
+                            Enums.Error.defunct_role_object,
+                            "The role is still assigned");
+                    return;
+                }
+                wlSurface.wlRole = null;
+                wlSurface.wlClient.removeResourceAndNotify(id);
+                XdgSurfaceImpl.this.destroy();
+            }
+
+            @Override
+            public void get_toplevel(@NonNull final NewId id) {
+                wlSurface.wlClient.addResource(WlResource.make(wlSurface.wlClient,
+                        new XdgToplevelImpl(XdgSurfaceImpl.this), id.id));
+            }
+
+            @Override
+            public void get_popup(@NonNull final NewId id, @Nullable final xdg_surface parent,
+                                  @NonNull final xdg_positioner positioner) {
+                wlSurface.wlClient.returnNotImplemented(null);
+            }
+
+            @Override
+            public void set_window_geometry(final int x, final int y,
+                                            final int width, final int height) {
+                wlSurface.wlClient.returnNotImplemented(null);
+            }
+
+            @Override
+            public void ack_configure(final long serial) {
+                if (!inAckConfigure || ackConfigureSerial != serial) {
+                    wlSurface.wlClient.returnError(XdgSurfaceImpl.this,
+                            Enums.Error.invalid_serial,
+                            "");
+                    return;
+                }
+                isConfigured = true;
+                inAckConfigure = false;
+            }
+        }
+
+        @Override
+        public boolean onBeforeAttach(final boolean hasBuffer) {
+            if (!isConfigured) {
+                wlSurface.wlClient.returnError(this,
+                        Enums.Error.unconfigured_buffer,
+                        "");
+                return false;
+            }
+            if (!hasBuffer) {
+                isConfigured = false;
+            }
+            return true;
+        }
+
+        @Override
+        public boolean onBeforeCommit() {
+            if (role == null) {
+                wlSurface.wlClient.returnError(this,
+                        Enums.Error.not_constructed,
+                        "");
+                return false;
+            }
+            if (!isConfigured) {
+                ackConfigureSerial = wlDisplay.nextSerial();
+                events.configure(ackConfigureSerial);
+                inAckConfigure = true;
+            }
+            return true;
+        }
+    }
+
+    private final class XdgWmBaseImpl extends xdg_wm_base {
+        @NonNull
+        private final WlClientImpl wlClient;
+
+        private XdgWmBaseImpl(@NonNull final WlClientImpl wlClient) {
+            this.wlClient = wlClient;
+            callbacks = new RequestsImpl();
+        }
+
+        private final class RequestsImpl implements Requests {
+            @Override
+            public void destroy() {
+                wlClient.removeResourceAndNotify(id);
+                XdgWmBaseImpl.this.destroy();
+            }
+
+            @Override
+            public void create_positioner(@NonNull final NewId id) {
+                wlClient.returnNotImplemented(null);
+            }
+
+            @Override
+            public void get_xdg_surface(@NonNull final NewId id,
+                                        @NonNull final wl_surface surface) {
+                if (((WlSurfaceImpl) surface).wlRole != null) {
+                    wlClient.returnError(XdgWmBaseImpl.this, Enums.Error.role,
+                            "The role is already set");
+                    return;
+                }
+                if (((WlSurfaceImpl) surface).hasPendingAttach) {
+                    wlClient.returnError(XdgWmBaseImpl.this,
+                            Enums.Error.invalid_surface_state,
+                            "Something is already attached");
+                    return;
+                }
+                wlClient.addResource(WlResource.make(wlClient,
+                        new XdgSurfaceImpl((WlSurfaceImpl) surface), id.id));
+            }
+
+            @Override
+            public void pong(final long serial) {
+                // TODO
+            }
+        }
+    }
+
+    private final class XdgWmBaseGlobalImpl implements WlGlobal {
+        @Override
+        @NonNull
+        public Class<? extends WlInterface<? extends WlInterface.Requests, ? extends WlInterface.Events>>
+        getInterface() {
+            return xdg_wm_base.class;
+        }
+
+        @Override
+        @NonNull
+        public WlInterface<? extends WlInterface.Requests, ? extends WlInterface.Events>
+        bind(@NonNull final WlClient client, @NonNull final WlInterface.NewId newId)
+                throws BindException {
+            return WlResource.make(client, new XdgWmBaseImpl((WlClientImpl) client), newId.id);
         }
     }
 
@@ -1430,6 +1722,7 @@ public final class WlTermServer {
         wlDisplay.addGlobal(new WlOutputGlobalImpl());
         wlDisplay.addGlobal(new WlCompositorGlobalImpl());
         wlDisplay.addGlobal(new WlShellGlobalImpl());
+        wlDisplay.addGlobal(new XdgWmBaseGlobalImpl());
         wlDisplay.addGlobal(new WlSeatGlobalImpl());
     }
 

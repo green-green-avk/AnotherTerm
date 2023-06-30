@@ -34,7 +34,7 @@ import green_green_avk.wayland.protocol_core.WlInterface;
 /**
  * touchscreen input device
  * <p>
- * The wl_touch interface represents a touchscreen
+ * The {@code wl_touch} interface represents a touchscreen
  * associated with a seat.
  * <p>
  * Touch interactions can consist of one or more contacts.
@@ -44,7 +44,7 @@ import green_green_avk.wayland.protocol_core.WlInterface;
  * contact point can be identified by the ID of the sequence.
  */
 public class wl_touch extends WlInterface<wl_touch.Requests, wl_touch.Events> {
-    public static final int version = 6;
+    public static final int version = 8;
 
     public interface Requests extends WlInterface.Requests {
 
@@ -111,7 +111,7 @@ public class wl_touch extends WlInterface<wl_touch.Requests, wl_touch.Events> {
          * A client is expected to accumulate the data in all events within the
          * frame before proceeding.
          * <p>
-         * A wl_touch.frame terminates at least one event but otherwise no
+         * A {@code wl_touch.frame} terminates at least one event but otherwise no
          * guarantee is provided about the set of events within a frame. A client
          * must assume that any state not updated in a frame is unchanged from the
          * previously known state.
@@ -138,24 +138,24 @@ public class wl_touch extends WlInterface<wl_touch.Requests, wl_touch.Events> {
          * Sent when a touchpoint has changed its shape.
          * <p>
          * This event does not occur on its own. It is sent before a
-         * wl_touch.frame event and carries the new shape information for
+         * {@code wl_touch.frame} event and carries the new shape information for
          * any previously reported, or new touch points of that frame.
          * <p>
-         * Other events describing the touch point such as wl_touch.down,
-         * wl_touch.motion or wl_touch.orientation may be sent within the
-         * same wl_touch.frame. A client should treat these events as a single
-         * logical touch point update. The order of wl_touch.shape,
-         * wl_touch.orientation and wl_touch.motion is not guaranteed.
-         * A wl_touch.down event is guaranteed to occur before the first
-         * wl_touch.shape event for this touch ID but both events may occur within
-         * the same wl_touch.frame.
+         * Other events describing the touch point such as {@code wl_touch.down},
+         * {@code wl_touch.motion} or {@code wl_touch.orientation} may be sent within the
+         * same {@code wl_touch.frame}. A client should treat these events as a single
+         * logical touch point update. The order of {@code wl_touch.shape},
+         * {@code wl_touch.orientation} and {@code wl_touch.motion} is not guaranteed.
+         * A {@code wl_touch.down} event is guaranteed to occur before the first
+         * {@code wl_touch.shape} event for this touch ID but both events may occur within
+         * the same {@code wl_touch.frame}.
          * <p>
          * A touchpoint shape is approximated by an ellipse through the major and
          * minor axis length. The major axis length describes the longer diameter
          * of the ellipse, while the minor axis length describes the shorter
          * diameter. Major and minor are orthogonal and both are specified in
          * surface-local coordinates. The center of the ellipse is always at the
-         * touchpoint location as reported by wl_touch.down or wl_touch.move.
+         * touchpoint location as reported by {@code wl_touch.down} or {@code wl_touch.move}.
          * <p>
          * This event is only sent by the compositor if the touch device supports
          * shape reports. The client has to make reasonable assumptions about the
@@ -175,17 +175,17 @@ public class wl_touch extends WlInterface<wl_touch.Requests, wl_touch.Events> {
          * Sent when a touchpoint has changed its orientation.
          * <p>
          * This event does not occur on its own. It is sent before a
-         * wl_touch.frame event and carries the new shape information for
+         * {@code wl_touch.frame} event and carries the new shape information for
          * any previously reported, or new touch points of that frame.
          * <p>
-         * Other events describing the touch point such as wl_touch.down,
-         * wl_touch.motion or wl_touch.shape may be sent within the
-         * same wl_touch.frame. A client should treat these events as a single
-         * logical touch point update. The order of wl_touch.shape,
-         * wl_touch.orientation and wl_touch.motion is not guaranteed.
-         * A wl_touch.down event is guaranteed to occur before the first
-         * wl_touch.orientation event for this touch ID but both events may occur
-         * within the same wl_touch.frame.
+         * Other events describing the touch point such as {@code wl_touch.down},
+         * {@code wl_touch.motion} or {@code wl_touch.shape} may be sent within the
+         * same {@code wl_touch.frame}. A client should treat these events as a single
+         * logical touch point update. The order of {@code wl_touch.shape},
+         * {@code wl_touch.orientation} and {@code wl_touch.motion} is not guaranteed.
+         * A {@code wl_touch.down} event is guaranteed to occur before the first
+         * {@code wl_touch.orientation} event for this touch ID but both events may occur
+         * within the same {@code wl_touch.frame}.
          * <p>
          * The orientation describes the clockwise angle of a touchpoint's major
          * axis to the positive surface y-axis and is normalized to the -180 to

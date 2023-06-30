@@ -36,24 +36,25 @@ import green_green_avk.wayland.protocol_core.WlInterface;
  * <p>
  * A seat is a group of keyboards, pointer and touch devices. This
  * object is published as a global during start up, or when such a
- * device is hot plugged.  A seat typically has a pointer and
+ * device is hot plugged. A seat typically has a pointer and
  * maintains a keyboard focus and a pointer focus.
  */
 public class wl_seat extends WlInterface<wl_seat.Requests, wl_seat.Events> {
-    public static final int version = 6;
+    public static final int version = 8;
 
     public interface Requests extends WlInterface.Requests {
 
         /**
          * return pointer object
          * <p>
-         * The ID provided will be initialized to the wl_pointer interface
+         * The ID provided will be initialized to the {@code wl_pointer} interface
          * for this seat.
          * <p>
          * This request only takes effect if the seat has the pointer
          * capability, or has had the pointer capability in the past.
          * It is a protocol violation to issue this request on a seat that has
-         * never had the pointer capability.
+         * never had the pointer capability. The {@code missing_capability} error will
+         * be sent in this case.
          *
          * @param id seat pointer
          */
@@ -63,13 +64,14 @@ public class wl_seat extends WlInterface<wl_seat.Requests, wl_seat.Events> {
         /**
          * return keyboard object
          * <p>
-         * The ID provided will be initialized to the wl_keyboard interface
+         * The ID provided will be initialized to the {@code wl_keyboard} interface
          * for this seat.
          * <p>
          * This request only takes effect if the seat has the keyboard
          * capability, or has had the keyboard capability in the past.
          * It is a protocol violation to issue this request on a seat that has
-         * never had the keyboard capability.
+         * never had the keyboard capability. The {@code missing_capability} error will
+         * be sent in this case.
          *
          * @param id seat keyboard
          */
@@ -79,13 +81,14 @@ public class wl_seat extends WlInterface<wl_seat.Requests, wl_seat.Events> {
         /**
          * return touch object
          * <p>
-         * The ID provided will be initialized to the wl_touch interface
+         * The ID provided will be initialized to the {@code wl_touch} interface
          * for this seat.
          * <p>
          * This request only takes effect if the seat has the touch
          * capability, or has had the touch capability in the past.
          * It is a protocol violation to issue this request on a seat that has
-         * never had the touch capability.
+         * never had the touch capability. The {@code missing_capability} error will
+         * be sent in this case.
          *
          * @param id seat touch interface
          */
@@ -110,28 +113,28 @@ public class wl_seat extends WlInterface<wl_seat.Requests, wl_seat.Events> {
          * seat capabilities changed
          * <p>
          * This is emitted whenever a seat gains or loses the pointer,
-         * keyboard or touch capabilities.  The argument is a capability
+         * keyboard or touch capabilities. The argument is a capability
          * enum containing the complete set of capabilities this seat has.
          * <p>
          * When the pointer capability is added, a client may create a
-         * wl_pointer object using the wl_seat.get_pointer request. This object
+         * {@code wl_pointer} object using the {@code wl_seat.get_pointer} request. This object
          * will receive pointer events until the capability is removed in the
          * future.
          * <p>
          * When the pointer capability is removed, a client should destroy the
-         * wl_pointer objects associated with the seat where the capability was
-         * removed, using the wl_pointer.release request. No further pointer
+         * {@code wl_pointer} objects associated with the seat where the capability was
+         * removed, using the {@code wl_pointer.release} request. No further pointer
          * events will be received on these objects.
          * <p>
          * In some compositors, if a seat regains the pointer capability and a
-         * client has a previously obtained wl_pointer object of version 4 or
+         * client has a previously obtained {@code wl_pointer} object of version 4 or
          * less, that object may start sending pointer events again. This
          * behavior is considered a misinterpretation of the intended behavior
-         * and must not be relied upon by the client. wl_pointer objects of
+         * and must not be relied upon by the client. {@code wl_pointer} objects of
          * version 5 or later must not send events if created before the most
          * recent event notifying the client of an added pointer capability.
          * <p>
-         * The above behavior also applies to wl_keyboard and wl_touch with the
+         * The above behavior also applies to {@code wl_keyboard} and {@code wl_touch} with the
          * keyboard and touch capabilities, respectively.
          *
          * @param capabilities capabilities of the seat
@@ -142,9 +145,22 @@ public class wl_seat extends WlInterface<wl_seat.Requests, wl_seat.Events> {
         /**
          * unique identifier for this seat
          * <p>
-         * In a multiseat configuration this can be used by the client to help
-         * identify which physical devices the seat represents. Based on
-         * the seat configuration used by the compositor.
+         * In a multi-seat configuration the seat name can be used by clients to
+         * help identify which physical devices the seat represents.
+         * <p>
+         * The seat name is a UTF-8 string with no convention defined for its
+         * contents. Each name is unique among all {@code wl_seat} globals. The name is
+         * only guaranteed to be unique for the current compositor instance.
+         * <p>
+         * The same seat names are used for all clients. Thus, the name can be
+         * shared across processes to refer to a specific {@code wl_seat} global.
+         * <p>
+         * The name event is sent after binding to the seat global. This event is
+         * only sent once per seat object, and the name does not change over the
+         * lifetime of the {@code wl_seat} global.
+         * <p>
+         * Compositors may re-use the same seat name if the {@code wl_seat} global is
+         * destroyed and re-created later.
          *
          * @param name seat identifier
          */
@@ -178,6 +194,19 @@ public class wl_seat extends WlInterface<wl_seat.Requests, wl_seat.Events> {
              * the seat has touch devices
              */
             public static final int touch = 4;
+        }
+
+        /**
+         * {@code wl_seat} error values
+         */
+        public static final class Error {
+            private Error() {
+            }
+
+            /**
+             * get_pointer, get_keyboard or get_touch called on seat without the matching capability
+             */
+            public static final int missing_capability = 0;
         }
     }
 }

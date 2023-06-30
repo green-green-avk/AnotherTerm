@@ -34,12 +34,12 @@ import green_green_avk.wayland.protocol_core.WlInterface;
 /**
  * the compositor singleton
  * <p>
- * A compositor.  This object is a singleton global.  The
+ * A compositor. This object is a singleton global. The
  * compositor is in charge of combining the contents of multiple
  * surfaces into one displayable output.
  */
 public class wl_compositor extends WlInterface<wl_compositor.Requests, wl_compositor.Events> {
-    public static final int version = 4;
+    public static final int version = 5;
 
     public interface Requests extends WlInterface.Requests {
 

@@ -51,6 +51,7 @@ public class wl_callback extends WlInterface<wl_callback.Requests, wl_callback.E
          * @param callback_data request-specific data for the callback
          */
         @IMethod(0)
+        @IDtor
         void done(long callback_data);
     }
 

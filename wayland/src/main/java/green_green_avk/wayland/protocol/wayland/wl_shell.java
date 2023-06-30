@@ -37,11 +37,12 @@ import green_green_avk.wayland.protocol_core.WlInterface;
  * This interface is implemented by servers that provide
  * desktop-style user interfaces.
  * <p>
- * It allows clients to associate a wl_shell_surface with
+ * It allows clients to associate a {@code wl_shell_surface} with
  * a basic surface.
  * <p>
  * Note! This protocol is deprecated and not intended for production use.
- * For desktop-style user interfaces, use xdg_shell.
+ * For desktop-style user interfaces, use {@code xdg_shell}. Compositors and clients
+ * should not implement this interface.
  */
 public class wl_shell extends WlInterface<wl_shell.Requests, wl_shell.Events> {
     public static final int version = 1;
@@ -52,7 +53,7 @@ public class wl_shell extends WlInterface<wl_shell.Requests, wl_shell.Events> {
          * create a shell surface from a surface
          * <p>
          * Create a shell surface for an existing surface. This gives
-         * the wl_surface the role of a shell surface. If the wl_surface
+         * the {@code wl_surface} the role of a shell surface. If the {@code wl_surface}
          * already has another role, it raises a protocol error.
          * <p>
          * Only one shell surface can be associated with a given surface.

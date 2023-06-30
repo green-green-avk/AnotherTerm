@@ -35,7 +35,7 @@ import green_green_avk.wayland.protocol_core.WlInterface;
 /**
  * desktop-style metadata interface
  * <p>
- * An interface that may be implemented by a wl_surface, for
+ * An interface that may be implemented by a {@code wl_surface}, for
  * implementations that provide a desktop-style user interface.
  * <p>
  * It provides requests to treat surfaces like toplevel, fullscreen
@@ -43,9 +43,9 @@ import green_green_avk.wayland.protocol_core.WlInterface;
  * metadata like title and class, etc.
  * <p>
  * On the server side the object is automatically destroyed when
- * the related wl_surface is destroyed. On the client side,
- * wl_shell_surface_destroy() must be called before destroying
- * the wl_surface object.
+ * the related {@code wl_surface} is destroyed. On the client side,
+ * {@code wl_shell_surface_destroy}() must be called before destroying
+ * the {@code wl_surface} object.
  */
 public class wl_shell_surface extends WlInterface<wl_shell_surface.Requests, wl_shell_surface.Events> {
     public static final int version = 1;
@@ -140,19 +140,19 @@ public class wl_shell_surface extends WlInterface<wl_shell_surface.Requests, wl_
          * <p>
          * The framerate parameter is used only when the method is set
          * to "driver", to indicate the preferred framerate. A value of 0
-         * indicates that the client does not care about framerate.  The
+         * indicates that the client does not care about framerate. The
          * framerate is specified in mHz, that is framerate of 60000 is 60Hz.
          * <p>
          * A method of "scale" or "driver" implies a scaling operation of
          * the surface, either via a direct scaling operation or a change of
          * the output mode. This will override any kind of output scaling, so
          * that mapping a surface with a buffer size equal to the mode can
-         * fill the screen independent of buffer_scale.
+         * fill the screen independent of {@code buffer_scale}.
          * <p>
          * A method of "fill" means we don't scale up the buffer, however
          * any output scale is applied. This means that you may run into
          * an edge case where the application maps a buffer with the same
-         * size of the output mode but buffer_scale 1 (thus making a
+         * size of the output mode but {@code buffer_scale} 1 (thus making a
          * surface larger than the output). In this case it is allowed to
          * downscale the results to fit the screen.
          * <p>
@@ -303,7 +303,7 @@ public class wl_shell_surface extends WlInterface<wl_shell_surface.Requests, wl_
         /**
          * popup interaction is done
          * <p>
-         * The popup_done event is sent out when a popup grab is broken,
+         * The {@code popup_done} event is sent out when a popup grab is broken,
          * that is, when the user clicks a surface that doesn't belong
          * to the client owning the popup surface.
          */

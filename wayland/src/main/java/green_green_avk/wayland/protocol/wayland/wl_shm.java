@@ -39,11 +39,11 @@ import green_green_avk.wayland.protocol_core.WlInterface;
  * A singleton global object that provides support for shared
  * memory.
  * <p>
- * Clients can create wl_shm_pool objects using the create_pool
+ * Clients can create {@code wl_shm_pool} objects using the {@code create_pool}
  * request.
  * <p>
- * At connection setup time, the wl_shm object emits one or more
- * format events to inform clients about the valid pixel formats
+ * On binding the {@code wl_shm} object one or more format events
+ * are emitted to inform clients about the valid pixel formats
  * that can be used for buffers.
  */
 public class wl_shm extends WlInterface<wl_shm.Requests, wl_shm.Events> {
@@ -54,10 +54,10 @@ public class wl_shm extends WlInterface<wl_shm.Requests, wl_shm.Events> {
         /**
          * create a shm pool
          * <p>
-         * Create a new wl_shm_pool object.
+         * Create a new {@code wl_shm_pool} object.
          * <p>
          * The pool can be used to create shared memory based buffer
-         * objects.  The server will mmap size bytes of the passed file
+         * objects. The server will mmap size bytes of the passed file
          * descriptor, to use as backing memory for the pool.
          *
          * @param id   pool to create
@@ -75,7 +75,7 @@ public class wl_shm extends WlInterface<wl_shm.Requests, wl_shm.Events> {
          * <p>
          * Informs the client about a valid pixel format that
          * can be used for buffers. Known formats include
-         * argb8888 and xrgb8888.
+         * {@code argb8888} and {@code xrgb8888}.
          *
          * @param format buffer pixel format
          */
@@ -88,7 +88,7 @@ public class wl_shm extends WlInterface<wl_shm.Requests, wl_shm.Events> {
         }
 
         /**
-         * wl_shm error values
+         * {@code wl_shm} error values
          */
         public static final class Error {
             private Error() {
@@ -340,22 +340,22 @@ public class wl_shm extends WlInterface<wl_shm.Requests, wl_shm.Events> {
             /**
              * 2 plane YCbCr Cr:Cb format, 2x2 subsampled Cr:Cb plane
              */
-            public static final int nv12 = 0x3231564E;
+            public static final int nv12 = 0x3231564e;
 
             /**
              * 2 plane YCbCr Cb:Cr format, 2x2 subsampled Cb:Cr plane
              */
-            public static final int nv21 = 0x3132564E;
+            public static final int nv21 = 0x3132564e;
 
             /**
              * 2 plane YCbCr Cr:Cb format, 2x1 subsampled Cr:Cb plane
              */
-            public static final int nv16 = 0x3631564E;
+            public static final int nv16 = 0x3631564e;
 
             /**
              * 2 plane YCbCr Cb:Cr format, 2x1 subsampled Cb:Cr plane
              */
-            public static final int nv61 = 0x3136564E;
+            public static final int nv61 = 0x3136564e;
 
             /**
              * 3 plane YCbCr format, 4x4 subsampled Cb (1) and Cr (2) planes
@@ -406,6 +406,220 @@ public class wl_shm extends WlInterface<wl_shm.Requests, wl_shm.Events> {
              * 3 plane YCbCr format, non-subsampled Cr (1) and Cb (2) planes
              */
             public static final int yvu444 = 0x34325659;
+
+            /**
+             * [7:0] R
+             */
+            public static final int r8 = 0x20203852;
+
+            /**
+             * [15:0] R little endian
+             */
+            public static final int r16 = 0x20363152;
+
+            /**
+             * [15:0] R:G 8:8 little endian
+             */
+            public static final int rg88 = 0x38384752;
+
+            /**
+             * [15:0] G:R 8:8 little endian
+             */
+            public static final int gr88 = 0x38385247;
+
+            /**
+             * [31:0] R:G 16:16 little endian
+             */
+            public static final int rg1616 = 0x32334752;
+
+            /**
+             * [31:0] G:R 16:16 little endian
+             */
+            public static final int gr1616 = 0x32335247;
+
+            /**
+             * [63:0] x:R:G:B 16:16:16:16 little endian
+             */
+            public static final int xrgb16161616f = 0x48345258;
+
+            /**
+             * [63:0] x:B:G:R 16:16:16:16 little endian
+             */
+            public static final int xbgr16161616f = 0x48344258;
+
+            /**
+             * [63:0] A:R:G:B 16:16:16:16 little endian
+             */
+            public static final int argb16161616f = 0x48345241;
+
+            /**
+             * [63:0] A:B:G:R 16:16:16:16 little endian
+             */
+            public static final int abgr16161616f = 0x48344241;
+
+            /**
+             * [31:0] X:Y:Cb:Cr 8:8:8:8 little endian
+             */
+            public static final int xyuv8888 = 0x56555958;
+
+            /**
+             * [23:0] Cr:Cb:Y 8:8:8 little endian
+             */
+            public static final int vuy888 = 0x34325556;
+
+            /**
+             * Y followed by U then V, 10:10:10. Non-linear modifier only
+             */
+            public static final int vuy101010 = 0x30335556;
+
+            /**
+             * [63:0] Cr0:0:Y1:0:Cb0:0:Y0:0 10:6:10:6:10:6:10:6 little endian per 2 Y pixels
+             */
+            public static final int y210 = 0x30313259;
+
+            /**
+             * [63:0] Cr0:0:Y1:0:Cb0:0:Y0:0 12:4:12:4:12:4:12:4 little endian per 2 Y pixels
+             */
+            public static final int y212 = 0x32313259;
+
+            /**
+             * [63:0] Cr0:Y1:Cb0:Y0 16:16:16:16 little endian per 2 Y pixels
+             */
+            public static final int y216 = 0x36313259;
+
+            /**
+             * [31:0] A:Cr:Y:Cb 2:10:10:10 little endian
+             */
+            public static final int y410 = 0x30313459;
+
+            /**
+             * [63:0] A:0:Cr:0:Y:0:Cb:0 12:4:12:4:12:4:12:4 little endian
+             */
+            public static final int y412 = 0x32313459;
+
+            /**
+             * [63:0] A:Cr:Y:Cb 16:16:16:16 little endian
+             */
+            public static final int y416 = 0x36313459;
+
+            /**
+             * [31:0] X:Cr:Y:Cb 2:10:10:10 little endian
+             */
+            public static final int xvyu2101010 = 0x30335658;
+
+            /**
+             * [63:0] X:0:Cr:0:Y:0:Cb:0 12:4:12:4:12:4:12:4 little endian
+             */
+            public static final int xvyu12_16161616 = 0x36335658;
+
+            /**
+             * [63:0] X:Cr:Y:Cb 16:16:16:16 little endian
+             */
+            public static final int xvyu16161616 = 0x38345658;
+
+            /**
+             * [63:0]   A3:A2:Y3:0:Cr0:0:Y2:0:A1:A0:Y1:0:Cb0:0:Y0:0  1:1:8:2:8:2:8:2:1:1:8:2:8:2:8:2 little endian
+             */
+            public static final int y0l0 = 0x304c3059;
+
+            /**
+             * [63:0]   X3:X2:Y3:0:Cr0:0:Y2:0:X1:X0:Y1:0:Cb0:0:Y0:0  1:1:8:2:8:2:8:2:1:1:8:2:8:2:8:2 little endian
+             */
+            public static final int x0l0 = 0x304c3058;
+
+            /**
+             * [63:0]   A3:A2:Y3:Cr0:Y2:A1:A0:Y1:Cb0:Y0  1:1:10:10:10:1:1:10:10:10 little endian
+             */
+            public static final int y0l2 = 0x324c3059;
+
+            /**
+             * [63:0]   X3:X2:Y3:Cr0:Y2:X1:X0:Y1:Cb0:Y0  1:1:10:10:10:1:1:10:10:10 little endian
+             */
+            public static final int x0l2 = 0x324c3058;
+
+            public static final int yuv420_8bit = 0x38305559;
+
+            public static final int yuv420_10bit = 0x30315559;
+
+            public static final int xrgb8888_a8 = 0x38415258;
+
+            public static final int xbgr8888_a8 = 0x38414258;
+
+            public static final int rgbx8888_a8 = 0x38415852;
+
+            public static final int bgrx8888_a8 = 0x38415842;
+
+            public static final int rgb888_a8 = 0x38413852;
+
+            public static final int bgr888_a8 = 0x38413842;
+
+            public static final int rgb565_a8 = 0x38413552;
+
+            public static final int bgr565_a8 = 0x38413542;
+
+            /**
+             * non-subsampled Cr:Cb plane
+             */
+            public static final int nv24 = 0x3432564e;
+
+            /**
+             * non-subsampled Cb:Cr plane
+             */
+            public static final int nv42 = 0x3234564e;
+
+            /**
+             * 2x1 subsampled Cr:Cb plane, 10 bit per channel
+             */
+            public static final int p210 = 0x30313250;
+
+            /**
+             * 2x2 subsampled Cr:Cb plane 10 bits per channel
+             */
+            public static final int p010 = 0x30313050;
+
+            /**
+             * 2x2 subsampled Cr:Cb plane 12 bits per channel
+             */
+            public static final int p012 = 0x32313050;
+
+            /**
+             * 2x2 subsampled Cr:Cb plane 16 bits per channel
+             */
+            public static final int p016 = 0x36313050;
+
+            /**
+             * [63:0] A:x:B:x:G:x:R:x 10:6:10:6:10:6:10:6 little endian
+             */
+            public static final int axbxgxrx106106106106 = 0x30314241;
+
+            /**
+             * 2x2 subsampled Cr:Cb plane
+             */
+            public static final int nv15 = 0x3531564e;
+
+            public static final int q410 = 0x30313451;
+
+            public static final int q401 = 0x31303451;
+
+            /**
+             * [63:0] x:R:G:B 16:16:16:16 little endian
+             */
+            public static final int xrgb16161616 = 0x38345258;
+
+            /**
+             * [63:0] x:B:G:R 16:16:16:16 little endian
+             */
+            public static final int xbgr16161616 = 0x38344258;
+
+            /**
+             * [63:0] A:R:G:B 16:16:16:16 little endian
+             */
+            public static final int argb16161616 = 0x38345241;
+
+            /**
+             * [63:0] A:B:G:R 16:16:16:16 little endian
+             */
+            public static final int abgr16161616 = 0x38344241;
         }
     }
 }

@@ -36,11 +36,11 @@ import green_green_avk.wayland.protocol_core.WlInterface;
 /**
  * keyboard input device
  * <p>
- * The wl_keyboard interface represents one or more keyboards
+ * The {@code wl_keyboard} interface represents one or more keyboards
  * associated with a seat.
  */
 public class wl_keyboard extends WlInterface<wl_keyboard.Requests, wl_keyboard.Events> {
-    public static final int version = 6;
+    public static final int version = 8;
 
     public interface Requests extends WlInterface.Requests {
 
@@ -59,7 +59,11 @@ public class wl_keyboard extends WlInterface<wl_keyboard.Requests, wl_keyboard.E
          * keyboard mapping
          * <p>
          * This event provides a file descriptor to the client which can be
-         * memory-mapped to provide a keyboard mapping description.
+         * memory-mapped in read-only mode to provide a keyboard mapping
+         * description.
+         * <p>
+         * From version 7 onwards, the fd must be mapped with MAP{@code _PRIVATE} by
+         * the recipient, as MAP{@code _SHARED} may fail.
          *
          * @param format keymap format
          * @param fd     keymap file descriptor
@@ -73,6 +77,9 @@ public class wl_keyboard extends WlInterface<wl_keyboard.Requests, wl_keyboard.E
          * <p>
          * Notification that this seat's keyboard focus is on a certain
          * surface.
+         * <p>
+         * The compositor must send the {@code wl_keyboard.modifiers} event after this
+         * event.
          *
          * @param serial  serial number of the enter event
          * @param surface surface gaining keyboard focus
@@ -89,6 +96,9 @@ public class wl_keyboard extends WlInterface<wl_keyboard.Requests, wl_keyboard.E
          * <p>
          * The leave notification is sent before the enter notification
          * for the new focus.
+         * <p>
+         * After this event client must assume that all keys, including modifiers,
+         * are lifted and also it must stop key repeating if there's some going on.
          *
          * @param serial  serial number of the leave event
          * @param surface surface that lost keyboard focus
@@ -102,6 +112,12 @@ public class wl_keyboard extends WlInterface<wl_keyboard.Requests, wl_keyboard.E
          * A key was pressed or released.
          * The time argument is a timestamp with millisecond
          * granularity, with an undefined base.
+         * <p>
+         * The key is a platform-specific key code that can be interpreted
+         * by feeding it to the keyboard mapping (see the keymap event).
+         * <p>
+         * If this event produces a change in modifiers, then the resulting
+         * {@code wl_keyboard.modifiers} event must be sent after this event.
          *
          * @param serial serial number of the key event
          * @param time   timestamp with millisecond granularity
@@ -131,7 +147,7 @@ public class wl_keyboard extends WlInterface<wl_keyboard.Requests, wl_keyboard.E
          * <p>
          * Informs the client about the keyboard's repeat rate and delay.
          * <p>
-         * This event is sent as soon as the wl_keyboard object has been created,
+         * This event is sent as soon as the {@code wl_keyboard} object has been created,
          * and is guaranteed to be received by the client before any key press
          * event.
          * <p>
@@ -140,7 +156,7 @@ public class wl_keyboard extends WlInterface<wl_keyboard.Requests, wl_keyboard.E
          * <p>
          * This event can be sent later on as well with a new value if necessary,
          * so clients should continue listening for the event past the creation
-         * of wl_keyboard.
+         * of {@code wl_keyboard}.
          *
          * @param rate  the rate of repeating keys in characters per second
          * @param delay delay in milliseconds since key down until repeating starts
@@ -167,7 +183,7 @@ public class wl_keyboard extends WlInterface<wl_keyboard.Requests, wl_keyboard.E
             public static final int no_keymap = 0;
 
             /**
-             * libxkbcommon compatible; to determine the xkb keycode, clients must add 8 to the key event keycode
+             * libxkbcommon compatible, null-terminated string; to determine the xkb keycode, clients must add 8 to the key event keycode
              */
             public static final int xkb_v1 = 1;
         }

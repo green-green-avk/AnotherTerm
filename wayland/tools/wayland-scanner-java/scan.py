@@ -1,17 +1,20 @@
 #!/usr/bin/python3
 
-import sys
 import os
-import xml.etree.ElementTree as ET
-import textwrap
 import re
+import sys
+import textwrap
+import xml.etree.ElementTree as ET
+
 
 class Context:
  pass
 
+
 class UIntType:
  def __init__(self, enum):
   self.enum = enum
+
 
 class IntType:
  pass
@@ -112,6 +115,7 @@ def asJava(p, pkg):
 
  fixNameRe_ = re.compile('[0-9].*|transient|static|volatile|final|private|protected|public|default')
  fixNameReName = re.compile('interface|class')
+
  def fixName(v):
   if fixNameReName.match(v):
    return v + 'Name'
@@ -122,10 +126,29 @@ def asJava(p, pkg):
  def toComment(v, s=''):
   return '/*' + s + '\n' + textwrap.indent(textwrap.indent(v, ' '), ' *', lambda n: True) + '\n */'
 
+ def formatAsJavadoc(v):
+  v = v.strip()
+  v = re.sub(r' +', r' ', v)
+  v = re.sub(r'^\s*$', r'<p>', v, flags=re.M)
+  v = re.sub(r'''(?<!['"])(?:(?:[a-z]\w*)?_\w*|[a-z]\w*[0-9]\w*)(?:\.\w+)*(?!['"])''',
+             r'{@code \g<0>}', v)
+  return v
+
+ def toJavadoc(v, s=''):
+  return toComment(v, '*')
+
  def descToStr(v):
   if v is None:
-   return '';
-  return '\n\n'.join(filter(lambda i: len(i) > 0, map(lambda i: textwrap.dedent(i).strip(), filter(lambda i: isinstance(i, str), (v.summary, v.content)))))
+   return ''
+  return formatAsJavadoc('\n\n'.join(filter(lambda i: len(i) > 0,
+                                            map(lambda i: textwrap.dedent(i).strip(),
+                                                filter(lambda i: isinstance(i, str),
+                                                       (v.summary, v.content))))))
+
+ def argDescToStr(v):
+  if v is None:
+   return '...'
+  return '...' if v.summary is None else formatAsJavadoc(v.summary)
 
  imports = '''package {pkg}.protocol.{proto};
 
@@ -137,6 +160,7 @@ import androidx.annotation.Nullable;
 import java.io.FileDescriptor;
 
 import {pkg}.protocol_core.WlInterface;
+import {pkg}.protocol.wayland.*;
 
 '''.format(pkg=pkg, proto=protoDirName, c=toComment(textwrap.dedent(p.copyright).strip()))
  types = {
@@ -153,7 +177,10 @@ import {pkg}.protocol_core.WlInterface;
  def writeMethods(f, mm):
   i = 0
   for m in mm:
-   f.write('\n' + textwrap.indent(toComment(descToStr(m.description) + ('\n\n' if len(m.args) > 0 else '') + '\n'.join('@param ' + fixName(arg.name) + ' ' + arg.description.summary for arg in m.args), '*'), ' ' * 8) + '\n')
+   f.write('\n' + textwrap.indent(toJavadoc(
+    descToStr(m.description) + ('\n\n' if len(m.args) > 0 else '') + '\n'.join(
+     '@param ' + fixName(arg.name) + ' ' + argDescToStr(arg.description) for arg in m.args)),
+                                  ' ' * 8) + '\n')
    f.write('        @IMethod(%u)\n' % i)
    if m.since is not None:
     f.write('        @ISince(%u)\n' % m.since)
@@ -162,18 +189,20 @@ import {pkg}.protocol_core.WlInterface;
    f.write('        void %s(' % fixName(m.name))
    f.write(', '.join(types[type(arg.type)](arg.type) + ' ' + fixName(arg.name) for arg in m.args))
    f.write(');\n')
-   i+=1
+   i += 1
 
- os.mkdir(protoDirName)
+ try:
+  os.mkdir(protoDirName)
+ except FileExistsError:
+  pass
  for iface in p.interfaces:
   with open('%s/%s.java' % (protoDirName, iface.name), 'w') as f:
    f.write(imports)
-   f.write(toComment(descToStr(iface.description), '*') + '\n')
+   f.write(toJavadoc(descToStr(iface.description)) + '\n')
    f.write('public class %s extends WlInterface' % iface.name)
    f.write(f'<{iface.name}.Requests, {iface.name}.Events>')
    f.write(' {\n')
    f.write('    public static final int version = %u;\n' % iface.version)
-   i = 0
    f.write('\n    public interface Requests extends WlInterface.Requests {\n')
    writeMethods(f, iface.requests)
    f.write('    }\n')
@@ -185,13 +214,13 @@ import {pkg}.protocol_core.WlInterface;
    for enum in iface.enums:
     f.write('\n')
     if enum.description.summary is not None:
-     f.write(textwrap.indent(toComment(enum.description.summary, '*'), ' ' * 8) + '\n')
+     f.write(textwrap.indent(toJavadoc(argDescToStr(enum.description)), ' ' * 8) + '\n')
     f.write('        public static final class %s {\n' % fixName(enum.name.capitalize()))
     f.write('            private %s() {\n            }\n' % fixName(enum.name.capitalize()))
     for ee in enum.entries:
      f.write('\n')
      if ee.description.summary is not None:
-      f.write(textwrap.indent(toComment(ee.description.summary, '*'), ' ' * 12) + '\n')
+      f.write(textwrap.indent(toJavadoc(ee.description.summary), ' ' * 12) + '\n')
      f.write('            public static final int %s = %s;\n' % (fixName(ee.name), ee.value))
     f.write('        }\n')
    f.write('    }\n')
@@ -202,7 +231,7 @@ def main():
  tree = ET.parse(inputFile)
  root = tree.getroot()
  if root.tag != 'protocol':
-  raise ValueError('Not protocol file')
+  raise ValueError('Not a protocol file')
  ctx = Context()
  p = Protocol(ctx, root)
  asJava(p, 'green_green_avk.wayland')

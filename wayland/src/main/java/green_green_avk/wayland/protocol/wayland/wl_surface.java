@@ -35,48 +35,50 @@ import green_green_avk.wayland.protocol_core.WlInterface;
 /**
  * an onscreen surface
  * <p>
- * A surface is a rectangular area that is displayed on the screen.
- * It has a location, size and pixel contents.
+ * A surface is a rectangular area that may be displayed on zero
+ * or more outputs, and shown any number of times at the compositor's
+ * discretion. They can present {@code wl_buffers}, receive user input, and
+ * define a local coordinate system.
  * <p>
  * The size of a surface (and relative positions on it) is described
  * in surface-local coordinates, which may differ from the buffer
- * coordinates of the pixel content, in case a buffer_transform
- * or a buffer_scale is used.
+ * coordinates of the pixel content, in case a {@code buffer_transform}
+ * or a {@code buffer_scale} is used.
  * <p>
  * A surface without a "role" is fairly useless: a compositor does
  * not know where, when or how to present it. The role is the
- * purpose of a wl_surface. Examples of roles are a cursor for a
- * pointer (as set by wl_pointer.set_cursor), a drag icon
- * (wl_data_device.start_drag), a sub-surface
- * (wl_subcompositor.get_subsurface), and a window as defined by a
- * shell protocol (e.g. wl_shell.get_shell_surface).
+ * purpose of a {@code wl_surface}. Examples of roles are a cursor for a
+ * pointer (as set by {@code wl_pointer.set_cursor}), a drag icon
+ * ({@code wl_data_device.start_drag}), a sub-surface
+ * ({@code wl_subcompositor.get_subsurface}), and a window as defined by a
+ * shell protocol (e.g. {@code wl_shell.get_shell_surface}).
  * <p>
  * A surface can have only one role at a time. Initially a
- * wl_surface does not have a role. Once a wl_surface is given a
+ * {@code wl_surface} does not have a role. Once a {@code wl_surface} is given a
  * role, it is set permanently for the whole lifetime of the
- * wl_surface object. Giving the current role again is allowed,
+ * {@code wl_surface} object. Giving the current role again is allowed,
  * unless explicitly forbidden by the relevant interface
  * specification.
  * <p>
  * Surface roles are given by requests in other interfaces such as
- * wl_pointer.set_cursor. The request should explicitly mention
- * that this request gives a role to a wl_surface. Often, this
+ * {@code wl_pointer.set_cursor}. The request should explicitly mention
+ * that this request gives a role to a {@code wl_surface}. Often, this
  * request also creates a new protocol object that represents the
- * role and adds additional functionality to wl_surface. When a
- * client wants to destroy a wl_surface, they must destroy this 'role
- * object' before the wl_surface.
+ * role and adds additional functionality to {@code wl_surface}. When a
+ * client wants to destroy a {@code wl_surface}, they must destroy this 'role
+ * object' before the {@code wl_surface}.
  * <p>
  * Destroying the role object does not remove the role from the
- * wl_surface, but it may stop the wl_surface from "playing the role".
- * For instance, if a wl_subsurface object is destroyed, the wl_surface
+ * {@code wl_surface}, but it may stop the {@code wl_surface} from "playing the role".
+ * For instance, if a {@code wl_subsurface} object is destroyed, the {@code wl_surface}
  * it was created for will be unmapped and forget its position and
- * z-order. It is allowed to create a wl_subsurface for the same
- * wl_surface again, but it is not allowed to use the wl_surface as
+ * z-order. It is allowed to create a {@code wl_subsurface} for the same
+ * {@code wl_surface} again, but it is not allowed to use the {@code wl_surface} as
  * a cursor (cursor is a different role than sub-surface, and role
  * switching is not allowed).
  */
 public class wl_surface extends WlInterface<wl_surface.Requests, wl_surface.Events> {
-    public static final int version = 4;
+    public static final int version = 5;
 
     public interface Requests extends WlInterface.Requests {
 
@@ -95,42 +97,59 @@ public class wl_surface extends WlInterface<wl_surface.Requests, wl_surface.Even
          * Set a buffer as the content of this surface.
          * <p>
          * The new size of the surface is calculated based on the buffer
-         * size transformed by the inverse buffer_transform and the
-         * inverse buffer_scale. This means that the supplied buffer
-         * must be an integer multiple of the buffer_scale.
+         * size transformed by the inverse {@code buffer_transform} and the
+         * inverse {@code buffer_scale}. This means that at commit time the supplied
+         * buffer size must be an integer multiple of the {@code buffer_scale}. If
+         * that's not the case, an {@code invalid_size} error is sent.
          * <p>
          * The x and y arguments specify the location of the new pending
          * buffer's upper left corner, relative to the current buffer's upper
          * left corner, in surface-local coordinates. In other words, the
          * x and y, combined with the new surface size define in which
-         * directions the surface's size changes.
+         * directions the surface's size changes. Setting anything other than 0
+         * as x and y arguments is discouraged, and should instead be replaced
+         * with using the separate {@code wl_surface.offset} request.
          * <p>
-         * Surface contents are double-buffered state, see wl_surface.commit.
+         * When the bound {@code wl_surface} version is 5 or higher, passing any
+         * non-zero x or y is a protocol violation, and will result in an
+         * 'i{@code nvalid_offse}t' error being raised. To achieve equivalent semantics,
+         * use {@code wl_surface.offset}.
+         * <p>
+         * Surface contents are double-buffered state, see {@code wl_surface.commit}.
          * <p>
          * The initial surface contents are void; there is no content.
-         * wl_surface.attach assigns the given wl_buffer as the pending
-         * wl_buffer. wl_surface.commit makes the pending wl_buffer the new
+         * {@code wl_surface.attach} assigns the given {@code wl_buffer} as the pending
+         * {@code wl_buffer}. {@code wl_surface.commit} makes the pending {@code wl_buffer} the new
          * surface contents, and the size of the surface becomes the size
-         * calculated from the wl_buffer, as described above. After commit,
+         * calculated from the {@code wl_buffer}, as described above. After commit,
          * there is no pending buffer until the next attach.
          * <p>
-         * Committing a pending wl_buffer allows the compositor to read the
-         * pixels in the wl_buffer. The compositor may access the pixels at
-         * any time after the wl_surface.commit request. When the compositor
+         * Committing a pending {@code wl_buffer} allows the compositor to read the
+         * pixels in the {@code wl_buffer}. The compositor may access the pixels at
+         * any time after the {@code wl_surface.commit} request. When the compositor
          * will not access the pixels anymore, it will send the
-         * wl_buffer.release event. Only after receiving wl_buffer.release,
-         * the client may reuse the wl_buffer. A wl_buffer that has been
+         * {@code wl_buffer.release} event. Only after receiving {@code wl_buffer.release},
+         * the client may reuse the {@code wl_buffer}. A {@code wl_buffer} that has been
          * attached and then replaced by another attach instead of committed
          * will not receive a release event, and is not used by the
          * compositor.
          * <p>
-         * Destroying the wl_buffer after wl_buffer.release does not change
-         * the surface contents. However, if the client destroys the
-         * wl_buffer before receiving the wl_buffer.release event, the surface
-         * contents become undefined immediately.
+         * If a pending {@code wl_buffer} has been committed to more than one {@code wl_surface},
+         * the delivery of {@code wl_buffer.release} events becomes undefined. A well
+         * behaved client should not rely on {@code wl_buffer.release} events in this
+         * case. Alternatively, a client could create multiple {@code wl_buffer} objects
+         * from the same backing storage or use {@code wp_linux_buffer_release}.
          * <p>
-         * If wl_surface.attach is sent with a NULL wl_buffer, the
-         * following wl_surface.commit will remove the surface content.
+         * Destroying the {@code wl_buffer} after {@code wl_buffer.release} does not change
+         * the surface contents. Destroying the {@code wl_buffer} before {@code wl_buffer.release}
+         * is allowed as long as the underlying buffer storage isn't re-used (this
+         * can happen e.g. on client process termination). However, if the client
+         * destroys the {@code wl_buffer} before receiving the {@code wl_buffer.release} event and
+         * mutates the underlying buffer storage, the surface contents become
+         * undefined immediately.
+         * <p>
+         * If {@code wl_surface.attach} is sent with a NULL {@code wl_buffer}, the
+         * following {@code wl_surface.commit} will remove the surface content.
          *
          * @param buffer buffer of surface contents
          * @param x      surface-local x coordinate
@@ -147,22 +166,22 @@ public class wl_surface extends WlInterface<wl_surface.Requests, wl_surface.Even
          * the surface therefore needs to be repainted. The compositor
          * ignores the parts of the damage that fall outside of the surface.
          * <p>
-         * Damage is double-buffered state, see wl_surface.commit.
+         * Damage is double-buffered state, see {@code wl_surface.commit}.
          * <p>
          * The damage rectangle is specified in surface-local coordinates,
          * where x and y specify the upper left corner of the damage rectangle.
          * <p>
          * The initial value for pending damage is empty: no damage.
-         * wl_surface.damage adds pending damage: the new pending damage
+         * {@code wl_surface.damage} adds pending damage: the new pending damage
          * is the union of old pending damage and the given rectangle.
          * <p>
-         * wl_surface.commit assigns pending damage as the current damage,
+         * {@code wl_surface.commit} assigns pending damage as the current damage,
          * and clears pending damage. The server will clear the current
          * damage as it repaints the surface.
          * <p>
-         * Alternatively, damage can be posted with wl_surface.damage_buffer
-         * which uses buffer coordinates instead of surface coordinates,
-         * and is probably the preferred and intuitive way of doing this.
+         * Note! New clients should not use this request. Instead damage can be
+         * posted with {@code wl_surface.damage_buffer} which uses buffer coordinates
+         * instead of surface coordinates.
          *
          * @param x      surface-local x coordinate
          * @param y      surface-local y coordinate
@@ -179,15 +198,15 @@ public class wl_surface extends WlInterface<wl_surface.Requests, wl_surface.Even
          * frame, by creating a frame callback. This is useful for throttling
          * redrawing operations, and driving animations.
          * <p>
-         * When a client is animating on a wl_surface, it can use the 'frame'
+         * When a client is animating on a {@code wl_surface}, it can use the 'frame'
          * request to get notified when it is a good time to draw and commit the
          * next frame of animation. If the client commits an update earlier than
          * that, it is likely that some updates will not make it to the display,
          * and the client is wasting resources by drawing too often.
          * <p>
-         * The frame request will take effect on the next wl_surface.commit.
+         * The frame request will take effect on the next {@code wl_surface.commit}.
          * The notification will only be posted for one frame unless
-         * requested again. For a wl_surface, the notifications are posted in
+         * requested again. For a {@code wl_surface}, the notifications are posted in
          * the order the frame requests were committed.
          * <p>
          * The server must send the notifications so that a client
@@ -205,7 +224,7 @@ public class wl_surface extends WlInterface<wl_surface.Requests, wl_surface.Even
          * compositor after the callback is fired and as such the client must not
          * attempt to use it after that point.
          * <p>
-         * The callback_data passed in the callback is the current time, in
+         * The {@code callback_data} passed in the callback is the current time, in
          * milliseconds, with an undefined base.
          *
          * @param callback callback object for the frame request
@@ -221,7 +240,7 @@ public class wl_surface extends WlInterface<wl_surface.Requests, wl_surface.Even
          * <p>
          * The opaque region is an optimization hint for the compositor
          * that lets it optimize the redrawing of content behind opaque
-         * regions.  Setting an opaque region is not required for correct
+         * regions. Setting an opaque region is not required for correct
          * behaviour, but marking transparent content as opaque will result
          * in repaint artifacts.
          * <p>
@@ -230,15 +249,15 @@ public class wl_surface extends WlInterface<wl_surface.Requests, wl_surface.Even
          * The compositor ignores the parts of the opaque region that fall
          * outside of the surface.
          * <p>
-         * Opaque region is double-buffered state, see wl_surface.commit.
+         * Opaque region is double-buffered state, see {@code wl_surface.commit}.
          * <p>
-         * wl_surface.set_opaque_region changes the pending opaque region.
-         * wl_surface.commit copies the pending region to the current region.
+         * {@code wl_surface.set_opaque_region} changes the pending opaque region.
+         * {@code wl_surface.commit} copies the pending region to the current region.
          * Otherwise, the pending and current regions are never changed.
          * <p>
          * The initial value for an opaque region is empty. Setting the pending
-         * opaque region has copy semantics, and the wl_region object can be
-         * destroyed immediately. A NULL wl_region causes the pending opaque
+         * opaque region has copy semantics, and the {@code wl_region} object can be
+         * destroyed immediately. A NULL {@code wl_region} causes the pending opaque
          * region to be set to empty.
          *
          * @param region opaque region of the surface
@@ -258,18 +277,18 @@ public class wl_surface extends WlInterface<wl_surface.Requests, wl_surface.Even
          * <p>
          * The input region is specified in surface-local coordinates.
          * <p>
-         * Input region is double-buffered state, see wl_surface.commit.
+         * Input region is double-buffered state, see {@code wl_surface.commit}.
          * <p>
-         * wl_surface.set_input_region changes the pending input region.
-         * wl_surface.commit copies the pending region to the current region.
+         * {@code wl_surface.set_input_region} changes the pending input region.
+         * {@code wl_surface.commit} copies the pending region to the current region.
          * Otherwise the pending and current regions are never changed,
          * except cursor and icon surfaces are special cases, see
-         * wl_pointer.set_cursor and wl_data_device.start_drag.
+         * {@code wl_pointer.set_cursor} and {@code wl_data_device.start_drag}.
          * <p>
          * The initial value for an input region is infinite. That means the
          * whole surface will accept input. Setting the pending input region
-         * has copy semantics, and the wl_region object can be destroyed
-         * immediately. A NULL wl_region causes the input region to be set
+         * has copy semantics, and the {@code wl_region} object can be destroyed
+         * immediately. A NULL {@code wl_region} causes the input region to be set
          * to infinite.
          *
          * @param region input region of the surface
@@ -287,10 +306,10 @@ public class wl_surface extends WlInterface<wl_surface.Requests, wl_surface.Even
          * state. After commit, the new pending state is as documented for each
          * related request.
          * <p>
-         * On commit, a pending wl_buffer is applied first, and all other state
+         * On commit, a pending {@code wl_buffer} is applied first, and all other state
          * second. This means that all coordinates in double-buffered state are
-         * relative to the new wl_buffer coming into use, except for
-         * wl_surface.attach itself. If there is no pending wl_buffer, the
+         * relative to the new {@code wl_buffer} coming into use, except for
+         * {@code wl_surface.attach} itself. If there is no pending {@code wl_buffer}, the
          * coordinates are relative to the current surface contents.
          * <p>
          * All requests that need a commit to become effective are documented
@@ -307,14 +326,14 @@ public class wl_surface extends WlInterface<wl_surface.Requests, wl_surface.Even
          * This request sets an optional transformation on how the compositor
          * interprets the contents of the buffer attached to the surface. The
          * accepted values for the transform parameter are the values for
-         * wl_output.transform.
+         * {@code wl_output.transform}.
          * <p>
-         * Buffer transform is double-buffered state, see wl_surface.commit.
+         * Buffer transform is double-buffered state, see {@code wl_surface.commit}.
          * <p>
          * A newly created surface has its buffer transformation set to normal.
          * <p>
-         * wl_surface.set_buffer_transform changes the pending buffer
-         * transformation. wl_surface.commit copies the pending buffer
+         * {@code wl_surface.set_buffer_transform} changes the pending buffer
+         * transformation. {@code wl_surface.commit} copies the pending buffer
          * transformation to the current one. Otherwise, the pending and current
          * values are never changed.
          * <p>
@@ -331,7 +350,7 @@ public class wl_surface extends WlInterface<wl_surface.Requests, wl_surface.Even
          * of the buffer will become the surface width.
          * <p>
          * If transform is not one of the values from the
-         * wl_output.transform enum the invalid_transform protocol error
+         * {@code wl_output.transform} enum the {@code invalid_transform} protocol error
          * is raised.
          *
          * @param transform transform for interpreting buffer contents
@@ -346,12 +365,12 @@ public class wl_surface extends WlInterface<wl_surface.Requests, wl_surface.Even
          * This request sets an optional scaling factor on how the compositor
          * interprets the contents of the buffer attached to the window.
          * <p>
-         * Buffer scale is double-buffered state, see wl_surface.commit.
+         * Buffer scale is double-buffered state, see {@code wl_surface.commit}.
          * <p>
          * A newly created surface has its buffer scale set to 1.
          * <p>
-         * wl_surface.set_buffer_scale changes the pending buffer scale.
-         * wl_surface.commit copies the pending buffer scale to the current one.
+         * {@code wl_surface.set_buffer_scale} changes the pending buffer scale.
+         * {@code wl_surface.commit} copies the pending buffer scale to the current one.
          * Otherwise, the pending and current values are never changed.
          * <p>
          * The purpose of this request is to allow clients to supply higher
@@ -364,7 +383,7 @@ public class wl_surface extends WlInterface<wl_surface.Requests, wl_surface.Even
          * a buffer that is larger (by a factor of scale in each dimension)
          * than the desired surface size.
          * <p>
-         * If scale is not positive the invalid_scale protocol error is
+         * If scale is not positive the {@code invalid_scale} protocol error is
          * raised.
          *
          * @param scale positive scale for interpreting buffer contents
@@ -381,33 +400,33 @@ public class wl_surface extends WlInterface<wl_surface.Requests, wl_surface.Even
          * the surface therefore needs to be repainted. The compositor
          * ignores the parts of the damage that fall outside of the surface.
          * <p>
-         * Damage is double-buffered state, see wl_surface.commit.
+         * Damage is double-buffered state, see {@code wl_surface.commit}.
          * <p>
          * The damage rectangle is specified in buffer coordinates,
          * where x and y specify the upper left corner of the damage rectangle.
          * <p>
          * The initial value for pending damage is empty: no damage.
-         * wl_surface.damage_buffer adds pending damage: the new pending
+         * {@code wl_surface.damage_buffer} adds pending damage: the new pending
          * damage is the union of old pending damage and the given rectangle.
          * <p>
-         * wl_surface.commit assigns pending damage as the current damage,
+         * {@code wl_surface.commit} assigns pending damage as the current damage,
          * and clears pending damage. The server will clear the current
          * damage as it repaints the surface.
          * <p>
-         * This request differs from wl_surface.damage in only one way - it
+         * This request differs from {@code wl_surface.damage} in only one way - it
          * takes damage in buffer coordinates instead of surface-local
          * coordinates. While this generally is more intuitive than surface
-         * coordinates, it is especially desirable when using wp_viewport
+         * coordinates, it is especially desirable when using {@code wp_viewport}
          * or when a drawing library (like EGL) is unaware of buffer scale
          * and buffer transform.
          * <p>
          * Note: Because buffer transformation changes and damage requests may
          * be interleaved in the protocol stream, it is impossible to determine
          * the actual mapping between surface and buffer damage until
-         * wl_surface.commit time. Therefore, compositors wishing to take both
+         * {@code wl_surface.commit} time. Therefore, compositors wishing to take both
          * kinds of damage into account will have to accumulate damage from the
          * two requests separately and only transform from one to the other
-         * after receiving the wl_surface.commit.
+         * after receiving the {@code wl_surface.commit}.
          *
          * @param x      buffer-local x coordinate
          * @param y      buffer-local y coordinate
@@ -417,6 +436,29 @@ public class wl_surface extends WlInterface<wl_surface.Requests, wl_surface.Even
         @IMethod(9)
         @ISince(4)
         void damage_buffer(int x, int y, int width, int height);
+
+        /**
+         * set the surface contents offset
+         * <p>
+         * The x and y arguments specify the location of the new pending
+         * buffer's upper left corner, relative to the current buffer's upper
+         * left corner, in surface-local coordinates. In other words, the
+         * x and y, combined with the new surface size define in which
+         * directions the surface's size changes.
+         * <p>
+         * Surface location offset is double-buffered state, see
+         * {@code wl_surface.commit}.
+         * <p>
+         * This request is semantically equivalent to and the replaces the x and y
+         * arguments in the {@code wl_surface.attach} request in {@code wl_surface} versions prior
+         * to 5. See {@code wl_surface.attach} for details.
+         *
+         * @param x surface-local x coordinate
+         * @param y surface-local y coordinate
+         */
+        @IMethod(10)
+        @ISince(5)
+        void offset(int x, int y);
     }
 
     public interface Events extends WlInterface.Events {
@@ -441,6 +483,12 @@ public class wl_surface extends WlInterface<wl_surface.Requests, wl_surface.Even
          * This is emitted whenever a surface's creation, movement, or resizing
          * results in it no longer having any part of it within the scanout region
          * of an output.
+         * <p>
+         * Clients should not use the number of outputs the surface is on for frame
+         * throttling purposes. The surface might be hidden even if no leave event
+         * has been sent, and the compositor might expect new surface content
+         * updates even if no enter event has been sent. The frame event should be
+         * used instead.
          *
          * @param output output left by the surface
          */
@@ -453,7 +501,7 @@ public class wl_surface extends WlInterface<wl_surface.Requests, wl_surface.Even
         }
 
         /**
-         * wl_surface error values
+         * {@code wl_surface} error values
          */
         public static final class Error {
             private Error() {
@@ -468,6 +516,16 @@ public class wl_surface extends WlInterface<wl_surface.Requests, wl_surface.Even
              * buffer transform value is invalid
              */
             public static final int invalid_transform = 1;
+
+            /**
+             * buffer size is invalid
+             */
+            public static final int invalid_size = 2;
+
+            /**
+             * buffer offset is invalid
+             */
+            public static final int invalid_offset = 3;
         }
     }
 }

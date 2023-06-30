@@ -45,7 +45,7 @@ public class wl_region extends WlInterface<wl_region.Requests, wl_region.Events>
         /**
          * destroy region
          * <p>
-         * Destroy the region.  This will invalidate the object ID.
+         * Destroy the region. This will invalidate the object ID.
          */
         @IMethod(0)
         @IDtor

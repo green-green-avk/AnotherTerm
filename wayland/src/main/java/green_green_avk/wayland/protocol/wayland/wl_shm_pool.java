@@ -34,9 +34,9 @@ import green_green_avk.wayland.protocol_core.WlInterface;
 /**
  * a shared memory pool
  * <p>
- * The wl_shm_pool object encapsulates a piece of memory shared
- * between the compositor and client.  Through the wl_shm_pool
- * object, the client can allocate shared memory wl_buffer objects.
+ * The {@code wl_shm_pool} object encapsulates a piece of memory shared
+ * between the compositor and client. Through the {@code wl_shm_pool}
+ * object, the client can allocate shared memory {@code wl_buffer} objects.
  * All objects created through the same pool share the same
  * underlying mapped memory. Reusing the mapped memory avoids the
  * setup/teardown overhead and is useful when interactively resizing
@@ -50,13 +50,13 @@ public class wl_shm_pool extends WlInterface<wl_shm_pool.Requests, wl_shm_pool.E
         /**
          * create a buffer from the pool
          * <p>
-         * Create a wl_buffer object from the pool.
+         * Create a {@code wl_buffer} object from the pool.
          * <p>
          * The buffer is created offset bytes into the pool and has
-         * width and height as specified.  The stride argument specifies
+         * width and height as specified. The stride argument specifies
          * the number of bytes from the beginning of one row to the beginning
-         * of the next.  The format is the pixel format of the buffer and
-         * must be one of those advertised through the wl_shm.format event.
+         * of the next. The format is the pixel format of the buffer and
+         * must be one of those advertised through the {@code wl_shm.format} event.
          * <p>
          * A buffer will keep a reference to the pool it was created from
          * so it is valid to destroy the pool immediately after creating
@@ -90,8 +90,14 @@ public class wl_shm_pool extends WlInterface<wl_shm_pool.Requests, wl_shm_pool.E
          * <p>
          * This request will cause the server to remap the backing memory
          * for the pool from the file descriptor passed when the pool was
-         * created, but using the new size.  This request can only be
+         * created, but using the new size. This request can only be
          * used to make the pool bigger.
+         * <p>
+         * This request only changes the amount of bytes that are mmapped
+         * by the server and does not touch the file corresponding to the
+         * file descriptor passed at creation time. It is the client's
+         * responsibility to ensure that the file is at least as big as
+         * the new pool size.
          *
          * @param size new size of the pool, in bytes
          */

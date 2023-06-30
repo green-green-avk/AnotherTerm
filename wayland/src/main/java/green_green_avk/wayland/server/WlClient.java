@@ -81,6 +81,11 @@ public class WlClient {
         returnError(wlDisplayRes, wl_display.Enums.Error.invalid_object, e.getMessage());
     }
 
+    public void returnNotImplemented(@Nullable final String message) {
+        returnError(wlDisplayRes, wl_display.Enums.Error.implementation,
+                message != null ? "Not implemented: " + message : "Not implemented");
+    }
+
     /**
      * Thread safe, call {@link #init()} on the common events thread to finish the initialization.
      *

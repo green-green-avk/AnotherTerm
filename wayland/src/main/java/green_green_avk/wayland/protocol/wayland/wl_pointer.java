@@ -35,17 +35,17 @@ import green_green_avk.wayland.protocol_core.WlInterface;
 /**
  * pointer input device
  * <p>
- * The wl_pointer interface represents one or more input devices,
- * such as mice, which control the pointer location and pointer_focus
+ * The {@code wl_pointer} interface represents one or more input devices,
+ * such as mice, which control the pointer location and {@code pointer_focus}
  * of a seat.
  * <p>
- * The wl_pointer interface generates motion, enter and leave
+ * The {@code wl_pointer} interface generates motion, enter and leave
  * events for the surfaces that the pointer is located over,
  * and button and axis events for button presses, button releases
  * and scrolling.
  */
 public class wl_pointer extends WlInterface<wl_pointer.Requests, wl_pointer.Events> {
-    public static final int version = 6;
+    public static final int version = 8;
 
     public interface Requests extends WlInterface.Requests {
 
@@ -63,26 +63,30 @@ public class wl_pointer extends WlInterface<wl_pointer.Requests, wl_pointer.Even
          * there was a previous surface set with this request it is
          * replaced. If surface is NULL, the pointer image is hidden.
          * <p>
-         * The parameters hotspot_x and hotspot_y define the position of
+         * The parameters {@code hotspot_x} and {@code hotspot_y} define the position of
          * the pointer surface relative to the pointer location. Its
-         * top-left corner is always at (x, y) - (hotspot_x, hotspot_y),
+         * top-left corner is always at (x, y) - ({@code hotspot_x}, {@code hotspot_y}),
          * where (x, y) are the coordinates of the pointer location, in
          * surface-local coordinates.
          * <p>
-         * On surface.attach requests to the pointer surface, hotspot_x
-         * and hotspot_y are decremented by the x and y parameters
+         * On surface.attach requests to the pointer surface, {@code hotspot_x}
+         * and {@code hotspot_y} are decremented by the x and y parameters
          * passed to the request. Attach must be confirmed by
-         * wl_surface.commit as usual.
+         * {@code wl_surface.commit} as usual.
          * <p>
          * The hotspot can also be updated by passing the currently set
-         * pointer surface to this request with new values for hotspot_x
-         * and hotspot_y.
+         * pointer surface to this request with new values for {@code hotspot_x}
+         * and {@code hotspot_y}.
          * <p>
-         * The current and pending input regions of the wl_surface are
-         * cleared, and wl_surface.set_input_region is ignored until the
-         * wl_surface is no longer used as the cursor. When the use as a
+         * The current and pending input regions of the {@code wl_surface} are
+         * cleared, and {@code wl_surface.set_input_region} is ignored until the
+         * {@code wl_surface} is no longer used as the cursor. When the use as a
          * cursor ends, the current and pending input regions become
-         * undefined, and the wl_surface is unmapped.
+         * undefined, and the {@code wl_surface} is unmapped.
+         * <p>
+         * The serial parameter must match the latest {@code wl_pointer.enter}
+         * serial number sent to the client. Otherwise the request will be
+         * ignored.
          *
          * @param serial    serial number of the enter event
          * @param surface   pointer surface
@@ -99,7 +103,7 @@ public class wl_pointer extends WlInterface<wl_pointer.Requests, wl_pointer.Even
          * use the pointer object anymore.
          * <p>
          * This request destroys the pointer proxy object, so clients must not call
-         * wl_pointer_destroy() after using this request.
+         * {@code wl_pointer_destroy}() after using this request.
          */
         @IMethod(1)
         @ISince(3)
@@ -117,7 +121,7 @@ public class wl_pointer extends WlInterface<wl_pointer.Requests, wl_pointer.Even
          * <p>
          * When a seat's focus enters a surface, the pointer image
          * is undefined and a client should respond to this event by setting
-         * an appropriate pointer image with the set_cursor request.
+         * an appropriate pointer image with the {@code set_cursor} request.
          *
          * @param serial    serial number of the enter event
          * @param surface   surface entered by the pointer
@@ -146,7 +150,7 @@ public class wl_pointer extends WlInterface<wl_pointer.Requests, wl_pointer.Even
          * pointer motion event
          * <p>
          * Notification of pointer location change. The arguments
-         * surface_x and surface_y are the location relative to the
+         * {@code surface_x} and {@code surface_y} are the location relative to the
          * focused surface.
          *
          * @param time      timestamp with millisecond granularity
@@ -167,7 +171,7 @@ public class wl_pointer extends WlInterface<wl_pointer.Requests, wl_pointer.Even
          * granularity, with an undefined base.
          * <p>
          * The button is a button code as defined in the Linux kernel's
-         * linux/input-event-codes.h header file, e.g. BTN_LEFT.
+         * linux/input-event-codes.h header file, e.g. BTN{@code _LEFT}.
          * <p>
          * Any 16-bit button code value is reserved for future additions to the
          * kernel's event code list. All other button codes above 0xFFFF are
@@ -216,35 +220,35 @@ public class wl_pointer extends WlInterface<wl_pointer.Requests, wl_pointer.Even
          * A client is expected to accumulate the data in all events within the
          * frame before proceeding.
          * <p>
-         * All wl_pointer events before a wl_pointer.frame event belong
+         * All {@code wl_pointer} events before a {@code wl_pointer.frame} event belong
          * logically together. For example, in a diagonal scroll motion the
-         * compositor will send an optional wl_pointer.axis_source event, two
-         * wl_pointer.axis events (horizontal and vertical) and finally a
-         * wl_pointer.frame event. The client may use this information to
+         * compositor will send an optional {@code wl_pointer.axis_source} event, two
+         * {@code wl_pointer.axis} events (horizontal and vertical) and finally a
+         * {@code wl_pointer.frame} event. The client may use this information to
          * calculate a diagonal vector for scrolling.
          * <p>
-         * When multiple wl_pointer.axis events occur within the same frame,
+         * When multiple {@code wl_pointer.axis} events occur within the same frame,
          * the motion vector is the combined motion of all events.
-         * When a wl_pointer.axis and a wl_pointer.axis_stop event occur within
+         * When a {@code wl_pointer.axis} and a {@code wl_pointer.axis_stop} event occur within
          * the same frame, this indicates that axis movement in one axis has
          * stopped but continues in the other axis.
-         * When multiple wl_pointer.axis_stop events occur within the same
+         * When multiple {@code wl_pointer.axis_stop} events occur within the same
          * frame, this indicates that these axes stopped in the same instance.
          * <p>
-         * A wl_pointer.frame event is sent for every logical event group,
-         * even if the group only contains a single wl_pointer event.
+         * A {@code wl_pointer.frame} event is sent for every logical event group,
+         * even if the group only contains a single {@code wl_pointer} event.
          * Specifically, a client may get a sequence: motion, frame, button,
-         * frame, axis, frame, axis_stop, frame.
+         * frame, axis, frame, {@code axis_stop}, frame.
          * <p>
-         * The wl_pointer.enter and wl_pointer.leave events are logical events
+         * The {@code wl_pointer.enter} and {@code wl_pointer.leave} events are logical events
          * generated by the compositor and not the hardware. These events are
-         * also grouped by a wl_pointer.frame. When a pointer moves from one
+         * also grouped by a {@code wl_pointer.frame}. When a pointer moves from one
          * surface to another, a compositor should group the
-         * wl_pointer.leave event within the same wl_pointer.frame.
-         * However, a client must not rely on wl_pointer.leave and
-         * wl_pointer.enter being in the same wl_pointer.frame.
-         * Compositor-specific policies may require the wl_pointer.leave and
-         * wl_pointer.enter event being split across multiple wl_pointer.frame
+         * {@code wl_pointer.leave} event within the same {@code wl_pointer.frame}.
+         * However, a client must not rely on {@code wl_pointer.leave} and
+         * {@code wl_pointer.enter} being in the same {@code wl_pointer.frame}.
+         * Compositor-specific policies may require the {@code wl_pointer.leave} and
+         * {@code wl_pointer.enter} event being split across multiple {@code wl_pointer.frame}
          * groups.
          */
         @IMethod(5)
@@ -257,27 +261,27 @@ public class wl_pointer extends WlInterface<wl_pointer.Requests, wl_pointer.Even
          * Source information for scroll and other axes.
          * <p>
          * This event does not occur on its own. It is sent before a
-         * wl_pointer.frame event and carries the source information for
+         * {@code wl_pointer.frame} event and carries the source information for
          * all events within that frame.
          * <p>
          * The source specifies how this event was generated. If the source is
-         * wl_pointer.axis_source.finger, a wl_pointer.axis_stop event will be
+         * {@code wl_pointer.axis_source.finger}, a {@code wl_pointer.axis_stop} event will be
          * sent when the user lifts the finger off the device.
          * <p>
-         * If the source is wl_pointer.axis_source.wheel,
-         * wl_pointer.axis_source.wheel_tilt or
-         * wl_pointer.axis_source.continuous, a wl_pointer.axis_stop event may
-         * or may not be sent. Whether a compositor sends an axis_stop event
+         * If the source is {@code wl_pointer.axis_source.wheel},
+         * {@code wl_pointer.axis_source.wheel_tilt} or
+         * {@code wl_pointer.axis_source.continuous}, a {@code wl_pointer.axis_stop} event may
+         * or may not be sent. Whether a compositor sends an {@code axis_stop} event
          * for these sources is hardware-specific and implementation-dependent;
-         * clients must not rely on receiving an axis_stop event for these
+         * clients must not rely on receiving an {@code axis_stop} event for these
          * scroll sources and should treat scroll sequences from these scroll
          * sources as unterminated by default.
          * <p>
          * This event is optional. If the source is unknown for a particular
          * axis event sequence, no event is sent.
-         * Only one wl_pointer.axis_source event is permitted per frame.
+         * Only one {@code wl_pointer.axis_source} event is permitted per frame.
          * <p>
-         * The order of wl_pointer.axis_discrete and wl_pointer.axis_source is
+         * The order of {@code wl_pointer.axis_discrete} and {@code wl_pointer.axis_source} is
          * not guaranteed.
          *
          * @param axis_source source of the axis event
@@ -291,18 +295,18 @@ public class wl_pointer extends WlInterface<wl_pointer.Requests, wl_pointer.Even
          * <p>
          * Stop notification for scroll and other axes.
          * <p>
-         * For some wl_pointer.axis_source types, a wl_pointer.axis_stop event
+         * For some {@code wl_pointer.axis_source} types, a {@code wl_pointer.axis_stop} event
          * is sent to notify a client that the axis sequence has terminated.
          * This enables the client to implement kinetic scrolling.
-         * See the wl_pointer.axis_source documentation for information on when
+         * See the {@code wl_pointer.axis_source} documentation for information on when
          * this event may be generated.
          * <p>
-         * Any wl_pointer.axis events with the same axis_source after this
+         * Any {@code wl_pointer.axis} events with the same {@code axis_source} after this
          * event should be considered as the start of a new axis motion.
          * <p>
          * The timestamp is to be interpreted identical to the timestamp in the
-         * wl_pointer.axis event. The timestamp value may be the same as a
-         * preceding wl_pointer.axis event.
+         * {@code wl_pointer.axis} event. The timestamp value may be the same as a
+         * preceding {@code wl_pointer.axis} event.
          *
          * @param time timestamp with millisecond granularity
          * @param axis the axis stopped with this event
@@ -316,17 +320,21 @@ public class wl_pointer extends WlInterface<wl_pointer.Requests, wl_pointer.Even
          * <p>
          * Discrete step information for scroll and other axes.
          * <p>
-         * This event carries the axis value of the wl_pointer.axis event in
+         * This event carries the axis value of the {@code wl_pointer.axis} event in
          * discrete steps (e.g. mouse wheel clicks).
          * <p>
+         * This event is deprecated with {@code wl_pointer} version 8 - this event is not
+         * sent to clients supporting version 8 or later.
+         * <p>
          * This event does not occur on its own, it is coupled with a
-         * wl_pointer.axis event that represents this axis value on a
-         * continuous scale. The protocol guarantees that each axis_discrete
+         * {@code wl_pointer.axis} event that represents this axis value on a
+         * continuous scale. The protocol guarantees that each {@code axis_discrete}
          * event is always followed by exactly one axis event with the same
-         * axis number within the same wl_pointer.frame. Note that the protocol
-         * allows for other events to occur between the axis_discrete and
-         * its coupled axis event, including other axis_discrete or axis
-         * events.
+         * axis number within the same {@code wl_pointer.frame}. Note that the protocol
+         * allows for other events to occur between the {@code axis_discrete} and
+         * its coupled axis event, including other {@code axis_discrete} or axis
+         * events. A {@code wl_pointer.frame} must not contain more than one {@code axis_discrete}
+         * event per axis type.
          * <p>
          * This event is optional; continuous scrolling devices
          * like two-finger scrolling on touchpads do not have discrete
@@ -338,7 +346,7 @@ public class wl_pointer extends WlInterface<wl_pointer.Requests, wl_pointer.Even
          * The axis number is identical to the axis number in the associated
          * axis event.
          * <p>
-         * The order of wl_pointer.axis_discrete and wl_pointer.axis_source is
+         * The order of {@code wl_pointer.axis_discrete} and {@code wl_pointer.axis_source} is
          * not guaranteed.
          *
          * @param axis     axis type
@@ -347,6 +355,38 @@ public class wl_pointer extends WlInterface<wl_pointer.Requests, wl_pointer.Even
         @IMethod(8)
         @ISince(5)
         void axis_discrete(long axis, int discrete);
+
+        /**
+         * axis high-resolution scroll event
+         * <p>
+         * Discrete high-resolution scroll information.
+         * <p>
+         * This event carries high-resolution wheel scroll information,
+         * with each multiple of 120 representing one logical scroll step
+         * (a wheel detent). For example, an {@code axis_value120} of 30 is one quarter of
+         * a logical scroll step in the positive direction, a {@code value120} of
+         * -240 are two logical scroll steps in the negative direction within the
+         * same hardware event.
+         * Clients that rely on discrete scrolling should accumulate the
+         * {@code value120} to multiples of 120 before processing the event.
+         * <p>
+         * The {@code value120} must not be zero.
+         * <p>
+         * This event replaces the {@code wl_pointer.axis_discrete} event in clients
+         * supporting {@code wl_pointer} version 8 or later.
+         * <p>
+         * Where a {@code wl_pointer.axis_source} event occurs in the same
+         * {@code wl_pointer.frame}, the axis source applies to this event.
+         * <p>
+         * The order of {@code wl_pointer.axis_value120} and {@code wl_pointer.axis_source} is
+         * not guaranteed.
+         *
+         * @param axis     axis type
+         * @param value120 scroll distance as fraction of 120
+         */
+        @IMethod(9)
+        @ISince(8)
+        void axis_value120(long axis, int value120);
     }
 
     public static final class Enums {

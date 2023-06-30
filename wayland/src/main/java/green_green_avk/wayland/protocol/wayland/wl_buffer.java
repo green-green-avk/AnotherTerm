@@ -30,13 +30,18 @@ package green_green_avk.wayland.protocol.wayland;
 import green_green_avk.wayland.protocol_core.WlInterface;
 
 /**
- * content for a wl_surface
+ * content for a {@code wl_surface}
  * <p>
- * A buffer provides the content for a wl_surface. Buffers are
- * created through factory interfaces such as wl_drm, wl_shm or
- * similar. It has a width and a height and can be attached to a
- * wl_surface, but the mechanism by which a client provides and
- * updates the contents is defined by the buffer factory interface.
+ * A buffer provides the content for a {@code wl_surface}. Buffers are
+ * created through factory interfaces such as {@code wl_shm}, {@code wp_linux_buffer_params}
+ * (from the linux-dmabuf protocol extension) or similar. It has a width and
+ * a height and can be attached to a {@code wl_surface}, but the mechanism by which a
+ * client provides and updates the contents is defined by the buffer factory
+ * interface.
+ * <p>
+ * If the buffer uses a format that has an alpha channel, the alpha channel
+ * is assumed to be premultiplied in the color channels unless otherwise
+ * specified.
  */
 public class wl_buffer extends WlInterface<wl_buffer.Requests, wl_buffer.Events> {
     public static final int version = 1;
@@ -49,7 +54,7 @@ public class wl_buffer extends WlInterface<wl_buffer.Requests, wl_buffer.Events>
          * Destroy a buffer. If and how you need to release the backing
          * storage is defined by the buffer factory interface.
          * <p>
-         * For possible side-effects to a surface, see wl_surface.attach.
+         * For possible side-effects to a surface, see {@code wl_surface.attach}.
          */
         @IMethod(0)
         @IDtor
@@ -61,18 +66,18 @@ public class wl_buffer extends WlInterface<wl_buffer.Requests, wl_buffer.Events>
         /**
          * compositor releases buffer
          * <p>
-         * Sent when this wl_buffer is no longer used by the compositor.
+         * Sent when this {@code wl_buffer} is no longer used by the compositor.
          * The client is now free to reuse or destroy this buffer and its
          * backing storage.
          * <p>
          * If a client receives a release event before the frame callback
-         * requested in the same wl_surface.commit that attaches this
-         * wl_buffer to a surface, then the client is immediately free to
+         * requested in the same {@code wl_surface.commit} that attaches this
+         * {@code wl_buffer} to a surface, then the client is immediately free to
          * reuse the buffer and its backing storage, and does not need a
          * second buffer for the next surface content update. Typically
          * this is possible, when the compositor maintains a copy of the
-         * wl_surface contents, e.g. as a GL texture. This is an important
-         * optimization for GL(ES) compositors with wl_shm clients.
+         * {@code wl_surface} contents, e.g. as a GL texture. This is an important
+         * optimization for GL(ES) compositors with {@code wl_shm} clients.
          */
         @IMethod(0)
         void release();
