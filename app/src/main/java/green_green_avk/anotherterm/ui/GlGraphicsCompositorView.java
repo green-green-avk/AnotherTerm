@@ -2,10 +2,8 @@ package green_green_avk.anotherterm.ui;
 
 import android.content.Context;
 import android.graphics.Bitmap;
-import android.graphics.Point;
 import android.graphics.PointF;
 import android.graphics.Rect;
-import android.graphics.Region;
 import android.graphics.SurfaceTexture;
 import android.opengl.GLES20;
 import android.os.Build;
@@ -36,6 +34,11 @@ import green_green_avk.wayland.protocol.wayland.wl_shm;
 
 public final class GlGraphicsCompositorView extends TextureView implements GraphicsCompositorView,
         GraphicsCompositor.Sink {
+    /**
+     * Suggested frame period [ms].
+     */
+    private static final int DEFAULT_SUGGESTED_FRAME_PERIOD = 1000 / 24;
+
     private final Renderer renderer = new Renderer(this);
 
     public GlGraphicsCompositorView(final Context context) {
@@ -281,14 +284,16 @@ public final class GlGraphicsCompositorView extends TextureView implements Graph
             private static final class Locations {
                 private final int vertLoc;
                 private final int texLoc;
-                private final int scaleLoc;
-                private final int offsetLoc;
+                private final int scalePxLoc;
+                private final int scaleGlLoc;
+                private final int transformLoc;
 
                 private Locations(@NonNull final GlProgram v) {
                     vertLoc = v.getAttribLocation("a_position");
                     texLoc = v.getUniformLocation("u_tex");
-                    scaleLoc = v.getUniformLocation("u_scale");
-                    offsetLoc = v.getUniformLocation("u_offset");
+                    scalePxLoc = v.getUniformLocation("u_scalePx");
+                    scaleGlLoc = v.getUniformLocation("u_scaleGl");
+                    transformLoc = v.getUniformLocation("u_transform");
                 }
             }
 
@@ -311,11 +316,15 @@ public final class GlGraphicsCompositorView extends TextureView implements Graph
                             "precision highp float;\n" +
                             "attribute vec2 a_position;\n" +
                             "varying vec2 v_position;\n" +
-                            "uniform vec2 u_scale;\n" +
-                            "uniform vec2 u_offset;\n" +
+                            "uniform vec2 u_scalePx;\n" +
+                            "uniform vec2 u_scaleGl;\n" +
+                            "uniform mat3 u_transform;\n" +
                             "void main() {\n" +
-                            "   v_position = a_position.xy * vec2(0.5,-0.5) + 0.5;\n" +
-                            "   gl_Position = vec4((a_position.xy + vec2(1.0, -1.0)) / u_scale + vec2(-1.0, 1.0) + u_offset, 0.0, 1.0);\n" +
+                            "  v_position = a_position.xy;\n" +
+                            "  gl_Position =" +
+                            "    vec4((u_transform * vec3(a_position.xy * u_scalePx, 1.0)).xy" +
+                            "      / u_scaleGl" +
+                            "      * vec2(2.0, -2.0) + vec2(-1.0, 1.0), 0.0, 1.0);\n" +
                             "}\n";
             private static final String fragmentShaderTemplate =
                     "#version 100\n" +
@@ -323,8 +332,8 @@ public final class GlGraphicsCompositorView extends TextureView implements Graph
                             "varying vec2 v_position;\n" +
                             "uniform sampler2D u_tex;\n" +
                             "void main() {\n" +
-                            "   vec4 c = texture2D(u_tex, v_position.xy);\n" +
-                            "   gl_FragColor = vec4(%s);\n" +
+                            "  vec4 c = texture2D(u_tex, v_position.xy);\n" +
+                            "  gl_FragColor = vec4(%s);\n" +
                             "}\n";
             private static final String fragmentShader_argb8888 =
                     String.format(Locale.ROOT, fragmentShaderTemplate, "c.b, c.g, c.r, c.a");
@@ -334,8 +343,8 @@ public final class GlGraphicsCompositorView extends TextureView implements Graph
                     String.format(Locale.ROOT, fragmentShaderTemplate, "c");
             private static final String fragmentShader_xbgr8888 =
                     String.format(Locale.ROOT, fragmentShaderTemplate, "c.rgb, 1.0");
-            private final FloatBuffer verts = GlUtils.makeDirectFloatBuffer(new float[]{
-                    -1f, -1f, 1f, -1f, 1f, 1f, -1f, 1f
+            private static final FloatBuffer vertices = GlUtils.makeDirectFloatBuffer(new float[]{
+                    0, 1f, 1f, 1f, 1f, 0f, 0f, 0f
             });
 
             private static final class Cache {
@@ -383,6 +392,8 @@ public final class GlGraphicsCompositorView extends TextureView implements Graph
                     onDrawSurface(pointer, renderer.view.pointerPos.x, renderer.view.pointerPos.y);
             }
 
+            private final float[] _transform = new float[9];
+
             private void onDrawSurface(@NonNull final GraphicsCompositor.Surface surface,
                                        final float x, final float y) {
                 synchronized (surface) {
@@ -414,17 +425,16 @@ public final class GlGraphicsCompositorView extends TextureView implements Graph
                             if (texCache.texture.isSet()
                                     && texCache.width == surface.width
                                     && texCache.height == surface.height) {
-                                final Region damage = surface.damage;
-                                final Rect damageRect = damage.getBounds();
+                                final Rect damage = surface.damage;
                                 if (damage.isEmpty()) {
-                                    damageRect.right = surface.width;
-                                    damageRect.bottom = surface.height;
+                                    damage.right = surface.width;
+                                    damage.bottom = surface.height;
                                 }
                                 texCache.texture.update(surface.buffer,
-                                        damageRect.left, damageRect.top, surface.width,
-                                        damageRect.left, damageRect.top,
-                                        damageRect.right - damageRect.left,
-                                        damageRect.bottom - damageRect.top,
+                                        damage.left, damage.top, surface.width,
+                                        damage.left, damage.top,
+                                        damage.right - damage.left,
+                                        damage.bottom - damage.top,
                                         GLES20.GL_RGBA, GLES20.GL_UNSIGNED_BYTE, 0);
                             } else {
                                 texCache.texture.set(surface.buffer, surface.width, surface.height,
@@ -435,25 +445,28 @@ public final class GlGraphicsCompositorView extends TextureView implements Graph
                             texCache.dirty = false;
                         }
                         texCache.texture.bind(GLES20.GL_TEXTURE0);
-                        final Point hotspot = surface.hotspot;
                         final GraphicsCompositor compositor = surface.compositor;
+                        surface.transform.getValues(_transform);
+                        _transform[2] += x;
+                        _transform[5] += y;
+                        GLES20.glUniformMatrix3fv(ll.transformLoc,
+                                1, true, _transform, 0);
                         synchronized (compositor.sizeLock) {
-                            GLES20.glUniform2f(ll.offsetLoc,
-                                    (x - hotspot.x) / compositor.width * 2,
-                                    -(y - hotspot.y) / compositor.height * 2);
-                            GLES20.glUniform2f(ll.scaleLoc,
-                                    (float) compositor.width / surface.width,
-                                    (float) compositor.height / surface.height);
+                            GLES20.glUniform2f(ll.scalePxLoc,
+                                    surface.width, surface.height);
+                            GLES20.glUniform2f(ll.scaleGlLoc,
+                                    compositor.width, compositor.height);
                         }
                         GLES20.glUniform1i(ll.texLoc, 0);
                         GLES20.glVertexAttribPointer(ll.vertLoc, 2, GLES20.GL_FLOAT,
-                                false, 0, verts);
+                                false, 0, vertices);
                         GLES20.glEnableVertexAttribArray(ll.vertLoc);
                         GLES20.glDrawArrays(GLES20.GL_TRIANGLE_FAN, 0, 4);
                         GLES20.glDisableVertexAttribArray(ll.vertLoc);
                     } finally {
                         if (surface.pullNextFrameRequested())
-                            mainHandler.postDelayed(surface::onNextFrame, 1000 / 24);
+                            mainHandler.postDelayed(surface::onNextFrame,
+                                    DEFAULT_SUGGESTED_FRAME_PERIOD);
                     }
                 }
             }

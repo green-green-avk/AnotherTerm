@@ -3,6 +3,7 @@ package green_green_avk.anotherterm;
 import android.content.res.Resources;
 import android.graphics.Matrix;
 import android.graphics.Point;
+import android.graphics.Rect;
 import android.graphics.Region;
 import android.os.SystemClock;
 import android.util.DisplayMetrics;
@@ -110,8 +111,8 @@ public final class GraphicsCompositor {
         defaultHeight = size;
     }
 
-    public volatile int width = defaultWidth;
-    public volatile int height = defaultHeight;
+    public int width = defaultWidth;
+    public int height = defaultHeight;
     public final Object sizeLock = new Object();
 
     @Nullable
@@ -215,26 +216,30 @@ public final class GraphicsCompositor {
         public GraphicsCompositor.Surface prevSibling = null;
         public GraphicsCompositor.Surface nextSibling = null;
         public GraphicsCompositor.Surface firstChild = null;
-        public Object cache = null;
-        public volatile boolean isCacheValid = false;
 
-        public volatile ByteBuffer buffer = null;
-        public volatile int offset = 0;
-        public volatile int width = 0;
-        public volatile int height = 0;
-        public volatile int stride = 0;
-        public volatile int format = wl_shm.Enums.Format.argb8888;
+        public ByteBuffer buffer = null;
+        public int offset = 0;
+        public int width = 0;
+        public int height = 0;
+        public int stride = 0;
+        public int format = wl_shm.Enums.Format.argb8888;
         @NonNull
-        public volatile Matrix transform = new Matrix();
+        public final Matrix transform = new Matrix();
         @NonNull
-        public volatile Region damage = new Region();
+        public final Rect damage = new Rect();
 
         private final AtomicReference<Runnable> _onReleaseBuffer = new AtomicReference<>();
         private final AtomicReference<Runnable> _onNextFrame = new AtomicReference<>();
         private final AtomicBoolean _isNextFrameRequested = new AtomicBoolean(false);
 
         @NonNull
-        public volatile Point hotspot = new Point();
+        private final Point pendingHotspot = new Point();
+
+        public void setHotspot(final int x, final int y) {
+            synchronized (this) {
+                pendingHotspot.set(x, y);
+            }
+        }
 
         public void clean() {
             buffer = null;
@@ -270,12 +275,12 @@ public final class GraphicsCompositor {
                 this.height = height;
                 this.stride = stride;
                 this.format = format;
-                this.transform = transform;
-                this.damage = damage;
+                this.transform.set(transform);
+                this.transform.postTranslate(-pendingHotspot.x, -pendingHotspot.y);
+                this.damage.set(damage.getBounds());
                 _isNextFrameRequested.set(true);
                 __onReleaseBuffer = _onReleaseBuffer.getAndSet(onSurfaceCommit::onBufferRelease);
                 __onNextFrame = _onNextFrame.getAndSet(onSurfaceCommit::onNextFrame);
-                isCacheValid = false;
             }
             if (__onReleaseBuffer != null)
                 __onReleaseBuffer.run();
@@ -351,9 +356,10 @@ public final class GraphicsCompositor {
 
     public void setRoot(@Nullable final Surface root) {
         synchronized (treeLock) {
-            final boolean refocus = keyboardFocus == null || keyboardFocus == this.root;
-            if (this.root != null)
-                this.root.source.onLeave();
+            final Surface oldRoot = this.root;
+            final boolean refocus = keyboardFocus == null || keyboardFocus == oldRoot;
+            if (oldRoot != null)
+                oldRoot.source.onLeave();
             this.root = root;
             if (root != null)
                 root.source.onEnter();

@@ -390,6 +390,77 @@ public final class WlTermServer {
         }
     };
 
+    private static void preWlTransform(@NonNull final Matrix target,
+                                       final int width, final int height,
+                                       final int transform) {
+        switch (transform) {
+            case wl_output.Enums.Transform._90:
+                target.preTranslate(0, width);
+                target.preRotate(270);
+                break;
+            case wl_output.Enums.Transform._180:
+                target.preTranslate(width, height);
+                target.preRotate(180);
+                break;
+            case wl_output.Enums.Transform._270:
+                target.preTranslate(height, 0);
+                target.preRotate(90);
+                break;
+            case wl_output.Enums.Transform.flipped:
+                target.preTranslate(width, 0);
+                target.preScale(-1, 1);
+                break;
+            case wl_output.Enums.Transform.flipped_90:
+                target.preRotate(270);
+                target.preScale(-1, 1);
+                break;
+            case wl_output.Enums.Transform.flipped_180:
+                target.preTranslate(0, height);
+                target.preRotate(180);
+                target.preScale(-1, 1);
+                break;
+            case wl_output.Enums.Transform.flipped_270:
+                target.preTranslate(height, width);
+                target.preRotate(90);
+                target.preScale(-1, 1);
+                break;
+        }
+    }
+
+    private static boolean isTranslationOnly(@NonNull final float[] m) {
+        return m[0] == 1f &&
+                m[1] == 0f &&
+                m[3] == 0f &&
+                m[4] == 1f &&
+                m[6] == 0f &&
+                m[7] == 0f &&
+                m[8] == 1f;
+    }
+
+    private final float[] _tmp_matrix = new float[9];
+
+    private void transformRegion(@NonNull final Region target,
+                                 final int width, final int height,
+                                 @NonNull final Matrix matrix) { // TODO: refactor
+        if (target.isEmpty() || matrix.isIdentity())
+            return;
+        matrix.getValues(_tmp_matrix);
+        if (isTranslationOnly(_tmp_matrix)) {
+            target.translate(-(int) _tmp_matrix[2], -(int) _tmp_matrix[5]);
+            return;
+        }
+        target.set(0, 0, width, height); // Just simple stupid
+//        final Matrix im = new Matrix();
+//        if (!matrix.invert(im)) {
+//            target.set(0, 0, width, height);
+//            return;
+//        }
+//        final Path p = target.getBoundaryPath();
+//        p.transform(im);
+//        final Region clip = new Region(0, 0, width, height);
+//        target.setPath(p, clip);
+    }
+
     private final class WlClientImpl extends WlClient {
         public static final int TWEAK_ID = 2; // Tweak
 
@@ -898,8 +969,7 @@ public final class WlTermServer {
             @Override
             public void attach(@Nullable final wl_buffer buffer, final int x, final int y) {
                 wlBuffer = (WlBuffer) buffer;
-                wlBufferOrigin.x += x;
-                wlBufferOrigin.y += y;
+                wlBufferOrigin.offset(x, y);
             }
 
             @Override
@@ -923,11 +993,20 @@ public final class WlTermServer {
                 inputRegion = region != null ? new Region(((WlRegionImpl) region).region) : null;
             }
 
+            private final Matrix currentTransform = new Matrix();
+            private final Region currentDamage = new Region();
+
             @Override
             public void commit() {
                 if (surface != null && wlBuffer != null) {
-                    final Matrix _transform = new Matrix();
-                    _transform.setTranslate(wlBufferOrigin.x, wlBufferOrigin.y);
+                    currentTransform.setTranslate(wlBufferOrigin.x, wlBufferOrigin.y);
+                    currentTransform.preScale(1f / scale, 1f / scale);
+                    preWlTransform(currentTransform, wlBuffer.width, wlBuffer.height,
+                            transform);
+                    currentDamage.set(wlSurfaceDamage);
+                    transformRegion(currentDamage, wlBuffer.width, wlBuffer.height,
+                            currentTransform);
+                    currentDamage.op(wlBufferDamage, Region.Op.UNION);
                     try {
                         wlBuffer.pool.lock();
                     } catch (final IOException e) {
@@ -937,11 +1016,9 @@ public final class WlTermServer {
 //                        Log.i(TAG, "Locked@" + wlBuffer.id);
                     final WlBuffer wlBufferCurrent = wlBuffer;
                     final NewId nextFrameCallbackCurrent = nextFrameCallback;
-                    final Region _damage = new Region(wlBufferDamage);
-                    _damage.op(wlSurfaceDamage, Region.Op.UNION); // TODO: transform
                     surface.commit(wlBuffer.pool.mem, wlBuffer.offset,
                             wlBuffer.width, wlBuffer.height, wlBuffer.stride,
-                            (int) wlBuffer.format, _transform, _damage,
+                            (int) wlBuffer.format, currentTransform, currentDamage,
                             new GraphicsCompositor.OnSurfaceCommit() {
                                 @Override
                                 public void onBufferRelease() {
@@ -958,11 +1035,8 @@ public final class WlTermServer {
                                 }
                             });
                 }
-                // TODO
                 wlBufferDamage.setEmpty();
                 wlSurfaceDamage.setEmpty();
-//                transform = wl_output.Transform.normal;
-//                scale = 1;
                 nextFrameCallback = null;
             }
 
@@ -1227,7 +1301,7 @@ public final class WlTermServer {
                     final WlSurfaceImpl wlSurface = (WlSurfaceImpl) surface;
                     wlSurface.surface = wlSeat.wlClient.compositor.createSurface();
                     wlSurface.surface.source = wlSurface.eventsHandler;
-                    wlSurface.surface.hotspot = new Point(hotspot_x, hotspot_y);
+                    wlSurface.surface.setHotspot(hotspot_x, hotspot_y);
                     wlSeat.wlClient.compositor.pointer = wlSurface.surface;
                 } else
                     wlSeat.wlClient.compositor.pointer = null;

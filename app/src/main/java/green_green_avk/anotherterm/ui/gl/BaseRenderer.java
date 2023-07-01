@@ -90,7 +90,7 @@ public abstract class BaseRenderer implements TextureView.SurfaceTextureListener
         }
     }
 
-    private volatile boolean refreshMark = false;
+    private boolean refreshMark = false;
     private final Object refreshLock = new Object();
     protected final Object renderLock = new Object();
 
@@ -144,7 +144,7 @@ public abstract class BaseRenderer implements TextureView.SurfaceTextureListener
                         throw new RendererException("GLError: " + egl.eglGetError());
                     try {
                         synchronized (refreshLock) {
-                            if (!refreshMark)
+                            while (!refreshMark)
                                 refreshLock.wait();
                             refreshMark = false;
                         }
