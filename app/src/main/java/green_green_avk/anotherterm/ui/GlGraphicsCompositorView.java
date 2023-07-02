@@ -426,15 +426,13 @@ public final class GlGraphicsCompositorView extends TextureView implements Graph
                                     && texCache.width == surface.width
                                     && texCache.height == surface.height) {
                                 final Rect damage = surface.damage;
-                                if (damage.isEmpty()) {
-                                    damage.right = surface.width;
-                                    damage.bottom = surface.height;
-                                }
+                                if (damage.isEmpty())
+                                    damage.set(0, 0,
+                                            surface.width, surface.height);
                                 texCache.texture.update(surface.buffer,
                                         damage.left, damage.top, surface.width,
                                         damage.left, damage.top,
-                                        damage.right - damage.left,
-                                        damage.bottom - damage.top,
+                                        damage.width(), damage.height(),
                                         GLES20.GL_RGBA, GLES20.GL_UNSIGNED_BYTE, 0);
                             } else {
                                 texCache.texture.set(surface.buffer, surface.width, surface.height,
