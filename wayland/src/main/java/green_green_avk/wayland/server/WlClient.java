@@ -87,7 +87,7 @@ public class WlClient {
     }
 
     /**
-     * Thread safe, call {@link #init()} on the common events thread to finish the initialization.
+     * Thread-safe, call {@link #init()} on the common events thread to finish the initialization.
      *
      * @param display
      * @param socket
