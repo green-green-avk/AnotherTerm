@@ -376,8 +376,7 @@ public class CP2102SerialDevice extends UsbSerialDevice {
 
         @Override
         public void doRun() {
-            if (!firstTime) // Only execute the callback when the status change
-            {
+            if (!firstTime) { // Only execute the callback when the status change
                 final byte[] modemState = pollLines();
                 final byte[] commStatus = getCommStatus();
 
@@ -429,8 +428,7 @@ public class CP2102SerialDevice extends UsbSerialDevice {
                     }
 
                 }
-            } else // Execute the callback always the first time
-            {
+            } else { // Execute the callback always the first time
                 if (rtsCtsEnabled && ctsCallback != null)
                     ctsCallback.onCTSChanged(ctsState);
 

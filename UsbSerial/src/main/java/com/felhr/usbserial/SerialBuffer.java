@@ -74,14 +74,11 @@ public class SerialBuffer {
     }
 
     private class SynchronizedBuffer {
-        private final Buffer buffer;
-
-        SynchronizedBuffer() {
-            this.buffer = new Buffer();
-        }
+        private final Buffer buffer = new Buffer();
 
         synchronized void put(final byte[] src) {
-            if (src == null || src.length == 0) return;
+            if (src == null || src.length == 0)
+                return;
 
             if (debugging)
                 UsbSerialDebugger.printLogPut(src, true);

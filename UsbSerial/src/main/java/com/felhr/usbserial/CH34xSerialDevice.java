@@ -557,9 +557,9 @@ public class CH34xSerialDevice extends UsbSerialDevice {
                 if (rtsCtsEnabled) {
                     final boolean cts = pollForCTS();
                     if (ctsState != cts) {
-                        ctsState = !ctsState;
+                        ctsState = cts;
                         if (ctsCallback != null)
-                            ctsCallback.onCTSChanged(ctsState);
+                            ctsCallback.onCTSChanged(cts);
                     }
                 }
 
@@ -567,9 +567,9 @@ public class CH34xSerialDevice extends UsbSerialDevice {
                 if (dtrDsrEnabled) {
                     final boolean dsr = pollForDSR();
                     if (dsrState != dsr) {
-                        dsrState = !dsrState;
+                        dsrState = dsr;
                         if (dsrCallback != null)
-                            dsrCallback.onDSRChanged(dsrState);
+                            dsrCallback.onDSRChanged(dsr);
                     }
                 }
             } else {
