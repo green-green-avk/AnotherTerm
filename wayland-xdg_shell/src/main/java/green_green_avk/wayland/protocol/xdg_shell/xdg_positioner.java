@@ -109,8 +109,8 @@ public class xdg_positioner extends WlInterface<xdg_positioner.Requests, xdg_pos
          * <p>
          * Defines the anchor point for the anchor rectangle. The specified anchor
          * is used derive an anchor point that the child surface will be
-         * positioned relative to. If a corner anchor is set (e.g. 't{@code op_lef}t' or
-         * 'b{@code ottom_righ}t'), the anchor point will be at the specified corner;
+         * positioned relative to. If a corner anchor is set (e.g. '{@code top_left}' or
+         * '{@code bottom_right}'), the anchor point will be at the specified corner;
          * otherwise, the derived anchor point will be centered on the specified
          * edge, or in the center of the anchor rectangle if no edge is specified.
          *
@@ -124,7 +124,7 @@ public class xdg_positioner extends WlInterface<xdg_positioner.Requests, xdg_pos
          * <p>
          * Defines in what direction a surface should be positioned, relative to
          * the anchor point of the parent surface. If a corner gravity is
-         * specified (e.g. 'b{@code ottom_righ}t' or 't{@code op_lef}t'), then the child surface
+         * specified (e.g. '{@code bottom_right}' or '{@code top_left}'), then the child surface
          * will be placed towards the specified gravity; otherwise, the child
          * surface will be centered over the anchor point on any axis that had no
          * gravity specified. If the gravity is not in the ‘gravity’ enum, an

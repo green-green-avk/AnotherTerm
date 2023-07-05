@@ -150,15 +150,15 @@ public class wl_data_offer extends WlInterface<wl_data_offer.Requests, wl_data_o
          * argument must only contain one of those values set, otherwise it
          * will result in a protocol error.
          * <p>
-         * While managing an "ask" action, the destination drag-and-drop client
+         * While managing an "{@code ask}" action, the destination drag-and-drop client
          * may perform further {@code wl_data_offer.receive} requests, and is expected
          * to perform one last {@code wl_data_offer.set_actions} request with a preferred
-         * action other than "ask" (and optionally {@code wl_data_offer.accept}) before
+         * action other than "{@code ask}" (and optionally {@code wl_data_offer.accept}) before
          * requesting {@code wl_data_offer.finish}, in order to convey the action selected
          * by the user. If the preferred action is not in the
          * {@code wl_data_offer.source_actions} mask, an error will be raised.
          * <p>
-         * If the "ask" action is dismissed (e.g. user cancellation), the client
+         * If the "{@code ask}" action is dismissed (e.g. user cancellation), the client
          * is expected to perform {@code wl_data_offer.destroy} right away.
          * <p>
          * This request can only be made on drag-and-drop offers, a protocol error
@@ -212,7 +212,7 @@ public class wl_data_offer extends WlInterface<wl_data_offer.Requests, wl_data_o
          * This event will no longer be emitted after {@code wl_data_device.drop}
          * happened on the drag-and-drop destination, the client must
          * honor the last action received, or the last preferred one set
-         * through {@code wl_data_offer.set_actions} when handling an "ask" action.
+         * through {@code wl_data_offer.set_actions} when handling an "{@code ask}" action.
          * <p>
          * Compositors may also change the selected action on the fly, mainly
          * in response to keyboard modifier changes during the drag-and-drop
@@ -225,12 +225,12 @@ public class wl_data_offer extends WlInterface<wl_data_offer.Requests, wl_data_o
          * last action received.
          * <p>
          * Action changes may still happen after {@code wl_data_device.drop},
-         * especially on "ask" actions, where the drag-and-drop destination
+         * especially on "{@code ask}" actions, where the drag-and-drop destination
          * may choose another action afterwards. Action changes happening
          * at this stage are always the result of inter-client negotiation, the
          * compositor shall no longer be able to induce a different action.
          * <p>
-         * Upon "ask" actions, it is expected that the drag-and-drop destination
+         * Upon "{@code ask}" actions, it is expected that the drag-and-drop destination
          * may potentially choose a different action and/or mime type,
          * based on {@code wl_data_offer.source_actions} and finally chosen by the
          * user (e.g. popping up a menu with the available options). The

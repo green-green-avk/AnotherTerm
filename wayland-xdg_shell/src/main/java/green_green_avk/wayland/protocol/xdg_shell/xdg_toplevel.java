@@ -65,7 +65,7 @@ public class xdg_toplevel extends WlInterface<xdg_toplevel.Requests, xdg_topleve
          * destroy the {@code xdg_toplevel}
          * <p>
          * This request destroys the role surface and unmaps the surface;
-         * see "Unmapping" behavior in interface section for details.
+         * see "{@code Unmapping}" behavior in interface section for details.
          */
         @IMethod(0)
         @IDtor
@@ -74,11 +74,11 @@ public class xdg_toplevel extends WlInterface<xdg_toplevel.Requests, xdg_topleve
         /**
          * set the parent of this surface
          * <p>
-         * Set the "parent" of this surface. This surface should be stacked
+         * Set the "{@code parent}" of this surface. This surface should be stacked
          * above the parent surface and all other ancestor surfaces.
          * <p>
          * Parent surfaces should be set on dialogs, toolboxes, or other
-         * "auxiliary" surfaces, so that the parent is raised when the dialog
+         * "{@code auxiliary}" surfaces, so that the parent is raised when the dialog
          * is raised.
          * <p>
          * Setting a null parent for a child surface unsets its parent. Setting
@@ -131,8 +131,8 @@ public class xdg_toplevel extends WlInterface<xdg_toplevel.Requests, xdg_topleve
          * The compositor shell will try to group application surfaces together
          * by their app ID. As a best practice, it is suggested to select app
          * ID's that match the basename of the application's .desktop file.
-         * For example, "org.freedesktop.FooViewer" where the .desktop file is
-         * "org.freedesktop.FooViewer.desktop".
+         * For example, "{@code org.freedesktop.FooViewer}" where the .desktop file is
+         * "{@code org.freedesktop.FooViewer.desktop}".
          * <p>
          * Like other properties, a {@code set_app_id} request can be sent after the
          * {@code xdg_toplevel} has been mapped to update the property.
@@ -212,10 +212,10 @@ public class xdg_toplevel extends WlInterface<xdg_toplevel.Requests, xdg_topleve
          * the surface (e.g. fullscreen or maximized).
          * <p>
          * If triggered, the client will receive configure events with the
-         * "resize" state enum value and the expected sizes. See the "resize"
+         * "{@code resize}" state enum value and the expected sizes. See the "{@code resize}"
          * enum value for more details about what is required. The client
-         * must also acknowledge configure events using "a{@code ck_configur}e". After
-         * the resize is completed, the client will receive another "configure"
+         * must also acknowledge configure events using "{@code ack_configure}". After
+         * the resize is completed, the client will receive another "{@code configure}"
          * event without the resize state.
          * <p>
          * If triggered, the surface also will lose the focus of the device
@@ -345,7 +345,7 @@ public class xdg_toplevel extends WlInterface<xdg_toplevel.Requests, xdg_topleve
          * be used.
          * <p>
          * If the surface was already maximized, the compositor will still emit
-         * a configure event with the "maximized" state.
+         * a configure event with the "{@code maximized}" state.
          * <p>
          * If the surface is in a fullscreen state, this request has no direct
          * effect. It may alter the state the surface is returned to when
@@ -373,7 +373,7 @@ public class xdg_toplevel extends WlInterface<xdg_toplevel.Requests, xdg_topleve
          * applicable.
          * <p>
          * If the surface was already not maximized, the compositor will still
-         * emit a configure event without the "maximized" state.
+         * emit a configure event without the "{@code maximized}" state.
          * <p>
          * If the surface is in a fullscreen state, this request has no direct
          * effect. It may alter the state the surface is returned to when

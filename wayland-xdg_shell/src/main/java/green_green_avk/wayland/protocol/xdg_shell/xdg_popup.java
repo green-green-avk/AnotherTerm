@@ -72,7 +72,7 @@ public class xdg_popup extends WlInterface<xdg_popup.Requests, xdg_popup.Events>
          * This destroys the popup. Explicitly destroying the {@code xdg_popup}
          * object will also dismiss the popup, and unmap the surface.
          * <p>
-         * If this {@code xdg_popup} is not the "topmost" popup, a protocol error
+         * If this {@code xdg_popup} is not the "{@code topmost}" popup, a protocol error
          * will be sent.
          */
         @IMethod(0)
@@ -93,7 +93,7 @@ public class xdg_popup extends WlInterface<xdg_popup.Requests, xdg_popup.Events>
          * <p>
          * This request must be used in response to some sort of user action like a
          * button press, key press, or touch down event. The serial number of the
-         * event should be passed as 'serial'.
+         * event should be passed as '{@code serial}'.
          * <p>
          * The parent of a grabbing popup must either be an {@code xdg_toplevel} surface or
          * another {@code xdg_popup} with an explicit grab. If the parent is another

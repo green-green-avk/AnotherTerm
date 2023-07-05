@@ -115,7 +115,7 @@ public class xdg_wm_base extends WlInterface<xdg_wm_base.Requests, xdg_wm_base.E
          * <p>
          * The ping event asks the client if it's still alive. Pass the
          * serial specified in the event back to the compositor by sending
-         * a "pong" request back with the specified serial. See {@code xdg_wm_base.pong}.
+         * a "{@code pong}" request back with the specified serial. See {@code xdg_wm_base.pong}.
          * <p>
          * Compositors can use this to determine if the client is still
          * alive. It's unspecified what will happen if the client doesn't

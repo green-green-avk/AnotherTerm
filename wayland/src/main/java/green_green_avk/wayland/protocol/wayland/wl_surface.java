@@ -45,7 +45,7 @@ import green_green_avk.wayland.protocol_core.WlInterface;
  * coordinates of the pixel content, in case a {@code buffer_transform}
  * or a {@code buffer_scale} is used.
  * <p>
- * A surface without a "role" is fairly useless: a compositor does
+ * A surface without a "{@code role}" is fairly useless: a compositor does
  * not know where, when or how to present it. The role is the
  * purpose of a {@code wl_surface}. Examples of roles are a cursor for a
  * pointer (as set by {@code wl_pointer.set_cursor}), a drag icon
@@ -112,7 +112,7 @@ public class wl_surface extends WlInterface<wl_surface.Requests, wl_surface.Even
          * <p>
          * When the bound {@code wl_surface} version is 5 or higher, passing any
          * non-zero x or y is a protocol violation, and will result in an
-         * 'i{@code nvalid_offse}t' error being raised. To achieve equivalent semantics,
+         * '{@code invalid_offset}' error being raised. To achieve equivalent semantics,
          * use {@code wl_surface.offset}.
          * <p>
          * Surface contents are double-buffered state, see {@code wl_surface.commit}.
@@ -198,7 +198,7 @@ public class wl_surface extends WlInterface<wl_surface.Requests, wl_surface.Even
          * frame, by creating a frame callback. This is useful for throttling
          * redrawing operations, and driving animations.
          * <p>
-         * When a client is animating on a {@code wl_surface}, it can use the 'frame'
+         * When a client is animating on a {@code wl_surface}, it can use the '{@code frame}'
          * request to get notified when it is a good time to draw and commit the
          * next frame of animation. If the client commits an update earlier than
          * that, it is likely that some updates will not make it to the display,

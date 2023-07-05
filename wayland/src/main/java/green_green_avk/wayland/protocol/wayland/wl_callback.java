@@ -32,7 +32,7 @@ import green_green_avk.wayland.protocol_core.WlInterface;
 /**
  * callback object
  * <p>
- * Clients can handle the 'done' event to get notified when
+ * Clients can handle the '{@code done}' event to get notified when
  * the related request is done.
  */
 public class wl_callback extends WlInterface<wl_callback.Requests, wl_callback.Events> {

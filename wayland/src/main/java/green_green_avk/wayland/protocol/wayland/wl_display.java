@@ -45,7 +45,7 @@ public class wl_display extends WlInterface<wl_display.Requests, wl_display.Even
         /**
          * asynchronous roundtrip
          * <p>
-         * The sync request asks the server to emit the 'done' event
+         * The sync request asks the server to emit the '{@code done}' event
          * on the returned {@code wl_callback} object. Since requests are
          * handled in-order and events are delivered in-order, this can
          * be used as a barrier to ensure all previous requests and the

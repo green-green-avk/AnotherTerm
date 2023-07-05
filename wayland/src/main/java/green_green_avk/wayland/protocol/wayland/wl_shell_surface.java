@@ -139,17 +139,17 @@ public class wl_shell_surface extends WlInterface<wl_shell_surface.Requests, wl_
          * through the method parameter.
          * <p>
          * The framerate parameter is used only when the method is set
-         * to "driver", to indicate the preferred framerate. A value of 0
+         * to "{@code driver}", to indicate the preferred framerate. A value of 0
          * indicates that the client does not care about framerate. The
          * framerate is specified in mHz, that is framerate of 60000 is 60Hz.
          * <p>
-         * A method of "scale" or "driver" implies a scaling operation of
+         * A method of "{@code scale}" or "{@code driver}" implies a scaling operation of
          * the surface, either via a direct scaling operation or a change of
          * the output mode. This will override any kind of output scaling, so
          * that mapping a surface with a buffer size equal to the mode can
          * fill the screen independent of {@code buffer_scale}.
          * <p>
-         * A method of "fill" means we don't scale up the buffer, however
+         * A method of "{@code fill}" means we don't scale up the buffer, however
          * any output scale is applied. This means that you may run into
          * an edge case where the application maps a buffer with the same
          * size of the output mode but {@code buffer_scale} 1 (thus making a

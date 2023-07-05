@@ -94,7 +94,7 @@ public class wl_subsurface extends WlInterface<wl_subsurface.Requests, wl_subsur
          * <p>
          * The sub-surface interface is removed from the {@code wl_surface} object
          * that was turned into a sub-surface with a
-         * {@code wl_subcompositor.get_subsurface} request. The {@code wl_surfac}e's association
+         * {@code wl_subcompositor.get_subsurface} request. The {@code wl_surface}'s association
          * to the parent is deleted, and the {@code wl_surface} loses its role as
          * a sub-surface. The {@code wl_surface} is unmapped immediately.
          */

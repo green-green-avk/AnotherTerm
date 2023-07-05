@@ -179,11 +179,11 @@ public class wl_data_device extends WlInterface<wl_data_device.Requests, wl_data
          * <p>
          * The drag-and-drop destination is expected to honor the last action
          * received through {@code wl_data_offer.action}, if the resulting action is
-         * "copy" or "move", the destination can still perform
+         * "{@code copy}" or "{@code move}", the destination can still perform
          * {@code wl_data_offer.receive} requests, and is expected to end all
          * transfers with a {@code wl_data_offer.finish} request.
          * <p>
-         * If the resulting action is "ask", the action will not be considered
+         * If the resulting action is "{@code ask}", the action will not be considered
          * final. The drag-and-drop destination is expected to perform one last
          * {@code wl_data_offer.set_actions} request, or {@code wl_data_offer.destroy} in order
          * to cancel the operation.

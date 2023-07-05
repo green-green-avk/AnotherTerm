@@ -171,7 +171,7 @@ public class wl_data_source extends WlInterface<wl_data_source.Requests, wl_data
          * source, so the client is now free to destroy this data source and
          * free all associated data.
          * <p>
-         * If the action used to perform the operation was "move", the
+         * If the action used to perform the operation was "{@code move}", the
          * source can now delete the transferred data.
          */
         @IMethod(4)
@@ -192,7 +192,7 @@ public class wl_data_source extends WlInterface<wl_data_source.Requests, wl_data
          * <p>
          * It is only possible to receive this event after
          * {@code wl_data_source.dnd_drop_performed} if the drag-and-drop operation
-         * ended in an "ask" action, in which case the final {@code wl_data_source.action}
+         * ended in an "{@code ask}" action, in which case the final {@code wl_data_source.action}
          * event will happen immediately before {@code wl_data_source.dnd_finished}.
          * <p>
          * Compositors may also change the selected action on the fly, mainly
@@ -200,8 +200,8 @@ public class wl_data_source extends WlInterface<wl_data_source.Requests, wl_data
          * operation.
          * <p>
          * The most recent action received is always the valid one. The chosen
-         * action may change alongside negotiation (e.g. an "ask" action can turn
-         * into a "move" operation), so the effects of the final action must
+         * action may change alongside negotiation (e.g. an "{@code ask}" action can turn
+         * into a "{@code move}" operation), so the effects of the final action must
          * always be applied in {@code wl_data_offer.dnd_finished}.
          * <p>
          * Clients can trigger cursor surface changes from this point, so

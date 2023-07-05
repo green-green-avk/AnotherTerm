@@ -10,11 +10,9 @@ import xml.etree.ElementTree as ET
 class Context:
  pass
 
-
 class UIntType:
  def __init__(self, enum):
   self.enum = enum
-
 
 class IntType:
  pass
@@ -115,7 +113,6 @@ def asJava(p, pkg):
 
  fixNameRe_ = re.compile('[0-9].*|transient|static|volatile|final|private|protected|public|default')
  fixNameReName = re.compile('interface|class')
-
  def fixName(v):
   if fixNameReName.match(v):
    return v + 'Name'
@@ -130,7 +127,7 @@ def asJava(p, pkg):
   v = v.strip()
   v = re.sub(r' +', r' ', v)
   v = re.sub(r'^\s*$', r'<p>', v, flags=re.M)
-  v = re.sub(r'''(?<!['"])(?:(?:[a-z]\w*)?_\w*|[a-z]\w*[0-9]\w*)(?:\.\w+)*(?!['"])''',
+  v = re.sub(r'''(?:(?:[a-z]\w*)?_\w*|[a-z]\w*[0-9]\w*)(?:\.\w+)*|(?<=['"])\w+(?:\.\w+)*(?=['"])''',
              r'{@code \g<0>}', v)
   return v
 
