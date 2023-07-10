@@ -371,11 +371,12 @@ public class CP2102SerialDevice extends UsbSerialDevice {
     /*
         Thread to check every X time if flow signals CTS or DSR have been raised
     */
-    private class FlowControlThread extends AbstractWorkerThread {
+    private class FlowControlThread extends RepeatingThread {
         private static final long time = 40; // 40ms
+        private boolean firstTime = true;
 
         @Override
-        public void doRun() {
+        public void onRepeat() throws InterruptedException {
             if (!firstTime) { // Only execute the callback when the status change
                 final byte[] modemState = pollLines();
                 final byte[] commStatus = getCommStatus();
@@ -439,15 +440,8 @@ public class CP2102SerialDevice extends UsbSerialDevice {
             }
         }
 
-        private byte[] pollLines() {
-            synchronized (this) {
-                try {
-                    wait(time);
-                } catch (final InterruptedException e) {
-                    Thread.currentThread().interrupt();
-                }
-            }
-
+        private byte[] pollLines() throws InterruptedException {
+            Thread.sleep(time);
             return getModemState();
         }
     }
@@ -494,7 +488,7 @@ public class CP2102SerialDevice extends UsbSerialDevice {
 
     private void stopFlowControlThread() {
         if (flowControlThread != null) {
-            flowControlThread.stopThread();
+            flowControlThread.cancel();
             flowControlThread = null;
         }
     }

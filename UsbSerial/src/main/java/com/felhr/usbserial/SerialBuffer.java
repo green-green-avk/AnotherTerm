@@ -56,7 +56,7 @@ public class SerialBuffer {
         }
     }
 
-    public byte[] getWriteBuffer() {
+    public byte[] getWriteBuffer() throws InterruptedException {
         return writeBuffer.get();
     }
 
@@ -87,14 +87,9 @@ public class SerialBuffer {
             notify();
         }
 
-        synchronized byte[] get() {
-            if (buffer.size() == 0) {
-                try {
-                    wait();
-                } catch (final InterruptedException e) {
-                    Thread.currentThread().interrupt();
-                }
-            }
+        synchronized byte[] get() throws InterruptedException {
+            while (buffer.size() == 0)
+                wait();
             final byte[] dst;
             if (buffer.size() <= MAX_BULK_BUFFER) {
                 dst = buffer.readByteArray();
