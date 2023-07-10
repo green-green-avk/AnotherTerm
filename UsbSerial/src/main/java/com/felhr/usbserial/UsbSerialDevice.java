@@ -313,7 +313,7 @@ public abstract class UsbSerialDevice implements UsbSerialInterface {
     /*
      * WorkerThread waits for request notifications from IN endpoint
      */
-    protected class WorkerThread extends AbstractWorkerThread {
+    protected class WorkerThread extends RepeatingThread {
         private final UsbSerialDevice usbSerialDevice;
 
         private UsbReadCallback callback;
@@ -324,7 +324,7 @@ public abstract class UsbSerialDevice implements UsbSerialInterface {
         }
 
         @Override
-        public void doRun() {
+        public void onRepeat() {
             final UsbRequest request = connection.requestWait();
             if (request != null && request.getEndpoint().getType() == UsbConstants.USB_ENDPOINT_XFER_BULK
                     && request.getEndpoint().getDirection() == UsbConstants.USB_DIR_IN) {
@@ -367,11 +367,11 @@ public abstract class UsbSerialDevice implements UsbSerialInterface {
         }
     }
 
-    private class WriteThread extends AbstractWorkerThread {
+    private class WriteThread extends RepeatingThread {
         private UsbEndpoint outEndpoint;
 
         @Override
-        public void doRun() {
+        public void onRepeat() throws InterruptedException {
             final byte[] data = serialBuffer.getWriteBuffer();
             if (data.length > 0)
                 connection.bulkTransfer(outEndpoint, data, data.length, USB_TIMEOUT);
@@ -382,7 +382,7 @@ public abstract class UsbSerialDevice implements UsbSerialInterface {
         }
     }
 
-    protected class ReadThread extends AbstractWorkerThread {
+    protected class ReadThread extends RepeatingThread {
         private final UsbSerialDevice usbSerialDevice;
 
         private UsbReadCallback callback;
@@ -397,7 +397,7 @@ public abstract class UsbSerialDevice implements UsbSerialInterface {
         }
 
         @Override
-        public void doRun() {
+        public void onRepeat() {
             final int numberBytes;
             if (inEndpoint != null) {
                 numberBytes = connection.bulkTransfer(inEndpoint, serialBuffer.getBufferCompatible(),
@@ -452,10 +452,10 @@ public abstract class UsbSerialDevice implements UsbSerialInterface {
      */
     protected void killWorkingThread() {
         if (mr2Version && workerThread != null) {
-            workerThread.stopThread();
+            workerThread.cancel();
             workerThread = null;
         } else if (!mr2Version && readThread != null) {
-            readThread.stopThread();
+            readThread.cancel();
             readThread = null;
         }
     }
@@ -479,7 +479,7 @@ public abstract class UsbSerialDevice implements UsbSerialInterface {
 
     protected void killWriteThread() {
         if (writeThread != null) {
-            writeThread.stopThread();
+            writeThread.cancel();
             writeThread = null;
         }
     }

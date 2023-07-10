@@ -542,16 +542,17 @@ public class CH34xSerialDevice extends UsbSerialDevice {
 
     private void stopFlowControlThread() {
         if (flowControlThread != null) {
-            flowControlThread.stopThread();
+            flowControlThread.cancel();
             flowControlThread = null;
         }
     }
 
-    private class FlowControlThread extends AbstractWorkerThread {
+    private class FlowControlThread extends RepeatingThread {
         private static final long time = 100; // 100ms
+        private boolean firstTime = true;
 
         @Override
-        public void doRun() {
+        public void onRepeat() throws InterruptedException {
             if (!firstTime) {
                 // Check CTS status
                 if (rtsCtsEnabled) {
@@ -583,27 +584,13 @@ public class CH34xSerialDevice extends UsbSerialDevice {
             }
         }
 
-        public boolean pollForCTS() {
-            synchronized (this) {
-                try {
-                    wait(time);
-                } catch (final InterruptedException e) {
-                    Thread.currentThread().interrupt();
-                }
-            }
-
+        private boolean pollForCTS() throws InterruptedException {
+            Thread.sleep(time);
             return checkCTS();
         }
 
-        public boolean pollForDSR() {
-            synchronized (this) {
-                try {
-                    wait(time);
-                } catch (final InterruptedException e) {
-                    Thread.currentThread().interrupt();
-                }
-            }
-
+        private boolean pollForDSR() throws InterruptedException {
+            Thread.sleep(time);
             return checkDSR();
         }
     }

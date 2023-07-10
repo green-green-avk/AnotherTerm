@@ -78,11 +78,11 @@ public abstract class UsbSpiDevice implements UsbSpiInterface {
     @Override
     public abstract void closeSPI();
 
-    protected class WriteThread extends AbstractWorkerThread {
+    protected class WriteThread extends RepeatingThread {
         private UsbEndpoint outEndpoint;
 
         @Override
-        public void doRun() {
+        public void onRepeat() throws InterruptedException {
             final byte[] data = serialBuffer.getWriteBuffer();
             if (data.length > 0)
                 connection.bulkTransfer(outEndpoint, data, data.length, USB_TIMEOUT);
@@ -93,7 +93,7 @@ public abstract class UsbSpiDevice implements UsbSpiInterface {
         }
     }
 
-    protected class ReadThread extends AbstractWorkerThread {
+    protected class ReadThread extends RepeatingThread {
         private UsbMISOCallback misoCallback;
         private UsbEndpoint inEndpoint;
 
@@ -102,7 +102,7 @@ public abstract class UsbSpiDevice implements UsbSpiInterface {
         }
 
         @Override
-        public void doRun() {
+        public void onRepeat() {
             final int numberBytes;
             if (inEndpoint != null) {
                 numberBytes = connection.bulkTransfer(inEndpoint, serialBuffer.getBufferCompatible(),
@@ -139,7 +139,7 @@ public abstract class UsbSpiDevice implements UsbSpiInterface {
      */
     protected void killWorkingThread() {
         if (readThread != null) {
-            readThread.stopThread();
+            readThread.cancel();
             readThread = null;
         }
     }
@@ -156,7 +156,7 @@ public abstract class UsbSpiDevice implements UsbSpiInterface {
 
     protected void killWriteThread() {
         if (writeThread != null) {
-            writeThread.stopThread();
+            writeThread.cancel();
             writeThread = null;
         }
     }
