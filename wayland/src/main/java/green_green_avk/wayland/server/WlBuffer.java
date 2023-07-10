@@ -1,6 +1,10 @@
 package green_green_avk.wayland.server;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+
+import java.io.IOException;
+import java.nio.ByteBuffer;
 
 import green_green_avk.wayland.protocol.wayland.wl_buffer;
 import green_green_avk.wayland.protocol_core.WlInterface;
@@ -14,17 +18,37 @@ public final class WlBuffer extends wl_buffer {
     public final int stride;
     public final long format;
 
-    public boolean lock() {
-        locked = true;
-        return valid;
+    private int refsCount = 0;
+    private boolean valid = true;
+
+    /**
+     * To be called on the common events thread.
+     *
+     * @return underlying memory or {@code null} if already destroyed.
+     * @throws IOException if cannot obtain due to underlying OS.
+     */
+    @Nullable
+    public ByteBuffer lock() throws IOException {
+        if (!valid)
+            return null;
+        final ByteBuffer r = pool.lock();
+        if (r != null)
+            refsCount++;
+        return r;
     }
 
-    public void unlock() {
-        locked = false;
+    /**
+     * To be called on the common events thread.
+     *
+     * @return {@code true} if no more uses left.
+     */
+    public boolean unlock() {
+        pool.unlock();
+        refsCount--;
+        if (refsCount < 0)
+            throw new Error("Ouch!");
+        return refsCount == 0;
     }
-
-    private volatile boolean locked = false;
-    private volatile boolean valid = true;
 
     WlBuffer(@NonNull final WlShmPool pool, final int offset,
              final int width, final int height,

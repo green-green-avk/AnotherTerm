@@ -19,27 +19,29 @@ public final class WlShmPool extends wl_shm_pool {
     private final WlMmap mmap;
     private final Object mmapLock = new Object();
     @Nullable
-    private volatile FileDescriptor fd;
-    private volatile boolean fdExpired = false;
-    private volatile int size;
-    private volatile int newSize; // for delayed resize
-    public volatile ByteBuffer mem = null;
+    private FileDescriptor fd;
+    private boolean fdExpired = false;
+    private int size;
+    private int newSize; // for delayed resize
+    private ByteBuffer mem = null;
     private final Set<WlBuffer> buffers = Collections.newSetFromMap(new WeakHashMap<>());
-    private volatile int refsCount = 0;
+    private int refsCount = 0;
 
-    // thread safe
-    public void lock() throws IOException {
+    // thread-safe
+    @Nullable
+    public ByteBuffer lock() throws IOException {
         synchronized (mmapLock) {
-            refsCount++;
             if (mem == null) {
                 if (fd == null)
-                    throw new Error("Ouch!");
+                    return null;
                 mem = mmap.mmap(fd, size);
             }
+            refsCount++;
+            return mem;
         }
     }
 
-    // thread safe
+    // thread-safe
     public void unlock() {
         synchronized (mmapLock) {
             refsCount--;
@@ -94,10 +96,12 @@ public final class WlShmPool extends wl_shm_pool {
     }
 
     WlShmPool(@NonNull final WlMmap mmap, @NonNull final FileDescriptor fd, final int size) {
-        this.mmap = mmap;
-        this.fd = fd;
-        this.size = size;
-        this.newSize = size;
+        synchronized (mmapLock) {
+            this.mmap = mmap;
+            this.fd = fd;
+            this.size = size;
+            this.newSize = size;
+        }
     }
 
     @NonNull
@@ -121,6 +125,8 @@ public final class WlShmPool extends wl_shm_pool {
             @Override
             public void resize(final int size) {
                 synchronized (mmapLock) {
+                    if (size <= newSize)
+                        return;
                     newSize = size;
                     tryRemap();
                 }
@@ -138,10 +144,12 @@ public final class WlShmPool extends wl_shm_pool {
 
     @Override
     protected void finalize() throws Throwable {
-        if (mem != null)
-            mmap.munmap(mem);
-        if (fd != null)
-            mmap.close(fd);
+        synchronized (mmapLock) {
+            if (mem != null)
+                mmap.munmap(mem);
+            if (fd != null)
+                mmap.close(fd);
+        }
         super.finalize();
     }
 }

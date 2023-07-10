@@ -381,6 +381,7 @@ public final class WlTermServer {
         public void munmap(@NonNull final ByteBuffer mem) {
             try {
                 PtyProcess.munmap(PtyProcess.getAddress(mem), mem.capacity());
+                mem.limit(0);
             } catch (final IOException ignored) {
             }
         }
@@ -1029,44 +1030,60 @@ public final class WlTermServer {
             public void commit() {
                 if (wlRole != null && !wlRole.onBeforeCommit())
                     return;
-                hasPendingAttach = false;
-                if (surface != null && wlBuffer != null) {
-                    currentTransform.setTranslate(wlBufferOrigin.x, wlBufferOrigin.y);
-                    currentTransform.preScale(1f / scale, 1f / scale);
-                    preWlTransform(currentTransform, wlBuffer.width, wlBuffer.height,
-                            transform);
-                    currentDamage.set(wlSurfaceDamage);
-                    transformRegion(currentDamage, wlBuffer.width, wlBuffer.height,
-                            currentTransform);
-                    currentDamage.op(wlBufferDamage, Region.Op.UNION);
-                    try {
-                        wlBuffer.pool.lock();
-                    } catch (final IOException e) {
-                        throw new RuntimeException("Invalid pool descriptor: " + e.getMessage());
-                    }
-//                    if (BuildConfig.DEBUG)
-//                        Log.i(TAG, "Locked@" + wlBuffer.id);
-                    final WlBuffer wlBufferCurrent = wlBuffer;
+                if (surface != null) {
                     final NewId nextFrameCallbackCurrent = nextFrameCallback;
-                    surface.commit(wlBuffer.pool.mem, wlBuffer.offset,
-                            wlBuffer.width, wlBuffer.height, wlBuffer.stride,
-                            (int) wlBuffer.format, currentTransform, currentDamage,
-                            new GraphicsCompositor.OnSurfaceCommit() {
-                                @Override
-                                public void onBufferRelease() {
-                                    wlBufferCurrent.pool.unlock();
+                    if (wlBuffer != null) {
+                        currentTransform.setTranslate(wlBufferOrigin.x, wlBufferOrigin.y);
+                        currentTransform.preScale(1f / scale, 1f / scale);
+                        preWlTransform(currentTransform, wlBuffer.width, wlBuffer.height,
+                                transform);
+                        currentDamage.set(wlSurfaceDamage);
+                        transformRegion(currentDamage, wlBuffer.width, wlBuffer.height,
+                                currentTransform);
+                        currentDamage.op(wlBufferDamage, Region.Op.UNION);
+                        final ByteBuffer mem;
+                        try {
+                            mem = wlBuffer.lock();
+//                            if (BuildConfig.DEBUG)
+//                                Log.i(TAG, "Locked@" + wlBuffer.id);
+                        } catch (final IOException e) {
+                            throw new RuntimeException("Invalid pool descriptor: " + e.getMessage());
+                        }
+                        if (mem != null) {
+                            final WlBuffer wlBufferCurrent = wlBuffer;
+                            surface.commit(mem, wlBuffer.offset,
+                                    wlBuffer.width, wlBuffer.height, wlBuffer.stride,
+                                    (int) wlBuffer.format, currentTransform, currentDamage,
+                                    () -> {
+                                        wlHandler.post(() -> {
+                                            if (wlBufferCurrent.unlock())
+                                                wlBufferCurrent.events.release();
+                                        });
 //                                    if (BuildConfig.DEBUG)
 //                                        Log.i(TAG, "Unlocked@" + wlBufferCurrent.id);
-                                    wlHandler.post(wlBufferCurrent.events::release);
-                                }
-
-                                @Override
-                                public void onNextFrame() {
-                                    if (nextFrameCallbackCurrent != null)
-                                        wlHandler.post(() -> wlClient.returnCallback(nextFrameCallbackCurrent));
-                                }
+                                    },
+                                    () -> {
+                                        if (nextFrameCallbackCurrent != null)
+                                            wlHandler.post(() ->
+                                                    wlClient.returnCallback(nextFrameCallbackCurrent));
+                                    }
+                            );
+                        } else {
+                            surface.commit(() -> {
+                                if (nextFrameCallbackCurrent != null)
+                                    wlHandler.post(() ->
+                                            wlClient.returnCallback(nextFrameCallbackCurrent));
                             });
+                        }
+                    } else {
+                        surface.commit(() -> {
+                            if (nextFrameCallbackCurrent != null)
+                                wlHandler.post(() ->
+                                        wlClient.returnCallback(nextFrameCallbackCurrent));
+                        });
+                    }
                 }
+                hasPendingAttach = false;
                 wlBufferDamage.setEmpty();
                 wlSurfaceDamage.setEmpty();
                 nextFrameCallback = null;

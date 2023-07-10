@@ -26,12 +26,6 @@ public final class GraphicsCompositor {
     private static final KeyCharacterMap keyCharacterMap =
             KeyCharacterMap.load(KeyCharacterMap.VIRTUAL_KEYBOARD);
 
-    public interface OnSurfaceCommit {
-        void onBufferRelease();
-
-        void onNextFrame();
-    }
-
     public interface SurfaceSource {
         void onEnter();
 
@@ -251,6 +245,8 @@ public final class GraphicsCompositor {
         }
 
         /**
+         * Commits a new buffer.
+         *
          * @param buffer
          * @param offset
          * @param width
@@ -259,13 +255,15 @@ public final class GraphicsCompositor {
          * @param format          {@link wl_shm.Enums.Format} is used at the moment.
          * @param transform
          * @param damage
-         * @param onSurfaceCommit
+         * @param onBufferRelease
+         * @param onNextFrame
          */
         public void commit(@NonNull final ByteBuffer buffer, final int offset,
                            final int width, final int height, final int stride,
                            final int format, @NonNull final Matrix transform,
                            @NonNull final Region damage,
-                           @NonNull final OnSurfaceCommit onSurfaceCommit) {
+                           @NonNull final Runnable onBufferRelease,
+                           @Nullable final Runnable onNextFrame) {
             final Runnable __onReleaseBuffer;
             final Runnable __onNextFrame;
             synchronized (this) {
@@ -279,8 +277,8 @@ public final class GraphicsCompositor {
                 this.transform.postTranslate(-pendingHotspot.x, -pendingHotspot.y);
                 this.damage.set(damage.getBounds());
                 _isNextFrameRequested.set(true);
-                __onReleaseBuffer = _onReleaseBuffer.getAndSet(onSurfaceCommit::onBufferRelease);
-                __onNextFrame = _onNextFrame.getAndSet(onSurfaceCommit::onNextFrame);
+                __onReleaseBuffer = _onReleaseBuffer.getAndSet(onBufferRelease);
+                __onNextFrame = _onNextFrame.getAndSet(onNextFrame);
             }
             if (__onReleaseBuffer != null)
                 __onReleaseBuffer.run();
@@ -289,6 +287,38 @@ public final class GraphicsCompositor {
             final Sink sink = compositor.sink;
             if (sink != null)
                 sink.invalidateSurface(this);
+        }
+
+        /**
+         * Commits an empty buffer.
+         *
+         * @param onNextFrame
+         */
+        public void commit(@Nullable final Runnable onNextFrame) {
+            final Runnable __onReleaseBuffer;
+            final Runnable __onNextFrame;
+            synchronized (this) {
+                this.buffer = null;
+                this.offset = 0;
+                this.width = 0;
+                this.height = 0;
+                this.stride = 0;
+                this.format = wl_shm.Enums.Format.argb8888;
+                this.transform.reset();
+                this.damage.setEmpty();
+                _isNextFrameRequested.set(true);
+                __onReleaseBuffer = _onReleaseBuffer.getAndSet(null);
+                __onNextFrame = _onNextFrame.getAndSet(onNextFrame);
+            }
+            if (__onReleaseBuffer != null)
+                __onReleaseBuffer.run();
+            if (__onNextFrame != null)
+                __onNextFrame.run();
+            final Sink sink = compositor.sink;
+            if (sink != null) {
+                sink.destroySurface(this);
+                sink.invalidateSurface(this);
+            }
         }
 
         public void onReleaseBuffer() {
@@ -339,6 +369,12 @@ public final class GraphicsCompositor {
 
         private Surface(@NonNull final GraphicsCompositor compositor) {
             this.compositor = compositor;
+        }
+
+        @Override
+        protected void finalize() throws Throwable {
+            clean();
+            super.finalize();
         }
     }
 
