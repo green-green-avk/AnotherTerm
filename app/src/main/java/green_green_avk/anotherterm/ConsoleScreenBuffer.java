@@ -96,7 +96,7 @@ public final class ConsoleScreenBuffer {
         public int wrapPos = 0;
 
         public static int getAttrsLength(final int attrs) {
-            return (attrs & 0x80) == 0x80 ? 2 : 1;
+            return 1 + (attrs >>> 7 & 1);
         }
 
         public static int getAttrs(@NonNull final char[] attrs, final int i) {
@@ -111,7 +111,7 @@ public final class ConsoleScreenBuffer {
             while (n > 0) {
                 if (i >= attrs.length)
                     break;
-                i += 1 + (attrs[i] >>> 7 & 1);
+                i += getAttrsLength(attrs[i]);
                 n--;
             }
             return i;
@@ -122,8 +122,8 @@ public final class ConsoleScreenBuffer {
             int i = start;
             while (n > 0) {
                 if (i >= attrs.length)
-                    return i + (n) * getAttrsLength(defAttrs);
-                i += 1 + (attrs[i] >>> 7 & 1);
+                    return i + n * getAttrsLength(defAttrs);
+                i += getAttrsLength(attrs[i]);
                 n--;
             }
             return i;
@@ -133,8 +133,8 @@ public final class ConsoleScreenBuffer {
                                                int n) {
             int i = start;
             while (n > 0) {
-                final int d = 1 + (attrs[i] >>> 7 & 1);
-                if (i + d >= attrs.length || attrs[i + d] == 0xC0) // Exclude last no-op attribute.
+                final int d = getAttrsLength(attrs[i]);
+                if (i + d >= attrs.length || attrs[i + d] == 0xC0) // Exclude the last no-op attribute.
                     break;
                 i += d;
                 n--;
@@ -152,7 +152,7 @@ public final class ConsoleScreenBuffer {
                 attrs[start] = (char) v;
                 attrs[start + 1] = (char) (v >>> 16);
                 if ((end - start & 1) != 0) {
-                    attrs[end - 1] = 0xC0; // Mark as no-op if long attribute does not fit.
+                    attrs[end - 1] = 0xC0; // Mark as no-op if a long attribute does not fit.
                     Misc.repeatFill(attrs, start, end - 1, 2);
                 } else {
                     Misc.repeatFill(attrs, start, end, 2);
@@ -174,7 +174,7 @@ public final class ConsoleScreenBuffer {
             return this;
         }
 
-        private int adjustSize(final int size) {
+        private static int adjustSize(final int size) {
             return Integer.highestOneBit(size - 1) << 1;
         }
 
@@ -187,12 +187,22 @@ public final class ConsoleScreenBuffer {
             return text.length - size;
         }
 
+        // TODO: Refactor this crap!
+        private static int getAttrsLength(@NonNull final char[] attrs) {
+            int i = 0;
+            while (i < attrs.length && attrs[i] != 0xC0) {
+                i += getAttrsLength(attrs[i]);
+            }
+            return i;
+        }
+
         private int extendFgAttrs(final int plusSize, final int a) {
             final char[] attrs = fgAttrs;
             final int size = adjustSize(text.length + plusSize);
             final char[] nb = Arrays.copyOf(attrs, Math.min(size, MAX_ROW_MEM << 1));
+            final int oldSize = getAttrsLength(attrs);
             fillAttrs(attrs, 0);
-            fillAttrs(nb, attrs.length, nb.length, a);
+            fillAttrs(nb, oldSize, nb.length, a);
             fgAttrs = nb;
             return attrs.length - size;
         }
@@ -201,8 +211,9 @@ public final class ConsoleScreenBuffer {
             final char[] attrs = bgAttrs;
             final int size = adjustSize(text.length + plusSize);
             final char[] nb = Arrays.copyOf(attrs, Math.min(size, MAX_ROW_MEM << 1));
+            final int oldSize = getAttrsLength(attrs);
             fillAttrs(attrs, 0);
-            fillAttrs(nb, attrs.length, nb.length, a);
+            fillAttrs(nb, oldSize, nb.length, a);
             bgAttrs = nb;
             return attrs.length - size;
         }
