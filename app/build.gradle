@@ -210,7 +210,7 @@ See <https://developer.android.com/studio/write/java8-support#library-desugaring
     implementation project(path: ':jsch')
     implementation project(path: ':TelnetClient')
 
-    implementation 'com.github.green-green-avk:libusbmanager:1.10'
+    implementation 'com.github.green-green-avk:libusbmanager:1.11'
 
     implementation 'com.github.green-green-avk:anothertermshellpluginutils:1.18'
     implementation 'com.github.green-green-avk:anothertermshellpluginutils-side-application:1.2'
