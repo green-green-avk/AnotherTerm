@@ -55,17 +55,21 @@ android {
         }
     }
 
-    applicationVariants.all { variant ->
+    applicationVariants.configureEach { variant ->
         variant.resValue 'string', 'versionName', variant.versionName
         variant.resValue 'string', 'applicationId', variant.applicationId
         variant.buildConfigField 'int', 'TARGET_SDK_VERSION',
                 "$variant.mergedFlavor.targetSdkVersion.apiLevel"
     }
 
-    // TODO: Find some library-side approach...
-    // * Gradle + AGP looks crappy when used in even a bit irregular way...
-    // https://stackoverflow.com/questions/44731997/android-gradle-packagingoptions-pickfirst-and-exclude-not-working
     packagingOptions {
+        jniLibs {
+            useLegacyPackaging true
+        }
+
+        // TODO: Find some library-side approach...
+        // * Gradle + AGP looks crappy when used in even a bit irregular way...
+        // https://stackoverflow.com/questions/44731997/android-gradle-packagingoptions-pickfirst-and-exclude-not-working
         resources {
             excludes += ['org/bouncycastle/pqc/**', 'org/bouncycastle/x509/**']
         }
@@ -97,7 +101,7 @@ android {
         }
     }
 
-    flavorDimensions 'compat', 'versioning'
+    flavorDimensions += ['compat', 'versioning']
 
     productFlavors {
         versioned {
@@ -181,7 +185,7 @@ dependencies {
     implementation 'androidx.appcompat:appcompat:1.6.1'
     implementation 'androidx.vectordrawable:vectordrawable:1.1.0'
     implementation 'me.saket:better-link-movement-method:2.2.0'
-    implementation 'androidx.preference:preference:1.2.0'
+    implementation 'androidx.preference:preference:1.2.1'
     implementation 'androidx.asynclayoutinflater:asynclayoutinflater:1.0.0'
     implementation 'androidx.constraintlayout:constraintlayout:2.1.4'
     implementation 'com.google.android.flexbox:flexbox:3.0.0'
