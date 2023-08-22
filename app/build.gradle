@@ -24,7 +24,7 @@ android {
         minSdk 14
         targetSdk 31
         versionCode releaseVersionCode
-        versionName 'MkIV-dev48'
+        versionName 'MkIV-dev49-dev'
         vectorDrawables.useSupportLibrary = true
 
         resourceConfigurations += ['en']
