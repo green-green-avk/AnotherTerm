@@ -23,6 +23,7 @@ import green_green_avk.anotherterm.ui.ParameterViewBinder;
 import green_green_avk.anotherterm.ui.UiUtils;
 import green_green_avk.anotherterm.utils.ValueConsumer;
 import green_green_avk.anotherterm.utils.ValueProvider;
+import green_green_avk.anotherterm.whatsnew.WhatsNewDialog;
 
 public final class AnsiColorEditorActivity extends AppCompatActivity {
     private static final String DATA_KEY = "E_DATA";
@@ -161,6 +162,8 @@ public final class AnsiColorEditorActivity extends AppCompatActivity {
         }
 
         updateFields();
+
+        WhatsNewDialog.showUnseen(this);
     }
 
     @NonNull
