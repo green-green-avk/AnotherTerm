@@ -1,4 +1,4 @@
 /build
-/googleplay
-/oldgood
-/redist
+/googleplay*
+/oldgood*
+/redist*
