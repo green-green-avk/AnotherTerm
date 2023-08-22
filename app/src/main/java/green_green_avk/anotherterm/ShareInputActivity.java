@@ -25,6 +25,7 @@ import java.util.HashSet;
 import java.util.Set;
 
 import green_green_avk.anotherterm.backends.BackendException;
+import green_green_avk.anotherterm.ui.UiUtils;
 import green_green_avk.anotherterm.utils.HtmlUtils;
 import green_green_avk.anotherterm.utils.Misc;
 import green_green_avk.anotherterm.utils.PreferenceStorage;
@@ -226,6 +227,8 @@ public final class ShareInputActivity extends AppCompatActivity {
         prepareFavoritesList();
         observer.onChanged();
         WhatsNewDialog.showUnseen(this);
+        if (savedInstanceState == null)
+            UiUtils.checkStartPermissions(this);
     }
 
     @Override

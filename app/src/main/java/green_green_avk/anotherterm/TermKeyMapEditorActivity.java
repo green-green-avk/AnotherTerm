@@ -299,6 +299,8 @@ public final class TermKeyMapEditorActivity extends AppCompatActivity {
         }
 
         WhatsNewDialog.showUnseen(this);
+        if (savedInstanceState == null)
+            UiUtils.checkStartPermissions(this);
     }
 
     @NonNull

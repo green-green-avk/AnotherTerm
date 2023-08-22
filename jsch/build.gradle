@@ -13,7 +13,7 @@ android {
 
     defaultConfig {
         minSdk 14
-        targetSdk 31
+        targetSdk 33
 
         buildConfigField 'String', 'VERSION_NAME', "\"$libVersionName\""
 
