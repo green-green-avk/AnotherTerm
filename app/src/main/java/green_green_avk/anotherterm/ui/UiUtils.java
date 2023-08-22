@@ -1,5 +1,6 @@
 package green_green_avk.anotherterm.ui;
 
+import android.Manifest;
 import android.animation.LayoutTransition;
 import android.app.Activity;
 import android.app.Dialog;
@@ -11,6 +12,7 @@ import android.content.ClipboardManager;
 import android.content.Context;
 import android.content.ContextWrapper;
 import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.content.res.ColorStateList;
 import android.content.res.Resources;
 import android.graphics.drawable.Drawable;
@@ -60,6 +62,15 @@ import me.saket.bettermovementmethod.BetterLinkMovementMethod;
 
 public final class UiUtils {
     private UiUtils() {
+    }
+
+    public static void checkStartPermissions(@NonNull final Activity activity) {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU &&
+                activity.checkSelfPermission(Manifest.permission.POST_NOTIFICATIONS) !=
+                        PackageManager.PERMISSION_GRANTED) {
+            activity.requestPermissions(new String[]{Manifest.permission.POST_NOTIFICATIONS},
+                    0);
+        }
     }
 
     private static final String[] unitPrefixes = {"", "K", "M", "G", "T", "P", "E"};

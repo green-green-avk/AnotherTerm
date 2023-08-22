@@ -164,6 +164,8 @@ public final class AnsiColorEditorActivity extends AppCompatActivity {
         updateFields();
 
         WhatsNewDialog.showUnseen(this);
+        if (savedInstanceState == null)
+            UiUtils.checkStartPermissions(this);
     }
 
     @NonNull

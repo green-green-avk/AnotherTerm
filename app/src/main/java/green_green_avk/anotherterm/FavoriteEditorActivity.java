@@ -704,6 +704,7 @@ public final class FavoriteEditorActivity extends ExtAppCompatActivity {
                 Toast.makeText(this, R.string.msg_cannot_parse_uri, Toast.LENGTH_SHORT).show();
             }
             WhatsNewDialog.showUnseen(this);
+            UiUtils.checkStartPermissions(this);
             return;
         }
 

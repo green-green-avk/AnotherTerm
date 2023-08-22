@@ -190,6 +190,8 @@ public final class SessionsActivity extends AppCompatActivity {
         prepareSessionsList();
         observer.onChanged();
         WhatsNewDialog.showUnseen(this);
+        if (savedInstanceState == null)
+            UiUtils.checkStartPermissions(this);
     }
 
     @Override
