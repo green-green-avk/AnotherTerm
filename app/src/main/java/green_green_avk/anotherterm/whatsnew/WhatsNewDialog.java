@@ -34,7 +34,7 @@ public final class WhatsNewDialog {
 
     public static int getUnseen(@NonNull final Context ctx) {
         final SharedPreferences ps = PreferenceManager.getDefaultSharedPreferences(ctx);
-        final int ver = ps.getInt("news_seen_v", 0);
+        final int ver = ps.getInt("news_seen_v", BuildConfig.RELEASE_VERSION_CODE);
         int idx = 0;
         for (; idx < Info.news.length && Info.news[idx].version > ver; idx++) ;
         return idx;
