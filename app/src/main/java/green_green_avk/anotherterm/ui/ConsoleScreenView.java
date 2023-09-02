@@ -321,11 +321,8 @@ public class ConsoleScreenView extends ScrollableView
                             consoleInput.currScrBuf.getWidth(), v);
                     if (r < 0)
                         return new CharsFinder.LineView(emptyBuffer, true);
-                    final CharBuffer line = v.toBuffer();
-                    int i;
-                    for (i = line.length() - 1; i >= 0 && line.charAt(i) == ' '; i--) ;
-                    line.limit(line.position() + i + 1);
-                    return new CharsFinder.LineView(line,
+                    v.trimEnd();
+                    return new CharsFinder.LineView(v.toBuffer(),
                             consoleInput.currScrBuf.isLineWrapped(y));
                 }
 
@@ -1110,6 +1107,12 @@ public class ConsoleScreenView extends ScrollableView
         }
     }
 
+    private static void trimEnd(@NonNull final StringBuilder sb) {
+        int i = sb.length() - 1;
+        for (; i >= 0 && sb.charAt(i) == ' '; i--) ;
+        sb.setLength(i + 1);
+    }
+
     @CheckResult
     @Nullable
     public String getSelectedText() {
@@ -1122,30 +1125,40 @@ public class ConsoleScreenView extends ScrollableView
         if (s.first.y == s.last.y) {
             r = consoleInput.currScrBuf
                     .getChars(s.first.x, s.first.y, s.last.x - s.first.x + 1, v);
-            if (r >= 0)
-                sb.append(v.toString().trim());
+            if (r >= 0) {
+                v.trimEnd();
+                v.trimStart();
+                v.appendTo(sb);
+            }
         } else if (selection.isRectangular) {
             for (int y = s.first.y; y <= s.last.y - 1; y++) {
                 r = consoleInput.currScrBuf
                         .getChars(s.first.x, y, s.last.x - s.first.x + 1, v);
-                if (r >= 0)
-                    sb.append(v.toString().replaceAll(" *$", ""));
+                if (r >= 0) {
+                    v.trimEnd();
+                    v.appendTo(sb);
+                }
                 sb.append('\n');
             }
             r = consoleInput.currScrBuf
                     .getChars(s.first.x, s.last.y, s.last.x - s.first.x + 1, v);
-            if (r >= 0)
-                sb.append(v.toString().replaceAll(" *$", ""));
+            if (r >= 0) {
+                v.trimEnd();
+                v.appendTo(sb);
+            }
         } else {
             r = consoleInput.currScrBuf.getChars(s.first.x, s.first.y,
                     consoleInput.currScrBuf.getWidth() - s.first.x, v);
             if (consoleInput.currScrBuf.isLineWrapped(s.first.y)) {
                 if (r < 0)
                     return null;
-                sb.append(v);
+                v.appendTo(sb);
             } else {
-                if (r >= 0)
-                    sb.append(v.toString().replaceAll(" *$", ""));
+                if (r >= 0) {
+                    v.trimEnd();
+                    v.appendTo(sb);
+                    trimEnd(sb);
+                }
                 sb.append('\n');
             }
             for (int y = s.first.y + 1; y <= s.last.y - 1; y++) {
@@ -1154,16 +1167,22 @@ public class ConsoleScreenView extends ScrollableView
                 if (consoleInput.currScrBuf.isLineWrapped(y)) {
                     if (r < 0)
                         return null;
-                    sb.append(v);
+                    v.appendTo(sb);
                 } else {
-                    if (r >= 0)
-                        sb.append(v.toString().replaceAll(" *$", ""));
+                    if (r >= 0) {
+                        v.trimEnd();
+                        v.appendTo(sb);
+                        trimEnd(sb);
+                    }
                     sb.append('\n');
                 }
             }
             r = consoleInput.currScrBuf.getChars(0, s.last.y, s.last.x + 1, v);
-            if (r >= 0)
-                sb.append(v.toString().replaceAll(" *$", ""));
+            if (r >= 0) {
+                v.trimEnd();
+                v.appendTo(sb);
+                trimEnd(sb);
+            }
         }
         final String result = sb.toString();
         if (result.isEmpty())
