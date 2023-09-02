@@ -38,12 +38,22 @@ public final class ConsoleScreenBuffer {
         public int length = 0;
         public byte endXOff = 0;
 
-        public void reinit() {
-            text = EMPTY_BUF;
-            start = 0;
-            startXOff = 0;
-            length = 0;
-            endXOff = 0;
+        public void trimStart() {
+            int i = start;
+            final int end = i + length;
+            for (; i < end && text[i] == ' '; i++) ;
+            length = end - i;
+            start = i;
+        }
+
+        public void trimEnd() {
+            int i = start + length - 1;
+            for (; i >= start && text[i] == ' '; i--) ;
+            length = i + 1 - start;
+        }
+
+        public void appendTo(@NonNull final StringBuilder sb) {
+            sb.append(text, start, length);
         }
 
         @Override
