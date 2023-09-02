@@ -198,7 +198,7 @@ public final class ConsoleScreenBuffer {
 
         private int extendFgAttrs(final int plusSize, final int a) {
             final char[] attrs = fgAttrs;
-            final int size = adjustSize(text.length + plusSize);
+            final int size = adjustSize(attrs.length + plusSize);
             final char[] nb = Arrays.copyOf(attrs, Math.min(size, MAX_ROW_MEM << 1));
             final int oldSize = getAttrsLength(attrs);
             fillAttrs(attrs, 0);
@@ -209,7 +209,7 @@ public final class ConsoleScreenBuffer {
 
         private int extendBgAttrs(final int plusSize, final int a) {
             final char[] attrs = bgAttrs;
-            final int size = adjustSize(text.length + plusSize);
+            final int size = adjustSize(attrs.length + plusSize);
             final char[] nb = Arrays.copyOf(attrs, Math.min(size, MAX_ROW_MEM << 1));
             final int oldSize = getAttrsLength(attrs);
             fillAttrs(attrs, 0);
