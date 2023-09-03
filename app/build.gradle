@@ -4,7 +4,7 @@ plugins {
 }
 
 ext {
-    releaseVersionCode = 141
+    releaseVersionCode = 142
     actionExtrasInfo = 'name.retrofuturistic_corner.extras.INFO'
 }
 
@@ -24,7 +24,7 @@ android {
         minSdk 14
         targetSdk 33
         versionCode releaseVersionCode
-        versionName 'MkIV-dev50-dev'
+        versionName 'MkIV-dev50'
         vectorDrawables.useSupportLibrary = true
 
         resourceConfigurations += ['en']
