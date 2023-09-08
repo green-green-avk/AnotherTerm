@@ -416,7 +416,7 @@ public final class ConsoleScreenBuffer {
                 | (v.type == ConsoleScreenCharAttrs.Color.Type._8BIT ? 0x40 : 0);
     }
 
-    public static void decodeColor(@NonNull final ConsoleScreenCharAttrs.Color out, final int v) {
+    private static void decodeColor(@NonNull final ConsoleScreenCharAttrs.Color out, final int v) {
         if ((v & 0x80) != 0) {
             out.type = ConsoleScreenCharAttrs.Color.Type.TRUE;
             out.value = v >>> 8 | 0xFF000000;
