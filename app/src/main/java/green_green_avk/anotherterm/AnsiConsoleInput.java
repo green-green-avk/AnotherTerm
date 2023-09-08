@@ -178,6 +178,7 @@ public final class AnsiConsoleInput implements BytesSink {
         mOnInvalidateSink.remove(h);
     }
 
+    @Override
     public void invalidateSink() {
         for (final OnInvalidateSink h : mOnInvalidateSink) {
             h.onInvalidateSink(null);

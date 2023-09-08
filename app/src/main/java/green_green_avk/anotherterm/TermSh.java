@@ -874,7 +874,7 @@ public final class TermSh {
             final String msg = e.getMessage();
             if (msg == null)
                 return new IOException("Error getting content from " + uri);
-            if (msg.substring(0, 4).equalsIgnoreCase("http"))
+            if ("http".equalsIgnoreCase(msg.substring(0, 4)))
                 return new IOException("Error getting content from " + e.getMessage());
             return e;
         }
@@ -948,7 +948,8 @@ public final class TermSh {
             final Cursor c = ui.ctx.getContentResolver().query(uri,
                     new String[]{OpenableColumns.DISPLAY_NAME},
                     null, null, null);
-            if (c == null) return deduceName(uri);
+            if (c == null)
+                return deduceName(uri);
             try {
                 c.moveToFirst();
                 final int ci = c.getColumnIndex(OpenableColumns.DISPLAY_NAME);
@@ -1138,7 +1139,8 @@ public final class TermSh {
             });
             final Throwable e = shellCmd.waitFor(result, () ->
                     result.setIfIsNotSet(new IOException("Request terminated")));
-            if (e != null) throw new IOException(e.getMessage());
+            if (e != null)
+                throw new IOException(e.getMessage());
         }
 
         @SuppressLint("StaticFieldLeak")
@@ -1167,7 +1169,8 @@ public final class TermSh {
                 }
                 try {
                     exitStatus = 0;
-                    if (shellCmd.args.length < 1) throw new ArgsException("No command specified");
+                    if (shellCmd.args.length < 1)
+                        throw new ArgsException("No command specified");
                     final String command = Misc.fromUTF8(shellCmd.args[0]);
                     switch (command) {
                         case "help":
@@ -1198,7 +1201,8 @@ public final class TermSh {
                                     String m = "";
                                     while (true) {
                                         ui.postUserNotification(m, id);
-                                        if (reader.read(buf) < 0) break;
+                                        if (reader.read(buf) < 0)
+                                            break;
                                         if (buf.remaining() < 2) { // TODO: correct
                                             buf.position(buf.limit() / 2);
                                             buf.compact();
@@ -1275,7 +1279,8 @@ public final class TermSh {
                                     case 0: {
                                         final BlockingSync<Object> result = new BlockingSync<>();
                                         String mime = (String) opts.get("mime");
-                                        if (mime == null) mime = "*/*";
+                                        if (mime == null)
+                                            mime = "*/*";
                                         final Uri uri = StreamProvider.obtainUri(shellCmd.stdIn,
                                                 mime,
                                                 (String) opts.get("name"),
@@ -1349,7 +1354,7 @@ public final class TermSh {
                                         i.setComponent(ComponentName.unflattenFromString(recipient));
                                     ci = i;
                                 }
-                                if (opts.containsKey("notify"))
+                                if (opts.containsKey("notify")) {
                                     RequesterActivity.showAsNotification(ui.ctx,
                                             ci,
                                             ui.ctx.getString(R.string.title_shell_of_s_script_notification_,
@@ -1357,7 +1362,7 @@ public final class TermSh {
                                             prompt + " (" + filename + ")",
                                             NOTIFICATION_CHANNEL_ID,
                                             NotificationCompat.PRIORITY_HIGH);
-                                else {
+                                } else {
                                     shellCmd.waitForGuiWithNotification(ui);
                                     ui.ctx.startActivity(ci);
                                 }
@@ -1483,7 +1488,7 @@ public final class TermSh {
                                 IntentUtils.putSpaceListExtraIfSet(intent, Intent.EXTRA_BCC,
                                         (String) opts.get("email-bcc"));
                                 intent.setType(aggregateMime.isSet ? aggregateMime.get() : mimeType);
-                                if (opts.containsKey("notify"))
+                                if (opts.containsKey("notify")) {
                                     RequesterActivity.showAsNotification(ui.ctx,
                                             Intent.createChooser(intent, prompt),
                                             ui.ctx.getString(R.string.title_shell_of_s_script_notification_,
@@ -1492,7 +1497,7 @@ public final class TermSh {
                                                     " (" + TextUtils.join(", ", titles) + ")",
                                             NOTIFICATION_CHANNEL_ID,
                                             NotificationCompat.PRIORITY_HIGH);
-                                else {
+                                } else {
                                     shellCmd.waitForGuiWithNotification(ui);
                                     ui.ctx.startActivity(Intent.createChooser(intent, prompt)
                                             .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK));
@@ -1509,9 +1514,11 @@ public final class TermSh {
                             ap.skip();
                             final Map<String, ?> opts = ap.parse(PICK_OPTS);
                             String mime = (String) opts.get("mime");
-                            if (mime == null) mime = "*/*";
+                            if (mime == null)
+                                mime = "*/*";
                             String prompt = (String) opts.get("prompt");
-                            if (prompt == null) prompt = ui.ctx.getString(R.string.msg_pick_source);
+                            if (prompt == null)
+                                prompt = ui.ctx.getString(R.string.msg_pick_source);
 
                             OutputStream output;
                             final ChrootedFile outputFile;
@@ -1552,18 +1559,21 @@ public final class TermSh {
                                     .addCategory(Intent.CATEGORY_OPENABLE).setType(mime);
                             final RequesterActivity.OnResult onResult = r::setIfIsNotSet;
                             final RequesterActivity.Request request;
-                            if (opts.containsKey("notify"))
-                                request = RequesterActivity.request(
-                                        ui.ctx, Intent.createChooser(i, prompt), onResult,
+                            if (opts.containsKey("notify")) {
+                                request = RequesterActivity.request(ui.ctx,
+                                        Intent.createChooser(i, prompt),
+                                        onResult,
                                         ui.ctx.getString(R.string.title_shell_of_s_script_notification_,
                                                 ui.ctx.getString(R.string.app_name)),
-                                        prompt, NOTIFICATION_CHANNEL_ID,
+                                        prompt,
+                                        NOTIFICATION_CHANNEL_ID,
                                         NotificationCompat.PRIORITY_HIGH);
-                            else {
+                            } else {
                                 try {
                                     shellCmd.waitForGuiWithNotification(ui);
-                                    request = RequesterActivity.request(
-                                            ui.ctx, Intent.createChooser(i, prompt), onResult);
+                                    request = RequesterActivity.request(ui.ctx,
+                                            Intent.createChooser(i, prompt),
+                                            onResult);
                                 } catch (final Throwable e) {
                                     r.setIfIsNotSet(null);
                                     throw e;

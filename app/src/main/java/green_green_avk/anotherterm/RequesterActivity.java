@@ -31,6 +31,7 @@ public final class RequesterActivity extends AppCompatActivity {
 
     private static final class RequestData {
         private final int id;
+        @Nullable
         private final OnResult onResult;
         private final boolean cancelOnClose;
 
@@ -43,6 +44,7 @@ public final class RequesterActivity extends AppCompatActivity {
     }
 
     public static final class Request {
+        @Nullable
         private Context ctx;
         private final int id;
 
@@ -64,6 +66,7 @@ public final class RequesterActivity extends AppCompatActivity {
 
     private static final SparseArray<RequestData> requests = new SparseArray<>();
 
+    @NonNull
     private static Intent makeOwnIntent(@NonNull final Context ctx,
                                         final int id,
                                         @NonNull final Intent request) {
@@ -74,6 +77,7 @@ public final class RequesterActivity extends AppCompatActivity {
         return i;
     }
 
+    @NonNull
     private static PendingIntent makeOwnPendingIntent(@NonNull final Context ctx,
                                                       @NonNull final Intent ownIntent) {
         return PendingIntent.getActivity(ctx,
@@ -83,12 +87,13 @@ public final class RequesterActivity extends AppCompatActivity {
                 PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_IMMUTABLE);
     }
 
+    @NonNull
     private static Notification makeOwnNotification(@NonNull final Context ctx,
                                                     final String channelId,
                                                     final int priority,
                                                     @NonNull final Intent ownIntent,
-                                                    @NonNull final String title,
-                                                    @NonNull final String message) {
+                                                    @NonNull final CharSequence title,
+                                                    @NonNull final CharSequence message) {
         final Intent rmIntent = new Intent(ownIntent);
         rmIntent.setAction(C.IFK_ACTION_CANCEL);
         return new NotificationCompat.Builder(ctx, channelId)
@@ -108,9 +113,8 @@ public final class RequesterActivity extends AppCompatActivity {
 
     private static void returnResult(final int id, @Nullable final Intent data) {
         final RequestData rd = requests.get(id);
-        if (rd != null) {
-            if (rd.onResult != null) rd.onResult.onResult(data);
-        }
+        if (rd != null && rd.onResult != null)
+            rd.onResult.onResult(data);
     }
 
     private static boolean shouldCancelOnClose(final int id) {
@@ -119,8 +123,8 @@ public final class RequesterActivity extends AppCompatActivity {
     }
 
     public static void showAsNotification(@NonNull final Context ctx, @NonNull final Intent intent,
-                                          @NonNull final String title,
-                                          @NonNull final String message,
+                                          @NonNull final CharSequence title,
+                                          @NonNull final CharSequence message,
                                           @NonNull final String channelId,
                                           final int priority) {
         final int id = obtainId();
@@ -136,6 +140,7 @@ public final class RequesterActivity extends AppCompatActivity {
         });
     }
 
+    @NonNull
     public static Request request(@NonNull final Context ctx, @NonNull final Intent intent,
                                   @Nullable final OnResult onResult) {
         final int id = obtainId();
@@ -147,10 +152,11 @@ public final class RequesterActivity extends AppCompatActivity {
         return new Request(ctx, id);
     }
 
+    @NonNull
     public static Request request(@NonNull final Context ctx, @NonNull final Intent intent,
                                   @Nullable final OnResult onResult,
-                                  @NonNull final String title,
-                                  @NonNull final String message,
+                                  @NonNull final CharSequence title,
+                                  @NonNull final CharSequence message,
                                   @Nullable final String channelId,
                                   final int priority) {
         final int id = obtainId();
@@ -165,7 +171,8 @@ public final class RequesterActivity extends AppCompatActivity {
 
     private void processIntent(@Nullable final Intent ownIntent, final boolean close) {
         if (ownIntent == null || !ownIntent.hasExtra(C.IFK_MSG_ID)) {
-            if (close) finish();
+            if (close)
+                finish();
             return;
         }
         final int id = ownIntent.getIntExtra(C.IFK_MSG_ID, 0);
@@ -173,14 +180,15 @@ public final class RequesterActivity extends AppCompatActivity {
         if (C.IFK_ACTION_CANCEL.equals(ownIntent.getAction()) || intent == null) {
             returnResult(id, null);
             removeRequest(getApplicationContext(), id);
-            if (close) finish();
+            if (close)
+                finish();
             return;
         }
         startActivityForResult(intent, id);
     }
 
     @Override
-    protected void onCreate(final Bundle savedInstanceState) {
+    protected void onCreate(@Nullable final Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         processIntent(getIntent(), true);
     }

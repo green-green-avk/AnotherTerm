@@ -27,7 +27,7 @@ public final class FontsManager {
     private static final String ITALIC_FONT_NAME = "italic";
     private static final String BOLD_ITALIC_FONT_NAME = "bold-italic";
 
-    public static final String LOCATION_DESC = "$DATA_DIR/" + CONSOLE_FONT_DIRNAME + "/{" +
+    public static final CharSequence LOCATION_DESC = "$DATA_DIR/" + CONSOLE_FONT_DIRNAME + "/{" +
             REGULAR_FONT_NAME + "," + BOLD_FONT_NAME + "," + ITALIC_FONT_NAME + "," +
             BOLD_ITALIC_FONT_NAME + "}";
 

@@ -22,6 +22,7 @@ public class ConsoleScreenSelection {
         inv = o;
     }
 
+    @NonNull
     public ConsoleScreenSelection getDirect() {
         if (last.y < first.y || last.y == first.y && last.x < first.x) {
             inv.isRectangular = isRectangular;

@@ -86,8 +86,10 @@ public final class CustomFontsFragment extends Fragment {
             wUnset.setVisibility(canBeRemoved ? View.VISIBLE : View.INVISIBLE);
             wUnset.setOnClickListener(v -> {
                 if (position == 0)
-                    for (final File f : FontsManager.getConsoleFontFiles()) f.delete();
-                else FontsManager.getConsoleFontFiles()[position].delete();
+                    for (final File f : FontsManager.getConsoleFontFiles())
+                        f.delete();
+                else
+                    FontsManager.getConsoleFontFiles()[position].delete();
                 refresh();
             });
         }
@@ -162,19 +164,20 @@ public final class CustomFontsFragment extends Fragment {
             onFontPicked(requestCode - IDS_OFFSET_FONT, data.getData());
     }
 
+    @Nullable
     @Override
-    public View onCreateView(final LayoutInflater inflater, final ViewGroup container,
+    public View onCreateView(final LayoutInflater inflater, @Nullable final ViewGroup container,
                              final Bundle savedInstanceState) {
-        final View v = inflater.inflate(R.layout.custom_fonts_fragment,
+        final View wRoot = inflater.inflate(R.layout.custom_fonts_fragment,
                 container, false);
-        final TextView wLocation = v.findViewById(R.id.location);
-        final RecyclerView wFont = v.findViewById(R.id.font);
-        final CompoundButton wUse = v.findViewById(R.id.use);
+        final TextView wLocation = wRoot.findViewById(R.id.location);
+        final RecyclerView wFont = wRoot.findViewById(R.id.font);
+        final CompoundButton wUse = wRoot.findViewById(R.id.use);
         final Adapter a = new Adapter();
         wFont.setAdapter(a);
         adapter = a;
         final SharedPreferences appSP = PreferenceManager.getDefaultSharedPreferences(
-                container.getContext().getApplicationContext());
+                inflater.getContext().getApplicationContext());
         wUse.setChecked(((App) getActivity().getApplication()).settings
                 .terminal_font_default_fromfiles);
         wUse.setOnCheckedChangeListener((buttonView, isChecked) -> {
@@ -183,6 +186,6 @@ public final class CustomFontsFragment extends Fragment {
             spe.apply();
         });
         wLocation.setText(FontsManager.LOCATION_DESC);
-        return v;
+        return wRoot;
     }
 }
