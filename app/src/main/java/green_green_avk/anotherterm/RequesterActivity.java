@@ -45,20 +45,20 @@ public final class RequesterActivity extends AppCompatActivity {
 
     public static final class Request {
         @Nullable
-        private Context ctx;
+        private Context appCtx;
         private final int id;
 
         private Request(@NonNull final Context ctx, final int id) {
-            this.ctx = ctx;
+            this.appCtx = ctx.getApplicationContext();
             this.id = id;
         }
 
         public void cancel() {
             new Handler(Looper.getMainLooper()).post(() -> {
-                if (ctx != null) {
+                if (appCtx != null) {
                     returnResult(id, null);
-                    removeRequest(ctx, id);
-                    ctx = null;
+                    removeRequest(appCtx, id);
+                    appCtx = null;
                 }
             });
         }
