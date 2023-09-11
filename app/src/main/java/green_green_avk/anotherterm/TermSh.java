@@ -659,15 +659,20 @@ public final class TermSh {
                     throws IOException, ParseException {
                 /*
                  * It seems socket_read() contains a bug with exception throwing, see:
-                 * https://android.googlesource.com/platform/frameworks/base/+/master/core/jni/android_net_LocalSocketImpl.cpp
+                 * https://android.googlesource.com/platform/frameworks/base/+/a1ae227bc289c9df8fdcfe586c209d33a1a35f09/core/jni/android_net_LocalSocketImpl.cpp
                  * https://issuetracker.google.com/u/0/issues/156599236
+                 *
+                 * Possible W/A:
+                 * final byte[] argc_b = new byte[1];
+                 * final int r = is.read(argc_b);
+                 * final int argc = r != 1 ? -1 : argc_b[0];
+                 *
+                 * Fixed since android-13.0.0_r1 by:
+                 * https://android.googlesource.com/platform/frameworks/base/+/e6cf914c3fea45d237e40c675ff20dea812d699d%5E%21/core/jni/android_net_LocalSocketImpl.cpp
+                 * Review:
+                 * https://android-review.googlesource.com/c/platform/frameworks/base/+/2096720
+                 * Not back-ported to the previous versions.
                  */
-                /*
-                Possible W/A:
-                final byte[] argc_b = new byte[1];
-                final int r = is.read(argc_b);
-                final int argc = r != 1 ? -1 : argc_b[0];
-                */
                 final int argc = is.read();
                 if (argc <= 0) {
                     return NOARGS;
