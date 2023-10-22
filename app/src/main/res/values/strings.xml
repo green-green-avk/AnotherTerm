@@ -298,6 +298,7 @@
     <string name="label_use_for_copy_share">Use for copy/share</string>
     <string name="summary_if_data_size_is_gte">if data size is ≥</string>
     <string name="title_empty">Empty</string>
+    <string name="action_pick_content">Pick</string>
     <string name="action_share_with_new_session">Share with a newly created session</string>
     <string name="desc_share_input">Choose a session type to start to share with:</string>
     <string name="action_open_in_new_session">Open in a newly created session</string>
