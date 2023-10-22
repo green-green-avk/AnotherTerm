@@ -250,8 +250,11 @@
 
         <activity
             android:name=".RequesterActivity"
+            android:excludeFromRecents="true"
             android:exported="false"
-            android:label="Select" />
+            android:label="@string/action_pick_content"
+            android:launchMode="singleTask"
+            android:taskAffinity="${namespace}.picker" />
 
         <activity
             android:name=".AboutActivity"

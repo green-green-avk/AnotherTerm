@@ -74,6 +74,7 @@ public final class RequesterActivity extends AppCompatActivity {
         i.setAction(C.IFK_ACTION_NEW);
         i.putExtra(C.IFK_MSG_ID, id);
         i.putExtra(C.IFK_MSG_INTENT, request);
+        i.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
         return i;
     }
 
@@ -82,8 +83,7 @@ public final class RequesterActivity extends AppCompatActivity {
                                                       @NonNull final Intent ownIntent) {
         return PendingIntent.getActivity(ctx,
                 ownIntent.getIntExtra(C.IFK_MSG_ID, 0),
-                ownIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK
-                        | Intent.FLAG_ACTIVITY_MULTIPLE_TASK),
+                ownIntent,
                 PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_IMMUTABLE);
     }
 
@@ -99,7 +99,7 @@ public final class RequesterActivity extends AppCompatActivity {
         return new NotificationCompat.Builder(ctx, channelId)
                 .setContentTitle(title)
                 .setContentText(message)
-                .setSmallIcon(R.drawable.ic_stat_serv)
+                .setSmallIcon(R.drawable.ic_stat_question)
                 .setPriority(priority)
                 .setContentIntent(makeOwnPendingIntent(ctx, ownIntent))
                 .setDeleteIntent(makeOwnPendingIntent(ctx, rmIntent))
@@ -132,7 +132,7 @@ public final class RequesterActivity extends AppCompatActivity {
             final Notification n = new NotificationCompat.Builder(ctx, channelId)
                     .setContentTitle(title)
                     .setContentText(message)
-                    .setSmallIcon(R.drawable.ic_stat_serv)
+                    .setSmallIcon(R.drawable.ic_stat_question)
                     .setPriority(priority)
                     .setContentIntent(makeOwnPendingIntent(ctx, intent))
                     .build();
@@ -142,61 +142,48 @@ public final class RequesterActivity extends AppCompatActivity {
 
     @NonNull
     public static Request request(@NonNull final Context ctx, @NonNull final Intent intent,
-                                  @Nullable final OnResult onResult) {
-        final int id = obtainId();
-        new Handler(Looper.getMainLooper()).post(() -> {
-            requests.append(id, new RequestData(id, onResult, true));
-            ctx.startActivity(makeOwnIntent(ctx, id, intent)
-                    .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK));
-        });
-        return new Request(ctx, id);
-    }
-
-    @NonNull
-    public static Request request(@NonNull final Context ctx, @NonNull final Intent intent,
                                   @Nullable final OnResult onResult,
                                   @NonNull final CharSequence title,
                                   @NonNull final CharSequence message,
                                   @Nullable final String channelId,
-                                  final int priority) {
+                                  final int priority,
+                                  final boolean immediate) {
         final int id = obtainId();
         new Handler(Looper.getMainLooper()).post(() -> {
-            requests.append(id, new RequestData(id, onResult, false));
+            requests.append(id, new RequestData(id, onResult, immediate));
             final Notification n = makeOwnNotification(ctx, channelId, priority,
                     makeOwnIntent(ctx, id, intent), title, message);
             NotificationManagerCompat.from(ctx).notify(C.REQUEST_USER_TAG, id, n);
+            if (immediate) {
+                ctx.startActivity(makeOwnIntent(ctx, id, intent));
+            }
         });
         return new Request(ctx, id);
     }
 
-    private void processIntent(@Nullable final Intent ownIntent, final boolean close) {
+    private int ownRequestCode = -1;
+    private boolean restarted = false;
+    private Runnable toResult = null;
+
+    private void processIntent(@Nullable final Intent ownIntent) {
         if (ownIntent == null || !ownIntent.hasExtra(C.IFK_MSG_ID)) {
-            if (close)
-                finish();
+            finish();
             return;
         }
         final int id = ownIntent.getIntExtra(C.IFK_MSG_ID, 0);
+        ownRequestCode = id;
         final Intent intent = ownIntent.getParcelableExtra(C.IFK_MSG_INTENT);
         if (C.IFK_ACTION_CANCEL.equals(ownIntent.getAction()) || intent == null) {
             returnResult(id, null);
             removeRequest(getApplicationContext(), id);
-            if (close)
-                finish();
+            finish();
             return;
         }
         startActivityForResult(intent, id);
     }
 
-    @Override
-    protected void onCreate(@Nullable final Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        processIntent(getIntent(), true);
-    }
-
-    @Override
-    protected void onActivityResult(final int requestCode, final int resultCode,
-                                    @Nullable final Intent data) {
-        super.onActivityResult(requestCode, resultCode, data);
+    private void processResult(final int requestCode, final int resultCode,
+                               @Nullable final Intent data) {
         if (resultCode == RESULT_OK) {
             returnResult(requestCode, data);
             removeRequest(getApplicationContext(), requestCode);
@@ -204,6 +191,45 @@ public final class RequesterActivity extends AppCompatActivity {
             returnResult(requestCode, null);
             removeRequest(getApplicationContext(), requestCode);
         }
-        finish();
+    }
+
+    @Override
+    protected void onNewIntent(final Intent intent) {
+        super.onNewIntent(intent);
+        setIntent(intent);
+        restarted = true;
+        finishActivity(ownRequestCode);
+        processIntent(getIntent());
+    }
+
+    @Override
+    protected void onCreate(@Nullable final Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        if (savedInstanceState == null) {
+            processIntent(getIntent());
+        }
+    }
+
+    @Override
+    protected void onActivityResult(final int requestCode, final int resultCode,
+                                    @Nullable final Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        // At least, some frameworks automatically cancel the started-for-result activity
+        // and call this method before `onNewIntent()` with `resultCode` = `RESULT_CANCELED`
+        // thus the decision must be postponed.
+        toResult = () -> {
+            processResult(requestCode, resultCode, data);
+            finish();
+        };
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        if (!restarted && toResult != null) {
+            toResult.run();
+        }
+        restarted = false;
+        toResult = null;
     }
 }

@@ -145,7 +145,7 @@ public final class TermSh {
                 final Notification n = new NotificationCompat.Builder(
                         ctx.getApplicationContext(), NOTIFICATION_CHANNEL_ID)
                         .setContentTitle(message)
-                        .setSmallIcon(R.drawable.ic_stat_serv)
+                        .setSmallIcon(R.drawable.ic_stat_question)
                         .setPriority(NotificationCompat.PRIORITY_HIGH)
                         .setAutoCancel(true)
                         .setContentIntent(PendingIntent.getActivity(ctx, 0,
@@ -192,7 +192,7 @@ public final class TermSh {
                 final Notification n = new NotificationCompat.Builder(
                         ctx.getApplicationContext(), NOTIFICATION_CHANNEL_ID)
                         .setContentTitle(message)
-                        .setSmallIcon(R.drawable.ic_stat_serv)
+                        .setSmallIcon(R.drawable.ic_stat_question)
                         .setPriority(NotificationCompat.PRIORITY_HIGH)
                         .setAutoCancel(true)
                         .build();
@@ -202,6 +202,20 @@ public final class TermSh {
 
         private void removeUserNotification(final int id) {
             handler.post(() -> NotificationManagerCompat.from(ctx).cancel(C.TERMSH_USER_TAG, id));
+        }
+
+        @Nullable
+        private CharSequence getSessionTitle(final int key) throws InterruptedException {
+            final BlockingSync<CharSequence> r = new BlockingSync<>();
+            handler.post(() -> {
+                try {
+                    r.set(ConsoleService.getAnsiSession(key).getTitle());
+                } catch (final NoSuchElementException ignored) {
+                } finally {
+                    r.setIfIsNotSet(null);
+                }
+            });
+            return r.get();
         }
     }
 
@@ -836,6 +850,25 @@ public final class TermSh {
                 return gui;
             }
 
+            @Nullable
+            private CharSequence getSessionTitle(@NonNull final UiBridge ui)
+                    throws InterruptedException {
+                try {
+                    return ui.getSessionTitle(getGui().getSessionKey());
+                } catch (final ShellUiException e) {
+                    return null;
+                }
+            }
+
+            @NonNull
+            private CharSequence getScriptSource(@NonNull final UiBridge ui)
+                    throws InterruptedException {
+                final CharSequence r = getSessionTitle(ui);
+                if (r != null)
+                    return r;
+                return "-";
+            }
+
             private ShellCmdIO(@NonNull final LocalSocket socket)
                     throws IOException, ParseException {
                 this.socket = socket;
@@ -1363,7 +1396,7 @@ public final class TermSh {
                                     RequesterActivity.showAsNotification(ui.ctx,
                                             ci,
                                             ui.ctx.getString(R.string.title_shell_of_s_script_notification_,
-                                                    ui.ctx.getString(R.string.app_name)),
+                                                    shellCmd.getScriptSource(ui)),
                                             prompt + " (" + filename + ")",
                                             NOTIFICATION_CHANNEL_ID,
                                             NotificationCompat.PRIORITY_HIGH);
@@ -1495,9 +1528,10 @@ public final class TermSh {
                                 intent.setType(aggregateMime.isSet ? aggregateMime.get() : mimeType);
                                 if (opts.containsKey("notify")) {
                                     RequesterActivity.showAsNotification(ui.ctx,
-                                            Intent.createChooser(intent, prompt),
+                                            Intent.createChooser(intent, prompt)
+                                                    .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK),
                                             ui.ctx.getString(R.string.title_shell_of_s_script_notification_,
-                                                    ui.ctx.getString(R.string.app_name)),
+                                                    shellCmd.getScriptSource(ui)),
                                             prompt +
                                                     " (" + TextUtils.join(", ", titles) + ")",
                                             NOTIFICATION_CHANNEL_ID,
@@ -1569,16 +1603,23 @@ public final class TermSh {
                                         Intent.createChooser(i, prompt),
                                         onResult,
                                         ui.ctx.getString(R.string.title_shell_of_s_script_notification_,
-                                                ui.ctx.getString(R.string.app_name)),
+                                                shellCmd.getScriptSource(ui)),
                                         prompt,
                                         NOTIFICATION_CHANNEL_ID,
-                                        NotificationCompat.PRIORITY_HIGH);
+                                        NotificationCompat.PRIORITY_HIGH,
+                                        false);
                             } else {
                                 try {
                                     shellCmd.waitForGuiWithNotification(ui);
                                     request = RequesterActivity.request(ui.ctx,
                                             Intent.createChooser(i, prompt),
-                                            onResult);
+                                            onResult,
+                                            ui.ctx.getString(R.string.title_shell_of_s_script_notification_,
+                                                    shellCmd.getScriptSource(ui)),
+                                            prompt,
+                                            NOTIFICATION_CHANNEL_ID,
+                                            NotificationCompat.PRIORITY_HIGH,
+                                            true);
                                 } catch (final Throwable e) {
                                     r.setIfIsNotSet(null);
                                     throw e;
