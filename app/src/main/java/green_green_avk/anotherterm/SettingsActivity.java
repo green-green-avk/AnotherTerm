@@ -36,6 +36,8 @@ public final class SettingsActivity extends AppCompatPreferenceActivity {
             loadHeadersFromResource(R.xml.pref_headers_v31, target);
         else if (Build.VERSION.SDK_INT >= 23)
             loadHeadersFromResource(R.xml.pref_headers_v23, target);
+        else if (Build.VERSION.SDK_INT >= 19)
+            loadHeadersFromResource(R.xml.pref_headers_v19, target);
         else
             loadHeadersFromResource(R.xml.pref_headers, target);
     }
