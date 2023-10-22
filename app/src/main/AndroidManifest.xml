@@ -248,6 +248,18 @@
             android:exported="false"
             android:grantUriPermissions="true" />
 
+        <provider
+            android:name=".OwnDocumentsProvider"
+            android:authorities="${applicationId}.documents"
+            android:enabled="@bool/isAPI19"
+            android:exported="true"
+            android:grantUriPermissions="true"
+            android:permission="android.permission.MANAGE_DOCUMENTS">
+            <intent-filter>
+                <action android:name="android.content.action.DOCUMENTS_PROVIDER" />
+            </intent-filter>
+        </provider>
+
         <activity
             android:name=".RequesterActivity"
             android:excludeFromRecents="true"

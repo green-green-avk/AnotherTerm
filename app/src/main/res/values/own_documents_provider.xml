@@ -1,0 +1,5 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="title_document_root_public">@string/app_name</string>
+    <string name="summary_document_root_public">Publicly exposed files</string>
+</resources>

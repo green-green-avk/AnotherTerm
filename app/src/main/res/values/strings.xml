@@ -226,6 +226,8 @@
     <string name="action_remove_font">Remove font</string>
     <string name="msg_not_a_valid_font">Not a valid font</string>
     <string name="label_path_location_">Location for local shell access:</string>
+    <string name="title_own_documents_settings">Own Documents Provider</string>
+    <string name="action_enable">Enable</string>
     <string name="msg_unsaved_changes_confirmation">There are unsaved changes. Continue?</string>
     <string name="title_suffix_has_unsaved_changes"><b>*</b></string>
     <string name="msg_permission_confirmation">%2$s\n`%1$s\' permission requested by the script. Confirm?</string>

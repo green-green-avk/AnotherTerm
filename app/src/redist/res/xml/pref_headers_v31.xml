@@ -30,6 +30,10 @@
         android:icon="@drawable/ic_usb_camera"
         android:title="@string/action_camera_permission" />
     <header
+        android:fragment="green_green_avk.anotherterm.OwnDocumentsSettingsFragment"
+        android:icon="@drawable/ic_own_files"
+        android:title="@string/title_own_documents_settings" />
+    <header
         android:fragment="green_green_avk.anotherterm.PluginsManagerFragment"
         android:icon="@drawable/ic_check"
         android:title="@string/action_settings_plugins" />

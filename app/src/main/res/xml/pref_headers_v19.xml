@@ -14,14 +14,6 @@
         android:icon="@drawable/ic_font"
         android:title="@string/action_custom_font" />
     <header
-        android:fragment="green_green_avk.anotherterm.DozeFragment"
-        android:icon="@drawable/ic_battery_saver"
-        android:title="@string/action_settings_keepalive_and_battery_optimization" />
-    <header
-        android:fragment="green_green_avk.anotherterm.DeviceStorageAccessFragment"
-        android:icon="@drawable/ic_sdcard"
-        android:title="@string/action_device_storage_access_permission" />
-    <header
         android:fragment="green_green_avk.anotherterm.OwnDocumentsSettingsFragment"
         android:icon="@drawable/ic_own_files"
         android:title="@string/title_own_documents_settings" />

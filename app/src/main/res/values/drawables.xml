@@ -9,4 +9,5 @@
     <drawable name="ic_thumbnail_empty">@android:drawable/ic_menu_help</drawable>
     <drawable name="ic_keys_unknown">@drawable/ic_menu_help</drawable>
     <drawable name="ic_background">@drawable/ic_image</drawable>
+    <drawable name="ic_own_files">@drawable/ic_file_copy</drawable>
 </resources>
