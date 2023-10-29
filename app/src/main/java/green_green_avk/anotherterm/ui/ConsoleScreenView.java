@@ -1714,6 +1714,8 @@ public class ConsoleScreenView extends ScrollableView
             CharsAutoSelector.select(chars.text,
                     chars.start, chars.start + chars.length,
                     ptr, sym, bb);
+            if (bb[0] > bb[1])
+                return ly;
             selection.first.set(ConsoleScreenBuffer
                     .getCharPos(chars.text, 0, bb[0]), py);
             ly--;
@@ -1735,6 +1737,8 @@ public class ConsoleScreenView extends ScrollableView
             CharsAutoSelector.select(chars.text,
                     chars.start, chars.start + chars.length,
                     ptr, sym, bb);
+            if (bb[0] > bb[1])
+                return ly;
             selection.last.set(ConsoleScreenBuffer
                     .getCharPos(chars.text, 0, bb[1]) - 1, py);
             ly--;
