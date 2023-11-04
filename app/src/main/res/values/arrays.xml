@@ -68,4 +68,14 @@
         <item>@string/label_term_compliance_ansi</item>
         <item>@string/label_term_compliance_vt52compat</item>
     </string-array>
+
+    <string-array name="labels_terminal_rtl_rendering_mode">
+        <item>Legacy</item>
+        <item>Raw (Treat anything as LTR) <i>(Experimental)</i></item>
+    </string-array>
+
+    <string-array name="values_terminal_rtl_rendering_mode">
+        <item>LEGACY</item>
+        <item>RAW</item>
+    </string-array>
 </resources>

@@ -180,6 +180,16 @@ public final class ConsoleService extends Service {
         final String termComplianceStr = (String) cp.get("term_compliance");
         ci.setComplianceLevel("vt52compat".equals(termComplianceStr) ?
                 0 : AnsiConsoleInput.defaultComplianceLevel);
+        final String rtlRenderingModeStr = (String) cp.get("rtl_rendering_mode");
+        ConsoleScreenBuffer.RtlRenderingMode rtlRenderingMode;
+        try {
+            rtlRenderingMode = ConsoleScreenBuffer.RtlRenderingMode
+                    .valueOf(rtlRenderingModeStr);
+        } catch (final IllegalArgumentException | NullPointerException ignored) {
+            rtlRenderingMode = ((App) appCtx).settings.terminal_rtl_rendering_default_mode;
+        }
+        ci.mainScrBuf.setRtlRenderingMode(rtlRenderingMode);
+        ci.altScrBuf.setRtlRenderingMode(rtlRenderingMode);
         final String charsetStr = (String) cp.get("charset");
         try {
             final Charset charset =

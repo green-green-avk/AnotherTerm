@@ -424,6 +424,8 @@ public final class AnsiConsoleActivity extends ConsoleActivity
     @Nullable
     private PopupWindow menuPopupWindow = null;
 
+    private List<String> RTL_RENDERING_MODE_KEYS;
+
     private void processMenuPopupAction(@Nullable final Object arg) {
         if (arg instanceof BackendModule && mSession != null) {
             final BackendModule be = (BackendModule) arg;
@@ -446,6 +448,8 @@ public final class AnsiConsoleActivity extends ConsoleActivity
 
     @NonNull
     private PopupWindow createMenuPopup() {
+        RTL_RENDERING_MODE_KEYS = Arrays.asList(getResources()
+                .getStringArray(R.array.values_terminal_rtl_rendering_mode));
         @SuppressLint("InflateParams") final View popupView = LayoutInflater.from(this)
                 .inflate(R.layout.ansi_console_menu, null);
         popupView.setLayoutParams(new ViewGroup.LayoutParams(
@@ -621,6 +625,11 @@ public final class AnsiConsoleActivity extends ConsoleActivity
                     .setText(mSession.input.getComplianceLevel() == 0 ?
                             R.string.label_term_compliance_vt52compat :
                             R.string.label_term_compliance_ansi);
+            popupView.<TextView>findViewById(R.id.rtl_rendering_mode).setText(getResources()
+                    .getTextArray(R.array.labels_terminal_rtl_rendering_mode)[
+                    RTL_RENDERING_MODE_KEYS
+                            .indexOf(mSession.input.currScrBuf.getRtlRenderingMode().name())
+                    ]);
             popupView.<TextView>findViewById(R.id.charset)
                     .setText(mSession.output.getCharset().name());
             BackgroundsManagerUi.instance.renderIn(popupView.findViewById(R.id.background),
@@ -833,6 +842,31 @@ public final class AnsiConsoleActivity extends ConsoleActivity
                     mSession.input.setComplianceLevel(which == 1 ?
                             0 : AnsiConsoleInput.defaultComplianceLevel);
                     mSession.input.invalidateSink();
+                    refreshMenuPopup();
+                    dialog.dismiss();
+                }).setCancelable(true).show(), null);
+    }
+
+    private static final Rect INVALIDATE_AUX = new Rect();
+
+    public void onMenuRtlRenderingMode(final View view) {
+        if (mSession == null)
+            return;
+        final int p = RTL_RENDERING_MODE_KEYS
+                .indexOf(mSession.input.currScrBuf.getRtlRenderingMode().name());
+        final ArrayAdapter<CharSequence> a = ArrayAdapter.createFromResource(this,
+                R.array.labels_terminal_rtl_rendering_mode,
+                R.layout.dialogmenu_entry);
+        DialogUtils.wrapLeakageSafe(new AlertDialog.Builder(this)
+                .setSingleChoiceItems(a, p, (dialog, which) -> {
+                    if (mSession == null)
+                        return;
+                    final ConsoleScreenBuffer.RtlRenderingMode v =
+                            ConsoleScreenBuffer.RtlRenderingMode
+                                    .valueOf(RTL_RENDERING_MODE_KEYS.get(which));
+                    mSession.input.mainScrBuf.setRtlRenderingMode(v);
+                    mSession.input.altScrBuf.setRtlRenderingMode(v);
+                    mSession.input.invalidateSink(INVALIDATE_AUX);
                     refreshMenuPopup();
                     dialog.dismiss();
                 }).setCancelable(true).show(), null);

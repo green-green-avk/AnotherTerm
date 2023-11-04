@@ -17,6 +17,9 @@ public final class App extends Application {
         @Param(defRes = R.bool.terminal_use_recents)
         public boolean terminal_use_recents;
 
+        @Param(defRes = R.string.terminal_rtl_rendering_default_mode)
+        public ConsoleScreenBuffer.RtlRenderingMode terminal_rtl_rendering_default_mode;
+
         @Param(defRes = R.bool.terminal_font_default_fromfiles)
         public boolean terminal_font_default_fromfiles;
 

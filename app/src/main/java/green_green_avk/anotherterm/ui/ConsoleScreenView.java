@@ -21,19 +21,23 @@ import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
 import android.os.Build;
 import android.os.Message;
+import android.text.Editable;
 import android.text.InputType;
 import android.text.Spannable;
 import android.text.SpannableString;
 import android.text.Spanned;
+import android.text.TextWatcher;
 import android.util.AttributeSet;
+import android.view.ActionMode;
 import android.view.Gravity;
 import android.view.InputDevice;
 import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.WindowManager;
-import android.widget.EditText;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
@@ -54,9 +58,13 @@ import androidx.appcompat.widget.AppCompatEditText;
 import androidx.core.math.MathUtils;
 import androidx.core.view.ViewCompat;
 
+import org.jetbrains.annotations.Contract;
+
 import java.nio.CharBuffer;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
+import java.util.regex.Pattern;
 
 import green_green_avk.anotherterm.AnsiColorProfile;
 import green_green_avk.anotherterm.AnsiConsoleInput;
@@ -164,6 +172,8 @@ public class ConsoleScreenView extends ScrollableView
     private boolean mBlinkState = true;
     protected boolean hasVisibleBlinking = false;
     protected boolean isChanging = false;
+    protected ConsoleScreenBuffer.RtlRenderingMode lastRtlRenderingMode =
+            ConsoleScreenBuffer.RtlRenderingMode.LEGACY;
 
     protected static final int[] noneSelectionModeState = new int[0];
     protected static final int[] linesSelectionModeState = new int[]{R.attr.state_select_lines};
@@ -293,17 +303,102 @@ public class ConsoleScreenView extends ScrollableView
             cv.findViewById(R.id.b_scratchpad).setOnClickListener(v ->
                     UiUtils.toScratchpad(getContext(), getSelectedText()));
             wSearch.setOnClickListener(v -> {
-                final EditText et = new AppCompatEditText(getContext());
+                final AppCompatEditText et = new AppCompatEditText(getContext());
+                // TODO: rework this gory approach
+                // There is no way in the Android framework to
+                // either tune the Unicode rendering algorithm
+                // or add some characters for text rendering purposes only.
+                // (TransformationMethod contract prohibits altering the characters count.)
+                if (consoleInput != null)
+                    switch (consoleInput.currScrBuf.getRtlRenderingMode()) {
+                        case RAW: {
+                            et.addTextChangedListener(new TextWatcher() {
+                                @Override
+                                public void beforeTextChanged(final CharSequence s,
+                                                              final int start, final int count, final int after) {
+                                }
+
+                                @Override
+                                public void onTextChanged(final CharSequence s,
+                                                          final int start, final int before, final int count) {
+                                }
+
+                                @Override
+                                public void afterTextChanged(final Editable s) {
+                                    final String v = s.toString();
+                                    final String n = addLtrBidi(removeBidi(v));
+                                    if (!v.equals(n))
+                                        et.setTextKeepState(n);
+                                }
+                            });
+                            et.setCustomSelectionActionModeCallback(new ActionMode.Callback() {
+                                @Override
+                                public boolean onCreateActionMode(final ActionMode mode, final Menu menu) {
+                                    return true;
+                                }
+
+                                @Override
+                                public boolean onPrepareActionMode(final ActionMode mode, final Menu menu) {
+                                    return false;
+                                }
+
+                                private void copySelection() {
+                                    final CharSequence text = et.getText();
+                                    if (text != null) {
+                                        UiUtils.toClipboard(getContext(),
+                                                removeBidi(
+                                                        text.subSequence(
+                                                                MathUtils.clamp(et.getSelectionStart(), 0, text.length()),
+                                                                MathUtils.clamp(et.getSelectionEnd(), 0, text.length())
+                                                        ).toString()));
+                                    }
+                                }
+
+                                private void deleteSelection() {
+                                    final Editable text = et.getText();
+                                    if (text != null) {
+                                        text.delete(
+                                                MathUtils.clamp(et.getSelectionStart(), 0, text.length()),
+                                                MathUtils.clamp(et.getSelectionEnd(), 0, text.length())
+                                        );
+                                    }
+                                }
+
+                                @Override
+                                public boolean onActionItemClicked(final ActionMode mode, final MenuItem item) {
+                                    switch (item.getItemId()) {
+                                        case android.R.id.copy: {
+                                            copySelection();
+                                            mode.finish();
+                                            return true;
+                                        }
+                                        case android.R.id.cut: {
+                                            copySelection();
+                                            deleteSelection();
+                                            mode.finish();
+                                            return true;
+                                        }
+                                    }
+                                    return false;
+                                }
+
+                                @Override
+                                public void onDestroyActionMode(final ActionMode mode) {
+                                }
+                            });
+                            break;
+                        }
+                    }
                 et.setInputType(InputType.TYPE_TEXT_FLAG_MULTI_LINE
                         | InputType.TYPE_CLASS_TEXT
                         | InputType.TYPE_TEXT_VARIATION_NORMAL);
                 et.setHint(getSearchHint());
-                et.setText(wSearch.getText());
+                et.setText(addLtrBidi(getSearchPattern()));
                 auxDialog = new AlertDialog.Builder(getContext())
                         .setOnDismissListener(dialog -> auxDialog = null)
                         .setView(et)
                         .setPositiveButton(android.R.string.ok, (dialog, which) ->
-                                setSearchPattern(et.getText()))
+                                setSearchPattern(removeBidi(et.getText())))
                         .setNegativeButton(android.R.string.cancel, null)
                         .show();
             });
@@ -448,11 +543,11 @@ public class ConsoleScreenView extends ScrollableView
         @NonNull
         protected String getSearchPattern() {
             final CharSequence v = wSearch.getText();
-            return v != null ? v.toString() : "";
+            return v != null ? removeBidi(v.toString()) : "";
         }
 
         protected void setSearchPattern(@Nullable final CharSequence v) {
-            wSearch.setText(v == null ? "" : v);
+            wSearch.setText(addLtrBidi(v == null ? "" : v.toString()));
         }
 
         protected void refresh() {
@@ -464,6 +559,7 @@ public class ConsoleScreenView extends ScrollableView
             else
                 st = linesSelectionModeState;
             wSelMode.setImageState(st, true);
+            wSearch.setText(addLtrBidi(removeBidi(wSearch.getText())));
         }
 
         @CheckResult
@@ -1067,6 +1163,7 @@ public class ConsoleScreenView extends ScrollableView
 
     public void setConsoleInput(@NonNull final AnsiConsoleInput consoleInput) {
         this.consoleInput = consoleInput;
+        lastRtlRenderingMode = consoleInput.currScrBuf.getRtlRenderingMode();
         this.consoleInput.addOnInvalidateSink(this);
         this.consoleInput.addOnBufferScroll(this);
         resizeBuffer();
@@ -1190,11 +1287,51 @@ public class ConsoleScreenView extends ScrollableView
         return result;
     }
 
+    private static final Pattern BIDI_LINE_P = Pattern.compile(
+            "\n"
+    );
+    private static final Pattern BIDI_WIPE_P = Pattern.compile(
+            "[\u200E\u200F\u2066\u2067\u2068\u2069\u202A\u202B\u202C\u202D\u202E]"
+    );
+
+    private static final String FORCED_BIDI_LTR_START = "\u200E\u202D";
+    private static final String FORCED_BIDI_LTR_END = "\u202C";
+
+    @Contract("null -> null; !null -> !null")
+    @Nullable
+    public String addLtrBidi(@Nullable final CharSequence v) {
+        if (v == null)
+            return null;
+        if (consoleInput == null)
+            return v.toString();
+        switch (consoleInput.currScrBuf.getRtlRenderingMode()) {
+            case RAW:
+                return FORCED_BIDI_LTR_START + BIDI_LINE_P.matcher(v)
+                        .replaceAll(FORCED_BIDI_LTR_END + "$0" + FORCED_BIDI_LTR_START)
+                        + FORCED_BIDI_LTR_END;
+            default:
+                return v.toString();
+        }
+    }
+
+    @Contract("null -> null; !null -> !null")
+    @Nullable
+    public String removeBidi(@Nullable final CharSequence v) {
+        if (v == null)
+            return null;
+        if (consoleInput == null)
+            return v.toString();
+        switch (consoleInput.currScrBuf.getRtlRenderingMode()) {
+            case RAW:
+                return BIDI_WIPE_P.matcher(v).replaceAll("");
+            default:
+                return v.toString();
+        }
+    }
+
     protected void onSelectionChanged() {
-        if (getSelectedCellsCount() <= SEARCH_PATTERN_CELLS_MAX)
-            selectionPopup.setSearchPattern(getSelectedText());
-        else
-            selectionPopup.setSearchPattern("");
+        selectionPopup.setSearchPattern(getSelectedCellsCount() <= SEARCH_PATTERN_CELLS_MAX ?
+                getSelectedText() : "");
     }
 
     @CheckResult
@@ -1246,6 +1383,12 @@ public class ConsoleScreenView extends ScrollableView
             invalidatingAll = true;
         else if (!invalidatingAll)
             invalidatingRegion.union(rect);
+        if (consoleInput != null &&
+                lastRtlRenderingMode != consoleInput.currScrBuf.getRtlRenderingMode()) {
+            lastRtlRenderingMode = consoleInput.currScrBuf.getRtlRenderingMode();
+            onSelectionChanged();
+            invalidatingAll = true;
+        }
         if (doPost)
             ViewCompat.postOnAnimation(this, this::doInvalidateSink);
     }
@@ -2118,6 +2261,35 @@ public class ConsoleScreenView extends ScrollableView
         }
     }
 
+    protected static final char[] FORCED_BIDI_LTR_RUN_START = FORCED_BIDI_LTR_START.toCharArray();
+
+    protected static final class BidiRun {
+        public char[] text = new char[80];
+        public int length = 0;
+    }
+
+    @NonNull
+    protected final BidiRun _draw_bidiRun = new BidiRun();
+
+    /*
+     Not a CharSequence because:
+     1. It could be broken in old 'droids;
+     2. There are some doubts about its performance.
+    */
+    @NonNull
+    protected BidiRun makeForcedLtrRun(@NonNull final char[] text,
+                                       final int index, final int count,
+                                       @NonNull final char[] prefix) {
+        _draw_bidiRun.length = count + prefix.length;
+        if (_draw_bidiRun.text.length < _draw_bidiRun.length) {
+            Arrays.fill(_draw_bidiRun.text, '\0');
+            _draw_bidiRun.text = new char[_draw_bidiRun.length];
+        }
+        System.arraycopy(prefix, 0, _draw_bidiRun.text, 0, prefix.length);
+        System.arraycopy(text, index, _draw_bidiRun.text, prefix.length, count);
+        return _draw_bidiRun;
+    }
+
     protected void drawText(@NonNull final Canvas canvas, @NonNull final char[] text,
                             final int index, final int count, final float x, final float y,
                             @NonNull final Paint paint) {
@@ -2222,13 +2394,32 @@ public class ConsoleScreenView extends ScrollableView
                     }
                     _hasVisibleBlinking |= charAttrs.blinking;
                     if (!charAttrs.blinking || mBlinkState) {
-                        drawText(canvas, _draw_run.text,
-                                _draw_run.start, _draw_run.length,
-                                strFragLeft, strTop - mFontMetrics.ascent, fgPaint);
+                        switch (consoleInput.currScrBuf.getRtlRenderingMode()) {
+                            case RAW: {
+                                // Reverse back to mitigate drawText() behavior.
+                                final BidiRun forcedLtr = makeForcedLtrRun(_draw_run.text,
+                                        _draw_run.start, _draw_run.length,
+                                        FORCED_BIDI_LTR_RUN_START);
+                                drawText(canvas, forcedLtr.text,
+                                        0, forcedLtr.length,
+                                        strFragLeft, strTop - mFontMetrics.ascent, fgPaint);
+                                break;
+                            }
+                            default: {
+                                drawText(canvas, _draw_run.text,
+                                        _draw_run.start, _draw_run.length,
+                                        strFragLeft, strTop - mFontMetrics.ascent, fgPaint);
+                            }
+                        }
                     }
                 }
                 i += sr;
             }
+        }
+        switch (consoleInput.currScrBuf.getRtlRenderingMode()) {
+            case RAW:
+                Arrays.fill(_draw_bidiRun.text, '\0');
+                break;
         }
         _draw_run.init();
         hasVisibleBlinking = _hasVisibleBlinking;

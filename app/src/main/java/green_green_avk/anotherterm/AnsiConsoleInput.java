@@ -44,8 +44,8 @@ public final class AnsiConsoleInput implements BytesSink {
     public EventBasedBackendModuleWrapper backendModule = null;
     @NonNull
     public ConsoleScreenBuffer currScrBuf;
-    private final ConsoleScreenBuffer mainScrBuf;
-    private final ConsoleScreenBuffer altScrBuf;
+    public final ConsoleScreenBuffer mainScrBuf;
+    public final ConsoleScreenBuffer altScrBuf;
     private final ConsoleScreenCharAttrs mCurrAttrs = new ConsoleScreenCharAttrs();
     private int numBellEvents = 0;
     private final BinderInputStream mInputBuf = new BinderInputStream(1024);
@@ -178,11 +178,15 @@ public final class AnsiConsoleInput implements BytesSink {
         mOnInvalidateSink.remove(h);
     }
 
+    public void invalidateSink(@Nullable final Rect v) {
+        for (final OnInvalidateSink h : mOnInvalidateSink) {
+            h.onInvalidateSink(v);
+        }
+    }
+
     @Override
     public void invalidateSink() {
-        for (final OnInvalidateSink h : mOnInvalidateSink) {
-            h.onInvalidateSink(null);
-        }
+        invalidateSink(null);
     }
 
     private void invalidateSinkResize(final int cols, final int rows) {
