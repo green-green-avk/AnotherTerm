@@ -30,6 +30,11 @@ public final class ConsoleScreenBuffer {
 
     private static final char[] EMPTY_BUF = new char[0];
 
+    public enum RtlRenderingMode {
+        LEGACY,
+        RAW
+    }
+
     public static final class BufferTextRange {
         @NonNull
         public char[] text = EMPTY_BUF;
@@ -409,6 +414,32 @@ public final class ConsoleScreenBuffer {
     public boolean screenInverse = false; // DECSCNM
     public boolean originMode = false;
     public String windowTitle = null;
+
+    @NonNull
+    private RtlRenderingMode rtlRenderingMode = RtlRenderingMode.LEGACY;
+
+    /**
+     * Gets the RTL rendering policy.
+     * <p>
+     * Appropriate rendering behavior is to be implemented solely by a View.
+     *
+     * @return the policy.
+     * @see #setRtlRenderingMode(RtlRenderingMode)
+     */
+    @NonNull
+    public RtlRenderingMode getRtlRenderingMode() {
+        return rtlRenderingMode;
+    }
+
+    /**
+     * Sets the RTL rendering policy.
+     *
+     * @param v the policy.
+     * @see #getRtlRenderingMode()
+     */
+    public void setRtlRenderingMode(@NonNull final RtlRenderingMode v) {
+        rtlRenderingMode = v;
+    }
 
     private static int encodeColor(@NonNull final ConsoleScreenCharAttrs.Color v) {
         return v.value << 8

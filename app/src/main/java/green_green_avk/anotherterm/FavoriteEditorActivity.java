@@ -45,6 +45,7 @@ public final class FavoriteEditorActivity extends ExtAppCompatActivity {
     private static final int INITIAL_TYPE_ID = 0;
 
     private static final List<String> TERM_COMPLIANCE_KEYS = Arrays.asList("ansi", "vt52compat");
+    private List<String> RTL_RENDERING_MODE_KEYS;
 
     private final RawPreferenceUiWrapper mPrefs = new RawPreferenceUiWrapper();
     private ViewGroup mContainer;
@@ -57,6 +58,7 @@ public final class FavoriteEditorActivity extends ExtAppCompatActivity {
     private CompoundButton mWakeLockAOC;
     private CompoundButton mWakeLockROD;
     private Spinner mTermCompliance;
+    private Spinner mRtlRenderingModeW;
     private Spinner mCharsetW;
     private Spinner mBackgroundW;
     private Spinner mColorMapW;
@@ -266,6 +268,8 @@ public final class FavoriteEditorActivity extends ExtAppCompatActivity {
             ps.put(ControlService.FAV_TOKEN_KEY, token);
         ps.put("term_compliance", TERM_COMPLIANCE_KEYS
                 .get(mTermCompliance.getSelectedItemPosition()));
+        ps.put("rtl_rendering_mode", RTL_RENDERING_MODE_KEYS
+                .get(mRtlRenderingModeW.getSelectedItemPosition()));
         ps.put("charset", C.charsetList.get(mCharsetW.getSelectedItemPosition()));
         ps.put("background", ((BackgroundsManager.Meta) mBackgroundW.getSelectedItem()).name);
         ps.put("colormap", ((AnsiColorManager.Meta) mColorMapW.getSelectedItem()).name);
@@ -383,6 +387,12 @@ public final class FavoriteEditorActivity extends ExtAppCompatActivity {
             final int pos = TERM_COMPLIANCE_KEYS.indexOf(termCompliance.toString());
             if (pos >= 0)
                 mTermCompliance.setSelection(pos);
+        }
+        final Object rtlRenderingMode = mPrefsSt.get("rtl_rendering_mode");
+        if (rtlRenderingMode != null) {
+            final int pos = RTL_RENDERING_MODE_KEYS.indexOf(rtlRenderingMode.toString());
+            if (pos >= 0)
+                mRtlRenderingModeW.setSelection(pos);
         }
         final Object charset = mPrefsSt.get("charset");
         if (charset != null) {
@@ -533,6 +543,10 @@ public final class FavoriteEditorActivity extends ExtAppCompatActivity {
     @Override
     protected void onCreate(@Nullable final Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
+        RTL_RENDERING_MODE_KEYS = Arrays.asList(getResources()
+                .getStringArray(R.array.values_terminal_rtl_rendering_mode));
+
         mPrefs.setCallbacks(new PreferenceUiWrapper.Callbacks() {
             @Override
             public void onInitialized() {
@@ -562,6 +576,7 @@ public final class FavoriteEditorActivity extends ExtAppCompatActivity {
         mWakeLockROD = findViewById(R.id.fav_wakelock_release_on_disconnect);
 
         mTermCompliance = findViewById(R.id.fav_term_compliance);
+        mRtlRenderingModeW = findViewById(R.id.fav_rtl_rendering_mode);
         mCharsetW = findViewById(R.id.fav_charset);
         mBackgroundW = findViewById(R.id.fav_background);
         mColorMapW = findViewById(R.id.fav_colormap);
@@ -572,6 +587,7 @@ public final class FavoriteEditorActivity extends ExtAppCompatActivity {
         mTokenW = findViewById(R.id.fav_token);
 
         mTermCompliance.setSaveEnabled(false);
+        mRtlRenderingModeW.setSaveEnabled(false);
         mCharsetW.setSaveEnabled(false);
         mBackgroundW.setSaveEnabled(false);
         mColorMapW.setSaveEnabled(false);
@@ -609,6 +625,7 @@ public final class FavoriteEditorActivity extends ExtAppCompatActivity {
         lNeedSave.adoptView(mWakeLockROD);
 
         lNeedSaveDelayed.adoptView(mTermCompliance);
+        lNeedSaveDelayed.adoptView(mRtlRenderingModeW);
         lNeedSaveDelayed.adoptView(mCharsetW);
         lNeedSaveDelayed.adoptView(mBackgroundW);
         lNeedSaveDelayed.adoptView(mColorMapW);
@@ -646,6 +663,10 @@ public final class FavoriteEditorActivity extends ExtAppCompatActivity {
             }
         });
         mTypeW.setSelection(INITIAL_TYPE_ID);
+
+        mRtlRenderingModeW.setSelection(RTL_RENDERING_MODE_KEYS
+                .indexOf(((App) getApplication()).settings
+                        .terminal_rtl_rendering_default_mode.name()));
 
         final ArrayAdapter<String> aCharset = new ArrayAdapter<>(this,
                 android.R.layout.simple_spinner_item, C.charsetList);

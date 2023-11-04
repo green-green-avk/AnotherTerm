@@ -309,6 +309,25 @@
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
+                        android:labelFor="@id/fav_rtl_rendering_mode"
+                        android:text="@string/label_short_terminal_rtl_rendering_mode" />
+
+                    <Spinner
+                        android:id="@+id/fav_rtl_rendering_mode"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:entries="@array/labels_terminal_rtl_rendering_mode" />
+
+                </TableRow>
+
+                <TableRow
+                    android:gravity="center_vertical"
+                    android:minHeight="@dimen/settings_row_minHeight">
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
                         android:labelFor="@id/fav_charset"
                         android:text="@string/label_charset" />
 

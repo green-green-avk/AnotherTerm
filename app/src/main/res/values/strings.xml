@@ -190,6 +190,8 @@
     <string name="label_key_">Key:</string>
     <string name="label_navigation">Navigation</string>
     <string name="label_font">Font</string>
+    <string name="label_terminal_rtl_rendering_mode">RTL rendering mode</string>
+    <string name="label_short_terminal_rtl_rendering_mode">RTL</string>
     <string name="label_selection">Selection</string>
     <string name="label_screen_keyboard">Screen Keyboard</string>
     <string name="label_default_font_size">Default size</string>

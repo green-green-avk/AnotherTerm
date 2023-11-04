@@ -17,6 +17,14 @@
         android:icon="@drawable/ic_font"
         android:title="@string/label_font">
 
+        <ListPreference
+            android:defaultValue="@string/terminal_rtl_rendering_default_mode"
+            android:entries="@array/labels_terminal_rtl_rendering_mode"
+            android:entryValues="@array/values_terminal_rtl_rendering_mode"
+            android:key="terminal_rtl_rendering_default_mode"
+            android:title="@string/label_terminal_rtl_rendering_mode"
+            app:useSimpleSummaryProvider="true" />
+
         <com.pavelsikun.seekbarpreference.SeekBarPreferenceCompat
             android:defaultValue="@integer/terminal_font_default_size_sp"
             android:key="terminal_font_default_size_sp"

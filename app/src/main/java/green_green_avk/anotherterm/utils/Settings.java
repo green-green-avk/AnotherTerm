@@ -87,6 +87,22 @@ public abstract class Settings {
                 } catch (final ClassCastException e) {
                     editor.putBoolean(f.getName(), (boolean) v);
                 }
+            } else if (c.isEnum()) {
+                String name = c.isInstance(v) ? ((Enum) v).name() : null;
+                if (a.defRes() != 0)
+                    name = rr.getString(a.defRes());
+                final String defName = name;
+                try {
+                    name = sp.getString(f.getName(), (String) defName);
+                } catch (final ClassCastException e) {
+                    editor.putString(f.getName(), (String) defName);
+                }
+                try {
+                    v = Enum.valueOf((Class<Enum>) c, (String) name);
+                } catch (final IllegalArgumentException | NullPointerException e) {
+                    editor.putString(f.getName(), (String) defName);
+                    v = Enum.valueOf((Class<Enum>) c, (String) defName);
+                }
             } else {
                 continue;
             }
@@ -159,6 +175,16 @@ public abstract class Settings {
                     throw new ClassCastException();
                 }
                 v = sp.getBoolean(k, (boolean) dv);
+            } else if (c.isEnum()) {
+                if (!c.isInstance(dv)) {
+                    throw new ClassCastException();
+                }
+                final String name = sp.getString(k, ((Enum) dv).name());
+                try {
+                    v = Enum.valueOf((Class<Enum>) c, name);
+                } catch (final IllegalArgumentException | NullPointerException e) {
+                    throw new ClassCastException();
+                }
             } else {
                 throw new UnsupportedOperationException();
             }
