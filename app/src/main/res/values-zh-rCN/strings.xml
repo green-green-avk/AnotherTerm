@@ -1,0 +1,309 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">Another Term</string>
+    <string name="title_activity_favorite_editor">收藏编辑器</string>
+    <string name="title_activity_key_mappings">按键映射</string>
+    <string name="title_activity_color_mappings">色彩映射</string>
+    <string name="title_activity_key_mapping_editor">按键映射编辑器</string>
+    <string name="title_activity_color_mapping_editor">色彩映射编辑器</string>
+    <string name="title_activity_settings">设置</string>
+    <string name="title_activity_saved_passwords">密码本</string>
+    <string name="title_ssh_keys_settings">SSH密钥设置</string>
+    <string name="action_pick_content">选取</string>
+    <string name="action_share_with_new_session">与新会话共用</string>
+    <string name="action_open_in_new_session">在新会话打开</string>
+    <string name="title_scratchpad">便笺板</string>
+    <string name="title_info">信息</string>
+    <string name="action_bluetooth_permission">蓝牙权限</string>
+    <string name="desc_android12_bluetooth_perm"><![CDATA[
+        <p><code>android.permission.BLUETOOTH_CONNECT</code>
+        在安卓&#xA0;12 以及更高版本上必须获得该权限
+        以连接蓝牙 SPP UART 硬件密钥</p>
+    ]]></string>
+    <string name="desc_fav_token_help">
+        &lt;h1&gt;从意图（intent）启动终端&lt;/h1&gt;
+        &lt;p&gt;安卓系统并不能决定意图能够使用的资源
+        (安卓自身的权限模型不足以灵活到支配任意软件的权限资源)
+        像一些比如说 &lt;b&gt;Automate&lt;/b&gt一类的自动化软件; 通常并不提供任何绑定到服务的简单方式
+        (在这个情况下检查应用凭据还是可以的).
+        因此 &lt;i&gt;"token"&lt;/i&gt; 一栏已经添加到参数收藏夹中
+        用以缓解这个问题. 这一栏保存着一个唯一的ID
+        作为形似口令来启动一个会话.&lt;/p&gt;
+        &lt;p&gt;会话内会运行一个脚本
+        用于控制会话实例的数量.&lt;/p&gt;
+        &lt;p&gt;要启动一个会话 (比如说：从 &lt;b&gt;Automate&lt;/b&gt;启动) use:&lt;/p&gt;
+        &lt;p&gt;&lt;b&gt;Intent 目标:&lt;/b&gt; &lt;i&gt;服务 (前台启动)&lt;/i&gt;&lt;/p&gt;
+        &lt;p&gt;
+        &lt;b&gt;包名 (application ID):&lt;/b&gt;
+        &lt;clipboard&gt;green_green_avk.anotherterm.debug&lt;/clipboard&gt;
+        &lt;/p&gt;
+        &lt;p&gt;
+        &lt;b&gt;Class:&lt;/b&gt;
+        &lt;clipboard&gt;green_green_avk.anotherterm.ControlService&lt;/clipboard&gt;
+        &lt;/p&gt;
+        &lt;p&gt;
+        &lt;b&gt;动作:&lt;/b&gt;
+        &lt;clipboard&gt;green_green_avk.anotherterm.intent.action.START_SESSION&lt;/clipboard&gt;
+        &lt;/p&gt;
+        &lt;p&gt;
+        &lt;b&gt;分类:&lt;/b&gt;
+        &lt;clipboard&gt;android.intent.category.DEFAULT&lt;/clipboard&gt;
+        &lt;/p&gt;
+        &lt;p&gt;
+        &lt;b&gt;附加项:&lt;/b&gt;
+        &lt;clipboard&gt;green_green_avk.anotherterm.intent.extra.FAV_TOKEN&lt;/clipboard&gt;&lt;br/&gt;
+        这个值应该是一个从你偏好的收藏设置中的 &lt;i&gt;"token"&lt;/i&gt; &lt;i&gt;字符串&lt;/i&gt;
+        &lt;/p&gt;
+        &lt;p&gt;所有 &lt;i&gt;字符串&lt;/i&gt; &lt;b&gt;附加项&lt;/b&gt; 会被传递给环境变量并且以
+         &lt;b&gt;附加项&lt;/b&gt; 命名，命名也会转化为
+        &lt;code&gt;String.toUpperCase(Locale.ROOT).replaceAll("[^A-Z0-9_]", "_")&lt;/code&gt;
+        并加上 &lt;code&gt;INPUT_&lt;/code&gt;前缀. &lt;code&gt;…FAV_TOKEN&lt;/code&gt; 值会被隐藏.&lt;/p&gt;
+    </string>
+    <string name="desc_about"><![CDATA[
+<h1>Links</h1>
+<ul>
+<li><a href=\"https://green-green-avk.github.io/AnotherTerm-docs/\">Wiki</a></li>
+<li><a href=\"https://green-green-avk.github.io/AnotherTerm-docs/issues.html#main_content\">Bugs and issues</a></li>
+<li><a href=\"https://github.com/green-green-avk/AnotherTerm\">Source at GitHub</a></li>
+</ul>
+<h1>Highlights</h1>
+<ul>
+<li>UART, SSH, Telnet and local PTY support in the same application;</li>
+<li>Adequate screen input methods as long as a terminal requires specific keyboard
+functions;</li>
+<li>Ability to set fixed screen columns and/or rows numbers.</li>
+</ul>
+<h1>Features</h1>
+<ul>
+<li>Minimum supported Android version is 4.0 Ice Cream Sandwich.</li>
+<li>Supported USB UART devices:<ul>
+<li>Generic USB CDC,</li>
+<li>CP210X,</li>
+<li>FTDI,</li>
+<li>PL2303,</li>
+<li>CH34x,</li>
+<li>CP2130 SPI-USB.</li>
+</ul></li>
+<li>Bluetooth SPP UART devices are supported.</li>
+<li>Local Linux PTY is supported. Feel free to use
+<a href=\"https://green-green-avk.github.io/AnotherTerm-docs/installing-linux-under-proot.html#main_content\">
+PRoot with some Linux environment</a>.</li>
+<li><a href=\"info:/termsh_man\">
+Shell tool</a> to interact with the Android environment is also present.
+<ul>
+<li>Content exchange between other applications and own files / pipes has been implemented.</li>
+<li>It also works in chrooted environments (<b>PRoot</b> at least).</li>
+<li>USB and Bluetooth serial port dongles access from the command line is also implemented.</li>
+<li><b>libusb</b> support on nonrooted Android
+[<a href=\"https://green-green-avk.github.io/AnotherTerm-docs/installing-libusb-for-nonrooted-android.html#main_content\">how to install</a>].
+</li>
+<li><a href=\"https://green-green-avk.github.io/AnotherTerm-docs/local-shell-plugins.html#main_content\">Custom plugins</a>
+to access the Android environment and own API to create them as separate APKs.</li>
+</ul>
+</li>
+<li>Telnet (no encryption).</li>
+<li>Supported SSH features:<ul>
+<li>zlib compression;</li>
+<li>password and public key authentication (OpenSSH and PEM key formats);</li>
+<li>port forwarding (can be modified on a running SSH session);</li>
+<li>starting extra shell channels on a running SSH session.</li>
+</ul></li>
+<li>No MoSH, sorry.</li>
+<li>Built-in screen keyboard and mouse.</li>
+<li>Hardware buttons mapping.</li>
+<li>Different charsets and customizable key mapping support.</li>
+</ul>
+<h1>Credits</h1>
+<p>Thanks to:</p>
+<ul>
+<li><a href=\"https://github.com/felHR85\">felHR85</a> and other contributors for
+<a href=\"https://github.com/felHR85/UsbSerial\">UsbSerial</a> library
+(<a href=\"https://github.com/felHR85/UsbSerial/blob/master/LICENSE\">license</a>);</li>
+<li><a href=\"http://www.jcraft.com/\">JCraft</a> for their
+<a href=\"http://www.jcraft.com/jsch/\">JSch</a> SSH library
+(<a href=\"http://www.jcraft.com/jsch/LICENSE.txt\">license</a>);</li>
+<li><a href=\"https://github.com/mwiede\">mwiede</a> and other contributors for
+<a href=\"https://github.com/mwiede/jsch\">numerous JSch library improvements</a>
+(<a href=\"https://github.com/mwiede/jsch/blob/master/LICENSE.txt\">JSch license</a> /
+<a href=\"https://github.com/mwiede/jsch/blob/master/LICENSE.jBCrypt.txt\">jBCrypt license</a> /
+<a href=\"https://github.com/mwiede/jsch/blob/master/LICENSE.JZlib.txt\">JZlib license</a>);</li>
+<li><a href=\"https://www.bouncycastle.org/\">The Legion of the Bouncy Castle</a>
+for some modern ciphers for old Androids
+(<a href=\"https://www.bouncycastle.org/license.html\">license</a>);</li>
+<li>The creators of the
+<a href=\"https://www.fontsquirrel.com/fonts/dejavu-sans-mono\">DejaVu Sans Mono</a> font
+(<a href=\"https://www.fontsquirrel.com/license/dejavu-sans-mono\">license</a>);</li>
+<li>The authors of the
+<a href=\"https://github.com/MrBIMC/MaterialSeekBarPreference\">MaterialSeekBarPreference</a>
+widget
+(<a href=\"https://github.com/MrBIMC/MaterialSeekBarPreference/blob/master/README.md#collaborators\">Apache 2 license</a>);</li>
+<li>The author of the
+<a href=\"https://github.com/saket/Better-Link-Movement-Method\">BetterLinkMovementMethod</a>
+(<a href=\"https://github.com/saket/Better-Link-Movement-Method/blob/master/LICENSE.md\">license</a>);</li>
+<li>The author of the
+<a href=\"https://github.com/LikeTheSalad/android-stem\">Android Stem</a>
+(<a href=\"https://github.com/LikeTheSalad/android-stem/blob/master/LICENSE.txt\">license</a>);</li>
+<li><a href=\"https://github.com/dcendents/android-maven-gradle-plugin\">Android Maven Gradle Plugin</a>
+(<a href=\"https://github.com/dcendents/android-maven-gradle-plugin/blob/develop/LICENSE\">license</a>);</li>
+<li><a href=\"https://commons.apache.org/\">Apache Commons</a>
+(<a href=\"http://www.apache.org/licenses/LICENSE-2.0.txt\">Apache 2 license</a>);</li>
+<li><a href=\"https://source.android.com/\">The Android Open Source Project
+(official Google Android API and support libraries)</a>
+(<a href=\"http://www.apache.org/licenses/LICENSE-2.0.txt\">Apache 2 license</a>).</li>
+</ul>
+<h1>Cryptography usage note</h1>
+<p>The only part of this application that touches on cryptography is the SSH client used to
+communicate with remote systems. Currently this is provided by the JSch library.</p>
+<p>This application is self-classified under ECCN 5D992 with the encryption authorization
+type identifier MMKT.</p>
+<h1>Disclaimer</h1>
+<p>It\'s unlawful to provide this application to or use by the prohibited entities listed in
+<a href=\"https://www.bis.doc.gov/index.php/policy-guidance/country-guidance/sanctioned-destinations\">Sanctioned Destinations</a>
+and
+<a href=\"https://www.bis.doc.gov/index.php/policy-guidance/lists-of-parties-of-concern\">Lists of Parties of Concern</a>
+.</p>
+<p>The copyright holder and contributors are not responsible for any actions of any parties
+and their consequences related to the aforementioned regulation.</p>
+]]></string>
+    <string name="msg_sharing_with_a_bad_intent">你的详细 <i>意图（intent）</i> 格式 <b>必须</b> 正确, 达瓦里氏!</string>
+    <string name="terminal_rtl_rendering_default_mode">传统</string>
+    <string name="terminal_screen_keyboard_default_type">内置</string>
+    <string name="terminal_ansi_screen_mouse_default_mode">直接输入</string>
+    <string name="terminal_mouse_layout">默认</string>
+    <string name="desc_main_help"><![CDATA[
+<h1><a href=\"https://green-green-avk.github.io/AnotherTerm-docs/\">Wiki</a></h1>
+<h1>离线参考</h1>
+<h2>共同特性</h2>
+<ul>
+<li><a href=\"info:/scratchpad\">便笺板</a></li>
+</ul>
+<h2>本地Shell</h2>
+<ul>
+<li><a href=\"info:/shell_env_man\">Environment</a></li>
+<li><a href=\"info:/termsh_man\"><b>termsh</b></a></li>
+<li><a href=\"info:/share_input\">共享内容给&#xA0;其他终端</a>供查看和编辑</li>
+<li><a href=\"info:/fav_token\">通过意图（intent）启动会话</a></li>
+</ul>
+<h2>注意</h2>
+<ul>
+<li><a href=\"info:/8_bit_C1\">8位C1控制代码支持</a></li>
+<li><a href=\"info:/RTL_modes\">RTL支持</a></li>
+</ul>
+    ]]></string>
+    <string name="desc_keymap_escapes"><![CDATA[
+<h1>按键映射转义</h1>
+<p>所有符号均会以UTF-16编码的形式出现并且被转换输出至与终端字符集一致的
+上游输出.</p>
+<ul>
+<li><b>\\\\</b> &#x2014; `\\\'</li>
+<li><b>\\{000-377}</b> &#x2014; 八进制符号代码</li>
+<li><b>\\u{0000-FFFF}</b> &#x2014; 十六进制符号代码</li>
+<li><b>\\e</b> &#x2014; Escape (\\u001B)</li>
+<li><b>\\a</b> &#x2014; 响铃 (\\u0007)</li>
+<li><b>\\b</b> &#x2014; 退格 (\\u0008)</li>
+<li><b>\\t</b> &#x2014; Tab (\\u0009)</li>
+<li><b>\\n</b> &#x2014; LF (\\u000A)</li>
+<li><b>\\v</b> &#x2014; 垂直 tab (\\u000B)</li>
+<li><b>\\f</b> &#x2014; 换页 (\\u000C)</li>
+<li><b>\\r</b> &#x2014; CR (\\u000D)</li>
+</ul>
+    ]]></string>
+    <string name="desc_8_bit_c1_mode_help"><![CDATA[
+        <h1>8位C1控制代码支持</h1>
+        <p>请先查看
+        <a href=\"https://en.wikipedia.org/wiki/C0_and_C1_control_codes#C1_control_codes_for_general_use\">Wikipedia</a>
+        和
+        <a href=\"https://invisible-island.net/xterm/ctlseqs/ctlseqs.html#h2-C1-_8-Bit_-Control-Characters\">invisible-island.net/xterm</a></p>
+        <p>这个软件的管道处理过程是这样的:<br/>
+        <b>=&gt;
+        <kbd>字符集转换</kbd>
+        =&gt;
+        <kbd>输入解析器</kbd>
+        =&gt;
+        <img inline=\"true\" useTextColor=\"true\" src=\"@drawable/ic_computer\" alt=\"&#x1F4BB;\" />
+        =&gt;
+        <kbd>输出生成器</kbd>
+        =&gt;
+        <kbd>字符集转换</kbd>
+        =&gt;</b></p>
+        <p>8位控制代码在 流解析/生成 过程中被处理
+        也因此取决于当前的字符集编码.</p>
+        <p>举个例子:<br/>
+        <b>CSI</b> (<code>9B</code>)在 <b>UTF‑8</b> 下变成<code>C29B</code>.
+        </p>
+    ]]></string>
+    <string name="desc_rtl_modes_help"><![CDATA[
+        <h1>RTL支持</h1>
+        <p>目前有两种RTL支持方式:<ul>
+        <li><b>传统</b> &#x2014; 根据Unicode规则显示每一个文本
+        并且原模原样从剪贴板复制/粘贴.</li>
+        <li><b>Raw</b> <kbd><i>实验性</i></kbd> &#x2014; 以LTR方式显示文本
+        并且以这样的方式从剪贴板复制/粘贴.</li>
+        </ul></p>
+        <p><b>注意:</b> 目前而言, 如果<i>raw 模式</i>启用, 这些文本：
+        <code>U+200E U+200F U+2066 U+2067 U+2068 U+2069 U+202A U+202B U+202C U+202D U+202E</code>
+        <a href=\"https://www.w3.org/International/questions/qa-bidi-unicode-controls\">双向标记字符</a>
+        会从搜索小工具的文本中移除.</p>
+    ]]></string>
+    <string name="desc_scratchpad_help"><![CDATA[
+        <h1>便笺板</h1>
+        <p><i>便笺板</i>
+        <img inline=\"true\" useTextColor=\"true\" src=\"@drawable/ic_bar_scratchpad\" />
+        功能很大程度上是用于处理安卓系统的列集限制
+        和缺乏内容URI引用计数能力的问题.</p>
+        <p>选中的终端缓冲内容会被拷贝到<i>便笺板</i>. 只需要按下
+        <img inline=\"true\" useTextColor=\"true\" src=\"@drawable/ic_save\" alt=\"&#x1F4BE;\" />
+        按钮.</p>
+        <p>如果复制/共享的内容大小超出在
+        <i>设置</i> 菜单设置的大小或者编排失败，这个功能也会复制数据
+        至<i>便笺板</i>，只不过这一次使用的是内容URI</p>
+        <p>如果一个条目在复制<i>或</i>共享后被删除,
+        剪贴板中的内容将会被废弃 <i>或者</i> 当这些内容URI仍未被打开时
+        用于接收这些数据的软件会用不了它<i>(与现实中的情况很不一样)</i>.</p>
+        <p><i><b>注意:</b>应用软件对于这些复制来的数据/获得的URI可能很不一样
+        比如说:
+        当粘贴的内容仅包含URI时
+        浏览器一般会直接忽视粘贴进浏览器搜索栏的内容.</i></p>
+    ]]></string>
+    <string name="desc_share_input_help"><![CDATA[
+        <h1>内容在其他&#xA0;终端上的共享，查看和编辑</h1>
+        <p>为处理 <i><code>android.intent.action.SEND</code></i>,
+        <i><code>android.intent.action.SEND_MULTIPLE</code></i>,
+        <i><code>android.intent.action.VIEW</code></i> or
+        <i><code>android.intent.action.EDIT</code></i> action,
+        将会创建一个带有一些额外环境变量的新会话
+        这些设置会在一个另外弹出的会话配置文件窗口中由用户自行选择.
+        <b>\"展示至（show in） &#x00AB;共享至（share with） &#x00BB; / &#x00AB;打开方式（open with） &#x00BB; 选项窗口\"</b>
+        复选框应当在会话配置中选中来使其可见.</p>
+        <p><b>注意:</b> 任何传递至其他&#xA0;终端的URI
+        都可以在其本地会话中访问. 访问控制的功能已经提上日程...
+        <h2>环境变量</h2>
+        <li><clipboard>INPUT_ACTION</clipboard> &#x2014; <code>Intent.getAction()</code>.</li>
+        <li><clipboard>INPUT_MIME</clipboard> &#x2014; <code>Intent.getType()</code>.</li>
+        <h3>共享</h3>
+        <ul>
+        <li><clipboard>INPUT_TEXT</clipboard>[2|3|…][<clipboard>_URI</clipboard>]* &#x2014;
+        <i><code>android.intent.extra.TEXT</code></i> if plain.</li>
+        <li><clipboard>INPUT_SPANNED</clipboard>[2|3|…][<clipboard>_URI</clipboard>]* &#x2014;
+        <i><code>android.intent.extra.TEXT</code></i> if formatted
+        (will be represented as HTML).</li>
+        <li><clipboard>INPUT_HTML</clipboard>[2|3|…][<clipboard>_URI</clipboard>]* &#x2014;
+        <i><code>android.intent.extra.HTML_TEXT</code></i>.</li>
+        <p><i><b>Note:</b> * &#x2014; Suffix <clipboard>_URI</clipboard> is used
+        if input text is &gt;&#xA0;4096&#xA0;B and cached by Another&#xA0;Term under a content URI
+        (see <code><a href=\"info:/termsh_man\">termsh uri</a></code>).</i></p>
+        <li><clipboard>INPUT_URIS</clipboard> &#x2014;
+        a space separated list of <i><code>android.intent.extra.STREAM</code></i>.</li>
+        <li><clipboard>INPUT_SUBJECT</clipboard> &#x2014;
+        <i><code>android.intent.extra.SUBJECT</code></i>.</li>
+        <li><clipboard>INPUT_EMAIL_</clipboard>{<clipboard>TO</clipboard>|<clipboard>CC</clipboard>|<clipboard>BCC</clipboard>} &#x2014;
+        <i><code>android.intent.extra.{EMAIL|CC|BCC}</code></i> respectively.</li>
+        </ul>
+        <h3>查看和编辑</h3>
+        <ul>
+        <li><clipboard>INPUT_URI</clipboard> &#x2014; 内容URI.</li>
+        </ul>
+        <p><code><a href=\"info:/termsh_man\">termsh cat | copy | with-uris</a></code> etc.
+        <br/>are supposed to be used with the <code>INPUT_URI</code>.</p>
+    ]]></string>
+</resources>
