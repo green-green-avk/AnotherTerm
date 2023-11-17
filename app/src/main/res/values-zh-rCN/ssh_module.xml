@@ -1,0 +1,79 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="label_server_to_client_transport_encryption">服务器到客户端传输加密 <i>(cipher.s2c)</i></string>
+    <string name="label_client_to_server_transport_encryption">客户端到服务器传输加密 <i>(cipher.s2c)</i></string>
+    <string name="label_server_to_client_transport_message_authentication_code">服务器到客户端传输消息身份验证代码 <i>(mac.s2c)</i></string>
+    <string name="label_client_to_server_transport_message_authentication_code">客户端到服务器传输消息身份验证代码 <i>(mac.c2s)</i></string>
+    <string name="label_public_key_accepted_algorithms">公钥算法</string>
+    <string name="label_enable_server_signature_algorithms">对 <b>server-sig-algs</b> 响应中的算法进行优先级排序</string>
+    <string name="label_prefer_compression">偏好压缩方式</string>
+    <string name="note_ssh_algorithm_lists"><![CDATA[
+        <p>最高优先级 - 下一个列表的首位</p>
+        <p><font color=\"@note_ssh_algorithm_not_implemented\">&lt;algorithm&gt;</font> - 不受本软件支持</p>
+        <p><font color=\"@note_ssh_algorithm_not_supported\">&lt;algorithm&gt;</font> - 在该设备上不受支持</p>
+    ]]></string>
+    <string name="note_ssh_algorithm_not_implemented">不受本软件支持</string>
+    <string name="note_ssh_algorithm_not_supported">在该设备上不受支持</string>
+    <string name="label_port_forwarding_">端口转发</string>
+    <string name="label_port_forwarding_local_">本地：</string>
+    <string name="label_port_forwarding_remote_">远程端：</string>
+    <string name="choose">选择</string>
+    <string name="msg_s_requests_key_identification">%1$s 需要密钥验证</string>
+    <string name="msg_s_requests_key_identification_s"><![CDATA[
+        <p>%1$s 需要如下密钥验证:</p>
+        <p>%2$s</p>
+        <p>请选择:</p>
+    ]]></string>
+    <string name="msg_unable_to_load_associated_key__s"><![CDATA[Unable to load associated key:
+    <br/>%s]]></string>
+    <string name="msg_desc_obj_selected_key">&lt;选择的密钥&gt;</string>
+    <string name="msg_desc_obj_cannot_obtain_fingerprint"><i>&lt;无法获取指纹&gt;</i></string>
+    <string name="msg_ssh_remote_identity_new_ask_proceed"><![CDATA[
+        主机 %1$s 的真实性无法确认.\
+        %2$s 密钥指纹时\
+        %3$s\
+        \
+        继续连接?
+    ]]></string>
+    <string name="msg_ssh_remote_identity_changed"><![CDATA[
+        警告: 远程主机身份与之前不一致!\
+        某人恐怕在尝试做什么见不得人的事情!\
+        某人现在可能正在监听这个连接 (中间人攻击)!\
+        也有可能主机 %2$s 的密钥刚刚换掉了.\
+        远程主机 %1$s 发送的 %2$s 密钥的指纹为\
+        %3$s\
+        请联系你的系统管理员.
+    ]]>\n\n</string>
+    <string name="msg_ssh_remote_identity_changed_ask_proceed"><![CDATA[
+        警告: 远程主机身份与之前不一致!\
+        某人恐怕在尝试做什么见不得人的事情!\
+        某人现在可能正在监听这个连接 (中间人攻击)!\
+        也有可能主机 %2$s 的密钥刚刚换掉了.\
+        远程主机 %1$s 发送的 %2$s 密钥的指纹为\
+        %3$s\
+        请联系你的系统管理员.\
+	\
+	你需要删除旧密钥转而使用新的吗（务必确认好情况）？
+    ]]>\n</string>
+    <string name="msg_ssh_remote_identity_key_revoked"><![CDATA[
+        警告：远程主机密钥被标记为已吊销!\
+        %1$s [%2$s]\
+        这可能意味着被盗的密钥被用于假装目标主机.\
+        请联系你的系统管理员.
+    ]]>\n</string>
+    <string name="action_new_shell_in_this_ssh_session">+ 终端窗口</string>
+    <string name="desc_new_shell_in_this_ssh_session">在此SSH会话中启动新Shell</string>
+    <string name="label_portFw">端口转发</string>
+    <string name="action_manage_portFw_in_this_ssh_session">\@string/label_portFw</string>
+    <string name="desc_manage_portFw_in_this_ssh_session">在这个SSH会话中管理端口转发</string>
+    <string name="title_sshPortFw">SSH端口转发</string>
+    <string name="action_addPortFwL">+ 本地</string>
+    <string name="action_addPortFwR">+ 远程</string>
+    <string name="label_b_port_b">&lt;端口&gt;</string>
+    <string name="label_auto_b_local_port_b">自动 &lt;本地端口&gt;</string>
+    <string name="label_b_remote_port_b">&lt;远程端口&gt;</string>
+    <string name="desc_x11_host_s_port_d">X11转发已经使用 %1$s:%2$d</string>
+    <string name="msg_bad_port_number">不可用的端口号</string>
+    <string name="msg_port_cannot_be_empty">端口设置不可为空</string>
+    <string name="action_send_signal_to_remote_process">对远程进程发送信号</string>
+</resources>

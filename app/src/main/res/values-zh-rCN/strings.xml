@@ -18,47 +18,47 @@
     <string name="desc_android12_bluetooth_perm"><![CDATA[
         <p><code>android.permission.BLUETOOTH_CONNECT</code>
         在安卓&#xA0;12 以及更高版本上必须获得该权限
-        以连接蓝牙 SPP UART 硬件密钥</p>
+        以连接蓝牙 SPP UART 适配器</p>
     ]]></string>
-    <string name="desc_fav_token_help">
-        &lt;h1&gt;从意图（intent）启动终端&lt;/h1&gt;
-        &lt;p&gt;安卓系统并不能决定意图能够使用的资源
+    <string name="desc_fav_token_help"><![CDATA[
+        <h1>从意图（intent）启动终端</h1>
+        <p>安卓系统并不能决定意图能够使用的资源
         (安卓自身的权限模型不足以灵活到支配任意软件的权限资源)
-        像一些比如说 &lt;b&gt;Automate&lt;/b&gt一类的自动化软件; 通常并不提供任何绑定到服务的简单方式
+        像一些比如说 <b>Automate</b> 这样的自动化软件
+        通常并不提供任何绑定到服务的简单方式
         (在这个情况下检查应用凭据还是可以的).
-        因此 &lt;i&gt;"token"&lt;/i&gt; 一栏已经添加到参数收藏夹中
+        因此<i>\"token\"</i> 一栏已经添加到参数收藏夹中
         用以缓解这个问题. 这一栏保存着一个唯一的ID
-        作为形似口令来启动一个会话.&lt;/p&gt;
-        &lt;p&gt;会话内会运行一个脚本
-        用于控制会话实例的数量.&lt;/p&gt;
-        &lt;p&gt;要启动一个会话 (比如说：从 &lt;b&gt;Automate&lt;/b&gt;启动) use:&lt;/p&gt;
-        &lt;p&gt;&lt;b&gt;Intent 目标:&lt;/b&gt; &lt;i&gt;服务 (前台启动)&lt;/i&gt;&lt;/p&gt;
-        &lt;p&gt;
-        &lt;b&gt;包名 (application ID):&lt;/b&gt;
-        &lt;clipboard&gt;green_green_avk.anotherterm.debug&lt;/clipboard&gt;
-        &lt;/p&gt;
-        &lt;p&gt;
-        &lt;b&gt;Class:&lt;/b&gt;
-        &lt;clipboard&gt;green_green_avk.anotherterm.ControlService&lt;/clipboard&gt;
-        &lt;/p&gt;
-        &lt;p&gt;
-        &lt;b&gt;动作:&lt;/b&gt;
-        &lt;clipboard&gt;green_green_avk.anotherterm.intent.action.START_SESSION&lt;/clipboard&gt;
-        &lt;/p&gt;
-        &lt;p&gt;
-        &lt;b&gt;分类:&lt;/b&gt;
-        &lt;clipboard&gt;android.intent.category.DEFAULT&lt;/clipboard&gt;
-        &lt;/p&gt;
-        &lt;p&gt;
-        &lt;b&gt;附加项:&lt;/b&gt;
-        &lt;clipboard&gt;green_green_avk.anotherterm.intent.extra.FAV_TOKEN&lt;/clipboard&gt;&lt;br/&gt;
-        这个值应该是一个从你偏好的收藏设置中的 &lt;i&gt;"token"&lt;/i&gt; &lt;i&gt;字符串&lt;/i&gt;
-        &lt;/p&gt;
-        &lt;p&gt;所有 &lt;i&gt;字符串&lt;/i&gt; &lt;b&gt;附加项&lt;/b&gt; 会被传递给环境变量并且以
-         &lt;b&gt;附加项&lt;/b&gt; 命名，命名也会转化为
-        &lt;code&gt;String.toUpperCase(Locale.ROOT).replaceAll("[^A-Z0-9_]", "_")&lt;/code&gt;
-        并加上 &lt;code&gt;INPUT_&lt;/code&gt;前缀. &lt;code&gt;…FAV_TOKEN&lt;/code&gt; 值会被隐藏.&lt;/p&gt;
-    </string>
+        作为口令来启动一个会话.</p>
+        <p>会话内会运行一个脚本
+        用于控制会话实例的数量.</p>
+        <p>要启动一个会话 (比如说：从 <b>Automate</b> 启动) 使用:</p>
+        <p><b>Intent 目标:</b> <i>服务 (前台启动)</i></p>
+        <p>
+        <b>包名 (application ID):</b>
+        <clipboard>${applicationId}</clipboard>
+        </p>
+        <p>
+        <b>Class:</b>
+        <clipboard>${namespace}.ControlService</clipboard>
+        </p>
+        <p>
+        <b>动作:</b>
+        <clipboard>${namespace}.intent.action.START_SESSION</clipboard>
+        </p>
+        <p>
+        <b>分类:</b>
+        <clipboard>android.intent.category.DEFAULT</clipboard>
+        </p>
+        <p>
+        <b>附加项:</b>
+        <clipboard>${namespace}.intent.extra.FAV_TOKEN</clipboard><br/>
+        这个值应该是一个从你偏好的收藏设置中的<i>\"token\"</i><i>字符串</i>.
+        </p>
+        <p>所有 <i>字符串</i> <b>附加项</b> 会被传递给环境变量并且以
+        <code>String.toUpperCase(Locale.ROOT).replaceAll(\"[^A-Z0-9_]\", \"_\")</code>
+        命名并加上<code>INPUT_</code>前缀 . <code>…FAV_TOKEN</code> 值会被隐藏.</p>
+    ]]></string>
     <string name="desc_about"><![CDATA[
 <h1>Links</h1>
 <ul>
@@ -306,4 +306,680 @@ and their consequences related to the aforementioned regulation.</p>
         <p><code><a href=\"info:/termsh_man\">termsh cat | copy | with-uris</a></code> etc.
         <br/>are supposed to be used with the <code>INPUT_URI</code>.</p>
     ]]></string>
+    <string name="desc_shell_env_help"><![CDATA[
+        <p>环境变量:
+        <ul>
+        <li><clipboard>DATA_DIR</clipboard> &#x2014; 默认的数据持久化存储目录.
+        <br/><b>这会随着软件删除一同被删除.</b></li>
+        <li><clipboard>PROTECTED_DATA_DIR</clipboard> &#x2014; 默认受设备保护的
+        数据持久化目录(能用就调).
+        <br/><b>这会随着软件删除一同被删除.</b></li>
+        <li><clipboard>SHARED_DATA_DIR</clipboard> &#x2014;
+        主共享/外部存储设备上的目录
+        软件会在这里存放自己的持久化文件
+        (能用就调).
+        其他拥有存储空间权限的软件也可以访问这里.
+        <br/><b>这会随着软件删除一同被删除.</b></li>
+        <li><clipboard>EXTERNAL_DATA_DIR</clipboard> &#x2014;
+        <clipboard>SHARED_DATA_DIR</clipboard>的别名.</li>
+        <li><clipboard>PUBLIC_DATA_DIR</clipboard> &#x2014; \"sdcard\"的根目录.
+        <code>READ_EXTERNAL_STORAGE</code> / <code>WRITE_EXTERNAL_STORAGE</code> 这个权限是必要的.</li>
+        <li><clipboard>LIB_DIR</clipboard> &#x2014; 原生库路径.</li>
+        <li><clipboard>APP_APK</clipboard> &#x2014; <b>其他终端软件</b> 的APK路径.</li>
+        <li><clipboard>APP_ID</clipboard> &#x2014; <b>其他终端软件</b> 的application id.</li>
+        <li><clipboard>APP_VERSION</clipboard> &#x2014; <b>其他终端软件</b> 的版本.</li>
+        <li><clipboard>APP_TARGET_SDK</clipboard> &#x2014; <b>其他终端软件</b>的
+        <code>targetSdkVersion</code>（可以去类似于LibCheck这样的软件查看）.</li>
+        <li><clipboard>MY_DEVICE_ABIS</clipboard> &#x2014; 受支持的架构列表
+        从最推荐到最不推荐.</li>
+        <li><clipboard>MY_ANDROID_SDK</clipboard> &#x2014; Android SDK版本.</li>
+        <li><clipboard>SHELL_SESSION_TOKEN</clipboard> &#x2014; 与相关数据关联
+        包括 <b>termsh</b> 权限和会话相关UI.</li>
+        </ul>
+        建议浏览:
+        <ul>
+        <li><a href=\"info:/share_input\">与其他终端共享内容</a></li>
+        </ul>
+        </p>
+        <p>命令:
+        <ul>
+        <li><b>termsh</b> (<clipboard>$LIB_DIR/libtermsh.so</clipboard>) &#x2014; 一个用于
+        从终端Shell调用安卓功能的工具.
+        带上参数 <code>help</code> 运行以了解
+        <a href=\"info:/termsh_man\">更多内容</a>.</li>
+        </ul></p>
+    ]]></string>
+    <string name="desc_termsh_help"><![CDATA[
+<h3>位置</h3>
+
+<p><code>TERMSH=\"<clipboard>$LIB_DIR/libtermsh.so</clipboard>\"</code></p>
+
+<h3>用法</h3>
+
+<p><code>\"$TERMSH\" [-r|--raw] &lt;command&gt; [&lt;args...&gt;]</code></p>
+<ul type=\"none\">
+<li><code>-r|--raw</code> &#x2014; 当命令执行时，将一个tty转换到
+raw 模式，使用 <code>cfmakeraw()</code>
+libc函数设置.
+(注意, <kbd>Ctrl</kbd>&#x2011;<kbd>C</kbd>等在这个模式下不会被PTY捕捉)</li>
+</ul>
+
+<h4>命令</h4>
+
+<p><b>注意:</b> 任何UI元素 (除了通知) 和相关命令
+在终端Activity对应的会话结束之前均会被屏蔽.</p>
+
+<dl>
+
+<dt><p><code>
+帮助
+</code></p></dt>
+<dd>会显示这一页这么一堆东西XD.</dd><br/>
+
+<dt><p><code>
+notify [-i|--id &lt;id&gt;] [--] [&lt;message&gt;]<br/>
+notify -r|--remove -i|--id &lt;id&gt;
+</code></p></dt>
+<dd>
+显示通知, 在message段无参数传入时会默认用<i>stdin</i>.
+<ul type=\"none\">
+<li><code>-i|--id &lt;id&gt;</code> &#x2014; 通知id.</li>
+<li><code>-r|--remove</code> &#x2014; 通过id检索并删除相关通知.</li>
+</ul>
+</dd><br/>
+
+<dt><p><code>
+clipboard-copy [&lt;string&gt;]
+</code></p></dt>
+<dd>
+复制到剪贴板 (仅当用户在操作当前会话的UI时).<br/>
+如果没有提供<code>&lt;string&gt;</code>, 将会默认使用<i>stdin</i>.
+<p><em><a href=\"info:/shell_perm_clipboard-copy\"><code>clipboard-copy</code></a>
+权限是必须的.</em></p>
+</dd><br/>
+
+<dt><p><code>
+uri [--] &lt;file&gt;<br/>
+uri [-m|--mime &lt;mime&gt;] [-n|--name &lt;name&gt;] [-s|--size &lt;size&gt;]<br/>
+uri -c|--close-stream [--] &lt;URI&gt;<br/>
+uri -l|--list-streams
+</code></p></dt>
+<dd>
+获取指定文件或流的自带的内容提供程序 URI，或关闭以前打开的流.
+<br/>除非指定参数<code>-w|--wait</code>，否则命令处理完毕后会立即退出.
+在指定为流的情况下, 当流读取到EOF（End Of File）标识或者它可以被选项
+<code>-c|--close-stream &lt;URI&gt;</code>关闭时，
+<code>&lt;URI&gt;</code> 将自动解除绑定.
+<ul type=\"none\">
+<li><code>-m|--mime &lt;mime&gt;</code> &#x2014; Mime type, <code>*/*</code> - default.</li>
+<li><code>-n|--name &lt;name&gt;</code> &#x2014; 用于表示流的名称.</li>
+<li><code>-s|--size &lt;size&gt;</code> &#x2014; 当输入是流，指定要在查询答案中提供的大小（以字节为单位）
+比如说谷歌的Gmail客户端, 即使在使用流的情况下
+也会将缺省大小视为0.</li>
+<li><code>-w|--wait</code> &#x2014; 等待流读取到 EOF，然后将其关闭
+并退出; <code>$TERMSH</code> 的终止也会关闭流. 当你需要在termsh关闭时
+仍然需要保持一个在运行的Shell管道时使用这个参数;<br/>
+example: <code>tar -czv * | \"$TERMSH\" uri -w</code></li>
+<li><code>-c|--close-stream &lt;URI&gt;</code> &#x2014; 取消绑定流 <code>&lt;URI&gt;</code>
+并释放相关资源.</li>
+<li><code>-l|--list-streams</code> &#x2014; 列出所有绑定的流URIs.</li>
+</ul>
+</dd><br/>
+
+<dt><p><code>
+view|edit [&lt;options...&gt;] [--] &lt;file|URI&gt;
+</code></p></dt>
+<dd>
+使用适当的临时访问权限打开文件/URI以供查看/编辑.
+<br/>在与用户交互后该命令并不会结束.
+<ul type=\"none\">
+<li><code>-N|--notify</code> &#x2014; 发送一个通知而不是弹出选项对话框.</li>
+<li><code>-m|--mime &lt;mime&gt;</code> &#x2014; Mime type, <code>*/*</code> - default.</li>
+<li><code>-p|--prompt &lt;prompt&gt;</code> &#x2014; 在选择对话框中显示.</li>
+<li><code>-r|--recipient &lt;recipient&gt;</code> &#x2014; 指定一个用于接受意图（intent）
+的Activity. <code>&lt;recipient&gt;</code> 可以是:
+<ul>
+<li>一个应用程序的Activity类名.</li>
+<li>传入其他应用的Acitvity作为参数应遵照如右格式:
+<code>&lt;package&gt;/&lt;activity_class&gt;</code><br/>
+(<code>&lt;activity_class&gt;</code> 可以以一个 `<code>.</code>\' (dot)开头
+以使用 <code>&lt;package&gt;</code> 作为它的前缀:<br/>
+<code>foo.bar/.Act</code> => <code>foo.bar/foo.bar.Act</code>).
+</li></ul>
+示例: <code>\"$TERMSH\" view
+-r \'<clipboard>green_green_avk.anotherterm.FavoriteEditorActivity</clipboard>\'
+-u \'local-terminal:/opts?execute=my_awesome_script\'</code></li>
+<li><code>-u|--uri</code> &#x2014; 使用URI而非文件.</li>
+</ul>
+</dd><br/>
+
+<dt><p><code>
+send [&lt;options...&gt;] [--] [&lt;file|URI&gt; ...]
+</code></p></dt>
+<dd>
+Send (<i><code>android.intent.action.SEND</code></i> or
+<i><code>android.intent.action.SEND_MULTIPLE</code></i>).
+当代表<i>stdin</i>的
+<code>/^(?:[a-z0-9+.-]+):\\/\\//i</code>不匹配时
+<br/><code>&lt;file|URI&gt;</code> 将会被当作文件路径.
+<br/>`<code>-</code>\' is used to represent the <i>stdin</i>.
+<br/>当文件或者URI被指定时
+命令在流发送后或与用户交互后退出.
+<ul type=\"none\">
+<li><code>-N|--notify</code> &#x2014; 发送一个通知而不是弹出选项对话框.</li>
+<li><code>-m|--mime &lt;mime&gt;</code> &#x2014; Mime type for an <i>stdin</i> stream,
+<code>*/*</code> - default.</li>
+<li><code>-n|--name &lt;name&gt;</code> &#x2014; 用于代表
+ <i>stdin</i> 流的名字.</li>
+<li><code>-s|--size &lt;size&gt;</code> &#x2014; 当输入是流，指定要在查询答案中提供的大小（以字节为单位）
+比如说谷歌的Gmail客户端, 即使在使用流的情况下
+也会将缺省大小视为0.</li>
+<li><code>-p|--prompt &lt;prompt&gt;</code> &#x2014; 弹出选项对话框.</li>
+<li><code>--text &lt;text&gt;</code> &#x2014;
+<i><code>android.intent.extra.TEXT</code></i>.</li>
+<li><code>--text-stdin</code> &#x2014;
+the same but from the <i>stdin</i><footnote ref=\"2\" />.</li>
+<li><code>--html &lt;HTML&gt;</code> &#x2014;
+<i><code>android.intent.extra.HTML_TEXT</code></i>.
+<br/><i><code>android.intent.extra.TEXT</code></i> will be set to
+<code>Html.fromHtml(&lt;HTML&gt;)</code>
+if no <code>--text &lt;text&gt;</code> or
+<code>--text-stdin</code> is specified.</li>
+<li><code>--html-stdin</code> &#x2014;
+the same but from the <i>stdin</i><footnote ref=\"2\" />.</li>
+<li><code>--subject &lt;subject&gt;</code> &#x2014;
+<i><code>android.intent.extra.SUBJECT</code></i>.</li>
+<li><code>--email-to &lt;address[ address]...&gt;</code> &#x2014;
+<i><code>android.intent.extra.EMAIL</code></i>.</li>
+<li><code>--email-cc &lt;address[ address]...&gt;</code> &#x2014;
+<i><code>android.intent.extra.CC</code></i>.</li>
+<li><code>--email-bcc &lt;address[ address]...&gt;</code> &#x2014;
+<i><code>android.intent.extra.BCC</code></i>.</li>
+</ul>
+示例:
+<p><code>convert cat.jpg -grayscale average - | \"$TERMSH\" send -m image/jpeg --subject \'My cat\' --text \'Attached.\' -</code>
+<br/><b>注意:</b> 很多应用程序, 包括谷歌Gmail客户端,
+要求事先知道流大小...
+在上述情况流将不适用.</p>
+<p><code>convert cat.jpg -grayscale average cat_gray.jpg &amp;&amp; \"$TERMSH\" send --subject \'My cat\' --text \'Attached.\' cat_gray.jpg</code>
+<br/>但这个会有用.</p>
+<p>Or just <a href=\"info:/share_input\">resharing</a> text content by value:
+<br/><code>\"$TERMSH\" cat \"$INPUT_URI\" | \"$TERMSH\" send --text-stdin</code><br/>
+这个在使用文本文件的内容作为新邮件的的内容时会派上用场.</p>
+</dd><br/>
+
+<dt><p><code>
+pick [&lt;options...&gt;] [--] [&lt;path&gt;]
+</code></p></dt>
+<dd>
+弹出文件选择窗口（SAF）并且将选中的文件 (或者它的URI) 至:
+<ul>
+<li>传递文件：当<code>&lt;path&gt;</code>是一个文件;</li>
+<li>由内容提供器（content provider）提供文件名的文件： (or deduced from the URI)<footnote ref=\"1\" />
+当 <code>&lt;path&gt;</code> 是一个目录;</li>
+<li>该参数缺省时默认使用<i>stdout</i>.</li>
+</ul>
+<code>http</code> 和 <code>https</code> 方案也均随着<code>file</code>和<code>content</code>
+受到支持=
+<br/>当URI被指定时
+命令在收到内容后退出，或在选择器对话框结果后立即退出.
+<ul type=\"none\">
+<li><code>--insecure</code> &#x2014; 通过HTTPS连接并忽视无效证书.</li>
+<li><code>-N|--notify</code> &#x2014; 发送一个通知而不是弹出选项对话框.</li>
+<li><code>-m|--mime &lt;mime&gt;</code> &#x2014; Mime type, <code>*/*</code> - default.</li>
+<li><code>-p|--prompt &lt;prompt&gt;</code> &#x2014; 弹出选项对话框.</li>
+<li><code>-u|--uri</code> &#x2014; 输出URI而非内容.</li>
+<li><code>-f|--force</code> &#x2014; 允许覆写目标.</li>
+</ul>
+示例:
+<p><code>\"$TERMSH\" pick .</code></p>
+<p><code>\"$TERMSH\" pick | tar -zxv</code></p>
+</dd><br/>
+
+<dt><p><code>
+copy [-f|--force] [--insecure] [--progress] [-fp|--from-path|-fu|--from-uri &lt;from&gt;] [-tp|--to-path|-tu|--to-uri &lt;to&gt;]
+</code></p></dt>
+<dd>
+复制内容。现在仅支持单个文件.
+源URI可以是<code>content</code>, <code>http</code> 或者 <code>https</code>.
+目标 URI 方案必须为 <code>content</code>.
+当 <code>&lt;from&gt;</code> 或者 <code>&lt;to&gt;</code> 未指定,
+<i>stdin</i> 或者 <i>stdout</i> 将被分别使用.
+<code>&lt;to&gt;</code> 可以是一个目录<footnote ref=\"1\" />.
+<ul type=\"none\">
+<li><code>-f|--force</code> &#x2014; 允许覆写目标.</li>
+<li><code>--insecure</code> &#x2014; 通过HTTPS连接并忽视无效证书.</li>
+<li><code>--progress</code> &#x2014; 将当前进度输出至 <i>stderr</i>.</li>
+</ul>
+</dd><br/>
+
+<dt><p><code>
+cat [--insecure] [--progress] [&lt;URI&gt; ...]
+</code></p></dt>
+<dd>
+将指定URI内容连接至 <i>stdout</i>,
+`<code>-</code>\' 用于代表 <i>stdin</i>.
+URI方案可以为 <code>content</code>, <code>http</code> 或者 <code>https</code>.
+如果URI缺省, 将默认使用<i>stdin</i>.
+<ul type=\"none\">
+<li><code>--insecure</code> &#x2014; 通过HTTPS连接并忽视无效证书.</li>
+<li><code>--progress</code> &#x2014; 将当前进度输出至 <i>stderr</i>.</li>
+</ul>
+<h5>示例:</h5>
+<p><code>
+\"$TERMSH\" cat \"content://$APP_ID.linksprovider/html/some_url_to_be_wrapped_into_html\"
+</code></p>
+<p><code>
+uri=\"$(\"$TERMSH\" pick -u)\"<br/>
+\"$TERMSH\" cat \"$uri\" > \"$(\"$TERMSH\" name \"$uri\").new\"
+</code></p>
+</dd><br/>
+
+<dt><p><code>
+with-uris &lt;name&gt; &lt;arg0&gt; [&lt;args...&gt;] &lt;URIs&gt;
+</code></p></dt>
+<dd>
+<p><b>Warning:</b>
+这个命令可能在<b>Android&nbsp;&#x2265;&nbsp;10</b>上不起作用.</p>
+这个命令可用于
+<a href=\"info:/share_input\">内容分享，查看和编辑</a> 功能.
+它在指定<code>&lt;URI&gt;</code>的情况下运行，该命令由 <i>procfs fd</i> 条目表示
+<code>&lt;URIs&gt;</code> 是单个参数，由空格分隔
+URI的内容提供者（content provider） 必须能够为返回整个文件描述符
+<p>它会返回实际命令的退出值，在出现问题时会返回
+<code>127</code> 或者 <code>1</code>.</p>
+<p>效果与下列命令相同
+<p><code>execp(name, arg0, args..., \"/proc/PID/fd/FD_URI0 /proc/PID/fd/FD_URI1 ...\")</code></p></p>
+<p><a href=\"https://green-green-avk.github.io/AnotherTerm-docs/local-shell-utility.html#cmd_with-uris\"><b>More info</b></a></p>
+</dd><br/>
+
+<dt><p><code>
+name &lt;URI&gt;
+</code></p></dt>
+<dd>
+Get the name provided by content provider (or deduced from the URI)<footnote ref=\"1\" />.
+</dd><br/>
+
+<dt><p><code>
+size [--insecure] &lt;URI&gt;
+</code></p></dt>
+<dd>
+获取内容提供者（content provider）提供的大小或者HTTP头部的<code>content-length</code>
+(若参数缺省则会返回 <code>null</code>).
+</dd><br/>
+
+<dt><p><code>
+mime [--insecure] &lt;URI&gt;
+</code></p></dt>
+<dd>
+获取内容提供者（content provider）提供的mime-type或者HTTP头部的<code>content-type</code>
+(若参数缺省则会返回 <code>*/*</code>).
+</dd><br/>
+
+<dt><p><code>
+serial -l|--list<br/>
+serial [-a|--adapter &lt;address&gt;] [-i|--insecure] [&lt;baudrate&gt;[/&lt;databits&gt;[/&lt;stopbits&gt;[/&lt;parity&gt;[/&lt;flowcontrol&gt;]]]]]
+</code></p></dt>
+<dd>
+连接到 USB 适配器并使用<i>stdin</i> / <i>stdout</i>.
+<ul type=\"none\">
+<li><code>-a|--adapter</code> &#x2014; 使用由<code>&lt;address&gt;</code>;指定的USB适配器</li>
+<li><code>-i|--insecure</code> &#x2014; 不使用安全连接 (蓝牙);</li>
+<li><code>-l|--list</code> &#x2014; 在表单中列出可用的 UART 适配器，格式： <code>&lt;address&gt; &lt;description&gt;</code>.</li>
+</ul>
+<h5>可能会用上的值:</h5>
+<ul type=\"none\">
+<li>波特率: 一个正数 <code>0</code><footnote ref=\"3\" /></li>
+<li>数据位: <code>-</code><footnote ref=\"3\" />, <code>8</code>, <code>7</code>, <code>6</code>, <code>5</code></li>
+<li>停止位: <code>-</code><footnote ref=\"3\" />, <code>1</code>, <code>1.5</code>, <code>2</code></li>
+<li>奇偶校验: <code>-</code><footnote ref=\"3\" />, <code>none</code>, <code>even</code>, <code>odd</code>, <code>mark</code>, <code>space</code></li>
+<li>流控制: <code>-</code><footnote ref=\"3\" />, <code>off</code>, <code>xon_xoff</code>, <code>rts_cts</code>, <code>dsr_dtr</code></li>
+</ul>
+<p><footnote ref=\"3\" /> &#x2014; 保留当前值</p>
+<p><b>默认:</b> <code>0/-/-/-/-</code></p>
+<p><b>注意:</b> 此外, UART端口设置
+(<code>&lt;baudrate&gt;</code>, <code>&lt;databits&gt;</code>, <code>&lt;stopbits&gt;</code>,
+<code>&lt;parity&gt;</code>, <code>&lt;flowcontrol&gt;</code>)
+无法应用于使用 Android 蓝牙栈的蓝牙适配器.<br/>
+<a href=\"https://green-green-avk.github.io/AnotherTerm-docs/issues.html#bluetooth-uart-dongles-support\"><b>了解详情</b></a></p>
+</dd><br/>
+
+<dt><p><code>
+uri-encode &lt;string&gt; [&lt;allowed&gt;]
+</code></p></dt>
+<dd>对<code>&lt;string&gt;</code> 进行URL转义但不转义
+<code>&lt;allowed&gt;</code>中指定的内容.
+<p>如果参数<code>&lt;allowed&gt;</code>缺省,
+将会使用<code>java.net.URLEncode.encode(v, \"UTF8\")</code>.
+转义将根据<code>application/x-www-form-urlencoded</code> 的MIME格式进行.</p>
+<p>如果参数<code>&lt;allowed&gt;</code> 以及指定 (指定的内容为空也行，这并不算是指定了个寂寞),
+将会使用<code>android.net.Uri.encode()</code>.
+但<code>[A-Za-z0-9_!.~\\\'()*-]</code>始终不受影响.</p>
+</dd><br/>
+
+<dt><p><code>
+uri-decode &lt;string&gt;
+</code></p></dt>
+<dd>对<code>&lt;string&gt;</code>进行逆转义.</dd><br/>
+
+<dt><p><code>
+request-permission &lt;name&gt; &lt;message&gt;
+</code></p></dt>
+<dd>使用一个对话框征得用户意见.
+<ul type=\"none\">
+<li><code>&lt;name&gt;</code> &#x2014; 可以是:
+<a href=\"info:/shell_perm_favmgmt\"><code>favmgmt</code></a>,
+<a href=\"info:/shell_perm_pluginexec\"><code>pluginexec</code></a>,
+<a href=\"info:/shell_perm_clipboard-copy\"><code>clipboard-copy</code></a>.</li>
+<li><code>&lt;message&gt;</code> &#x2014; 用于展示的信息.</li>
+</ul>
+<p>Return codes:</p>
+<ul type=\"none\">
+<li><code>0</code> &#x2014; 用户同意;</li>
+<li><code>1</code> &#x2014; 出错;</li>
+<li><code>2</code> &#x2014; 用户拒绝;</li>
+<li><code>3</code> &#x2014; 已经授权.</li>
+</ul>
+</dd><br/>
+
+<dt><p><code>
+revoke-permission &lt;name&gt;
+</code></p></dt>
+<dd>除你权限.</dd><br/>
+
+<dt><p><code>
+has-favorite &lt;name&gt;
+</code></p></dt>
+<dd>返回 <code>0</code>值当一个命名为<code>&lt;name&gt;</code> 的收藏项已经存在,
+否则返回<code>2</code>.
+<p><em>调用此命令的shell必须具有管理收藏夹的权限
+否则会返回<code>1</code>值.</em></p></dd><br/>
+
+<dt><p><code>
+create-shell-favorite [-t|--term &lt;terminal_string&gt;] [--] &lt;name&gt; &lt;execute&gt;
+</code></p></dt>
+<dd>添加一个名字为<code>&lt;name&gt;</code>
+并且执行内容为<code>&lt;execute&gt;</code>脚本字符串的收藏项.
+当名称<code>&lt;name&gt;</code>已被使用时会返回错误码<code>2</code>.
+<p><em>调用此命令的shell必须具有管理收藏夹的权限
+否则会返回<code>1</code>值.</em></p></dd><br/>
+
+<dt><p><code>
+plugin [--] &lt;package_name&gt; [&lt;args&gt;...]<br/>
+plugin -h|--help [--] &lt;package_name&gt;
+</code></p></dt>
+<dd>运行由参数<code>&lt;package_name&gt;</code>指定的插件或者输出这个插件的信息页.
+<p><em>调用此命令的shell必须具有执行插件的权限
+否则会返回<code>1</code>值.</em></p></dd><br/>
+
+<dt><p><code>
+wakelock {is-held|acquire [&lt;timeout&gt;]|release}
+</code></p></dt>
+<dd><p><code>is-held</code> 返回值:
+<ul type=\"none\">
+<li><code>0</code> &#x2014; 唤醒锁开;</li>
+<li><code>2</code> &#x2014; 唤醒锁关.</li>
+</ul></p>
+<p><code>&lt;timeout&gt;</code> 是以秒为单位的十进制值
+精度为 1 毫秒.</p>
+</dd><br/>
+
+</dl>
+
+<h4>注意:</h4>
+<ul type=\"none\">
+<li><footnote ref=\"1\" /> &#x2014; 如果文件名推导失败
+则使用unnamed并返回退出代码2.</li>
+<li><footnote ref=\"2\" /> &#x2014; 便笺板列集限制适用.</li>
+</ul>
+
+<h4>相关的环境变量:</h4>
+<ul type=\"none\">
+<li><clipboard>TERMSH_UID</clipboard> &#x2014;
+此应用程序的真实 UID，用于欺骗检测.
+若仿真的UID不同
+这是使用<code>termsh</code>必须配置的项
+(比如说Chroot下的环境).</li>
+<li><clipboard>SHELL_SESSION_TOKEN</clipboard> &#x2014;
+当前会话token.
+由 <b>其他&nbsp;终端</b> 自行设置.
+访问当前会话属性及其连接的终端窗口时
+需要设置.</li>
+</ul>
+]]></string>
+    <string name="text_license"><![CDATA[
+Copyright 2023 Aleksandr Kiselev\
+\
+Licensed under the Apache License, Version 2.0 (the \"License\");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at\
+\
+\ \ \ \ http://www.apache.org/licenses/LICENSE-2.0\
+\
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an \"AS IS\" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.\
+]]></string>
+    <string name="desc_local_param_execute"><![CDATA[
+        <p>如果这里留空, 将会默认执行<code>/system/bin/sh -l</code>;<br/>
+        否则执行<code>/system/bin/sh -l -c &lt;&gt;</code>.<br/>
+        <b>注意:</b> Android&#xA0;4.0.X 的 <code>sh</code> 没有
+        <code>-l</code> 选项.</p>
+    ]]></string>
+    <string name="action_session_permissions">会话权限</string>
+    <string name="title_permissions">权限</string>
+    <string name="label_favorites_management">收藏管理</string>
+    <string name="desc_favorites_management"><![CDATA[
+        <p>授权 <b>termsh</b> 对于收藏进行静默读写的能力.</p>
+        <p><b>注意:</b> 若没有运行在例如PRoot的这样的沙盒运行环境下
+        任何运行在该终端的进程都可以读取任意应用程序的配置文件.</p>
+    ]]></string>
+    <string name="label_plugins_execution">插件执行</string>
+    <string name="desc_plugins_execution"><![CDATA[
+        <p>Shell插件由 <b>termsh</b> 执行.
+        在插件的设置设定为 &#x00AB;总是可访问（Always accessible）&#x00BB;的插件
+        在这个权限状态下
+        可独立运行.</p>
+    ]]></string>
+    <string name="label_copy_to_clipboard">复制到剪贴板</string>
+    <string name="desc_copy_to_clipboard"><![CDATA[
+        <p>授权 <b>termsh</b> 写入安卓剪贴板.</p>
+        <p>这只会在用户操作当前会话的UI时被执行
+        其他情况下会被忽视.</p>
+    ]]></string>
+    <string name="label_fav_shareable">"\n        展示至（show in） &#x00AB;共享至（share with） &#x00BB; / &#x00AB;打开方式（open with） &#x00BB; 选项窗口\n    "</string>
+    <string name="action_send_signal_to_fg_pg">"向前台进程组发送信号 "</string>
+    <string name="msg_pty_connection_closed">PTY连接关闭</string>
+    <string name="msg_process_exited_with_status_d">进程关闭，返回码：%d</string>
+    <string name="title_document_root_public">\@string/app_name</string>
+    <string name="summary_document_root_public">对外文件</string>
+    <string name="action_send_signal">发送信号</string>
+    <string name="title_ssh_prefs_auth">鉴权</string>
+    <string name="label_ssh_silently_use_saved_passwords">自动使用已保存密码 <i>(密码验证和私钥解密)</i></string>
+    <string name="label_ssh_save_password">连接成功时自动保存</string>
+    <string name="label_ssh_use_saved_password">使用保存的密码</string>
+    <string name="label_prefer_public_key_authentication">首选公钥身份验证</string>
+    <string name="note_ssh_trying_keyboard_interactive___"><i>以<b>使用键盘交互</b>的身份验证方法作为最后的手段...</i></string>
+    <string name="title_ssh_prefs_encryption">加密</string>
+    <string name="label_client_private_key_">客户端私钥（OpenSSH或PEM）</string>
+    <string name="label_key_exchange">密钥交换 <i>(kex)</i></string>
+    <string name="label_server_host_key">服务端密钥 <i>(server_host_key)</i></string>
+    <string name="label_prefer_known_host_key_types">确定已知主机密钥算法的优先级</string>
+    <string name="label_transport_encryption">传输加密 <i>(cipher)</i></string>
+    <string name="label_transport_message_authentication_code">传输信息验证码 <i>(mac)</i></string>
+    <string name="label_server_to_client">服务器到客户端t <i>(s2c)</i></string>
+    <string name="label_client_to_server">客户端到服务器 <i>(c2s)</i></string>
+    <string name="msg_feature_class_not_found">%s: 安卓并没有实现它…</string>
+    <string name="state_off">关闭</string>
+    <string name="state_on">打开</string>
+    <string name="state_disabled">停用</string>
+    <string name="state_enabled">启用</string>
+    <string name="action_confirm">确认</string>
+    <string name="action_close">关闭</string>
+    <string name="action_hide">隐藏</string>
+    <string name="action_unset">取消设置</string>
+    <string name="action_set">设置</string>
+    <string name="action_delete">删除</string>
+    <string name="action_erase">擦除</string>
+    <string name="action_erase_all">全部擦除</string>
+    <string name="action_edit">编辑</string>
+    <string name="action_save">保存</string>
+    <string name="action_view">查看</string>
+    <string name="action_copy">复制</string>
+    <string name="action_paste">粘贴</string>
+    <string name="action_share">分享</string>
+    <string name="action_copy_by_uri">拷贝URI（作为文件）</string>
+    <string name="action_share_by_uri">分享URI（作为文件）</string>
+    <string name="value_not_set"><i>设置为空</i></string>
+    <string name="action_charset">字符集</string>
+    <string name="action_settings">设置</string>
+    <string name="action_saved_passwords_settings">保存的密码</string>
+    <string name="action_ssh_keys_settings">SSH密钥设置</string>
+    <string name="action_new_favorite">新收藏项</string>
+    <string name="msg_copied_to_clipboard">已经复制到剪贴板</string>
+    <string name="msg_connecting___">正在连接</string>
+    <string name="msg_connected">连接建立</string>
+    <string name="msg_disconnected">连接断开</string>
+    <string name="optimized">已优化</string>
+    <string name="not_optimized">未优化</string>
+    <string name="hint_user">用户</string>
+    <string name="hint_host">主机</string>
+    <string name="hint_port">端口</string>
+    <string name="msg_connection_closed_by_server">连接被服务器关闭</string>
+    <string name="msg_connection_closed_by_client">连接被客户端关闭</string>
+    <string name="msg_password_for_host_s">主机%s的密码</string>
+    <string name="msg_password_for_host_change_s_s">主机 %1$s的密码必须修改: %2$</string>
+    <string name="msg_passphrase_for_key_s">密钥%s的口令</string>
+    <string name="action_settings_keepalive_and_battery_optimization">会话保活和电池优化</string>
+    <string name="msg_unable_to_open_doze_settings">"\n        无法打开电池优化设置页\n        请自行打开设置调整\n    "</string>
+    <string name="action_device_storage_access_permission">设备存储空间访问权限</string>
+    <string name="desc_device_storage_access"><![CDATA[
+        <p><b>这个权限只会影响本地终端的功能.</b></p>
+        <p>仅当需要从本地终端读取共享存储空间时
+        才需要为本软件授予该权限.</p>
+        <p><b>警告:</b> 只有你需要运行任意二进制文件时再… 好了好了，提醒一下而已.</p>
+        <p><b>警告:</b> 这个软件的共享目录是
+        不需要这个权限就能访问的. (see the
+        <a href=\"info:/shell_env_man\"><code>SHARED_DATA_DIR</code> 环境变量</a>)</p>
+        <p><b>注意: </b>这个软件在该权限变动时
+        会关闭包括软件本体在内的所有的会话.
+        这个是安卓的特性.</p>
+    ]]></string>
+    <string name="msg_unable_to_open_app_settings">"\n       无法打开应用软件设置页面\n        你可以自行调整\n    "</string>
+    <string name="action_add_fav">添加收藏项</string>
+    <string name="label_name">名称</string>
+    <string name="label_type">类型</string>
+    <string name="new_favorite">新收藏项</string>
+    <string name="edit_favorite_s">编辑收藏项 `%s\'</string>
+    <string name="new_favorite_from_s">来自于\'%s\'的新收藏项</string>
+    <string name="number_expected">需要的数字</string>
+    <string name="field_must_not_be_empty">必须非空</string>
+    <string name="there_are_active_terminals">仍然有终端处于活跃状态</string>
+    <string name="there_are_active_session_startups">尝试从意图（intent）启动会话</string>
+    <string name="there_are_in_memory_stored_passwords">目前存有一些密码</string>
+    <string name="action_clone">克隆</string>
+    <string name="action_terminate">终止</string>
+    <string name="prompt_terminate_the_session">终止这个终端？</string>
+    <string name="hint_port_mapping"><![CDATA[src_port[>dst_host[:dst_port]][;…]]]></string>
+    <string name="label_charset">字符集</string>
+    <string name="title_terminal_s_link_s">终端 %2$s 链接 `%1$s\'</string>
+    <string name="msg_saved">已保存</string>
+    <string name="msg_cloned">已克隆</string>
+    <string name="msg_favorite_s_is_already_exists_replace">收藏项 `%s\' 已经存在. 替换吗?</string>
+    <string name="do_you_want_to_delete_this_favorite">你要删除这个收藏吗</string>
+    <string name="msg_favorite_deleted">收藏项已删除</string>
+    <string name="action_about">关于</string>
+    <string name="label_terminal_string">终端字符串</string>
+    <string name="label_execute_">执行</string>
+    <string name="label_shell">Shell</string>
+    <string name="label_keepalive_interval_">保活间隔：</string>
+    <string name="time_unit_seconds">秒</string>
+    <string name="msg_desc_permission_revoked">访问权限似乎已被撤销。</string>
+    <string name="msg_desc_file_not_found">文件未找到</string>
+    <string name="msg_desc_malformed__s">它看起来损坏了: %s</string>
+    <string name="msg_clipboard_does_not_contain_applicable_settings">剪贴板未存放可应用的设置</string>
+    <string name="action_add">添加</string>
+    <string name="none">无</string>
+    <string name="action_term_key_mapping">按键映射</string>
+    <string name="action_term_color_mapping">色彩映射</string>
+    <string name="prompt_overwrite">覆写？</string>
+    <string name="msg_name_must_not_be_empty">名称不能为空</string>
+    <string name="title_license">协议</string>
+    <string name="conntype_local">本地终端</string>
+    <string name="desc_not_found"><![CDATA[<h1>未找到</h1>]]></string>
+    <string name="desc_rendering___"><![CDATA[<h1>渲染中…</h1>]]></string>
+    <string name="label_in_memory_saved_passwords">存储</string>
+    <string name="label_key_map">键盘映射</string>
+    <string name="label_color_map">色彩映射</string>
+    <string name="label_background">背景</string>
+    <string name="label_host_keys">热键</string>
+    <string name="action_settings_terminal">终端</string>
+    <string name="msg_cannot_parse_uri">无法解析 URI</string>
+    <string name="msg_cannot_access_clipboard">无法解析剪贴板</string>
+    <string name="msg_nothing_to_copy_to_clipboard">没什么可复制的</string>
+    <string name="msg_too_large_to_copy_to_clipboard">要复制的内容过多</string>
+    <string name="msg_too_large_to_web_search">该文本对于Web搜索体积过大</string>
+    <string name="profile_title_s_q_not_defined_here_q">%s (未定义)</string>
+    <string name="profile_title_anonymous">匿名</string>
+    <string name="profile_title_default">默认</string>
+    <string name="profile_title_builtin">内置</string>
+    <string name="title_shell_of_s">%s Shell</string>
+    <string name="title_shell_of_s_script_notification_">%s Shell: 脚本通知:</string>
+    <string name="title_about">关于</string>
+    <string name="msg_usd_serial_port_s_disconnected">USB串口端口 %s 断开连接</string>
+    <string name="msg_usd_serial_port_s_reconnected">USB串口端口 %s 重新连接</string>
+    <string name="msg_usd_serial_port_s_reconnected_no_perm">"\n        USB串口端口 %s 已经重连但访问权限未授予\n    "</string>
+    <string name="label_cols">列</string>
+    <string name="label_rows">行</string>
+    <string name="label_buffer_rows">最大缓冲区行数</string>
+    <string name="label_font_size">字体大小</string>
+    <string name="label_font_size_auto">自适应缩放</string>
+    <string name="hint_font_size_auto">自动缩放字体</string>
+    <string name="action_terminal_screen">终端屏幕</string>
+    <string name="dialog_title_terminal_screen">终端屏幕的大小和方向</string>
+    <string name="hint_auto">自动</string>
+    <string name="hint_int_value_p_auto_p">%d (自动)</string>
+    <string name="label_screen">屏幕</string>
+    <string name="action_help">帮助</string>
+    <string name="label_available_">可用:</string>
+    <string name="name_stream_default">流</string>
+    <string name="msg_pick_application">选取应用</string>
+    <string name="msg_pick_destination">选取目标</string>
+    <string name="msg_pick_source">选取源</string>
+    <string name="linktype_connection_settings">连接设置</string>
+    <string name="linktype_key_map_settings">按键映射设置</string>
+    <string name="linktype_color_map_settings">色彩映射设定</string>
+    <string name="action_revoke_permissions">撤销权限</string>
+    <string name="label_keymode_normal">普通</string>
+    <string name="label_keymode_application">应用程序 (DEC?KM)</string>
+    <string name="label_save_as_">保存为</string>
+    <string name="label_key_">密钥:</string>
+    <string name="label_navigation">导航</string>
+    <string name="label_font">字体</string>
+    <string name="label_terminal_rtl_rendering_mode">RTL渲染模式</string>
+    <string name="label_short_terminal_rtl_rendering_mode">RTL</string>
+    <string name="label_selection">选择</string>
+    <string name="label_screen_keyboard">屏幕键盘</string>
+    <string name="label_default_font_size">默认大小</string>
+    <string name="label_selection_pad_size">锚点尺寸</string>
+    <string name="label_terminal_popup_opacity">弹出选项不透明度</string>
+    <string name="label_kbd_key_height">按键高度</string>
+    <string name="label_kbd_autorepeat">自动重复</string>
+    <string name="label_kbd_autorepeat_start_delay">自动重复开始延时</string>
+    <string name="label_kbd_autorepeat_interval">自动重复间隔</string>
+    <string name="label_kbd_autorepeat_allowed">运行</string>
+    <string name="label_kbd_autorepeat_always_disabled">总是禁止</string>
+    <string name="action_info">信息</string>
+    <string name="action_app_info">应用信息</string>
+    <string name="action_info_page">信息页</string>
+    <string name="action_settings_plugins">插件</string>
+    <string name="label_enabled">\@string/state_enabled</string>
+    <string name="label_always_accessible">总是可访问</string>
+    <string name="label_application_icon">应用图标</string>
+    <string name="msg_nothing_to_search">没什么可搜索的</string>
+    <string name="msg_stalled_transactions_detected">检测到停滞的传输，插件似乎已损坏</string>
+    <string name="msg_s_is_not_a_plugin">`%s\' 不是插件</string>
+    <string name="msg_s_is_not_permitted_to_run">`%s\'不允许运行. 请检查插件设置</string>
 </resources>
