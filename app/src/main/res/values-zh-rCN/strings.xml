@@ -982,4 +982,157 @@ limitations under the License.\
     <string name="msg_stalled_transactions_detected">检测到停滞的传输，插件似乎已损坏</string>
     <string name="msg_s_is_not_a_plugin">`%s\' 不是插件</string>
     <string name="msg_s_is_not_permitted_to_run">`%s\'不允许运行. 请检查插件设置</string>
+    <string name="msg_html_parse_error_s">HTTP渲染错误</string>
+    <string name="msg_xml_parse_error_s">XML渲染错误: %s</string>
+    <string name="msg_no_info_page"><![CDATA[<h1>没有提供详情页</h1>]]></string>
+    <string name="msg_error_getting_info_page_s"><![CDATA[
+        <h1>获取详情页时出错</h1>
+        <p><code>%s</code></p>
+    ]]></string>
+    <string name="action_custom_font">自定义字体</string>
+    <string name="action_use">使用</string>
+    <string name="sample_text">THE QUICK BROWN FOX JUMPED OVER THE LAZY DOG\'S BACK 1234567890</string>
+    <string name="action_pick_font">选取字体</string>
+    <string name="action_remove_font">移除字体</string>
+    <string name="msg_not_a_valid_font">字体无效</string>
+    <string name="label_path_location_">供本地终端访问的位置:</string>
+    <string name="title_own_documents_settings">内置文件提供者</string>
+    <string name="action_enable">启用</string>
+    <string name="msg_unsaved_changes_confirmation">有未保存更改，继续吗</string>
+    <string name="title_suffix_has_unsaved_changes"><b>*</b></string>
+    <string name="msg_permission_confirmation">%2$s\n`%1$s\' 权限被这个脚本申请，允许吗？</string>
+    <string name="label_screen_mouse">屏幕鼠标</string>
+    <string name="label_ansi_screen_mouse_default_mode">ANSI终端默认模式</string>
+    <string name="label_screen_mouse_buttons_layout">按键布局</string>
+    <string name="label_dims_div">X</string>
+    <string name="label_dims_s2">%1$s X %2$s</string>
+    <string name="label_dims_i2">%1$d X %2$d</string>
+    <string name="hint_display">显示</string>
+    <string name="label_x11_">X11:</string>
+    <string name="label_colon_x11_first_port_plus">:6000+</string>
+    <string name="label_baudrate">波特率</string>
+    <string name="label_field_div">/</string>
+    <string name="action_menu">菜单</string>
+    <string name="mark_active">活跃</string>
+    <string name="label_scroll">滚动</string>
+    <string name="label_follow_the_history_buffer">跟随历史缓冲区</string>
+    <string name="summary_if_its_visible_fraction_gte">如果它的可见部分≥</string>
+    <string name="label_wake_lock">唤醒锁</string>
+    <string name="action_toggle_wake_lock">切换唤醒锁状态</string>
+    <string name="msg_s___">%s…</string>
+    <string name="msg_nothing_to_share">无分享项</string>
+    <string name="label_key_modifiers">修饰键</string>
+    <string name="action_mouse_mode">鼠标模式</string>
+    <string name="action_switch_screen_keyboard">切换为排名键盘</string>
+    <string name="action_select_mode">选择模式</string>
+    <string name="action_terminal_menu">终端菜单</string>
+    <string name="action_nav_up">上一层</string>
+    <string name="hint_off">\@string/state_off</string>
+    <string name="hint_do_not_change">别改</string>
+    <string name="label_data_bits">数据位</string>
+    <string name="label_stop_bits">停止位</string>
+    <string name="label_parity">奇偶校验</string>
+    <string name="label_flow_control">流控制</string>
+    <string name="title_wireless_parameters">无线参数</string>
+    <string name="label_insecure">不安全</string>
+    <string name="msg_no_adapters_connected">无选中的适配器</string>
+    <string name="label_req_uart_bt_perms">android.permission.BLUETOOTH_CONNECT 权限在使用蓝牙SPP UART适配器必须授予</string>
+    <string name="action_release_on_disconnect">断开时释放</string>
+    <string name="hint_release_wake_lock_on_disconnect">断开时释放唤醒锁</string>
+    <string name="action_acquire_on_connect">在连接时请求</string>
+    <string name="hint_acquire_wake_lock_on_connect">连接时自动请求唤醒锁</string>
+    <string name="label_on_disconnect">断开时</string>
+    <string name="hint_terminate_on_disconnect">断开时自动终止</string>
+    <string name="label___if_pe_0">当进程返回值为0</string>
+    <string name="hint___if_pe_0">\@string/label___if_pe_0</string>
+    <string name="action_session_log">显示会话日志</string>
+    <string name="action_scratchpad">便笺板</string>
+    <string name="msg_scratchpad_malfunction_s">便笺板功能异常: %s</string>
+    <string name="msg_do_you_want_to_delete_this_entry">你要删除这一项吗？</string>
+    <string name="msg_saved_to_scratchpad">已保存至便笺板</string>
+    <string name="msg_via_scratchpad">通过便笺板</string>
+    <string name="msg_nothing_to_save">无可保存内容</string>
+    <string name="label_use_list_columns">将条目列表划分为列</string>
+    <string name="summary_if_column_width_is_gte">如果列宽≥</string>
+    <string name="label_use_for_copy_share">用于拷贝/分享</string>
+    <string name="summary_if_data_size_is_gte">如果数据大小≥</string>
+    <string name="title_empty">空</string>
+    <string name="desc_share_input">选择要开始共享的会话类型:</string>
+    <string name="desc_open_input">选择要开始打开的会话类型:</string>
+    <string name="label_token">Token</string>
+    <string name="action_generate_token">生成Token</string>
+    <string name="action_remove_token">移除Token</string>
+    <string name="label_keep_screen_on">屏幕常亮</string>
+    <string name="label_horizontal_app_scrolling">水平方向滚动</string>
+    <string name="desc_builtin_keyboard">内置键盘</string>
+    <string name="desc_ime_keyboard">输入法键盘</string>
+    <string name="desc_hide_keyboard">隐藏键盘</string>
+    <string name="label_default_screen_keyboard">默认屏幕键盘</string>
+    <string name="action_settings_hardware_keys_mapping">硬件按键映射</string>
+    <string name="note_hw_key_map"><![CDATA[
+        <ul type=\"none\">
+        <li><b>Block</b> — 完全关闭按键.</li>
+        <li><b>Bypass</b> — 仅用于决定最终的按键编码,
+        不作为终端键修饰键使用.</li>
+        <li><i>比如说: 在<b>SCH-I415</b>机型上,
+        <kbd>Fn</kbd>键实际上会被当作<kbd>左 Alt</kbd>
+        应该绕过（bypass）它，以按预期工作.</i></li>
+        <li><b>…🔒</b> — 切换.</li>
+        <li><b>…🔒¹</b> — 被应用时会切换 / 释放.</li>
+        <li><i>在终端窗口下
+        双击切换到相反的切换模式.</i></li>
+        </ul>
+        <p><b>注意:</b></p>
+        <ul>
+        <li>一些Android设备可以通过按住一些按钮
+        (比如说 <kbd>音量+</kbd>/<kbd>音量-</kbd>)
+        代表对于这个按键的连击.</li>
+        <li>默认情况下Android使用自己的修饰符标志
+        但有时候输入法会坏事.
+        在这种情况下，将修饰键映射到其自身可能会有所帮助.</li>
+        <li>此应用程序自己的屏幕键盘不受影响
+        也不影响Android软输入/硬件键盘的修饰键状态.</li>
+        </ul>
+    ]]></string>
+    <string name="label_press_a_key_to_add">按下按键以添加</string>
+    <string name="label_dev_unknown">未知</string>
+    <string name="label_dev_built_in">内置</string>
+    <string name="label_dev_external">外置</string>
+    <string name="label_key_block">Block</string>
+    <string name="label_key_bypass">Bypass</string>
+    <string name="label_keep_terminal_activities_on_the_recents_screen">在 <b>最近任务</b> 屏幕中保持终端显示</string>
+    <string name="label_term_compliance">合规</string>
+    <string name="label_term_compliance_ansi">ANSI</string>
+    <string name="label_term_compliance_vt52compat">VT52-Compat终端</string>
+    <string name="action_paste_selected">粘贴选区</string>
+    <string name="action_select_all">全选</string>
+    <string name="action_open_in_browser">在浏览器打开</string>
+    <string name="action_copy_to_scratchpad">复制到便笺板</string>
+    <string name="action_search_up">向上搜索</string>
+    <string name="action_search_down">向下搜索</string>
+    <string name="desc_case_sense">大小写敏感</string>
+    <string name="hint_text_to_search___">要搜索的文本...</string>
+    <string name="msg_search_field_is_empty">搜索栏空</string>
+    <string name="msg_search_top_reached">到顶部</string>
+    <string name="msg_search_bottom_reached">到底部</string>
+    <string name="msg_setting_is_immutable_on_a_live_session">这项设置在活跃终端中不可修改</string>
+    <string name="label_reset_to_default">重置到默认</string>
+    <string name="label_default">默认</string>
+    <string name="label_normal">常规</string>
+    <string name="label_bold">粗体</string>
+    <string name="label_faint">细体</string>
+    <string name="label_default_background">默认背景</string>
+    <string name="desc_warn_android10_public_storage"><![CDATA[
+<p><b>当前安卓版本为&#xA0;10 或更高版本:</b><br/>
+这意味着，访问公共存储目录的传统方式已经过时
+即使授予此权限，也可能不起作用.</p>
+<p>怎么办:<br/><ul>
+<li>你可以使用<a href=\"info:/termsh_man\"><code>termsh</code> shell工具</a>
+通过
+<a href=\"https://developer.android.com/guide/topics/providers/document-provider\">Storage Access Framework（SAF）</a>访问.</li>
+<li>但仍然可以访问应用程序共享目录中的任何文件
+(这不需要额外权限) (详情参阅
+<a href=\"info:/shell_env_man\"><code>SHARED_DATA_DIR</code> 环境变量</a>).</li>
+</ul></p>
+]]></string>
 </resources>
