@@ -21,7 +21,7 @@ android {
 }
 
 dependencies {
-    implementation 'androidx.annotation:annotation:1.5.0'
+    implementation 'androidx.annotation:annotation:1.7.0'
     implementation 'com.annimon:stream:1.2.2'
     implementation 'com.squareup.okio:okio:2.2.2'
 }
