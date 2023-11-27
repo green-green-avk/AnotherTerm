@@ -1287,9 +1287,6 @@ public class ConsoleScreenView extends ScrollableView
         return result;
     }
 
-    private static final Pattern BIDI_LINE_P = Pattern.compile(
-            "\n"
-    );
     private static final Pattern BIDI_WIPE_P = Pattern.compile(
             "[\u200E\u200F\u2066\u2067\u2068\u2069\u202A\u202B\u202C\u202D\u202E]"
     );
@@ -1305,10 +1302,37 @@ public class ConsoleScreenView extends ScrollableView
         if (consoleInput == null)
             return v.toString();
         switch (consoleInput.currScrBuf.getRtlRenderingMode()) {
-            case RAW:
-                return FORCED_BIDI_LTR_START + BIDI_LINE_P.matcher(v)
-                        .replaceAll(FORCED_BIDI_LTR_END + "$0" + FORCED_BIDI_LTR_START)
-                        + FORCED_BIDI_LTR_END;
+            case RAW: {
+                final StringBuilder r = new StringBuilder();
+                int start = 0;
+                int end;
+                while (start < v.length()) {
+                    boolean hasRtl = false;
+                    end = start;
+                    while (end < v.length()) {
+                        final int cp = Character.codePointAt(v, end);
+                        if (cp == '\n')
+                            break;
+                        final int dir = Character.getDirectionality(cp);
+                        hasRtl |= dir == Character.DIRECTIONALITY_RIGHT_TO_LEFT ||
+                                dir == Character.DIRECTIONALITY_RIGHT_TO_LEFT_ARABIC;
+                        end += Character.charCount(cp);
+                    }
+                    if (hasRtl) {
+                        r.append(FORCED_BIDI_LTR_START)
+                                .append(v.subSequence(start, end))
+                                .append(FORCED_BIDI_LTR_END);
+                    } else {
+                        r.append(v.subSequence(start, end));
+                    }
+                    if (end < v.length()) {
+                        r.append('\n');
+                        end++;
+                    }
+                    start = end;
+                }
+                return r.toString();
+            }
             default:
                 return v.toString();
         }
