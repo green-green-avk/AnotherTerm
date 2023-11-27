@@ -824,6 +824,7 @@ public class ConsoleScreenView extends ScrollableView
     }
 
     protected void applyFont() {
+        cleanWidthCategoriesCache();
         fontProvider.getGlyphSize(mFontMetrics, mFontSize);
         fgPaint.setTextSize(mFontSize);
         setScrollScale(mFontMetrics.width, mFontMetrics.height);
@@ -1150,10 +1151,14 @@ public class ConsoleScreenView extends ScrollableView
         }
     }
 
+    @FontProvider.Style
+    protected int getCharAttrsFontStyle() {
+        return (charAttrs.bold ? Typeface.BOLD : 0) | (charAttrs.italic ? Typeface.ITALIC : 0);
+    }
+
     protected void applyCharAttrs() {
         final boolean inverse = consoleInput != null && consoleInput.currScrBuf.screenInverse;
-        fontProvider.populatePaint(fgPaint, (charAttrs.bold ? Typeface.BOLD : 0) |
-                (charAttrs.italic ? Typeface.ITALIC : 0));
+        fontProvider.populatePaint(fgPaint, getCharAttrsFontStyle());
         fgPaint.setColor(colorProfile.getFgColor(charAttrs, inverse));
         fgPaint.setUnderlineText(charAttrs.underline);
         fgPaint.setStrikeThruText(charAttrs.crossed);
@@ -2340,9 +2345,127 @@ public class ConsoleScreenView extends ScrollableView
         return true;
     }
 
+    protected static final Object CAT_UNDEFINED = new Object();
+    protected static final Object CAT_MONOSPACE = new Object();
+    protected final Object[] latinCat = new Object[4];
+    protected final Object[] boxCat = new Object[4];
+
+    protected void cleanWidthCategoriesCache() {
+        Arrays.fill(latinCat, null);
+        Arrays.fill(boxCat, null);
+    }
+
+    @NonNull
+    protected Object testBlockMonospace(@Nullable final Object cat, @NonNull final String sm) {
+        final float width = fgPaint.measureText(sm);
+        if (width < mFontMetrics.width * 0.999f || width > mFontMetrics.width * 1.001f)
+            return cat != null ? cat : CAT_UNDEFINED;
+        return CAT_MONOSPACE;
+    }
+
+    /**
+     * Very cheap text scaling optimization...
+     * <p>
+     * State sensitive: {@link #applyCharAttrs()} must be called before
+     * to keep {@link #fgPaint} in sync.
+     */
+    @Nullable
+    protected Object getWidthCategory(final int cp) {
+        final Character.UnicodeBlock block = Character.UnicodeBlock.of(cp);
+        if (block == Character.UnicodeBlock.BASIC_LATIN) {
+            final int style = getCharAttrsFontStyle();
+            if (latinCat[style] == null)
+                latinCat[style] = testBlockMonospace(block, "W");
+            return latinCat[style];
+        }
+        if (block == Character.UnicodeBlock.BOX_DRAWING) {
+            final int style = getCharAttrsFontStyle();
+            if (boxCat[style] == null)
+                boxCat[style] = testBlockMonospace(block, "╬");
+            return boxCat[style];
+        }
+        return block;
+    }
+
+    protected static final ConsoleScreenBuffer.OnNextChar<ConsoleScreenBuffer.BufferRun> backgroundBreaks =
+            new ConsoleScreenBuffer.OnNextChar<ConsoleScreenBuffer.BufferRun>() {
+                @Override
+                public void onFirst(@NonNull final ConsoleScreenBuffer.BufferRun output,
+                                    final int cp, final byte width) {
+                }
+
+                @Override
+                public boolean onNext(@NonNull final ConsoleScreenBuffer.BufferRun output,
+                                      final int cp, final byte width) {
+                    return false;
+                }
+            };
+
+    protected static final ConsoleScreenBuffer.OnNextChar<DrawRun> lengthCorrectionBreaksLegacy =
+            new ConsoleScreenBuffer.OnNextChar<DrawRun>() {
+                private byte prevWidth;
+
+                @Override
+                public void onFirst(@NonNull final DrawRun output,
+                                    final int cp, final byte width) {
+                    prevWidth = width;
+                    output.needScale = width > 1;
+                }
+
+                @Override
+                public boolean onNext(@NonNull final DrawRun output,
+                                      final int cp, final byte width) {
+                    boolean r = false;
+                    if (width != 0) {
+                        if (width != prevWidth && prevWidth != 0) {
+                            r = true;
+                        } else {
+                            output.needScale = width > 1;
+                        }
+                        prevWidth = width;
+                    }
+                    return r;
+                }
+            };
+    protected final ConsoleScreenBuffer.OnNextChar<DrawRun> lengthCorrectionBreaksRaw =
+            new ConsoleScreenBuffer.OnNextChar<DrawRun>() {
+                private Object prevCat;
+
+                @Override
+                public void onFirst(@NonNull final DrawRun output,
+                                    final int cp, final byte width) {
+                    prevCat = getWidthCategory(cp);
+                    output.needScale = prevCat != CAT_MONOSPACE;
+                }
+
+                @Override
+                public boolean onNext(@NonNull final DrawRun output,
+                                      final int cp, final byte width) {
+                    boolean r = false;
+                    if (width != 0) {
+                        final Object cat = getWidthCategory(cp);
+                        if (cat != prevCat) {
+                            r = true;
+                        }
+                        prevCat = cat;
+                    }
+                    return r;
+                }
+            };
+
     protected final Rect _draw_textRect = new Rect();
-    protected final ConsoleScreenBuffer.BufferRun _draw_run =
-            new ConsoleScreenBuffer.BufferRun();
+
+    protected static final class DrawRun extends ConsoleScreenBuffer.BufferRun {
+        public boolean needScale;
+
+        @Override
+        public void init() {
+            super.init();
+            needScale = false;
+        }
+    }
+
+    protected final DrawRun _draw_run = new DrawRun();
 
     protected void drawContent(@NonNull final Canvas canvas) {
         if (consoleInput == null) {
@@ -2364,7 +2487,7 @@ public class ConsoleScreenView extends ScrollableView
                 final int sr =
                         consoleInput.currScrBuf.getCharsRun(i, j,
                                 _draw_textRect.right,
-                                _draw_run);
+                                _draw_run, backgroundBreaks);
                 if (sr < 0) {
                     ConsoleScreenBuffer.decodeFgAttrs(charAttrs,
                             consoleInput.currScrBuf.defaultFgAttrs);
@@ -2390,6 +2513,14 @@ public class ConsoleScreenView extends ScrollableView
                 i += sr;
             }
         }
+        final ConsoleScreenBuffer.OnNextChar<DrawRun> lengthCorrectionBreaks;
+        switch (consoleInput.currScrBuf.getRtlRenderingMode()) {
+            case RAW:
+                lengthCorrectionBreaks = lengthCorrectionBreaksRaw;
+                break;
+            default:
+                lengthCorrectionBreaks = lengthCorrectionBreaksLegacy;
+        }
         for (int j = _draw_textRect.top; j < _draw_textRect.bottom; j++) {
             final float strTop = getBufferDrawPosYF(j);
             int i = _draw_textRect.left;
@@ -2399,7 +2530,7 @@ public class ConsoleScreenView extends ScrollableView
                 final int sr =
                         consoleInput.currScrBuf.getCharsRun(i, j,
                                 _draw_textRect.right,
-                                _draw_run);
+                                _draw_run, lengthCorrectionBreaks);
                 if (sr < 0) {
                     break;
                 }
@@ -2408,14 +2539,15 @@ public class ConsoleScreenView extends ScrollableView
                 applyCharAttrs();
                 if (!charAttrs.invisible && fgPaint.getColor() != bgPaint.getColor() &&
                         _draw_run.length > 0 && !isAllSpaces(_draw_run)) {
-                    fgPaint.setTextScaleX(1f);
-                    if (_draw_run.glyphWidth > 1) {
-                        fgPaint.setTextScaleX(
-                                mFontMetrics.width * sr /
-                                        fgPaint.measureText(_draw_run.text,
-                                                _draw_run.start, _draw_run.length)
-                        );
+                    final float scale;
+                    if (_draw_run.needScale && sr > 0) {
+                        final float textPx = fgPaint.measureText(_draw_run.text,
+                                _draw_run.start, _draw_run.length);
+                        scale = textPx > 0 ? mFontMetrics.width * sr / textPx : 1f;
+                    } else {
+                        scale = 1f;
                     }
+                    fgPaint.setTextScaleX(scale);
                     _hasVisibleBlinking |= charAttrs.blinking;
                     if (!charAttrs.blinking || mBlinkState) {
                         switch (consoleInput.currScrBuf.getRtlRenderingMode()) {
@@ -2436,6 +2568,7 @@ public class ConsoleScreenView extends ScrollableView
                             }
                         }
                     }
+                    fgPaint.setTextScaleX(1f);
                 }
                 i += sr;
             }

@@ -73,16 +73,15 @@ public final class ConsoleScreenBuffer {
         }
     }
 
-    public static final class BufferRun {
-        private int fgAttrsOff;
-        private int bgAttrsOff;
+    public static class BufferRun {
+        protected int fgAttrsOff;
+        protected int bgAttrsOff;
         @NonNull
         public char[] text;
         public int start;
         public int length;
         public int fgAttrs;
         public int bgAttrs;
-        public byte glyphWidth;
 
         {
             init();
@@ -94,7 +93,6 @@ public final class ConsoleScreenBuffer {
             length = 0;
             fgAttrs = DEF_FG_CHAR_ATTRS;
             bgAttrs = DEF_BG_CHAR_ATTRS;
-            glyphWidth = 1;
             fgAttrsOff = 0;
             bgAttrsOff = 0;
         }
@@ -820,8 +818,25 @@ public final class ConsoleScreenBuffer {
         return row.text;
     }
 
-    private int getCharsRunLength(@NonNull final Row row, final int startX, final int endX,
-                                  @NonNull final BufferRun output) {
+    public interface OnNextChar<O extends BufferRun> {
+        /**
+         * @param output where
+         * @param cp     what
+         */
+        void onFirst(@NonNull O output, int cp, byte width);
+
+        /**
+         * @param output where
+         * @param cp     what
+         * @return {@code true} to break this run
+         */
+        boolean onNext(@NonNull O output, int cp, byte width);
+    }
+
+    private <O extends BufferRun> int getCharsRunLength(@NonNull final Row row,
+                                                        final int startX, final int endX,
+                                                        @NonNull final O output,
+                                                        @NonNull final OnNextChar<O> onNextChar) {
         final char[] rText = row.text;
         final char[] rFgAttrs = row.fgAttrs;
         final char[] rBgAttrs = row.bgAttrs;
@@ -832,10 +847,7 @@ public final class ConsoleScreenBuffer {
         output.start += output.length;
         int ind = output.start;
         int x = startX;
-        int cp;
-        byte width;
         if (ind >= rText.length) {
-            width = 1;
             x++;
             while (x < endX) {
                 if (Row.getAttrs(rFgAttrs, fgAttrsOff) != fgAttrs ||
@@ -846,8 +858,9 @@ public final class ConsoleScreenBuffer {
                 bgAttrsOff = Row.getAttrsOffsetOrLast(rBgAttrs, bgAttrsOff, 1);
             }
         } else {
-            cp = Character.codePointAt(rText, ind);
-            width = (byte) Unicode.wcwidth(cp);
+            int cp = Character.codePointAt(rText, ind);
+            byte width = (byte) Unicode.wcwidth(cp);
+            onNextChar.onFirst(output, cp, width);
             ind += Character.charCount(cp);
             fgAttrsOff = Row.getAttrsOffsetOrLast(rFgAttrs, fgAttrsOff, 1);
             if (width != 0)
@@ -860,37 +873,35 @@ public final class ConsoleScreenBuffer {
                 if (ind >= rText.length)
                     break;
                 cp = Character.codePointAt(rText, ind);
-                final byte w = (byte) Unicode.wcwidth(cp);
-                if (width == 0)
-                    width = w;
-                if (w > 0 && w != width)
+                width = (byte) Unicode.wcwidth(cp);
+                if (onNextChar.onNext(output, cp, width))
                     break;
                 ind += Character.charCount(cp);
                 fgAttrsOff = Row.getAttrsOffsetOrLast(rFgAttrs, fgAttrsOff, 1);
-                if (w != 0)
+                if (width != 0)
                     bgAttrsOff = Row.getAttrsOffsetOrLast(rBgAttrs, bgAttrsOff, 1);
-                x += w; // 0 for C0 / C1
+                x += width; // 0 for C0 / C1
             }
         }
         output.text = rText;
         output.fgAttrsOff = fgAttrsOff;
         output.bgAttrsOff = bgAttrsOff;
         output.length = ind - output.start;
-        output.glyphWidth = width;
         output.fgAttrs = fgAttrs;
         output.bgAttrs = bgAttrs;
         return x - startX;
     }
 
-    public int getCharsRun(final int x, final int y, int endX,
-                           @NonNull final BufferRun output) {
+    public <O extends BufferRun> int getCharsRun(final int x, final int y, int endX,
+                                                 @NonNull final O output,
+                                                 @NonNull final OnNextChar<O> onNextChar) {
         final Row row = getRow(y);
         if (row == null)
             return -1;
         endX = Math.min(endX, mWidth);
         if (x >= endX)
             return -1;
-        return getCharsRunLength(row, x, endX, output);
+        return getCharsRunLength(row, x, endX, output, onNextChar);
     }
 
     public int initCharsRun(int x, final int y,
