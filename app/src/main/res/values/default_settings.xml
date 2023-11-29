@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <bool name="terminal_use_recents">false</bool><!-- keep activities in Recents (API>=21) -->
-    <string name="terminal_rtl_rendering_default_mode">LEGACY</string>
+    <string name="terminal_rtl_rendering_default_mode">RAW</string>
     <bool name="terminal_font_default_fromfiles">false</bool>
     <integer name="terminal_font_default_size_sp">8</integer><!-- [sp] -->
     <integer name="terminal_selection_pad_size_dp">256</integer><!-- [dp] -->
