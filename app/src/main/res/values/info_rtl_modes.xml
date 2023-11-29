@@ -5,7 +5,7 @@
         <p>There are two modes for RTL support at the moment:<ul>
         <li><b>Legacy</b> &#x2014; render each text run as is according to the Unicode rules
         and copy/paste to/from the clipboard as-is.</li>
-        <li><b>Raw</b> <kbd><i>Experimental</i></kbd> &#x2014; render anything as LTR
+        <li><b>Raw</b> &#x2014; render anything as LTR
         and copy/paste to/from the clipboard as-is.</li>
         </ul></p>
         <p><b>Note:</b> At the moment, if the <i>raw mode</i> is in use, any of the
