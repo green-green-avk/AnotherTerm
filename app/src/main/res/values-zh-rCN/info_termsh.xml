@@ -1,0 +1,401 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+<string name="desc_termsh_help"><![CDATA[
+<h3>位置</h3>
+
+<p><code>TERMSH=\"<clipboard>$LIB_DIR/libtermsh.so</clipboard>\"</code></p>
+
+<h3>用法</h3>
+
+<p><code>\"$TERMSH\" [-r|--raw] &lt;command&gt; [&lt;args...&gt;]</code></p>
+<ul type=\"none\">
+<li><code>-r|--raw</code> &#x2014; 当命令执行时，将一个tty转换到
+raw 模式，使用 <code>cfmakeraw()</code>
+libc函数设置.
+(注意, <kbd>Ctrl</kbd>&#x2011;<kbd>C</kbd>等在这个模式下不会被PTY捕捉)</li>
+</ul>
+
+<h4>命令</h4>
+
+<p><b>注意:</b> 任何UI元素 (除了通知) 和相关命令
+在终端Activity对应的会话结束之前均会被屏蔽.</p>
+
+<dl>
+
+<dt><p><code>
+帮助
+</code></p></dt>
+<dd>会显示这一页这么一堆东西XD.</dd><br/>
+
+<dt><p><code>
+notify [-i|--id &lt;id&gt;] [--] [&lt;message&gt;]<br/>
+notify -r|--remove -i|--id &lt;id&gt;
+</code></p></dt>
+<dd>
+显示通知, 在message段无参数传入时会默认用<i>stdin</i>.
+<ul type=\"none\">
+<li><code>-i|--id &lt;id&gt;</code> &#x2014; 通知id.</li>
+<li><code>-r|--remove</code> &#x2014; 通过id检索并删除相关通知.</li>
+</ul>
+</dd><br/>
+
+<dt><p><code>
+clipboard-copy [&lt;string&gt;]
+</code></p></dt>
+<dd>
+复制到剪贴板 (仅当用户在操作当前会话的UI时).<br/>
+如果没有提供<code>&lt;string&gt;</code>, 将会默认使用<i>stdin</i>.
+<p><em><a href=\"info:/shell_perm_clipboard-copy\"><code>clipboard-copy</code></a>
+权限是必须的.</em></p>
+</dd><br/>
+
+<dt><p><code>
+uri [--] &lt;file&gt;<br/>
+uri [-m|--mime &lt;mime&gt;] [-n|--name &lt;name&gt;] [-s|--size &lt;size&gt;]<br/>
+uri -c|--close-stream [--] &lt;URI&gt;<br/>
+uri -l|--list-streams
+</code></p></dt>
+<dd>
+获取指定文件或流的自带的内容提供程序 URI，或关闭以前打开的流.
+<br/>除非指定参数<code>-w|--wait</code>，否则命令处理完毕后会立即退出.
+在指定为流的情况下, 当流读取到EOF（End Of File）标识或者它可以被选项
+<code>-c|--close-stream &lt;URI&gt;</code>关闭时，
+<code>&lt;URI&gt;</code> 将自动解除绑定.
+<ul type=\"none\">
+<li><code>-m|--mime &lt;mime&gt;</code> &#x2014; Mime type, <code>*/*</code> - default.</li>
+<li><code>-n|--name &lt;name&gt;</code> &#x2014; 用于表示流的名称.</li>
+<li><code>-s|--size &lt;size&gt;</code> &#x2014; 当输入是流，指定要在查询答案中提供的大小（以字节为单位）
+比如说谷歌的Gmail客户端, 即使在使用流的情况下
+也会将缺省大小视为0.</li>
+<li><code>-w|--wait</code> &#x2014; 等待流读取到 EOF，然后将其关闭
+并退出; <code>$TERMSH</code> 的终止也会关闭流. 当你需要在termsh关闭时
+仍然需要保持一个在运行的Shell管道时使用这个参数;<br/>
+example: <code>tar -czv * | \"$TERMSH\" uri -w</code></li>
+<li><code>-c|--close-stream &lt;URI&gt;</code> &#x2014; 取消绑定流 <code>&lt;URI&gt;</code>
+并释放相关资源.</li>
+<li><code>-l|--list-streams</code> &#x2014; 列出所有绑定的流URIs.</li>
+</ul>
+</dd><br/>
+
+<dt><p><code>
+view|edit [&lt;options...&gt;] [--] &lt;file|URI&gt;
+</code></p></dt>
+<dd>
+使用适当的临时访问权限打开文件/URI以供查看/编辑.
+<br/>在与用户交互后该命令并不会结束.
+<ul type=\"none\">
+<li><code>-N|--notify</code> &#x2014; 发送一个通知而不是弹出选项对话框.</li>
+<li><code>-m|--mime &lt;mime&gt;</code> &#x2014; Mime type, <code>*/*</code> - default.</li>
+<li><code>-p|--prompt &lt;prompt&gt;</code> &#x2014; 在选择对话框中显示.</li>
+<li><code>-r|--recipient &lt;recipient&gt;</code> &#x2014; 指定一个用于接受意图（intent）
+的Activity. <code>&lt;recipient&gt;</code> 可以是:
+<ul>
+<li>一个应用程序的Activity类名.</li>
+<li>传入其他应用的Acitvity作为参数应遵照如右格式:
+<code>&lt;package&gt;/&lt;activity_class&gt;</code><br/>
+(<code>&lt;activity_class&gt;</code> 可以以一个 `<code>.</code>\' (dot)开头
+以使用 <code>&lt;package&gt;</code> 作为它的前缀:<br/>
+<code>foo.bar/.Act</code> => <code>foo.bar/foo.bar.Act</code>).
+</li></ul>
+示例: <code>\"$TERMSH\" view
+-r \'<clipboard>green_green_avk.anotherterm.FavoriteEditorActivity</clipboard>\'
+-u \'local-terminal:/opts?execute=my_awesome_script\'</code></li>
+<li><code>-u|--uri</code> &#x2014; 使用URI而非文件.</li>
+</ul>
+</dd><br/>
+
+<dt><p><code>
+send [&lt;options...&gt;] [--] [&lt;file|URI&gt; ...]
+</code></p></dt>
+<dd>
+Send (<i><code>android.intent.action.SEND</code></i> or
+<i><code>android.intent.action.SEND_MULTIPLE</code></i>).
+当代表<i>stdin</i>的
+<code>/^(?:[a-z0-9+.-]+):\\/\\//i</code>不匹配时
+<br/><code>&lt;file|URI&gt;</code> 将会被当作文件路径.
+<br/>`<code>-</code>\' is used to represent the <i>stdin</i>.
+<br/>当文件或者URI被指定时
+命令在流发送后或与用户交互后退出.
+<ul type=\"none\">
+<li><code>-N|--notify</code> &#x2014; 发送一个通知而不是弹出选项对话框.</li>
+<li><code>-m|--mime &lt;mime&gt;</code> &#x2014; Mime type for an <i>stdin</i> stream,
+<code>*/*</code> - default.</li>
+<li><code>-n|--name &lt;name&gt;</code> &#x2014; 用于代表
+ <i>stdin</i> 流的名字.</li>
+<li><code>-s|--size &lt;size&gt;</code> &#x2014; 当输入是流，指定要在查询答案中提供的大小（以字节为单位）
+比如说谷歌的Gmail客户端, 即使在使用流的情况下
+也会将缺省大小视为0.</li>
+<li><code>-p|--prompt &lt;prompt&gt;</code> &#x2014; 弹出选项对话框.</li>
+<li><code>--text &lt;text&gt;</code> &#x2014;
+<i><code>android.intent.extra.TEXT</code></i>.</li>
+<li><code>--text-stdin</code> &#x2014;
+the same but from the <i>stdin</i><footnote ref=\"2\" />.</li>
+<li><code>--html &lt;HTML&gt;</code> &#x2014;
+<i><code>android.intent.extra.HTML_TEXT</code></i>.
+<br/><i><code>android.intent.extra.TEXT</code></i> will be set to
+<code>Html.fromHtml(&lt;HTML&gt;)</code>
+if no <code>--text &lt;text&gt;</code> or
+<code>--text-stdin</code> is specified.</li>
+<li><code>--html-stdin</code> &#x2014;
+the same but from the <i>stdin</i><footnote ref=\"2\" />.</li>
+<li><code>--subject &lt;subject&gt;</code> &#x2014;
+<i><code>android.intent.extra.SUBJECT</code></i>.</li>
+<li><code>--email-to &lt;address[ address]...&gt;</code> &#x2014;
+<i><code>android.intent.extra.EMAIL</code></i>.</li>
+<li><code>--email-cc &lt;address[ address]...&gt;</code> &#x2014;
+<i><code>android.intent.extra.CC</code></i>.</li>
+<li><code>--email-bcc &lt;address[ address]...&gt;</code> &#x2014;
+<i><code>android.intent.extra.BCC</code></i>.</li>
+</ul>
+示例:
+<p><code>convert cat.jpg -grayscale average - | \"$TERMSH\" send -m image/jpeg --subject \'My cat\' --text \'Attached.\' -</code>
+<br/><b>注意:</b> 很多应用程序, 包括谷歌Gmail客户端,
+要求事先知道流大小...
+在上述情况流将不适用.</p>
+<p><code>convert cat.jpg -grayscale average cat_gray.jpg &amp;&amp; \"$TERMSH\" send --subject \'My cat\' --text \'Attached.\' cat_gray.jpg</code>
+<br/>但这个会有用.</p>
+<p>Or just <a href=\"info:/share_input\">resharing</a> text content by value:
+<br/><code>\"$TERMSH\" cat \"$INPUT_URI\" | \"$TERMSH\" send --text-stdin</code><br/>
+这个在使用文本文件的内容作为新邮件的的内容时会派上用场.</p>
+</dd><br/>
+
+<dt><p><code>
+pick [&lt;options...&gt;] [--] [&lt;path&gt;]
+</code></p></dt>
+<dd>
+弹出文件选择窗口（SAF）并且将选中的文件 (或者它的URI) 至:
+<ul>
+<li>传递文件：当<code>&lt;path&gt;</code>是一个文件;</li>
+<li>由内容提供器（content provider）提供文件名的文件： (or deduced from the URI)<footnote ref=\"1\" />
+当 <code>&lt;path&gt;</code> 是一个目录;</li>
+<li>该参数缺省时默认使用<i>stdout</i>.</li>
+</ul>
+<code>http</code> 和 <code>https</code> 方案也均随着<code>file</code>和<code>content</code>
+受到支持=
+<br/>当URI被指定时
+命令在收到内容后退出，或在选择器对话框结果后立即退出.
+<ul type=\"none\">
+<li><code>--insecure</code> &#x2014; 通过HTTPS连接并忽视无效证书.</li>
+<li><code>-N|--notify</code> &#x2014; 发送一个通知而不是弹出选项对话框.</li>
+<li><code>-m|--mime &lt;mime&gt;</code> &#x2014; Mime type, <code>*/*</code> - default.</li>
+<li><code>-p|--prompt &lt;prompt&gt;</code> &#x2014; 弹出选项对话框.</li>
+<li><code>-u|--uri</code> &#x2014; 输出URI而非内容.</li>
+<li><code>-f|--force</code> &#x2014; 允许覆写目标.</li>
+</ul>
+示例:
+<p><code>\"$TERMSH\" pick .</code></p>
+<p><code>\"$TERMSH\" pick | tar -zxv</code></p>
+</dd><br/>
+
+<dt><p><code>
+copy [-f|--force] [--insecure] [--progress] [-fp|--from-path|-fu|--from-uri &lt;from&gt;] [-tp|--to-path|-tu|--to-uri &lt;to&gt;]
+</code></p></dt>
+<dd>
+复制内容。现在仅支持单个文件.
+源URI可以是<code>content</code>, <code>http</code> 或者 <code>https</code>.
+目标 URI 方案必须为 <code>content</code>.
+当 <code>&lt;from&gt;</code> 或者 <code>&lt;to&gt;</code> 未指定,
+<i>stdin</i> 或者 <i>stdout</i> 将被分别使用.
+<code>&lt;to&gt;</code> 可以是一个目录<footnote ref=\"1\" />.
+<ul type=\"none\">
+<li><code>-f|--force</code> &#x2014; 允许覆写目标.</li>
+<li><code>--insecure</code> &#x2014; 通过HTTPS连接并忽视无效证书.</li>
+<li><code>--progress</code> &#x2014; 将当前进度输出至 <i>stderr</i>.</li>
+</ul>
+</dd><br/>
+
+<dt><p><code>
+cat [--insecure] [--progress] [&lt;URI&gt; ...]
+</code></p></dt>
+<dd>
+将指定URI内容连接至 <i>stdout</i>,
+`<code>-</code>\' 用于代表 <i>stdin</i>.
+URI方案可以为 <code>content</code>, <code>http</code> 或者 <code>https</code>.
+如果URI缺省, 将默认使用<i>stdin</i>.
+<ul type=\"none\">
+<li><code>--insecure</code> &#x2014; 通过HTTPS连接并忽视无效证书.</li>
+<li><code>--progress</code> &#x2014; 将当前进度输出至 <i>stderr</i>.</li>
+</ul>
+<h5>示例:</h5>
+<p><code>
+\"$TERMSH\" cat \"content://$APP_ID.linksprovider/html/some_url_to_be_wrapped_into_html\"
+</code></p>
+<p><code>
+uri=\"$(\"$TERMSH\" pick -u)\"<br/>
+\"$TERMSH\" cat \"$uri\" > \"$(\"$TERMSH\" name \"$uri\").new\"
+</code></p>
+</dd><br/>
+
+<dt><p><code>
+with-uris &lt;name&gt; &lt;arg0&gt; [&lt;args...&gt;] &lt;URIs&gt;
+</code></p></dt>
+<dd>
+<p><b>Warning:</b>
+这个命令可能在<b>Android&nbsp;&#x2265;&nbsp;10</b>上不起作用.</p>
+这个命令可用于
+<a href=\"info:/share_input\">内容分享，查看和编辑</a> 功能.
+它在指定<code>&lt;URI&gt;</code>的情况下运行，该命令由 <i>procfs fd</i> 条目表示
+<code>&lt;URIs&gt;</code> 是单个参数，由空格分隔
+URI的内容提供者（content provider） 必须能够为返回整个文件描述符
+<p>它会返回实际命令的退出值，在出现问题时会返回
+<code>127</code> 或者 <code>1</code>.</p>
+<p>效果与下列命令相同
+<p><code>execp(name, arg0, args..., \"/proc/PID/fd/FD_URI0 /proc/PID/fd/FD_URI1 ...\")</code></p></p>
+<p><a href=\"https://green-green-avk.github.io/AnotherTerm-docs/local-shell-utility.html#cmd_with-uris\"><b>More info</b></a></p>
+</dd><br/>
+
+<dt><p><code>
+name &lt;URI&gt;
+</code></p></dt>
+<dd>
+Get the name provided by content provider (or deduced from the URI)<footnote ref=\"1\" />.
+</dd><br/>
+
+<dt><p><code>
+size [--insecure] &lt;URI&gt;
+</code></p></dt>
+<dd>
+获取内容提供者（content provider）提供的大小或者HTTP头部的<code>content-length</code>
+(若参数缺省则会返回 <code>null</code>).
+</dd><br/>
+
+<dt><p><code>
+mime [--insecure] &lt;URI&gt;
+</code></p></dt>
+<dd>
+获取内容提供者（content provider）提供的mime-type或者HTTP头部的<code>content-type</code>
+(若参数缺省则会返回 <code>*/*</code>).
+</dd><br/>
+
+<dt><p><code>
+serial -l|--list<br/>
+serial [-a|--adapter &lt;address&gt;] [-i|--insecure] [&lt;baudrate&gt;[/&lt;databits&gt;[/&lt;stopbits&gt;[/&lt;parity&gt;[/&lt;flowcontrol&gt;]]]]]
+</code></p></dt>
+<dd>
+连接到 USB 适配器并使用<i>stdin</i> / <i>stdout</i>.
+<ul type=\"none\">
+<li><code>-a|--adapter</code> &#x2014; 使用由<code>&lt;address&gt;</code>;指定的USB适配器</li>
+<li><code>-i|--insecure</code> &#x2014; 不使用安全连接 (蓝牙);</li>
+<li><code>-l|--list</code> &#x2014; 在表单中列出可用的 UART 适配器，格式： <code>&lt;address&gt; &lt;description&gt;</code>.</li>
+</ul>
+<h5>可能会用上的值:</h5>
+<ul type=\"none\">
+<li>波特率: 一个正数 <code>0</code><footnote ref=\"3\" /></li>
+<li>数据位: <code>-</code><footnote ref=\"3\" />, <code>8</code>, <code>7</code>, <code>6</code>, <code>5</code></li>
+<li>停止位: <code>-</code><footnote ref=\"3\" />, <code>1</code>, <code>1.5</code>, <code>2</code></li>
+<li>奇偶校验: <code>-</code><footnote ref=\"3\" />, <code>none</code>, <code>even</code>, <code>odd</code>, <code>mark</code>, <code>space</code></li>
+<li>流控制: <code>-</code><footnote ref=\"3\" />, <code>off</code>, <code>xon_xoff</code>, <code>rts_cts</code>, <code>dsr_dtr</code></li>
+</ul>
+<p><footnote ref=\"3\" /> &#x2014; 保留当前值</p>
+<p><b>默认:</b> <code>0/-/-/-/-</code></p>
+<p><b>注意:</b> 此外, UART端口设置
+(<code>&lt;baudrate&gt;</code>, <code>&lt;databits&gt;</code>, <code>&lt;stopbits&gt;</code>,
+<code>&lt;parity&gt;</code>, <code>&lt;flowcontrol&gt;</code>)
+无法应用于使用 Android 蓝牙栈的蓝牙适配器.<br/>
+<a href=\"https://green-green-avk.github.io/AnotherTerm-docs/issues.html#bluetooth-uart-dongles-support\"><b>了解详情</b></a></p>
+</dd><br/>
+
+<dt><p><code>
+uri-encode &lt;string&gt; [&lt;allowed&gt;]
+</code></p></dt>
+<dd>对<code>&lt;string&gt;</code> 进行URL转义但不转义
+<code>&lt;allowed&gt;</code>中指定的内容.
+<p>如果参数<code>&lt;allowed&gt;</code>缺省,
+将会使用<code>java.net.URLEncode.encode(v, \"UTF8\")</code>.
+转义将根据<code>application/x-www-form-urlencoded</code> 的MIME格式进行.</p>
+<p>如果参数<code>&lt;allowed&gt;</code> 以及指定 (指定的内容为空也行，这并不算是指定了个寂寞),
+将会使用<code>android.net.Uri.encode()</code>.
+但<code>[A-Za-z0-9_!.~\\\'()*-]</code>始终不受影响.</p>
+</dd><br/>
+
+<dt><p><code>
+uri-decode &lt;string&gt;
+</code></p></dt>
+<dd>对<code>&lt;string&gt;</code>进行逆转义.</dd><br/>
+
+<dt><p><code>
+request-permission &lt;name&gt; &lt;message&gt;
+</code></p></dt>
+<dd>使用一个对话框征得用户意见.
+<ul type=\"none\">
+<li><code>&lt;name&gt;</code> &#x2014; 可以是:
+<a href=\"info:/shell_perm_favmgmt\"><code>favmgmt</code></a>,
+<a href=\"info:/shell_perm_pluginexec\"><code>pluginexec</code></a>,
+<a href=\"info:/shell_perm_clipboard-copy\"><code>clipboard-copy</code></a>.</li>
+<li><code>&lt;message&gt;</code> &#x2014; 用于展示的信息.</li>
+</ul>
+<p>Return codes:</p>
+<ul type=\"none\">
+<li><code>0</code> &#x2014; 用户同意;</li>
+<li><code>1</code> &#x2014; 出错;</li>
+<li><code>2</code> &#x2014; 用户拒绝;</li>
+<li><code>3</code> &#x2014; 已经授权.</li>
+</ul>
+</dd><br/>
+
+<dt><p><code>
+revoke-permission &lt;name&gt;
+</code></p></dt>
+<dd>除你权限.</dd><br/>
+
+<dt><p><code>
+has-favorite &lt;name&gt;
+</code></p></dt>
+<dd>返回 <code>0</code>值当一个命名为<code>&lt;name&gt;</code> 的收藏项已经存在,
+否则返回<code>2</code>.
+<p><em>调用此命令的shell必须具有管理收藏夹的权限
+否则会返回<code>1</code>值.</em></p></dd><br/>
+
+<dt><p><code>
+create-shell-favorite [-t|--term &lt;terminal_string&gt;] [--] &lt;name&gt; &lt;execute&gt;
+</code></p></dt>
+<dd>添加一个名字为<code>&lt;name&gt;</code>
+并且执行内容为<code>&lt;execute&gt;</code>脚本字符串的收藏项.
+当名称<code>&lt;name&gt;</code>已被使用时会返回错误码<code>2</code>.
+<p><em>调用此命令的shell必须具有管理收藏夹的权限
+否则会返回<code>1</code>值.</em></p></dd><br/>
+
+<dt><p><code>
+plugin [--] &lt;package_name&gt; [&lt;args&gt;...]<br/>
+plugin -h|--help [--] &lt;package_name&gt;
+</code></p></dt>
+<dd>运行由参数<code>&lt;package_name&gt;</code>指定的插件或者输出这个插件的信息页.
+<p><em>调用此命令的shell必须具有执行插件的权限
+否则会返回<code>1</code>值.</em></p></dd><br/>
+
+<dt><p><code>
+wakelock {is-held|acquire [&lt;timeout&gt;]|release}
+</code></p></dt>
+<dd><p><code>is-held</code> 返回值:
+<ul type=\"none\">
+<li><code>0</code> &#x2014; 唤醒锁开;</li>
+<li><code>2</code> &#x2014; 唤醒锁关.</li>
+</ul></p>
+<p><code>&lt;timeout&gt;</code> 是以秒为单位的十进制值
+精度为 1 毫秒.</p>
+</dd><br/>
+
+</dl>
+
+<h4>注意:</h4>
+<ul type=\"none\">
+<li><footnote ref=\"1\" /> &#x2014; 如果文件名推导失败
+则使用unnamed并返回退出代码2.</li>
+<li><footnote ref=\"2\" /> &#x2014; 便笺板列集限制适用.</li>
+</ul>
+
+<h4>相关的环境变量:</h4>
+<ul type=\"none\">
+<li><clipboard>TERMSH_UID</clipboard> &#x2014;
+此应用程序的真实 UID，用于欺骗检测.
+若仿真的UID不同
+这是使用<code>termsh</code>必须配置的项
+(比如说Chroot下的环境).</li>
+<li><clipboard>SHELL_SESSION_TOKEN</clipboard> &#x2014;
+当前会话token.
+由 <b>其他&nbsp;终端</b> 自行设置.
+访问当前会话属性及其连接的终端窗口时
+需要设置.</li>
+</ul>
+]]></string>
+</resources>
