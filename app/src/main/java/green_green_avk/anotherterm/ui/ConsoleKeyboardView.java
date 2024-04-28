@@ -732,7 +732,7 @@ public class ConsoleKeyboardView extends ExtKeyboardView implements
     }
 
     @Override
-    public void onText(final CharSequence text) {
+    public void onText(@NonNull final CharSequence text) {
         consoleOutput.feed(text.toString());
     }
 }

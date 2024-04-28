@@ -94,7 +94,7 @@ public abstract class ExtKeyboardView extends View /*implements View.OnClickList
          *
          * @param text the sequence of characters to be displayed.
          */
-        void onText(CharSequence text);
+        void onText(@NonNull CharSequence text);
     }
 
     /* To be overridden */
@@ -142,7 +142,7 @@ public abstract class ExtKeyboardView extends View /*implements View.OnClickList
     /**
      * The dirty region in the keyboard bitmap
      */
-    protected Rect mDirtyRect = new Rect();
+    protected final Rect mDirtyRect = new Rect();
     /**
      * The keyboard bitmap for faster updates
      */
@@ -352,8 +352,10 @@ public abstract class ExtKeyboardView extends View /*implements View.OnClickList
     }
 
     public void setLedsByCode(final int code, final boolean on) {
-        if (on) leds.add(code);
-        else leds.remove(code);
+        if (on)
+            leds.add(code);
+        else
+            leds.remove(code);
     }
 
     /**
@@ -396,19 +398,22 @@ public abstract class ExtKeyboardView extends View /*implements View.OnClickList
     private static ExtKeyboard.KeyFcn getKeyFcn(@NonNull final ExtKeyboard.Key key,
                                                 final int modifiers) {
         final ExtKeyboard.KeyFcn fcn = key.getModifierFunction(modifiers);
-        if (fcn == null) return key.getModifierFunction(0);
+        if (fcn == null)
+            return key.getModifierFunction(0);
         return fcn;
     }
 
     protected void sendKeyDown(@NonNull final ExtKeyboard.Key key, final int modifiers) {
-        if (mKeyboardActionListener == null) return;
+        if (mKeyboardActionListener == null)
+            return;
         final ExtKeyboard.KeyFcn fcn = getKeyFcn(key, modifiers);
         if (fcn != null && fcn.code != ExtKeyboard.KEYCODE_NONE)
             mKeyboardActionListener.onPress(fcn.code);
     }
 
     protected void sendKeyUp(@NonNull final ExtKeyboard.Key key, final int modifiers) {
-        if (mKeyboardActionListener == null) return;
+        if (mKeyboardActionListener == null)
+            return;
         final ExtKeyboard.KeyFcn fcn = getKeyFcn(key, modifiers);
         if (fcn != null) {
             if (fcn.code != ExtKeyboard.KEYCODE_NONE) {
@@ -480,7 +485,8 @@ public abstract class ExtKeyboardView extends View /*implements View.OnClickList
         public boolean isPressed(final ExtKeyboard.Key key) {
             for (int i = 0; i < map.size(); ++i) {
                 final KeyTouchState s = map.valueAt(i);
-                if (s.key == key && s.isPressed) return true;
+                if (s.key == key && s.isPressed)
+                    return true;
             }
             return false;
         }
@@ -489,8 +495,10 @@ public abstract class ExtKeyboardView extends View /*implements View.OnClickList
         public KeyTouchState getRepeatable() {
             for (int i = 0; i < map.size(); ++i) {
                 final KeyTouchState s = map.valueAt(i);
-                if (s.key == null) continue;
-                if (s.key.repeatable) return s;
+                if (s.key == null)
+                    continue;
+                if (s.key.repeatable)
+                    return s;
             }
             return null;
         }
@@ -697,7 +705,8 @@ public abstract class ExtKeyboardView extends View /*implements View.OnClickList
         canvas.clipRect(mDirtyRect);
         getBackground().draw(canvas);
 
-        if (mKeyboard == null) return;
+        if (mKeyboard == null)
+            return;
 
         for (final ExtKeyboard.Key key : mKeyboard.getKeys()) {
             final int left = getPaddingLeft() + key.x;
@@ -713,7 +722,8 @@ public abstract class ExtKeyboardView extends View /*implements View.OnClickList
 
     protected void onBufferDrawKey(final ExtKeyboard.Key key, final boolean pressed) {
         final Canvas canvas = mCanvas;
-        if (canvas == null) return;
+        if (canvas == null)
+            return;
         final Paint paint = mPaint;
         final Drawable background = key.type == ExtKeyboard.Key.LED ?
                 mLedBackground : mKeyBackground;
@@ -884,7 +894,8 @@ public abstract class ExtKeyboardView extends View /*implements View.OnClickList
         }
 
         protected final Runnable rShow = () -> {
-            if (keyState == null) return;
+            if (keyState == null)
+                return;
             ExtKeyboardView.this.getLocationInWindow(mWindowCoords);
             window.showAtLocation(ExtKeyboardView.this, Gravity.NO_GRAVITY,
                     (int) (mWindowCoords[0] + keyState.coords.x - window.getWidth() / 2),
