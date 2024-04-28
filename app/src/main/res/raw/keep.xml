@@ -1,3 +1,7 @@
-<?xml version="1.0" encoding="utf-8"?>
+<?xml version="1.0" encoding="utf-8"?><!--
+It seems, `@*Res int[] blah` is not counted as an array of resource references
+by AGP 8.3.2 shrinker's strict mode...
+-->
 <resources xmlns:tools="http://schemas.android.com/tools"
+    tools:keep="@string/label_sig*"
     tools:shrinkMode="strict" />
