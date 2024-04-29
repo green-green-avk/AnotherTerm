@@ -26,6 +26,10 @@
         android:icon="@drawable/ic_bluetooth"
         android:title="@string/action_bluetooth_permission" />
     <header
+        android:fragment="green_green_avk.anotherterm.OwnDocumentsSettingsFragment"
+        android:icon="@drawable/ic_own_files"
+        android:title="@string/title_own_documents_settings" />
+    <header
         android:fragment="green_green_avk.anotherterm.PluginsManagerFragment"
         android:icon="@drawable/ic_check"
         android:title="@string/action_settings_plugins" />
