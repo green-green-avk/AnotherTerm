@@ -37,6 +37,7 @@ import java.util.IllegalFormatException;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
 import java.util.WeakHashMap;
 import java.util.concurrent.atomic.AtomicLong;
@@ -284,9 +285,10 @@ public final class SshModule extends BackendModule {
     }
 
     static final class PortMapping {
+        String srcBindAddr = "localhost";
         int srcPort = 0;
+        String dstHost = "localhost";
         int dstPort = 0;
-        String host = "127.0.0.1";
 
         @Override
         public boolean equals(@Nullable final Object obj) {
@@ -295,17 +297,19 @@ public final class SshModule extends BackendModule {
             if (!(obj instanceof PortMapping))
                 return false;
             final PortMapping o = (PortMapping) obj;
-            return srcPort == o.srcPort && dstPort == o.dstPort && host.equals(o.host);
+            return srcPort == o.srcPort && dstPort == o.dstPort && dstHost.equals(o.dstHost)
+                    && srcBindAddr.equals(o.srcBindAddr);
         }
 
         @Override
         public int hashCode() {
-            return srcPort + dstPort + host.hashCode(); // no cache, not often accessible
+            // no cache, not often accessible
+            return Objects.hash(srcPort, dstPort, dstHost, srcBindAddr);
         }
     }
 
     private static final Pattern portMappingP =
-            Pattern.compile("^([0-9]+)(?:>([^:]*)(?::([0-9]+))?)?$");
+            Pattern.compile("^(?:([^:]*):)?([0-9]+)(?:>([^:]*)(?::([0-9]+))?)?$");
 
     private static void parsePortMappings(@NonNull final Set<PortMapping> set,
                                           @NonNull String unparsed) {
@@ -319,15 +323,24 @@ public final class SshModule extends BackendModule {
                     throw new NumberFormatException();
                 final PortMapping pm = new PortMapping();
                 String t = m.group(1);
-                pm.srcPort = Integer.parseInt(t);
+                if (t != null && !t.isEmpty())
+                    pm.srcBindAddr = t;
                 t = m.group(2);
-                if (t != null)
-                    pm.host = t;
+                pm.srcPort = Integer.parseInt(t);
+                if (pm.srcPort > 0xFFFF)
+                    throw new BackendException(String.format("Bad source port in `%s'", s));
                 t = m.group(3);
+                if (t != null && !t.isEmpty())
+                    pm.dstHost = t;
+                t = m.group(4);
+                if (t == null && pm.srcPort == 0)
+                    throw new BackendException(String.format("The destination port must be set explicitly if the source port is set to 0 (auto assignment) in `%s'", s));
                 pm.dstPort = (t != null) ? Integer.parseInt(t) : pm.srcPort;
+                if (pm.dstPort < 1 || pm.dstPort > 0xFFFF)
+                    throw new BackendException(String.format("Bad destination port in `%s'", s));
                 set.add(pm);
             } catch (final NumberFormatException e) {
-                throw new BackendException(String.format("Port value `%s' seems malformed", s));
+                throw new BackendException(String.format("Some port values in `%s' seems malformed", s));
             }
         }
     }
@@ -1001,9 +1014,9 @@ public final class SshModule extends BackendModule {
                     sshSessionSt.key = obtainSshSessionKey();
                     sshSessionSts.put(sshSessionSt.key, sshSessionSt);
                     for (final PortMapping pm : sshSessionSt.localPortMappings)
-                        s.setPortForwardingL(pm.srcPort, pm.host, pm.dstPort);
+                        s.setPortForwardingL(pm.srcBindAddr, pm.srcPort, pm.dstHost, pm.dstPort);
                     for (final PortMapping pm : sshSessionSt.remotePortMappings)
-                        s.setPortForwardingR(pm.srcPort, pm.host, pm.dstPort);
+                        s.setPortForwardingR(pm.srcBindAddr, pm.srcPort, pm.dstHost, pm.dstPort);
                 }
             }
             if (execute.isEmpty()) {

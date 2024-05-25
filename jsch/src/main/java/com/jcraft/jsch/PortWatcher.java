@@ -29,6 +29,8 @@ EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 package com.jcraft.jsch;
 
+import org.jetbrains.annotations.NotNull;
+
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.InetAddress;
@@ -36,8 +38,11 @@ import java.net.ServerSocket;
 import java.net.Socket;
 import java.net.UnknownHostException;
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Set;
 
 final class PortWatcher {
     private static final List<PortWatcher> pool = new ArrayList<>();
@@ -98,16 +103,20 @@ final class PortWatcher {
         }
     }
 
-    static String[] getPortForwarding(final Session session) {
-        final List<String> r = new ArrayList<>();
+    @NotNull
+    static Set<PortForwardingEntry> getPortForwarding(final Session session) {
+        final Set<PortForwardingEntry> r = new HashSet<>();
         synchronized (pool) {
             for (final PortWatcher p : pool) {
                 if (p.session == session) {
-                    r.add(p.lport + ":" + p.host + ":" + p.rport);
+                    r.add(new PortForwardingEntry(
+                            p.boundaddress.getHostAddress(), p.lport,
+                            p.host, p.rport
+                    ));
                 }
             }
         }
-        return r.toArray(new String[0]);
+        return Collections.unmodifiableSet(r);
     }
 
     static PortWatcher getPort(final Session session, final String address, final int lport)

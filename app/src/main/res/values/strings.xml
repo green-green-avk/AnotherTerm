@@ -99,7 +99,28 @@
     <string name="action_clone">Clone</string>
     <string name="action_terminate">Terminate</string>
     <string name="prompt_terminate_the_session">Terminate the session?</string>
-    <string name="hint_port_mapping"><![CDATA[src_port[>dst_host[:dst_port]][;…]]]></string>
+    <string name="hint_port_mapping"><![CDATA[[bind_addr:]src_port[>dst_host[:dst_port]][;…]]]></string>
+    <string name="desc_port_mapping_str"><![CDATA[
+<p><code>${hint_port_mapping}</code></p>
+<p><b>bind_addr</b>
+<br/>Special values:<ul>
+<li><code>*</code> &#x2014; all interfaces / IPV4&amp;6*</li>
+<li><code>localhost</code> &#x2014; loopback / IPV4&amp;6*</li>
+</ul><code>localhost</code> if omitted.</p>
+<p><b>src_port</b>
+<br/>Special values:<ul>
+<li>0 &#x2014; auto-assign (<i>dst_port</i> must be specified)</li>
+</ul></p>
+<p><b>dst_host</b>
+<br/><code>localhost</code> if omitted.</p>
+<p><b>dst_port</b>
+<br/><i>src_port</i> if omitted.</p>
+<p><b>Notes</b>
+<ul type=\"none\">
+<li>* &#x2014; It depends on the device <code>java.net.ServerSocket</code> implementation
+for the local port forwarding.</li>
+</ul></p>
+    ]]></string>
     <string name="label_charset">Charset</string>
     <string name="title_activity_favorite_editor">Favorite Editor</string>
     <string name="title_terminal_s_link_s">Terminal %2$s link `%1$s\'</string>

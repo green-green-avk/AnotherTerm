@@ -1,13 +1,19 @@
 package green_green_avk.anotherterm;
 
+import android.app.Activity;
+import android.content.ActivityNotFoundException;
 import android.content.ContentResolver;
+import android.content.Context;
+import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.content.res.Resources;
 import android.graphics.Typeface;
 import android.net.Uri;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.ViewGroup;
 
+import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.StringRes;
 import androidx.appcompat.app.AppCompatActivity;
@@ -19,6 +25,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 import green_green_avk.anotherterm.ui.HtmlTextView;
+import green_green_avk.anotherterm.ui.UiUtils;
 
 public final class InfoActivity extends AppCompatActivity {
 
@@ -42,6 +49,7 @@ public final class InfoActivity extends AppCompatActivity {
         res.put("/RTL_modes", new Source(R.string.desc_rtl_modes_help, Source.Type.XML));
         res.put("/keymap_escapes", new Source(R.string.desc_keymap_escapes, Source.Type.XML));
         res.put("/scratchpad", new Source(R.string.desc_scratchpad_help, Source.Type.XML));
+        res.put("/port_mapping_str", new Source(R.string.desc_port_mapping_str, Source.Type.XML));
         res.put("/share_input", new Source(R.string.desc_share_input_help, Source.Type.XML));
         res.put("/fav_token", new Source(R.string.desc_fav_token_help, Source.Type.XML));
         res.put("/shell_perm_favmgmt", new Source(R.string.desc_favorites_management, Source.Type.XML));
@@ -50,6 +58,43 @@ public final class InfoActivity extends AppCompatActivity {
         res.put("/shell_env_man", new Source(R.string.desc_shell_env_help, Source.Type.XML));
         res.put("/termsh_man", new Source(R.string.desc_termsh_help, Source.Type.XML));
         res.put("/help", new Source(R.string.desc_main_help, Source.Type.XML));
+    }
+
+    /**
+     * info:/[page] => info://[APP_ID]/[page]
+     *
+     * @param uri URI
+     * @return fixed URI
+     */
+    @NonNull
+    public static String fixInfoUri(@NonNull final String uri) {
+        if (uri.length() > 6 && uri.startsWith("info:/") && uri.charAt(6) != '/') {
+            return "info://" + BuildConfig.APPLICATION_ID + uri.substring(5);
+        }
+        return uri;
+    }
+
+    /**
+     * Shows an URI taking into account local info pages.
+     *
+     * @param ctx context
+     * @param url URI to show
+     */
+    public static void show(@NonNull final Context ctx, @NonNull final String url) {
+        final Uri uri = Uri.parse(fixInfoUri(url));
+        final Activity a;
+        try {
+            a = UiUtils.requireActivity(ctx);
+        } catch (final IllegalStateException e) {
+            Log.e("InfoActivity#show()", "No underlying activity found", e);
+            return;
+        }
+        final Intent i = new Intent(Intent.ACTION_VIEW, uri);
+        try {
+            a.startActivity(i);
+        } catch (final ActivityNotFoundException e) {
+            Log.w("InfoActivity#show()", "No activity found for intent, " + i, e);
+        }
     }
 
     @Override
