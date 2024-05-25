@@ -69,11 +69,11 @@
                         android:gravity="center_vertical"
                         android:orientation="horizontal">
 
-                        <ImageButton
+                        <green_green_avk.anotherterm.ui.InfoButton
                             style="@style/AppWidget.Editor.ImageButton.Horizontal"
                             android:contentDescription="@string/action_info"
-                            android:onClick="infoToken"
-                            app:srcCompat="@drawable/ic_help" />
+                            app:srcCompat="@drawable/ic_help"
+                            app:url="info:/fav_token" />
 
                         <ImageButton
                             style="@style/AppWidget.Editor.ImageButton.Horizontal"

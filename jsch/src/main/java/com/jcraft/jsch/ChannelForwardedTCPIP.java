@@ -29,10 +29,15 @@ EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 package com.jcraft.jsch;
 
+import org.jetbrains.annotations.NotNull;
+
 import java.io.PipedOutputStream;
 import java.net.Socket;
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 public final class ChannelForwardedTCPIP extends Channel {
 
@@ -189,19 +194,26 @@ public final class ChannelForwardedTCPIP extends Channel {
         }
     }
 
-    static String[] getPortForwarding(final Session session) {
-        final List<String> r = new ArrayList<>();
+    @NotNull
+    static Set<PortForwardingEntry> getPortForwarding(final Session session) {
+        final Set<PortForwardingEntry> r = new HashSet<>();
         synchronized (pool) {
             for (final Config config : pool) {
                 if (config.session == session) {
                     if (config instanceof ConfigDaemon)
-                        r.add(config.allocated_rport + ":" + config.target + ":");
+                        r.add(new PortForwardingEntry(
+                                config.address_to_bind, config.allocated_rport,
+                                config.target, -1
+                        ));
                     else
-                        r.add(config.allocated_rport + ":" + config.target + ":" + ((ConfigLHost) config).lport);
+                        r.add(new PortForwardingEntry(
+                                config.address_to_bind, config.allocated_rport,
+                                config.target, ((ConfigLHost) config).lport
+                        ));
                 }
             }
         }
-        return r.toArray(new String[0]);
+        return Collections.unmodifiableSet(r);
     }
 
     static String normalize(final String address) {

@@ -141,11 +141,11 @@
             android:tag="shareable"
             android:text="@string/label_fav_shareable" />
 
-        <ImageButton
+        <green_green_avk.anotherterm.ui.InfoButton
             style="@style/AppWidget.Editor.ImageButton.Horizontal"
             android:contentDescription="@string/action_info"
-            android:onClick="infoShareable"
-            app:srcCompat="@drawable/ic_help" />
+            app:srcCompat="@drawable/ic_help"
+            app:url="info:/share_input" />
 
     </LinearLayout>
 

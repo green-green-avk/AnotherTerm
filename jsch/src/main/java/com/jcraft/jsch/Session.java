@@ -31,6 +31,8 @@ package com.jcraft.jsch;
 
 import com.jcraft.jsch.jce.JSchAEADBadTagException;
 
+import org.jetbrains.annotations.NotNull;
+
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InterruptedIOException;
@@ -2186,9 +2188,10 @@ public final class Session implements Configuration {
     /**
      * Lists the registered local port forwarding.
      *
-     * @return a list of "lport:host:hostport"
+     * @return a set of {@link PortForwardingEntry}
      */
-    public String[] getPortForwardingL() throws JSchException {
+    @NotNull
+    public Set<PortForwardingEntry> getPortForwardingL() throws JSchException {
         return PortWatcher.getPortForwarding(this);
     }
 
@@ -2199,11 +2202,12 @@ public final class Session implements Configuration {
      * @param rport remote port
      * @param host  host address
      * @param lport local port
+     * @return an allocated TCP port on the remote
      * @see #setPortForwardingR(String bind_address, int rport, String host, int lport, SocketFactory sf)
      */
-    public void setPortForwardingR(final int rport, final String host, final int lport)
+    public int setPortForwardingR(final int rport, final String host, final int lport)
             throws JSchException {
-        setPortForwardingR(null, rport, host, lport, null);
+        return setPortForwardingR(null, rport, host, lport, null);
     }
 
     /**
@@ -2219,12 +2223,13 @@ public final class Session implements Configuration {
      * @param rport        remote port
      * @param host         host address
      * @param lport        local port
+     * @return an allocated TCP port on the remote
      * @see #setPortForwardingR(String bind_address, int rport, String host, int lport, SocketFactory sf)
      */
-    public void setPortForwardingR(final String bind_address, final int rport,
-                                   final String host, final int lport)
+    public int setPortForwardingR(final String bind_address, final int rport,
+                                  final String host, final int lport)
             throws JSchException {
-        setPortForwardingR(bind_address, rport, host, lport, null);
+        return setPortForwardingR(bind_address, rport, host, lport, null);
     }
 
     /**
@@ -2235,12 +2240,13 @@ public final class Session implements Configuration {
      * @param host  host address
      * @param lport local port
      * @param sf    socket factory
+     * @return an allocated TCP port on the remote
      * @see #setPortForwardingR(String bind_address, int rport, String host, int lport, SocketFactory sf)
      */
-    public void setPortForwardingR(final int rport, final String host, final int lport,
-                                   final SocketFactory sf)
+    public int setPortForwardingR(final int rport, final String host, final int lport,
+                                  final SocketFactory sf)
             throws JSchException {
-        setPortForwardingR(null, rport, host, lport, sf);
+        return setPortForwardingR(null, rport, host, lport, sf);
     }
 
     // TODO: This method should return the integer value as the assigned port.
@@ -2260,14 +2266,16 @@ public final class Session implements Configuration {
      * @param host         host address
      * @param lport        local port
      * @param sf           socket factory
+     * @return an allocated TCP port on the remote
      */
-    public void setPortForwardingR(final String bind_address, final int rport,
-                                   final String host, final int lport,
-                                   final SocketFactory sf)
+    public int setPortForwardingR(final String bind_address, final int rport,
+                                  final String host, final int lport,
+                                  final SocketFactory sf)
             throws JSchException {
         final int allocated = _setPortForwardingR(bind_address, rport);
         ChannelForwardedTCPIP.addPort(this, bind_address,
                 rport, allocated, host, lport, sf);
+        return allocated;
     }
 
     /**
@@ -2280,10 +2288,11 @@ public final class Session implements Configuration {
      *
      * @param rport  remote port
      * @param daemon class name, which implements "ForwardedTCPIPDaemon"
+     * @return an allocated TCP port on the remote
      * @see #setPortForwardingR(String bind_address, int rport, String daemon, Object[] arg)
      */
-    public void setPortForwardingR(final int rport, final String daemon) throws JSchException {
-        setPortForwardingR(null, rport, daemon, null);
+    public int setPortForwardingR(final int rport, final String daemon) throws JSchException {
+        return setPortForwardingR(null, rport, daemon, null);
     }
 
     /**
@@ -2297,11 +2306,12 @@ public final class Session implements Configuration {
      * @param rport  remote port
      * @param daemon class name, which implements "ForwardedTCPIPDaemon"
      * @param arg    arguments for "daemon"
+     * @return an allocated TCP port on the remote
      * @see #setPortForwardingR(String bind_address, int rport, String daemon, Object[] arg)
      */
-    public void setPortForwardingR(final int rport, final String daemon, final Object[] arg)
+    public int setPortForwardingR(final int rport, final String daemon, final Object[] arg)
             throws JSchException {
-        setPortForwardingR(null, rport, daemon, arg);
+        return setPortForwardingR(null, rport, daemon, arg);
     }
 
     /**
@@ -2321,23 +2331,25 @@ public final class Session implements Configuration {
      * @param rport        remote port
      * @param daemon       class name, which implements "ForwardedTCPIPDaemon"
      * @param arg          arguments for "daemon"
-     * @see #setPortForwardingR(String bind_address, int rport, String daemon, Object[] arg)
+     * @return an allocated TCP port on the remote
      */
-    public void setPortForwardingR(final String bind_address, final int rport,
-                                   final String daemon, final Object[] arg)
+    public int setPortForwardingR(final String bind_address, final int rport,
+                                  final String daemon, final Object[] arg)
     // TODO: class name is stupid: class reference must be used instead
             throws JSchException {
         final int allocated = _setPortForwardingR(bind_address, rport);
         ChannelForwardedTCPIP.addPort(this, bind_address,
                 rport, allocated, daemon, arg);
+        return allocated;
     }
 
     /**
      * Lists the registered remote port forwarding.
      *
-     * @return a list of "rport:host:hostport"
+     * @return a set of {@link PortForwardingEntry}
      */
-    public String[] getPortForwardingR() throws JSchException {
+    @NotNull
+    public Set<PortForwardingEntry> getPortForwardingR() throws JSchException {
         return ChannelForwardedTCPIP.getPortForwarding(this);
     }
 
@@ -2427,7 +2439,7 @@ public final class Session implements Configuration {
      * the TCP port will be allocated on the remote.
      *
      * @param conf configuration of remote port forwarding
-     * @return an allocated TCP port on the remote.
+     * @return an allocated TCP port on the remote
      * @see #setPortForwardingR(String bind_address, int rport, String host, int rport)
      */
     public int setPortForwardingR(final String conf) throws JSchException {
@@ -2528,7 +2540,7 @@ public final class Session implements Configuration {
             }
             grr.setThread(null);
             if (reply != 1) {
-                throw new JSchException("remote port forwarding failed for listen port " + rport);
+                throw new JSchException("Remote port forwarding failed to listen port " + rport);
             }
             rport = grr.getPort();
         }

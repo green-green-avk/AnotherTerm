@@ -40,6 +40,21 @@
         tools:ignore="HardcodedText" />
 
     <EditText
+        android:id="@+id/bind_addr"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:hint="127.0.0.1"
+        android:importantForAutofill="no"
+        android:inputType="text|textNoSuggestions"
+        tools:ignore="HardcodedText" />
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text=":"
+        tools:ignore="HardcodedText" />
+
+    <EditText
         android:id="@+id/src_port"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"

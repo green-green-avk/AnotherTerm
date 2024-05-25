@@ -29,6 +29,7 @@ import java.util.LinkedList;
 import java.util.regex.Pattern;
 
 import green_green_avk.anotherterm.BuildConfig;
+import green_green_avk.anotherterm.InfoActivity;
 import green_green_avk.anotherterm.R;
 import green_green_avk.anotherterm.ui.BackgroundImageSpan;
 import green_green_avk.anotherterm.ui.ButtonSpan;
@@ -132,14 +133,6 @@ public final class XmlToSpanned {
             else output.append(v, 1, v.length());
         }
 
-        @NonNull
-        private String fixInfoUri(@NonNull final String uri) {
-            if (uri.length() > 6 && uri.startsWith("info:/") && uri.charAt(6) != '/') {
-                return "info://" + BuildConfig.APPLICATION_ID + uri.substring(5);
-            }
-            return uri;
-        }
-
         private int getResourceId(@Nullable final String name, @Nullable final String defaultType) {
             if (name == null)
                 return 0;
@@ -157,7 +150,7 @@ public final class XmlToSpanned {
                     if (href == null)
                         startSpan(new URLSpan(""), output.length());
                     else
-                        startSpan(new URLSpan(fixInfoUri(href)), output.length());
+                        startSpan(new URLSpan(InfoActivity.fixInfoUri(href)), output.length());
                     break;
                 }
                 case "footnote": {

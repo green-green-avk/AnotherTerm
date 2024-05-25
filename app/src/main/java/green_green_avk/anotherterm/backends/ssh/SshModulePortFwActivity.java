@@ -18,14 +18,14 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.jcraft.jsch.JSchErrorException;
 import com.jcraft.jsch.JSchException;
+import com.jcraft.jsch.PortForwardingEntry;
 import com.jcraft.jsch.Session;
 
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
+import java.util.Set;
 
 import green_green_avk.anotherterm.R;
 import green_green_avk.anotherterm.ui.DialogUtils;
@@ -41,7 +41,7 @@ public final class SshModulePortFwActivity extends AppCompatActivity {
     private static final int LOCAL = 0;
     private static final int REMOTE = 1;
 
-    private static final String DEFAULT_HOST = "127.0.0.1";
+    private static final String DEFAULT_HOST = "localhost";
 
     private long sshSessionKey = -1;
 
@@ -53,30 +53,21 @@ public final class SshModulePortFwActivity extends AppCompatActivity {
     private String x11Host = "";
     private int x11Port = 0;
 
-    private static void parsePortMappings(@NonNull final List<SshModule.PortMapping> r,
-                                          @NonNull final String[] v) {
-        for (final String ve : v) {
+    private static void parsePortMappings(@NonNull final List<? super SshModule.PortMapping> r,
+                                          @NonNull final Set<PortForwardingEntry> v) {
+        for (final PortForwardingEntry ve : v) {
             final SshModule.PortMapping re = new SshModule.PortMapping();
             parsePortMapping(re, ve);
             r.add(re);
         }
     }
 
-    private static final Pattern portMappingP_jsch =
-            Pattern.compile("^([0-9]+):(.*):([0-9]+)$");
-
     private static void parsePortMapping(@NonNull final SshModule.PortMapping r,
-                                         @NonNull final String v) {
-        final Matcher m = portMappingP_jsch.matcher(v);
-        try {
-            if (!m.matches())
-                throw new NumberFormatException("Bad port forwarding entry: " + v);
-            r.srcPort = Integer.parseInt(m.group(1));
-            r.host = m.group(2);
-            r.dstPort = Integer.parseInt(m.group(3));
-        } catch (final NumberFormatException e) {
-            throw new Error("Malformed port forwarding info has been returned by jsch", e);
-        }
+                                         @NonNull final PortForwardingEntry v) {
+        r.srcBindAddr = v.src.host.isEmpty() ? "*" : v.src.host;
+        r.srcPort = v.src.port;
+        r.dstHost = v.dst.host;
+        r.dstPort = v.dst.port;
     }
 
     private static void makeReadonly(@NonNull final EditText view) {
@@ -112,16 +103,19 @@ public final class SshModulePortFwActivity extends AppCompatActivity {
         @Override
         public void onBindViewHolder(@NonNull final ViewHolder holder,
                                      final int position) {
+            final EditText wBindAddr = holder.itemView.findViewById(R.id.bind_addr);
             final EditText wSrcPort = holder.itemView.findViewById(R.id.src_port);
             final EditText wHost = holder.itemView.findViewById(R.id.host);
             final EditText wDstPort = holder.itemView.findViewById(R.id.dst_port);
+            makeReadonly(wBindAddr);
             makeReadonly(wSrcPort);
             makeReadonly(wHost);
             makeReadonly(wDstPort);
             final SshModule.PortMapping elt = position < locals.size() ?
                     locals.get(position) : remotes.get(position - locals.size());
+            wBindAddr.setText(elt.srcBindAddr);
             wSrcPort.setText(Integer.toString(elt.srcPort));
-            wHost.setText(elt.host);
+            wHost.setText(elt.dstHost);
             wDstPort.setText(Integer.toString(elt.dstPort));
             holder.itemView.setOnCreateContextMenuListener((menu, v, menuInfo) -> {
                 getMenuInflater().inflate(R.menu.menu_portfw, menu);
@@ -135,11 +129,11 @@ public final class SshModulePortFwActivity extends AppCompatActivity {
                         if (session == null) return true;
                         try {
                             if (position < locals.size())
-                                session.delPortForwardingL(elt.srcPort);
+                                session.delPortForwardingL(elt.srcBindAddr, elt.srcPort);
                             else
                                 Misc.runAsyncWeak(() -> {
                                     try {
-                                        session.delPortForwardingR(elt.srcPort);
+                                        session.delPortForwardingR(elt.srcBindAddr, elt.srcPort);
                                         return null;
                                     } catch (final Exception e) {
                                         return e;
@@ -163,7 +157,8 @@ public final class SshModulePortFwActivity extends AppCompatActivity {
     }
 
     private final Comparator<SshModule.PortMapping> listSortOrder =
-            (o1, o2) -> Integer.compare(o1.srcPort, o2.srcPort);
+            (o1, o2) -> Integer.signum(o1.srcBindAddr.compareTo(o2.srcBindAddr)) * 2
+                    + Integer.signum(Integer.compare(o1.srcPort, o2.srcPort));
 
     private void loadLists() {
         final SshModule.SshSessionSt sshSessionSt = SshModule.sshSessionSts.get(sshSessionKey);
@@ -291,6 +286,7 @@ public final class SshModulePortFwActivity extends AppCompatActivity {
         final SubmitFormValidator inputValidator = new SubmitFormValidator();
         final View root = LayoutInflater.from(this).inflate(type == LOCAL ?
                 R.layout.portfwl_entry : R.layout.portfwr_entry, null);
+        final EditText wBindAddr = root.findViewById(R.id.bind_addr);
         final EditText wSrcPort = root.findViewById(R.id.src_port);
         final EditText wHost = root.findViewById(R.id.host);
         final EditText wDstPort = root.findViewById(R.id.dst_port);
@@ -309,6 +305,7 @@ public final class SshModulePortFwActivity extends AppCompatActivity {
                 return getString(R.string.msg_port_cannot_be_empty);
             }
         };
+        wBindAddr.setHint(DEFAULT_HOST);
         wHost.setHint(DEFAULT_HOST);
         final AlertDialog d = new AlertDialog.Builder(this).setView(root)
                 .setPositiveButton(android.R.string.ok, (dialog, which) -> {
@@ -320,6 +317,10 @@ public final class SshModulePortFwActivity extends AppCompatActivity {
                         final Session session = sshSessionSt.session;
                         if (session == null) return;
                         try {
+                            final String _bindAddr = wBindAddr.getText().toString();
+                            final String bindAddr;
+                            if (_bindAddr.isEmpty()) bindAddr = DEFAULT_HOST;
+                            else bindAddr = _bindAddr;
                             final int srcPort = bSrcPort.get();
                             final String _host = wHost.getText().toString();
                             final String host;
@@ -327,18 +328,18 @@ public final class SshModulePortFwActivity extends AppCompatActivity {
                             else host = _host;
                             final int dstPort = bDstPort.get();
                             if (type == LOCAL)
-                                session.setPortForwardingL(srcPort, host, dstPort);
+                                session.setPortForwardingL(bindAddr, srcPort, host, dstPort);
                             else
                                 Misc.runAsyncWeak(() -> {
                                     try {
-                                        session.setPortForwardingR(srcPort, host, dstPort);
+                                        session.setPortForwardingR(bindAddr, srcPort, host, dstPort);
                                         return null;
                                     } catch (final Exception e) {
                                         return e;
                                     }
                                 }, onUpdate);
                         } catch (final JSchException | JSchErrorException |
-                                ViewValueBinderException e) {
+                                       ViewValueBinderException e) {
                             res = e;
                         }
                     }
