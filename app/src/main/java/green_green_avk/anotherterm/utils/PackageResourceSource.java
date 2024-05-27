@@ -22,12 +22,19 @@ public abstract class PackageResourceSource<T> extends DynamicResourceSource<T> 
         public final int resourceId;
         @Nullable
         public final ApplicationInfo applicationInfo;
+        /**
+         * A stable name if provided or {@code null}.
+         */
+        @Nullable
+        public final String resourceName;
 
         public Key(@NonNull final String packageName, final int resourceId,
-                   @Nullable final ApplicationInfo applicationInfo) {
+                   @Nullable final ApplicationInfo applicationInfo,
+                   @Nullable final String resourceName) {
             this.packageName = packageName;
             this.resourceId = resourceId;
             this.applicationInfo = applicationInfo;
+            this.resourceName = resourceName;
         }
 
         @Override
@@ -36,18 +43,26 @@ public abstract class PackageResourceSource<T> extends DynamicResourceSource<T> 
                 return true;
             if (!(o instanceof Key))
                 return false;
-            final Key key = (Key) o;
-            return resourceId == key.resourceId && packageName.equals(key.packageName);
+            final Key that = (Key) o;
+            if ((resourceName == null) != (that.resourceName == null))
+                return false;
+            if (resourceName != null)
+                return resourceName.equals(that.resourceName) && packageName.equals(that.packageName);
+            return resourceId == that.resourceId && packageName.equals(that.packageName);
         }
 
         @Override
         public int hashCode() {
+            if (resourceName != null)
+                return Objects.hash(packageName, resourceName);
             return Objects.hash(packageName, resourceId);
         }
 
         @Override
         @NonNull
         public String toString() {
+            if (resourceName != null)
+                return packageName + "/name:" + resourceName;
             return packageName + '/' + resourceId;
         }
     }
