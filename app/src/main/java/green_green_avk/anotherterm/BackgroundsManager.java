@@ -92,6 +92,9 @@ public final class BackgroundsManager extends ProfileManager<BackgroundProfile> 
             builder.append('X').setSpan(new InlineImageSpan(icon),
                     0, builder.length(), Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
             builder.append(' ').append(label);
+            if (((PackageResourceSource.Key) key).resourceName != null) {
+                builder.append(": ").append(((PackageResourceSource.Key) key).resourceName);
+            }
             title = builder;
         } else {
             title = key.toString();
@@ -133,20 +136,30 @@ public final class BackgroundsManager extends ProfileManager<BackgroundProfile> 
                         } catch (final PackageManager.NameNotFoundException e) {
                             continue;
                         }
+                        final int extrasNamesId = pkg.activityInfo.applicationInfo.metaData
+                                .getInt("background-extras-names",
+                                        ResourcesCompat.ID_NULL);
                         final TypedArray extras = resources.obtainTypedArray(extrasId);
+                        final TypedArray extrasNames = extrasNamesId != ResourcesCompat.ID_NULL ?
+                                resources.obtainTypedArray(extrasNamesId) : null;
                         try {
                             for (int i = 0; i < extras.length(); i++) {
                                 final int id = extras.getResourceId(i,
                                         ResourcesCompat.ID_NULL);
                                 if (id == ResourcesCompat.ID_NULL)
                                     continue;
+                                final String name = (extrasNames != null && extrasNames.length() > i) ?
+                                        extrasNames.getString(i) : null;
                                 r.add(new PackageResourceSource.Key(
                                         pkg.activityInfo.packageName,
                                         id,
-                                        pkg.activityInfo.applicationInfo
+                                        pkg.activityInfo.applicationInfo,
+                                        name
                                 ));
                             }
                         } finally {
+                            if (extrasNames != null)
+                                extrasNames.recycle();
                             extras.recycle();
                         }
                     }
