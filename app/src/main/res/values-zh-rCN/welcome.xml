@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+<string name="desc_welcome"><![CDATA[
+        <h1>提示</h1>
+        <ul>
+        <li>先创建一些配置文件 &#x2014;
+        <btn onclick=\"onNewFav\"><img inline=\"true\" useTextColor=\"true\" src=\"@drawable/ic_bar_add\" /></btn></li>
+        <li>Long tap matters.</li>
+        <li>使用音量按键 (如果没映射)
+        更改终端窗口的字体大小.</li>
+        <li>其他问题详见
+        <a href=\"https://green-green-avk.github.io/AnotherTerm-docs/\">官网</a>.</li>
+        </ul>
+    ]]></string>
+</resources>
